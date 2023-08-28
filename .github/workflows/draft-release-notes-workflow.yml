@@ -3,10 +3,11 @@ name: Release Drafter
 on:
   push:
     branches:
-      - main
+      - 2.x
 
 jobs:
   update_release_draft:
+    if: github.repository == 'opensearch-project/opensearch-ai-flow-dashboards'
     name: Update draft release notes
     runs-on: ubuntu-latest
     steps:
