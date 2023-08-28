@@ -1,11 +1,8 @@
-## My Project
+## OpenSearch AI Flow Dashboards Plugin
 
-TODO: Fill this README out!
+This plugin provides a simple UI for building AI applications with OpenSearch.
 
-Be sure to:
-
-* Change the title in this README
-* Edit your repository description on GitHub
+TODO: add details
 
 ## Security
 
@@ -14,4 +11,3 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 ## License
 
 This project is licensed under the Apache-2.0 License.
-
