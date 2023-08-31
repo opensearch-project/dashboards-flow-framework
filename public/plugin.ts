@@ -12,7 +12,6 @@ import {
 import {
   AiFlowDashboardsPluginSetup,
   AiFlowDashboardsPluginStart,
-  AppPluginStartDependencies,
 } from './types';
 import { PLUGIN_ID } from '../common';
 
@@ -32,12 +31,8 @@ export class AiFlowDashboardsPlugin
       order: 5000,
       async mount(params: AppMountParameters) {
         const { renderApp } = await import('./application');
-        const [coreStart, depsStart] = await core.getStartServices();
-        return renderApp(
-          coreStart,
-          depsStart as AppPluginStartDependencies,
-          params
-        );
+        const [coreStart] = await core.getStartServices();
+        return renderApp(coreStart, params);
       },
     });
     return {};

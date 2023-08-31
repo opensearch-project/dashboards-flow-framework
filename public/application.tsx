@@ -5,23 +5,25 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { HashRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { AppMountParameters, CoreStart } from '../../../src/core/public';
-import { AppPluginStartDependencies } from './types';
 import { AiFlowDashboardsApp } from './components/app';
+import { CoreServicesContext } from './core_services';
 
 export const renderApp = (
-  { notifications, http }: CoreStart,
-  { navigation }: AppPluginStartDependencies,
+  coreStart: CoreStart,
   { appBasePath, element }: AppMountParameters
 ) => {
   ReactDOM.render(
-    <AiFlowDashboardsApp
-      basename={appBasePath}
-      notifications={notifications}
-      http={http}
-      navigation={navigation}
-    />,
+    <Router basename={appBasePath + '#/'}>
+      <Route
+        render={(props) => (
+          <CoreServicesContext.Provider value={coreStart}>
+            <AiFlowDashboardsApp {...props} />
+          </CoreServicesContext.Provider>
+        )}
+      ></Route>
+    </Router>,
     element
   );
 
