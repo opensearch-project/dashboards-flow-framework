@@ -30,7 +30,7 @@ export class AiFlowDashboardsPlugin
       // TODO: can i remove this below order
       order: 5000,
       async mount(params: AppMountParameters) {
-        const { renderApp } = await import('./application');
+        const { renderApp } = await import('./render_app');
         const [coreStart] = await core.getStartServices();
         return renderApp(coreStart, params);
       },

@@ -7,7 +7,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { AppMountParameters, CoreStart } from '../../../src/core/public';
-import { AiFlowDashboardsApp } from './components/app';
+import { AiFlowDashboardsApp } from './app';
 import { CoreServicesContext } from './core_services';
 
 export const renderApp = (

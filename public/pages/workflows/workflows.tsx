@@ -9,18 +9,18 @@ import { CoreServicesContext } from '../../core_services';
 import { CoreStart } from '../../../../../src/core/public';
 import { BREADCRUMBS } from '../../utils';
 
-export function UseCases() {
+export function Workflows() {
   const core = React.useContext(CoreServicesContext) as CoreStart;
   useEffect(() => {
     core.chrome.setBreadcrumbs([
       BREADCRUMBS.AI_APPLICATION_BUILDER,
-      BREADCRUMBS.USE_CASES,
+      BREADCRUMBS.WORKFLOWS,
     ]);
   });
 
   return (
     <EuiPageHeader>
-      <EuiText>Use cases page placeholder...</EuiText>
+      <EuiText>Workflows page placeholder...</EuiText>
     </EuiPageHeader>
   );
 }
