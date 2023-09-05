@@ -11,6 +11,7 @@ env:
 jobs:
   run-lint:
     name: Run lint script
+    runs-on: ubuntu-latest
     if: github.repository == 'opensearch-project/opensearch-ai-flow-dashboards'
     steps:
       - name: Checkout OpenSearch Dashboards
