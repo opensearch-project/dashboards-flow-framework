@@ -25,6 +25,7 @@ export class AiFlowDashboardsPlugin
       category: {
         id: 'opensearch',
         label: 'OpenSearch plugins',
+        // TODO: this may change after plugin position is finalized
         order: 2000,
       },
       // TODO: can i remove this below order
