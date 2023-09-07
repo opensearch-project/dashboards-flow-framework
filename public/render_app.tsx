@@ -22,7 +22,7 @@ export const renderApp = (
             <AiFlowDashboardsApp {...props} />
           </CoreServicesContext.Provider>
         )}
-      ></Route>
+      />
     </Router>,
     element
   );
