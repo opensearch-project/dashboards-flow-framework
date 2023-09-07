@@ -12,6 +12,7 @@ import { Navigation, APP_PATH } from './utils';
 import { Overview, UseCases, Workflows } from './pages';
 import { CoreServicesConsumer } from './core_services';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends RouteComponentProps {}
 
 export const AiFlowDashboardsApp = (props: Props) => {
@@ -58,16 +59,16 @@ export const AiFlowDashboardsApp = (props: Props) => {
                 <Switch>
                   <Route
                     path={APP_PATH.USE_CASES}
-                    render={(props: RouteComponentProps) => <UseCases />}
+                    render={(routeProps: RouteComponentProps) => <UseCases />}
                   />
                   <Route
                     path={APP_PATH.WORKFLOWS}
-                    render={(props: RouteComponentProps) => <Workflows />}
+                    render={(routeProps: RouteComponentProps) => <Workflows />}
                   />
                   {/* Defaulting to Overview page */}
                   <Route
                     path={`${APP_PATH.HOME}`}
-                    render={(props: RouteComponentProps) => <Overview />}
+                    render={(routeProps: RouteComponentProps) => <Overview />}
                   />
                 </Switch>
               </EuiPageTemplate>
