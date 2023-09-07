@@ -1,11 +1,5 @@
 name: Linting workflow
-on:
-  push:
-    branches:
-      - "*"
-  pull_request:
-    branches:
-      - "*"
+on: [push, pull_request]
 env:
   OPENSEARCH_DASHBOARDS_VERSION: 'main'
 jobs:
