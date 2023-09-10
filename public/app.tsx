@@ -4,13 +4,10 @@
  */
 
 import React from 'react';
-import { I18nProvider } from '@osd/i18n/react';
 import { Route, RouteComponentProps, Switch } from 'react-router-dom';
 import { EuiPageSideBar, EuiSideNav, EuiPageTemplate } from '@elastic/eui';
-import { CoreStart } from '../../../src/core/public';
 import { Navigation, APP_PATH } from './utils';
 import { Overview, UseCases, Workflows } from './pages';
-import { CoreServicesConsumer } from './core_services';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends RouteComponentProps {}
@@ -46,36 +43,26 @@ export const AiFlowDashboardsApp = (props: Props) => {
 
   // Render the application DOM.
   return (
-    <CoreServicesConsumer>
-      {(core: CoreStart | null) =>
-        core && (
-          <I18nProvider>
-            <>
-              <EuiPageTemplate
-                template="empty"
-                pageContentProps={{ paddingSize: 'm' }}
-                pageSideBar={sidebar}
-              >
-                <Switch>
-                  <Route
-                    path={APP_PATH.USE_CASES}
-                    render={(routeProps: RouteComponentProps) => <UseCases />}
-                  />
-                  <Route
-                    path={APP_PATH.WORKFLOWS}
-                    render={(routeProps: RouteComponentProps) => <Workflows />}
-                  />
-                  {/* Defaulting to Overview page */}
-                  <Route
-                    path={`${APP_PATH.HOME}`}
-                    render={(routeProps: RouteComponentProps) => <Overview />}
-                  />
-                </Switch>
-              </EuiPageTemplate>
-            </>
-          </I18nProvider>
-        )
-      }
-    </CoreServicesConsumer>
+    <EuiPageTemplate
+      template="empty"
+      pageContentProps={{ paddingSize: 'm' }}
+      pageSideBar={sidebar}
+    >
+      <Switch>
+        <Route
+          path={APP_PATH.USE_CASES}
+          render={(routeProps: RouteComponentProps) => <UseCases />}
+        />
+        <Route
+          path={APP_PATH.WORKFLOWS}
+          render={(routeProps: RouteComponentProps) => <Workflows />}
+        />
+        {/* Defaulting to Overview page */}
+        <Route
+          path={`${APP_PATH.HOME}`}
+          render={(routeProps: RouteComponentProps) => <Overview />}
+        />
+      </Switch>
+    </EuiPageTemplate>
   );
 };
