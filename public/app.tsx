@@ -7,7 +7,7 @@ import React from 'react';
 import { Route, RouteComponentProps, Switch } from 'react-router-dom';
 import { EuiPageSideBar, EuiSideNav, EuiPageTemplate } from '@elastic/eui';
 import { Navigation, APP_PATH } from './utils';
-import { Overview, UseCases, Workflows } from './pages';
+import { Overview, UseCases, Workflows, WorkflowBuilder } from './pages';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends RouteComponentProps {}
@@ -34,6 +34,13 @@ export const AiFlowDashboardsApp = (props: Props) => {
                 href: `#${APP_PATH.WORKFLOWS}`,
                 isSelected: props.location.pathname === APP_PATH.WORKFLOWS,
               },
+              {
+                name: Navigation.WorkflowBuilder,
+                id: 3,
+                href: `#${APP_PATH.WORKFLOW_BUILDER}`,
+                isSelected:
+                  props.location.pathname === APP_PATH.WORKFLOW_BUILDER,
+              },
             ],
           },
         ]}
@@ -56,6 +63,10 @@ export const AiFlowDashboardsApp = (props: Props) => {
         <Route
           path={APP_PATH.WORKFLOWS}
           render={(routeProps: RouteComponentProps) => <Workflows />}
+        />
+        <Route
+          path={APP_PATH.WORKFLOW_BUILDER}
+          render={(routeProps: RouteComponentProps) => <WorkflowBuilder />}
         />
         {/* Defaulting to Overview page */}
         <Route
