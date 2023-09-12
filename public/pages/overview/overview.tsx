@@ -5,14 +5,12 @@
 
 import React, { useEffect } from 'react';
 import { EuiPageHeader, EuiText } from '@elastic/eui';
-import { CoreServicesContext } from '../../core_services';
-import { CoreStart } from '../../../../../src/core/public';
 import { BREADCRUMBS } from '../../utils';
+import { getCore } from '../../services';
 
 export function Overview() {
-  const core = React.useContext(CoreServicesContext) as CoreStart;
   useEffect(() => {
-    core.chrome.setBreadcrumbs([BREADCRUMBS.AI_APPLICATION_BUILDER]);
+    getCore().chrome.setBreadcrumbs([BREADCRUMBS.AI_APPLICATION_BUILDER]);
   });
 
   return (

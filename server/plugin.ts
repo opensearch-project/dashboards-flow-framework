@@ -15,7 +15,7 @@ import {
   AiFlowDashboardsPluginSetup,
   AiFlowDashboardsPluginStart,
 } from './types';
-import { defineRoutes } from './routes';
+import { registerOpenSearchRoutes } from './routes';
 
 export class AiFlowDashboardsPlugin
   implements Plugin<AiFlowDashboardsPluginSetup, AiFlowDashboardsPluginStart> {
@@ -30,7 +30,7 @@ export class AiFlowDashboardsPlugin
     const router = core.http.createRouter();
 
     // Register server side APIs
-    defineRoutes(router);
+    registerOpenSearchRoutes(router);
 
     return {};
   }

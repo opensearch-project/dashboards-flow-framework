@@ -16,5 +16,3 @@ export {
   AiFlowDashboardsPluginSetup,
   AiFlowDashboardsPluginStart,
 } from './types';
-
-export * from './core_services';
