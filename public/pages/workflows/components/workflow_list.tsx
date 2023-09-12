@@ -3,10 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { EuiBasicTable } from '@elastic/eui';
-import { BREADCRUMBS } from '../../../utils';
-import { getCore } from '../../../services';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface WorkflowListProps {}
@@ -17,13 +15,6 @@ interface WorkflowItem {
 }
 
 export function WorkflowList(props: WorkflowListProps) {
-  useEffect(() => {
-    getCore().chrome.setBreadcrumbs([
-      BREADCRUMBS.AI_APPLICATION_BUILDER,
-      BREADCRUMBS.WORKFLOWS,
-    ]);
-  });
-
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(5);
   const [sortField, setSortField] = useState('name');

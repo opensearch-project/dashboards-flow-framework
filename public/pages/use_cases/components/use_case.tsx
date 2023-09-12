@@ -13,22 +13,12 @@ import {
   EuiHorizontalRule,
   EuiButton,
 } from '@elastic/eui';
-import { BREADCRUMBS } from '../../../utils';
-import { getCore } from '../../../services';
-
 interface UseCaseProps {
   title: string;
   description: string;
 }
 
 export function UseCase(props: UseCaseProps) {
-  useEffect(() => {
-    getCore().chrome.setBreadcrumbs([
-      BREADCRUMBS.AI_APPLICATION_BUILDER,
-      BREADCRUMBS.USE_CASES,
-    ]);
-  });
-
   return (
     <EuiCard
       title={

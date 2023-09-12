@@ -20,7 +20,7 @@ export function UseCases() {
   useEffect(() => {
     getCore().chrome.setBreadcrumbs([
       BREADCRUMBS.AI_APPLICATION_BUILDER,
-      BREADCRUMBS.WORKFLOWS,
+      BREADCRUMBS.USE_CASES,
     ]);
   });
 

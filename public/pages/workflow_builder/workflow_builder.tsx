@@ -19,7 +19,7 @@ export function WorkflowBuilder() {
   useEffect(() => {
     getCore().chrome.setBreadcrumbs([
       BREADCRUMBS.AI_APPLICATION_BUILDER,
-      BREADCRUMBS.WORKFLOWS,
+      BREADCRUMBS.WORKFLOW_BUILDER,
     ]);
   });
 

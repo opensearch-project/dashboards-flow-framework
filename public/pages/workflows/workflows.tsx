@@ -21,7 +21,7 @@ export function Workflows() {
       BREADCRUMBS.AI_APPLICATION_BUILDER,
       BREADCRUMBS.WORKFLOWS,
     ]);
-  }, []);
+  });
 
   return (
     <div>
