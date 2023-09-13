@@ -1,7 +1,7 @@
 {
   "id": "aiFlowDashboards",
-  "version": "3.0.0.0",
-  "opensearchDashboardsVersion": "3.0.0",
+  "version": "2.10.0.0",
+  "opensearchDashboardsVersion": "2.10.0",
   "server": true,
   "ui": true,
   "requiredBundles": ["opensearchDashboardsUtils"],
