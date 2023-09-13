@@ -1,10 +1,10 @@
 {
   "name": "ai-flow-dashboards",
-  "version": "3.0.0.0",
+  "version": "2.10.0.0",
   "description": "OpenSearch AI Flow Dashboards Plugin",
   "main": "index.js",
   "config": {
-    "plugin_version": "3.0.0.0",
+    "plugin_version": "2.10.0.0",
     "plugin_name": "aiFlowDashboards",
     "plugin_zip_name": "ai-flow-dashboards"
   },
