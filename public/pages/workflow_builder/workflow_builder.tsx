@@ -6,20 +6,20 @@
 import React, { useEffect } from 'react';
 import {
   EuiPageHeader,
-  EuiTitle,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiTitle,
+  EuiText,
   EuiSpacer,
 } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
-import { WorkflowList } from './components';
 
-export function Workflows() {
+export function WorkflowBuilder() {
   useEffect(() => {
     getCore().chrome.setBreadcrumbs([
       BREADCRUMBS.AI_APPLICATION_BUILDER,
-      BREADCRUMBS.WORKFLOWS,
+      BREADCRUMBS.WORKFLOW_BUILDER,
     ]);
   });
 
@@ -29,17 +29,15 @@ export function Workflows() {
         <EuiFlexGroup justifyContent="spaceBetween">
           <EuiFlexItem grow={false}>
             <EuiTitle size="l">
-              <h1>Workflows</h1>
+              <h1>Workflow Builder</h1>
             </EuiTitle>
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiPageHeader>
-      <EuiSpacer size="m" />
-      <EuiFlexGroup>
-        <EuiFlexItem>
-          <WorkflowList />
-        </EuiFlexItem>
-      </EuiFlexGroup>
+      <EuiSpacer size="l" />
+      <EuiFlexItem>
+        <EuiText>Placeholder for workflow builder page...</EuiText>
+      </EuiFlexItem>
     </div>
   );
 }
