@@ -28,3 +28,8 @@ export const BREADCRUMBS = Object.freeze({
     href: `#${APP_PATH.WORKFLOW_BUILDER}`,
   },
 });
+
+export enum COMPONENT_CATEGORY {
+  INGEST_PROCESSORS = 'Ingest Processors',
+  INDICES = 'Indices',
+}

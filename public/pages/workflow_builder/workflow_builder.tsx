@@ -10,12 +10,17 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiTitle,
-  EuiText,
   EuiSpacer,
 } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 // import { AppState, removeDirty, setComponents } from '../../store';
+import {
+  TextEmbeddingProcessor,
+  IComponent,
+  KnnIndex,
+} from '../../component_types';
+import { WorkflowComponent } from './workflow_component';
 
 export function WorkflowBuilder() {
   // TODO: below commented out lines can be used for fetching & setting global redux state
@@ -31,6 +36,12 @@ export function WorkflowBuilder() {
     ]);
   });
 
+  // TODO: Should be fetched from global state. Using some defaults for testing purposes
+  const curComponents = [
+    new TextEmbeddingProcessor(),
+    new KnnIndex(),
+  ] as IComponent[];
+
   return (
     <div>
       <EuiPageHeader>
@@ -43,9 +54,15 @@ export function WorkflowBuilder() {
         </EuiFlexGroup>
       </EuiPageHeader>
       <EuiSpacer size="l" />
-      <EuiFlexItem>
-        <EuiText>Workspace</EuiText>
-      </EuiFlexItem>
+      <EuiFlexGroup direction="row">
+        {curComponents.map((component, idx) => {
+          return (
+            <EuiFlexItem key={idx}>
+              <WorkflowComponent component={component} />
+            </EuiFlexItem>
+          );
+        })}
+      </EuiFlexGroup>
     </div>
   );
 }
