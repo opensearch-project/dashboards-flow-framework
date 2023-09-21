@@ -12,3 +12,10 @@ export interface IIndex {
   name: string;
   health: 'green' | 'yellow' | 'red';
 }
+
+// TODO: this will grow as more fields are defined and what frontend reqts there will be
+export interface Workflow {
+  name: string;
+  id: string;
+  description: string;
+}
