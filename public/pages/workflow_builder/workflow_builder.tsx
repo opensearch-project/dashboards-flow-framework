@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
+// import { useSelector, useDispatch } from 'react-redux';
 import {
   EuiPageHeader,
   EuiFlexGroup,
@@ -14,8 +15,15 @@ import {
 } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
+// import { AppState, removeDirty, setComponents } from '../../store';
 
 export function WorkflowBuilder() {
+  // TODO: below commented out lines can be used for fetching & setting global redux state
+  // const dispatch = useDispatch();
+  // const { isDirty, components } = useSelector(
+  //   (state: AppState) => state.workspace
+  // );
+
   useEffect(() => {
     getCore().chrome.setBreadcrumbs([
       BREADCRUMBS.AI_APPLICATION_BUILDER,
@@ -36,7 +44,7 @@ export function WorkflowBuilder() {
       </EuiPageHeader>
       <EuiSpacer size="l" />
       <EuiFlexItem>
-        <EuiText>Placeholder for workflow builder page...</EuiText>
+        <EuiText>Workspace</EuiText>
       </EuiFlexItem>
     </div>
   );
