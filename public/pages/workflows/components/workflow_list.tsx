@@ -7,7 +7,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { EuiInMemoryTable, Direction } from '@elastic/eui';
 import { AppState } from '../../../store';
-import { Workflow } from '../../../../common';
+import { IWorkflow } from '../../../../common';
 import { columns } from './columns';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -24,7 +24,7 @@ export function WorkflowList(props: WorkflowListProps) {
   };
 
   return (
-    <EuiInMemoryTable<Workflow>
+    <EuiInMemoryTable<IWorkflow>
       items={workflows}
       rowHeader="name"
       columns={columns}

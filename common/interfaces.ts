@@ -14,7 +14,7 @@ export interface IIndex {
 }
 
 // TODO: this will grow as more fields are defined and what frontend reqts there will be
-export interface Workflow {
+export interface IWorkflow {
   name: string;
   id: string;
   description: string;

@@ -4,7 +4,7 @@
  */
 
 import { createSlice } from '@reduxjs/toolkit';
-import { Workflow } from '../../../common';
+import { IWorkflow } from '../../../common';
 
 const initialState = {
   // TODO: fetch from server-side later
@@ -19,7 +19,7 @@ const initialState = {
       id: 'workflow-2-id',
       description: 'description for workflow 2',
     },
-  ] as Workflow[],
+  ] as IWorkflow[],
   loading: false,
 };
 
