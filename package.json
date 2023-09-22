@@ -29,7 +29,9 @@
       "git add"
     ]
   },
-  "dependencies": {},
+  "dependencies": {
+    "reactflow": "^11.8.3"
+  },
   "devDependencies": {
     "pre-commit": "^1.2.2"
   },
