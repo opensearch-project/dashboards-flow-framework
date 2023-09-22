@@ -29,11 +29,7 @@ export const fetchIndices = createAsyncThunk(
 const opensearchSlice = createSlice({
   name: OPENSEARCH_PREFIX,
   initialState,
-  reducers: {
-    setIndices(state, action) {
-      state.indices = action.payload;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchIndices.pending, (state, action) => {
@@ -55,4 +51,3 @@ const opensearchSlice = createSlice({
 });
 
 export const opensearchReducer = opensearchSlice.reducer;
-export const { setIndices } = opensearchSlice.actions;
