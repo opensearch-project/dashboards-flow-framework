@@ -4,3 +4,4 @@
  */
 
 export * from './workspace_reducer';
+export * from './opensearch_reducer';
