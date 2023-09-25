@@ -4,10 +4,14 @@
  */
 
 import { createSlice } from '@reduxjs/toolkit';
+import { IComponent } from '../../../common';
+import { KnnIndex, TextEmbeddingProcessor } from '../../component_types';
 
 const initialState = {
   isDirty: false,
-  components: [],
+  // TODO: fetch from server-size if it is a created workflow, else have some default
+  // mapping somewhere (e.g., 'semantic search': text_embedding_processor, knn_index, etc.)
+  components: [new TextEmbeddingProcessor(), new KnnIndex()] as IComponent[],
 };
 
 const workspaceSlice = createSlice({
