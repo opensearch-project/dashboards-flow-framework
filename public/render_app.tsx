@@ -9,7 +9,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { AppMountParameters, CoreStart } from '../../../src/core/public';
 import { AiFlowDashboardsApp } from './app';
-import { store } from './store';
+import { store, ReactFlowContextProvider } from './store';
 
 export const renderApp = (
   coreStart: CoreStart,
@@ -17,9 +17,11 @@ export const renderApp = (
 ) => {
   ReactDOM.render(
     <Provider store={store}>
-      <Router basename={appBasePath + '#/'}>
-        <Route render={(props) => <AiFlowDashboardsApp {...props} />} />
-      </Router>
+      <ReactFlowContextProvider>
+        <Router basename={appBasePath + '#/'}>
+          <Route render={(props) => <AiFlowDashboardsApp {...props} />} />
+        </Router>
+      </ReactFlowContextProvider>
     </Provider>,
     element
   );

@@ -3,6 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './store';
-export * from './reducers';
-export * from './context';
+export * from './workspace';
