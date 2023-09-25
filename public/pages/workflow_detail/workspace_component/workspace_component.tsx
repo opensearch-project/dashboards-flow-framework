@@ -11,10 +11,11 @@ import {
   EuiSpacer,
   EuiCard,
 } from '@elastic/eui';
-import { IComponent } from '../../component_types';
-import { InputFieldList, NewOrExistingTabs } from './components';
+import { IComponent } from '../../../component_types';
+import { InputFieldList } from './input_field_list';
+import { NewOrExistingTabs } from './new_or_existing_tabs';
 
-interface WorkflowComponentProps {
+interface WorkspaceComponentProps {
   component: IComponent;
 }
 
@@ -24,7 +25,7 @@ interface WorkflowComponentProps {
  * Similar to Flowise's CanvasNode - see
  * https://github.com/FlowiseAI/Flowise/blob/main/packages/ui/src/views/canvas/CanvasNode.js
  */
-export function WorkflowComponent(props: WorkflowComponentProps) {
+export function WorkspaceComponent(props: WorkspaceComponentProps) {
   const { component } = props;
 
   const [selectedTabId, setSelectedTabId] = useState<string>('existing');
