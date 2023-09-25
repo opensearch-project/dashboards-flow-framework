@@ -14,11 +14,11 @@ import ReactFlow, {
 import { useSelector } from 'react-redux';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 import { AppState, rfContext } from '../../../store';
+import { convertToReactFlowData } from '../../../../common';
 
 // styling
 import 'reactflow/dist/style.css';
 import './reactflow-styles.scss';
-import { convertToReactFlowData } from '../../../../common';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface WorkspaceProps {}
