@@ -40,7 +40,7 @@ export function UseCase(props: UseCaseProps) {
               disabled={false}
               isLoading={false}
               onClick={() => {
-                // TODO: possibly link to the workflow builder with a pre-configured flow
+                // TODO: possibly link to the workflow details with a pre-configured flow
               }}
             >
               Go
