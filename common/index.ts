@@ -5,4 +5,5 @@
 
 export * from './constants';
 export * from './interfaces';
+export * from './helpers';
 export { IComponent } from '../public/component_types';

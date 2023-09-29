@@ -7,11 +7,17 @@ import { createSlice } from '@reduxjs/toolkit';
 import { IComponent } from '../../../common';
 import { KnnIndex, TextEmbeddingProcessor } from '../../component_types';
 
+// TODO: should be fetched from server-side. This will be the list of all
+// available components that the framework offers. This will be used in the component
+// library to populate the available components to drag-and-drop into the workspace.
+const dummyComponents = [
+  new TextEmbeddingProcessor(),
+  new KnnIndex(),
+] as IComponent[];
+
 const initialState = {
   isDirty: false,
-  // TODO: fetch from server-size if it is a created workflow, else have some default
-  // mapping somewhere (e.g., 'semantic search': text_embedding_processor, knn_index, etc.)
-  components: [new TextEmbeddingProcessor(), new KnnIndex()] as IComponent[],
+  components: dummyComponents,
 };
 
 const workspaceSlice = createSlice({
