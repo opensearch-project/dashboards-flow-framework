@@ -21,7 +21,7 @@ interface WorkspaceComponentProps {
 
 /**
  * TODO: This will be the ReactFlow node in the drag-and-drop workspace. It will take in the data passed
- * to it from the canvas and render it appropriately (inputs / params / outputs / etc.)
+ * to it from the workspace and render it appropriately (inputs / params / outputs / etc.)
  * Similar to Flowise's CanvasNode - see
  * https://github.com/FlowiseAI/Flowise/blob/main/packages/ui/src/views/canvas/CanvasNode.js
  */
