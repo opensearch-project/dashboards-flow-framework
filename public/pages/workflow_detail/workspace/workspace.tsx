@@ -86,8 +86,6 @@ export function Workspace(props: WorkspaceProps) {
         },
       };
 
-      // TODO: add logic to add node into the redux datastore
-
       setNodes((nds) => nds.concat(newNode));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

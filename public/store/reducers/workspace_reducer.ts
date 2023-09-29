@@ -7,7 +7,9 @@ import { createSlice } from '@reduxjs/toolkit';
 import { IComponent } from '../../../common';
 import { KnnIndex, TextEmbeddingProcessor } from '../../component_types';
 
-// TODO: should be fetched from server-side
+// TODO: should be fetched from server-side. This will be the list of all
+// available components that the framework offers. This will be used in the component
+// library to populate the available components to drag-and-drop into the workspace.
 const dummyComponents = [
   new TextEmbeddingProcessor(),
   new KnnIndex(),
