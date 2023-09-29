@@ -17,7 +17,6 @@ export interface WorkflowDetailRouterProps {
   workflowId: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface WorkflowDetailProps
   extends RouteComponentProps<WorkflowDetailRouterProps> {}
 
@@ -41,7 +40,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     <div>
       <WorkflowDetailHeader workflow={workflow} />
       <EuiSpacer size="l" />
-      <Workspace />
+      <Workspace workflow={workflow} />
     </div>
   );
 }

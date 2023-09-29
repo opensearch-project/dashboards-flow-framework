@@ -5,10 +5,10 @@
 
 import React from 'react';
 import { EuiPageHeader, EuiButton } from '@elastic/eui';
-import { IWorkflow } from '../../../../common';
+import { Workflow } from '../../../../common';
 
 interface WorkflowDetailHeaderProps {
-  workflow: IWorkflow | undefined;
+  workflow: Workflow | undefined;
 }
 
 export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {

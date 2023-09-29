@@ -11,7 +11,7 @@ import {
   IComponentOutput,
   UIFlow,
   BaseClass,
-} from '../base_interfaces';
+} from '../interfaces';
 
 /**
  * A k-NN index UI component
