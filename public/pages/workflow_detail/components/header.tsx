@@ -8,7 +8,7 @@ import { EuiPageHeader, EuiButton } from '@elastic/eui';
 import { Workflow } from '../../../../common';
 
 interface WorkflowDetailHeaderProps {
-  workflow: Workflow | undefined;
+  workflow?: Workflow;
 }
 
 export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
