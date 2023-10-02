@@ -15,6 +15,7 @@ import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 import { rfContext } from '../../../store';
 import { Workflow } from '../../../../common';
 import { getCore } from '../../../services';
+import { WorkspaceComponent } from '../workspace_component';
 
 // styling
 import 'reactflow/dist/style.css';
@@ -23,6 +24,9 @@ import './reactflow-styles.scss';
 interface WorkspaceProps {
   workflow?: Workflow;
 }
+
+const nodeTypes = { customComponent: WorkspaceComponent };
+// TODO: probably have custom edge types here too
 
 export function Workspace(props: WorkspaceProps) {
   const reactFlowWrapper = useRef(null);
@@ -125,6 +129,7 @@ export function Workspace(props: WorkspaceProps) {
               <ReactFlow
                 nodes={nodes}
                 edges={edges}
+                nodeTypes={nodeTypes}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
@@ -143,21 +148,3 @@ export function Workspace(props: WorkspaceProps) {
     </EuiFlexItem>
   );
 }
-
-// TODO: remove later, leaving for reference
-
-// export function Workspace() {
-//   const { components } = useSelector((state: AppState) => state.workspace);
-
-//   return (
-//     <EuiFlexGroup direction="row">
-//       {components.map((component, idx) => {
-//         return (
-//           <EuiFlexItem key={idx}>
-//             <WorkspaceComponent component={component} />
-//           </EuiFlexItem>
-//         );
-//       })}
-//     </EuiFlexGroup>
-//   );
-// }

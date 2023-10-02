@@ -4,35 +4,27 @@
  */
 
 import { createSlice } from '@reduxjs/toolkit';
-import { Workflow, ReactFlowComponent, ReactFlowEdge } from '../../../common';
+import {
+  Workflow,
+  ReactFlowComponent,
+  ReactFlowEdge,
+  KnnIndex,
+  TextEmbeddingProcessor,
+} from '../../../common';
 
 // TODO: remove after fetching from server-side
 const dummyNodes = [
   {
-    id: 'semantic-search',
-    position: { x: 40, y: 10 },
-    data: { label: 'Semantic Search' },
-    type: 'group',
-    style: {
-      height: 110,
-      width: 700,
-    },
+    id: 'text-embedding-processor',
+    position: { x: 0, y: 500 },
+    data: new TextEmbeddingProcessor(),
+    type: 'customComponent',
   },
   {
-    id: 'model',
-    position: { x: 25, y: 25 },
-    data: { label: 'Deployed Model ID' },
-    type: 'default',
-    parentNode: 'semantic-search',
-    extent: 'parent',
-  },
-  {
-    id: 'ingest-pipeline',
-    position: { x: 262, y: 25 },
-    data: { label: 'Ingest Pipeline Name' },
-    type: 'default',
-    parentNode: 'semantic-search',
-    extent: 'parent',
+    id: 'knn-index',
+    position: { x: 500, y: 500 },
+    data: new KnnIndex(),
+    type: 'customComponent',
   },
 ] as ReactFlowComponent[];
 

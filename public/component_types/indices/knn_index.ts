@@ -80,8 +80,4 @@ export class KnnIndex implements IComponent {
       },
     ];
   }
-
-  async init(): Promise<any> {
-    return new KnnIndex();
-  }
 }
