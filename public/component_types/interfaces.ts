@@ -81,6 +81,4 @@ export interface IComponent {
   // the user needs to fill out
   createFields?: IComponentField[];
   outputs?: IComponentOutput[];
-  // we will need some init function when the component is drug into the workspace
-  init?(): Promise<any>;
 }

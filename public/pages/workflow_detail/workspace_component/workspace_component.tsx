@@ -16,17 +16,16 @@ import { InputFieldList } from './input_field_list';
 import { NewOrExistingTabs } from './new_or_existing_tabs';
 
 interface WorkspaceComponentProps {
-  component: IComponent;
+  data: IComponent;
 }
 
 /**
- * TODO: This will be the ReactFlow node in the drag-and-drop workspace. It will take in the data passed
- * to it from the workspace and render it appropriately (inputs / params / outputs / etc.)
- * Similar to Flowise's CanvasNode - see
- * https://github.com/FlowiseAI/Flowise/blob/main/packages/ui/src/views/canvas/CanvasNode.js
+ * The React component in the drag-and-drop workspace. It will take in the component data passed
+ * to it from the workspace and render it appropriately (inputs / params / outputs / etc.).
+ * As users interact with it (input data, add connections), the stored IComponent data will update.
  */
 export function WorkspaceComponent(props: WorkspaceComponentProps) {
-  const { component } = props;
+  const component = props.data;
 
   const [selectedTabId, setSelectedTabId] = useState<string>('existing');
 

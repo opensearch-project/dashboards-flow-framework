@@ -70,8 +70,4 @@ export class TextEmbeddingProcessor implements IComponent {
       },
     ];
   }
-
-  async init(): Promise<any> {
-    return new TextEmbeddingProcessor();
-  }
 }
