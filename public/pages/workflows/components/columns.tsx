@@ -5,14 +5,14 @@
 
 import React from 'react';
 import { EuiLink } from '@elastic/eui';
-import { PLUGIN_ID, IWorkflow } from '../../../../common';
+import { PLUGIN_ID, Workflow } from '../../../../common';
 
 export const columns = [
   {
     field: 'name',
     name: 'Name',
     sortable: true,
-    render: (name: string, workflow: IWorkflow) => (
+    render: (name: string, workflow: Workflow) => (
       <EuiLink href={`${PLUGIN_ID}#/workflows/${workflow.id}`}>{name}</EuiLink>
     ),
   },

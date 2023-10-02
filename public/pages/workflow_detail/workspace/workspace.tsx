@@ -11,31 +11,25 @@ import ReactFlow, {
   useEdgesState,
   addEdge,
 } from 'reactflow';
-import { useSelector } from 'react-redux';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
-import { AppState, rfContext } from '../../../store';
-import { convertToReactFlowData } from '../../../../common';
+import { rfContext } from '../../../store';
+import { Workflow } from '../../../../common';
+import { getCore } from '../../../services';
 
 // styling
 import 'reactflow/dist/style.css';
 import './reactflow-styles.scss';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface WorkspaceProps {}
+interface WorkspaceProps {
+  workflow?: Workflow;
+}
 
 export function Workspace(props: WorkspaceProps) {
   const reactFlowWrapper = useRef(null);
   const { reactFlowInstance, setReactFlowInstance } = useContext(rfContext);
 
-  // Fetching workspace state to populate the initial nodes/edges.
-  // Where/how the low-level ReactFlow JSON will be persisted is TBD.
-  // TODO: update when that design is finalized
-  const storedComponents = useSelector(
-    (state: AppState) => state.workspace.components
-  );
-  const { rfNodes, rfEdges } = convertToReactFlowData(storedComponents);
-  const [nodes, setNodes, onNodesChange] = useNodesState(rfNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(rfEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const onConnect = useCallback(
     (params) => {
@@ -88,16 +82,24 @@ export function Workspace(props: WorkspaceProps) {
 
       setNodes((nds) => nds.concat(newNode));
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [reactFlowInstance]
   );
 
-  // Initialization hook
+  // Initialization. Set the nodes and edges to an existing workflow,
+  // if applicable.
   useEffect(() => {
-    // TODO: fetch the nodes/edges dynamically (loading existing flow,
-    // creating fresh from template, creating blank template, etc.)
-    // Will involve populating and/or fetching from redux store
-  }, []);
+    const workflow = props.workflow;
+    if (workflow) {
+      if (workflow.reactFlowState) {
+        setNodes(workflow.reactFlowState.nodes);
+        setEdges(workflow.reactFlowState.edges);
+      } else {
+        getCore().notifications.toasts.addWarning(
+          `There is no configured UI flow for workflow: ${workflow.name}`
+        );
+      }
+    }
+  }, [props.workflow]);
 
   return (
     <EuiFlexItem grow={true}>

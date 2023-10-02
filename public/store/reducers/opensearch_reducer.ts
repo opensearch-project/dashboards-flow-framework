@@ -5,12 +5,12 @@
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { getRouteService } from '../../services';
-import { IIndex } from '../../../common';
+import { Index } from '../../../common';
 
 const initialState = {
   loading: false,
   errorMessage: '',
-  indices: {} as { [key: string]: IIndex },
+  indices: {} as { [key: string]: Index },
 };
 
 const OPENSEARCH_PREFIX = 'opensearch';
@@ -36,8 +36,8 @@ const opensearchSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchIndices.fulfilled, (state, action) => {
-        const indicesMap = new Map<string, IIndex>();
-        action.payload.forEach((index: IIndex) => {
+        const indicesMap = new Map<string, Index>();
+        action.payload.forEach((index: Index) => {
           indicesMap.set(index.name, index);
         });
         state.indices = Object.fromEntries(indicesMap.entries());
