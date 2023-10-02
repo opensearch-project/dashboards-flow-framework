@@ -15,7 +15,6 @@ import {
   WorkflowDetailRouterProps,
 } from './pages';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends RouteComponentProps {}
 
 export const AiFlowDashboardsApp = (props: Props) => {

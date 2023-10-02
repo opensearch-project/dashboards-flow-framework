@@ -9,7 +9,7 @@ import {
   IRouter,
   IOpenSearchDashboardsResponse,
 } from '../../../../src/core/server';
-import { SEARCH_INDICES_PATH, FETCH_INDICES_PATH, IIndex } from '../../common';
+import { SEARCH_INDICES_PATH, FETCH_INDICES_PATH, Index } from '../../common';
 import { generateCustomError } from './helpers';
 
 export function registerOpenSearchRoutes(router: IRouter): void {
@@ -61,11 +61,11 @@ export function registerOpenSearchRoutes(router: IRouter): void {
           h: 'health,index',
         });
 
-        // re-formatting the index results to match IIndex
+        // re-formatting the index results to match Index
         const cleanedIndices = response.body.map((index) => ({
           name: index.index,
           health: index.health,
-        })) as IIndex[];
+        })) as Index[];
 
         return res.ok({ body: cleanedIndices });
       } catch (err: any) {
