@@ -11,7 +11,7 @@ import {
   IComponentOutput,
   UIFlow,
   BaseClass,
-} from '../base_interfaces';
+} from '../interfaces';
 
 /**
  * A text embedding processor UI component
