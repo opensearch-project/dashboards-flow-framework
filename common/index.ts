@@ -5,4 +5,4 @@
 
 export * from './constants';
 export * from './interfaces';
-export { IComponent } from '../public/component_types';
+export * from '../public/component_types';
