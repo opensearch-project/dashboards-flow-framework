@@ -44,7 +44,15 @@ export class KnnIndex implements IComponent {
     // that will be referenced/used as input across multiple flows
     this.allowedFlows = ['Ingest', 'Query', 'Other'];
     this.baseClasses = [this.type];
-    this.inputs = [];
+    this.inputs = [
+      {
+        id: 'text-embedding-processor',
+        label: 'Text embedding processor',
+        baseClass: 'text_embedding_processor',
+        optional: false,
+        acceptMultiple: false,
+      },
+    ];
     this.fields = [
       {
         label: 'Index Name',

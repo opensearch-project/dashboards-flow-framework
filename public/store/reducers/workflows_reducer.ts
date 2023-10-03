@@ -21,29 +21,18 @@ const dummyNodes = [
     type: 'customComponent',
   },
   {
+    id: 'text-embedding-processor-2',
+    position: { x: 0, y: 200 },
+    data: new TextEmbeddingProcessor(),
+    type: 'customComponent',
+  },
+  {
     id: 'knn-index',
     position: { x: 500, y: 500 },
     data: new KnnIndex(),
     type: 'customComponent',
   },
 ] as ReactFlowComponent[];
-
-const dummyEdges = [
-  {
-    id: 'e1-2',
-    source: 'model',
-    target: 'ingest-pipeline',
-    style: {
-      strokeWidth: 2,
-      stroke: 'black',
-    },
-    markerEnd: {
-      type: 'arrow',
-      strokeWidth: 1,
-      color: 'black',
-    },
-  },
-] as ReactFlowEdge[];
 
 const initialState = {
   // TODO: fetch from server-side later
@@ -54,7 +43,7 @@ const initialState = {
       description: 'description for workflow 1',
       reactFlowState: {
         nodes: dummyNodes,
-        edges: dummyEdges,
+        edges: [] as ReactFlowEdge[],
       },
       template: {},
     },
@@ -64,7 +53,7 @@ const initialState = {
       description: 'description for workflow 2',
       reactFlowState: {
         nodes: dummyNodes,
-        edges: dummyEdges,
+        edges: [] as ReactFlowEdge[],
       },
       template: {},
     },
