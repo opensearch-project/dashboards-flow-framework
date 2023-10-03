@@ -34,6 +34,7 @@ export function OutputHandle(props: OutputHandleProps) {
           id={outputClasses}
           position={Position.Right}
           isValidConnection={(connection: Connection) =>
+            // @ts-ignore
             isValidConnection(connection, reactFlowInstance)
           }
           style={{

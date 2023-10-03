@@ -22,6 +22,9 @@ export function calculateHandlePosition(ref: any): number {
   }
 }
 
+// Validates that connections can only be made when the source and target classes align, and
+// that multiple connections to the same target handle are not allowed unless the input configuration
+// for that particular component allows for it.
 export function isValidConnection(
   connection: Connection,
   rfInstance: ReactFlowInstance
@@ -29,7 +32,6 @@ export function isValidConnection(
   const sourceHandle = connection.sourceHandle;
   const targetHandle = connection.targetHandle;
   const targetNodeId = connection.target;
-
   const inputClass = sourceHandle || '';
   // We store the output classes in a pipe-delimited string. Converting back to a list.
   const outputClasses = targetHandle?.split('|') || [];
@@ -37,13 +39,9 @@ export function isValidConnection(
   if (outputClasses?.includes(inputClass)) {
     const targetNode = rfInstance.getNode(targetNodeId || '');
     if (targetNode) {
-      // We pull out the relevant IComponentInput config, and check if it allows multiple connections.
-      // We also check the existing edges in the ReactFlow state.
-      // If there is an existing edge, and we don't allow multiple, we don't allow this connection.
-      // For all other scenarios, we allow the connection.
       const inputConfig = targetNode.data.inputs.find(
         (input: IComponentInput) => input.baseClass === inputClass
-      );
+      ) as IComponentInput;
       const existingEdge = rfInstance
         .getEdges()
         .find((edge) => edge.targetHandle === targetHandle);

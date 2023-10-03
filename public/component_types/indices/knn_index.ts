@@ -3,37 +3,34 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { COMPONENT_CATEGORY } from '../../utils';
+import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../../utils';
 import {
   IComponent,
   IComponentField,
   IComponentInput,
   IComponentOutput,
   UIFlow,
-  BaseClass,
 } from '../interfaces';
 
 /**
  * A k-NN index UI component
  */
 export class KnnIndex implements IComponent {
-  id: string;
-  type: BaseClass;
+  type: COMPONENT_CLASS;
   label: string;
   description: string;
   category: COMPONENT_CATEGORY;
   allowsCreation: boolean;
   isApplicationStep: boolean;
   allowedFlows: UIFlow[];
-  baseClasses: BaseClass[];
+  baseClasses: COMPONENT_CLASS[];
   inputs: IComponentInput[];
   fields: IComponentField[];
   createFields: IComponentField[];
   outputs: IComponentOutput[];
 
   constructor() {
-    this.id = 'knn_index';
-    this.type = 'knn_index';
+    this.type = COMPONENT_CLASS.KNN_INDEX;
     this.label = 'k-NN Index';
     this.description = 'A k-NN Index to be used as a vector store';
     this.category = COMPONENT_CATEGORY.INDICES;
@@ -48,7 +45,7 @@ export class KnnIndex implements IComponent {
       {
         id: 'text-embedding-processor',
         label: 'Text embedding processor',
-        baseClass: 'text_embedding_processor',
+        baseClass: COMPONENT_CLASS.TEXT_EMBEDDING_PROCESSOR,
         optional: false,
         acceptMultiple: false,
       },
@@ -82,7 +79,6 @@ export class KnnIndex implements IComponent {
     ];
     this.outputs = [
       {
-        id: this.id,
         label: this.label,
         baseClasses: this.baseClasses,
       },

@@ -33,6 +33,7 @@ export function InputHandle(props: InputHandleProps) {
           id={props.input.baseClass}
           position={Position.Left}
           isValidConnection={(connection: Connection) =>
+            // @ts-ignore
             isValidConnection(connection, reactFlowInstance)
           }
           style={{

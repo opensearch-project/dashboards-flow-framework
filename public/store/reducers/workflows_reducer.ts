@@ -10,24 +10,25 @@ import {
   ReactFlowEdge,
   KnnIndex,
   TextEmbeddingProcessor,
+  generateId,
 } from '../../../common';
 
 // TODO: remove after fetching from server-side
 const dummyNodes = [
   {
-    id: 'text-embedding-processor',
+    id: generateId('text_embedding_processor'),
     position: { x: 0, y: 500 },
     data: new TextEmbeddingProcessor(),
     type: 'customComponent',
   },
   {
-    id: 'text-embedding-processor-2',
+    id: generateId('text_embedding_processor'),
     position: { x: 0, y: 200 },
     data: new TextEmbeddingProcessor(),
     type: 'customComponent',
   },
   {
-    id: 'knn-index',
+    id: generateId('knn_index'),
     position: { x: 500, y: 500 },
     data: new KnnIndex(),
     type: 'customComponent',
