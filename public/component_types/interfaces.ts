@@ -22,7 +22,7 @@ export type FieldType = 'string' | 'json' | 'select';
 export interface IComponentInput {
   id: string;
   label: string;
-  baseClass: string;
+  baseClass: COMPONENT_CLASS;
   optional: boolean;
   acceptMultiple: boolean;
 }
