@@ -27,3 +27,8 @@ export enum COMPONENT_CATEGORY {
   INGEST_PROCESSORS = 'Ingest Processors',
   INDICES = 'Indices',
 }
+
+export enum COMPONENT_CLASS {
+  KNN_INDEX = 'knn_index',
+  TEXT_EMBEDDING_PROCESSOR = 'text_embedding_processor',
+}

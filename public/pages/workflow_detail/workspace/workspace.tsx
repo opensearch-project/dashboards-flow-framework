@@ -13,7 +13,8 @@ import ReactFlow, {
 } from 'reactflow';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 import { rfContext } from '../../../store';
-import { Workflow } from '../../../../common';
+import { IComponent, Workflow } from '../../../../common';
+import { generateId } from '../../../utils';
 import { getCore } from '../../../services';
 import { WorkspaceComponent } from '../workspace_component';
 
@@ -54,7 +55,9 @@ export function Workspace(props: WorkspaceProps) {
     (event) => {
       event.preventDefault();
       // Get the node info from the event metadata
-      const nodeData = event.dataTransfer.getData('application/reactflow');
+      const nodeData = event.dataTransfer.getData(
+        'application/reactflow'
+      ) as IComponent;
 
       // check if the dropped element is valid
       if (typeof nodeData === 'undefined' || !nodeData) {
@@ -72,13 +75,12 @@ export function Workspace(props: WorkspaceProps) {
       });
 
       // TODO: remove hardcoded values when more component info is passed in the event.
-      // Only keep the calculated 'positioning' field.
+      // Only keep the calculated 'position' field.
       const newNode = {
-        // TODO: generate ID based on the node data maybe
-        id: Date.now().toFixed(),
+        id: generateId(nodeData.type),
         type: nodeData.type,
         position,
-        data: { label: nodeData.label },
+        data: nodeData,
         style: {
           background: 'white',
         },
