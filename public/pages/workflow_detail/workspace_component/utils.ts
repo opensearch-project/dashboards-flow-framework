@@ -32,19 +32,23 @@ export function isValidConnection(
   const sourceHandle = connection.sourceHandle;
   const targetHandle = connection.targetHandle;
   const targetNodeId = connection.target;
-  const inputClass = sourceHandle || '';
-  // We store the output classes in a pipe-delimited string. Converting back to a list.
-  const outputClasses = targetHandle?.split('|') || [];
 
-  if (outputClasses?.includes(inputClass)) {
+  // We store the output classes in a pipe-delimited string. Converting back to a list.
+  const sourceClasses = sourceHandle?.split('|') || [];
+  const targetClass = targetHandle || '';
+
+  if (sourceClasses?.includes(targetClass)) {
     const targetNode = rfInstance.getNode(targetNodeId || '');
     if (targetNode) {
       const inputConfig = targetNode.data.inputs.find(
-        (input: IComponentInput) => input.baseClass === inputClass
+        (input: IComponentInput) => sourceClasses.includes(input.baseClass)
       ) as IComponentInput;
       const existingEdge = rfInstance
         .getEdges()
-        .find((edge) => edge.targetHandle === targetHandle);
+        .find(
+          (edge) =>
+            edge.target === targetNodeId && edge.targetHandle === targetHandle
+        );
       if (existingEdge && inputConfig.acceptMultiple === false) {
         return false;
       }
