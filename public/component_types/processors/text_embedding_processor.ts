@@ -3,36 +3,33 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { COMPONENT_CATEGORY } from '../../utils';
+import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../../utils';
 import {
   IComponent,
   IComponentField,
   IComponentInput,
   IComponentOutput,
   UIFlow,
-  BaseClass,
 } from '../interfaces';
 
 /**
  * A text embedding processor UI component
  */
 export class TextEmbeddingProcessor implements IComponent {
-  id: string;
-  type: BaseClass;
+  type: COMPONENT_CLASS;
   label: string;
   description: string;
   category: COMPONENT_CATEGORY;
   allowsCreation: boolean;
   isApplicationStep: boolean;
   allowedFlows: UIFlow[];
-  baseClasses: BaseClass[];
+  baseClasses: COMPONENT_CLASS[];
   inputs: IComponentInput[];
   fields: IComponentField[];
   outputs: IComponentOutput[];
 
   constructor() {
-    this.id = 'text_embedding_processor';
-    this.type = 'text_embedding_processor';
+    this.type = COMPONENT_CLASS.TEXT_EMBEDDING_PROCESSOR;
     this.label = 'Text Embedding Processor';
     this.description =
       'A text embedding ingest processor to be used in an ingest pipeline';
@@ -64,7 +61,6 @@ export class TextEmbeddingProcessor implements IComponent {
     ];
     this.outputs = [
       {
-        id: this.id,
         label: this.label,
         baseClasses: this.baseClasses,
       },
