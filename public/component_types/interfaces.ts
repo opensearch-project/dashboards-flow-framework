@@ -3,14 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { COMPONENT_CATEGORY } from '../utils';
+import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../utils';
 
 /**
  * ************ Types **************************
  */
-
-// TODO: may change some/all of these to enums later
-export type BaseClass = string;
 export type UIFlow = string;
 export type FieldType = 'string' | 'json' | 'select';
 
@@ -25,7 +22,7 @@ export type FieldType = 'string' | 'json' | 'select';
 export interface IComponentInput {
   id: string;
   label: string;
-  baseClass: string;
+  baseClass: COMPONENT_CLASS;
   optional: boolean;
   acceptMultiple: boolean;
 }
@@ -48,17 +45,15 @@ export interface IComponentField {
  * a component.
  */
 export interface IComponentOutput {
-  id: string;
   label: string;
-  baseClasses: BaseClass[];
+  baseClasses: COMPONENT_CLASS[];
 }
 
 /**
  * The base interface the components will implement.
  */
 export interface IComponent {
-  id: string;
-  type: BaseClass;
+  type: COMPONENT_CLASS;
   label: string;
   description: string;
   // will be used for grouping together in the drag-and-drop component library
@@ -74,7 +69,7 @@ export interface IComponent {
   // the set of allowed flows this component can be drug into the workspace
   allowedFlows: UIFlow[];
   // the list of base classes that will be used in the component output
-  baseClasses?: BaseClass[];
+  baseClasses?: COMPONENT_CLASS[];
   inputs?: IComponentInput[];
   fields?: IComponentField[];
   // if the component supports creation, we will have a different set of input fields
