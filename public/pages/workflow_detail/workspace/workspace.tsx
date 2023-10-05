@@ -111,47 +111,45 @@ export function Workspace(props: WorkspaceProps) {
   }, [props.workflow]);
 
   return (
-    <EuiFlexItem grow={true}>
-      <EuiFlexGroup
-        direction="column"
-        gutterSize="m"
-        justifyContent="spaceBetween"
-        className="workspace"
+    <EuiFlexGroup
+      direction="column"
+      gutterSize="m"
+      justifyContent="spaceBetween"
+      className="workspace"
+    >
+      <EuiFlexItem
+        style={{
+          borderStyle: 'groove',
+          borderColor: 'gray',
+          borderWidth: '1px',
+        }}
       >
-        <EuiFlexItem
-          style={{
-            borderStyle: 'groove',
-            borderColor: 'gray',
-            borderWidth: '1px',
-          }}
-        >
-          {/**
-           * We have these wrapper divs & reactFlowWrapper ref to control and calculate the
-           * ReactFlow bounds when calculating node positioning.
-           */}
-          <div className="reactflow-parent-wrapper">
-            <div className="reactflow-wrapper" ref={reactFlowWrapper}>
-              <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                nodeTypes={nodeTypes}
-                edgeTypes={edgeTypes}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                onInit={setReactFlowInstance}
-                onDrop={onDrop}
-                onDragOver={onDragOver}
-                className="reactflow-workspace"
-                fitView
-              >
-                <Controls />
-                <Background />
-              </ReactFlow>
-            </div>
+        {/**
+         * We have these wrapper divs & reactFlowWrapper ref to control and calculate the
+         * ReactFlow bounds when calculating node positioning.
+         */}
+        <div className="reactflow-parent-wrapper">
+          <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onInit={setReactFlowInstance}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              className="reactflow-workspace"
+              fitView
+            >
+              <Controls />
+              <Background />
+            </ReactFlow>
           </div>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    </EuiFlexItem>
+        </div>
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 }

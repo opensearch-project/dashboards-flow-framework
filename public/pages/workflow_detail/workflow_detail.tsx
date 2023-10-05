@@ -6,7 +6,7 @@
 import React, { useEffect } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { EuiSpacer } from '@elastic/eui';
+import { EuiPage, EuiPageBody } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
@@ -37,10 +37,11 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   });
 
   return (
-    <div>
-      <WorkflowDetailHeader workflow={workflow} />
-      <EuiSpacer size="l" />
-      <Workspace workflow={workflow} />
-    </div>
+    <EuiPage>
+      <EuiPageBody>
+        <WorkflowDetailHeader workflow={workflow} />
+        <Workspace workflow={workflow} />
+      </EuiPageBody>
+    </EuiPage>
   );
 }
