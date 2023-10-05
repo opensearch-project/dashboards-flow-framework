@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export { UseCase } from './use_case';
+export { NewWorkflow } from './new_workflow';

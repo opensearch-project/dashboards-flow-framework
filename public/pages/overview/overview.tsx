@@ -10,7 +10,10 @@ import { getCore } from '../../services';
 
 export function Overview() {
   useEffect(() => {
-    getCore().chrome.setBreadcrumbs([BREADCRUMBS.AI_APPLICATION_BUILDER]);
+    getCore().chrome.setBreadcrumbs([
+      BREADCRUMBS.AI_APPLICATION_BUILDER,
+      BREADCRUMBS.OVERVIEW,
+    ]);
   });
 
   return (

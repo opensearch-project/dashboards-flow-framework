@@ -9,7 +9,6 @@ import { EuiPageSideBar, EuiSideNav, EuiPageTemplate } from '@elastic/eui';
 import { Navigation, APP_PATH } from './utils';
 import {
   Overview,
-  UseCases,
   Workflows,
   WorkflowDetail,
   WorkflowDetailRouterProps,
@@ -28,10 +27,10 @@ export const AiFlowDashboardsApp = (props: Props) => {
             id: 0,
             items: [
               {
-                name: Navigation.UseCases,
+                name: Navigation.Overview,
                 id: 1,
-                href: `#${APP_PATH.USE_CASES}`,
-                isSelected: props.location.pathname === APP_PATH.USE_CASES,
+                href: `#${APP_PATH.OVERVIEW}`,
+                isSelected: props.location.pathname === APP_PATH.OVERVIEW,
               },
               {
                 name: Navigation.Workflows,
@@ -54,10 +53,6 @@ export const AiFlowDashboardsApp = (props: Props) => {
       pageSideBar={sidebar}
     >
       <Switch>
-        <Route
-          path={APP_PATH.USE_CASES}
-          render={(routeProps: RouteComponentProps) => <UseCases />}
-        />
         <Route
           path={APP_PATH.WORKFLOW_DETAIL}
           render={(
