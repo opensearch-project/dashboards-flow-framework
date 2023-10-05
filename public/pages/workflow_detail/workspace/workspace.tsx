@@ -17,17 +17,19 @@ import { IComponent, Workflow } from '../../../../common';
 import { generateId } from '../../../utils';
 import { getCore } from '../../../services';
 import { WorkspaceComponent } from '../workspace_component';
+import { DeletableEdge } from '../workspace_edge';
 
 // styling
 import 'reactflow/dist/style.css';
 import './reactflow-styles.scss';
+import '../workspace_edge/deletable-edge-styles.scss';
 
 interface WorkspaceProps {
   workflow?: Workflow;
 }
 
 const nodeTypes = { customComponent: WorkspaceComponent };
-// TODO: probably have custom edge types here too
+const edgeTypes = { customEdge: DeletableEdge };
 
 export function Workspace(props: WorkspaceProps) {
   const reactFlowWrapper = useRef(null);
@@ -38,11 +40,12 @@ export function Workspace(props: WorkspaceProps) {
 
   const onConnect = useCallback(
     (params) => {
-      setEdges((eds) => addEdge(params, eds));
+      const edge = {
+        ...params,
+        type: 'customEdge',
+      };
+      setEdges((eds) => addEdge(edge, eds));
     },
-    // TODO: add customized logic to prevent connections based on the node's
-    // allowed inputs. If allowed, update that node state as well with the added
-    // connection details.
     [setEdges]
   );
 
@@ -132,12 +135,14 @@ export function Workspace(props: WorkspaceProps) {
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
                 onInit={setReactFlowInstance}
                 onDrop={onDrop}
                 onDragOver={onDragOver}
+                className="reactflow-workspace"
                 fitView
               >
                 <Controls />

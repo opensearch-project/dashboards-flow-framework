@@ -38,9 +38,6 @@ export function OutputHandle(props: OutputHandleProps) {
             isValidConnection(connection, reactFlowInstance)
           }
           style={{
-            height: 10,
-            width: 10,
-            backgroundColor: 'black',
             top: position,
           }}
         />
