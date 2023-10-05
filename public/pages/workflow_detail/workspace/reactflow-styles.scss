@@ -1,3 +1,7 @@
+$handle-color: #5a5a5a;
+$handle-color-valid: #55dd99;
+$handle-color-invalid: #ff6060;
+
 .reactflow-parent-wrapper {
   display: flex;
   flex-grow: 1;
@@ -15,6 +19,20 @@
   padding: 0;
 }
 
-.workspace-component {
+.reactflow-workspace .react-flow__node {
   width: 300px;
+}
+
+.reactflow-workspace .react-flow__handle {
+  height: 10px;
+  width: 10px;
+  background: $handle-color;
+}
+
+.reactflow-workspace .react-flow__handle-connecting {
+  background: $handle-color-invalid;
+}
+
+.reactflow-workspace .react-flow__handle-valid {
+  background: $handle-color-valid;
 }

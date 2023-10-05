@@ -31,7 +31,7 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
     : component.fields;
 
   return (
-    <EuiCard title={component.label} className="workspace-component">
+    <EuiCard title={component.label}>
       <EuiFlexGroup direction="column">
         {/* <EuiFlexItem>
           {component.allowsCreation ? (
