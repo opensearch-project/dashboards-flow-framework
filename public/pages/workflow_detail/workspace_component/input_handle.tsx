@@ -37,9 +37,6 @@ export function InputHandle(props: InputHandleProps) {
             isValidConnection(connection, reactFlowInstance)
           }
           style={{
-            height: 10,
-            width: 10,
-            backgroundColor: 'black',
             top: position,
           }}
         />
