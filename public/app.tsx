@@ -12,6 +12,7 @@ import {
   Workflows,
   WorkflowDetail,
   WorkflowDetailRouterProps,
+  WorkflowsRouterProps,
 } from './pages';
 
 interface Props extends RouteComponentProps {}
@@ -61,7 +62,9 @@ export const AiFlowDashboardsApp = (props: Props) => {
         />
         <Route
           path={APP_PATH.WORKFLOWS}
-          render={(routeProps: RouteComponentProps) => <Workflows />}
+          render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => (
+            <Workflows {...routeProps} />
+          )}
         />
         {/* Defaulting to Overview page */}
         <Route
