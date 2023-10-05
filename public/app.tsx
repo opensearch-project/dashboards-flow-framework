@@ -9,10 +9,10 @@ import { EuiPageSideBar, EuiSideNav, EuiPageTemplate } from '@elastic/eui';
 import { Navigation, APP_PATH } from './utils';
 import {
   Overview,
-  UseCases,
   Workflows,
   WorkflowDetail,
   WorkflowDetailRouterProps,
+  WorkflowsRouterProps,
 } from './pages';
 
 interface Props extends RouteComponentProps {}
@@ -28,10 +28,10 @@ export const AiFlowDashboardsApp = (props: Props) => {
             id: 0,
             items: [
               {
-                name: Navigation.UseCases,
+                name: Navigation.Overview,
                 id: 1,
-                href: `#${APP_PATH.USE_CASES}`,
-                isSelected: props.location.pathname === APP_PATH.USE_CASES,
+                href: `#${APP_PATH.OVERVIEW}`,
+                isSelected: props.location.pathname === APP_PATH.OVERVIEW,
               },
               {
                 name: Navigation.Workflows,
@@ -55,10 +55,6 @@ export const AiFlowDashboardsApp = (props: Props) => {
     >
       <Switch>
         <Route
-          path={APP_PATH.USE_CASES}
-          render={(routeProps: RouteComponentProps) => <UseCases />}
-        />
-        <Route
           path={APP_PATH.WORKFLOW_DETAIL}
           render={(
             routeProps: RouteComponentProps<WorkflowDetailRouterProps>
@@ -66,7 +62,9 @@ export const AiFlowDashboardsApp = (props: Props) => {
         />
         <Route
           path={APP_PATH.WORKFLOWS}
-          render={(routeProps: RouteComponentProps) => <Workflows />}
+          render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => (
+            <Workflows {...routeProps} />
+          )}
         />
         {/* Defaulting to Overview page */}
         <Route
