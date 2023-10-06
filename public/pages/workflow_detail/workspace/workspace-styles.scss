@@ -1,0 +1,12 @@
+.workspace-panel {
+  // this ratio will allow the workspace to render on a standard
+  // laptop (3024 x 1964) without introducing overflow/scrolling
+  height: 60vh;
+  padding: 0;
+}
+
+.resizable-panel-border {
+  border-style: groove;
+  border-color: gray;
+  border-width: 1px;
+}

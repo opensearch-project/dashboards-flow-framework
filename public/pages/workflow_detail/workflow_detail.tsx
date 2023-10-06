@@ -10,8 +10,8 @@ import { EuiPage, EuiPageBody } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
-import { Workspace } from './workspace';
 import { AppState } from '../../store';
+import { ResizableWorkspace } from './workspace';
 
 export interface WorkflowDetailRouterProps {
   workflowId: string;
@@ -40,7 +40,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     <EuiPage>
       <EuiPageBody>
         <WorkflowDetailHeader workflow={workflow} />
-        <Workspace workflow={workflow} />
+        <ResizableWorkspace workflow={workflow} />
       </EuiPageBody>
     </EuiPage>
   );

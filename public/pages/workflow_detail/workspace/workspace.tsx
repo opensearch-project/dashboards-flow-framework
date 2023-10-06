@@ -23,6 +23,7 @@ import { DeletableEdge } from '../workspace_edge';
 // styling
 import 'reactflow/dist/style.css';
 import './reactflow-styles.scss';
+import './workspace-styles.scss';
 import '../workspace_edge/deletable-edge-styles.scss';
 
 interface WorkspaceProps {
@@ -117,17 +118,11 @@ export function Workspace(props: WorkspaceProps) {
   return (
     <EuiFlexGroup
       direction="column"
-      gutterSize="m"
+      gutterSize="none"
       justifyContent="spaceBetween"
-      className="workspace"
+      className="workspace-panel"
     >
-      <EuiFlexItem
-        style={{
-          borderStyle: 'groove',
-          borderColor: 'gray',
-          borderWidth: '1px',
-        }}
-      >
+      <EuiFlexItem className="resizable-panel-border">
         {/**
          * We have these wrapper divs & reactFlowWrapper ref to control and calculate the
          * ReactFlow bounds when calculating node positioning.

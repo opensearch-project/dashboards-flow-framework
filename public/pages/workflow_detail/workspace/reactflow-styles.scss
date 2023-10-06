@@ -1,6 +1,6 @@
-$handle-color: #5a5a5a;
-$handle-color-valid: #55dd99;
-$handle-color-invalid: #ff6060;
+$handle-color: $euiColorDarkestShade;
+$handle-color-valid: $euiColorSuccess;
+$handle-color-invalid: $euiColorDanger;
 
 .reactflow-parent-wrapper {
   display: flex;
@@ -11,12 +11,6 @@ $handle-color-invalid: #ff6060;
 .reactflow-parent-wrapper .reactflow-wrapper {
   flex-grow: 1;
   height: 100%;
-}
-
-.workspace {
-  width: 80vh;
-  height: 50vh;
-  padding: 0;
 }
 
 .reactflow-workspace .react-flow__node {
