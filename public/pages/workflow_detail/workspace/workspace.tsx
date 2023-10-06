@@ -11,6 +11,7 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   addEdge,
+  BackgroundVariant,
 } from 'reactflow';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 import { rfContext, setDirty } from '../../../store';
@@ -144,7 +145,10 @@ export function Workspace(props: WorkspaceProps) {
               fitView
             >
               <Controls />
-              <Background />
+              <Background
+                color="#343741"
+                variant={'dots' as BackgroundVariant}
+              />
             </ReactFlow>
           </div>
         </div>

@@ -2,6 +2,10 @@ $handle-color: $euiColorDarkestShade;
 $handle-color-valid: $euiColorSuccess;
 $handle-color-invalid: $euiColorDanger;
 
+.reactflow-workspace {
+  background: $euiColorEmptyShade;
+}
+
 .reactflow-parent-wrapper {
   display: flex;
   flex-grow: 1;

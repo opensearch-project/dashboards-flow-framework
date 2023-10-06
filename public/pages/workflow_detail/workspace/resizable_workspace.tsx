@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { ReactFlowProvider } from 'reactflow';
 import { EuiResizableContainer } from '@elastic/eui';
 import { Workflow } from '../../../../common';
 import { Workspace } from './workspace';
@@ -20,20 +21,20 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       style={{ marginLeft: '-14px' }}
     >
       {(EuiResizablePanel, EuiResizableButton) => (
-        <>
+        <ReactFlowProvider>
           <EuiResizablePanel
             mode="main"
-            initialSize={80}
+            initialSize={60}
             minSize="50%"
             style={{ margin: 0, padding: 0 }}
           >
             <Workspace workflow={props.workflow} />
           </EuiResizablePanel>
           <EuiResizableButton />
-          <EuiResizablePanel mode="collapsible" initialSize={20} minSize="10%">
+          <EuiResizablePanel mode="collapsible" initialSize={40} minSize="10%">
             <ComponentInputs />
           </EuiResizablePanel>
-        </>
+        </ReactFlowProvider>
       )}
     </EuiResizableContainer>
   );
