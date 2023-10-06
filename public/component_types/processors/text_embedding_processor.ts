@@ -4,6 +4,7 @@
  */
 
 import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../../utils';
+import { BaseComponent } from '../base_component';
 import {
   IComponent,
   IComponentField,
@@ -15,7 +16,9 @@ import {
 /**
  * A text embedding processor UI component
  */
-export class TextEmbeddingProcessor implements IComponent {
+export class TextEmbeddingProcessor
+  extends BaseComponent
+  implements IComponent {
   type: COMPONENT_CLASS;
   label: string;
   description: string;
@@ -29,6 +32,7 @@ export class TextEmbeddingProcessor implements IComponent {
   outputs: IComponentOutput[];
 
   constructor() {
+    super();
     this.type = COMPONENT_CLASS.TEXT_EMBEDDING_PROCESSOR;
     this.label = 'Text Embedding Processor';
     this.description =
