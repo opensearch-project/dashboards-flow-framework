@@ -8,7 +8,7 @@ import { ReactFlowProvider } from 'reactflow';
 import { EuiResizableContainer } from '@elastic/eui';
 import { Workflow } from '../../../../common';
 import { Workspace } from './workspace';
-import { ComponentInputs } from './component_inputs';
+import { ComponentDetails } from './component_details';
 
 interface ResizableWorkspaceProps {
   workflow?: Workflow;
@@ -49,7 +49,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               minSize="10%"
               onToggleCollapsedInternal={() => onToggleChange()}
             >
-              <ComponentInputs
+              <ComponentDetails
                 onToggleChange={onToggleChange}
                 isOpen={isOpen}
               />

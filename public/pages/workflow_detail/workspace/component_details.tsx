@@ -21,12 +21,12 @@ import { InputFieldList } from '../workspace_component/input_field_list';
 // styling
 import './workspace-styles.scss';
 
-interface ComponentInputsProps {
+interface ComponentDetailsProps {
   onToggleChange: () => void;
   isOpen: boolean;
 }
 
-export function ComponentInputs(props: ComponentInputsProps) {
+export function ComponentDetails(props: ComponentDetailsProps) {
   // TODO: use this instance to update the internal node state. ex: update field data in the selected node based
   // on user input
   const { reactFlowInstance } = useContext(rfContext);
