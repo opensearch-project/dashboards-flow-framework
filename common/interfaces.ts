@@ -28,7 +28,7 @@ type ReactFlowViewport = {
   zoom: number;
 };
 
-export type ReactFlowState = {
+export type WorkspaceFlowState = {
   nodes: ReactFlowComponent[];
   edges: ReactFlowEdge[];
   viewport?: ReactFlowViewport;
@@ -38,23 +38,23 @@ export type ReactFlowState = {
  ********** USE CASE TEMPLATE TYPES/INTERFACES **********
  */
 
-type TemplateNode = {
+export type TemplateNode = {
   id: string;
   inputs: {};
 };
 
-type TemplateEdge = {
+export type TemplateEdge = {
   source: string;
   target: string;
 };
 
-type TemplateFlow = {
+export type TemplateFlow = {
   userParams: {};
   nodes: TemplateNode[];
   edges: TemplateEdge[];
 };
 
-type TemplateFlows = {
+export type TemplateFlows = {
   provision: TemplateFlow;
   ingest: TemplateFlow;
   query: TemplateFlow;
@@ -73,7 +73,12 @@ export type Workflow = {
   name: string;
   description?: string;
   // ReactFlow state may not exist if a workflow is created via API/backend-only.
-  reactFlowState?: ReactFlowState;
+  workspaceFlowState?: WorkspaceFlowState;
   template: UseCaseTemplate;
   lastUpdated: number;
 };
+
+export enum USE_CASE {
+  SEMANTIC_SEARCH = 'semantic_search',
+  CUSTOM = 'custom',
+}

@@ -4,6 +4,7 @@
  */
 
 import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../../utils';
+import { BaseComponent } from '../base_component';
 import {
   IComponent,
   IComponentField,
@@ -15,7 +16,7 @@ import {
 /**
  * A k-NN index UI component
  */
-export class KnnIndex implements IComponent {
+export class KnnIndex extends BaseComponent implements IComponent {
   type: COMPONENT_CLASS;
   label: string;
   description: string;
@@ -30,6 +31,7 @@ export class KnnIndex implements IComponent {
   outputs: IComponentOutput[];
 
   constructor() {
+    super();
     this.type = COMPONENT_CLASS.KNN_INDEX;
     this.label = 'k-NN Index';
     this.description = 'A k-NN Index to be used as a vector store';

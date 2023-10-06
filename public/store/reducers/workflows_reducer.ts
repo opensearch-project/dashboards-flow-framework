@@ -18,19 +18,19 @@ const dummyNodes = [
   {
     id: generateId('text_embedding_processor'),
     position: { x: 0, y: 500 },
-    data: new TextEmbeddingProcessor(),
+    data: new TextEmbeddingProcessor().toObj(),
     type: 'customComponent',
   },
   {
     id: generateId('text_embedding_processor'),
     position: { x: 0, y: 200 },
-    data: new TextEmbeddingProcessor(),
+    data: new TextEmbeddingProcessor().toObj(),
     type: 'customComponent',
   },
   {
     id: generateId('knn_index'),
     position: { x: 500, y: 500 },
-    data: new KnnIndex(),
+    data: new KnnIndex().toObj(),
     type: 'customComponent',
   },
 ] as ReactFlowComponent[];
@@ -42,7 +42,7 @@ const initialState = {
       name: 'Workflow-1',
       id: 'workflow-1-id',
       description: 'description for workflow 1',
-      reactFlowState: {
+      workspaceFlowState: {
         nodes: dummyNodes,
         edges: [] as ReactFlowEdge[],
       },
@@ -52,7 +52,7 @@ const initialState = {
       name: 'Workflow-2',
       id: 'workflow-2-id',
       description: 'description for workflow 2',
-      reactFlowState: {
+      workspaceFlowState: {
         nodes: dummyNodes,
         edges: [] as ReactFlowEdge[],
       },
