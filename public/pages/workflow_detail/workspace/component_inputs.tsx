@@ -73,7 +73,7 @@ export function ComponentInputs(props: ComponentInputsProps) {
             </>
           ) : (
             <EuiEmptyPrompt
-              iconType={'iInCircle'}
+              iconType={'cross'}
               title={<h2>No component selected</h2>}
               titleSize="s"
               body={
