@@ -14,6 +14,14 @@ import {
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 
+/**
+ * The overview page. This contains a detailed description on what
+ * this plugin offers, and links to different resources (blogs, demos,
+ * documentation, etc.)
+ *
+ * This may be hidden for the initial release until we have sufficient content
+ * such that this page adds enough utility & user value.
+ */
 export function Overview() {
   useEffect(() => {
     getCore().chrome.setBreadcrumbs([

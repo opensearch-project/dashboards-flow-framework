@@ -41,6 +41,11 @@ function replaceActiveTab(activeTab: string, props: WorkflowsProps) {
   });
 }
 
+/**
+ * The base workflows page. From here, users can toggle between views to access
+ * existing created workflows, or explore the library of workflow templates
+ * to get started on a new workflow.
+ */
 export function Workflows(props: WorkflowsProps) {
   const { workflows } = useSelector((state: AppState) => state.workflows);
 

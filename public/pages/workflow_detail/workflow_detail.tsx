@@ -20,6 +20,11 @@ export interface WorkflowDetailRouterProps {
 interface WorkflowDetailProps
   extends RouteComponentProps<WorkflowDetailRouterProps> {}
 
+/**
+ * The workflow details page. This is where users will configure, create, and
+ * test their created workflows. Additionally, can be used to load existing workflows
+ * to view details and/or make changes to them.
+ */
 export function WorkflowDetail(props: WorkflowDetailProps) {
   const { workflows } = useSelector((state: AppState) => state.workflows);
 

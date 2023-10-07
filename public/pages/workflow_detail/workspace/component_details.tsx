@@ -26,6 +26,11 @@ interface ComponentDetailsProps {
   isOpen: boolean;
 }
 
+/**
+ * A panel that will be nested in a resizable container to dynamically show
+ * the details and user-required inputs based on the selected component
+ * in the flow workspace.
+ */
 export function ComponentDetails(props: ComponentDetailsProps) {
   // TODO: use this instance to update the internal node state. ex: update field data in the selected node based
   // on user input

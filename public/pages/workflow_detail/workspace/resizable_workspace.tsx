@@ -14,6 +14,10 @@ interface ResizableWorkspaceProps {
   workflow?: Workflow;
 }
 
+/**
+ * The overall workspace component that maintains state related to the 2 resizable
+ * panels - the ReactFlow workspace panel and the selected component details panel.
+ */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const collapseFn = useRef(
