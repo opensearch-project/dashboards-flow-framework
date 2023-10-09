@@ -14,6 +14,8 @@ interface ResizableWorkspaceProps {
   workflow?: Workflow;
 }
 
+const COMPONENT_DETAILS_PANEL_ID = 'component_details_panel_id';
+
 /**
  * The overall workspace component that maintains state related to the 2 resizable
  * panels - the ReactFlow workspace panel and the selected component details panel.
@@ -25,7 +27,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   );
 
   const onToggleChange = () => {
-    collapseFn.current('inputsPanel', { direction: 'left' });
+    collapseFn.current(COMPONENT_DETAILS_PANEL_ID, { direction: 'left' });
     setIsOpen(!isOpen);
   };
 
@@ -47,7 +49,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
             </EuiResizablePanel>
             <EuiResizableButton />
             <EuiResizablePanel
-              id="inputsPanel"
+              id={COMPONENT_DETAILS_PANEL_ID}
               mode="collapsible"
               initialSize={25}
               minSize="10%"

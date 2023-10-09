@@ -44,6 +44,7 @@ export function ComponentDetails(props: ComponentDetailsProps) {
    * Hook provided by reactflow to listen on when nodes are selected / de-selected.
    * - populate panel content appropriately
    * - open the panel if a node is selected and the panel is closed
+   * - it is assumed that only one node can be selected at once
    */
   useOnSelectionChange({
     onChange: ({ nodes, edges }) => {
