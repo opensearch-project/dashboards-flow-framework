@@ -12,6 +12,9 @@ import { columns } from './columns';
 
 interface WorkflowListProps {}
 
+/**
+ * The searchable list of created workflows.
+ */
 export function WorkflowList(props: WorkflowListProps) {
   const { workflows } = useSelector((state: AppState) => state.workflows);
 

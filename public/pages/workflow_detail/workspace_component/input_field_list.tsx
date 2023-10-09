@@ -19,7 +19,7 @@ interface InputFieldListProps {
 
 export function InputFieldList(props: InputFieldListProps) {
   return (
-    <EuiFlexItem>
+    <EuiFlexItem grow={false}>
       {props.inputFields?.map((field, idx) => {
         let el;
         switch (field.type) {

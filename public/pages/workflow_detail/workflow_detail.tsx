@@ -10,8 +10,8 @@ import { EuiPage, EuiPageBody } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
-import { Workspace } from './workspace';
 import { AppState } from '../../store';
+import { ResizableWorkspace } from './workspace';
 
 export interface WorkflowDetailRouterProps {
   workflowId: string;
@@ -20,6 +20,11 @@ export interface WorkflowDetailRouterProps {
 interface WorkflowDetailProps
   extends RouteComponentProps<WorkflowDetailRouterProps> {}
 
+/**
+ * The workflow details page. This is where users will configure, create, and
+ * test their created workflows. Additionally, can be used to load existing workflows
+ * to view details and/or make changes to them.
+ */
 export function WorkflowDetail(props: WorkflowDetailProps) {
   const { workflows } = useSelector((state: AppState) => state.workflows);
 
@@ -40,7 +45,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     <EuiPage>
       <EuiPageBody>
         <WorkflowDetailHeader workflow={workflow} />
-        <Workspace workflow={workflow} />
+        <ResizableWorkspace workflow={workflow} />
       </EuiPageBody>
     </EuiPage>
   );
