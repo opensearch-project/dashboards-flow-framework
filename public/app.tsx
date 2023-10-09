@@ -19,7 +19,7 @@ interface Props extends RouteComponentProps {}
 
 export const AiFlowDashboardsApp = (props: Props) => {
   const sidebar = (
-    <EuiPageSideBar style={{ minWidth: 190 }} hidden={false}>
+    <EuiPageSideBar style={{ minWidth: 190 }} hidden={false} paddingSize="l">
       <EuiSideNav
         style={{ width: 190 }}
         items={[
@@ -50,7 +50,10 @@ export const AiFlowDashboardsApp = (props: Props) => {
   return (
     <EuiPageTemplate
       template="empty"
-      pageContentProps={{ paddingSize: 'm' }}
+      paddingSize="none"
+      grow={true}
+      restrictWidth={false}
+      pageContentProps={{ paddingSize: 's' }}
       pageSideBar={sidebar}
     >
       <Switch>
