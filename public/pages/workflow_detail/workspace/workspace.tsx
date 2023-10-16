@@ -12,10 +12,16 @@ import ReactFlow, {
   useEdgesState,
   addEdge,
   BackgroundVariant,
+  useStore,
 } from 'reactflow';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 import { rfContext, setDirty } from '../../../store';
-import { IComponent, Workflow } from '../../../../common';
+import {
+  IComponent,
+  IComponentData,
+  ReactFlowComponent,
+  Workflow,
+} from '../../../../common';
 import { generateId, initComponentData } from '../../../utils';
 import { getCore } from '../../../services';
 import { WorkspaceComponent } from '../workspace_component';
@@ -29,6 +35,7 @@ import '../workspace_edge/deletable-edge-styles.scss';
 
 interface WorkspaceProps {
   workflow?: Workflow;
+  onNodesChange: (nodes: ReactFlowComponent[]) => void;
 }
 
 const nodeTypes = { customComponent: WorkspaceComponent };
@@ -39,8 +46,16 @@ export function Workspace(props: WorkspaceProps) {
   const reactFlowWrapper = useRef(null);
   const { reactFlowInstance, setReactFlowInstance } = useContext(rfContext);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<IComponentData>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // Listener for node additions or deletions to propagate to parent component
+  const nodesLength = useStore(
+    (state) => Array.from(state.nodeInternals.values()).length || 0
+  );
+  useEffect(() => {
+    props.onNodesChange(nodes);
+  }, [nodesLength]);
 
   const onConnect = useCallback(
     (params) => {
@@ -95,6 +110,9 @@ export function Workspace(props: WorkspaceProps) {
         },
       };
 
+      // TODO: on node addition, need to update the formik values to include
+      // a new property with this id.
+      // TODO: on node addition, update yup schema
       setNodes((nds) => nds.concat(newNode));
       dispatch(setDirty());
     },

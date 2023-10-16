@@ -5,21 +5,14 @@
 
 import React, { useState, useContext } from 'react';
 import { useOnSelectionChange } from 'reactflow';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiSpacer,
-  EuiPanel,
-  EuiTitle,
-  EuiEmptyPrompt,
-  EuiText,
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiPanel } from '@elastic/eui';
 import { ReactFlowComponent } from '../../../../common';
 import { rfContext } from '../../../store';
-import { InputFieldList } from '../workspace_component/input_field_list';
+import { ComponentInputs } from './component_inputs';
+import { EmptyComponentInputs } from './empty_component_inputs';
 
 // styling
-import './workspace-styles.scss';
+import '../workspace/workspace-styles.scss';
 
 interface ComponentDetailsProps {
   onToggleChange: () => void;
@@ -68,29 +61,9 @@ export function ComponentDetails(props: ComponentDetailsProps) {
       <EuiFlexItem className="resizable-panel-border">
         <EuiPanel paddingSize="m">
           {selectedComponent ? (
-            <>
-              <EuiTitle size="m">
-                <h2>{selectedComponent?.data.label || ''}</h2>
-              </EuiTitle>
-              <EuiSpacer size="s" />
-              <InputFieldList
-                inputFields={selectedComponent?.data.fields || []}
-              />
-            </>
+            <ComponentInputs selectedComponent={selectedComponent} />
           ) : (
-            <EuiEmptyPrompt
-              iconType={'cross'}
-              title={<h2>No component selected</h2>}
-              titleSize="s"
-              body={
-                <>
-                  <EuiText>
-                    Add a component, or select a component to view or edit its
-                    configuration.
-                  </EuiText>
-                </>
-              }
-            />
+            <EmptyComponentInputs />
           )}
         </EuiPanel>
       </EuiFlexItem>
