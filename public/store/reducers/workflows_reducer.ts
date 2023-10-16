@@ -11,26 +11,30 @@ import {
   KnnIndex,
   TextEmbeddingProcessor,
   generateId,
+  initComponentData,
 } from '../../../common';
 
 // TODO: remove after fetching from server-side
+const id1 = generateId('text_embedding_processor');
+const id2 = generateId('text_embedding_processor');
+const id3 = generateId('knn_index');
 const dummyNodes = [
   {
-    id: generateId('text_embedding_processor'),
+    id: id1,
     position: { x: 0, y: 500 },
-    data: new TextEmbeddingProcessor().toObj(),
+    data: initComponentData(new TextEmbeddingProcessor().toObj(), id1),
     type: 'customComponent',
   },
   {
-    id: generateId('text_embedding_processor'),
+    id: id2,
     position: { x: 0, y: 200 },
-    data: new TextEmbeddingProcessor().toObj(),
+    data: initComponentData(new TextEmbeddingProcessor().toObj(), id2),
     type: 'customComponent',
   },
   {
-    id: generateId('knn_index'),
+    id: id3,
     position: { x: 500, y: 500 },
-    data: new KnnIndex().toObj(),
+    data: initComponentData(new KnnIndex().toObj(), id3),
     type: 'customComponent',
   },
 ] as ReactFlowComponent[];
