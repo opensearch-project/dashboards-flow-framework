@@ -5,7 +5,7 @@
 
 import React, { createContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Edge } from 'reactflow';
+import { Edge, Node } from 'reactflow';
 import { setDirty } from '../reducers';
 
 const initialValues = {
@@ -30,8 +30,19 @@ export function ReactFlowContextProvider({ children }: any) {
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
 
   const deleteNode = (nodeId: string) => {
-    // TODO: implement node deletion
-    // reactFlowInstance.setNodes(...)
+    reactFlowInstance.setNodes(
+      reactFlowInstance.getNodes().filter((node: Node) => node.id !== nodeId)
+    );
+    // Also delete any dangling edges attached to the component
+    reactFlowInstance.setEdges(
+      reactFlowInstance
+        .getEdges()
+        .filter(
+          (edge: Edge) => edge.source !== nodeId && edge.target !== nodeId
+        )
+    );
+
+    dispatch(setDirty());
   };
 
   const deleteEdge = (edgeId: string) => {

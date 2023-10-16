@@ -77,3 +77,11 @@ export interface IComponent {
   createFields?: IComponentField[];
   outputs?: IComponentOutput[];
 }
+
+/**
+ * We need to include some extra instance-specific data to the ReactFlow component
+ * to perform extra functionality, such as deleting the node from the ReactFlowInstance.
+ */
+export interface IComponentData extends IComponent {
+  id: string;
+}
