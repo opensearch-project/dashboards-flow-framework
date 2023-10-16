@@ -16,7 +16,7 @@ import ReactFlow, {
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 import { rfContext, setDirty } from '../../../store';
 import { IComponent, Workflow } from '../../../../common';
-import { generateId } from '../../../utils';
+import { generateId, initComponentData } from '../../../utils';
 import { getCore } from '../../../services';
 import { WorkspaceComponent } from '../workspace_component';
 import { DeletableEdge } from '../workspace_edge';
@@ -84,11 +84,12 @@ export function Workspace(props: WorkspaceProps) {
 
       // TODO: remove hardcoded values when more component info is passed in the event.
       // Only keep the calculated 'position' field.
+      const id = generateId(nodeData.type);
       const newNode = {
-        id: generateId(nodeData.type),
+        id,
         type: nodeData.type,
         position,
-        data: nodeData,
+        data: initComponentData(nodeData, id),
         style: {
           background: 'white',
         },
