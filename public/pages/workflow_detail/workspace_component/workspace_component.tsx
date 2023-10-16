@@ -3,14 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiCard } from '@elastic/eui';
-import { IComponent } from '../../../component_types';
+import React, { useContext } from 'react';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiCard,
+  EuiText,
+  EuiTitle,
+  EuiButtonIcon,
+} from '@elastic/eui';
+import { rfContext } from '../../../store';
+import { IComponentData } from '../../../component_types';
 import { InputHandle } from './input_handle';
 import { OutputHandle } from './output_handle';
 
 interface WorkspaceComponentProps {
-  data: IComponent;
+  data: IComponentData;
 }
 
 /**
@@ -20,10 +28,36 @@ interface WorkspaceComponentProps {
  */
 export function WorkspaceComponent(props: WorkspaceComponentProps) {
   const component = props.data;
+  const { deleteNode } = useContext(rfContext);
 
   return (
-    <EuiCard title={component.label}>
+    <EuiCard
+      textAlign="left"
+      title={
+        <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+          <EuiFlexItem grow={false}>
+            <EuiTitle size="s">
+              <h3>{component.label}</h3>
+            </EuiTitle>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButtonIcon
+              iconType="trash"
+              onClick={() => {
+                deleteNode(component.id);
+              }}
+              aria-label="Delete"
+            />
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      }
+    >
       <EuiFlexGroup direction="column">
+        <EuiFlexItem>
+          <EuiText size="s" color="subdued">
+            {component.description}
+          </EuiText>
+        </EuiFlexItem>
         {component.inputs?.map((input, index) => {
           return (
             <EuiFlexItem key={index}>
@@ -31,7 +65,6 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
             </EuiFlexItem>
           );
         })}
-        {/* TODO: finalize from UX what we show in the component itself. Readonly fields? Configure in the component JSON definition? */}
         {component.outputs?.map((output, index) => {
           return (
             <EuiFlexItem key={index}>
