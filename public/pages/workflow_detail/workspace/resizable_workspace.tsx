@@ -94,12 +94,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       enableReinitialize={true}
       initialValues={formValues}
       validationSchema={formSchema}
-      onSubmit={(values) => {
-        console.log('values on submit: ', values);
-      }}
-      validate={(values) => {
-        console.log('values on validate: ', values);
-      }}
+      onSubmit={(values) => {}}
+      validate={(values) => {}}
     >
       {(formikProps) => (
         <Form>

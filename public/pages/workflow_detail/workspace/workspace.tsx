@@ -110,9 +110,6 @@ export function Workspace(props: WorkspaceProps) {
         },
       };
 
-      // TODO: on node addition, need to update the formik values to include
-      // a new property with this id.
-      // TODO: on node addition, update yup schema
       setNodes((nds) => nds.concat(newNode));
       dispatch(setDirty());
     },

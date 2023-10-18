@@ -53,10 +53,8 @@ export function formikToComponentData(
   data: IComponentData,
   values: FormikValues
 ): IComponentData {
-  let updatedData = data;
-
   // TODO: populate data.fields with updated values based on the formik values
-
+  // We will need this when submitting to the backend.
   return data;
 }
 
@@ -107,6 +105,8 @@ export function getComponentSchema(data: IComponentData): ObjectSchema<any> {
   return yup.object(schemaObj);
 }
 
+// TODO: finalize validations for different field types. May need
+// to refer to some backend implementations or OpenSearch documentation
 function getFieldSchema(field: IComponentField): Schema {
   let baseSchema: Schema;
   switch (field.type) {
