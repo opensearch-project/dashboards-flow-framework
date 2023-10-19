@@ -21,6 +21,16 @@ $handle-color-invalid: $euiColorDanger;
   width: 300px;
 }
 
+// Overriding the styling for the reactflow node when it is selected.
+// We need to use important tag to override ReactFlow's wrapNode that sets the box-shadow.
+// Ref: https://github.com/wbkd/react-flow/blob/main/packages/core/src/components/Nodes/wrapNode.tsx#L187
+.reactflow-workspace .react-flow__node-customComponent.selected {
+  box-shadow: 0 0 2px 2px rgba('0, 0, 0', 0.5);
+  &:focus {
+    box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.5) !important;
+  }
+}
+
 .reactflow-workspace .react-flow__handle {
   height: 10px;
   width: 10px;

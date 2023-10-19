@@ -95,4 +95,5 @@ export interface IComponent {
  */
 export interface IComponentData extends IComponent {
   id: string;
+  selected?: boolean;
 }

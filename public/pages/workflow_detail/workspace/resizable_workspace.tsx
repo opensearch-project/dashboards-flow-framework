@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useRef, useState, useEffect } from 'react';
-import { ReactFlowProvider } from 'reactflow';
+import React, { useRef, useState, useEffect, useContext } from 'react';
+import { useOnSelectionChange } from 'reactflow';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
 import { EuiButton, EuiResizableContainer } from '@elastic/eui';
@@ -17,6 +17,7 @@ import {
   componentDataToFormik,
   getComponentSchema,
 } from '../../../../common';
+import { rfContext } from '../../../store';
 import { Workspace } from './workspace';
 import { ComponentDetails } from '../component_details';
 
@@ -40,6 +41,43 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     collapseFn.current(COMPONENT_DETAILS_PANEL_ID, { direction: 'left' });
     setIsOpen(!isOpen);
   };
+
+  // Selected component state
+  const { reactFlowInstance } = useContext(rfContext);
+  const [selectedComponent, setSelectedComponent] = useState<
+    ReactFlowComponent
+  >();
+
+  /**
+   * Hook provided by reactflow to listen on when nodes are selected / de-selected.
+   * - populate panel content appropriately
+   * - open the panel if a node is selected and the panel is closed
+   * - it is assumed that only one node can be selected at once
+   */
+  useOnSelectionChange({
+    onChange: ({ nodes, edges }) => {
+      if (nodes && nodes.length > 0) {
+        setSelectedComponent(nodes[0]);
+        if (!isOpen) {
+          onToggleChange();
+        }
+      } else {
+        setSelectedComponent(undefined);
+      }
+    },
+  });
+
+  useEffect(() => {
+    reactFlowInstance?.setNodes((nodes: ReactFlowComponent[]) =>
+      nodes.map((node) => {
+        node.data = {
+          ...node.data,
+          selected: node.id === selectedComponent?.id ? true : false,
+        };
+        return node;
+      })
+    );
+  }, [selectedComponent]);
 
   // Formik form state
   const [formValues, setFormValues] = useState<WorkspaceFormValues>({});
@@ -110,7 +148,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               }
 
               return (
-                <ReactFlowProvider>
+                <>
                   <EuiResizablePanel mode="main" initialSize={75} minSize="50%">
                     <Workspace
                       workflow={props.workflow}
@@ -125,12 +163,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     minSize="10%"
                     onToggleCollapsedInternal={() => onToggleChange()}
                   >
-                    <ComponentDetails
-                      onToggleChange={onToggleChange}
-                      isOpen={isOpen}
-                    />
+                    <ComponentDetails selectedComponent={selectedComponent} />
                   </EuiResizablePanel>
-                </ReactFlowProvider>
+                </>
               );
             }}
           </EuiResizableContainer>
