@@ -4,7 +4,6 @@
  */
 
 import React, { useContext } from 'react';
-import { useFormikContext } from 'formik';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -14,7 +13,7 @@ import {
   EuiButtonIcon,
 } from '@elastic/eui';
 import { rfContext } from '../../../store';
-import { IComponentData, WorkspaceFormValues } from '../../../component_types';
+import { IComponentData } from '../../../component_types';
 import { InputHandle } from './input_handle';
 import { OutputHandle } from './output_handle';
 

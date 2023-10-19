@@ -54,6 +54,9 @@ export function DeletableEdge(props: DeletableEdgeProps) {
           className="nodrag nopan"
         >
           <button
+            // We need to specify type as "button" to prevent formik from reading this as a "submit" type
+            // by default, in which case validation is triggered unexpectedly.
+            type="button"
             className="delete-edge-button"
             onClick={(event) => onEdgeClick(event, props.id)}
           >
