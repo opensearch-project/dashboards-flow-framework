@@ -139,7 +139,7 @@ export function Workspace(props: WorkspaceProps) {
       justifyContent="spaceBetween"
       className="workspace-panel"
     >
-      <EuiFlexItem className="resizable-panel-border">
+      <EuiFlexItem className="euiPanel euiPanel--hasShadow euiPanel--borderRadiusMedium">
         {/**
          * We have these wrapper divs & reactFlowWrapper ref to control and calculate the
          * ReactFlow bounds when calculating node positioning.

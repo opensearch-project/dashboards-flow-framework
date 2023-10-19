@@ -28,7 +28,7 @@ export function ComponentDetails(props: ComponentDetailsProps) {
       gutterSize="none"
       className="workspace-panel"
     >
-      <EuiFlexItem className="resizable-panel-border">
+      <EuiFlexItem>
         <EuiPanel paddingSize="m">
           {props.selectedComponent ? (
             <ComponentInputs selectedComponent={props.selectedComponent} />
