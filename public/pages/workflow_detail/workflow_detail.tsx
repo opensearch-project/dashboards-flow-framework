@@ -6,6 +6,7 @@
 import React, { useEffect } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { ReactFlowProvider } from 'reactflow';
 import { EuiPage, EuiPageBody } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
@@ -42,11 +43,13 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   });
 
   return (
-    <EuiPage>
-      <EuiPageBody>
-        <WorkflowDetailHeader workflow={workflow} />
-        <ResizableWorkspace workflow={workflow} />
-      </EuiPageBody>
-    </EuiPage>
+    <ReactFlowProvider>
+      <EuiPage>
+        <EuiPageBody>
+          <WorkflowDetailHeader workflow={workflow} />
+          <ResizableWorkspace workflow={workflow} />
+        </EuiPageBody>
+      </EuiPage>
+    </ReactFlowProvider>
   );
 }
