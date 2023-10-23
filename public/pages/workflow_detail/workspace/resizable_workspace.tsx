@@ -34,13 +34,13 @@ const COMPONENT_DETAILS_PANEL_ID = 'component_details_panel_id';
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Component details side panel state
-  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [isDetailsPanelOpen, setisDetailsPanelOpen] = useState<boolean>(true);
   const collapseFn = useRef(
     (id: string, options: { direction: 'left' | 'right' }) => {}
   );
   const onToggleChange = () => {
     collapseFn.current(COMPONENT_DETAILS_PANEL_ID, { direction: 'left' });
-    setIsOpen(!isOpen);
+    setisDetailsPanelOpen(!isDetailsPanelOpen);
   };
 
   // Selected component state
@@ -59,7 +59,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     onChange: ({ nodes, edges }) => {
       if (nodes && nodes.length > 0) {
         setSelectedComponent(nodes[0]);
-        if (!isOpen) {
+        if (!isDetailsPanelOpen) {
           onToggleChange();
         }
       } else {
