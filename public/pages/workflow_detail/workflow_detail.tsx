@@ -21,21 +21,18 @@ export interface WorkflowDetailRouterProps {
   workflowId: string;
 }
 
-export interface WorkflowDetailProps
+interface WorkflowDetailProps
   extends RouteComponentProps<WorkflowDetailRouterProps> {}
 
-export enum WORKFLOW_DETAILS_TAB {
+enum WORKFLOW_DETAILS_TAB {
   EDITOR = 'editor',
   LAUNCHES = 'launches',
   PROTOTYPE = 'prototype',
 }
 
-export const ACTIVE_TAB_PARAM = 'tab';
+const ACTIVE_TAB_PARAM = 'tab';
 
-export function replaceActiveTab(
-  activeTab: string,
-  props: WorkflowDetailProps
-) {
+function replaceActiveTab(activeTab: string, props: WorkflowDetailProps) {
   props.history.replace({
     ...history,
     search: queryString.stringify({
@@ -64,9 +61,12 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     tabFromUrl
   );
 
-  // Default to editor tab if there is none specified via url.
+  // Default to editor tab if there is none or invalid tab ID specified via url.
   useEffect(() => {
-    if (!selectedTabId) {
+    if (
+      !selectedTabId ||
+      !Object.values(WORKFLOW_DETAILS_TAB).includes(selectedTabId)
+    ) {
       setSelectedTabId(WORKFLOW_DETAILS_TAB.EDITOR);
       replaceActiveTab(WORKFLOW_DETAILS_TAB.EDITOR, props);
     }
