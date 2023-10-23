@@ -4,7 +4,13 @@
  */
 
 import React from 'react';
-import { EuiFlexItem, EuiText } from '@elastic/eui';
+import {
+  EuiFlexItem,
+  EuiPageContent,
+  EuiSpacer,
+  EuiText,
+  EuiTitle,
+} from '@elastic/eui';
 import { Workflow } from '../../../../common';
 
 interface PrototypeProps {
@@ -18,8 +24,14 @@ interface PrototypeProps {
  */
 export function Prototype(props: PrototypeProps) {
   return (
-    <EuiFlexItem>
-      <EuiText>TODO: add prototype page</EuiText>
-    </EuiFlexItem>
+    <EuiPageContent>
+      <EuiTitle>
+        <h2>Prototype</h2>
+      </EuiTitle>
+      <EuiSpacer size="m" />
+      <EuiFlexItem>
+        <EuiText>TODO: add prototype page</EuiText>
+      </EuiFlexItem>
+    </EuiPageContent>
   );
 }

@@ -4,7 +4,13 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiPageContent,
+  EuiSpacer,
+  EuiTitle,
+} from '@elastic/eui';
 import { Workflow } from '../../../../common';
 import { LaunchList } from './launch_list';
 import { LaunchDetails } from './launch_details';
@@ -18,13 +24,19 @@ interface LaunchesProps {
  */
 export function Launches(props: LaunchesProps) {
   return (
-    <EuiFlexGroup direction="row">
-      <EuiFlexItem>
-        <LaunchList />
-      </EuiFlexItem>
-      <EuiFlexItem>
-        <LaunchDetails />
-      </EuiFlexItem>
-    </EuiFlexGroup>
+    <EuiPageContent>
+      <EuiTitle>
+        <h2>Launches</h2>
+      </EuiTitle>
+      <EuiSpacer size="m" />
+      <EuiFlexGroup direction="row">
+        <EuiFlexItem>
+          <LaunchList />
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <LaunchDetails />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiPageContent>
   );
 }
