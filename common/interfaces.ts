@@ -76,9 +76,29 @@ export type Workflow = {
   workspaceFlowState?: WorkspaceFlowState;
   template: UseCaseTemplate;
   lastUpdated: number;
+  state: WORKFLOW_STATE;
 };
 
 export enum USE_CASE {
   SEMANTIC_SEARCH = 'semantic_search',
   CUSTOM = 'custom',
+}
+
+/**
+ ********** MISC TYPES/INTERFACES ************
+ */
+
+// TODO: finalize how we have the launch data model
+export type WorkflowLaunch = {
+  id: string;
+  state: WORKFLOW_STATE;
+  lastUpdated: number;
+};
+
+// TODO: finalize list of possible workflow states from backend
+export enum WORKFLOW_STATE {
+  SUCCEEDED = 'Succeeded',
+  FAILED = 'Failed',
+  IN_PROGRESS = 'In progress',
+  NOT_STARTED = 'Not started',
 }

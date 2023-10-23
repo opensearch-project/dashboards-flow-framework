@@ -11,6 +11,7 @@ import { saveWorkflow } from '../utils';
 import { rfContext, AppState, removeDirty } from '../../../store';
 
 interface WorkflowDetailHeaderProps {
+  tabs: any[];
   workflow?: Workflow;
 }
 
@@ -22,7 +23,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
   return (
     <EuiPageHeader
       pageTitle={props.workflow ? props.workflow.name : ''}
-      description={props.workflow ? props.workflow.description : ''}
       rightSideItems={[
         <EuiButton fill={false} onClick={() => {}}>
           Prototype
@@ -39,6 +39,8 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           Save
         </EuiButton>,
       ]}
+      tabs={props.tabs}
+      bottomBorder={true}
     />
   );
 }

@@ -4,6 +4,7 @@
  */
 
 import { FormikErrors, FormikTouched, FormikValues } from 'formik';
+import { EuiFilterSelectItem } from '@elastic/eui';
 import { Schema, ObjectSchema } from 'yup';
 import * as yup from 'yup';
 import {
@@ -13,6 +14,7 @@ import {
   IComponentData,
   IComponentField,
   WorkspaceFormValues,
+  WORKFLOW_STATE,
 } from '../../common';
 
 // Append 16 random characters
@@ -123,4 +125,29 @@ function getFieldSchema(field: IComponentField): Schema {
   return field.optional
     ? baseSchema.optional()
     : baseSchema.required('Required');
+}
+
+export function getStateOptions(): EuiFilterSelectItem[] {
+  return [
+    // @ts-ignore
+    {
+      name: WORKFLOW_STATE.SUCCEEDED,
+      checked: 'on',
+    } as EuiFilterSelectItem,
+    // @ts-ignore
+    {
+      name: WORKFLOW_STATE.NOT_STARTED,
+      checked: 'on',
+    } as EuiFilterSelectItem,
+    // @ts-ignore
+    {
+      name: WORKFLOW_STATE.IN_PROGRESS,
+      checked: 'on',
+    } as EuiFilterSelectItem,
+    // @ts-ignore
+    {
+      name: WORKFLOW_STATE.FAILED,
+      checked: 'on',
+    } as EuiFilterSelectItem,
+  ];
 }

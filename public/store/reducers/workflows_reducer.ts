@@ -12,6 +12,7 @@ import {
   TextEmbeddingProcessor,
   generateId,
   initComponentData,
+  WORKFLOW_STATE,
 } from '../../../common';
 
 // TODO: remove after fetching from server-side
@@ -46,6 +47,7 @@ const initialState = {
       name: 'Workflow-1',
       id: 'workflow-1-id',
       description: 'description for workflow 1',
+      state: WORKFLOW_STATE.SUCCEEDED,
       workspaceFlowState: {
         nodes: dummyNodes,
         edges: [] as ReactFlowEdge[],
@@ -56,6 +58,7 @@ const initialState = {
       name: 'Workflow-2',
       id: 'workflow-2-id',
       description: 'description for workflow 2',
+      state: WORKFLOW_STATE.FAILED,
       workspaceFlowState: {
         nodes: dummyNodes,
         edges: [] as ReactFlowEdge[],
