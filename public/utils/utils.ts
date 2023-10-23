@@ -4,6 +4,7 @@
  */
 
 import { FormikErrors, FormikTouched, FormikValues } from 'formik';
+import { EuiFilterSelectItem } from '@elastic/eui';
 import { Schema, ObjectSchema } from 'yup';
 import * as yup from 'yup';
 import {
@@ -15,7 +16,6 @@ import {
   WorkspaceFormValues,
   WORKFLOW_STATE,
 } from '../../common';
-import { EuiFilterSelectItem } from '@elastic/eui';
 
 // Append 16 random characters
 export function generateId(prefix: string): string {

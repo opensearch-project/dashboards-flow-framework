@@ -30,7 +30,7 @@ enum WORKFLOWS_TAB {
   CREATE = 'create',
 }
 
-const ACTIVE_TAB_PARAM = 'active_tab';
+const ACTIVE_TAB_PARAM = 'tab';
 
 function replaceActiveTab(activeTab: string, props: WorkflowsProps) {
   props.history.replace({
@@ -100,6 +100,7 @@ export function Workflows(props: WorkflowsProps) {
               },
             },
           ]}
+          bottomBorder={true}
         />
 
         <EuiPageContent>
