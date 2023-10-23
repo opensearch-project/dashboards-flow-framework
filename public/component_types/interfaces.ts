@@ -3,17 +3,26 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { FormikValues } from 'formik';
+import { ObjectSchema } from 'yup';
 import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../utils';
 
 /**
- * ************ Types **************************
+ * ************ Types *************************
  */
 export type UIFlow = string;
 export type FieldType = 'string' | 'json' | 'select';
-
-/**
- * ************ Base interfaces ****************
- */
+// TODO: this may expand to more types in the future. Formik supports 'any' so we can too.
+// For now, limiting scope to expected types.
+export type FieldValue = string | {};
+export type ComponentFormValues = FormikValues;
+export type WorkspaceFormValues = {
+  [componentId: string]: ComponentFormValues;
+};
+export type WorkspaceSchemaObj = {
+  [componentId: string]: ObjectSchema<any, any, any>;
+};
+export type WorkspaceSchema = ObjectSchema<WorkspaceSchemaObj>;
 
 /**
  * Represents a single base class as an input handle for a component.
@@ -35,6 +44,8 @@ export interface IComponentInput {
 export interface IComponentField {
   label: string;
   type: FieldType;
+  name: string;
+  value?: FieldValue;
   placeholder?: string;
   optional?: boolean;
   advanced?: boolean;
@@ -84,4 +95,5 @@ export interface IComponent {
  */
 export interface IComponentData extends IComponent {
   id: string;
+  selected?: boolean;
 }
