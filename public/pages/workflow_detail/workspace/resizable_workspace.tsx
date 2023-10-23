@@ -7,6 +7,7 @@ import React, { useRef, useState, useEffect, useContext } from 'react';
 import { useOnSelectionChange } from 'reactflow';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
+import { cloneDeep } from 'lodash';
 import { EuiButton, EuiResizableContainer } from '@elastic/eui';
 import {
   Workflow,
@@ -99,22 +100,23 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   }, [props.workflow]);
 
   // Update the form values and validation schema when a node is added
-  // or removed from the workspace
+  // or removed from the workspace.
+  // For the schema, we do a deep clone of the underlying object, and later re-create the schema.
+  // For the form values, we update directly to prevent the form from being reinitialized.
   function onNodesChange(nodes: ReactFlowComponent[]): void {
     const updatedComponentIds = nodes.map((node) => node.id);
     const existingComponentIds = Object.keys(formValues);
-    const updatedSchemaObj = {} as WorkspaceSchemaObj;
+    const updatedSchemaObj = cloneDeep(formSchema.fields) as WorkspaceSchemaObj;
 
     if (updatedComponentIds.length > existingComponentIds.length) {
       // TODO: implement for when a node is added
     } else if (updatedComponentIds.length < existingComponentIds.length) {
       existingComponentIds.forEach((existingId) => {
-        if (updatedComponentIds.includes(existingId)) {
-          updatedSchemaObj[existingId] = formSchema.fields[
-            `${existingId}`
-          ] as yup.ObjectSchema<any, any, any>;
-        } else {
+        if (!updatedComponentIds.includes(existingId)) {
+          // Remove the mapping for the removed component in the form values
+          // and schema.
           delete formValues[`${existingId}`];
+          delete updatedSchemaObj[`${existingId}`];
         }
       });
     } else {
