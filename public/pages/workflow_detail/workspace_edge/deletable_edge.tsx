@@ -35,6 +35,8 @@ export function DeletableEdge(props: DeletableEdgeProps) {
   const { deleteEdge } = useContext(rfContext);
 
   const onEdgeClick = (event: any, edgeId: string) => {
+    // Prevent this event from bubbling up and putting reactflow into an unexpected state.
+    // This implementation follows the doc example: https://reactflow.dev/docs/examples/edges/custom-edge/
     event.stopPropagation();
     deleteEdge(edgeId);
   };
@@ -54,6 +56,9 @@ export function DeletableEdge(props: DeletableEdgeProps) {
           className="nodrag nopan"
         >
           <button
+            // We need to specify type as "button" to prevent formik from reading this as a "submit" type
+            // by default, in which case validation is triggered unexpectedly.
+            type="button"
             className="delete-edge-button"
             onClick={(event) => onEdgeClick(event, props.id)}
           >

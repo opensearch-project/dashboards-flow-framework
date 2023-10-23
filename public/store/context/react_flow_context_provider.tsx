@@ -41,7 +41,6 @@ export function ReactFlowContextProvider({ children }: any) {
           (edge: Edge) => edge.source !== nodeId && edge.target !== nodeId
         )
     );
-
     dispatch(setDirty());
   };
 

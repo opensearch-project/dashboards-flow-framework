@@ -15,6 +15,7 @@ interface JsonFieldProps {
  * An input field for a component where users manually enter
  * in some custom JSON
  */
+// TODO: integrate with formik
 export function JsonField(props: JsonFieldProps) {
   return (
     <>

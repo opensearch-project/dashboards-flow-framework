@@ -46,18 +46,21 @@ export class TextEmbeddingProcessor
     this.fields = [
       {
         label: 'Model ID',
+        name: 'modelId',
         type: 'string',
         optional: false,
         advanced: false,
       },
       {
         label: 'Input Field',
+        name: 'inputField',
         type: 'string',
         optional: false,
         advanced: false,
       },
       {
         label: 'Output Field',
+        name: 'outputField',
         type: 'string',
         optional: false,
         advanced: false,

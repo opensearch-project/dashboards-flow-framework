@@ -4,7 +4,7 @@
  */
 
 import { Node, Edge } from 'reactflow';
-import { IComponent as IComponentData } from '../public/component_types';
+import { IComponentData } from '../public/component_types';
 
 export type Index = {
   name: string;

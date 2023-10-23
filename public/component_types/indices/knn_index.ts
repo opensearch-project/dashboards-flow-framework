@@ -55,6 +55,7 @@ export class KnnIndex extends BaseComponent implements IComponent {
     this.fields = [
       {
         label: 'Index Name',
+        name: 'indexName',
         type: 'select',
         optional: false,
         advanced: false,
@@ -63,6 +64,7 @@ export class KnnIndex extends BaseComponent implements IComponent {
     this.createFields = [
       {
         label: 'Index Name',
+        name: 'indexName',
         type: 'string',
         optional: false,
         advanced: false,
@@ -73,6 +75,7 @@ export class KnnIndex extends BaseComponent implements IComponent {
       // simple form inputs vs. complex JSON editor
       {
         label: 'Mappings',
+        name: 'indexMappings',
         type: 'json',
         placeholder: 'Enter an index mappings JSON blob...',
         optional: false,
