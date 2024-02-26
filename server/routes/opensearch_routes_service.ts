@@ -19,7 +19,7 @@ export function registerOpenSearchRoutes(
   router: IRouter,
   opensearchRoutesService: OpenSearchRoutesService
 ): void {
-  router.post(
+  router.get(
     {
       path: `${SEARCH_INDICES_PATH}/{index_name}`,
       validate: {
@@ -32,7 +32,7 @@ export function registerOpenSearchRoutes(
     opensearchRoutesService.searchIndex
   );
 
-  router.post(
+  router.get(
     {
       path: `${FETCH_INDICES_PATH}/{pattern}`,
       validate: {
@@ -69,7 +69,7 @@ export class OpenSearchRoutesService {
     try {
       const response = await this.client
         .asScoped(req)
-        .callAsCurrentUser.search(params);
+        .callAsCurrentUser('search', params);
       return res.ok({ body: response });
     } catch (err: any) {
       return generateCustomError(res, err);
@@ -82,19 +82,17 @@ export class OpenSearchRoutesService {
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const { pattern } = req.params;
-    console.log('in fetchIndices()');
-    console.log('pattern: ', pattern);
     try {
       const response = await this.client
         .asScoped(req)
-        .callAsCurrentUser.cat.indices({
+        .callAsCurrentUser('cat.indices', {
           index: pattern,
           format: 'json',
           h: 'health,index',
         });
 
       // re-formatting the index results to match Index
-      const cleanedIndices = response.body.map((index) => ({
+      const cleanedIndices = response.map((index: any) => ({
         name: index.index,
         health: index.health,
       })) as Index[];

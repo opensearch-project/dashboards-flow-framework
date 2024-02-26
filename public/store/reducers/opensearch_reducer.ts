@@ -6,6 +6,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { getRouteService } from '../../services';
 import { Index } from '../../../common';
+import { HttpFetchError } from '../../../../../src/core/public';
 
 const initialState = {
   loading: false,
@@ -18,11 +19,19 @@ const FETCH_INDICES_ACTION = `${OPENSEARCH_PREFIX}/fetchIndices`;
 
 export const fetchIndices = createAsyncThunk(
   FETCH_INDICES_ACTION,
-  async (pattern?: string) => {
+  async (pattern: string, { rejectWithValue }) => {
     // defaulting to fetch everything except system indices (starting with '.')
     const patternString = pattern || '*,-.*';
-    const response = getRouteService().fetchIndices(patternString);
-    return response;
+    const response: any | HttpFetchError = await getRouteService().fetchIndices(
+      patternString
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error fetching indices: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
   }
 );
 
