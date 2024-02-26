@@ -4,16 +4,16 @@
  */
 
 import { PluginInitializerContext } from '../../../src/core/server';
-import { AiFlowDashboardsPlugin } from './plugin';
+import { FlowFrameworkDashboardsPlugin } from './plugin';
 
 // This exports static code and TypeScript types,
 // as well as, OpenSearch Dashboards Platform `plugin()` initializer.
 
 export function plugin(initializerContext: PluginInitializerContext) {
-  return new AiFlowDashboardsPlugin(initializerContext);
+  return new FlowFrameworkDashboardsPlugin(initializerContext);
 }
 
 export {
-  AiFlowDashboardsPluginSetup,
-  AiFlowDashboardsPluginStart,
+  FlowFrameworkDashboardsPluginSetup,
+  FlowFrameworkDashboardsPluginStart,
 } from './types';

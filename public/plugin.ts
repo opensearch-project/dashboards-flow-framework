@@ -10,20 +10,24 @@ import {
   Plugin,
 } from '../../../src/core/public';
 import {
-  AiFlowDashboardsPluginSetup,
-  AiFlowDashboardsPluginStart,
+  FlowFrameworkDashboardsPluginSetup,
+  FlowFrameworkDashboardsPluginStart,
 } from './types';
 import { PLUGIN_ID } from '../common';
 import { setCore, setRouteService } from './services';
 import { configureRoutes } from './route_service';
 
-export class AiFlowDashboardsPlugin
-  implements Plugin<AiFlowDashboardsPluginSetup, AiFlowDashboardsPluginStart> {
-  public setup(core: CoreSetup): AiFlowDashboardsPluginSetup {
+export class FlowFrameworkDashboardsPlugin
+  implements
+    Plugin<
+      FlowFrameworkDashboardsPluginSetup,
+      FlowFrameworkDashboardsPluginStart
+    > {
+  public setup(core: CoreSetup): FlowFrameworkDashboardsPluginSetup {
     // Register the plugin in the side navigation
     core.application.register({
       id: PLUGIN_ID,
-      title: 'AI Application Builder',
+      title: 'Flow Framework',
       category: {
         id: 'opensearch',
         label: 'OpenSearch plugins',
@@ -44,7 +48,7 @@ export class AiFlowDashboardsPlugin
     return {};
   }
 
-  public start(core: CoreStart): AiFlowDashboardsPluginStart {
+  public start(core: CoreStart): FlowFrameworkDashboardsPluginStart {
     return {};
   }
 

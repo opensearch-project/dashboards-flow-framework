@@ -4,7 +4,7 @@
  */
 
 export enum Navigation {
-  AiApplicationBuilder = 'AI Application Builder',
+  FlowFramework = 'Flow Framework',
   Overview = 'Overview',
   Workflows = 'Workflows',
 }
@@ -17,7 +17,7 @@ export enum APP_PATH {
 }
 
 export const BREADCRUMBS = Object.freeze({
-  AI_APPLICATION_BUILDER: { text: 'AI application builder', href: '#/' },
+  FLOW_FRAMEWORK: { text: 'Flow Framework', href: '#/' },
   OVERVIEW: { text: 'Overview', href: `#${APP_PATH.OVERVIEW}` },
   WORKFLOWS: { text: 'Workflows', href: `#${APP_PATH.WORKFLOWS}` },
 });
