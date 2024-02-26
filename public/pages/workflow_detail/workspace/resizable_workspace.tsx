@@ -141,7 +141,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         <Form>
           <EuiResizableContainer
             direction="horizontal"
-            style={{ marginLeft: '-14px' }}
+            style={{ marginLeft: '-8px', marginTop: '-8px' }}
           >
             {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
               if (togglePanel) {
@@ -151,7 +151,12 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
               return (
                 <>
-                  <EuiResizablePanel mode="main" initialSize={75} minSize="50%">
+                  <EuiResizablePanel
+                    mode="main"
+                    initialSize={75}
+                    minSize="50%"
+                    paddingSize="s"
+                  >
                     <Workspace
                       workflow={props.workflow}
                       onNodesChange={onNodesChange}
@@ -163,6 +168,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     mode="collapsible"
                     initialSize={25}
                     minSize="10%"
+                    paddingSize="s"
                     onToggleCollapsedInternal={() => onToggleChange()}
                   >
                     <ComponentDetails selectedComponent={selectedComponent} />
