@@ -12,13 +12,17 @@ import {
 } from '../../../src/core/server';
 
 import {
-  AiFlowDashboardsPluginSetup,
-  AiFlowDashboardsPluginStart,
+  FlowFrameworkDashboardsPluginSetup,
+  FlowFrameworkDashboardsPluginStart,
 } from './types';
 import { registerOpenSearchRoutes } from './routes';
 
-export class AiFlowDashboardsPlugin
-  implements Plugin<AiFlowDashboardsPluginSetup, AiFlowDashboardsPluginStart> {
+export class FlowFrameworkDashboardsPlugin
+  implements
+    Plugin<
+      FlowFrameworkDashboardsPluginSetup,
+      FlowFrameworkDashboardsPluginStart
+    > {
   private readonly logger: Logger;
 
   constructor(initializerContext: PluginInitializerContext) {
@@ -26,7 +30,7 @@ export class AiFlowDashboardsPlugin
   }
 
   public setup(core: CoreSetup) {
-    this.logger.debug('ai-flow-dashboards: Setup');
+    this.logger.debug('flow-framework-dashboards: Setup');
     const router = core.http.createRouter();
 
     // Register server side APIs
@@ -36,7 +40,7 @@ export class AiFlowDashboardsPlugin
   }
 
   public start(core: CoreStart) {
-    this.logger.debug('ai-flow-dashboards: Started');
+    this.logger.debug('flow-framework-dashboards: Started');
     return {};
   }
 
