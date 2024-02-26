@@ -30,7 +30,7 @@ enum WORKFLOWS_TAB {
   CREATE = 'create',
 }
 
-const ACTIVE_TAB_PARAM = 'active_tab';
+const ACTIVE_TAB_PARAM = 'tab';
 
 function replaceActiveTab(activeTab: string, props: WorkflowsProps) {
   props.history.replace({
@@ -54,10 +54,13 @@ export function Workflows(props: WorkflowsProps) {
   ] as WORKFLOWS_TAB;
   const [selectedTabId, setSelectedTabId] = useState<WORKFLOWS_TAB>(tabFromUrl);
 
-  // If there is no selected tab, default to a tab depending on if user
-  // has existing created workflows or not.
+  // If there is no selected tab or invalid tab, default to a tab depending
+  // on if user has existing created workflows or not.
   useEffect(() => {
-    if (!selectedTabId) {
+    if (
+      !selectedTabId ||
+      !Object.values(WORKFLOWS_TAB).includes(selectedTabId)
+    ) {
       if (workflows?.length > 0) {
         setSelectedTabId(WORKFLOWS_TAB.MANAGE);
         replaceActiveTab(WORKFLOWS_TAB.MANAGE, props);
@@ -100,6 +103,7 @@ export function Workflows(props: WorkflowsProps) {
               },
             },
           ]}
+          bottomBorder={true}
         />
 
         <EuiPageContent>
