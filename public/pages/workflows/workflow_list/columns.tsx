@@ -26,4 +26,9 @@ export const columns = [
     name: 'Description',
     sortable: false,
   },
+  {
+    field: 'state',
+    name: 'Status',
+    sortable: true,
+  },
 ];
