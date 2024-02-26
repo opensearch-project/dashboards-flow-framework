@@ -17,14 +17,14 @@ import {
 
 interface Props extends RouteComponentProps {}
 
-export const AiFlowDashboardsApp = (props: Props) => {
+export const FlowFrameworkDashboardsApp = (props: Props) => {
   const sidebar = (
     <EuiPageSideBar style={{ minWidth: 190 }} hidden={false} paddingSize="l">
       <EuiSideNav
         style={{ width: 190 }}
         items={[
           {
-            name: Navigation.AiApplicationBuilder,
+            name: Navigation.FlowFramework,
             id: 0,
             items: [
               {

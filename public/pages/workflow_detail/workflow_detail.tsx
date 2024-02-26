@@ -74,7 +74,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
 
   useEffect(() => {
     getCore().chrome.setBreadcrumbs([
-      BREADCRUMBS.AI_APPLICATION_BUILDER,
+      BREADCRUMBS.FLOW_FRAMEWORK,
       BREADCRUMBS.WORKFLOWS,
       { text: workflowName },
     ]);

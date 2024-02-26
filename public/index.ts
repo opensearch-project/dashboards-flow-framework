@@ -5,14 +5,14 @@
 
 import './index.scss';
 
-import { AiFlowDashboardsPlugin } from './plugin';
+import { FlowFrameworkDashboardsPlugin } from './plugin';
 
 // This exports static code and TypeScript types,
 // as well as, OpenSearch Dashboards Platform `plugin()` initializer.
 export function plugin() {
-  return new AiFlowDashboardsPlugin();
+  return new FlowFrameworkDashboardsPlugin();
 }
 export {
-  AiFlowDashboardsPluginSetup,
-  AiFlowDashboardsPluginStart,
+  FlowFrameworkDashboardsPluginSetup,
+  FlowFrameworkDashboardsPluginStart,
 } from './types';
