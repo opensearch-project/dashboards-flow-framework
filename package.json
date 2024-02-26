@@ -1,12 +1,12 @@
 {
-  "name": "ai-flow-dashboards",
+  "name": "dashboards-flow-framework",
   "version": "3.0.0.0",
-  "description": "OpenSearch AI Flow Dashboards Plugin",
+  "description": "OpenSearch Flow Framework Dashboards Plugin",
   "main": "index.js",
   "config": {
     "plugin_version": "3.0.0.0",
-    "plugin_name": "aiFlowDashboards",
-    "plugin_zip_name": "ai-flow-dashboards"
+    "plugin_name": "flowFramework",
+    "plugin_zip_name": "dashboards-flow-framework"
   },
   "scripts": {
     "plugin-helpers": "../../scripts/use_node ../../scripts/plugin_helpers",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/opensearch-project/opensearch-ai-flow-dashboards.git"
+    "url": "https://github.com/opensearch-project/dashboards-flow-framework.git"
   },
   "pre-commit": [
     "lint:es:precommit"

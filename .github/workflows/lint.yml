@@ -6,7 +6,7 @@ jobs:
   run-lint:
     name: Run lint script
     runs-on: ubuntu-latest
-    if: github.repository == 'opensearch-project/opensearch-ai-flow-dashboards'
+    if: github.repository == 'opensearch-project/dashboards-flow-framework'
     steps:
       - name: Checkout OpenSearch Dashboards
         uses: actions/checkout@v2
@@ -31,12 +31,12 @@ jobs:
       - name: Checkout plugin
         uses: actions/checkout@v2
         with:
-          path: OpenSearch-Dashboards/plugins/opensearch-ai-flow-dashboards
+          path: OpenSearch-Dashboards/plugins/dashboards-flow-framework
       - name: Bootstrap the plugin
         run: |
-          cd OpenSearch-Dashboards/plugins/opensearch-ai-flow-dashboards
+          cd OpenSearch-Dashboards/plugins/dashboards-flow-framework
           yarn osd bootstrap
       - name: Run lint script
         run: |
-          cd OpenSearch-Dashboards/plugins/opensearch-ai-flow-dashboards
+          cd OpenSearch-Dashboards/plugins/dashboards-flow-framework
           yarn lint:es common/* public/* server/*

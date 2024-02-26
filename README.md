@@ -1,6 +1,6 @@
-## OpenSearch AI Flow Dashboards Plugin
+## OpenSearch Flow Framework Dashboards Plugin
 
-This plugin provides a simple UI for building AI applications with OpenSearch.
+This plugin provides a simple UI for building applications with OpenSearch Flow Framework.
 
 TODO: add details
 

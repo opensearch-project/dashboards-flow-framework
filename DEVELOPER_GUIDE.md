@@ -25,7 +25,7 @@ You will need to install [node.js](https://nodejs.org/en/), [nvm](https://github
 ### Environment Setup
 
 1. Download OpenSearch for the version that matches the [OpenSearch Dashboards version specified in package.json](./package.json#L7).
-2. Download and install [OpenSearch AI Flow Framework](https://github.com/opensearch-project/opensearch-ai-flow-framework).
+2. Download and install [OpenSearch Flow Framework](https://github.com/opensearch-project/flow-framework).
 3. Download the OpenSearch Dashboards source code for the [version specified in package.json](./package.json#L7) you want to set up.
 
    See the [OpenSearch Dashboards contributing guide](https://github.com/opensearch-project/OpenSearch-Dashboards/blob/main/CONTRIBUTING.md) and [developer guide](https://github.com/opensearch-project/OpenSearch-Dashboards/blob/main/DEVELOPER_GUIDE.md) for more instructions on setting up your development environment.
@@ -33,7 +33,7 @@ You will need to install [node.js](https://nodejs.org/en/), [nvm](https://github
 4. Change your node version to the version specified in `.node-version` inside the OpenSearch Dashboards root directory (this can be done with the `nvm use` command).
 5. Create a `plugins` directory inside the OpenSearch Dashboards source code directory, if `plugins` directory doesn't exist.
 6. Check out this package from version control into the `plugins` directory.
-7. Run `yarn osd bootstrap` inside `OpenSearch-Dashboards/plugins/opensearch-ai-flow-dashboards`.
+7. Run `yarn osd bootstrap` inside `OpenSearch-Dashboards/plugins/dashboards-flow-framework`.
 
 Ultimately, your directory structure should look like this:
 
@@ -42,14 +42,14 @@ Ultimately, your directory structure should look like this:
 .
 ├── OpenSearch-Dashboards
 │   └──plugins
-│      └── opensearch-ai-flow-dashboards
+│      └── dashboards-flow-framework
 ```
 
 ### Build
 
 To build the plugin's distributable zip simply run `yarn build`.
 
-Example output: `./build/opensearch-ai-flow-dashboards-2.10.0.0.zip`
+Example output: `./build/dashboards-flow-framework-3.0.0.0.zip`
 
 ### Run
 
