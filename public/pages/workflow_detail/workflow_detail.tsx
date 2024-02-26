@@ -12,7 +12,7 @@ import { EuiPage, EuiPageBody } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
-import { AppState } from '../../store';
+import { AppState, fetchIndices } from '../../store';
 import { ResizableWorkspace } from './workspace';
 import { Launches } from './launches';
 import { Prototype } from './prototype';
@@ -48,6 +48,13 @@ function replaceActiveTab(activeTab: string, props: WorkflowDetailProps) {
  */
 export function WorkflowDetail(props: WorkflowDetailProps) {
   const { workflows } = useSelector((state: AppState) => state.workflows);
+  const { indices, loading } = useSelector(
+    (state: AppState) => state.opensearch
+  );
+
+  console.log('indices fetched: ', indices);
+  console.log('workflows fetched: ', workflows);
+  console.log('loading: ', loading);
 
   const workflow = workflows.find(
     (wf) => wf.id === props.match?.params?.workflowId
@@ -70,6 +77,11 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
       setSelectedTabId(WORKFLOW_DETAILS_TAB.EDITOR);
       replaceActiveTab(WORKFLOW_DETAILS_TAB.EDITOR, props);
     }
+  }, []);
+
+  useEffect(() => {
+    console.log('fetching indices...');
+    fetchIndices('opensearch_dashboards_*');
   }, []);
 
   useEffect(() => {

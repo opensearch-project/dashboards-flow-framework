@@ -41,7 +41,7 @@ export function registerOpenSearchRoutes(
         }),
       },
     },
-    opensearchRoutesService.catIndices
+    opensearchRoutesService.fetchIndices
   );
 }
 
@@ -76,12 +76,14 @@ export class OpenSearchRoutesService {
     }
   };
 
-  catIndices = async (
+  fetchIndices = async (
     context: RequestHandlerContext,
     req: OpenSearchDashboardsRequest,
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const { pattern } = req.params;
+    console.log('in fetchIndices()');
+    console.log('pattern: ', pattern);
     try {
       const response = await this.client
         .asScoped(req)

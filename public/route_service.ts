@@ -15,7 +15,7 @@ export function configureRoutes(core: CoreStart): RouteService {
   return {
     searchIndex: async (indexName: string, body: {}) => {
       try {
-        const response = await core.http.get<{ respString: string }>(
+        const response = await core.http.post<{ respString: string }>(
           `${SEARCH_INDICES_PATH}/${indexName}`,
           {
             body: JSON.stringify(body),
@@ -28,7 +28,7 @@ export function configureRoutes(core: CoreStart): RouteService {
     },
     fetchIndices: async (pattern: string) => {
       try {
-        const response = await core.http.get<{ respString: string }>(
+        const response = await core.http.post<{ respString: string }>(
           `${FETCH_INDICES_PATH}/${pattern}`
         );
         return response;
