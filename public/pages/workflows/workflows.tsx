@@ -14,12 +14,12 @@ import {
   EuiSpacer,
 } from '@elastic/eui';
 import queryString from 'query-string';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
-import { AppState } from '../../store';
+import { AppState, getWorkflow } from '../../store';
 
 export interface WorkflowsRouterProps {}
 
@@ -47,6 +47,7 @@ function replaceActiveTab(activeTab: string, props: WorkflowsProps) {
  * to get started on a new workflow.
  */
 export function Workflows(props: WorkflowsProps) {
+  const dispatch = useDispatch();
   const { workflows } = useSelector((state: AppState) => state.workflows);
 
   const tabFromUrl = queryString.parse(useLocation().search)[
@@ -61,7 +62,7 @@ export function Workflows(props: WorkflowsProps) {
       !selectedTabId ||
       !Object.values(WORKFLOWS_TAB).includes(selectedTabId)
     ) {
-      if (workflows?.length > 0) {
+      if (Object.keys(workflows).length > 0) {
         setSelectedTabId(WORKFLOWS_TAB.MANAGE);
         replaceActiveTab(WORKFLOWS_TAB.MANAGE, props);
       } else {
@@ -77,6 +78,10 @@ export function Workflows(props: WorkflowsProps) {
       BREADCRUMBS.WORKFLOWS,
     ]);
   });
+
+  useEffect(() => {
+    dispatch(getWorkflow('dummy-id'));
+  }, []);
 
   return (
     <EuiPage>

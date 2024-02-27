@@ -43,6 +43,7 @@ const opensearchSlice = createSlice({
     builder
       .addCase(fetchIndices.pending, (state, action) => {
         state.loading = true;
+        state.errorMessage = '';
       })
       .addCase(fetchIndices.fulfilled, (state, action) => {
         const indicesMap = new Map<string, Index>();
@@ -51,6 +52,7 @@ const opensearchSlice = createSlice({
         });
         state.indices = Object.fromEntries(indicesMap.entries());
         state.loading = false;
+        state.errorMessage = '';
       })
       .addCase(fetchIndices.rejected, (state, action) => {
         state.errorMessage = action.payload as string;

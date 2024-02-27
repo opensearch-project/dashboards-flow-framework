@@ -34,6 +34,7 @@ const sorting = {
  */
 export function WorkflowList(props: WorkflowListProps) {
   const { workflows } = useSelector((state: AppState) => state.workflows);
+  const workflowsAsList = Object.values(workflows);
 
   // search bar state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -46,13 +47,13 @@ export function WorkflowList(props: WorkflowListProps) {
     getStateOptions()
   );
   const [filteredWorkflows, setFilteredWorkflows] = useState<Workflow[]>(
-    workflows || []
+    workflowsAsList || []
   );
 
   // When a filter selection or search query changes, update the list
   useEffect(() => {
     setFilteredWorkflows(
-      fetchFilteredWorkflows(workflows, selectedStates, searchQuery)
+      fetchFilteredWorkflows(workflowsAsList, selectedStates, searchQuery)
     );
   }, [selectedStates, searchQuery]);
 

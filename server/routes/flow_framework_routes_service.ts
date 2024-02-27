@@ -18,14 +18,13 @@ export function registerFlowFrameworkRoutes(
   router: IRouter,
   flowFrameworkRoutesService: FlowFrameworkRoutesService
 ): void {
-  router.post(
+  router.get(
     {
       path: `${GET_WORKFLOW_PATH}/{workflow_id}`,
       validate: {
         params: schema.object({
-          index_name: schema.string(),
+          workflow_id: schema.string(),
         }),
-        body: schema.any(),
       },
     },
     flowFrameworkRoutesService.getWorkflow
@@ -46,8 +45,10 @@ export class FlowFrameworkRoutesService {
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { workflow_id } = req.params;
+    console.log('workflow ID: ', workflow_id);
 
     try {
+      console.log('making rquest...');
       const response = await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.getWorkflow', { workflow_id });

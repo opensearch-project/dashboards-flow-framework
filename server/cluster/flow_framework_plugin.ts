@@ -11,7 +11,7 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
   Client.prototype.flowFramework = components.clientAction.namespaceFactory();
   const flowFramework = Client.prototype.flowFramework.prototype;
 
-  flowFramework.deleteDetector = ca({
+  flowFramework.getWorkflow = ca({
     url: {
       fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>`,
       req: {
