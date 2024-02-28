@@ -34,28 +34,29 @@ const sorting = {
  */
 export function WorkflowList(props: WorkflowListProps) {
   const { workflows } = useSelector((state: AppState) => state.workflows);
-  const workflowsAsList = Object.values(workflows);
 
   // search bar state
   const [searchQuery, setSearchQuery] = useState<string>('');
   const debounceSearchQuery = debounce((query: string) => {
     setSearchQuery(query);
-  }, 100);
+  }, 200);
 
   // filters state
   const [selectedStates, setSelectedStates] = useState<EuiFilterSelectItem[]>(
     getStateOptions()
   );
-  const [filteredWorkflows, setFilteredWorkflows] = useState<Workflow[]>(
-    workflowsAsList || []
-  );
+  const [filteredWorkflows, setFilteredWorkflows] = useState<Workflow[]>([]);
 
-  // When a filter selection or search query changes, update the list
+  // When any filter changes or new workflows are found, update the list
   useEffect(() => {
     setFilteredWorkflows(
-      fetchFilteredWorkflows(workflowsAsList, selectedStates, searchQuery)
+      fetchFilteredWorkflows(
+        Object.values(workflows),
+        selectedStates,
+        searchQuery
+      )
     );
-  }, [selectedStates, searchQuery]);
+  }, [selectedStates, searchQuery, workflows]);
 
   return (
     <EuiFlexGroup direction="column">

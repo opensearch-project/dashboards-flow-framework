@@ -19,7 +19,7 @@ import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
-import { AppState, getWorkflow } from '../../store';
+import { AppState, searchWorkflows } from '../../store';
 
 export interface WorkflowsRouterProps {}
 
@@ -79,8 +79,9 @@ export function Workflows(props: WorkflowsProps) {
     ]);
   });
 
+  // On initial render: fetch all workflows
   useEffect(() => {
-    dispatch(getWorkflow('dummy-id'));
+    dispatch(searchWorkflows({ query: { match_all: {} } }));
   }, []);
 
   return (

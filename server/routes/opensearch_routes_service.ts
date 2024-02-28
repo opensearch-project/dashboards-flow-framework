@@ -12,36 +12,27 @@ import {
   OpenSearchDashboardsRequest,
   OpenSearchDashboardsResponseFactory,
 } from '../../../../src/core/server';
-import { SEARCH_INDICES_PATH, FETCH_INDICES_PATH, Index } from '../../common';
+import { CAT_INDICES_NODE_API_PATH, Index } from '../../common';
 import { generateCustomError } from './helpers';
 
+/**
+ * Server-side routes to process OpenSearch-related node API calls and execute the
+ * corresponding API calls against the OpenSearch cluster.
+ */
 export function registerOpenSearchRoutes(
   router: IRouter,
   opensearchRoutesService: OpenSearchRoutesService
 ): void {
   router.get(
     {
-      path: `${SEARCH_INDICES_PATH}/{index_name}`,
-      validate: {
-        params: schema.object({
-          index_name: schema.string(),
-        }),
-        body: schema.any(),
-      },
-    },
-    opensearchRoutesService.searchIndex
-  );
-
-  router.get(
-    {
-      path: `${FETCH_INDICES_PATH}/{pattern}`,
+      path: `${CAT_INDICES_NODE_API_PATH}/{pattern}`,
       validate: {
         params: schema.object({
           pattern: schema.string(),
         }),
       },
     },
-    opensearchRoutesService.fetchIndices
+    opensearchRoutesService.catIndices
   );
 }
 
@@ -52,36 +43,12 @@ export class OpenSearchRoutesService {
     this.client = client;
   }
 
-  searchIndex = async (
+  catIndices = async (
     context: RequestHandlerContext,
     req: OpenSearchDashboardsRequest,
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const { index_name } = req.params;
-    const body = req.body;
-
-    const params = {
-      index: index_name,
-      body,
-    } as SearchRequest;
-
-    try {
-      const response = await this.client
-        .asScoped(req)
-        .callAsCurrentUser('search', params);
-      return res.ok({ body: response });
-    } catch (err: any) {
-      return generateCustomError(res, err);
-    }
-  };
-
-  fetchIndices = async (
-    context: RequestHandlerContext,
-    req: OpenSearchDashboardsRequest,
-    res: OpenSearchDashboardsResponseFactory
-  ): Promise<IOpenSearchDashboardsResponse<any>> => {
-    const { pattern } = req.params;
+    const { pattern } = req.params as { pattern: string };
     try {
       const response = await this.client
         .asScoped(req)
