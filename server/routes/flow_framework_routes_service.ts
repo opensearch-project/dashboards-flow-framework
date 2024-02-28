@@ -123,12 +123,12 @@ export class FlowFrameworkRoutesService {
         .asScoped(req)
         .callAsCurrentUser('flowFramework.searchWorkflows', { body });
       const workflowHits = response.hits.hits as any[];
-      const workflowsMap = {} as WorkflowDict;
+      const workflowDict = {} as WorkflowDict;
       workflowHits.forEach((workflowHit: any) => {
-        workflowsMap[workflowHit._id] = toWorkflowObj(workflowHit);
+        workflowDict[workflowHit._id] = toWorkflowObj(workflowHit);
       });
 
-      return res.ok({ body: { workflows: workflowsMap } });
+      return res.ok({ body: { workflows: workflowDict } });
     } catch (err: any) {
       return generateCustomError(res, err);
     }

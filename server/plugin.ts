@@ -43,10 +43,10 @@ export class FlowFrameworkDashboardsPlugin
     this.logger.debug('flow-framework-dashboards: Setup');
     const router = core.http.createRouter();
 
-    // Get any custom/overridden headers
+    // Get global config
     const globalConfig = await this.globalConfig$.pipe(first()).toPromise();
 
-    // Create OpenSearch client w/ relevant plugins and headers
+    // Create OpenSearch client, including flow framework plugin APIs
     const client: ILegacyClusterClient = core.opensearch.legacy.createClient(
       'flow_framework',
       {
