@@ -6,6 +6,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { getRouteService } from '../../services';
 import { Index } from '../../../common';
+import { HttpFetchError } from '../../../../../src/core/public';
 
 const initialState = {
   loading: false,
@@ -14,15 +15,23 @@ const initialState = {
 };
 
 const OPENSEARCH_PREFIX = 'opensearch';
-const FETCH_INDICES_ACTION = `${OPENSEARCH_PREFIX}/fetchIndices`;
+const CAT_INDICES_ACTION = `${OPENSEARCH_PREFIX}/catIndices`;
 
-export const fetchIndices = createAsyncThunk(
-  FETCH_INDICES_ACTION,
-  async (pattern?: string) => {
+export const catIndices = createAsyncThunk(
+  CAT_INDICES_ACTION,
+  async (pattern: string, { rejectWithValue }) => {
     // defaulting to fetch everything except system indices (starting with '.')
     const patternString = pattern || '*,-.*';
-    const response = getRouteService().fetchIndices(patternString);
-    return response;
+    const response: any | HttpFetchError = await getRouteService().catIndices(
+      patternString
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error running cat indices: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
   }
 );
 
@@ -32,18 +41,20 @@ const opensearchSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchIndices.pending, (state, action) => {
+      .addCase(catIndices.pending, (state, action) => {
         state.loading = true;
+        state.errorMessage = '';
       })
-      .addCase(fetchIndices.fulfilled, (state, action) => {
+      .addCase(catIndices.fulfilled, (state, action) => {
         const indicesMap = new Map<string, Index>();
         action.payload.forEach((index: Index) => {
           indicesMap.set(index.name, index);
         });
         state.indices = Object.fromEntries(indicesMap.entries());
         state.loading = false;
+        state.errorMessage = '';
       })
-      .addCase(fetchIndices.rejected, (state, action) => {
+      .addCase(catIndices.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       });
