@@ -102,3 +102,7 @@ export enum WORKFLOW_STATE {
   IN_PROGRESS = 'In progress',
   NOT_STARTED = 'Not started',
 }
+
+export type WorkflowDict = {
+  [workflowId: string]: Workflow;
+};

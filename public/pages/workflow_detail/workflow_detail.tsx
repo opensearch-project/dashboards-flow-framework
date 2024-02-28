@@ -49,9 +49,7 @@ function replaceActiveTab(activeTab: string, props: WorkflowDetailProps) {
 export function WorkflowDetail(props: WorkflowDetailProps) {
   const { workflows } = useSelector((state: AppState) => state.workflows);
 
-  const workflow = workflows.find(
-    (wf) => wf.id === props.match?.params?.workflowId
-  );
+  const workflow = workflows[props.match?.params?.workflowId];
   const workflowName = workflow ? workflow.name : '';
 
   const tabFromUrl = queryString.parse(useLocation().search)[
