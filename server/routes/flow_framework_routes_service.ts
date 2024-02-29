@@ -172,15 +172,12 @@ export class FlowFrameworkRoutesService {
       const response = await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.createWorkflow', { body });
-      console.log('response from create workflow: ', response);
-      // TODO: format response
-      return res.ok({ body: response });
+      return res.ok({ body: { id: response._id } });
     } catch (err: any) {
       return generateCustomError(res, err);
     }
   };
 
-  // TODO: test e2e
   deleteWorkflow = async (
     context: RequestHandlerContext,
     req: OpenSearchDashboardsRequest,
@@ -191,9 +188,7 @@ export class FlowFrameworkRoutesService {
       const response = await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.deleteWorkflow', { workflow_id });
-      console.log('response from delete workflow: ', response);
-      // TODO: format response
-      return res.ok({ body: response });
+      return res.ok({ body: { id: response._id } });
     } catch (err: any) {
       return generateCustomError(res, err);
     }

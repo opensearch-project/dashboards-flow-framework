@@ -50,16 +50,18 @@ export function getWorkflowsFromResponses(
     const workflowStateHit = workflowStateHits.find(
       (workflowStateHit) => workflowStateHit._id === workflowHit._id
     );
-    const workflowState = workflowStateHit._source
-      .state as typeof WORKFLOW_STATE;
-    workflowDict[workflowHit._id] = {
-      ...workflowDict[workflowHit._id],
-      // @ts-ignore
-      state: WORKFLOW_STATE[workflowState],
-      // TODO: this needs to be persisted by backend. Tracking issue:
-      // https://github.com/opensearch-project/flow-framework/issues/548
-      lastLaunched: 1234,
-    };
+    if (workflowStateHit) {
+      const workflowState = workflowStateHit._source
+        .state as typeof WORKFLOW_STATE;
+      workflowDict[workflowHit._id] = {
+        ...workflowDict[workflowHit._id],
+        // @ts-ignore
+        state: WORKFLOW_STATE[workflowState],
+        // TODO: this needs to be persisted by backend. Tracking issue:
+        // https://github.com/opensearch-project/flow-framework/issues/548
+        lastLaunched: 1234,
+      };
+    }
   });
   return workflowDict;
 }
