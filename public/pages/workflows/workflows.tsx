@@ -72,6 +72,13 @@ export function Workflows(props: WorkflowsProps) {
     }
   }, [selectedTabId, workflows]);
 
+  // If the user navigates back to the manage tab, re-fetch workflows
+  useEffect(() => {
+    if (selectedTabId === WORKFLOWS_TAB.MANAGE) {
+      dispatch(searchWorkflows({ query: { match_all: {} } }));
+    }
+  }, [selectedTabId]);
+
   useEffect(() => {
     getCore().chrome.setBreadcrumbs([
       BREADCRUMBS.FLOW_FRAMEWORK,

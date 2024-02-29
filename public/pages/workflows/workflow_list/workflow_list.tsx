@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'lodash';
 import {
   EuiInMemoryTable,
@@ -13,8 +13,9 @@ import {
   EuiFlexItem,
   EuiFilterSelectItem,
   EuiFieldSearch,
+  EuiLoadingSpinner,
 } from '@elastic/eui';
-import { AppState } from '../../../store';
+import { AppState, deleteWorkflow } from '../../../store';
 import { Workflow } from '../../../../common';
 import { columns } from './columns';
 import { MultiSelectFilter } from '../../../general_components';
@@ -33,7 +34,10 @@ const sorting = {
  * The searchable list of created workflows.
  */
 export function WorkflowList(props: WorkflowListProps) {
-  const { workflows } = useSelector((state: AppState) => state.workflows);
+  const dispatch = useDispatch();
+  const { workflows, loading } = useSelector(
+    (state: AppState) => state.workflows
+  );
 
   // search bar state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -58,6 +62,19 @@ export function WorkflowList(props: WorkflowListProps) {
     );
   }, [selectedStates, searchQuery, workflows]);
 
+  const tableActions = [
+    {
+      name: 'Delete',
+      description: 'Delete this workflow',
+      type: 'icon',
+      icon: 'trash',
+      color: 'danger',
+      onClick: (item: Workflow) => {
+        dispatch(deleteWorkflow(item.id));
+      },
+    },
+  ];
+
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem>
@@ -80,10 +97,18 @@ export function WorkflowList(props: WorkflowListProps) {
         <EuiInMemoryTable<Workflow>
           items={filteredWorkflows}
           rowHeader="name"
-          columns={columns}
+          // @ts-ignore
+          columns={columns(tableActions)}
           sorting={sorting}
           pagination={true}
-          message={'No existing workflows found'}
+          message={
+            loading === true ? (
+              <EuiLoadingSpinner size="xl" />
+            ) : (
+              'No existing workflows found'
+            )
+          }
+          hasActions={true}
         />
       </EuiFlexItem>
     </EuiFlexGroup>

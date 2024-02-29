@@ -7,7 +7,7 @@ import React from 'react';
 import { EuiLink } from '@elastic/eui';
 import { PLUGIN_ID, Workflow } from '../../../../common';
 
-export const columns = [
+export const columns = (actions: any[]) => [
   {
     field: 'name',
     name: 'Name',
@@ -35,5 +35,9 @@ export const columns = [
     field: 'lastLaunched',
     name: 'Last launched',
     sortable: true,
+  },
+  {
+    name: 'Actions',
+    actions,
   },
 ];
