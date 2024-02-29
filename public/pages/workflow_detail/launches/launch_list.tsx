@@ -30,7 +30,7 @@ export function LaunchList(props: LaunchListProps) {
   const workflowLaunches = [
     {
       id: 'Launch_1',
-      state: WORKFLOW_STATE.IN_PROGRESS,
+      state: WORKFLOW_STATE.PROVISIONING,
       lastUpdated: 12345678,
     },
     {
