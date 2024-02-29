@@ -17,18 +17,23 @@ export const columns = [
     ),
   },
   {
-    field: 'id',
-    name: 'ID',
+    field: 'state',
+    name: 'Status',
     sortable: true,
   },
   {
-    field: 'description',
-    name: 'Description',
-    sortable: false,
+    field: 'useCase',
+    name: 'Type',
+    sortable: true,
   },
   {
-    field: 'state',
-    name: 'Status',
+    field: 'lastUpdated',
+    name: 'Last updated',
+    sortable: true,
+  },
+  {
+    field: 'lastLaunched',
+    name: 'Last launched',
     sortable: true,
   },
 ];
