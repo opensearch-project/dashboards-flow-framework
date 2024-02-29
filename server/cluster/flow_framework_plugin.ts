@@ -5,6 +5,7 @@
 
 import {
   FLOW_FRAMEWORK_SEARCH_WORKFLOWS_ROUTE,
+  FLOW_FRAMEWORK_SEARCH_WORKFLOW_STATE_ROUTE,
   FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX,
 } from '../../common';
 
@@ -53,6 +54,15 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
       },
     },
     method: 'GET',
+  });
+
+  flowFramework.searchWorkflowState = ca({
+    url: {
+      fmt: FLOW_FRAMEWORK_SEARCH_WORKFLOW_STATE_ROUTE,
+    },
+    needBody: true,
+    // Exposed client rejects making GET requests with a body. So, we use POST
+    method: 'POST',
   });
 
   flowFramework.createWorkflow = ca({
