@@ -131,22 +131,22 @@ export function getStateOptions(): EuiFilterSelectItem[] {
   return [
     // @ts-ignore
     {
-      name: WORKFLOW_STATE.SUCCEEDED,
-      checked: 'on',
-    } as EuiFilterSelectItem,
-    // @ts-ignore
-    {
       name: WORKFLOW_STATE.NOT_STARTED,
       checked: 'on',
     } as EuiFilterSelectItem,
     // @ts-ignore
     {
-      name: WORKFLOW_STATE.IN_PROGRESS,
+      name: WORKFLOW_STATE.PROVISIONING,
       checked: 'on',
     } as EuiFilterSelectItem,
     // @ts-ignore
     {
       name: WORKFLOW_STATE.FAILED,
+      checked: 'on',
+    } as EuiFilterSelectItem,
+    // @ts-ignore
+    {
+      name: WORKFLOW_STATE.COMPLETED,
       checked: 'on',
     } as EuiFilterSelectItem,
   ];

@@ -17,9 +17,8 @@ import {
   GET_WORKFLOW_NODE_API_PATH,
   GET_WORKFLOW_STATE_NODE_API_PATH,
   SEARCH_WORKFLOWS_NODE_API_PATH,
-  WorkflowDict,
 } from '../../common';
-import { generateCustomError, toWorkflowObj } from './helpers';
+import { generateCustomError, getWorkflowsFromResponses } from './helpers';
 
 /**
  * Server-side routes to process flow-framework-related node API calls and execute the
@@ -112,6 +111,9 @@ export class FlowFrameworkRoutesService {
     }
   };
 
+  // TODO: can remove or simplify if we can fetch all data from a single API call. Tracking issue:
+  // https://github.com/opensearch-project/flow-framework/issues/171
+  // Current implementation is making two calls and combining results via helper fn
   searchWorkflows = async (
     context: RequestHandlerContext,
     req: OpenSearchDashboardsRequest,
@@ -119,15 +121,20 @@ export class FlowFrameworkRoutesService {
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const body = req.body;
     try {
-      const response = await this.client
+      const workflowsResponse = await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.searchWorkflows', { body });
-      const workflowHits = response.hits.hits as any[];
-      const workflowDict = {} as WorkflowDict;
-      workflowHits.forEach((workflowHit: any) => {
-        workflowDict[workflowHit._id] = toWorkflowObj(workflowHit);
-      });
+      const workflowHits = workflowsResponse.hits.hits as any[];
 
+      const workflowStatesResponse = await this.client
+        .asScoped(req)
+        .callAsCurrentUser('flowFramework.searchWorkflowState', { body });
+      const workflowStateHits = workflowStatesResponse.hits.hits as any[];
+
+      const workflowDict = getWorkflowsFromResponses(
+        workflowHits,
+        workflowStateHits
+      );
       return res.ok({ body: { workflows: workflowDict } });
     } catch (err: any) {
       return generateCustomError(res, err);
