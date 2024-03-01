@@ -20,6 +20,7 @@ import { getCore } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
 import { AppState, searchWorkflows } from '../../store';
+import { EmptyListMessage } from './empty_list_message';
 
 export interface WorkflowsRouterProps {}
 
@@ -48,7 +49,9 @@ function replaceActiveTab(activeTab: string, props: WorkflowsProps) {
  */
 export function Workflows(props: WorkflowsProps) {
   const dispatch = useDispatch();
-  const { workflows } = useSelector((state: AppState) => state.workflows);
+  const { workflows, loading } = useSelector(
+    (state: AppState) => state.workflows
+  );
 
   const tabFromUrl = queryString.parse(useLocation().search)[
     ACTIVE_TAB_PARAM
@@ -130,6 +133,16 @@ export function Workflows(props: WorkflowsProps) {
           <EuiSpacer size="m" />
           {selectedTabId === WORKFLOWS_TAB.MANAGE && <WorkflowList />}
           {selectedTabId === WORKFLOWS_TAB.CREATE && <NewWorkflow />}
+          {selectedTabId === WORKFLOWS_TAB.MANAGE &&
+            Object.values(workflows).length === 0 &&
+            !loading && (
+              <EmptyListMessage
+                onClickNewWorkflow={() => {
+                  setSelectedTabId(WORKFLOWS_TAB.CREATE);
+                  replaceActiveTab(WORKFLOWS_TAB.CREATE, props);
+                }}
+              />
+            )}
         </EuiPageContent>
       </EuiPageBody>
     </EuiPage>
