@@ -11,10 +11,11 @@ import {
   EuiFlexGroup,
   EuiFieldSearch,
 } from '@elastic/eui';
-
+import { useDispatch } from 'react-redux';
 import { UseCase } from './use_case';
 import { getPresetWorkflows } from './presets';
 import { Workflow } from '../../../../common';
+import { cacheWorkflow } from '../../../store';
 
 interface NewWorkflowProps {}
 
@@ -26,6 +27,7 @@ interface NewWorkflowProps {}
  * workflow for users to start with.
  */
 export function NewWorkflow(props: NewWorkflowProps) {
+  const dispatch = useDispatch();
   // preset workflow state
   const presetWorkflows = getPresetWorkflows();
   const [filteredWorkflows, setFilteredWorkflows] = useState<Workflow[]>(
@@ -54,12 +56,20 @@ export function NewWorkflow(props: NewWorkflowProps) {
       </EuiFlexItem>
       <EuiFlexItem>
         <EuiFlexGrid columns={3} gutterSize="l">
-          {filteredWorkflows.map((workflow: Workflow) => {
+          {filteredWorkflows.map((workflow: Workflow, index) => {
             return (
-              <EuiFlexItem>
+              <EuiFlexItem key={index}>
                 <UseCase
                   title={workflow.name}
                   description={workflow.description || ''}
+                  onClick={() =>
+                    dispatch(
+                      cacheWorkflow({
+                        ...workflow,
+                        name: toSnakeCase(workflow.name),
+                      })
+                    )
+                  }
                 />
               </EuiFlexItem>
             );
@@ -80,4 +90,15 @@ function fetchFilteredWorkflows(
     : allWorkflows.filter((workflow) =>
         workflow.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
+}
+
+// Utility fn to convert to snakecase. Used when caching the workflow
+// to make a valid name and cause less friction if users decide
+// to save it later on.
+function toSnakeCase(text: string): string {
+  return text
+    .replace(/\W+/g, ' ')
+    .split(/ |\B(?=[A-Z])/)
+    .map((word) => word.toLowerCase())
+    .join('_');
 }

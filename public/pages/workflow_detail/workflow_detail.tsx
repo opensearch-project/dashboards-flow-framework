@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import queryString from 'query-string';
 import { EuiPage, EuiPageBody } from '@elastic/eui';
@@ -16,6 +16,7 @@ import { AppState } from '../../store';
 import { ResizableWorkspace } from './workspace';
 import { Launches } from './launches';
 import { Prototype } from './prototype';
+import { NEW_WORKFLOW_ID_URL } from '../../../common';
 
 export interface WorkflowDetailRouterProps {
   workflowId: string;
@@ -45,13 +46,26 @@ function replaceActiveTab(activeTab: string, props: WorkflowDetailProps) {
  * The workflow details page. This is where users will configure, create, and
  * test their created workflows. Additionally, can be used to load existing workflows
  * to view details and/or make changes to them.
+ * New, unsaved workflows are cached in the redux store and displayed here.
  */
+
+// TODO: if exiting the page, or if saving, clear the cached workflow. Can use redux clearCachedWorkflow()
 export function WorkflowDetail(props: WorkflowDetailProps) {
-  const { workflows } = useSelector((state: AppState) => state.workflows);
+  const { workflows, cachedWorkflow } = useSelector(
+    (state: AppState) => state.workflows
+  );
 
-  const workflow = workflows[props.match?.params?.workflowId];
-  const workflowName = workflow ? workflow.name : '';
+  const isNewWorkflow = props.match?.params?.workflowId === NEW_WORKFLOW_ID_URL;
+  const workflow = isNewWorkflow
+    ? cachedWorkflow
+    : workflows[props.match?.params?.workflowId];
+  const workflowName = workflow
+    ? workflow.name
+    : isNewWorkflow && !cachedWorkflow
+    ? 'new_workflow'
+    : '';
 
+  // tab state
   const tabFromUrl = queryString.parse(useLocation().search)[
     ACTIVE_TAB_PARAM
   ] as WORKFLOW_DETAILS_TAB;
@@ -112,7 +126,11 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     <ReactFlowProvider>
       <EuiPage>
         <EuiPageBody>
-          <WorkflowDetailHeader workflow={workflow} tabs={tabs} />
+          <WorkflowDetailHeader
+            workflow={workflow}
+            formattedWorkflowName={workflowName}
+            tabs={tabs}
+          />
           {selectedTabId === WORKFLOW_DETAILS_TAB.EDITOR && (
             <ResizableWorkspace workflow={workflow} />
           )}

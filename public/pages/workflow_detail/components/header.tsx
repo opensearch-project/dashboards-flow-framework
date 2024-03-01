@@ -12,6 +12,7 @@ import { rfContext, AppState, removeDirty } from '../../../store';
 
 interface WorkflowDetailHeaderProps {
   tabs: any[];
+  formattedWorkflowName: string;
   workflow?: Workflow;
 }
 
@@ -22,7 +23,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
 
   return (
     <EuiPageHeader
-      pageTitle={props.workflow ? props.workflow.name : ''}
+      pageTitle={props.formattedWorkflowName}
       rightSideItems={[
         <EuiButton fill={false} onClick={() => {}}>
           Prototype
