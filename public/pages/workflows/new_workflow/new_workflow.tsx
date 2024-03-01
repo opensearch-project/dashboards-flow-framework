@@ -14,7 +14,11 @@ import {
 import { useDispatch } from 'react-redux';
 import { UseCase } from './use_case';
 import { getPresetWorkflows } from './presets';
-import { Workflow } from '../../../../common';
+import {
+  DEFAULT_NEW_WORKFLOW_NAME,
+  START_FROM_SCRATCH_WORKFLOW_NAME,
+  Workflow,
+} from '../../../../common';
 import { cacheWorkflow } from '../../../store';
 
 interface NewWorkflowProps {}
@@ -66,7 +70,7 @@ export function NewWorkflow(props: NewWorkflowProps) {
                     dispatch(
                       cacheWorkflow({
                         ...workflow,
-                        name: toSnakeCase(workflow.name),
+                        name: processWorkflowName(workflow.name),
                       })
                     )
                   }
@@ -92,9 +96,15 @@ function fetchFilteredWorkflows(
       );
 }
 
-// Utility fn to convert to snakecase. Used when caching the workflow
-// to make a valid name and cause less friction if users decide
-// to save it later on.
+// Utility fn to process workflow names from their presentable/readable titles
+// on the UI, to a valid name format.
+// This leads to less friction if users decide to save the name later on.
+function processWorkflowName(workflowName: string): string {
+  return workflowName === START_FROM_SCRATCH_WORKFLOW_NAME
+    ? DEFAULT_NEW_WORKFLOW_NAME
+    : toSnakeCase(workflowName);
+}
+
 function toSnakeCase(text: string): string {
   return text
     .replace(/\W+/g, ' ')

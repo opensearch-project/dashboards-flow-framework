@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Workflow, WorkspaceFlowState } from '../../../../common';
+import {
+  START_FROM_SCRATCH_WORKFLOW_NAME,
+  Workflow,
+  WorkspaceFlowState,
+} from '../../../../common';
 
 // TODO: fetch from the backend when the workflow library is complete.
 /**
@@ -34,7 +38,7 @@ export function getPresetWorkflows(): Workflow[] {
       } as WorkspaceFlowState,
     },
     {
-      name: 'Start From Scratch',
+      name: START_FROM_SCRATCH_WORKFLOW_NAME,
       description:
         'Build your workflow from scratch according to your specific use cases. Start by adding components for your ingest or query needs.',
       useCase: '',

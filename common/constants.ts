@@ -34,3 +34,5 @@ export const DELETE_WORKFLOW_NODE_API_PATH = `${BASE_WORKFLOW_NODE_API_PATH}/del
  * MISCELLANEOUS
  */
 export const NEW_WORKFLOW_ID_URL = 'new';
+export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
+export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';

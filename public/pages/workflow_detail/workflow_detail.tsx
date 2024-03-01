@@ -12,11 +12,14 @@ import { EuiPage, EuiPageBody } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
-import { AppState } from '../../store';
+import { AppState, searchWorkflows } from '../../store';
 import { ResizableWorkspace } from './workspace';
 import { Launches } from './launches';
 import { Prototype } from './prototype';
-import { NEW_WORKFLOW_ID_URL } from '../../../common';
+import {
+  DEFAULT_NEW_WORKFLOW_NAME,
+  NEW_WORKFLOW_ID_URL,
+} from '../../../common';
 
 export interface WorkflowDetailRouterProps {
   workflowId: string;
@@ -49,20 +52,21 @@ function replaceActiveTab(activeTab: string, props: WorkflowDetailProps) {
  * New, unsaved workflows are cached in the redux store and displayed here.
  */
 
-// TODO: if exiting the page, or if saving, clear the cached workflow. Can use redux clearCachedWorkflow()
 export function WorkflowDetail(props: WorkflowDetailProps) {
+  const dispatch = useDispatch();
   const { workflows, cachedWorkflow } = useSelector(
     (state: AppState) => state.workflows
   );
+  const { isDirty } = useSelector((state: AppState) => state.workspace);
 
-  const isNewWorkflow = props.match?.params?.workflowId === NEW_WORKFLOW_ID_URL;
-  const workflow = isNewWorkflow
-    ? cachedWorkflow
-    : workflows[props.match?.params?.workflowId];
+  // selected workflow state
+  const workflowId = props.match?.params?.workflowId;
+  const isNewWorkflow = workflowId === NEW_WORKFLOW_ID_URL;
+  const workflow = isNewWorkflow ? cachedWorkflow : workflows[workflowId];
   const workflowName = workflow
     ? workflow.name
-    : isNewWorkflow && !cachedWorkflow
-    ? 'new_workflow'
+    : isNewWorkflow && !workflow
+    ? DEFAULT_NEW_WORKFLOW_NAME
     : '';
 
   // tab state
@@ -91,6 +95,19 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
       { text: workflowName },
     ]);
   });
+
+  // On initial load:
+  // - fetch workflow, if there is an existing workflow ID
+  // - add a window listener to warn users if they exit/refresh
+  //   without saving latest changes
+  useEffect(() => {
+    if (!isNewWorkflow) {
+      // TODO: can optimize to only fetch a single workflow
+      dispatch(searchWorkflows({ query: { match_all: {} } }));
+    }
+    window.onbeforeunload = (e) =>
+      isDirty || isNewWorkflow ? true : undefined;
+  }, []);
 
   const tabs = [
     {
@@ -128,7 +145,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
         <EuiPageBody>
           <WorkflowDetailHeader
             workflow={workflow}
-            formattedWorkflowName={workflowName}
+            isNewWorkflow={isNewWorkflow}
             tabs={tabs}
           />
           {selectedTabId === WORKFLOW_DETAILS_TAB.EDITOR && (
