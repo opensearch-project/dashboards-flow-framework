@@ -109,7 +109,7 @@ export function WorkflowList(props: WorkflowListProps) {
             <EuiFlexItem grow={true}>
               <EuiFieldSearch
                 fullWidth={true}
-                placeholder="Search workflows..."
+                placeholder="Search"
                 onChange={(e) => debounceSearchQuery(e.target.value)}
               />
             </EuiFlexItem>
