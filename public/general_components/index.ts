@@ -4,3 +4,4 @@
  */
 
 export { MultiSelectFilter } from './multi_select_filter';
+export { DeleteWorkflowModal } from './delete_workflow_modal';
