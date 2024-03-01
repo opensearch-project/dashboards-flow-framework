@@ -18,7 +18,10 @@ import {
 import { AppState, deleteWorkflow } from '../../../store';
 import { Workflow } from '../../../../common';
 import { columns } from './columns';
-import { MultiSelectFilter } from '../../../general_components';
+import {
+  DeleteWorkflowModal,
+  MultiSelectFilter,
+} from '../../../general_components';
 import { getStateOptions } from '../../../utils';
 
 interface WorkflowListProps {}
@@ -38,6 +41,16 @@ export function WorkflowList(props: WorkflowListProps) {
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
+
+  // delete workflow state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [workflowToDelete, setWorkflowToDelete] = useState<
+    Workflow | undefined
+  >(undefined);
+  function clearDeleteState() {
+    setWorkflowToDelete(undefined);
+    setIsDeleteModalOpen(false);
+  }
 
   // search bar state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -70,48 +83,57 @@ export function WorkflowList(props: WorkflowListProps) {
       icon: 'trash',
       color: 'danger',
       onClick: (item: Workflow) => {
-        dispatch(deleteWorkflow(item.id));
+        setWorkflowToDelete(item);
+        setIsDeleteModalOpen(true);
       },
     },
   ];
 
   return (
-    <EuiFlexGroup direction="column">
-      <EuiFlexItem>
-        <EuiFlexGroup direction="row" gutterSize="m">
-          <EuiFlexItem grow={true}>
-            <EuiFieldSearch
-              fullWidth={true}
-              placeholder="Search workflows..."
-              onChange={(e) => debounceSearchQuery(e.target.value)}
-            />
-          </EuiFlexItem>
-          <MultiSelectFilter
-            filters={getStateOptions()}
-            title="Status"
-            setSelectedFilters={setSelectedStates}
-          />
-        </EuiFlexGroup>
-      </EuiFlexItem>
-      <EuiFlexItem>
-        <EuiInMemoryTable<Workflow>
-          items={filteredWorkflows}
-          rowHeader="name"
-          // @ts-ignore
-          columns={columns(tableActions)}
-          sorting={sorting}
-          pagination={true}
-          message={
-            loading === true ? (
-              <EuiLoadingSpinner size="xl" />
-            ) : (
-              'No existing workflows found'
-            )
-          }
-          hasActions={true}
+    <>
+      {isDeleteModalOpen && workflowToDelete !== undefined && (
+        <DeleteWorkflowModal
+          workflow={workflowToDelete}
+          onClose={() => {
+            clearDeleteState();
+          }}
+          onConfirm={() => {
+            dispatch(deleteWorkflow(workflowToDelete.id));
+            clearDeleteState();
+          }}
         />
-      </EuiFlexItem>
-    </EuiFlexGroup>
+      )}
+      <EuiFlexGroup direction="column">
+        <EuiFlexItem>
+          <EuiFlexGroup direction="row" gutterSize="m">
+            <EuiFlexItem grow={true}>
+              <EuiFieldSearch
+                fullWidth={true}
+                placeholder="Search workflows..."
+                onChange={(e) => debounceSearchQuery(e.target.value)}
+              />
+            </EuiFlexItem>
+            <MultiSelectFilter
+              filters={getStateOptions()}
+              title="Status"
+              setSelectedFilters={setSelectedStates}
+            />
+          </EuiFlexGroup>
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <EuiInMemoryTable<Workflow>
+            items={filteredWorkflows}
+            rowHeader="name"
+            // @ts-ignore
+            columns={columns(tableActions)}
+            sorting={sorting}
+            pagination={true}
+            message={loading === true ? <EuiLoadingSpinner size="xl" /> : null}
+            hasActions={true}
+          />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </>
   );
 }
 
