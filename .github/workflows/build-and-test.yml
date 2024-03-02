@@ -48,12 +48,12 @@ jobs:
         uses: codecov/codecov-action@v1
 
   # TODO: once github actions supports windows and macos docker containers, we can
-  # merge these in to the above step's matrix.
+  # merge these in to the above step's matrix, including adding windows support
   build-and-test-windows-macos:
     name: Build & test
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       # Enable longer filenames for windows
