@@ -17,8 +17,11 @@ jobs:
 
   build-and-test-linux:
     needs: Get-CI-Image-Tag
-    name: Build & test (ubuntu-latest)
-    runs-on: ubuntu-latest
+    name: Build & test
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     container:
       image: ${{ needs.Get-CI-Image-Tag.outputs.ci-image-version-linux }}
       options: --user root
