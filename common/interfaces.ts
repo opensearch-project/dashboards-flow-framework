@@ -69,16 +69,20 @@ export type UseCaseTemplate = {
 };
 
 export type Workflow = {
-  id: string;
+  // won't exist until created in backend
+  id?: string;
   name: string;
   useCase: string;
+  template: UseCaseTemplate;
   description?: string;
   // ReactFlow state may not exist if a workflow is created via API/backend-only.
   workspaceFlowState?: WorkspaceFlowState;
-  template: UseCaseTemplate;
-  lastUpdated: number;
-  lastLaunched: number;
-  state: WORKFLOW_STATE;
+  // won't exist until created in backend
+  lastUpdated?: number;
+  // won't exist until launched/provisioned in backend
+  lastLaunched?: number;
+  // won't exist until launched/provisioned in backend
+  state?: WORKFLOW_STATE;
 };
 
 export enum USE_CASE {

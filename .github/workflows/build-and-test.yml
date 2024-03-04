@@ -16,6 +16,7 @@ jobs:
       product: opensearch-dashboards
 
   build-and-test-linux:
+    if: ${{ github.event.label.name != 'rapid' }}
     needs: Get-CI-Image-Tag
     name: Build & test
     strategy:
@@ -49,7 +50,8 @@ jobs:
 
   # TODO: once github actions supports windows and macos docker containers, we can
   # merge these in to the above step's matrix, including adding windows support
-  build-and-test-windows-macos:
+  build-and-test-macos:
+    if: ${{ github.event.label.name != 'rapid' }}
     name: Build & test
     strategy:
       matrix:
