@@ -4,9 +4,7 @@
   "opensearchDashboardsVersion": "2.13.0",
   "server": true,
   "ui": true,
-  "requiredBundles": [
-    "opensearchDashboardsUtils"
-  ],
+  "requiredBundles": [],
   "requiredPlugins": [
     "navigation"
   ],
