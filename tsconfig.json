@@ -54,6 +54,7 @@
     "public/**/*.ts",
     "public/**/*.tsx",
     "server/**/*.ts",
+    "test/**/*",
     "../../typings/**/*"
   ],
   "exclude": ["node_modules", "*/node_modules/"]

@@ -14,6 +14,7 @@
     "opensearch": "../../scripts/use_node ../../scripts/opensearch",
     "lint:es": "../../scripts/use_node ../../scripts/eslint -c eslintrc.json",
     "lint:es:precommit": "yarn lint:es common/* public/* server/*",
+    "test:jest": "../../node_modules/.bin/jest --config ./test/jest.config.js",
     "build": "yarn plugin-helpers build && echo Renaming artifact to $npm_package_config_plugin_zip_name-$npm_package_config_plugin_version.zip && mv ./build/$npm_package_config_plugin_name*.zip ./build/$npm_package_config_plugin_zip_name-$npm_package_config_plugin_version.zip"
   },
   "repository": {
