@@ -5,17 +5,21 @@
 
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import queryString from 'query-string';
 import { EuiPage, EuiPageBody } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
-import { AppState } from '../../store';
+import { AppState, searchWorkflows } from '../../store';
 import { ResizableWorkspace } from './workspace';
 import { Launches } from './launches';
 import { Prototype } from './prototype';
+import {
+  DEFAULT_NEW_WORKFLOW_NAME,
+  NEW_WORKFLOW_ID_URL,
+} from '../../../common';
 
 export interface WorkflowDetailRouterProps {
   workflowId: string;
@@ -45,13 +49,27 @@ function replaceActiveTab(activeTab: string, props: WorkflowDetailProps) {
  * The workflow details page. This is where users will configure, create, and
  * test their created workflows. Additionally, can be used to load existing workflows
  * to view details and/or make changes to them.
+ * New, unsaved workflows are cached in the redux store and displayed here.
  */
+
 export function WorkflowDetail(props: WorkflowDetailProps) {
-  const { workflows } = useSelector((state: AppState) => state.workflows);
+  const dispatch = useDispatch();
+  const { workflows, cachedWorkflow } = useSelector(
+    (state: AppState) => state.workflows
+  );
+  const { isDirty } = useSelector((state: AppState) => state.workspace);
 
-  const workflow = workflows[props.match?.params?.workflowId];
-  const workflowName = workflow ? workflow.name : '';
+  // selected workflow state
+  const workflowId = props.match?.params?.workflowId;
+  const isNewWorkflow = workflowId === NEW_WORKFLOW_ID_URL;
+  const workflow = isNewWorkflow ? cachedWorkflow : workflows[workflowId];
+  const workflowName = workflow
+    ? workflow.name
+    : isNewWorkflow && !workflow
+    ? DEFAULT_NEW_WORKFLOW_NAME
+    : '';
 
+  // tab state
   const tabFromUrl = queryString.parse(useLocation().search)[
     ACTIVE_TAB_PARAM
   ] as WORKFLOW_DETAILS_TAB;
@@ -77,6 +95,19 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
       { text: workflowName },
     ]);
   });
+
+  // On initial load:
+  // - fetch workflow, if there is an existing workflow ID
+  // - add a window listener to warn users if they exit/refresh
+  //   without saving latest changes
+  useEffect(() => {
+    if (!isNewWorkflow) {
+      // TODO: can optimize to only fetch a single workflow
+      dispatch(searchWorkflows({ query: { match_all: {} } }));
+    }
+    window.onbeforeunload = (e) =>
+      isDirty || isNewWorkflow ? true : undefined;
+  }, []);
 
   const tabs = [
     {
@@ -112,7 +143,11 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     <ReactFlowProvider>
       <EuiPage>
         <EuiPageBody>
-          <WorkflowDetailHeader workflow={workflow} tabs={tabs} />
+          <WorkflowDetailHeader
+            workflow={workflow}
+            isNewWorkflow={isNewWorkflow}
+            tabs={tabs}
+          />
           {selectedTabId === WORKFLOW_DETAILS_TAB.EDITOR && (
             <ResizableWorkspace workflow={workflow} />
           )}
