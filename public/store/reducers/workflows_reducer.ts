@@ -8,8 +8,8 @@ import {
   Workflow,
   ReactFlowComponent,
   ReactFlowEdge,
-  KnnIndex,
-  TextEmbeddingProcessor,
+  KnnIndexer,
+  TextEmbeddingTransformer,
   generateId,
   initComponentData,
   WORKFLOW_STATE,
@@ -18,61 +18,31 @@ import {
 import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
 
-// TODO: remove hardcoded initial state below after fetching from server side,
+// TODO: remove hardcoded dummy node data below after fetching from server side,
 // and workflow data model interface is more defined.
-// const id1 = generateId('text_embedding_processor');
-// const id2 = generateId('text_embedding_processor');
-// const id3 = generateId('knn_index');
-// const dummyNodes = [
-//   {
-//     id: id1,
-//     position: { x: 0, y: 500 },
-//     data: initComponentData(new TextEmbeddingProcessor().toObj(), id1),
-//     type: 'customComponent',
-//   },
-//   {
-//     id: id2,
-//     position: { x: 0, y: 200 },
-//     data: initComponentData(new TextEmbeddingProcessor().toObj(), id2),
-//     type: 'customComponent',
-//   },
-//   {
-//     id: id3,
-//     position: { x: 500, y: 500 },
-//     data: initComponentData(new KnnIndex().toObj(), id3),
-//     type: 'customComponent',
-//   },
-// ] as ReactFlowComponent[];
-
-// let workflows = {} as { [workflowId: string]: Workflow };
-// workflows['workflow-1-id'] = {
-//   name: 'Workflow-1',
-//   id: 'workflow-1-id',
-//   description: 'description for workflow 1',
-//   state: WORKFLOW_STATE.SUCCEEDED,
-//   workspaceFlowState: {
-//     nodes: dummyNodes,
-//     edges: [] as ReactFlowEdge[],
-//   },
-//   template: {},
-// } as Workflow;
-// workflows['workflow-2-id'] = {
-//   name: 'Workflow-2',
-//   id: 'workflow-2-id',
-//   description: 'description for workflow 2',
-//   state: WORKFLOW_STATE.FAILED,
-//   workspaceFlowState: {
-//     nodes: dummyNodes,
-//     edges: [] as ReactFlowEdge[],
-//   },
-//   template: {},
-// } as Workflow;
-
-// const initialState = {
-//   loading: false,
-//   errorMessage: '',
-//   workflows,
-// };
+const id1 = generateId('text_embedding_processor');
+const id2 = generateId('text_embedding_processor');
+const id3 = generateId('knn_index');
+const dummyNodes = [
+  {
+    id: id1,
+    position: { x: 0, y: 500 },
+    data: initComponentData(new TextEmbeddingTransformer().toObj(), id1),
+    type: 'customComponent',
+  },
+  {
+    id: id2,
+    position: { x: 0, y: 200 },
+    data: initComponentData(new TextEmbeddingTransformer().toObj(), id2),
+    type: 'customComponent',
+  },
+  {
+    id: id3,
+    position: { x: 500, y: 500 },
+    data: initComponentData(new KnnIndexer().toObj(), id3),
+    type: 'customComponent',
+  },
+] as ReactFlowComponent[];
 
 const initialState = {
   loading: false,
@@ -225,6 +195,17 @@ const workflowsSlice = createSlice({
       })
       .addCase(searchWorkflows.fulfilled, (state, action) => {
         const { workflows } = action.payload as { workflows: WorkflowDict };
+
+        // TODO: remove hardcoded workspace flow state. For testing purposes only
+        Object.entries(workflows).forEach(([workflowId, workflow]) => {
+          workflows[workflowId] = {
+            ...workflows[workflowId],
+            workspaceFlowState: {
+              nodes: dummyNodes,
+              edges: [] as ReactFlowEdge[],
+            },
+          };
+        });
         state.workflows = workflows;
         state.loading = false;
         state.errorMessage = '';
