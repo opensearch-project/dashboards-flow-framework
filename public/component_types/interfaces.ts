@@ -10,7 +10,6 @@ import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../utils';
 /**
  * ************ Types *************************
  */
-export type UIFlow = string;
 export type FieldType = 'string' | 'json' | 'select';
 // TODO: this may expand to more types in the future. Formik supports 'any' so we can too.
 // For now, limiting scope to expected types.
@@ -68,17 +67,12 @@ export interface IComponent {
   label: string;
   description: string;
   // will be used for grouping together in the drag-and-drop component library
-  category: COMPONENT_CATEGORY;
+  // and determining which flows the component can be drug into the workspace flows
+  categories: COMPONENT_CATEGORY[];
   // determines if this component allows for new creation. this means to
   // allow a "create" option on the UI component, as well as potentially
   // include in the use case template construction ('provisioning' flow)
   allowsCreation: boolean;
-  // determines if this is something that will be included in the use
-  // case template construction (query or ingest flows). provisioning flow
-  // is handled by the allowsCreation flag above.
-  isApplicationStep: boolean;
-  // the set of allowed flows this component can be drug into the workspace
-  allowedFlows: UIFlow[];
   // the list of base classes that will be used in the component output
   baseClasses?: COMPONENT_CLASS[];
   inputs?: IComponentInput[];
