@@ -4,11 +4,10 @@
   "opensearchDashboardsVersion": "3.0.0",
   "server": true,
   "ui": true,
-  "requiredBundles": [
-    "opensearchDashboardsUtils"
-  ],
+  "requiredBundles": [],
   "requiredPlugins": [
-    "navigation"
+    "navigation",
+    "opensearchDashboardsUtils"
   ],
   "optionalPlugins": []
 }
