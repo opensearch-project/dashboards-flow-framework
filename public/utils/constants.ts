@@ -22,12 +22,25 @@ export const BREADCRUMBS = Object.freeze({
   WORKFLOWS: { text: 'Workflows', href: `#${APP_PATH.WORKFLOWS}` },
 });
 
+/**
+ * The static set of available categories that can be used to organize
+ * the component library. Sets guardrails on what components can be
+ * drag-and-dropped into the ingest and/or search flows.
+ */
 export enum COMPONENT_CATEGORY {
-  INGEST_PROCESSORS = 'Ingest Processors',
-  INDICES = 'Indices',
+  INGEST = 'Ingest',
+  SEARCH = 'Search',
 }
 
+// TODO: subject to change
+/**
+ * A base set of component classes / types.
+ */
 export enum COMPONENT_CLASS {
-  KNN_INDEX = 'knn_index',
-  TEXT_EMBEDDING_PROCESSOR = 'text_embedding_processor',
+  INDEXER = 'indexer',
+  RETRIEVER = 'retriever',
+  TRANSFORMER = 'transformer',
+  JSON_TO_JSON_TRANSFORMER = 'json_to_json_transformer',
+  ML_TRANSFORMER = 'ml_transformer',
+  QUERY = 'query',
 }

@@ -4,5 +4,5 @@
  */
 
 export * from './interfaces';
-export * from './processors';
-export * from './indices';
+export * from './transformer';
+export * from './indexer';

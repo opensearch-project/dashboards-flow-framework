@@ -3,4 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './knn_index';
+export * from './indexer';
+export * from './knn_indexer';

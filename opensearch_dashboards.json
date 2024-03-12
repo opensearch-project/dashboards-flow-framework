@@ -6,7 +6,8 @@
   "ui": true,
   "requiredBundles": [],
   "requiredPlugins": [
-    "navigation"
+    "navigation",
+    "opensearchDashboardsUtils"
   ],
   "optionalPlugins": []
 }
