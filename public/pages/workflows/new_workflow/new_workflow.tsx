@@ -10,6 +10,7 @@ import {
   EuiFlexGrid,
   EuiFlexGroup,
   EuiFieldSearch,
+  EuiLoadingSpinner,
 } from '@elastic/eui';
 import { useDispatch, useSelector } from 'react-redux';
 import { UseCase } from './use_case';
@@ -24,15 +25,15 @@ import { getWorkflowPresets } from '../../../store/reducers';
 interface NewWorkflowProps {}
 
 /**
- * TODO: may rename this later on.
- *
  * Contains the searchable library of templated workflows based
  * on a variety of use cases. Can click on them to load in a pre-configured
  * workflow for users to start with.
  */
 export function NewWorkflow(props: NewWorkflowProps) {
   const dispatch = useDispatch();
-  const { presetWorkflows } = useSelector((state: AppState) => state.presets);
+  const { presetWorkflows, loading } = useSelector(
+    (state: AppState) => state.presets
+  );
   const [filteredWorkflows, setFilteredWorkflows] = useState<Workflow[]>([]);
 
   // search bar state
@@ -65,26 +66,30 @@ export function NewWorkflow(props: NewWorkflowProps) {
         />
       </EuiFlexItem>
       <EuiFlexItem>
-        <EuiFlexGrid columns={3} gutterSize="l">
-          {filteredWorkflows.map((workflow: Workflow, index) => {
-            return (
-              <EuiFlexItem key={index}>
-                <UseCase
-                  title={workflow.name}
-                  description={workflow.description || ''}
-                  onClick={() =>
-                    dispatch(
-                      cacheWorkflow({
-                        ...workflow,
-                        name: processWorkflowName(workflow.name),
-                      })
-                    )
-                  }
-                />
-              </EuiFlexItem>
-            );
-          })}
-        </EuiFlexGrid>
+        {loading ? (
+          <EuiLoadingSpinner size="xl" />
+        ) : (
+          <EuiFlexGrid columns={3} gutterSize="l">
+            {filteredWorkflows.map((workflow: Workflow, index) => {
+              return (
+                <EuiFlexItem key={index}>
+                  <UseCase
+                    title={workflow.name}
+                    description={workflow.description || ''}
+                    onClick={() =>
+                      dispatch(
+                        cacheWorkflow({
+                          ...workflow,
+                          name: processWorkflowName(workflow.name),
+                        })
+                      )
+                    }
+                  />
+                </EuiFlexItem>
+              );
+            })}
+          </EuiFlexGrid>
+        )}
       </EuiFlexItem>
     </EuiFlexGroup>
   );
