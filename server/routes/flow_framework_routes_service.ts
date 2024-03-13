@@ -21,6 +21,7 @@ import {
   GET_WORKFLOW_STATE_NODE_API_PATH,
   SEARCH_WORKFLOWS_NODE_API_PATH,
   WorkflowTemplate,
+  validateWorkflowTemplate,
 } from '../../common';
 import { generateCustomError, getWorkflowsFromResponses } from './helpers';
 
@@ -226,7 +227,9 @@ export class FlowFrameworkRoutesService {
         const workflowTemplate = JSON.parse(
           templateData.toString()
         ) as WorkflowTemplate;
-        workflowTemplates.push(workflowTemplate);
+        if (validateWorkflowTemplate(workflowTemplate)) {
+          workflowTemplates.push(workflowTemplate);
+        }
       });
 
       return res.ok({ body: { workflowTemplates } });

@@ -53,7 +53,7 @@ export type TemplateEdge = {
 export type TemplateFlow = {
   user_params?: Map<string, any>;
   nodes: TemplateNode[];
-  edges: TemplateEdge[];
+  edges?: TemplateEdge[];
 };
 
 export type TemplateFlows = {

@@ -8,6 +8,7 @@ import {
   Workflow,
   ReactFlowComponent,
   toTemplateFlows,
+  validateWorkspaceFlow,
 } from '../../../../common';
 
 export function saveWorkflow(workflow: Workflow, rfInstance: any): void {
@@ -18,7 +19,7 @@ export function saveWorkflow(workflow: Workflow, rfInstance: any): void {
     nodes: processNodes(curFlowState.nodes),
   };
 
-  const isValid = validateFlowState(curFlowState);
+  const isValid = validateWorkspaceFlow(curFlowState);
   if (isValid) {
     const updatedWorkflow = {
       ...workflow,
@@ -33,13 +34,6 @@ export function saveWorkflow(workflow: Workflow, rfInstance: any): void {
   } else {
     return;
   }
-}
-
-// TODO: implement this. Need more info on UX side to finalize what we need
-// to persist, what validation to do, etc.
-// Note we don't have to validate connections since that is done via input/output handlers.
-function validateFlowState(flowState: WorkspaceFlowState): boolean {
-  return true;
 }
 
 // Process the raw ReactFlow nodes to only persist the fields we need

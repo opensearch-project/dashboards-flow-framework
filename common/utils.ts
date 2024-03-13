@@ -12,6 +12,7 @@ import {
   generateId,
   ReactFlowEdge,
   TemplateFlows,
+  WorkflowTemplate,
 } from './';
 
 // TODO: implement this and remove hardcoded return values
@@ -67,4 +68,26 @@ export function toWorkspaceFlow(
     nodes: dummyNodes,
     edges: [] as ReactFlowEdge[],
   };
+}
+
+// TODO: implement this
+/**
+ * Validates the UI workflow state.
+ * Note we don't have to validate connections since that is done via input/output handlers.
+ */
+export function validateWorkspaceFlow(
+  workspaceFlow: WorkspaceFlowState
+): boolean {
+  return true;
+}
+
+// TODO: implement this
+/**
+ * Validates the backend template. May be used when parsing persisted templates on server-side,
+ * or when importing/exporting on the UI.
+ */
+export function validateWorkflowTemplate(
+  workflowTemplate: WorkflowTemplate
+): boolean {
+  return true;
 }
