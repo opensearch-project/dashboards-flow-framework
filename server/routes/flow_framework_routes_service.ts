@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import fs from 'fs';
+import path from 'path';
 import { schema } from '@osd/config-schema';
 import {
   IRouter,
@@ -14,9 +16,11 @@ import {
 import {
   CREATE_WORKFLOW_NODE_API_PATH,
   DELETE_WORKFLOW_NODE_API_PATH,
+  GET_PRESET_WORKFLOWS_NODE_API_PATH,
   GET_WORKFLOW_NODE_API_PATH,
   GET_WORKFLOW_STATE_NODE_API_PATH,
   SEARCH_WORKFLOWS_NODE_API_PATH,
+  WorkflowTemplate,
 } from '../../common';
 import { generateCustomError, getWorkflowsFromResponses } from './helpers';
 
@@ -82,6 +86,14 @@ export function registerFlowFrameworkRoutes(
       },
     },
     flowFrameworkRoutesService.deleteWorkflow
+  );
+
+  router.get(
+    {
+      path: GET_PRESET_WORKFLOWS_NODE_API_PATH,
+      validate: {},
+    },
+    flowFrameworkRoutesService.getPresetWorkflows
   );
 }
 
@@ -189,6 +201,35 @@ export class FlowFrameworkRoutesService {
         .asScoped(req)
         .callAsCurrentUser('flowFramework.deleteWorkflow', { workflow_id });
       return res.ok({ body: { id: response._id } });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  getPresetWorkflows = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    try {
+      // In the future we may get these from backend via some API. For now we can
+      // persist a set of working presets on server-side.
+      const jsonTemplateDir = path.resolve(__dirname, '../resources/templates');
+      const jsonTemplates = fs
+        .readdirSync(jsonTemplateDir)
+        .filter((file) => path.extname(file) === '.json');
+      const workflowTemplates = [] as WorkflowTemplate[];
+      jsonTemplates.forEach((jsonTemplate) => {
+        const templateData = fs.readFileSync(
+          path.join(jsonTemplateDir, jsonTemplate)
+        );
+        const workflowTemplate = JSON.parse(
+          templateData.toString()
+        ) as WorkflowTemplate;
+        workflowTemplates.push(workflowTemplate);
+      });
+
+      return res.ok({ body: { workflowTemplates } });
     } catch (err: any) {
       return generateCustomError(res, err);
     }

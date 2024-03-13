@@ -5,7 +5,7 @@
 
 import {
   WorkspaceFlowState,
-  UseCaseTemplate,
+  WorkflowTemplate,
   Workflow,
   USE_CASE,
   ReactFlowComponent,
@@ -24,7 +24,7 @@ export function saveWorkflow(workflow: Workflow, rfInstance: any): void {
     const updatedWorkflow = {
       ...workflow,
       workspaceFlowState: curFlowState,
-      template: generateUseCaseTemplate(curFlowState),
+      template: generateWorkflowTemplate(curFlowState),
     } as Workflow;
     if (workflow.id) {
       // TODO: implement connection to update workflow API
@@ -44,32 +44,25 @@ function validateFlowState(flowState: WorkspaceFlowState): boolean {
 }
 
 // TODO: implement this
-function generateUseCaseTemplate(
+function generateWorkflowTemplate(
   flowState: WorkspaceFlowState
-): UseCaseTemplate {
+): WorkflowTemplate {
   return {
     name: 'example-name',
     description: 'example description',
-    type: USE_CASE.SEMANTIC_SEARCH,
-    userInputs: {},
+    use_case: USE_CASE.PROVISION,
+    version: {
+      template: '1.0.0',
+      compatibility: ['3.0.0'],
+    },
     workflows: {
       provision: {
         userParams: {},
         nodes: [],
         edges: [],
       },
-      ingest: {
-        userParams: {},
-        nodes: [],
-        edges: [],
-      },
-      query: {
-        userParams: {},
-        nodes: [],
-        edges: [],
-      },
     },
-  } as UseCaseTemplate;
+  } as WorkflowTemplate;
 }
 
 // Process the raw ReactFlow nodes to only persist the fields we need

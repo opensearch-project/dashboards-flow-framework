@@ -9,11 +9,13 @@ import {
   workspaceReducer,
   opensearchReducer,
   workflowsReducer,
+  presetsReducer,
 } from './reducers';
 
 const rootReducer = combineReducers({
   workspace: workspaceReducer,
   workflows: workflowsReducer,
+  presets: presetsReducer,
   opensearch: opensearchReducer,
 });
 

@@ -40,7 +40,9 @@ export type WorkspaceFlowState = {
 
 export type TemplateNode = {
   id: string;
-  inputs: {};
+  type: string;
+  previous_node_inputs?: Map<string, any>;
+  user_inputs?: Map<string, any>;
 };
 
 export type TemplateEdge = {
@@ -49,32 +51,30 @@ export type TemplateEdge = {
 };
 
 export type TemplateFlow = {
-  userParams: {};
+  user_params?: Map<string, any>;
   nodes: TemplateNode[];
   edges: TemplateEdge[];
 };
 
 export type TemplateFlows = {
   provision: TemplateFlow;
-  ingest: TemplateFlow;
-  query: TemplateFlow;
 };
 
-export type UseCaseTemplate = {
-  type: string;
+// A stateless template of a workflow
+export type WorkflowTemplate = {
   name: string;
   description: string;
-  userInputs: {};
+  use_case: USE_CASE;
+  // TODO: finalize on version type when that is implemented
+  // https://github.com/opensearch-project/flow-framework/issues/526
+  version: any;
   workflows: TemplateFlows;
 };
 
-export type Workflow = {
+// An instance of a workflow based on a workflow template
+export type Workflow = WorkflowTemplate & {
   // won't exist until created in backend
   id?: string;
-  name: string;
-  useCase: string;
-  template: UseCaseTemplate;
-  description?: string;
   // ReactFlow state may not exist if a workflow is created via API/backend-only.
   workspaceFlowState?: WorkspaceFlowState;
   // won't exist until created in backend
@@ -86,8 +86,7 @@ export type Workflow = {
 };
 
 export enum USE_CASE {
-  SEMANTIC_SEARCH = 'semantic_search',
-  CUSTOM = 'custom',
+  PROVISION = 'PROVISION',
 }
 
 /**

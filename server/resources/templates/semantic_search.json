@@ -1,0 +1,39 @@
+{
+    "name": "Semantic Search",
+    "description": "This semantic search workflow includes the essential ingestion and search pipelines that covers the most common search use cases.",
+    "use_case": "PROVISION",
+    "version": {
+        "template": "1.0.0",
+        "compatibility": [
+            "2.12.0",
+            "3.0.0"
+        ]
+    },
+    "workflows": {
+        "provision": {
+            "nodes": [
+                {
+                    "id": "create_ingest_pipeline",
+                    "type": "create_ingest_pipeline",
+                    "user_inputs": {
+                        "pipeline_id": "text-embedding-pipeline",
+                        "model_id": "my-model-id",
+                        "configurations": {
+                            "description": "A text embedding pipeline",
+                            "processors": [
+                                {
+                                    "text_embedding": {
+                                        "model_id": "${{user_inputs.model_id}}",
+                                        "field_map": {
+                                            "passage_text": "${{output}}"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

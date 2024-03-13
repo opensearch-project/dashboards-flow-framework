@@ -14,6 +14,7 @@ import {
   initComponentData,
   WORKFLOW_STATE,
   WorkflowDict,
+  WorkflowTemplate,
 } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
