@@ -21,9 +21,9 @@ import {
   IComponentData,
   ReactFlowComponent,
   Workflow,
+  toWorkspaceFlow,
 } from '../../../../common';
 import { generateId, initComponentData } from '../../../utils';
-import { getCore } from '../../../services';
 import { WorkspaceComponent } from '../workspace_component';
 import { DeletableEdge } from '../workspace_edge';
 
@@ -119,16 +119,19 @@ export function Workspace(props: WorkspaceProps) {
   // Initialization. Set the nodes and edges to an existing workflow,
   // if applicable.
   useEffect(() => {
-    const workflow = props.workflow;
+    const workflow = { ...props.workflow };
     if (workflow) {
-      if (workflow.workspaceFlowState) {
-        setNodes(workflow.workspaceFlowState.nodes);
-        setEdges(workflow.workspaceFlowState.edges);
-      } else {
-        getCore().notifications.toasts.addWarning(
-          `There is no configured UI flow for workflow: ${workflow.name}`
+      if (!workflow.workspaceFlowState) {
+        // No existing workspace state. This could be due to it being a backend-only-created
+        // workflow, or a new, unsaved workflow
+        // @ts-ignore
+        workflow.workspaceFlowState = toWorkspaceFlow(workflow.workflows);
+        console.debug(
+          `There is no saved UI flow for workflow: ${workflow.name}. Generating a default one.`
         );
       }
+      setNodes(workflow.workspaceFlowState.nodes);
+      setEdges(workflow.workspaceFlowState.edges);
     }
   }, [props.workflow]);
 

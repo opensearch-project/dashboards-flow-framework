@@ -14,35 +14,10 @@ import {
   initComponentData,
   WORKFLOW_STATE,
   WorkflowDict,
+  WorkflowTemplate,
 } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
-
-// TODO: remove hardcoded dummy node data below after fetching from server side,
-// and workflow data model interface is more defined.
-const id1 = generateId('text_embedding_processor');
-const id2 = generateId('text_embedding_processor');
-const id3 = generateId('knn_index');
-const dummyNodes = [
-  {
-    id: id1,
-    position: { x: 0, y: 500 },
-    data: initComponentData(new TextEmbeddingTransformer().toObj(), id1),
-    type: 'customComponent',
-  },
-  {
-    id: id2,
-    position: { x: 0, y: 200 },
-    data: initComponentData(new TextEmbeddingTransformer().toObj(), id2),
-    type: 'customComponent',
-  },
-  {
-    id: id3,
-    position: { x: 500, y: 500 },
-    data: initComponentData(new KnnIndexer().toObj(), id3),
-    type: 'customComponent',
-  },
-] as ReactFlowComponent[];
 
 const initialState = {
   loading: false,
@@ -195,17 +170,6 @@ const workflowsSlice = createSlice({
       })
       .addCase(searchWorkflows.fulfilled, (state, action) => {
         const { workflows } = action.payload as { workflows: WorkflowDict };
-
-        // TODO: remove hardcoded workspace flow state. For testing purposes only
-        Object.entries(workflows).forEach(([workflowId, workflow]) => {
-          workflows[workflowId] = {
-            ...workflows[workflowId],
-            workspaceFlowState: {
-              nodes: dummyNodes,
-              edges: [] as ReactFlowEdge[],
-            },
-          };
-        });
         state.workflows = workflows;
         state.loading = false;
         state.errorMessage = '';

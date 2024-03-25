@@ -26,10 +26,10 @@ function toWorkflowObj(workflowHit: any): Workflow {
   return {
     id: workflowHit._id,
     name: hitSource.name,
-    useCase: hitSource.use_case,
+    use_case: hitSource.use_case,
     description: hitSource.description || '',
-    // TODO: update below values after frontend Workflow interface is finalized
-    template: {},
+    version: hitSource.version,
+    workflows: hitSource.workflows,
     // TODO: this needs to be persisted by backend. Tracking issue:
     // https://github.com/opensearch-project/flow-framework/issues/548
     lastUpdated: 1234,

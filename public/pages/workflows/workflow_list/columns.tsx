@@ -22,7 +22,7 @@ export const columns = (actions: any[]) => [
     sortable: true,
   },
   {
-    field: 'useCase',
+    field: 'use_case',
     name: 'Type',
     sortable: true,
   },
