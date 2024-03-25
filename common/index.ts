@@ -5,5 +5,6 @@
 
 export * from './constants';
 export * from './interfaces';
+export * from './utils';
 export * from '../public/component_types';
 export * from '../public/utils';
