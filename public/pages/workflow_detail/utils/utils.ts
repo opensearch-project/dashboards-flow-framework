@@ -11,7 +11,7 @@ import {
   validateWorkspaceFlow,
 } from '../../../../common';
 
-export function saveWorkflow(workflow: Workflow, rfInstance: any): void {
+export function saveWorkflow(rfInstance: any, workflow?: Workflow): void {
   let curFlowState = rfInstance.toObject();
 
   curFlowState = {
@@ -26,7 +26,7 @@ export function saveWorkflow(workflow: Workflow, rfInstance: any): void {
       workspaceFlowState: curFlowState,
       workflows: toTemplateFlows(curFlowState),
     } as Workflow;
-    if (workflow.id) {
+    if (workflow && workflow.id) {
       // TODO: implement connection to update workflow API
     } else {
       // TODO: implement connection to create workflow API

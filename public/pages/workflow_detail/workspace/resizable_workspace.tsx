@@ -4,11 +4,12 @@
  */
 
 import React, { useRef, useState, useEffect, useContext } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useOnSelectionChange } from 'reactflow';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
 import { cloneDeep } from 'lodash';
-import { EuiButton, EuiResizableContainer } from '@elastic/eui';
+import { EuiButton, EuiPageHeader, EuiResizableContainer } from '@elastic/eui';
 import {
   Workflow,
   WorkspaceFormValues,
@@ -18,11 +19,13 @@ import {
   componentDataToFormik,
   getComponentSchema,
 } from '../../../../common';
-import { rfContext } from '../../../store';
+import { AppState, removeDirty, rfContext } from '../../../store';
 import { Workspace } from './workspace';
 import { ComponentDetails } from '../component_details';
+import { saveWorkflow } from '../utils';
 
 interface ResizableWorkspaceProps {
+  isNewWorkflow: boolean;
   workflow?: Workflow;
 }
 
@@ -33,6 +36,13 @@ const COMPONENT_DETAILS_PANEL_ID = 'component_details_panel_id';
  * panels - the ReactFlow workspace panel and the selected component details panel.
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
+  const dispatch = useDispatch();
+
+  // Overall workspace state
+  const isDirty = useSelector((state: AppState) => state.workspace.isDirty);
+  const [isFirstSave, setIsFirstSave] = useState<boolean>(props.isNewWorkflow);
+  const isSaveable = isFirstSave ? true : isDirty;
+
   // Component details side panel state
   const [isDetailsPanelOpen, setisDetailsPanelOpen] = useState<boolean>(true);
   const collapseFn = useRef(
@@ -139,9 +149,36 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     >
       {(formikProps) => (
         <Form>
+          <EuiPageHeader
+            style={{ marginBottom: '8px' }}
+            rightSideItems={[
+              // TODO: add launch logic
+              <EuiButton fill={false} onClick={() => {}}>
+                Launch
+              </EuiButton>,
+              <EuiButton
+                fill={false}
+                disabled={!isSaveable}
+                // TODO: if props.isNewWorkflow is true, clear the workflow cache if saving is successful.
+                onClick={() => {
+                  // @ts-ignore
+                  saveWorkflow(reactFlowInstance, props.workflow);
+                  dispatch(removeDirty());
+                  if (isFirstSave) {
+                    setIsFirstSave(false);
+                  }
+                }}
+              >
+                Save
+              </EuiButton>,
+            ]}
+            bottomBorder={false}
+          />
           <EuiResizableContainer
             direction="horizontal"
-            style={{ marginLeft: '-8px', marginTop: '-8px' }}
+            style={{
+              marginLeft: '-8px',
+            }}
           >
             {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
               if (togglePanel) {
@@ -153,7 +190,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 <>
                   <EuiResizablePanel
                     mode="main"
-                    initialSize={75}
+                    initialSize={80}
                     minSize="50%"
                     paddingSize="s"
                   >
@@ -164,6 +201,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   </EuiResizablePanel>
                   <EuiResizableButton />
                   <EuiResizablePanel
+                    style={{ marginRight: '-16px' }}
                     id={COMPONENT_DETAILS_PANEL_ID}
                     mode="collapsible"
                     initialSize={25}
