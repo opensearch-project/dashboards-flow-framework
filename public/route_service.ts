@@ -11,6 +11,7 @@ import {
   GET_WORKFLOW_NODE_API_PATH,
   GET_WORKFLOW_STATE_NODE_API_PATH,
   SEARCH_WORKFLOWS_NODE_API_PATH,
+  GET_PRESET_WORKFLOWS_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -26,6 +27,7 @@ export interface RouteService {
   getWorkflowState: (workflowId: string) => Promise<any | HttpFetchError>;
   createWorkflow: (body: {}) => Promise<any | HttpFetchError>;
   deleteWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
+  getWorkflowPresets: () => Promise<any | HttpFetchError>;
   catIndices: (pattern: string) => Promise<any | HttpFetchError>;
 }
 
@@ -81,6 +83,16 @@ export function configureRoutes(core: CoreStart): RouteService {
       try {
         const response = await core.http.delete<{ respString: string }>(
           `${DELETE_WORKFLOW_NODE_API_PATH}/${workflowId}`
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    getWorkflowPresets: async () => {
+      try {
+        const response = await core.http.get<{ respString: string }>(
+          GET_PRESET_WORKFLOWS_NODE_API_PATH
         );
         return response;
       } catch (e: any) {

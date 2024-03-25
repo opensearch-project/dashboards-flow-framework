@@ -105,8 +105,15 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
       // TODO: can optimize to only fetch a single workflow
       dispatch(searchWorkflows({ query: { match_all: {} } }));
     }
-    window.onbeforeunload = (e) =>
-      isDirty || isNewWorkflow ? true : undefined;
+
+    // TODO: below has the following issue:
+    // 1. user starts to create new unsaved workflow changes
+    // 2. user navigates to other parts of the plugin without refreshing - no warning happens
+    // 3. user refreshes at any later time: if isDirty is still true, shows browser warning
+    // tune to only handle the check if still on the workflow details page, or consider adding a check / warning
+    // if navigating away from the details page without refreshing (where it is currently not being triggered)
+    // window.onbeforeunload = (e) =>
+    //   isDirty || isNewWorkflow ? true : undefined;
   }, []);
 
   const tabs = [

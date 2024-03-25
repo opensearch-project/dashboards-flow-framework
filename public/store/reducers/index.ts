@@ -6,3 +6,4 @@
 export * from './workspace_reducer';
 export * from './opensearch_reducer';
 export * from './workflows_reducer';
+export * from './presets_reducer';
