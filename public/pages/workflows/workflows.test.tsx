@@ -40,7 +40,7 @@ const renderWithRouter = () => ({
 
 describe('Workflows', () => {
   test('renders the page', () => {
-    const { getByText } = renderWithRouter();
-    expect(getByText('Workflows')).not.toBeNull();
+    const { getAllByText } = renderWithRouter();
+    expect(getAllByText('Workflows').length).toBeGreaterThan(0);
   });
 });
