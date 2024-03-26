@@ -57,10 +57,9 @@ export function SelectField(props: SelectFieldProps) {
               options={options}
               valueOfSelected={field.value || getInitialValue(props.field.type)}
               onChange={(option) => {
-                field.onChange(option);
                 form.setFieldValue(formField, option);
+                props.onFormChange();
               }}
-              onBlur={() => props.onFormChange()}
               isInvalid={isFieldInvalid(
                 props.componentId,
                 props.field.name,

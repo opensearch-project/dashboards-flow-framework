@@ -6,10 +6,15 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useOnSelectionChange } from 'reactflow';
-import { Form, Formik, useFormikContext } from 'formik';
+import { Form, Formik } from 'formik';
 import * as yup from 'yup';
 import { cloneDeep } from 'lodash';
-import { EuiButton, EuiPageHeader, EuiResizableContainer } from '@elastic/eui';
+import {
+  EuiButton,
+  EuiCallOut,
+  EuiPageHeader,
+  EuiResizableContainer,
+} from '@elastic/eui';
 import {
   Workflow,
   WorkspaceFormValues,
@@ -18,11 +23,15 @@ import {
   WorkspaceSchemaObj,
   componentDataToFormik,
   getComponentSchema,
+  toWorkspaceFlow,
+  validateWorkspaceFlow,
+  WorkspaceFlowState,
+  toTemplateFlows,
 } from '../../../../common';
 import { AppState, removeDirty, setDirty, rfContext } from '../../../store';
 import { Workspace } from './workspace';
 import { ComponentDetails } from '../component_details';
-import { saveWorkflow } from '../utils';
+import { processNodes, saveWorkflow } from '../utils';
 
 interface ResizableWorkspaceProps {
   isNewWorkflow: boolean;
@@ -42,6 +51,20 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const isDirty = useSelector((state: AppState) => state.workspace.isDirty);
   const [isFirstSave, setIsFirstSave] = useState<boolean>(props.isNewWorkflow);
   const isSaveable = isFirstSave ? true : isDirty;
+
+  // Workflow state
+  const [workflow, setWorkflow] = useState<Workflow | undefined>(
+    props.workflow
+  );
+
+  // Formik form state
+  const [formValues, setFormValues] = useState<WorkspaceFormValues>({});
+  const [formSchema, setFormSchema] = useState<WorkspaceSchema>(yup.object({}));
+
+  // Validation states. Maintain separate state for form vs. overall flow so
+  // we can have fine-grained errors and action items for users
+  const [formValidOnSubmit, setFormValidOnSubmit] = useState<boolean>(true);
+  const [flowValidOnSubmit, setFlowValidOnSubmit] = useState<boolean>(true);
 
   // Component details side panel state
   const [isDetailsPanelOpen, setisDetailsPanelOpen] = useState<boolean>(true);
@@ -78,6 +101,24 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     },
   });
 
+  // Hook to update the workflow's flow state, if applicable. It may not exist if
+  // it is a backend-only-created workflow, or a new, unsaved workflow
+  useEffect(() => {
+    const workflowCopy = { ...props.workflow } as Workflow;
+    if (workflowCopy) {
+      if (!workflowCopy.workspaceFlowState) {
+        workflowCopy.workspaceFlowState = toWorkspaceFlow(
+          workflowCopy.workflows
+        );
+        console.debug(
+          `There is no saved UI flow for workflow: ${workflowCopy.name}. Generating a default one.`
+        );
+      }
+      setWorkflow(workflowCopy);
+    }
+  }, [props.workflow]);
+
+  // Hook to updated the selected ReactFlow component
   useEffect(() => {
     reactFlowInstance?.setNodes((nodes: ReactFlowComponent[]) =>
       nodes.map((node) => {
@@ -90,16 +131,12 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     );
   }, [selectedComponent]);
 
-  // Formik form state
-  const [formValues, setFormValues] = useState<WorkspaceFormValues>({});
-  const [formSchema, setFormSchema] = useState<WorkspaceSchema>(yup.object({}));
-
   // Initialize the form state to an existing workflow, if applicable.
   useEffect(() => {
-    if (props.workflow?.workspaceFlowState) {
+    if (workflow?.workspaceFlowState) {
       const initFormValues = {} as WorkspaceFormValues;
       const initSchemaObj = {} as WorkspaceSchemaObj;
-      props.workflow.workspaceFlowState.nodes.forEach((node) => {
+      workflow.workspaceFlowState.nodes.forEach((node) => {
         initFormValues[node.id] = componentDataToFormik(node.data);
         initSchemaObj[node.id] = getComponentSchema(node.data);
       });
@@ -107,7 +144,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       setFormValues(initFormValues);
       setFormSchema(initFormSchema);
     }
-  }, [props.workflow]);
+  }, [workflow]);
 
   // Update the form values and validation schema when a node is added
   // or removed from the workspace.
@@ -159,6 +196,27 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     >
       {(formikProps) => (
         <Form>
+          {!formValidOnSubmit && (
+            <EuiCallOut
+              title="There are empty or invalid fields"
+              color="danger"
+              iconType="alert"
+              style={{ marginBottom: '16px' }}
+            >
+              Please address the highlighted fields and try saving again.
+            </EuiCallOut>
+          )}
+          {!flowValidOnSubmit && (
+            <EuiCallOut
+              title="The configured flow is invalid"
+              color="danger"
+              iconType="alert"
+              style={{ marginBottom: '16px' }}
+            >
+              Please ensure there are no open connections between the
+              components.
+            </EuiCallOut>
+          )}
           <EuiPageHeader
             style={{ marginBottom: '8px' }}
             rightSideItems={[
@@ -171,12 +229,39 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 disabled={!isSaveable}
                 // TODO: if props.isNewWorkflow is true, clear the workflow cache if saving is successful.
                 onClick={() => {
-                  // @ts-ignore
-                  saveWorkflow(reactFlowInstance, props.workflow);
                   dispatch(removeDirty());
                   if (isFirstSave) {
                     setIsFirstSave(false);
                   }
+                  // Submit the form to bubble up any errors.
+                  // Ideally we handle Promise accept/rejects with submitForm(), but there is
+                  // open issues for that - see https://github.com/jaredpalmer/formik/issues/2057
+                  // The workaround is to additionally execute validateForm() which will return any errors found.
+                  formikProps.submitForm();
+                  formikProps.validateForm().then((validationResults: {}) => {
+                    if (Object.keys(validationResults).length > 0) {
+                      setFormValidOnSubmit(false);
+                    } else {
+                      setFormValidOnSubmit(true);
+                      // @ts-ignore
+                      let curFlowState = reactFlowInstance.toObject() as WorkspaceFlowState;
+                      curFlowState = {
+                        ...curFlowState,
+                        nodes: processNodes(curFlowState.nodes),
+                      };
+                      if (validateWorkspaceFlow(curFlowState)) {
+                        setFlowValidOnSubmit(true);
+                        const updatedWorkflow = {
+                          ...workflow,
+                          workspaceFlowState: curFlowState,
+                          workflows: toTemplateFlows(curFlowState),
+                        } as Workflow;
+                        saveWorkflow(updatedWorkflow);
+                      } else {
+                        setFlowValidOnSubmit(false);
+                      }
+                    }
+                  });
                 }}
               >
                 Save
@@ -205,7 +290,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     paddingSize="s"
                   >
                     <Workspace
-                      workflow={props.workflow}
+                      workflow={workflow}
                       onNodesChange={onNodesChange}
                     />
                   </EuiResizablePanel>
@@ -228,9 +313,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               );
             }}
           </EuiResizableContainer>
-          <EuiButton onClick={() => formikProps.handleSubmit()}>
-            Submit
-          </EuiButton>
         </Form>
       )}
     </Formik>

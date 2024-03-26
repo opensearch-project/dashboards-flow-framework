@@ -3,41 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  WorkspaceFlowState,
-  Workflow,
-  ReactFlowComponent,
-  toTemplateFlows,
-  validateWorkspaceFlow,
-} from '../../../../common';
+import { Workflow, ReactFlowComponent } from '../../../../common';
 
-export function saveWorkflow(rfInstance: any, workflow?: Workflow): void {
-  let curFlowState = rfInstance.toObject();
-
-  curFlowState = {
-    ...curFlowState,
-    nodes: processNodes(curFlowState.nodes),
-  };
-
-  const isValid = validateWorkspaceFlow(curFlowState);
-  if (isValid) {
-    const updatedWorkflow = {
-      ...workflow,
-      workspaceFlowState: curFlowState,
-      workflows: toTemplateFlows(curFlowState),
-    } as Workflow;
-    if (workflow && workflow.id) {
-      // TODO: implement connection to update workflow API
-    } else {
-      // TODO: implement connection to create workflow API
-    }
+export function saveWorkflow(workflow?: Workflow): void {
+  if (workflow && workflow.id) {
+    // TODO: implement connection to update workflow API
   } else {
-    return;
+    // TODO: implement connection to create workflow API
   }
 }
 
 // Process the raw ReactFlow nodes to only persist the fields we need
-function processNodes(nodes: ReactFlowComponent[]): ReactFlowComponent[] {
+export function processNodes(
+  nodes: ReactFlowComponent[]
+): ReactFlowComponent[] {
   return nodes
     .map((node: ReactFlowComponent) => {
       return Object.fromEntries(
