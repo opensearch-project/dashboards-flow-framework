@@ -17,6 +17,7 @@ import {
 interface TextFieldProps {
   field: IComponentField;
   componentId: string;
+  onFormChange: () => void;
 }
 
 /**
@@ -46,6 +47,8 @@ export function TextField(props: TextFieldProps) {
               placeholder={props.field.placeholder || ''}
               compressed={false}
               value={field.value || getInitialValue(props.field.type)}
+              onChange={(e) => form.setFieldValue(formField, e.target.value)}
+              onBlur={() => props.onFormChange()}
             />
           </EuiFormRow>
         );

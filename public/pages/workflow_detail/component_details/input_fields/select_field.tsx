@@ -36,6 +36,7 @@ const existingIndices = [
 interface SelectFieldProps {
   field: IComponentField;
   componentId: string;
+  onFormChange: () => void;
 }
 
 /**
@@ -59,6 +60,7 @@ export function SelectField(props: SelectFieldProps) {
                 field.onChange(option);
                 form.setFieldValue(formField, option);
               }}
+              onBlur={() => props.onFormChange()}
               isInvalid={isFieldInvalid(
                 props.componentId,
                 props.field.name,

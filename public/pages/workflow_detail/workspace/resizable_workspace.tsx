@@ -6,7 +6,7 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useOnSelectionChange } from 'reactflow';
-import { Form, Formik } from 'formik';
+import { Form, Formik, useFormikContext } from 'formik';
 import * as yup from 'yup';
 import { cloneDeep } from 'lodash';
 import { EuiButton, EuiPageHeader, EuiResizableContainer } from '@elastic/eui';
@@ -19,7 +19,7 @@ import {
   componentDataToFormik,
   getComponentSchema,
 } from '../../../../common';
-import { AppState, removeDirty, rfContext } from '../../../store';
+import { AppState, removeDirty, setDirty, rfContext } from '../../../store';
 import { Workspace } from './workspace';
 import { ComponentDetails } from '../component_details';
 import { saveWorkflow } from '../utils';
@@ -139,6 +139,16 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     setFormSchema(updatedSchema);
   }
 
+  /**
+   * Function to pass down to the Formik <Form> components as a listener to propagate
+   * form changes to this parent component to re-enable save button, etc.
+   */
+  function onFormChange() {
+    if (!isDirty) {
+      dispatch(setDirty());
+    }
+  }
+
   return (
     <Formik
       enableReinitialize={true}
@@ -209,7 +219,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     paddingSize="s"
                     onToggleCollapsedInternal={() => onToggleChange()}
                   >
-                    <ComponentDetails selectedComponent={selectedComponent} />
+                    <ComponentDetails
+                      selectedComponent={selectedComponent}
+                      onFormChange={onFormChange}
+                    />
                   </EuiResizablePanel>
                 </>
               );
