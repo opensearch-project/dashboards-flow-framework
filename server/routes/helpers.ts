@@ -30,9 +30,8 @@ function toWorkflowObj(workflowHit: any): Workflow {
     description: hitSource.description || '',
     version: hitSource.version,
     workflows: hitSource.workflows,
-    // TODO: this needs to be persisted by backend. Tracking issue:
-    // https://github.com/opensearch-project/flow-framework/issues/548
-    lastUpdated: 1234,
+    lastUpdated: hitSource.last_updated_time,
+    lastLaunched: hitSource.last_provisioned_time,
   } as Workflow;
 }
 
@@ -57,9 +56,6 @@ export function getWorkflowsFromResponses(
         ...workflowDict[workflowHit._id],
         // @ts-ignore
         state: WORKFLOW_STATE[workflowState],
-        // TODO: this needs to be persisted by backend. Tracking issue:
-        // https://github.com/opensearch-project/flow-framework/issues/548
-        lastLaunched: 1234,
       };
     }
   });

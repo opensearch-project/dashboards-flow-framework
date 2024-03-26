@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import moment from 'moment';
 import {
   WorkspaceFlowState,
   ReactFlowComponent,
@@ -13,6 +14,7 @@ import {
   ReactFlowEdge,
   TemplateFlows,
   WorkflowTemplate,
+  DATE_FORMAT_PATTERN,
 } from './';
 
 // TODO: implement this and remove hardcoded return values
@@ -90,4 +92,8 @@ export function validateWorkflowTemplate(
   workflowTemplate: WorkflowTemplate
 ): boolean {
   return true;
+}
+
+export function toFormattedDate(timestampMillis: number): String {
+  return moment(new Date(timestampMillis)).format(DATE_FORMAT_PATTERN);
 }
