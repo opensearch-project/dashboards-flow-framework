@@ -102,7 +102,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   });
 
   // Hook to update the workflow's flow state, if applicable. It may not exist if
-  // it is a backend-only-created workflow, or a new, unsaved workflow
+  // it is a backend-only-created workflow, or a new, unsaved workflow. If so,
+  // generate a default one based on the 'workflows' JSON field.
   useEffect(() => {
     const workflowCopy = { ...props.workflow } as Workflow;
     if (workflowCopy) {
