@@ -5,7 +5,12 @@
 
 import React from 'react';
 import { EuiLink } from '@elastic/eui';
-import { PLUGIN_ID, Workflow } from '../../../../common';
+import {
+  EMPTY_FIELD_STRING,
+  PLUGIN_ID,
+  Workflow,
+  toFormattedDate,
+} from '../../../../common';
 
 export const columns = (actions: any[]) => [
   {
@@ -30,11 +35,19 @@ export const columns = (actions: any[]) => [
     field: 'lastUpdated',
     name: 'Last updated',
     sortable: true,
+    render: (lastUpdated: number) =>
+      lastUpdated !== undefined
+        ? toFormattedDate(lastUpdated)
+        : EMPTY_FIELD_STRING,
   },
   {
     field: 'lastLaunched',
     name: 'Last launched',
     sortable: true,
+    render: (lastLaunched: number) =>
+      lastLaunched !== undefined
+        ? toFormattedDate(lastLaunched)
+        : EMPTY_FIELD_STRING,
   },
   {
     name: 'Actions',
