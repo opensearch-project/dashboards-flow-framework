@@ -58,20 +58,14 @@ export function Workflows(props: WorkflowsProps) {
   ] as WORKFLOWS_TAB;
   const [selectedTabId, setSelectedTabId] = useState<WORKFLOWS_TAB>(tabFromUrl);
 
-  // If there is no selected tab or invalid tab, default to a tab depending
-  // on if user has existing created workflows or not.
+  // If there is no selected tab or invalid tab, default to manage tab
   useEffect(() => {
     if (
       !selectedTabId ||
       !Object.values(WORKFLOWS_TAB).includes(selectedTabId)
     ) {
-      if (Object.keys(workflows).length > 0) {
-        setSelectedTabId(WORKFLOWS_TAB.MANAGE);
-        replaceActiveTab(WORKFLOWS_TAB.MANAGE, props);
-      } else {
-        setSelectedTabId(WORKFLOWS_TAB.CREATE);
-        replaceActiveTab(WORKFLOWS_TAB.CREATE, props);
-      }
+      setSelectedTabId(WORKFLOWS_TAB.MANAGE);
+      replaceActiveTab(WORKFLOWS_TAB.MANAGE, props);
     }
   }, [selectedTabId, workflows]);
 
