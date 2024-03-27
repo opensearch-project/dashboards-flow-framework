@@ -13,6 +13,7 @@ import { EmptyComponentInputs } from './empty_component_inputs';
 import '../workspace/workspace-styles.scss';
 
 interface ComponentDetailsProps {
+  onFormChange: () => void;
   selectedComponent?: ReactFlowComponent;
 }
 
@@ -31,7 +32,10 @@ export function ComponentDetails(props: ComponentDetailsProps) {
       <EuiFlexItem>
         <EuiPanel paddingSize="m">
           {props.selectedComponent ? (
-            <ComponentInputs selectedComponent={props.selectedComponent} />
+            <ComponentInputs
+              selectedComponent={props.selectedComponent}
+              onFormChange={props.onFormChange}
+            />
           ) : (
             <EmptyComponentInputs />
           )}

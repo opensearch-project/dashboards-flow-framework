@@ -10,6 +10,7 @@ import { ReactFlowComponent } from '../../../../common';
 
 interface ComponentInputsProps {
   selectedComponent: ReactFlowComponent;
+  onFormChange: () => void;
 }
 
 export function ComponentInputs(props: ComponentInputsProps) {
@@ -19,7 +20,10 @@ export function ComponentInputs(props: ComponentInputsProps) {
         <h2>{props.selectedComponent.data.label || ''}</h2>
       </EuiTitle>
       <EuiSpacer size="s" />
-      <InputFieldList selectedComponent={props.selectedComponent} />
+      <InputFieldList
+        selectedComponent={props.selectedComponent}
+        onFormChange={props.onFormChange}
+      />
     </>
   );
 }

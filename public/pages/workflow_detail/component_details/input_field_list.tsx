@@ -15,6 +15,7 @@ import { ReactFlowComponent } from '../../../../common';
 
 interface InputFieldListProps {
   selectedComponent: ReactFlowComponent;
+  onFormChange: () => void;
 }
 
 export function InputFieldList(props: InputFieldListProps) {
@@ -30,6 +31,7 @@ export function InputFieldList(props: InputFieldListProps) {
                 <TextField
                   field={field}
                   componentId={props.selectedComponent.id}
+                  onFormChange={props.onFormChange}
                 />
                 <EuiSpacer size="s" />
               </EuiFlexItem>
@@ -42,6 +44,7 @@ export function InputFieldList(props: InputFieldListProps) {
                 <SelectField
                   field={field}
                   componentId={props.selectedComponent.id}
+                  onFormChange={props.onFormChange}
                 />
               </EuiFlexItem>
             );

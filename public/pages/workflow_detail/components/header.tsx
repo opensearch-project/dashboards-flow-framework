@@ -33,21 +33,9 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
         )
       }
       rightSideItems={[
-        // TODO: add launch logic
-        <EuiButton fill={false} onClick={() => {}}>
-          Launch
-        </EuiButton>,
-        <EuiButton
-          fill={false}
-          disabled={!props.workflow || !isDirty}
-          // TODO: if isNewWorkflow is true, clear the workflow cache if saving is successful.
-          onClick={() => {
-            // @ts-ignore
-            saveWorkflow(props.workflow, reactFlowInstance);
-            dispatch(removeDirty());
-          }}
-        >
-          Save
+        // TODO: finalize if this is needed
+        <EuiButton fill={false} color="danger" onClick={() => {}}>
+          Delete
         </EuiButton>,
       ]}
       tabs={props.tabs}
