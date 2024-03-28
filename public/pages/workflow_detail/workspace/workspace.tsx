@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useRef, useContext, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import ReactFlow, {
   Controls,
@@ -13,9 +13,11 @@ import ReactFlow, {
   addEdge,
   BackgroundVariant,
   useStore,
+  useReactFlow,
+  useOnSelectionChange,
 } from 'reactflow';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
-import { rfContext, setDirty } from '../../../store';
+import { setDirty } from '../../../store';
 import {
   IComponent,
   IComponentData,
@@ -35,6 +37,9 @@ import '../workspace_edge/deletable-edge-styles.scss';
 interface WorkspaceProps {
   workflow?: Workflow;
   onNodesChange: (nodes: ReactFlowComponent[]) => void;
+  id: string;
+  // TODO: make more typesafe
+  onSelectionChange: ({ nodes, edges }) => void;
 }
 
 const nodeTypes = { customComponent: WorkspaceComponent };
@@ -43,7 +48,7 @@ const edgeTypes = { customEdge: DeletableEdge };
 export function Workspace(props: WorkspaceProps) {
   const dispatch = useDispatch();
   const reactFlowWrapper = useRef(null);
-  const { reactFlowInstance, setReactFlowInstance } = useContext(rfContext);
+  const reactFlowInstance = useReactFlow();
 
   const [nodes, setNodes, onNodesChange] = useNodesState<IComponentData>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -55,6 +60,14 @@ export function Workspace(props: WorkspaceProps) {
   useEffect(() => {
     props.onNodesChange(nodes);
   }, [nodesLength]);
+
+  /**
+   * Hook provided by reactflow to listen on when nodes are selected / de-selected.
+   * Trigger the callback fn to propagate changes to parent components.
+   */
+  useOnSelectionChange({
+    onChange: props.onSelectionChange,
+  });
 
   const onConnect = useCallback(
     (params) => {
@@ -129,7 +142,6 @@ export function Workspace(props: WorkspaceProps) {
       direction="column"
       gutterSize="none"
       justifyContent="spaceBetween"
-      className="workspace-panel"
     >
       <EuiFlexItem className="euiPanel euiPanel--hasShadow euiPanel--borderRadiusMedium">
         {/**
@@ -139,6 +151,7 @@ export function Workspace(props: WorkspaceProps) {
         <div className="reactflow-parent-wrapper">
           <div className="reactflow-wrapper" ref={reactFlowWrapper}>
             <ReactFlow
+              id={props.id}
               nodes={nodes}
               edges={edges}
               nodeTypes={nodeTypes}
@@ -146,7 +159,6 @@ export function Workspace(props: WorkspaceProps) {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
-              onInit={setReactFlowInstance}
               onDrop={onDrop}
               onDragOver={onDragOver}
               className="reactflow-workspace"

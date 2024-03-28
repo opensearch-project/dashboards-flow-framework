@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useContext } from 'react';
+import React from 'react';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -12,10 +12,12 @@ import {
   EuiTitle,
   EuiButtonIcon,
 } from '@elastic/eui';
-import { rfContext } from '../../../store';
+import { setDirty } from '../../../store';
 import { IComponentData } from '../../../component_types';
 import { InputHandle } from './input_handle';
 import { OutputHandle } from './output_handle';
+import { Edge, useReactFlow } from 'reactflow';
+import { useDispatch } from 'react-redux';
 
 interface WorkspaceComponentProps {
   data: IComponentData;
@@ -27,8 +29,25 @@ interface WorkspaceComponentProps {
  * As users interact with it (input data, add connections), the stored IComponent data will update.
  */
 export function WorkspaceComponent(props: WorkspaceComponentProps) {
+  const dispatch = useDispatch();
   const component = props.data;
-  const { deleteNode } = useContext(rfContext);
+  const reactFlowInstance = useReactFlow();
+
+  // TODO: can move this to a reusable fn somewhere
+  const deleteNode = (nodeId: string) => {
+    reactFlowInstance.setNodes(
+      reactFlowInstance.getNodes().filter((node: Node) => node.id !== nodeId)
+    );
+    // Also delete any dangling edges attached to the component
+    reactFlowInstance.setEdges(
+      reactFlowInstance
+        .getEdges()
+        .filter(
+          (edge: Edge) => edge.source !== nodeId && edge.target !== nodeId
+        )
+    );
+    dispatch(setDirty);
+  };
 
   return (
     <EuiCard
