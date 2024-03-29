@@ -6,7 +6,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Connection, Handle, Position, useReactFlow } from 'reactflow';
 import { EuiText } from '@elastic/eui';
-import { IComponent, IComponentOutput } from '../../../component_types';
+import { IComponent, IComponentOutput } from '../../../../component_types';
 import { calculateHandlePosition, isValidConnection } from './utils';
 
 interface OutputHandleProps {

@@ -4,15 +4,8 @@
  */
 
 import React from 'react';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiCard,
-  EuiText,
-  EuiTitle,
-  EuiButtonIcon,
-  EuiPanel,
-} from '@elastic/eui';
+import { EuiFlexItem, EuiPanel } from '@elastic/eui';
+
 interface PlaceholderComponentProps {}
 
 /**

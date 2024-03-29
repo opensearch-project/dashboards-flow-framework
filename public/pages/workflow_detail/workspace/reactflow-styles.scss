@@ -22,6 +22,26 @@ $handle-color-invalid: $euiColorDanger;
   height: 250px;
 }
 
+.reactflow__group-node {
+  width: 1200px;
+  height: 700px;
+  overflow-x: auto;
+  overflow-y: auto;
+  border: 'none';
+
+  &__ingest {
+    background: rgba($euiColorVis0, 0.3);
+  }
+  &__search {
+    background: rgba($euiColorVis1, 0.3);
+  }
+}
+
+.reactflow__resizable-node {
+  background: rgba($euiColorSuccess, 0.3);
+  border: 'none';
+}
+
 // Overriding the styling for the reactflow node when it is selected.
 // We need to use important tag to override ReactFlow's wrapNode that sets the box-shadow.
 // Ref: https://github.com/wbkd/react-flow/blob/main/packages/core/src/components/Nodes/wrapNode.tsx#L187

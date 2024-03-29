@@ -12,7 +12,7 @@ import {
   getBezierPath,
   useReactFlow,
 } from 'reactflow';
-import { setDirty } from '../../../store';
+import { setDirty } from '../../../../store';
 
 // styling
 import './deletable-edge-styles.scss';
@@ -65,6 +65,7 @@ export function DeletableEdge(props: DeletableEdgeProps) {
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             fontSize: 12,
             pointerEvents: 'all',
+            zIndex: 1,
           }}
           className="nodrag nopan"
         >

@@ -15,6 +15,7 @@ import {
   TemplateFlows,
   WorkflowTemplate,
   DATE_FORMAT_PATTERN,
+  COMPONENT_CATEGORY,
 } from './';
 
 // TODO: implement this and remove hardcoded return values
@@ -42,38 +43,92 @@ export function toTemplateFlows(
 export function toWorkspaceFlow(
   templateFlows: TemplateFlows
 ): WorkspaceFlowState {
-  const id1 = generateId('text_embedding_processor');
-  const id2 = generateId('knn_index');
-  const groupId = generateId('group');
+  const ingestId1 = generateId('text_embedding_processor');
+  const ingestId2 = generateId('knn_index');
+  const ingestGroupId = generateId(COMPONENT_CATEGORY.INGEST);
 
-  const dummyNodes = [
+  const searchId1 = generateId('text_embedding_processor');
+  const searchId2 = generateId('knn_index');
+  const searchGroupId = generateId(COMPONENT_CATEGORY.SEARCH);
+
+  const ingestNodes = [
     {
-      id: groupId,
-      position: { x: 500, y: 500 },
-      type: 'group',
-      data: {},
-      style: { width: 1200, height: 700, overflowX: 'auto', overflowY: 'auto' },
+      id: ingestGroupId,
+      position: { x: 400, y: 400 },
+      type: 'ingest',
+      data: { label: COMPONENT_CATEGORY.INGEST },
+      style: {
+        width: 900,
+        height: 400,
+        overflowX: 'auto',
+        overflowY: 'auto',
+      },
+      className: 'reactflow__group-node__ingest',
+      selectable: false,
     },
     {
-      id: id1,
-      position: { x: 10, y: 10 },
-      data: initComponentData(new TextEmbeddingTransformer().toObj(), id1),
+      id: ingestId1,
+      position: { x: 100, y: 70 },
+      data: initComponentData(
+        new TextEmbeddingTransformer().toObj(),
+        ingestId1
+      ),
       type: 'customComponent',
-      parentNode: groupId,
+      parentNode: ingestGroupId,
       extent: 'parent',
+      draggable: false,
     },
     {
-      id: id2,
-      position: { x: 500, y: 10 },
-      data: initComponentData(new KnnIndexer().toObj(), id2),
+      id: ingestId2,
+      position: { x: 500, y: 70 },
+      data: initComponentData(new KnnIndexer().toObj(), ingestId2),
       type: 'customComponent',
-      parentNode: groupId,
+      parentNode: ingestGroupId,
       extent: 'parent',
+      draggable: false,
+    },
+  ] as ReactFlowComponent[];
+
+  const searchNodes = [
+    {
+      id: searchGroupId,
+      position: { x: 400, y: 1000 },
+      type: 'search',
+      data: { label: COMPONENT_CATEGORY.SEARCH },
+      style: {
+        width: 900,
+        height: 400,
+        overflowX: 'auto',
+        overflowY: 'auto',
+      },
+      className: 'reactflow__group-node__search',
+      selectable: false,
+    },
+    {
+      id: searchId1,
+      position: { x: 100, y: 70 },
+      data: initComponentData(
+        new TextEmbeddingTransformer().toObj(),
+        searchId1
+      ),
+      type: 'customComponent',
+      parentNode: searchGroupId,
+      extent: 'parent',
+      draggable: false,
+    },
+    {
+      id: searchId2,
+      position: { x: 500, y: 70 },
+      data: initComponentData(new KnnIndexer().toObj(), searchId2),
+      type: 'customComponent',
+      parentNode: searchGroupId,
+      extent: 'parent',
+      draggable: false,
     },
   ] as ReactFlowComponent[];
 
   return {
-    nodes: dummyNodes,
+    nodes: [...ingestNodes, ...searchNodes],
     edges: [] as ReactFlowEdge[],
   };
 }

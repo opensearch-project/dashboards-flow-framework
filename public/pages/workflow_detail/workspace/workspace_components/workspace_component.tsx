@@ -12,14 +12,15 @@ import {
   EuiTitle,
   EuiButtonIcon,
 } from '@elastic/eui';
-import { setDirty } from '../../../store';
-import { IComponentData } from '../../../component_types';
+import { setDirty } from '../../../../store';
+import { IComponentData } from '../../../../component_types';
 import { InputHandle } from './input_handle';
 import { OutputHandle } from './output_handle';
 import { Edge, useReactFlow } from 'reactflow';
 import { useDispatch } from 'react-redux';
 
-import '../workspace/reactflow-styles.scss';
+// styling
+import '../../workspace/reactflow-styles.scss';
 
 interface WorkspaceComponentProps {
   data: IComponentData;
