@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useRef, useCallback, useEffect, useState } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import ReactFlow, {
   Controls,
@@ -15,17 +15,14 @@ import ReactFlow, {
   useStore,
   useReactFlow,
   useOnSelectionChange,
-  Panel,
 } from 'reactflow';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 import { setDirty } from '../../../store';
 import {
-  IComponent,
   IComponentData,
   ReactFlowComponent,
   Workflow,
 } from '../../../../common';
-import { generateId, initComponentData } from '../../../utils';
 import {
   IngestGroupComponent,
   SearchGroupComponent,
@@ -96,45 +93,6 @@ export function Workspace(props: WorkspaceProps) {
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
-  const onDrop = useCallback(
-    (event) => {
-      event.preventDefault();
-      // Get the node info from the event metadata
-      const serializedComponent = event.dataTransfer.getData(
-        'application/reactflow'
-      ) as string;
-      const component = JSON.parse(serializedComponent) as IComponent;
-
-      // check if the dropped element is valid
-      if (typeof component === 'undefined' || !component) {
-        return;
-      }
-
-      // Fetch bounds based on the ref'd div component, adjust as needed.
-      // TODO: remove hardcoded bounds and fetch from a constant somewhere
-      // @ts-ignore
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-
-      // @ts-ignore
-      const position = reactFlowInstance.project({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
-      });
-      const id = generateId(component.type);
-      const newNode = {
-        id,
-        type: 'new',
-        position,
-        positionAbsolute: position,
-        data: initComponentData(component, id),
-      };
-
-      setNodes((nds) => nds.concat(newNode));
-      dispatch(setDirty());
-    },
-    [reactFlowInstance]
-  );
-
   // Initialization. Set the nodes and edges to an existing workflow state,
   useEffect(() => {
     const workflow = { ...props.workflow };
@@ -166,7 +124,6 @@ export function Workspace(props: WorkspaceProps) {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
-              onDrop={onDrop}
               onDragOver={onDragOver}
               className="reactflow-workspace"
               fitView
