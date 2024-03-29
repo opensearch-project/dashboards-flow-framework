@@ -311,7 +311,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                           />
                         </ReactFlowProvider>
                       </EuiFlexItem>
-                      <EuiFlexItem>
+                      {/* <EuiFlexItem>
                         <ReactFlowProvider>
                           <Workspace
                             id="search"
@@ -320,7 +320,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                             onSelectionChange={onSelectionChange}
                           />
                         </ReactFlowProvider>
-                      </EuiFlexItem>
+                      </EuiFlexItem> */}
                     </EuiFlexGroup>
                   </EuiResizablePanel>
                   <EuiResizableButton />

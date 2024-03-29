@@ -4,3 +4,4 @@
  */
 
 export { WorkspaceComponent } from './workspace_component';
+export { PlaceholderComponent } from './placeholder_component';

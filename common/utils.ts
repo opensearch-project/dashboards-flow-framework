@@ -43,26 +43,32 @@ export function toWorkspaceFlow(
   templateFlows: TemplateFlows
 ): WorkspaceFlowState {
   const id1 = generateId('text_embedding_processor');
-  const id2 = generateId('text_embedding_processor');
-  const id3 = generateId('knn_index');
+  const id2 = generateId('knn_index');
+  const groupId = generateId('group');
+
   const dummyNodes = [
     {
+      id: groupId,
+      position: { x: 500, y: 500 },
+      type: 'group',
+      data: {},
+      style: { width: 1200, height: 700, overflowX: 'auto', overflowY: 'auto' },
+    },
+    {
       id: id1,
-      position: { x: 0, y: 500 },
+      position: { x: 10, y: 10 },
       data: initComponentData(new TextEmbeddingTransformer().toObj(), id1),
       type: 'customComponent',
+      parentNode: groupId,
+      extent: 'parent',
     },
     {
       id: id2,
-      position: { x: 0, y: 200 },
-      data: initComponentData(new TextEmbeddingTransformer().toObj(), id2),
+      position: { x: 500, y: 10 },
+      data: initComponentData(new KnnIndexer().toObj(), id2),
       type: 'customComponent',
-    },
-    {
-      id: id3,
-      position: { x: 500, y: 500 },
-      data: initComponentData(new KnnIndexer().toObj(), id3),
-      type: 'customComponent',
+      parentNode: groupId,
+      extent: 'parent',
     },
   ] as ReactFlowComponent[];
 

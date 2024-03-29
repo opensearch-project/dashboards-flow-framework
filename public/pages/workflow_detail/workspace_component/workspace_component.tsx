@@ -19,6 +19,8 @@ import { OutputHandle } from './output_handle';
 import { Edge, useReactFlow } from 'reactflow';
 import { useDispatch } from 'react-redux';
 
+import '../workspace/reactflow-styles.scss';
+
 interface WorkspaceComponentProps {
   data: IComponentData;
 }
@@ -51,6 +53,7 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
 
   return (
     <EuiCard
+      className="react-flow__node"
       textAlign="left"
       title={
         <EuiFlexGroup direction="row" justifyContent="spaceBetween">
