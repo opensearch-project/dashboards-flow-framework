@@ -39,7 +39,6 @@ export function DeletableEdge(props: DeletableEdgeProps) {
 
   const reactFlowInstance = useReactFlow();
 
-  // TODO: can move this to a reusable fn somewhere
   const deleteEdge = (edgeId: string) => {
     reactFlowInstance.setEdges(
       reactFlowInstance.getEdges().filter((edge: Edge) => edge.id !== edgeId)

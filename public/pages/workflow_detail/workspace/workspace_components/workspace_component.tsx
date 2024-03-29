@@ -36,7 +36,6 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
   const component = props.data;
   const reactFlowInstance = useReactFlow();
 
-  // TODO: can move this to a reusable fn somewhere
   const deleteNode = (nodeId: string) => {
     reactFlowInstance.setNodes(
       reactFlowInstance.getNodes().filter((node: Node) => node.id !== nodeId)
@@ -49,7 +48,7 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
           (edge: Edge) => edge.source !== nodeId && edge.target !== nodeId
         )
     );
-    dispatch(setDirty);
+    dispatch(setDirty());
   };
 
   return (
