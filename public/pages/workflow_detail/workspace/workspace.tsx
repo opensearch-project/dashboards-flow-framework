@@ -38,7 +38,6 @@ import 'reactflow/dist/style.css';
 import './reactflow-styles.scss';
 import './workspace-styles.scss';
 import './workspace_edge/deletable-edge-styles.scss';
-import { ComponentLibrary } from './component_library';
 
 interface WorkspaceProps {
   workflow?: Workflow;
@@ -63,11 +62,6 @@ export function Workspace(props: WorkspaceProps) {
   const reactFlowInstance = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState<IComponentData>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
-  // Component library state
-  const [componentLibraryOpen, setComponentLibraryOpen] = useState<boolean>(
-    false
-  );
 
   // Listener for node additions or deletions to propagate to parent component
   const nodesLength = useStore(
@@ -177,16 +171,6 @@ export function Workspace(props: WorkspaceProps) {
               className="reactflow-workspace"
               fitView
             >
-              {componentLibraryOpen && (
-                <Panel
-                  position="top-left"
-                  style={{ marginTop: '64px', width: '25vh' }}
-                >
-                  <ComponentLibrary
-                    onClose={() => setComponentLibraryOpen(false)}
-                  />
-                </Panel>
-              )}
               <Controls
                 showFitView={false}
                 showZoom={false}
