@@ -16,8 +16,10 @@ interface GroupComponentProps {
  */
 export function GroupComponent(props: GroupComponentProps) {
   return (
+    // TODO: investigate having custom bounds of child nodes to prevent
+    // overlapping the group node title
     <EuiFlexGroup direction="column">
-      <EuiFlexItem style={{ backgroundColor: 'black' }}>
+      <EuiFlexItem style={{ backgroundColor: 'transparent' }}>
         <EuiTitle size="l">
           <h2 style={{ marginLeft: '8px' }}>{props.data.label}</h2>
         </EuiTitle>

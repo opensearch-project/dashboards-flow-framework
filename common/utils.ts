@@ -16,6 +16,7 @@ import {
   WorkflowTemplate,
   DATE_FORMAT_PATTERN,
   COMPONENT_CATEGORY,
+  NODE_CATEGORY,
 } from './';
 
 // TODO: implement this and remove hardcoded return values
@@ -55,7 +56,7 @@ export function toWorkspaceFlow(
     {
       id: ingestGroupId,
       position: { x: 400, y: 400 },
-      type: 'ingest',
+      type: NODE_CATEGORY.INGEST_GROUP,
       data: { label: COMPONENT_CATEGORY.INGEST },
       style: {
         width: 900,
@@ -64,7 +65,7 @@ export function toWorkspaceFlow(
         overflowY: 'auto',
       },
       className: 'reactflow__group-node__ingest',
-      selectable: false,
+      selectable: true,
     },
     {
       id: ingestId1,
@@ -73,7 +74,7 @@ export function toWorkspaceFlow(
         new TextEmbeddingTransformer().toObj(),
         ingestId1
       ),
-      type: 'customComponent',
+      type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
       draggable: true,
@@ -82,7 +83,7 @@ export function toWorkspaceFlow(
       id: ingestId2,
       position: { x: 500, y: 70 },
       data: initComponentData(new KnnIndexer().toObj(), ingestId2),
-      type: 'customComponent',
+      type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
       draggable: true,
@@ -93,7 +94,7 @@ export function toWorkspaceFlow(
     {
       id: searchGroupId,
       position: { x: 400, y: 1000 },
-      type: 'search',
+      type: NODE_CATEGORY.SEARCH_GROUP,
       data: { label: COMPONENT_CATEGORY.SEARCH },
       style: {
         width: 900,
@@ -102,7 +103,7 @@ export function toWorkspaceFlow(
         overflowY: 'auto',
       },
       className: 'reactflow__group-node__search',
-      selectable: false,
+      selectable: true,
     },
     {
       id: searchId1,
@@ -111,7 +112,7 @@ export function toWorkspaceFlow(
         new TextEmbeddingTransformer().toObj(),
         searchId1
       ),
-      type: 'customComponent',
+      type: NODE_CATEGORY.CUSTOM,
       parentNode: searchGroupId,
       extent: 'parent',
       draggable: true,
@@ -120,7 +121,7 @@ export function toWorkspaceFlow(
       id: searchId2,
       position: { x: 500, y: 70 },
       data: initComponentData(new KnnIndexer().toObj(), searchId2),
-      type: 'customComponent',
+      type: NODE_CATEGORY.CUSTOM,
       parentNode: searchGroupId,
       extent: 'parent',
       draggable: true,

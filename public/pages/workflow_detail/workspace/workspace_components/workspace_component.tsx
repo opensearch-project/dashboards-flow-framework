@@ -10,7 +10,6 @@ import {
   EuiCard,
   EuiText,
   EuiTitle,
-  EuiButtonIcon,
 } from '@elastic/eui';
 import { setDirty } from '../../../../store';
 import { IComponentData } from '../../../../component_types';
@@ -36,6 +35,7 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
   const component = props.data;
   const reactFlowInstance = useReactFlow();
 
+  // TODO: re-enable deletion
   const deleteNode = (nodeId: string) => {
     reactFlowInstance.setNodes(
       reactFlowInstance.getNodes().filter((node: Node) => node.id !== nodeId)

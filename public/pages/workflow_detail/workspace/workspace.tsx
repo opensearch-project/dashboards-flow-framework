@@ -45,9 +45,9 @@ interface WorkspaceProps {
 }
 
 const nodeTypes = {
-  customComponent: WorkspaceComponent,
-  ingest: IngestGroupComponent,
-  search: SearchGroupComponent,
+  custom: WorkspaceComponent,
+  ingestGroup: IngestGroupComponent,
+  searchGroup: SearchGroupComponent,
 };
 const edgeTypes = { customEdge: DeletableEdge };
 
