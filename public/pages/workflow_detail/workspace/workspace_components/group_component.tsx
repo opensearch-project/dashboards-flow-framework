@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { EuiTitle } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiTitle } from '@elastic/eui';
 
 interface GroupComponentProps {
   data: { label: string };
@@ -16,10 +16,13 @@ interface GroupComponentProps {
  */
 export function GroupComponent(props: GroupComponentProps) {
   return (
-    <>
-      <EuiTitle size="l">
-        <h2 style={{ marginLeft: '8px' }}>{props.data.label}</h2>
-      </EuiTitle>
-    </>
+    <EuiFlexGroup direction="column">
+      <EuiFlexItem style={{ backgroundColor: 'black' }}>
+        <EuiTitle size="l">
+          <h2 style={{ marginLeft: '8px' }}>{props.data.label}</h2>
+        </EuiTitle>
+      </EuiFlexItem>
+      <EuiFlexItem></EuiFlexItem>
+    </EuiFlexGroup>
   );
 }

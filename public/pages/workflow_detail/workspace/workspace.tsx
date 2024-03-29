@@ -88,11 +88,6 @@ export function Workspace(props: WorkspaceProps) {
     [setEdges]
   );
 
-  const onDragOver = useCallback((event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  }, []);
-
   // Initialization. Set the nodes and edges to an existing workflow state,
   useEffect(() => {
     const workflow = { ...props.workflow };
@@ -124,7 +119,6 @@ export function Workspace(props: WorkspaceProps) {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
-              onDragOver={onDragOver}
               className="reactflow-workspace"
               fitView
             >
