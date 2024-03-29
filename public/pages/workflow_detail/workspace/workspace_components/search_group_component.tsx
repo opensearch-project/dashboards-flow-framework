@@ -4,16 +4,16 @@
  */
 
 import React from 'react';
-import { ResizableComponent } from './resizable_component';
+import { GroupComponent } from './group_component';
 
 interface SearchGroupComponentProps {
   data: { label: string };
 }
 
 /**
- * A lightweight wrapper on the resizable component.
+ * A lightweight wrapper on the group component.
  * Any specific additions to search can be specified here.
  */
 export function SearchGroupComponent(props: SearchGroupComponentProps) {
-  return <ResizableComponent data={props.data} />;
+  return <GroupComponent data={props.data} />;
 }

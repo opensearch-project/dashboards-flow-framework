@@ -4,16 +4,16 @@
  */
 
 import React from 'react';
-import { ResizableComponent } from './resizable_component';
+import { GroupComponent } from './group_component';
 
 interface IngestGroupComponentProps {
   data: { label: string };
 }
 
 /**
- * A lightweight wrapper on the resizable component.
+ * A lightweight wrapper on the group component.
  * Any specific additions to ingest can be specified here.
  */
 export function IngestGroupComponent(props: IngestGroupComponentProps) {
-  return <ResizableComponent data={props.data} />;
+  return <GroupComponent data={props.data} />;
 }
