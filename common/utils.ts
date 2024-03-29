@@ -76,7 +76,7 @@ export function toWorkspaceFlow(
       type: 'customComponent',
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
     },
     {
       id: ingestId2,
@@ -85,7 +85,7 @@ export function toWorkspaceFlow(
       type: 'customComponent',
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
     },
   ] as ReactFlowComponent[];
 
@@ -114,7 +114,7 @@ export function toWorkspaceFlow(
       type: 'customComponent',
       parentNode: searchGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
     },
     {
       id: searchId2,
@@ -123,7 +123,7 @@ export function toWorkspaceFlow(
       type: 'customComponent',
       parentNode: searchGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
     },
   ] as ReactFlowComponent[];
 

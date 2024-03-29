@@ -63,13 +63,16 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
             </EuiTitle>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButtonIcon
+            {
+              // TODO: re-enable deletion
+            }
+            {/* <EuiButtonIcon
               iconType="trash"
               onClick={() => {
                 deleteNode(component.id);
               }}
               aria-label="Delete"
-            />
+            /> */}
           </EuiFlexItem>
         </EuiFlexGroup>
       }
