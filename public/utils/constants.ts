@@ -32,6 +32,12 @@ export enum COMPONENT_CATEGORY {
   SEARCH = 'Search',
 }
 
+export enum NODE_CATEGORY {
+  CUSTOM = 'custom',
+  INGEST_GROUP = 'ingestGroup',
+  SEARCH_GROUP = 'searchGroup',
+}
+
 // TODO: subject to change
 /**
  * A base set of component classes / types.

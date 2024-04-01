@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useRef, useContext, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import ReactFlow, {
   Controls,
@@ -13,38 +13,50 @@ import ReactFlow, {
   addEdge,
   BackgroundVariant,
   useStore,
+  useReactFlow,
+  useOnSelectionChange,
 } from 'reactflow';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
-import { rfContext, setDirty } from '../../../store';
+import { setDirty } from '../../../store';
 import {
-  IComponent,
   IComponentData,
   ReactFlowComponent,
   Workflow,
 } from '../../../../common';
-import { generateId, initComponentData } from '../../../utils';
-import { WorkspaceComponent } from '../workspace_component';
-import { DeletableEdge } from '../workspace_edge';
+import {
+  IngestGroupComponent,
+  SearchGroupComponent,
+  WorkspaceComponent,
+} from './workspace_components';
+import { DeletableEdge } from './workspace_edge';
 
 // styling
 import 'reactflow/dist/style.css';
 import './reactflow-styles.scss';
 import './workspace-styles.scss';
-import '../workspace_edge/deletable-edge-styles.scss';
+import './workspace_edge/deletable-edge-styles.scss';
 
 interface WorkspaceProps {
   workflow?: Workflow;
   onNodesChange: (nodes: ReactFlowComponent[]) => void;
+  id: string;
+  // TODO: make more typesafe
+  onSelectionChange: ({ nodes, edges }) => void;
 }
 
-const nodeTypes = { customComponent: WorkspaceComponent };
+const nodeTypes = {
+  custom: WorkspaceComponent,
+  ingestGroup: IngestGroupComponent,
+  searchGroup: SearchGroupComponent,
+};
 const edgeTypes = { customEdge: DeletableEdge };
 
 export function Workspace(props: WorkspaceProps) {
   const dispatch = useDispatch();
-  const reactFlowWrapper = useRef(null);
-  const { reactFlowInstance, setReactFlowInstance } = useContext(rfContext);
 
+  // ReactFlow state
+  const reactFlowWrapper = useRef(null);
+  const reactFlowInstance = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState<IComponentData>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -56,6 +68,14 @@ export function Workspace(props: WorkspaceProps) {
     props.onNodesChange(nodes);
   }, [nodesLength]);
 
+  /**
+   * Hook provided by reactflow to listen on when nodes are selected / de-selected.
+   * Trigger the callback fn to propagate changes to parent components.
+   */
+  useOnSelectionChange({
+    onChange: props.onSelectionChange,
+  });
+
   const onConnect = useCallback(
     (params) => {
       const edge = {
@@ -66,53 +86,6 @@ export function Workspace(props: WorkspaceProps) {
       dispatch(setDirty());
     },
     [setEdges]
-  );
-
-  const onDragOver = useCallback((event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  }, []);
-
-  const onDrop = useCallback(
-    (event) => {
-      event.preventDefault();
-      // Get the node info from the event metadata
-      const nodeData = event.dataTransfer.getData(
-        'application/reactflow'
-      ) as IComponent;
-
-      // check if the dropped element is valid
-      if (typeof nodeData === 'undefined' || !nodeData) {
-        return;
-      }
-
-      // Fetch bounds based on the ref'd div component, adjust as needed.
-      // TODO: remove hardcoded bounds and fetch from a constant somewhere
-      // @ts-ignore
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      // @ts-ignore
-      const position = reactFlowInstance.project({
-        x: event.clientX - reactFlowBounds.left - 80,
-        y: event.clientY - reactFlowBounds.top - 90,
-      });
-
-      // TODO: remove hardcoded values when more component info is passed in the event.
-      // Only keep the calculated 'position' field.
-      const id = generateId(nodeData.type);
-      const newNode = {
-        id,
-        type: nodeData.type,
-        position,
-        data: initComponentData(nodeData, id),
-        style: {
-          background: 'white',
-        },
-      };
-
-      setNodes((nds) => nds.concat(newNode));
-      dispatch(setDirty());
-    },
-    [reactFlowInstance]
   );
 
   // Initialization. Set the nodes and edges to an existing workflow state,
@@ -129,7 +102,6 @@ export function Workspace(props: WorkspaceProps) {
       direction="column"
       gutterSize="none"
       justifyContent="spaceBetween"
-      className="workspace-panel"
     >
       <EuiFlexItem className="euiPanel euiPanel--hasShadow euiPanel--borderRadiusMedium">
         {/**
@@ -139,6 +111,7 @@ export function Workspace(props: WorkspaceProps) {
         <div className="reactflow-parent-wrapper">
           <div className="reactflow-wrapper" ref={reactFlowWrapper}>
             <ReactFlow
+              id={props.id}
               nodes={nodes}
               edges={edges}
               nodeTypes={nodeTypes}
@@ -146,13 +119,15 @@ export function Workspace(props: WorkspaceProps) {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
-              onInit={setReactFlowInstance}
-              onDrop={onDrop}
-              onDragOver={onDragOver}
               className="reactflow-workspace"
               fitView
             >
-              <Controls />
+              <Controls
+                showFitView={false}
+                showZoom={false}
+                showInteractive={false}
+                position="top-left"
+              ></Controls>
               <Background
                 color="#343741"
                 variant={'dots' as BackgroundVariant}

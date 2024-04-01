@@ -57,7 +57,6 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   const { workflows, cachedWorkflow } = useSelector(
     (state: AppState) => state.workflows
   );
-  const { isDirty } = useSelector((state: AppState) => state.workspace);
 
   // selected workflow state
   const workflowId = props.match?.params?.workflowId;

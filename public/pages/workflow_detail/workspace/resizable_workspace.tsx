@@ -3,15 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useOnSelectionChange } from 'reactflow';
+import { ReactFlowProvider, useReactFlow } from 'reactflow';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
 import { cloneDeep } from 'lodash';
 import {
   EuiButton,
   EuiCallOut,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiPageHeader,
   EuiResizableContainer,
 } from '@elastic/eui';
@@ -28,10 +30,13 @@ import {
   WorkspaceFlowState,
   toTemplateFlows,
 } from '../../../../common';
-import { AppState, removeDirty, setDirty, rfContext } from '../../../store';
+import { AppState, removeDirty, setDirty } from '../../../store';
 import { Workspace } from './workspace';
 import { ComponentDetails } from '../component_details';
 import { processNodes, saveWorkflow } from '../utils';
+
+// styling
+import './workspace-styles.scss';
 
 interface ResizableWorkspaceProps {
   isNewWorkflow: boolean;
@@ -77,29 +82,30 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   };
 
   // Selected component state
-  const { reactFlowInstance } = useContext(rfContext);
+  const reactFlowInstance = useReactFlow();
   const [selectedComponent, setSelectedComponent] = useState<
     ReactFlowComponent
   >();
 
   /**
-   * Hook provided by reactflow to listen on when nodes are selected / de-selected.
+   * Custom listener on when nodes are selected / de-selected. Passed to
+   * downstream ReactFlow components you can listen using
+   * the out-of-the-box useOnSelectionChange hook.
    * - populate panel content appropriately
    * - open the panel if a node is selected and the panel is closed
    * - it is assumed that only one node can be selected at once
    */
-  useOnSelectionChange({
-    onChange: ({ nodes, edges }) => {
-      if (nodes && nodes.length > 0) {
-        setSelectedComponent(nodes[0]);
-        if (!isDetailsPanelOpen) {
-          onToggleChange();
-        }
-      } else {
-        setSelectedComponent(undefined);
+  // TODO: make more typesafe
+  function onSelectionChange({ nodes, edges }) {
+    if (nodes && nodes.length > 0) {
+      setSelectedComponent(nodes[0]);
+      if (!isDetailsPanelOpen) {
+        onToggleChange();
       }
-    },
-  });
+    } else {
+      setSelectedComponent(undefined);
+    }
+  }
 
   // Hook to update the workflow's flow state, if applicable. It may not exist if
   // it is a backend-only-created workflow, or a new, unsaved workflow. If so,
@@ -290,13 +296,26 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     minSize="50%"
                     paddingSize="s"
                   >
-                    <Workspace
-                      workflow={workflow}
-                      onNodesChange={onNodesChange}
-                    />
+                    <EuiFlexGroup
+                      direction="column"
+                      gutterSize="s"
+                      className="workspace-panel"
+                    >
+                      <EuiFlexItem>
+                        <ReactFlowProvider>
+                          <Workspace
+                            id="ingest"
+                            workflow={workflow}
+                            onNodesChange={onNodesChange}
+                            onSelectionChange={onSelectionChange}
+                          />
+                        </ReactFlowProvider>
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
                   </EuiResizablePanel>
                   <EuiResizableButton />
                   <EuiResizablePanel
+                    className="workspace-panel"
                     style={{ marginRight: '-16px' }}
                     id={COMPONENT_DETAILS_PANEL_ID}
                     mode="collapsible"
