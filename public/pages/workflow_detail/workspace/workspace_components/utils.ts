@@ -4,7 +4,7 @@
  */
 
 import { Connection, ReactFlowInstance } from 'reactflow';
-import { IComponentInput } from '../../../../common';
+import { IComponentInput } from '../../../../../common';
 
 /**
  * Collection of utility functions for the workspace component

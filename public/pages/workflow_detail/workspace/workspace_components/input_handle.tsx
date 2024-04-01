@@ -3,12 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef, useEffect, useContext } from 'react';
-import { Connection, Handle, Position } from 'reactflow';
+import React, { useState, useRef, useEffect } from 'react';
+import { Connection, Handle, Position, useReactFlow } from 'reactflow';
 import { EuiText } from '@elastic/eui';
-import { IComponent, IComponentInput } from '../../../component_types';
+import { IComponent, IComponentInput } from '../../../../component_types';
 import { calculateHandlePosition, isValidConnection } from './utils';
-import { rfContext } from '../../../store';
 
 interface InputHandleProps {
   data: IComponent;
@@ -17,7 +16,7 @@ interface InputHandleProps {
 
 export function InputHandle(props: InputHandleProps) {
   const ref = useRef(null);
-  const { reactFlowInstance } = useContext(rfContext);
+  const reactFlowInstance = useReactFlow();
   const [position, setPosition] = useState<number>(0);
 
   useEffect(() => {

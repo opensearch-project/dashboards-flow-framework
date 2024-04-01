@@ -3,19 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useContext } from 'react';
+import React from 'react';
 import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiCard,
   EuiText,
   EuiTitle,
-  EuiButtonIcon,
 } from '@elastic/eui';
-import { rfContext } from '../../../store';
-import { IComponentData } from '../../../component_types';
+import { setDirty } from '../../../../store';
+import { IComponentData } from '../../../../component_types';
 import { InputHandle } from './input_handle';
 import { OutputHandle } from './output_handle';
+import { Edge, useReactFlow } from 'reactflow';
+import { useDispatch } from 'react-redux';
+
+// styling
+import '../../workspace/reactflow-styles.scss';
 
 interface WorkspaceComponentProps {
   data: IComponentData;
@@ -27,11 +31,29 @@ interface WorkspaceComponentProps {
  * As users interact with it (input data, add connections), the stored IComponent data will update.
  */
 export function WorkspaceComponent(props: WorkspaceComponentProps) {
+  const dispatch = useDispatch();
   const component = props.data;
-  const { deleteNode } = useContext(rfContext);
+  const reactFlowInstance = useReactFlow();
+
+  // TODO: re-enable deletion
+  const deleteNode = (nodeId: string) => {
+    reactFlowInstance.setNodes(
+      reactFlowInstance.getNodes().filter((node: Node) => node.id !== nodeId)
+    );
+    // Also delete any dangling edges attached to the component
+    reactFlowInstance.setEdges(
+      reactFlowInstance
+        .getEdges()
+        .filter(
+          (edge: Edge) => edge.source !== nodeId && edge.target !== nodeId
+        )
+    );
+    dispatch(setDirty());
+  };
 
   return (
     <EuiCard
+      className="react-flow__node"
       textAlign="left"
       title={
         <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -41,13 +63,16 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
             </EuiTitle>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButtonIcon
+            {
+              // TODO: re-enable deletion
+            }
+            {/* <EuiButtonIcon
               iconType="trash"
               onClick={() => {
                 deleteNode(component.id);
               }}
               aria-label="Delete"
-            />
+            /> */}
           </EuiFlexItem>
         </EuiFlexGroup>
       }

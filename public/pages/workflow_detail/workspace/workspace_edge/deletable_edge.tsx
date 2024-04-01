@@ -3,17 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useContext } from 'react';
+import React from 'react';
 import {
   BaseEdge,
+  Edge,
   EdgeLabelRenderer,
   EdgeProps,
   getBezierPath,
+  useReactFlow,
 } from 'reactflow';
-import { rfContext } from '../../../store';
+import { setDirty } from '../../../../store';
 
 // styling
 import './deletable-edge-styles.scss';
+import { useDispatch } from 'react-redux';
 
 type DeletableEdgeProps = EdgeProps;
 
@@ -23,6 +26,8 @@ type DeletableEdgeProps = EdgeProps;
  * see https://reactflow.dev/docs/examples/edges/edge-types/
  */
 export function DeletableEdge(props: DeletableEdgeProps) {
+  const dispatch = useDispatch();
+
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX: props.sourceX,
     sourceY: props.sourceY,
@@ -32,7 +37,14 @@ export function DeletableEdge(props: DeletableEdgeProps) {
     targetPosition: props.targetPosition,
   });
 
-  const { deleteEdge } = useContext(rfContext);
+  const reactFlowInstance = useReactFlow();
+
+  const deleteEdge = (edgeId: string) => {
+    reactFlowInstance.setEdges(
+      reactFlowInstance.getEdges().filter((edge: Edge) => edge.id !== edgeId)
+    );
+    dispatch(setDirty());
+  };
 
   const onEdgeClick = (event: any, edgeId: string) => {
     // Prevent this event from bubbling up and putting reactflow into an unexpected state.
@@ -52,6 +64,7 @@ export function DeletableEdge(props: DeletableEdgeProps) {
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             fontSize: 12,
             pointerEvents: 'all',
+            zIndex: 1,
           }}
           className="nodrag nopan"
         >
