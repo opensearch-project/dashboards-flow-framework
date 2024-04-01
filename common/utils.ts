@@ -62,6 +62,41 @@ export function toTemplateFlows(
             },
           },
         },
+        {
+          id: 'create_index',
+          type: 'create_index',
+          previous_node_inputs: {
+            create_ingest_pipeline: 'pipeline_id',
+          },
+          user_inputs: {
+            index_name: '${{create_index.name}}',
+            configurations: {
+              settings: {
+                default_pipeline: '${{create_ingest_pipeline.pipeline_id}}',
+              },
+              mappings: {
+                properties: {
+                  id: {
+                    type: 'text',
+                  },
+                  [textEmbeddingFields['outputField']]: {
+                    type: 'knn_vector',
+                    dimension: 768,
+                    method: {
+                      engine: 'lucene',
+                      space_type: 'l2',
+                      name: 'hnsw',
+                      parameters: {},
+                    },
+                  },
+                  [textEmbeddingFields['inputField']]: {
+                    type: 'text',
+                  },
+                },
+              },
+            },
+          },
+        },
       ],
     },
   };
@@ -78,9 +113,6 @@ export function toWorkspaceFlow(
   const ingestId1 = generateId('text_embedding_processor');
   const ingestId2 = generateId('knn_index');
   const ingestGroupId = generateId(COMPONENT_CATEGORY.INGEST);
-
-  const searchId1 = generateId('text_embedding_processor');
-  const searchId2 = generateId('knn_index');
   const searchGroupId = generateId(COMPONENT_CATEGORY.SEARCH);
 
   const ingestNodes = [
@@ -136,29 +168,6 @@ export function toWorkspaceFlow(
       selectable: true,
       deletable: false,
     },
-    // {
-    //   id: searchId1,
-    //   position: { x: 100, y: 70 },
-    //   data: initComponentData(
-    //     new TextEmbeddingTransformer().toObj(),
-    //     searchId1
-    //   ),
-    //   type: NODE_CATEGORY.CUSTOM,
-    //   parentNode: searchGroupId,
-    //   extent: 'parent',
-    //   draggable: true,
-    // deletable: false,
-    // },
-    // {
-    //   id: searchId2,
-    //   position: { x: 500, y: 70 },
-    //   data: initComponentData(new KnnIndexer().toObj(), searchId2),
-    //   type: NODE_CATEGORY.CUSTOM,
-    //   parentNode: searchGroupId,
-    //   extent: 'parent',
-    //   draggable: true,
-    // deletable: false,
-    // },
   ] as ReactFlowComponent[];
 
   return {

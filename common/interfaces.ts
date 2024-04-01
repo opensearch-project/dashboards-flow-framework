@@ -52,6 +52,7 @@ export type TemplateEdge = {
 
 export type TemplateFlow = {
   user_inputs?: Map<string, any>;
+  previous_node_inputs?: Map<string, any>;
   nodes: TemplateNode[];
   edges?: TemplateEdge[];
 };

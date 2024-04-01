@@ -46,20 +46,21 @@ export class Indexer extends BaseComponent {
         optional: false,
         advanced: false,
       },
-      {
-        label: 'Mappings',
-        name: 'indexMappings',
-        type: 'json',
-        placeholder: 'Enter an index mappings JSON blob...',
-        optional: false,
-        advanced: false,
-      },
+      // {
+      //   label: 'Mappings',
+      //   name: 'indexMappings',
+      //   type: 'json',
+      //   placeholder: 'Enter an index mappings JSON blob...',
+      //   optional: false,
+      //   advanced: false,
+      // },
     ];
-    this.outputs = [
-      {
-        label: this.label,
-        baseClasses: this.baseClasses,
-      },
-    ];
+    // this.outputs = [
+    //   {
+    //     label: this.label,
+    //     baseClasses: this.baseClasses,
+    //   },
+    // ];
+    this.outputs = [];
   }
 }

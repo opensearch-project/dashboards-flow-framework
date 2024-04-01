@@ -14,7 +14,7 @@ export class TextEmbeddingTransformer extends MLTransformer {
     this.label = 'Text Embedding Transformer';
     this.description = 'A specialized ML transformer for embedding text';
     this.inputs = [];
-    this.fields = [
+    this.createFields = [
       {
         label: 'Model ID',
         name: 'modelId',

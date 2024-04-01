@@ -17,14 +17,14 @@ export class KnnIndexer extends Indexer {
       // @ts-ignore
       ...this.createFields,
       // TODO: finalize what to expose / what to have for defaults here
-      {
-        label: 'K-NN Settings',
-        name: 'knnSettings',
-        type: 'json',
-        placeholder: 'Enter K-NN settings JSON blob...',
-        optional: false,
-        advanced: false,
-      },
+      // {
+      //   label: 'K-NN Settings',
+      //   name: 'knnSettings',
+      //   type: 'json',
+      //   placeholder: 'Enter K-NN settings JSON blob...',
+      //   optional: false,
+      //   advanced: false,
+      // },
     ];
   }
 }

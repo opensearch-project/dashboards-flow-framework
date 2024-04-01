@@ -6,7 +6,7 @@
 import React from 'react';
 import { EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { TextField, JsonField, SelectField } from './input_fields';
-import { ReactFlowComponent } from '../../../../common';
+import { IComponentField } from '../../../../common';
 
 /**
  * A helper component to format all of the input fields for a component. Dynamically
@@ -14,12 +14,13 @@ import { ReactFlowComponent } from '../../../../common';
  */
 
 interface InputFieldListProps {
-  selectedComponent: ReactFlowComponent;
+  componentId: string;
+  componentFields: IComponentField[] | undefined;
   onFormChange: () => void;
 }
 
 export function InputFieldList(props: InputFieldListProps) {
-  const inputFields = props.selectedComponent.data.fields || [];
+  const inputFields = props.componentFields || [];
   return (
     <EuiFlexItem grow={false}>
       {inputFields.map((field, idx) => {
@@ -30,7 +31,7 @@ export function InputFieldList(props: InputFieldListProps) {
               <EuiFlexItem key={idx}>
                 <TextField
                   field={field}
-                  componentId={props.selectedComponent.id}
+                  componentId={props.componentId}
                   onFormChange={props.onFormChange}
                 />
                 <EuiSpacer size="s" />
@@ -43,9 +44,10 @@ export function InputFieldList(props: InputFieldListProps) {
               <EuiFlexItem key={idx}>
                 <SelectField
                   field={field}
-                  componentId={props.selectedComponent.id}
+                  componentId={props.componentId}
                   onFormChange={props.onFormChange}
                 />
+                <EuiSpacer size="s" />
               </EuiFlexItem>
             );
             break;

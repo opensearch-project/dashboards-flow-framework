@@ -42,10 +42,12 @@ export function initComponentData(
  **************** Formik (form) utils **********************
  */
 
+// TODO: below, we are hardcoding to only persisting and validating create fields.
+// If we support both, we will need to dynamically update.
 // Converting stored values in component data to initial formik values
 export function componentDataToFormik(data: IComponentData): FormikValues {
   const formikValues = {} as FormikValues;
-  data.fields?.forEach((field) => {
+  data.createFields?.forEach((field) => {
     formikValues[field.name] = field.value || getInitialValue(field.type);
   });
   return formikValues;
@@ -99,9 +101,11 @@ export function getFieldError(
  **************** Yup (validation) utils **********************
  */
 
+// TODO: below, we are hardcoding to only persisting and validating create fields.
+// If we support both, we will need to dynamically update.
 export function getComponentSchema(data: IComponentData): ObjectSchema<any> {
   const schemaObj = {} as { [key: string]: Schema };
-  data.fields?.forEach((field) => {
+  data.createFields?.forEach((field) => {
     schemaObj[field.name] = getFieldSchema(field);
   });
   return yup.object(schemaObj);
