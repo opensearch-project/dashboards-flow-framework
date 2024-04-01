@@ -15,6 +15,7 @@ import ReactFlow, {
   useStore,
   useReactFlow,
   useOnSelectionChange,
+  MarkerType,
 } from 'reactflow';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 import { setDirty } from '../../../store';
@@ -82,7 +83,19 @@ export function Workspace(props: WorkspaceProps) {
         ...params,
         type: 'customEdge',
       };
-      setEdges((eds) => addEdge(edge, eds));
+      setEdges((eds) =>
+        addEdge(
+          {
+            ...edge,
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 20,
+              height: 20,
+            },
+          },
+          eds
+        )
+      );
       dispatch(setDirty());
     },
     [setEdges]
@@ -115,7 +128,8 @@ export function Workspace(props: WorkspaceProps) {
               nodes={nodes}
               edges={edges}
               nodeTypes={nodeTypes}
-              edgeTypes={edgeTypes}
+              // TODO: add custom edge types back if we want to support custom deletable buttons
+              // edgeTypes={edgeTypes}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}

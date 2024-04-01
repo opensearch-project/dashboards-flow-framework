@@ -4,6 +4,7 @@
  */
 
 import moment from 'moment';
+import { MarkerType } from 'reactflow';
 import {
   WorkspaceFlowState,
   ReactFlowComponent,
@@ -172,7 +173,19 @@ export function toWorkspaceFlow(
 
   return {
     nodes: [...ingestNodes, ...searchNodes],
-    edges: [] as ReactFlowEdge[],
+    edges: [
+      {
+        source: ingestId1,
+        target: ingestId2,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+        },
+        zIndex: 2,
+        deletable: false,
+      },
+    ] as ReactFlowEdge[],
   };
 }
 
