@@ -22,12 +22,12 @@ import {
 // Need to have a way to determine where to fetch this dynamic data.
 const existingIndices = [
   {
-    value: 'index-1',
+    value: 'my-index-1',
     inputDisplay: <EuiText>my-index-1</EuiText>,
     disabled: false,
   },
   {
-    value: 'index-2',
+    value: 'my-index-2',
     inputDisplay: <EuiText>my-index-2</EuiText>,
     disabled: false,
   },

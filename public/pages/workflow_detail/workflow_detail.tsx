@@ -144,10 +144,12 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
             tabs={tabs}
           />
           {selectedTabId === WORKFLOW_DETAILS_TAB.EDITOR && (
-            <ResizableWorkspace
-              isNewWorkflow={isNewWorkflow}
-              workflow={workflow}
-            />
+            <ReactFlowProvider>
+              <ResizableWorkspace
+                isNewWorkflow={isNewWorkflow}
+                workflow={workflow}
+              />
+            </ReactFlowProvider>
           )}
           {selectedTabId === WORKFLOW_DETAILS_TAB.LAUNCHES && <Launches />}
           {selectedTabId === WORKFLOW_DETAILS_TAB.PROTOTYPE && (
