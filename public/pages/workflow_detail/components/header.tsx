@@ -3,12 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useContext } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
 import { EuiPageHeader, EuiButton, EuiLoadingSpinner } from '@elastic/eui';
 import { DEFAULT_NEW_WORKFLOW_NAME, Workflow } from '../../../../common';
-import { saveWorkflow } from '../utils';
-import { rfContext, AppState, removeDirty } from '../../../store';
 
 interface WorkflowDetailHeaderProps {
   tabs: any[];
@@ -17,10 +14,6 @@ interface WorkflowDetailHeaderProps {
 }
 
 export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
-  const dispatch = useDispatch();
-  const { reactFlowInstance } = useContext(rfContext);
-  const isDirty = useSelector((state: AppState) => state.workspace.isDirty);
-
   return (
     <EuiPageHeader
       pageTitle={
