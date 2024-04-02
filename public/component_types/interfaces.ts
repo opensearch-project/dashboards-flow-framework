@@ -11,6 +11,7 @@ import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../utils';
  * ************ Types *************************
  */
 export type FieldType = 'string' | 'json' | 'select';
+export type SelectType = 'model';
 // TODO: this may expand to more types in the future. Formik supports 'any' so we can too.
 // For now, limiting scope to expected types.
 export type FieldValue = string | {};
@@ -46,7 +47,7 @@ export interface IComponentField {
   placeholder?: string;
   helpText?: string;
   helpLink?: string;
-  selectOptions?: string[];
+  selectType?: SelectType;
 }
 
 /**

@@ -19,7 +19,7 @@ export class TextEmbeddingTransformer extends MLTransformer {
         label: 'Model ID',
         name: 'modelId',
         type: 'select',
-        selectOptions: ['model-1', 'test-model', 'model-2'],
+        selectType: 'model',
         helpText: 'The deployed text embedding model to use for embedding.',
         helpLink:
           'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model',

@@ -11,7 +11,7 @@ import {
   Logger,
 } from '../../../src/core/server';
 import { first } from 'rxjs/operators';
-import { flowFrameworkPlugin } from './cluster';
+import { flowFrameworkPlugin, mlPlugin } from './cluster';
 import {
   FlowFrameworkDashboardsPluginSetup,
   FlowFrameworkDashboardsPluginStart,
@@ -21,6 +21,8 @@ import {
   registerFlowFrameworkRoutes,
   OpenSearchRoutesService,
   FlowFrameworkRoutesService,
+  registerMLRoutes,
+  MLRoutesService,
 } from './routes';
 
 import { ILegacyClusterClient } from '../../../src/core/server/';
@@ -50,17 +52,19 @@ export class FlowFrameworkDashboardsPlugin
     const client: ILegacyClusterClient = core.opensearch.legacy.createClient(
       'flow_framework',
       {
-        plugins: [flowFrameworkPlugin],
+        plugins: [flowFrameworkPlugin, mlPlugin],
         ...globalConfig.opensearch,
       }
     );
 
     const opensearchRoutesService = new OpenSearchRoutesService(client);
     const flowFrameworkRoutesService = new FlowFrameworkRoutesService(client);
+    const mlRoutesService = new MLRoutesService(client);
 
     // Register server side APIs with the corresponding service functions
     registerOpenSearchRoutes(router, opensearchRoutesService);
     registerFlowFrameworkRoutes(router, flowFrameworkRoutesService);
+    registerMLRoutes(router, mlRoutesService);
 
     return {};
   }

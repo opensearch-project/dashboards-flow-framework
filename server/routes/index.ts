@@ -5,3 +5,4 @@
 
 export * from './opensearch_routes_service';
 export * from './flow_framework_routes_service';
+export * from './ml_routes_service';

@@ -95,6 +95,14 @@ export enum USE_CASE {
 }
 
 /**
+ ********** ML PLUGIN TYPES/INTERFACES **********
+ */
+export type Model = {
+  id: string;
+  algorithm: string;
+};
+
+/**
  ********** MISC TYPES/INTERFACES ************
  */
 
@@ -115,4 +123,8 @@ export enum WORKFLOW_STATE {
 
 export type WorkflowDict = {
   [workflowId: string]: Workflow;
+};
+
+export type ModelDict = {
+  [modelId: string]: Model;
 };

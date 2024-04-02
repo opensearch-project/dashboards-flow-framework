@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Field, FieldProps, useFormikContext } from 'formik';
 import {
   EuiFormRow,
   EuiLink,
@@ -11,13 +13,13 @@ import {
   EuiSuperSelectOption,
   EuiText,
 } from '@elastic/eui';
-import { Field, FieldProps, useFormikContext } from 'formik';
 import {
   IComponentField,
   WorkspaceFormValues,
   getInitialValue,
   isFieldInvalid,
 } from '../../../../../common';
+import { AppState } from '../../../../store';
 
 interface SelectFieldProps {
   field: IComponentField;
@@ -30,14 +32,21 @@ interface SelectFieldProps {
  * options.
  */
 export function SelectField(props: SelectFieldProps) {
-  const selectOptions = (props.field.selectOptions || []).map(
-    (option) =>
-      ({
-        value: option,
-        inputDisplay: <EuiText>{option}</EuiText>,
-        disabled: false,
-      } as EuiSuperSelectOption<string>)
-  );
+  // Redux store state
+  // Initial store is fetched when loading base <DetectorDetail /> page. We don't
+  // re-fetch here as it could overload client-side if user clicks back and forth /
+  // keeps re-rendering this component (and subsequently re-fetching data) as they're building flows
+  const models = useSelector((state: AppState) => state.models.models);
+
+  // Options state
+  const [options, setOptions] = useState<string[]>([]);
+
+  // Populate options depending on the select type
+  useEffect(() => {
+    if (props.field.selectType === 'model' && models) {
+      setOptions(Object.keys(models));
+    }
+  }, [models]);
 
   const formField = `${props.componentId}.${props.field.name}`;
   const { errors, touched } = useFormikContext<WorkspaceFormValues>();
@@ -60,7 +69,14 @@ export function SelectField(props: SelectFieldProps) {
             helpText={props.field.helpText || undefined}
           >
             <EuiSuperSelect
-              options={selectOptions}
+              options={options.map(
+                (option) =>
+                  ({
+                    value: option,
+                    inputDisplay: <EuiText>{option}</EuiText>,
+                    disabled: false,
+                  } as EuiSuperSelectOption<string>)
+              )}
               valueOfSelected={field.value || getInitialValue(props.field.type)}
               onChange={(option) => {
                 form.setFieldValue(formField, option);
