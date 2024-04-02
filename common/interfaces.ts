@@ -74,14 +74,14 @@ export type WorkflowTemplate = {
   // https://github.com/opensearch-project/flow-framework/issues/526
   version: any;
   workflows: TemplateFlows;
+  // UI state and any ReactFlow state may not exist if a workflow is created via API/backend-only.
+  ui_metadata?: UIState;
 };
 
 // An instance of a workflow based on a workflow template
 export type Workflow = WorkflowTemplate & {
   // won't exist until created in backend
   id?: string;
-  // UI state and any ReactFlow state may not exist if a workflow is created via API/backend-only.
-  uiMetadata?: UIState;
   // won't exist until created in backend
   lastUpdated?: number;
   // won't exist until launched/provisioned in backend

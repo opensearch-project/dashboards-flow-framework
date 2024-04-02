@@ -121,9 +121,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // cold reloads the page on a new, unsaved workflow.
   useEffect(() => {
     let workflowCopy = { ...props.workflow } as Workflow;
-    if (!workflowCopy.uiMetadata || !workflowCopy.uiMetadata.workspaceFlow) {
-      workflowCopy.uiMetadata = {
-        ...(workflowCopy.uiMetadata || {}),
+    if (!workflowCopy.ui_metadata || !workflowCopy.ui_metadata.workspaceFlow) {
+      workflowCopy.ui_metadata = {
+        ...(workflowCopy.ui_metadata || {}),
         workspaceFlow: toWorkspaceFlow(workflowCopy.workflows),
       };
       console.debug(
@@ -161,10 +161,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   // Initialize the form state to an existing workflow, if applicable.
   useEffect(() => {
-    if (workflow?.uiMetadata?.workspaceFlow) {
+    if (workflow?.ui_metadata?.workspaceFlow) {
       const initFormValues = {} as WorkspaceFormValues;
       const initSchemaObj = {} as WorkspaceSchemaObj;
-      workflow.uiMetadata.workspaceFlow.nodes.forEach((node) => {
+      workflow.ui_metadata.workspaceFlow.nodes.forEach((node) => {
         initFormValues[node.id] = componentDataToFormik(node.data);
         initSchemaObj[node.id] = getComponentSchema(node.data);
       });
@@ -280,8 +280,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         setFlowValidOnSubmit(true);
                         const updatedWorkflow = {
                           ...workflow,
-                          uiMetadata: {
-                            ...workflow?.uiMetadata,
+                          ui_metadata: {
+                            ...workflow?.ui_metadata,
                             workspaceFlow: curFlowState,
                           },
                           workflows: toTemplateFlows(
@@ -292,7 +292,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         if (updatedWorkflow.id) {
                           // TODO: add update workflow API
                         } else {
-                          console.log('creating workflow: ', workflow);
+                          // TODO: keep ui_metadata field after backend data model is fixed
+                          // and supports it
+                          delete updatedWorkflow.ui_metadata;
                           dispatch(createWorkflow(updatedWorkflow));
                         }
                       } else {

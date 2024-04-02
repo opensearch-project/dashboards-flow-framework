@@ -25,7 +25,10 @@ export interface RouteService {
   getWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
   searchWorkflows: (body: {}) => Promise<any | HttpFetchError>;
   getWorkflowState: (workflowId: string) => Promise<any | HttpFetchError>;
-  createWorkflow: (body: {}) => Promise<any | HttpFetchError>;
+  createWorkflow: (
+    body: {},
+    provision?: boolean
+  ) => Promise<any | HttpFetchError>;
   deleteWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
   getWorkflowPresets: () => Promise<any | HttpFetchError>;
   catIndices: (pattern: string) => Promise<any | HttpFetchError>;
@@ -66,10 +69,10 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    createWorkflow: async (body: {}) => {
+    createWorkflow: async (body: {}, provision: boolean = false) => {
       try {
         const response = await core.http.post<{ respString: string }>(
-          CREATE_WORKFLOW_NODE_API_PATH,
+          `${CREATE_WORKFLOW_NODE_API_PATH}/${provision}`,
           {
             body: JSON.stringify(body),
           }

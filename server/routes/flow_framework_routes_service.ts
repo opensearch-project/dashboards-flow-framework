@@ -69,9 +69,12 @@ export function registerFlowFrameworkRoutes(
 
   router.post(
     {
-      path: CREATE_WORKFLOW_NODE_API_PATH,
+      path: `${CREATE_WORKFLOW_NODE_API_PATH}/{provision}`,
       validate: {
         body: schema.any(),
+        params: schema.object({
+          provision: schema.boolean(),
+        }),
       },
     },
     flowFrameworkRoutesService.createWorkflow
@@ -180,11 +183,11 @@ export class FlowFrameworkRoutesService {
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const body = req.body;
-
+    const { provision } = req.params as { provision: boolean };
     try {
       const response = await this.client
         .asScoped(req)
-        .callAsCurrentUser('flowFramework.createWorkflow', { body });
+        .callAsCurrentUser('flowFramework.createWorkflow', { body, provision });
       return res.ok({ body: { id: response._id } });
     } catch (err: any) {
       return generateCustomError(res, err);

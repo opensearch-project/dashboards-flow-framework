@@ -77,7 +77,10 @@ export const createWorkflow = createAsyncThunk(
   async (workflowBody: {}, { rejectWithValue }) => {
     const response:
       | any
-      | HttpFetchError = await getRouteService().createWorkflow(workflowBody);
+      | HttpFetchError = await getRouteService().createWorkflow(
+      workflowBody,
+      false
+    );
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
         'Error creating workflow: ' + response.body.message
