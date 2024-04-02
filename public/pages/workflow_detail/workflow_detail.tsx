@@ -137,7 +137,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   return (
     <ReactFlowProvider>
       <EuiPage>
-        <EuiPageBody>
+        <EuiPageBody style={{ overflow: 'hidden' }}>
           <WorkflowDetailHeader
             workflow={workflow}
             isNewWorkflow={isNewWorkflow}
