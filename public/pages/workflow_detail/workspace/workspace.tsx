@@ -104,9 +104,9 @@ export function Workspace(props: WorkspaceProps) {
   // Initialization. Set the nodes and edges to an existing workflow state,
   useEffect(() => {
     const workflow = { ...props.workflow };
-    if (workflow && workflow.workspaceFlowState) {
-      setNodes(workflow.workspaceFlowState.nodes);
-      setEdges(workflow.workspaceFlowState.edges);
+    if (workflow?.uiMetadata?.workspaceFlow) {
+      setNodes(workflow.uiMetadata.workspaceFlow.nodes);
+      setEdges(workflow.uiMetadata.workspaceFlow.edges);
     }
   }, [props.workflow]);
 

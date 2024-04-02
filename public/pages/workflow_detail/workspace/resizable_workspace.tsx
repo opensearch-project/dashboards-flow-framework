@@ -33,10 +33,15 @@ import {
   DEFAULT_NEW_WORKFLOW_DESCRIPTION,
   USE_CASE,
 } from '../../../../common';
-import { AppState, removeDirty, setDirty } from '../../../store';
+import {
+  AppState,
+  createWorkflow,
+  removeDirty,
+  setDirty,
+} from '../../../store';
 import { Workspace } from './workspace';
 import { ComponentDetails } from '../component_details';
-import { processNodes, saveWorkflow } from '../utils';
+import { processNodes } from '../utils';
 
 // styling
 import './workspace-styles.scss';
@@ -116,8 +121,11 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // cold reloads the page on a new, unsaved workflow.
   useEffect(() => {
     let workflowCopy = { ...props.workflow } as Workflow;
-    if (!workflowCopy.workspaceFlowState) {
-      workflowCopy.workspaceFlowState = toWorkspaceFlow(workflowCopy.workflows);
+    if (!workflowCopy.uiMetadata || !workflowCopy.uiMetadata.workspaceFlow) {
+      workflowCopy.uiMetadata = {
+        ...(workflowCopy.uiMetadata || {}),
+        workspaceFlow: toWorkspaceFlow(workflowCopy.workflows),
+      };
       console.debug(
         `There is no saved UI flow for workflow: ${workflowCopy.name}. Generating a default one.`
       );
@@ -153,10 +161,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   // Initialize the form state to an existing workflow, if applicable.
   useEffect(() => {
-    if (workflow?.workspaceFlowState) {
+    if (workflow?.uiMetadata?.workspaceFlow) {
       const initFormValues = {} as WorkspaceFormValues;
       const initSchemaObj = {} as WorkspaceSchemaObj;
-      workflow.workspaceFlowState.nodes.forEach((node) => {
+      workflow.uiMetadata.workspaceFlow.nodes.forEach((node) => {
         initFormValues[node.id] = componentDataToFormik(node.data);
         initSchemaObj[node.id] = getComponentSchema(node.data);
       });
@@ -272,13 +280,21 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         setFlowValidOnSubmit(true);
                         const updatedWorkflow = {
                           ...workflow,
-                          workspaceFlowState: curFlowState,
+                          uiMetadata: {
+                            ...workflow?.uiMetadata,
+                            workspaceFlow: curFlowState,
+                          },
                           workflows: toTemplateFlows(
                             curFlowState,
                             formikProps.values
                           ),
                         } as Workflow;
-                        saveWorkflow(updatedWorkflow);
+                        if (updatedWorkflow.id) {
+                          // TODO: add update workflow API
+                        } else {
+                          console.log('creating workflow: ', workflow);
+                          dispatch(createWorkflow(updatedWorkflow));
+                        }
                       } else {
                         setFlowValidOnSubmit(false);
                       }

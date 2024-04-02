@@ -28,6 +28,10 @@ type ReactFlowViewport = {
   zoom: number;
 };
 
+export type UIState = {
+  workspaceFlow: WorkspaceFlowState;
+};
+
 export type WorkspaceFlowState = {
   nodes: ReactFlowComponent[];
   edges: ReactFlowEdge[];
@@ -76,8 +80,8 @@ export type WorkflowTemplate = {
 export type Workflow = WorkflowTemplate & {
   // won't exist until created in backend
   id?: string;
-  // ReactFlow state may not exist if a workflow is created via API/backend-only.
-  workspaceFlowState?: WorkspaceFlowState;
+  // UI state and any ReactFlow state may not exist if a workflow is created via API/backend-only.
+  uiMetadata?: UIState;
   // won't exist until created in backend
   lastUpdated?: number;
   // won't exist until launched/provisioned in backend

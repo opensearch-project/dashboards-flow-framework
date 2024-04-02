@@ -34,7 +34,11 @@ export function toTemplateFlows(
   const textEmbeddingTransformerNodeId = Object.keys(formValues).find((key) =>
     key.includes('text_embedding')
   ) as string;
+  const knnIndexerNodeId = Object.keys(formValues).find((key) =>
+    key.includes('knn')
+  ) as string;
   const textEmbeddingFields = formValues[textEmbeddingTransformerNodeId];
+  const knnIndexerFields = formValues[knnIndexerNodeId];
 
   return {
     provision: {
@@ -70,7 +74,7 @@ export function toTemplateFlows(
             create_ingest_pipeline: 'pipeline_id',
           },
           user_inputs: {
-            index_name: '${{create_index.name}}',
+            index_name: knnIndexerFields['indexName'],
             configurations: {
               settings: {
                 default_pipeline: '${{create_ingest_pipeline.pipeline_id}}',
@@ -115,6 +119,7 @@ export function toWorkspaceFlow(
   const ingestId2 = generateId('knn_index');
   const ingestGroupId = generateId(COMPONENT_CATEGORY.INGEST);
   const searchGroupId = generateId(COMPONENT_CATEGORY.SEARCH);
+  const edgeId = generateId('edge');
 
   const ingestNodes = [
     {
@@ -175,6 +180,8 @@ export function toWorkspaceFlow(
     nodes: [...ingestNodes, ...searchNodes],
     edges: [
       {
+        id: edgeId,
+        key: edgeId,
         source: ingestId1,
         target: ingestId2,
         markerEnd: {

@@ -3,15 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Workflow, ReactFlowComponent } from '../../../../common';
-
-export function saveWorkflow(workflow?: Workflow): void {
-  if (workflow && workflow.id) {
-    // TODO: implement connection to update workflow API
-  } else {
-    // TODO: implement connection to create workflow API
-  }
-}
+import { ReactFlowComponent } from '../../../../common';
 
 // Process the raw ReactFlow nodes to only persist the fields we need
 export function processNodes(

@@ -4,18 +4,7 @@
  */
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import {
-  Workflow,
-  ReactFlowComponent,
-  ReactFlowEdge,
-  KnnIndexer,
-  TextEmbeddingTransformer,
-  generateId,
-  initComponentData,
-  WORKFLOW_STATE,
-  WorkflowDict,
-  WorkflowTemplate,
-} from '../../../common';
+import { Workflow, WorkflowDict } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
 
@@ -85,10 +74,10 @@ export const getWorkflowState = createAsyncThunk(
 
 export const createWorkflow = createAsyncThunk(
   CREATE_WORKFLOW_ACTION,
-  async (body: {}, { rejectWithValue }) => {
+  async (workflowBody: {}, { rejectWithValue }) => {
     const response:
       | any
-      | HttpFetchError = await getRouteService().createWorkflow(body);
+      | HttpFetchError = await getRouteService().createWorkflow(workflowBody);
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
         'Error creating workflow: ' + response.body.message
