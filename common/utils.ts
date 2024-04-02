@@ -56,10 +56,10 @@ export function toTemplateFlows(
               processors: [
                 {
                   text_embedding: {
-                    model_id: '${{user_inputs.model_id}}',
+                    model_id: textEmbeddingFields['modelId'],
                     field_map: {
-                      '${{user_inputs.input_field}}':
-                        '${{user_inputs.output_field}}',
+                      [textEmbeddingFields['inputField']]:
+                        textEmbeddingFields['outputField'],
                     },
                   },
                 },
@@ -81,9 +81,6 @@ export function toTemplateFlows(
               },
               mappings: {
                 properties: {
-                  id: {
-                    type: 'text',
-                  },
                   [textEmbeddingFields['outputField']]: {
                     type: 'knn_vector',
                     dimension: 768,

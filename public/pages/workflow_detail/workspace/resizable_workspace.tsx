@@ -292,9 +292,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         if (updatedWorkflow.id) {
                           // TODO: add update workflow API
                         } else {
-                          // TODO: keep ui_metadata field after backend data model is fixed
-                          // and supports it
-                          delete updatedWorkflow.ui_metadata;
                           dispatch(createWorkflow(updatedWorkflow));
                         }
                       } else {
