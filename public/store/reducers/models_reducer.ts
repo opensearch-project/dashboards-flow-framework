@@ -39,19 +39,19 @@ const modelsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Pending states: set state consistently across all actions
+      // Pending states
       .addCase(searchModels.pending, (state, action) => {
         state.loading = true;
         state.errorMessage = '';
       })
-
+      // Fulfilled states
       .addCase(searchModels.fulfilled, (state, action) => {
         const { models } = action.payload as { models: ModelDict };
         state.models = models;
         state.loading = false;
         state.errorMessage = '';
       })
-
+      // Rejected states
       .addCase(searchModels.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
