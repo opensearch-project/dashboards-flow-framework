@@ -25,20 +25,18 @@ export type WorkspaceSchema = ObjectSchema<WorkspaceSchemaObj>;
 
 /**
  * Represents a single base class as an input handle for a component.
- * It may be optional. It may also accept multiples of that class.
+ * It may accept multiples of that class.
  */
 export interface IComponentInput {
   id: string;
   label: string;
   baseClass: COMPONENT_CLASS;
-  optional: boolean;
   acceptMultiple: boolean;
 }
 
 /**
  * An input field for a component. Specifies enough configuration for the
- * UI node to render it properly within the component (show it as optional,
- * put it in advanced settings, placeholder values, etc.)
+ * UI node to render it properly (help text, links, etc.)
  */
 export interface IComponentField {
   label: string;
@@ -46,8 +44,9 @@ export interface IComponentField {
   name: string;
   value?: FieldValue;
   placeholder?: string;
-  optional?: boolean;
-  advanced?: boolean;
+  helpText?: string;
+  helpLink?: string;
+  selectOptions?: string[];
 }
 
 /**

@@ -34,7 +34,7 @@ export function InputFieldList(props: InputFieldListProps) {
                   componentId={props.componentId}
                   onFormChange={props.onFormChange}
                 />
-                <EuiSpacer size="s" />
+                <EuiSpacer size="m" />
               </EuiFlexItem>
             );
             break;
@@ -47,7 +47,7 @@ export function InputFieldList(props: InputFieldListProps) {
                   componentId={props.componentId}
                   onFormChange={props.onFormChange}
                 />
-                <EuiSpacer size="s" />
+                <EuiSpacer size="m" />
               </EuiFlexItem>
             );
             break;
@@ -59,6 +59,7 @@ export function InputFieldList(props: InputFieldListProps) {
                   label={field.label}
                   placeholder={field.placeholder || ''}
                 />
+                <EuiSpacer size="m" />
               </EuiFlexItem>
             );
             break;

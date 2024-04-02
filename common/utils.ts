@@ -50,7 +50,7 @@ export function toTemplateFlows(
             pipeline_id: 'test-pipeline',
             model_id: textEmbeddingFields['modelId'],
             input_field: textEmbeddingFields['inputField'],
-            output_field: textEmbeddingFields['outputField'],
+            output_field: textEmbeddingFields['vectorField'],
             configurations: {
               description: 'A text embedding ingest pipeline',
               processors: [
@@ -59,7 +59,7 @@ export function toTemplateFlows(
                     model_id: textEmbeddingFields['modelId'],
                     field_map: {
                       [textEmbeddingFields['inputField']]:
-                        textEmbeddingFields['outputField'],
+                        textEmbeddingFields['vectorField'],
                     },
                   },
                 },
@@ -81,7 +81,7 @@ export function toTemplateFlows(
               },
               mappings: {
                 properties: {
-                  [textEmbeddingFields['outputField']]: {
+                  [textEmbeddingFields['vectorField']]: {
                     type: 'knn_vector',
                     dimension: 768,
                     method: {

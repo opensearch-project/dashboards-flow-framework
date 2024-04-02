@@ -6,6 +6,7 @@
 import React from 'react';
 import {
   EuiFormRow,
+  EuiLink,
   EuiSuperSelect,
   EuiSuperSelectOption,
   EuiText,
@@ -18,21 +19,6 @@ import {
   isFieldInvalid,
 } from '../../../../../common';
 
-// TODO: Should be fetched from global state.
-// Need to have a way to determine where to fetch this dynamic data.
-const existingIndices = [
-  {
-    value: 'my-index-1',
-    inputDisplay: <EuiText>my-index-1</EuiText>,
-    disabled: false,
-  },
-  {
-    value: 'my-index-2',
-    inputDisplay: <EuiText>my-index-2</EuiText>,
-    disabled: false,
-  },
-] as Array<EuiSuperSelectOption<string>>;
-
 interface SelectFieldProps {
   field: IComponentField;
   componentId: string;
@@ -44,7 +30,15 @@ interface SelectFieldProps {
  * options.
  */
 export function SelectField(props: SelectFieldProps) {
-  const options = existingIndices;
+  const selectOptions = (props.field.selectOptions || []).map(
+    (option) =>
+      ({
+        value: option,
+        inputDisplay: <EuiText>{option}</EuiText>,
+        disabled: false,
+      } as EuiSuperSelectOption<string>)
+  );
+
   const formField = `${props.componentId}.${props.field.name}`;
   const { errors, touched } = useFormikContext<WorkspaceFormValues>();
 
@@ -52,9 +46,21 @@ export function SelectField(props: SelectFieldProps) {
     <Field name={formField}>
       {({ field, form }: FieldProps) => {
         return (
-          <EuiFormRow label={props.field.label}>
+          <EuiFormRow
+            label={props.field.label}
+            labelAppend={
+              props.field.helpLink ? (
+                <EuiText size="xs">
+                  <EuiLink href={props.field.helpLink} target="_blank">
+                    Learn more
+                  </EuiLink>
+                </EuiText>
+              ) : undefined
+            }
+            helpText={props.field.helpText || undefined}
+          >
             <EuiSuperSelect
-              options={options}
+              options={selectOptions}
               valueOfSelected={field.value || getInitialValue(props.field.type)}
               onChange={(option) => {
                 form.setFieldValue(formField, option);

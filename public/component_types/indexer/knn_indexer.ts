@@ -22,8 +22,6 @@ export class KnnIndexer extends Indexer {
       //   name: 'knnSettings',
       //   type: 'json',
       //   placeholder: 'Enter K-NN settings JSON blob...',
-      //   optional: false,
-      //   advanced: false,
       // },
     ];
   }

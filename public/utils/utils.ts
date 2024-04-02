@@ -126,9 +126,13 @@ function getFieldSchema(field: IComponentField): Schema {
       break;
     }
   }
-  return field.optional
-    ? baseSchema.optional()
-    : baseSchema.required('Required');
+
+  // TODO: make optional schema if we support optional fields in the future
+  // return field.optional
+  //   ? baseSchema.optional()
+  //   : baseSchema.required('Required');
+
+  return baseSchema.required('Required');
 }
 
 export function getStateOptions(): EuiFilterSelectItem[] {
