@@ -17,14 +17,14 @@ interface NewOrExistingTabsProps {
 
 const inputTabs = [
   {
-    id: 'existing',
-    name: 'Existing',
-    disabled: false,
-  },
-  {
     id: 'new',
     name: 'New',
     disabled: false,
+  },
+  {
+    id: 'existing',
+    name: 'Existing',
+    disabled: true,
   },
 ];
 

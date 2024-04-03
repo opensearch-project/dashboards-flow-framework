@@ -12,7 +12,7 @@ import { EuiPage, EuiPageBody } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
-import { AppState, searchWorkflows } from '../../store';
+import { AppState, searchModels, searchWorkflows } from '../../store';
 import { ResizableWorkspace } from './workspace';
 import { Launches } from './launches';
 import { Prototype } from './prototype';
@@ -97,11 +97,13 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
 
   // On initial load:
   // - fetch workflow, if there is an existing workflow ID
+  // - fetch available models as their IDs may be used when building flows
   useEffect(() => {
     if (!isNewWorkflow) {
       // TODO: can optimize to only fetch a single workflow
       dispatch(searchWorkflows({ query: { match_all: {} } }));
     }
+    dispatch(searchModels({ query: { match_all: {} } }));
   }, []);
 
   const tabs = [
@@ -137,17 +139,19 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   return (
     <ReactFlowProvider>
       <EuiPage>
-        <EuiPageBody>
+        <EuiPageBody style={{ overflow: 'hidden' }}>
           <WorkflowDetailHeader
             workflow={workflow}
             isNewWorkflow={isNewWorkflow}
             tabs={tabs}
           />
           {selectedTabId === WORKFLOW_DETAILS_TAB.EDITOR && (
-            <ResizableWorkspace
-              isNewWorkflow={isNewWorkflow}
-              workflow={workflow}
-            />
+            <ReactFlowProvider>
+              <ResizableWorkspace
+                isNewWorkflow={isNewWorkflow}
+                workflow={workflow}
+              />
+            </ReactFlowProvider>
           )}
           {selectedTabId === WORKFLOW_DETAILS_TAB.LAUNCHES && <Launches />}
           {selectedTabId === WORKFLOW_DETAILS_TAB.PROTOTYPE && (

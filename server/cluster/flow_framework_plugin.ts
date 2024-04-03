@@ -67,7 +67,13 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
 
   flowFramework.createWorkflow = ca({
     url: {
-      fmt: FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX,
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}?provision=<%=provision%>`,
+      req: {
+        provision: {
+          type: 'boolean',
+          required: true,
+        },
+      },
     },
     needBody: true,
     method: 'POST',

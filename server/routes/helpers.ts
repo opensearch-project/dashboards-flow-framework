@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { WORKFLOW_STATE, Workflow, WorkflowDict } from '../../common';
+import {
+  Model,
+  ModelDict,
+  WORKFLOW_STATE,
+  Workflow,
+  WorkflowDict,
+} from '../../common';
 
 // OSD does not provide an interface for this response, but this is following the suggested
 // implementations. To prevent typescript complaining, leaving as loosely-typed 'any'
@@ -60,4 +66,18 @@ export function getWorkflowsFromResponses(
     }
   });
   return workflowDict;
+}
+
+export function getModelsFromResponses(modelHits: any[]): ModelDict {
+  const modelDict = {} as ModelDict;
+  modelHits.forEach((modelHit: any) => {
+    const modelId = modelHit._source?.model_id;
+    // in case of schema changes from ML plugin, this may crash. That is ok, as the error
+    // produced will help expose the root cause
+    modelDict[modelId] = {
+      id: modelId,
+      algorithm: modelHit._source?.algorithm,
+    } as Model;
+  });
+  return modelDict;
 }
