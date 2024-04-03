@@ -60,20 +60,16 @@ export function ComponentInputs(props: ComponentInputsProps) {
           setSelectedTabId={setSelectedTabId}
         />
         <EuiSpacer size="s" />
-        {selectedTabId === TAB.NEW && (
-          <InputFieldList
-            componentId={props.selectedComponent.id}
-            componentFields={props.selectedComponent.data.createFields}
-            onFormChange={props.onFormChange}
-          />
-        )}
-        {selectedTabId === TAB.EXISTING && (
-          <InputFieldList
-            componentId={props.selectedComponent.id}
-            componentFields={props.selectedComponent.data.fields}
-            onFormChange={props.onFormChange}
-          />
-        )}
+
+        <InputFieldList
+          componentId={props.selectedComponent.id}
+          componentFields={
+            selectedTabId === TAB.NEW
+              ? props.selectedComponent.data.createFields
+              : props.selectedComponent.data.fields
+          }
+          onFormChange={props.onFormChange}
+        />
       </>
     );
   }

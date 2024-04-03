@@ -19,6 +19,8 @@ interface InputFieldListProps {
   onFormChange: () => void;
 }
 
+const INPUT_FIELD_SPACER_SIZE = 'm';
+
 export function InputFieldList(props: InputFieldListProps) {
   const inputFields = props.componentFields || [];
   return (
@@ -34,7 +36,7 @@ export function InputFieldList(props: InputFieldListProps) {
                   componentId={props.componentId}
                   onFormChange={props.onFormChange}
                 />
-                <EuiSpacer size="m" />
+                <EuiSpacer size={INPUT_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
             );
             break;
@@ -47,7 +49,7 @@ export function InputFieldList(props: InputFieldListProps) {
                   componentId={props.componentId}
                   onFormChange={props.onFormChange}
                 />
-                <EuiSpacer size="m" />
+                <EuiSpacer size={INPUT_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
             );
             break;
@@ -59,7 +61,7 @@ export function InputFieldList(props: InputFieldListProps) {
                   label={field.label}
                   placeholder={field.placeholder || ''}
                 />
-                <EuiSpacer size="m" />
+                <EuiSpacer size={INPUT_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
             );
             break;
