@@ -25,7 +25,6 @@ export class Indexer extends BaseComponent {
         // TODO: may need to change to be looser. it should be able to take
         // in other component types
         baseClass: COMPONENT_CLASS.TRANSFORMER,
-        optional: false,
         acceptMultiple: false,
       },
     ];
@@ -34,8 +33,6 @@ export class Indexer extends BaseComponent {
         label: 'Index Name',
         name: 'indexName',
         type: 'select',
-        optional: false,
-        advanced: false,
       },
     ];
     this.createFields = [
@@ -43,23 +40,20 @@ export class Indexer extends BaseComponent {
         label: 'Index Name',
         name: 'indexName',
         type: 'string',
-        optional: false,
-        advanced: false,
       },
-      {
-        label: 'Mappings',
-        name: 'indexMappings',
-        type: 'json',
-        placeholder: 'Enter an index mappings JSON blob...',
-        optional: false,
-        advanced: false,
-      },
+      // {
+      //   label: 'Mappings',
+      //   name: 'indexMappings',
+      //   type: 'json',
+      //   placeholder: 'Enter an index mappings JSON blob...',
+      // },
     ];
-    this.outputs = [
-      {
-        label: this.label,
-        baseClasses: this.baseClasses,
-      },
-    ];
+    // this.outputs = [
+    //   {
+    //     label: this.label,
+    //     baseClasses: this.baseClasses,
+    //   },
+    // ];
+    this.outputs = [];
   }
 }

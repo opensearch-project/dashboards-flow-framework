@@ -9,6 +9,7 @@ import {
   Edge,
   EdgeLabelRenderer,
   EdgeProps,
+  MarkerType,
   getBezierPath,
   useReactFlow,
 } from 'reactflow';
@@ -64,7 +65,7 @@ export function DeletableEdge(props: DeletableEdgeProps) {
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             fontSize: 12,
             pointerEvents: 'all',
-            zIndex: 1,
+            zIndex: 3,
           }}
           className="nodrag nopan"
         >

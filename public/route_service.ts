@@ -12,6 +12,7 @@ import {
   GET_WORKFLOW_STATE_NODE_API_PATH,
   SEARCH_WORKFLOWS_NODE_API_PATH,
   GET_PRESET_WORKFLOWS_NODE_API_PATH,
+  SEARCH_MODELS_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -25,10 +26,14 @@ export interface RouteService {
   getWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
   searchWorkflows: (body: {}) => Promise<any | HttpFetchError>;
   getWorkflowState: (workflowId: string) => Promise<any | HttpFetchError>;
-  createWorkflow: (body: {}) => Promise<any | HttpFetchError>;
+  createWorkflow: (
+    body: {},
+    provision?: boolean
+  ) => Promise<any | HttpFetchError>;
   deleteWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
   getWorkflowPresets: () => Promise<any | HttpFetchError>;
   catIndices: (pattern: string) => Promise<any | HttpFetchError>;
+  searchModels: (body: {}) => Promise<any | HttpFetchError>;
 }
 
 export function configureRoutes(core: CoreStart): RouteService {
@@ -66,10 +71,10 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    createWorkflow: async (body: {}) => {
+    createWorkflow: async (body: {}, provision: boolean = false) => {
       try {
         const response = await core.http.post<{ respString: string }>(
-          CREATE_WORKFLOW_NODE_API_PATH,
+          `${CREATE_WORKFLOW_NODE_API_PATH}/${provision}`,
           {
             body: JSON.stringify(body),
           }
@@ -103,6 +108,19 @@ export function configureRoutes(core: CoreStart): RouteService {
       try {
         const response = await core.http.get<{ respString: string }>(
           `${CAT_INDICES_NODE_API_PATH}/${pattern}`
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    searchModels: async (body: {}) => {
+      try {
+        const response = await core.http.post<{ respString: string }>(
+          SEARCH_MODELS_NODE_API_PATH,
+          {
+            body: JSON.stringify(body),
+          }
         );
         return response;
       } catch (e: any) {
