@@ -1,8 +1,8 @@
 .delete-edge-button {
   width: 20px;
   height: 20px;
-  background: #eee;
-  border: 1px solid #fff;
+  background: #000000;
+  border: 1px solid #000000;
   cursor: pointer;
   border-radius: 50%;
   font-size: 12px;
@@ -10,5 +10,5 @@
 }
 
 .delete-edge-button:hover {
-  box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.5);
 }

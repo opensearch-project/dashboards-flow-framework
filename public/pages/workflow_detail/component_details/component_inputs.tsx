@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { EuiSpacer, EuiText, EuiTitle } from '@elastic/eui';
 import { InputFieldList } from './input_field_list';
 import { NODE_CATEGORY, ReactFlowComponent } from '../../../../common';
+import { NewOrExistingTabs } from '../workspace/workspace_components/new_or_existing_tabs';
 
 interface ComponentInputsProps {
   selectedComponent: ReactFlowComponent;
@@ -14,6 +15,13 @@ interface ComponentInputsProps {
 }
 
 export function ComponentInputs(props: ComponentInputsProps) {
+  // Tab state
+  enum TAB {
+    NEW = 'new',
+    EXISTING = 'existing',
+  }
+  const [selectedTabId, setSelectedTabId] = useState<string>(TAB.NEW);
+
   // Have custom layouts for parent/group flows
   if (props.selectedComponent.type === NODE_CATEGORY.INGEST_GROUP) {
     return (
@@ -47,9 +55,19 @@ export function ComponentInputs(props: ComponentInputsProps) {
         <EuiTitle size="m">
           <h2>{props.selectedComponent.data.label || ''}</h2>
         </EuiTitle>
+        <NewOrExistingTabs
+          selectedTabId={selectedTabId}
+          setSelectedTabId={setSelectedTabId}
+        />
         <EuiSpacer size="s" />
+
         <InputFieldList
-          selectedComponent={props.selectedComponent}
+          componentId={props.selectedComponent.id}
+          componentFields={
+            selectedTabId === TAB.NEW
+              ? props.selectedComponent.data.createFields
+              : props.selectedComponent.data.fields
+          }
           onFormChange={props.onFormChange}
         />
       </>

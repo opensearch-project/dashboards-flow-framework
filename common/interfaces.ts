@@ -28,6 +28,10 @@ type ReactFlowViewport = {
   zoom: number;
 };
 
+export type UIState = {
+  workspaceFlow: WorkspaceFlowState;
+};
+
 export type WorkspaceFlowState = {
   nodes: ReactFlowComponent[];
   edges: ReactFlowEdge[];
@@ -51,7 +55,8 @@ export type TemplateEdge = {
 };
 
 export type TemplateFlow = {
-  user_params?: Map<string, any>;
+  user_inputs?: Map<string, any>;
+  previous_node_inputs?: Map<string, any>;
   nodes: TemplateNode[];
   edges?: TemplateEdge[];
 };
@@ -69,14 +74,14 @@ export type WorkflowTemplate = {
   // https://github.com/opensearch-project/flow-framework/issues/526
   version: any;
   workflows: TemplateFlows;
+  // UI state and any ReactFlow state may not exist if a workflow is created via API/backend-only.
+  ui_metadata?: UIState;
 };
 
 // An instance of a workflow based on a workflow template
 export type Workflow = WorkflowTemplate & {
   // won't exist until created in backend
   id?: string;
-  // ReactFlow state may not exist if a workflow is created via API/backend-only.
-  workspaceFlowState?: WorkspaceFlowState;
   // won't exist until created in backend
   lastUpdated?: number;
   // won't exist until launched/provisioned in backend
@@ -88,6 +93,14 @@ export type Workflow = WorkflowTemplate & {
 export enum USE_CASE {
   PROVISION = 'PROVISION',
 }
+
+/**
+ ********** ML PLUGIN TYPES/INTERFACES **********
+ */
+export type Model = {
+  id: string;
+  algorithm: string;
+};
 
 /**
  ********** MISC TYPES/INTERFACES ************
@@ -110,4 +123,8 @@ export enum WORKFLOW_STATE {
 
 export type WorkflowDict = {
   [workflowId: string]: Workflow;
+};
+
+export type ModelDict = {
+  [modelId: string]: Model;
 };

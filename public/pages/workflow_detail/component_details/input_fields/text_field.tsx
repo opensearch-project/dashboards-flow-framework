@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Field, FieldProps, useFormikContext } from 'formik';
-import { EuiFieldText, EuiFormRow } from '@elastic/eui';
+import { EuiFieldText, EuiFormRow, EuiLink, EuiText } from '@elastic/eui';
 import {
   IComponentField,
   WorkspaceFormValues,
@@ -34,6 +34,16 @@ export function TextField(props: TextFieldProps) {
           <EuiFormRow
             key={formField}
             label={props.field.label}
+            labelAppend={
+              props.field.helpLink ? (
+                <EuiText size="xs">
+                  <EuiLink href={props.field.helpLink} target="_blank">
+                    Learn more
+                  </EuiLink>
+                </EuiText>
+              ) : undefined
+            }
+            helpText={props.field.helpText || undefined}
             error={getFieldError(props.componentId, props.field.name, errors)}
             isInvalid={isFieldInvalid(
               props.componentId,

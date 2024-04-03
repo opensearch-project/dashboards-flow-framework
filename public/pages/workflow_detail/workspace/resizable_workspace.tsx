@@ -5,7 +5,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ReactFlowProvider, useReactFlow } from 'reactflow';
+import { useReactFlow } from 'reactflow';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
 import { cloneDeep } from 'lodash';
@@ -29,11 +29,19 @@ import {
   validateWorkspaceFlow,
   WorkspaceFlowState,
   toTemplateFlows,
+  DEFAULT_NEW_WORKFLOW_NAME,
+  DEFAULT_NEW_WORKFLOW_DESCRIPTION,
+  USE_CASE,
 } from '../../../../common';
-import { AppState, removeDirty, setDirty } from '../../../store';
+import {
+  AppState,
+  createWorkflow,
+  removeDirty,
+  setDirty,
+} from '../../../store';
 import { Workspace } from './workspace';
 import { ComponentDetails } from '../component_details';
-import { processNodes, saveWorkflow } from '../utils';
+import { processNodes } from '../utils';
 
 // styling
 import './workspace-styles.scss';
@@ -107,22 +115,35 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }
 
-  // Hook to update the workflow's flow state, if applicable. It may not exist if
-  // it is a backend-only-created workflow, or a new, unsaved workflow. If so,
-  // generate a default one based on the 'workflows' JSON field.
+  // Hook to update some default values for the workflow, if applicable. Flow state
+  // may not exist if it is a backend-only-created workflow, or a new, unsaved workflow.
+  // Metadata fields (name/description/use_case/etc.) may not exist if the user
+  // cold reloads the page on a new, unsaved workflow.
   useEffect(() => {
-    const workflowCopy = { ...props.workflow } as Workflow;
-    if (workflowCopy) {
-      if (!workflowCopy.workspaceFlowState) {
-        workflowCopy.workspaceFlowState = toWorkspaceFlow(
-          workflowCopy.workflows
-        );
-        console.debug(
-          `There is no saved UI flow for workflow: ${workflowCopy.name}. Generating a default one.`
-        );
-      }
-      setWorkflow(workflowCopy);
+    let workflowCopy = { ...props.workflow } as Workflow;
+    if (!workflowCopy.ui_metadata || !workflowCopy.ui_metadata.workspaceFlow) {
+      workflowCopy.ui_metadata = {
+        ...(workflowCopy.ui_metadata || {}),
+        workspaceFlow: toWorkspaceFlow(workflowCopy.workflows),
+      };
+      console.debug(
+        `There is no saved UI flow for workflow: ${workflowCopy.name}. Generating a default one.`
+      );
     }
+
+    // TODO: tune some of the defaults, like use_case and version as these will change
+    workflowCopy = {
+      ...workflowCopy,
+      name: workflowCopy.name || DEFAULT_NEW_WORKFLOW_NAME,
+      description: workflowCopy.description || DEFAULT_NEW_WORKFLOW_DESCRIPTION,
+      use_case: workflowCopy.use_case || USE_CASE.PROVISION,
+      version: workflowCopy.version || {
+        template: '1.0.0',
+        compatibility: ['2.12.0', '3.0.0'],
+      },
+    };
+
+    setWorkflow(workflowCopy);
   }, [props.workflow]);
 
   // Hook to updated the selected ReactFlow component
@@ -140,10 +161,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   // Initialize the form state to an existing workflow, if applicable.
   useEffect(() => {
-    if (workflow?.workspaceFlowState) {
+    if (workflow?.ui_metadata?.workspaceFlow) {
       const initFormValues = {} as WorkspaceFormValues;
       const initSchemaObj = {} as WorkspaceSchemaObj;
-      workflow.workspaceFlowState.nodes.forEach((node) => {
+      workflow.ui_metadata.workspaceFlow.nodes.forEach((node) => {
         initFormValues[node.id] = componentDataToFormik(node.data);
         initSchemaObj[node.id] = getComponentSchema(node.data);
       });
@@ -250,7 +271,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                       setFormValidOnSubmit(false);
                     } else {
                       setFormValidOnSubmit(true);
-                      // @ts-ignore
                       let curFlowState = reactFlowInstance.toObject() as WorkspaceFlowState;
                       curFlowState = {
                         ...curFlowState,
@@ -260,10 +280,20 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         setFlowValidOnSubmit(true);
                         const updatedWorkflow = {
                           ...workflow,
-                          workspaceFlowState: curFlowState,
-                          workflows: toTemplateFlows(curFlowState),
+                          ui_metadata: {
+                            ...workflow?.ui_metadata,
+                            workspaceFlow: curFlowState,
+                          },
+                          workflows: toTemplateFlows(
+                            curFlowState,
+                            formikProps.values
+                          ),
                         } as Workflow;
-                        saveWorkflow(updatedWorkflow);
+                        if (updatedWorkflow.id) {
+                          // TODO: add update workflow API
+                        } else {
+                          dispatch(createWorkflow(updatedWorkflow));
+                        }
                       } else {
                         setFlowValidOnSubmit(false);
                       }
@@ -302,14 +332,12 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                       className="workspace-panel"
                     >
                       <EuiFlexItem>
-                        <ReactFlowProvider>
-                          <Workspace
-                            id="ingest"
-                            workflow={workflow}
-                            onNodesChange={onNodesChange}
-                            onSelectionChange={onSelectionChange}
-                          />
-                        </ReactFlowProvider>
+                        <Workspace
+                          id="ingest"
+                          workflow={workflow}
+                          onNodesChange={onNodesChange}
+                          onSelectionChange={onSelectionChange}
+                        />
                       </EuiFlexItem>
                     </EuiFlexGroup>
                   </EuiResizablePanel>
