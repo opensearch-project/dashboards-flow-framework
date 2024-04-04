@@ -4,7 +4,7 @@
  */
 
 import React, { useRef, useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useReactFlow } from 'reactflow';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
@@ -38,6 +38,7 @@ import {
   createWorkflow,
   removeDirty,
   setDirty,
+  useAppDispatch,
 } from '../../../store';
 import { Workspace } from './workspace';
 import { ComponentDetails } from '../component_details';
@@ -58,7 +59,7 @@ const COMPONENT_DETAILS_PANEL_ID = 'component_details_panel_id';
  * panels - the ReactFlow workspace panel and the selected component details panel.
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   // Overall workspace state
   const isDirty = useSelector((state: AppState) => state.workspace.isDirty);
@@ -292,9 +293,19 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         if (updatedWorkflow.id) {
                           // TODO: add update workflow API
                         } else {
-                          dispatch(createWorkflow(updatedWorkflow));
+                          dispatch(createWorkflow(updatedWorkflow))
+                            .unwrap()
+                            .then((result) => {
+                              // TODO: process result
+                              console.log('result: ', result);
+                            })
+                            .catch((error: any) => {
+                              // TODO: process error (toast msg?)
+                              console.log('error: ', error);
+                            });
                         }
                       } else {
+                        // TODO: bubble up form error?
                         setFlowValidOnSubmit(false);
                       }
                     }

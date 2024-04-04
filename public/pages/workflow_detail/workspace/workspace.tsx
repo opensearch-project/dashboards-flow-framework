@@ -4,7 +4,6 @@
  */
 
 import React, { useRef, useCallback, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import ReactFlow, {
   Controls,
   Background,
@@ -18,7 +17,7 @@ import ReactFlow, {
   MarkerType,
 } from 'reactflow';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
-import { setDirty } from '../../../store';
+import { setDirty, useAppDispatch } from '../../../store';
 import {
   IComponentData,
   ReactFlowComponent,
@@ -53,7 +52,7 @@ const nodeTypes = {
 const edgeTypes = { customEdge: DeletableEdge };
 
 export function Workspace(props: WorkspaceProps) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   // ReactFlow state
   const reactFlowWrapper = useRef(null);

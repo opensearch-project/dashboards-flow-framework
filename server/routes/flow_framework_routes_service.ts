@@ -20,6 +20,7 @@ import {
   GET_WORKFLOW_NODE_API_PATH,
   GET_WORKFLOW_STATE_NODE_API_PATH,
   SEARCH_WORKFLOWS_NODE_API_PATH,
+  Workflow,
   WorkflowTemplate,
   validateWorkflowTemplate,
 } from '../../common';
@@ -176,19 +177,23 @@ export class FlowFrameworkRoutesService {
     }
   };
 
-  // TODO: test e2e
   createWorkflow = async (
     context: RequestHandlerContext,
     req: OpenSearchDashboardsRequest,
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
-    const body = req.body;
+    const body = req.body as Workflow;
     const { provision } = req.params as { provision: boolean };
     try {
       const response = await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.createWorkflow', { body, provision });
-      return res.ok({ body: { id: response._id } });
+      const workflowWithId = {
+        ...body,
+        id: response.workflow_id,
+        state: 'Completed',
+      };
+      return res.ok({ body: { workflow: workflowWithId } });
     } catch (err: any) {
       return generateCustomError(res, err);
     }

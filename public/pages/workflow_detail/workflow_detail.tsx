@@ -5,19 +5,25 @@
 
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import queryString from 'query-string';
 import { EuiPage, EuiPageBody } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
-import { AppState, searchModels, searchWorkflows } from '../../store';
+import {
+  AppState,
+  searchModels,
+  searchWorkflows,
+  useAppDispatch,
+} from '../../store';
 import { ResizableWorkspace } from './workspace';
 import { Launches } from './launches';
 import { Prototype } from './prototype';
 import {
   DEFAULT_NEW_WORKFLOW_NAME,
+  FETCH_ALL_QUERY_BODY,
   NEW_WORKFLOW_ID_URL,
 } from '../../../common';
 
@@ -53,7 +59,7 @@ function replaceActiveTab(activeTab: string, props: WorkflowDetailProps) {
  */
 
 export function WorkflowDetail(props: WorkflowDetailProps) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { workflows, cachedWorkflow } = useSelector(
     (state: AppState) => state.workflows
   );
@@ -101,9 +107,9 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   useEffect(() => {
     if (!isNewWorkflow) {
       // TODO: can optimize to only fetch a single workflow
-      dispatch(searchWorkflows({ query: { match_all: {} } }));
+      dispatch(searchWorkflows(FETCH_ALL_QUERY_BODY));
     }
-    dispatch(searchModels({ query: { match_all: {} } }));
+    dispatch(searchModels(FETCH_ALL_QUERY_BODY));
   }, []);
 
   const tabs = [

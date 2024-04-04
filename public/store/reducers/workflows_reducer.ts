@@ -177,12 +177,11 @@ const workflowsSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(createWorkflow.fulfilled, (state, action) => {
-        // TODO: add logic to mutate state
-        // const workflow = action.payload;
-        // state.workflows = {
-        //   ...state.workflows,
-        //   [workflow.id]: workflow,
-        // };
+        const workflow = action.payload;
+        state.workflows = {
+          ...state.workflows,
+          [workflow.id]: workflow,
+        };
         state.loading = false;
         state.errorMessage = '';
       })

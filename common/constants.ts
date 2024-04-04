@@ -51,3 +51,9 @@ export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';
 export const DATE_FORMAT_PATTERN = 'MM/DD/YY hh:mm A';
 export const EMPTY_FIELD_STRING = '--';
+export const FETCH_ALL_QUERY_BODY = {
+  query: {
+    match_all: {},
+  },
+  size: 1000,
+};

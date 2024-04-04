@@ -55,15 +55,13 @@ export function getWorkflowsFromResponses(
     const workflowStateHit = workflowStateHits.find(
       (workflowStateHit) => workflowStateHit._id === workflowHit._id
     );
-    if (workflowStateHit) {
-      const workflowState = workflowStateHit._source
-        .state as typeof WORKFLOW_STATE;
-      workflowDict[workflowHit._id] = {
-        ...workflowDict[workflowHit._id],
-        // @ts-ignore
-        state: WORKFLOW_STATE[workflowState],
-      };
-    }
+    const workflowState = (workflowStateHit?._source?.state ||
+      'NOT_STARTED') as typeof WORKFLOW_STATE;
+    workflowDict[workflowHit._id] = {
+      ...workflowDict[workflowHit._id],
+      // @ts-ignore
+      state: WORKFLOW_STATE[workflowState],
+    };
   });
   return workflowDict;
 }
