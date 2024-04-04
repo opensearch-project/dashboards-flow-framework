@@ -77,13 +77,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     props.workflow
   );
 
-  // Loading state
-  const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
-  const [isDeprovisioning, setIsDeprovisioning] = useState<boolean>(false);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const isLoadingGlobal =
-    loading || isProvisioning || isDeprovisioning || isSaving;
-
   // Formik form state
   const [formValues, setFormValues] = useState<WorkspaceFormValues>({});
   const [formSchema, setFormSchema] = useState<WorkspaceSchema>(yup.object({}));
@@ -109,7 +102,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     ReactFlowComponent
   >();
 
-  // Save/provision button state
+  // Save/provision/deprovision button state
   const isSaveable = isFirstSave ? true : isDirty;
   const isProvisionable =
     !isDirty &&
@@ -120,6 +113,14 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const isDeprovisionable =
     !props.isNewWorkflow &&
     props.workflow?.state !== WORKFLOW_STATE.NOT_STARTED;
+
+  // Loading state
+  const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
+  const [isDeprovisioning, setIsDeprovisioning] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const isCreating = isSaving && props.isNewWorkflow;
+  const isLoadingGlobal =
+    loading || isProvisioning || isDeprovisioning || isSaving || isCreating;
 
   /**
    * Custom listener on when nodes are selected / de-selected. Passed to
@@ -251,9 +252,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     // The workaround is to additionally execute validateForm() which will return any errors found.
     formikProps.submitForm();
     formikProps.validateForm().then((validationResults: {}) => {
-      setIsSaving(false);
       if (Object.keys(validationResults).length > 0) {
         setFormValidOnSubmit(false);
+        setIsSaving(false);
       } else {
         setFormValidOnSubmit(true);
         let curFlowState = reactFlowInstance.toObject() as WorkspaceFlowState;
@@ -275,6 +276,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         } else {
           // TODO: bubble up flow error?
           setFlowValidOnSubmit(false);
+          setIsSaving(false);
         }
       }
     });
@@ -383,6 +385,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     (updatedWorkflow) => {
                       if (updatedWorkflow.id) {
                         // TODO: add update workflow API
+                        // make sure to set isSaving to false in catch block
                       } else {
                         dispatch(createWorkflow(updatedWorkflow))
                           .unwrap()
@@ -394,13 +397,14 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                           .catch((error: any) => {
                             // TODO: process error (toast msg?)
                             console.log('error: ', error);
+                            setIsSaving(false);
                           });
                       }
                     }
                   );
                 }}
               >
-                {props.isNewWorkflow ? 'Create' : 'Save'}
+                {props.isNewWorkflow || isCreating ? 'Create' : 'Save'}
               </EuiButton>,
             ]}
             bottomBorder={false}
