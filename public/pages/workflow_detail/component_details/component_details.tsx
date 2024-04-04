@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiPanel } from '@elastic/eui';
+import { EuiPanel } from '@elastic/eui';
 import { ReactFlowComponent } from '../../../../common';
 import { ComponentInputs } from './component_inputs';
 import { EmptyComponentInputs } from './empty_component_inputs';
@@ -24,23 +24,15 @@ interface ComponentDetailsProps {
  */
 export function ComponentDetails(props: ComponentDetailsProps) {
   return (
-    <EuiFlexGroup
-      direction="column"
-      gutterSize="none"
-      className="workspace-panel"
-    >
-      <EuiFlexItem>
-        <EuiPanel paddingSize="m">
-          {props.selectedComponent ? (
-            <ComponentInputs
-              selectedComponent={props.selectedComponent}
-              onFormChange={props.onFormChange}
-            />
-          ) : (
-            <EmptyComponentInputs />
-          )}
-        </EuiPanel>
-      </EuiFlexItem>
-    </EuiFlexGroup>
+    <EuiPanel paddingSize="m">
+      {props.selectedComponent ? (
+        <ComponentInputs
+          selectedComponent={props.selectedComponent}
+          onFormChange={props.onFormChange}
+        />
+      ) : (
+        <EmptyComponentInputs />
+      )}
+    </EuiPanel>
   );
 }

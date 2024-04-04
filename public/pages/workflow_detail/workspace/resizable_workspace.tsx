@@ -5,8 +5,9 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { useReactFlow } from 'reactflow';
-import { Form, Formik } from 'formik';
+import { Form, Formik, FormikProps } from 'formik';
 import * as yup from 'yup';
 import { cloneDeep } from 'lodash';
 import {
@@ -60,6 +61,7 @@ const COMPONENT_DETAILS_PANEL_ID = 'component_details_panel_id';
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const dispatch = useAppDispatch();
+  const history = useHistory();
 
   // Overall workspace state
   const isDirty = useSelector((state: AppState) => state.workspace.isDirty);
@@ -215,6 +217,45 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }
 
+  // Utility validation fn used before executing any API calls (save, provision)
+  function validateFormAndFlow(
+    formikProps: FormikProps<WorkspaceFormValues>,
+    processWorkflowFn: (workflow: Workflow) => void
+  ): void {
+    // Submit the form to bubble up any errors.
+    // Ideally we handle Promise accept/rejects with submitForm(), but there is
+    // open issues for that - see https://github.com/jaredpalmer/formik/issues/2057
+    // The workaround is to additionally execute validateForm() which will return any errors found.
+    formikProps.submitForm();
+    formikProps.validateForm().then((validationResults: {}) => {
+      if (Object.keys(validationResults).length > 0) {
+        setFormValidOnSubmit(false);
+      } else {
+        setFormValidOnSubmit(true);
+        let curFlowState = reactFlowInstance.toObject() as WorkspaceFlowState;
+        curFlowState = {
+          ...curFlowState,
+          nodes: processNodes(curFlowState.nodes),
+        };
+        if (validateWorkspaceFlow(curFlowState)) {
+          setFlowValidOnSubmit(true);
+          const updatedWorkflow = {
+            ...workflow,
+            ui_metadata: {
+              ...workflow?.ui_metadata,
+              workspaceFlow: curFlowState,
+            },
+            workflows: toTemplateFlows(curFlowState, formikProps.values),
+          } as Workflow;
+          processWorkflowFn(updatedWorkflow);
+        } else {
+          // TODO: bubble up form error?
+          setFlowValidOnSubmit(false);
+        }
+      }
+    });
+  }
+
   return (
     <Formik
       enableReinitialize={true}
@@ -262,57 +303,30 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   if (isFirstSave) {
                     setIsFirstSave(false);
                   }
-                  // Submit the form to bubble up any errors.
-                  // Ideally we handle Promise accept/rejects with submitForm(), but there is
-                  // open issues for that - see https://github.com/jaredpalmer/formik/issues/2057
-                  // The workaround is to additionally execute validateForm() which will return any errors found.
-                  formikProps.submitForm();
-                  formikProps.validateForm().then((validationResults: {}) => {
-                    if (Object.keys(validationResults).length > 0) {
-                      setFormValidOnSubmit(false);
-                    } else {
-                      setFormValidOnSubmit(true);
-                      let curFlowState = reactFlowInstance.toObject() as WorkspaceFlowState;
-                      curFlowState = {
-                        ...curFlowState,
-                        nodes: processNodes(curFlowState.nodes),
-                      };
-                      if (validateWorkspaceFlow(curFlowState)) {
-                        setFlowValidOnSubmit(true);
-                        const updatedWorkflow = {
-                          ...workflow,
-                          ui_metadata: {
-                            ...workflow?.ui_metadata,
-                            workspaceFlow: curFlowState,
-                          },
-                          workflows: toTemplateFlows(
-                            curFlowState,
-                            formikProps.values
-                          ),
-                        } as Workflow;
-                        if (updatedWorkflow.id) {
-                          // TODO: add update workflow API
-                        } else {
-                          dispatch(createWorkflow(updatedWorkflow))
-                            .unwrap()
-                            .then((result) => {
-                              // TODO: process result
-                              console.log('result: ', result);
-                            })
-                            .catch((error: any) => {
-                              // TODO: process error (toast msg?)
-                              console.log('error: ', error);
-                            });
-                        }
+                  validateFormAndFlow(
+                    formikProps,
+                    // The callback fn to run if everything is valid.
+                    (updatedWorkflow) => {
+                      if (updatedWorkflow.id) {
+                        // TODO: add update workflow API
                       } else {
-                        // TODO: bubble up form error?
-                        setFlowValidOnSubmit(false);
+                        dispatch(createWorkflow(updatedWorkflow))
+                          .unwrap()
+                          .then((result) => {
+                            const { workflow } = result;
+                            history.replace(`/workflows/${workflow.id}`);
+                            history.go(0);
+                          })
+                          .catch((error: any) => {
+                            // TODO: process error (toast msg?)
+                            console.log('error: ', error);
+                          });
                       }
                     }
-                  });
+                  );
                 }}
               >
-                Save
+                {props.isNewWorkflow ? 'Create' : 'Save'}
               </EuiButton>,
             ]}
             bottomBorder={false}
@@ -354,7 +368,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   </EuiResizablePanel>
                   <EuiResizableButton />
                   <EuiResizablePanel
-                    className="workspace-panel"
                     style={{ marginRight: '-16px' }}
                     id={COMPONENT_DETAILS_PANEL_ID}
                     mode="collapsible"
@@ -363,10 +376,18 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     paddingSize="s"
                     onToggleCollapsedInternal={() => onToggleChange()}
                   >
-                    <ComponentDetails
-                      selectedComponent={selectedComponent}
-                      onFormChange={onFormChange}
-                    />
+                    <EuiFlexGroup
+                      direction="column"
+                      gutterSize="s"
+                      className="workspace-panel"
+                    >
+                      <EuiFlexItem>
+                        <ComponentDetails
+                          selectedComponent={selectedComponent}
+                          onFormChange={onFormChange}
+                        />
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
                   </EuiResizablePanel>
                 </>
               );
