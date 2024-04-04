@@ -21,6 +21,7 @@ const SEARCH_WORKFLOWS_ACTION = `${WORKFLOWS_ACTION_PREFIX}/search`;
 const GET_WORKFLOW_STATE_ACTION = `${WORKFLOWS_ACTION_PREFIX}/getState`;
 const CREATE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/create`;
 const PROVISION_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/provision`;
+const DEPROVISION_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/deprovision`;
 const DELETE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/delete`;
 const CACHE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/cache`;
 const CLEAR_CACHED_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/clearCache`;
@@ -105,6 +106,24 @@ export const provisionWorkflow = createAsyncThunk(
   }
 );
 
+export const deprovisionWorkflow = createAsyncThunk(
+  DEPROVISION_WORKFLOW_ACTION,
+  async (workflowId: string, { rejectWithValue }) => {
+    const response:
+      | any
+      | HttpFetchError = await getRouteService().deprovisionWorkflow(
+      workflowId
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error deprovisioning workflow: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
+  }
+);
+
 export const deleteWorkflow = createAsyncThunk(
   DELETE_WORKFLOW_ACTION,
   async (workflowId: string, { rejectWithValue }) => {
@@ -158,6 +177,10 @@ const workflowsSlice = createSlice({
         state.loading = true;
         state.errorMessage = '';
       })
+      .addCase(deprovisionWorkflow.pending, (state, action) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
       .addCase(deleteWorkflow.pending, (state, action) => {
         state.loading = true;
         state.errorMessage = '';
@@ -206,9 +229,10 @@ const workflowsSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(provisionWorkflow.fulfilled, (state, action) => {
-        // Provision just kicks off an async task. No state update needed.
-        // Frontend should re-query to fetch and populate any updated state
-        // for the workflow
+        state.loading = false;
+        state.errorMessage = '';
+      })
+      .addCase(deprovisionWorkflow.fulfilled, (state, action) => {
         state.loading = false;
         state.errorMessage = '';
       })
@@ -243,6 +267,10 @@ const workflowsSlice = createSlice({
         state.loading = false;
       })
       .addCase(provisionWorkflow.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(deprovisionWorkflow.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       })

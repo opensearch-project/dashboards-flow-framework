@@ -16,6 +16,7 @@ import {
 import {
   CREATE_WORKFLOW_NODE_API_PATH,
   DELETE_WORKFLOW_NODE_API_PATH,
+  DEPROVISION_WORKFLOW_NODE_API_PATH,
   GET_PRESET_WORKFLOWS_NODE_API_PATH,
   GET_WORKFLOW_NODE_API_PATH,
   GET_WORKFLOW_STATE_NODE_API_PATH,
@@ -94,6 +95,18 @@ export function registerFlowFrameworkRoutes(
       },
     },
     flowFrameworkRoutesService.provisionWorkflow
+  );
+
+  router.post(
+    {
+      path: `${DEPROVISION_WORKFLOW_NODE_API_PATH}/{workflow_id}`,
+      validate: {
+        params: schema.object({
+          workflow_id: schema.string(),
+        }),
+      },
+    },
+    flowFrameworkRoutesService.deprovisionWorkflow
   );
 
   router.delete(
@@ -224,6 +237,24 @@ export class FlowFrameworkRoutesService {
       await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.provisionWorkflow', { workflow_id });
+      return res.ok();
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  deprovisionWorkflow = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { workflow_id } = req.params as { workflow_id: string };
+    try {
+      await this.client
+        .asScoped(req)
+        .callAsCurrentUser('flowFramework.deprovisionWorkflow', {
+          workflow_id,
+        });
       return res.ok();
     } catch (err: any) {
       return generateCustomError(res, err);

@@ -33,10 +33,12 @@ import {
   DEFAULT_NEW_WORKFLOW_NAME,
   DEFAULT_NEW_WORKFLOW_DESCRIPTION,
   USE_CASE,
+  WORKFLOW_STATE,
 } from '../../../../common';
 import {
   AppState,
   createWorkflow,
+  deprovisionWorkflow,
   getWorkflowState,
   provisionWorkflow,
   removeDirty,
@@ -66,13 +68,21 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const history = useHistory();
 
   // Overall workspace state
-  const isDirty = useSelector((state: AppState) => state.workspace.isDirty);
+  const { isDirty } = useSelector((state: AppState) => state.workspace);
+  const { loading } = useSelector((state: AppState) => state.workflows);
   const [isFirstSave, setIsFirstSave] = useState<boolean>(props.isNewWorkflow);
 
   // Workflow state
   const [workflow, setWorkflow] = useState<Workflow | undefined>(
     props.workflow
   );
+
+  // Loading state
+  const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
+  const [isDeprovisioning, setIsDeprovisioning] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const isLoadingGlobal =
+    loading || isProvisioning || isDeprovisioning || isSaving;
 
   // Formik form state
   const [formValues, setFormValues] = useState<WorkspaceFormValues>({});
@@ -102,7 +112,14 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Save/provision button state
   const isSaveable = isFirstSave ? true : isDirty;
   const isProvisionable =
-    !isDirty && !props.isNewWorkflow && formValidOnSubmit && flowValidOnSubmit;
+    !isDirty &&
+    !props.isNewWorkflow &&
+    formValidOnSubmit &&
+    flowValidOnSubmit &&
+    props.workflow?.state === WORKFLOW_STATE.NOT_STARTED;
+  const isDeprovisionable =
+    !props.isNewWorkflow &&
+    props.workflow?.state !== WORKFLOW_STATE.NOT_STARTED;
 
   /**
    * Custom listener on when nodes are selected / de-selected. Passed to
@@ -234,6 +251,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     // The workaround is to additionally execute validateForm() which will return any errors found.
     formikProps.submitForm();
     formikProps.validateForm().then((validationResults: {}) => {
+      setIsSaving(false);
       if (Object.keys(validationResults).length > 0) {
         setFormValidOnSubmit(false);
       } else {
@@ -298,20 +316,51 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
             rightSideItems={[
               <EuiButton
                 fill={false}
-                disabled={!isProvisionable}
+                disabled={!isDeprovisionable || isLoadingGlobal}
+                isLoading={isDeprovisioning}
                 onClick={() => {
                   if (workflow?.id) {
-                    dispatch(provisionWorkflow(workflow.id))
+                    setIsDeprovisioning(true);
+                    dispatch(deprovisionWorkflow(workflow.id))
                       .unwrap()
                       .then(async (result) => {
                         await new Promise((f) => setTimeout(f, 3000));
-                        console.log('done waiting. fetching updated state...');
                         dispatch(getWorkflowState(workflow.id as string));
+                        setIsDeprovisioning(false);
                       })
                       .catch((error: any) => {
                         // TODO: process error (toast msg?)
                         console.log('error: ', error);
+                        setIsDeprovisioning(false);
                       });
+                  } else {
+                    // TODO: this case should not happen
+                  }
+                }}
+              >
+                Deprovision
+              </EuiButton>,
+              <EuiButton
+                fill={false}
+                disabled={!isProvisionable || isLoadingGlobal}
+                isLoading={isProvisioning}
+                onClick={() => {
+                  if (workflow?.id) {
+                    setIsProvisioning(true);
+                    dispatch(provisionWorkflow(workflow.id))
+                      .unwrap()
+                      .then(async (result) => {
+                        await new Promise((f) => setTimeout(f, 3000));
+                        dispatch(getWorkflowState(workflow.id as string));
+                        setIsProvisioning(false);
+                      })
+                      .catch((error: any) => {
+                        // TODO: process error (toast msg?)
+                        console.log('error: ', error);
+                        setIsProvisioning(false);
+                      });
+                  } else {
+                    // TODO: this case should not happen
                   }
                 }}
               >
@@ -319,9 +368,11 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               </EuiButton>,
               <EuiButton
                 fill={false}
-                disabled={!isSaveable}
+                disabled={!isSaveable || isLoadingGlobal}
+                isLoading={isSaving}
                 // TODO: if props.isNewWorkflow is true, clear the workflow cache if saving is successful.
                 onClick={() => {
+                  setIsSaving(true);
                   dispatch(removeDirty());
                   if (isFirstSave) {
                     setIsFirstSave(false);
