@@ -185,12 +185,14 @@ const workflowsSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(getWorkflowState.fulfilled, (state, action) => {
-        // TODO: add logic to mutate state
-        // const workflow = action.payload;
-        // state.workflows = {
-        //   ...state.workflows,
-        //   [workflow.id]: workflow,
-        // };
+        const { workflowId, workflowState } = action.payload;
+        state.workflows = {
+          ...state.workflows,
+          [workflowId]: {
+            ...state.workflows[workflowId],
+            state: workflowState,
+          },
+        };
         state.loading = false;
         state.errorMessage = '';
       })
@@ -204,6 +206,9 @@ const workflowsSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(provisionWorkflow.fulfilled, (state, action) => {
+        // Provision just kicks off an async task. No state update needed.
+        // Frontend should re-query to fetch and populate any updated state
+        // for the workflow
         state.loading = false;
         state.errorMessage = '';
       })

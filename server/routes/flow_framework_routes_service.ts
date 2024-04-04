@@ -21,11 +21,16 @@ import {
   GET_WORKFLOW_STATE_NODE_API_PATH,
   PROVISION_WORKFLOW_NODE_API_PATH,
   SEARCH_WORKFLOWS_NODE_API_PATH,
+  WORKFLOW_STATE,
   Workflow,
   WorkflowTemplate,
   validateWorkflowTemplate,
 } from '../../common';
-import { generateCustomError, getWorkflowsFromResponses } from './helpers';
+import {
+  generateCustomError,
+  getWorkflowStateFromResponse,
+  getWorkflowsFromResponses,
+} from './helpers';
 
 /**
  * Server-side routes to process flow-framework-related node API calls and execute the
@@ -168,7 +173,6 @@ export class FlowFrameworkRoutesService {
     }
   };
 
-  // TODO: test e2e
   getWorkflowState = async (
     context: RequestHandlerContext,
     req: OpenSearchDashboardsRequest,
@@ -179,9 +183,12 @@ export class FlowFrameworkRoutesService {
       const response = await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.getWorkflowState', { workflow_id });
-      console.log('response from get workflow state: ', response);
-      // TODO: format response
-      return res.ok({ body: response });
+      const state = getWorkflowStateFromResponse(
+        response.state as typeof WORKFLOW_STATE
+      );
+      return res.ok({
+        body: { workflowId: workflow_id, workflowState: state },
+      });
     } catch (err: any) {
       return generateCustomError(res, err);
     }
@@ -214,12 +221,10 @@ export class FlowFrameworkRoutesService {
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const { workflow_id } = req.params as { workflow_id: string };
     try {
-      const response = await this.client
+      await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.provisionWorkflow', { workflow_id });
-      console.log('response: ', response);
-
-      return res.ok({ body: { workflow: 'TODO' } });
+      return res.ok();
     } catch (err: any) {
       return generateCustomError(res, err);
     }

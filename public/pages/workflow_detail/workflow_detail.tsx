@@ -27,6 +27,9 @@ import {
   NEW_WORKFLOW_ID_URL,
 } from '../../../common';
 
+// styling
+import './workflow-detail-styles.scss';
+
 export interface WorkflowDetailRouterProps {
   workflowId: string;
 }
@@ -145,7 +148,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   return (
     <ReactFlowProvider>
       <EuiPage>
-        <EuiPageBody style={{ overflow: 'hidden' }}>
+        <EuiPageBody className="workflow-detail">
           <WorkflowDetailHeader
             workflow={workflow}
             isNewWorkflow={isNewWorkflow}

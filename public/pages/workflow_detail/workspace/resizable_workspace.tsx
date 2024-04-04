@@ -37,6 +37,8 @@ import {
 import {
   AppState,
   createWorkflow,
+  getWorkflowState,
+  provisionWorkflow,
   removeDirty,
   setDirty,
   useAppDispatch,
@@ -66,7 +68,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Overall workspace state
   const isDirty = useSelector((state: AppState) => state.workspace.isDirty);
   const [isFirstSave, setIsFirstSave] = useState<boolean>(props.isNewWorkflow);
-  const isSaveable = isFirstSave ? true : isDirty;
 
   // Workflow state
   const [workflow, setWorkflow] = useState<Workflow | undefined>(
@@ -97,6 +98,11 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [selectedComponent, setSelectedComponent] = useState<
     ReactFlowComponent
   >();
+
+  // Save/provision button state
+  const isSaveable = isFirstSave ? true : isDirty;
+  const isProvisionable =
+    !isDirty && !props.isNewWorkflow && formValidOnSubmit && flowValidOnSubmit;
 
   /**
    * Custom listener on when nodes are selected / de-selected. Passed to
@@ -249,7 +255,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           } as Workflow;
           processWorkflowFn(updatedWorkflow);
         } else {
-          // TODO: bubble up form error?
+          // TODO: bubble up flow error?
           setFlowValidOnSubmit(false);
         }
       }
@@ -290,9 +296,26 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           <EuiPageHeader
             style={{ marginBottom: '8px' }}
             rightSideItems={[
-              // TODO: add launch logic
-              <EuiButton fill={false} onClick={() => {}}>
-                Launch
+              <EuiButton
+                fill={false}
+                disabled={!isProvisionable}
+                onClick={() => {
+                  if (workflow?.id) {
+                    dispatch(provisionWorkflow(workflow.id))
+                      .unwrap()
+                      .then(async (result) => {
+                        await new Promise((f) => setTimeout(f, 3000));
+                        console.log('done waiting. fetching updated state...');
+                        dispatch(getWorkflowState(workflow.id as string));
+                      })
+                      .catch((error: any) => {
+                        // TODO: process error (toast msg?)
+                        console.log('error: ', error);
+                      });
+                  }
+                }}
+              >
+                Provision
               </EuiButton>,
               <EuiButton
                 fill={false}
