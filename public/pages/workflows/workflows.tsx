@@ -14,13 +14,14 @@ import {
   EuiSpacer,
 } from '@elastic/eui';
 import queryString from 'query-string';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
-import { AppState, searchWorkflows } from '../../store';
+import { AppState, searchWorkflows, useAppDispatch } from '../../store';
 import { EmptyListMessage } from './empty_list_message';
+import { FETCH_ALL_QUERY_BODY } from '../../../common';
 
 export interface WorkflowsRouterProps {}
 
@@ -48,7 +49,7 @@ function replaceActiveTab(activeTab: string, props: WorkflowsProps) {
  * to get started on a new workflow.
  */
 export function Workflows(props: WorkflowsProps) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
@@ -72,7 +73,7 @@ export function Workflows(props: WorkflowsProps) {
   // If the user navigates back to the manage tab, re-fetch workflows
   useEffect(() => {
     if (selectedTabId === WORKFLOWS_TAB.MANAGE) {
-      dispatch(searchWorkflows({ query: { match_all: {} } }));
+      dispatch(searchWorkflows(FETCH_ALL_QUERY_BODY));
     }
   }, [selectedTabId]);
 
@@ -85,7 +86,7 @@ export function Workflows(props: WorkflowsProps) {
 
   // On initial render: fetch all workflows
   useEffect(() => {
-    dispatch(searchWorkflows({ query: { match_all: {} } }));
+    dispatch(searchWorkflows(FETCH_ALL_QUERY_BODY));
   }, []);
 
   return (

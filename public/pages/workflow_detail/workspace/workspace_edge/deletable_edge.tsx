@@ -13,11 +13,10 @@ import {
   getBezierPath,
   useReactFlow,
 } from 'reactflow';
-import { setDirty } from '../../../../store';
+import { setDirty, useAppDispatch } from '../../../../store';
 
 // styling
 import './deletable-edge-styles.scss';
-import { useDispatch } from 'react-redux';
 
 type DeletableEdgeProps = EdgeProps;
 
@@ -27,7 +26,7 @@ type DeletableEdgeProps = EdgeProps;
  * see https://reactflow.dev/docs/examples/edges/edge-types/
  */
 export function DeletableEdge(props: DeletableEdgeProps) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX: props.sourceX,

@@ -30,7 +30,7 @@ const inputTabs = [
 
 export function NewOrExistingTabs(props: NewOrExistingTabsProps) {
   return (
-    <EuiTabs size="s" expand={true}>
+    <EuiTabs size="m" expand={false}>
       {inputTabs.map((tab, idx) => {
         return (
           <EuiTab

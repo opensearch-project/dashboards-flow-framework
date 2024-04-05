@@ -13,6 +13,8 @@ import {
   SEARCH_WORKFLOWS_NODE_API_PATH,
   GET_PRESET_WORKFLOWS_NODE_API_PATH,
   SEARCH_MODELS_NODE_API_PATH,
+  PROVISION_WORKFLOW_NODE_API_PATH,
+  DEPROVISION_WORKFLOW_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -30,6 +32,8 @@ export interface RouteService {
     body: {},
     provision?: boolean
   ) => Promise<any | HttpFetchError>;
+  provisionWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
+  deprovisionWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
   deleteWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
   getWorkflowPresets: () => Promise<any | HttpFetchError>;
   catIndices: (pattern: string) => Promise<any | HttpFetchError>;
@@ -71,13 +75,33 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    createWorkflow: async (body: {}, provision: boolean = false) => {
+    createWorkflow: async (body: {}) => {
       try {
         const response = await core.http.post<{ respString: string }>(
-          `${CREATE_WORKFLOW_NODE_API_PATH}/${provision}`,
+          CREATE_WORKFLOW_NODE_API_PATH,
           {
             body: JSON.stringify(body),
           }
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    provisionWorkflow: async (workflowId: string) => {
+      try {
+        const response = await core.http.post<{ respString: string }>(
+          `${PROVISION_WORKFLOW_NODE_API_PATH}/${workflowId}`
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    deprovisionWorkflow: async (workflowId: string) => {
+      try {
+        const response = await core.http.post<{ respString: string }>(
+          `${DEPROVISION_WORKFLOW_NODE_API_PATH}/${workflowId}`
         );
         return response;
       } catch (e: any) {

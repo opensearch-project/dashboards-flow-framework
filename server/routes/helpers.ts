@@ -4,6 +4,7 @@
  */
 
 import {
+  DEFAULT_NEW_WORKFLOW_STATE_TYPE,
   Model,
   ModelDict,
   WORKFLOW_STATE,
@@ -55,15 +56,13 @@ export function getWorkflowsFromResponses(
     const workflowStateHit = workflowStateHits.find(
       (workflowStateHit) => workflowStateHit._id === workflowHit._id
     );
-    if (workflowStateHit) {
-      const workflowState = workflowStateHit._source
-        .state as typeof WORKFLOW_STATE;
-      workflowDict[workflowHit._id] = {
-        ...workflowDict[workflowHit._id],
-        // @ts-ignore
-        state: WORKFLOW_STATE[workflowState],
-      };
-    }
+    const workflowState = (workflowStateHit?._source?.state ||
+      DEFAULT_NEW_WORKFLOW_STATE_TYPE) as typeof WORKFLOW_STATE;
+    workflowDict[workflowHit._id] = {
+      ...workflowDict[workflowHit._id],
+      // @ts-ignore
+      state: WORKFLOW_STATE[workflowState],
+    };
   });
   return workflowDict;
 }
@@ -80,4 +79,12 @@ export function getModelsFromResponses(modelHits: any[]): ModelDict {
     } as Model;
   });
   return modelDict;
+}
+
+export function getWorkflowStateFromResponse(
+  state: typeof WORKFLOW_STATE | undefined
+): WORKFLOW_STATE {
+  const finalState = state || DEFAULT_NEW_WORKFLOW_STATE_TYPE;
+  // @ts-ignore
+  return WORKFLOW_STATE[finalState];
 }

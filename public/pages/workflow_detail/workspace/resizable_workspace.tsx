@@ -4,9 +4,10 @@
  */
 
 import React, { useRef, useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { useReactFlow } from 'reactflow';
-import { Form, Formik } from 'formik';
+import { Form, Formik, FormikProps } from 'formik';
 import * as yup from 'yup';
 import { cloneDeep } from 'lodash';
 import {
@@ -32,12 +33,17 @@ import {
   DEFAULT_NEW_WORKFLOW_NAME,
   DEFAULT_NEW_WORKFLOW_DESCRIPTION,
   USE_CASE,
+  WORKFLOW_STATE,
 } from '../../../../common';
 import {
   AppState,
   createWorkflow,
+  deprovisionWorkflow,
+  getWorkflowState,
+  provisionWorkflow,
   removeDirty,
   setDirty,
+  useAppDispatch,
 } from '../../../store';
 import { Workspace } from './workspace';
 import { ComponentDetails } from '../component_details';
@@ -58,12 +64,13 @@ const COMPONENT_DETAILS_PANEL_ID = 'component_details_panel_id';
  * panels - the ReactFlow workspace panel and the selected component details panel.
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+  const history = useHistory();
 
   // Overall workspace state
-  const isDirty = useSelector((state: AppState) => state.workspace.isDirty);
+  const { isDirty } = useSelector((state: AppState) => state.workspace);
+  const { loading } = useSelector((state: AppState) => state.workflows);
   const [isFirstSave, setIsFirstSave] = useState<boolean>(props.isNewWorkflow);
-  const isSaveable = isFirstSave ? true : isDirty;
 
   // Workflow state
   const [workflow, setWorkflow] = useState<Workflow | undefined>(
@@ -94,6 +101,26 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [selectedComponent, setSelectedComponent] = useState<
     ReactFlowComponent
   >();
+
+  // Save/provision/deprovision button state
+  const isSaveable = isFirstSave ? true : isDirty;
+  const isProvisionable =
+    !isDirty &&
+    !props.isNewWorkflow &&
+    formValidOnSubmit &&
+    flowValidOnSubmit &&
+    props.workflow?.state === WORKFLOW_STATE.NOT_STARTED;
+  const isDeprovisionable =
+    !props.isNewWorkflow &&
+    props.workflow?.state !== WORKFLOW_STATE.NOT_STARTED;
+
+  // Loading state
+  const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
+  const [isDeprovisioning, setIsDeprovisioning] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const isCreating = isSaving && props.isNewWorkflow;
+  const isLoadingGlobal =
+    loading || isProvisioning || isDeprovisioning || isSaving || isCreating;
 
   /**
    * Custom listener on when nodes are selected / de-selected. Passed to
@@ -214,6 +241,47 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }
 
+  // Utility validation fn used before executing any API calls (save, provision)
+  function validateFormAndFlow(
+    formikProps: FormikProps<WorkspaceFormValues>,
+    processWorkflowFn: (workflow: Workflow) => void
+  ): void {
+    // Submit the form to bubble up any errors.
+    // Ideally we handle Promise accept/rejects with submitForm(), but there is
+    // open issues for that - see https://github.com/jaredpalmer/formik/issues/2057
+    // The workaround is to additionally execute validateForm() which will return any errors found.
+    formikProps.submitForm();
+    formikProps.validateForm().then((validationResults: {}) => {
+      if (Object.keys(validationResults).length > 0) {
+        setFormValidOnSubmit(false);
+        setIsSaving(false);
+      } else {
+        setFormValidOnSubmit(true);
+        let curFlowState = reactFlowInstance.toObject() as WorkspaceFlowState;
+        curFlowState = {
+          ...curFlowState,
+          nodes: processNodes(curFlowState.nodes),
+        };
+        if (validateWorkspaceFlow(curFlowState)) {
+          setFlowValidOnSubmit(true);
+          const updatedWorkflow = {
+            ...workflow,
+            ui_metadata: {
+              ...workflow?.ui_metadata,
+              workspaceFlow: curFlowState,
+            },
+            workflows: toTemplateFlows(curFlowState, formikProps.values),
+          } as Workflow;
+          processWorkflowFn(updatedWorkflow);
+        } else {
+          // TODO: bubble up flow error?
+          setFlowValidOnSubmit(false);
+          setIsSaving(false);
+        }
+      }
+    });
+  }
+
   return (
     <Formik
       enableReinitialize={true}
@@ -248,60 +316,95 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           <EuiPageHeader
             style={{ marginBottom: '8px' }}
             rightSideItems={[
-              // TODO: add launch logic
-              <EuiButton fill={false} onClick={() => {}}>
-                Launch
+              <EuiButton
+                fill={false}
+                disabled={!isDeprovisionable || isLoadingGlobal}
+                isLoading={isDeprovisioning}
+                onClick={() => {
+                  if (workflow?.id) {
+                    setIsDeprovisioning(true);
+                    dispatch(deprovisionWorkflow(workflow.id))
+                      .unwrap()
+                      .then(async (result) => {
+                        await new Promise((f) => setTimeout(f, 3000));
+                        dispatch(getWorkflowState(workflow.id as string));
+                        setIsDeprovisioning(false);
+                      })
+                      .catch((error: any) => {
+                        // TODO: process error (toast msg?)
+                        console.log('error: ', error);
+                        setIsDeprovisioning(false);
+                      });
+                  } else {
+                    // TODO: this case should not happen
+                  }
+                }}
+              >
+                Deprovision
               </EuiButton>,
               <EuiButton
                 fill={false}
-                disabled={!isSaveable}
+                disabled={!isProvisionable || isLoadingGlobal}
+                isLoading={isProvisioning}
+                onClick={() => {
+                  if (workflow?.id) {
+                    setIsProvisioning(true);
+                    dispatch(provisionWorkflow(workflow.id))
+                      .unwrap()
+                      .then(async (result) => {
+                        await new Promise((f) => setTimeout(f, 3000));
+                        dispatch(getWorkflowState(workflow.id as string));
+                        setIsProvisioning(false);
+                      })
+                      .catch((error: any) => {
+                        // TODO: process error (toast msg?)
+                        console.log('error: ', error);
+                        setIsProvisioning(false);
+                      });
+                  } else {
+                    // TODO: this case should not happen
+                  }
+                }}
+              >
+                Provision
+              </EuiButton>,
+              <EuiButton
+                fill={false}
+                disabled={!isSaveable || isLoadingGlobal}
+                isLoading={isSaving}
                 // TODO: if props.isNewWorkflow is true, clear the workflow cache if saving is successful.
                 onClick={() => {
+                  setIsSaving(true);
                   dispatch(removeDirty());
                   if (isFirstSave) {
                     setIsFirstSave(false);
                   }
-                  // Submit the form to bubble up any errors.
-                  // Ideally we handle Promise accept/rejects with submitForm(), but there is
-                  // open issues for that - see https://github.com/jaredpalmer/formik/issues/2057
-                  // The workaround is to additionally execute validateForm() which will return any errors found.
-                  formikProps.submitForm();
-                  formikProps.validateForm().then((validationResults: {}) => {
-                    if (Object.keys(validationResults).length > 0) {
-                      setFormValidOnSubmit(false);
-                    } else {
-                      setFormValidOnSubmit(true);
-                      let curFlowState = reactFlowInstance.toObject() as WorkspaceFlowState;
-                      curFlowState = {
-                        ...curFlowState,
-                        nodes: processNodes(curFlowState.nodes),
-                      };
-                      if (validateWorkspaceFlow(curFlowState)) {
-                        setFlowValidOnSubmit(true);
-                        const updatedWorkflow = {
-                          ...workflow,
-                          ui_metadata: {
-                            ...workflow?.ui_metadata,
-                            workspaceFlow: curFlowState,
-                          },
-                          workflows: toTemplateFlows(
-                            curFlowState,
-                            formikProps.values
-                          ),
-                        } as Workflow;
-                        if (updatedWorkflow.id) {
-                          // TODO: add update workflow API
-                        } else {
-                          dispatch(createWorkflow(updatedWorkflow));
-                        }
+                  validateFormAndFlow(
+                    formikProps,
+                    // The callback fn to run if everything is valid.
+                    (updatedWorkflow) => {
+                      if (updatedWorkflow.id) {
+                        // TODO: add update workflow API
+                        // make sure to set isSaving to false in catch block
                       } else {
-                        setFlowValidOnSubmit(false);
+                        dispatch(createWorkflow(updatedWorkflow))
+                          .unwrap()
+                          .then((result) => {
+                            const { workflow } = result;
+                            history.replace(`/workflows/${workflow.id}`);
+                            history.go(0);
+                          })
+                          .catch((error: any) => {
+                            // TODO: process error (toast msg?)
+                            console.log('error: ', error);
+                            setIsSaving(false);
+                          });
                       }
                     }
-                  });
+                  );
                 }}
               >
-                Save
+                {props.isNewWorkflow || isCreating ? 'Create' : 'Save'}
               </EuiButton>,
             ]}
             bottomBorder={false}
@@ -343,7 +446,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   </EuiResizablePanel>
                   <EuiResizableButton />
                   <EuiResizablePanel
-                    className="workspace-panel"
                     style={{ marginRight: '-16px' }}
                     id={COMPONENT_DETAILS_PANEL_ID}
                     mode="collapsible"
@@ -352,10 +454,18 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     paddingSize="s"
                     onToggleCollapsedInternal={() => onToggleChange()}
                   >
-                    <ComponentDetails
-                      selectedComponent={selectedComponent}
-                      onFormChange={onFormChange}
-                    />
+                    <EuiFlexGroup
+                      direction="column"
+                      gutterSize="s"
+                      className="workspace-panel"
+                    >
+                      <EuiFlexItem>
+                        <ComponentDetails
+                          selectedComponent={selectedComponent}
+                          onFormChange={onFormChange}
+                        />
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
                   </EuiResizablePanel>
                 </>
               );

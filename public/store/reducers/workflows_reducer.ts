@@ -16,13 +16,15 @@ const initialState = {
 };
 
 const WORKFLOWS_ACTION_PREFIX = 'workflows';
-const GET_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/getWorkflow`;
-const SEARCH_WORKFLOWS_ACTION = `${WORKFLOWS_ACTION_PREFIX}/searchWorkflows`;
-const GET_WORKFLOW_STATE_ACTION = `${WORKFLOWS_ACTION_PREFIX}/getWorkflowState`;
-const CREATE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/createWorkflow`;
-const DELETE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/deleteWorkflow`;
-const CACHE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/cacheWorkflow`;
-const CLEAR_CACHED_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/clearCachedWorkflow`;
+const GET_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/get`;
+const SEARCH_WORKFLOWS_ACTION = `${WORKFLOWS_ACTION_PREFIX}/search`;
+const GET_WORKFLOW_STATE_ACTION = `${WORKFLOWS_ACTION_PREFIX}/getState`;
+const CREATE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/create`;
+const PROVISION_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/provision`;
+const DEPROVISION_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/deprovision`;
+const DELETE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/delete`;
+const CACHE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/cache`;
+const CLEAR_CACHED_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/clearCache`;
 
 export const getWorkflow = createAsyncThunk(
   GET_WORKFLOW_ACTION,
@@ -77,13 +79,44 @@ export const createWorkflow = createAsyncThunk(
   async (workflowBody: {}, { rejectWithValue }) => {
     const response:
       | any
-      | HttpFetchError = await getRouteService().createWorkflow(
-      workflowBody,
-      false
-    );
+      | HttpFetchError = await getRouteService().createWorkflow(workflowBody);
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
         'Error creating workflow: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
+  }
+);
+
+export const provisionWorkflow = createAsyncThunk(
+  PROVISION_WORKFLOW_ACTION,
+  async (workflowId: string, { rejectWithValue }) => {
+    const response:
+      | any
+      | HttpFetchError = await getRouteService().provisionWorkflow(workflowId);
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error provisioning workflow: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
+  }
+);
+
+export const deprovisionWorkflow = createAsyncThunk(
+  DEPROVISION_WORKFLOW_ACTION,
+  async (workflowId: string, { rejectWithValue }) => {
+    const response:
+      | any
+      | HttpFetchError = await getRouteService().deprovisionWorkflow(
+      workflowId
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error deprovisioning workflow: ' + response.body.message
       );
     } else {
       return response;
@@ -140,6 +173,14 @@ const workflowsSlice = createSlice({
         state.loading = true;
         state.errorMessage = '';
       })
+      .addCase(provisionWorkflow.pending, (state, action) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
+      .addCase(deprovisionWorkflow.pending, (state, action) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
       .addCase(deleteWorkflow.pending, (state, action) => {
         state.loading = true;
         state.errorMessage = '';
@@ -167,22 +208,31 @@ const workflowsSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(getWorkflowState.fulfilled, (state, action) => {
-        // TODO: add logic to mutate state
-        // const workflow = action.payload;
-        // state.workflows = {
-        //   ...state.workflows,
-        //   [workflow.id]: workflow,
-        // };
+        const { workflowId, workflowState } = action.payload;
+        state.workflows = {
+          ...state.workflows,
+          [workflowId]: {
+            ...state.workflows[workflowId],
+            state: workflowState,
+          },
+        };
         state.loading = false;
         state.errorMessage = '';
       })
       .addCase(createWorkflow.fulfilled, (state, action) => {
-        // TODO: add logic to mutate state
-        // const workflow = action.payload;
-        // state.workflows = {
-        //   ...state.workflows,
-        //   [workflow.id]: workflow,
-        // };
+        const workflow = action.payload;
+        state.workflows = {
+          ...state.workflows,
+          [workflow.id]: workflow,
+        };
+        state.loading = false;
+        state.errorMessage = '';
+      })
+      .addCase(provisionWorkflow.fulfilled, (state, action) => {
+        state.loading = false;
+        state.errorMessage = '';
+      })
+      .addCase(deprovisionWorkflow.fulfilled, (state, action) => {
         state.loading = false;
         state.errorMessage = '';
       })
@@ -213,6 +263,14 @@ const workflowsSlice = createSlice({
         state.loading = false;
       })
       .addCase(createWorkflow.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(provisionWorkflow.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(deprovisionWorkflow.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       })
