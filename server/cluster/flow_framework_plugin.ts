@@ -67,15 +67,35 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
 
   flowFramework.createWorkflow = ca({
     url: {
-      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}?provision=<%=provision%>`,
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}?provision=false`,
+    },
+    needBody: true,
+    method: 'POST',
+  });
+
+  flowFramework.provisionWorkflow = ca({
+    url: {
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>/_provision`,
       req: {
-        provision: {
-          type: 'boolean',
+        workflow_id: {
+          type: 'string',
           required: true,
         },
       },
     },
-    needBody: true,
+    method: 'POST',
+  });
+
+  flowFramework.deprovisionWorkflow = ca({
+    url: {
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>/_deprovision`,
+      req: {
+        workflow_id: {
+          type: 'string',
+          required: true,
+        },
+      },
+    },
     method: 'POST',
   });
 

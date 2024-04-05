@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { configureStore } from '@reduxjs/toolkit';
-import { combineReducers } from 'redux';
+import { ThunkDispatch, configureStore } from '@reduxjs/toolkit';
+import { AnyAction, combineReducers } from 'redux';
+import { useDispatch } from 'react-redux';
 import {
   workspaceReducer,
   opensearchReducer,
@@ -26,3 +27,5 @@ export const store = configureStore({
 });
 
 export type AppState = ReturnType<typeof rootReducer>;
+export type AppThunkDispatch = ThunkDispatch<AppState, any, AnyAction>;
+export const useAppDispatch = () => useDispatch<AppThunkDispatch>();

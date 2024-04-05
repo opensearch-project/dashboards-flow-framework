@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { debounce } from 'lodash';
 import {
   EuiInMemoryTable,
@@ -15,7 +15,7 @@ import {
   EuiFieldSearch,
   EuiLoadingSpinner,
 } from '@elastic/eui';
-import { AppState, deleteWorkflow } from '../../../store';
+import { AppState, deleteWorkflow, useAppDispatch } from '../../../store';
 import { Workflow } from '../../../../common';
 import { columns } from './columns';
 import {
@@ -37,7 +37,7 @@ const sorting = {
  * The searchable list of created workflows.
  */
 export function WorkflowList(props: WorkflowListProps) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
@@ -91,14 +91,14 @@ export function WorkflowList(props: WorkflowListProps) {
 
   return (
     <>
-      {isDeleteModalOpen && workflowToDelete !== undefined && (
+      {isDeleteModalOpen && workflowToDelete?.id !== undefined && (
         <DeleteWorkflowModal
           workflow={workflowToDelete}
           onClose={() => {
             clearDeleteState();
           }}
           onConfirm={() => {
-            dispatch(deleteWorkflow(workflowToDelete.id));
+            dispatch(deleteWorkflow(workflowToDelete.id as string));
             clearDeleteState();
           }}
         />
