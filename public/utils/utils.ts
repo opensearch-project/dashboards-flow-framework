@@ -15,6 +15,7 @@ import {
   IComponentField,
   WorkspaceFormValues,
   WORKFLOW_STATE,
+  ReactFlowComponent,
 } from '../../common';
 
 // Append 16 random characters
@@ -48,18 +49,27 @@ export function initComponentData(
 export function componentDataToFormik(data: IComponentData): FormikValues {
   const formikValues = {} as FormikValues;
   data.createFields?.forEach((field) => {
-    formikValues[field.name] = field.value || getInitialValue(field.type);
+    formikValues[field.id] = field.value || getInitialValue(field.type);
   });
   return formikValues;
 }
 
+// TODO: below, we are hardcoding to only persisting and validating create fields.
+// If we support both, we will need to dynamically update.
+// Injecting the current form values into the component data
 export function formikToComponentData(
-  data: IComponentData,
-  values: FormikValues
+  origData: IComponentData,
+  formValues: FormikValues
 ): IComponentData {
-  // TODO: populate data.fields with updated values based on the formik values
-  // We will need this when submitting to the backend.
-  return data;
+  return {
+    ...origData,
+    createFields: origData.createFields?.map(
+      (createField: IComponentField) => ({
+        ...createField,
+        value: formValues[createField.id],
+      })
+    ),
+  } as IComponentData;
 }
 
 // Helper fn to get an initial value based on the field type
@@ -97,6 +107,24 @@ export function getFieldError(
   return errors[componentId]?.[fieldName] as string | undefined;
 }
 
+// Process the raw ReactFlow nodes.
+// De-select them all, and propagate the form data to the internal node data
+export function processNodes(
+  nodes: ReactFlowComponent[],
+  formValues: WorkspaceFormValues
+): ReactFlowComponent[] {
+  return nodes.map((node: ReactFlowComponent) => {
+    return {
+      ...node,
+      selected: false,
+      data: formikToComponentData(
+        { ...node.data, selected: false },
+        formValues[node.id]
+      ),
+    };
+  });
+}
+
 /*
  **************** Yup (validation) utils **********************
  */
@@ -106,7 +134,7 @@ export function getFieldError(
 export function getComponentSchema(data: IComponentData): ObjectSchema<any> {
   const schemaObj = {} as { [key: string]: Schema };
   data.createFields?.forEach((field) => {
-    schemaObj[field.name] = getFieldSchema(field);
+    schemaObj[field.id] = getFieldSchema(field);
   });
   return yup.object(schemaObj);
 }

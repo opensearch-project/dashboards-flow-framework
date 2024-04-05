@@ -1,0 +1,17 @@
+# disable tracking status entirely until UT is added.
+# tracking issue: https://github.com/opensearch-project/dashboards-flow-framework/issues/95 
+coverage:
+  # displays different colors depending on below, between, or above the range
+  range: 50..90
+  status:
+    project:
+      enabled: no
+      default: 
+        target: auto
+        # allows 5% coverage reduction without failing
+        threshold: 5%
+    patch: no
+    changes: no
+
+# disable comments in PRs
+comment: no
