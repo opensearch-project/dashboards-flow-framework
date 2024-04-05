@@ -73,6 +73,20 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
     method: 'POST',
   });
 
+  flowFramework.updateWorkflow = ca({
+    url: {
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>`,
+      req: {
+        workflow_id: {
+          type: 'string',
+          required: true,
+        },
+      },
+    },
+    needBody: true,
+    method: 'PUT',
+  });
+
   flowFramework.provisionWorkflow = ca({
     url: {
       fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>/_provision`,

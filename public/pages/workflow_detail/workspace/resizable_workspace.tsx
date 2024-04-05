@@ -34,7 +34,7 @@ import {
   DEFAULT_NEW_WORKFLOW_DESCRIPTION,
   USE_CASE,
   WORKFLOW_STATE,
-  processNodes,
+  reduceToTemplate,
 } from '../../../../common';
 import {
   AppState,
@@ -44,6 +44,7 @@ import {
   provisionWorkflow,
   removeDirty,
   setDirty,
+  updateWorkflow,
   useAppDispatch,
 } from '../../../store';
 import { Workspace } from './workspace';
@@ -390,8 +391,21 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     // The callback fn to run if everything is valid.
                     (updatedWorkflow) => {
                       if (updatedWorkflow.id) {
-                        // TODO: add update workflow API
-                        // make sure to set isSaving to false in catch block
+                        dispatch(
+                          updateWorkflow({
+                            workflowId: updatedWorkflow.id,
+                            workflowTemplate: reduceToTemplate(updatedWorkflow),
+                          })
+                        )
+                          .unwrap()
+                          .then((result) => {
+                            setIsSaving(false);
+                          })
+                          .catch((error: any) => {
+                            // TODO: process error (toast msg?)
+                            console.log('error: ', error);
+                            setIsSaving(false);
+                          });
                       } else {
                         dispatch(createWorkflow(updatedWorkflow))
                           .unwrap()
