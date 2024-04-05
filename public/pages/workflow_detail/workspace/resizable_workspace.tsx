@@ -34,6 +34,7 @@ import {
   DEFAULT_NEW_WORKFLOW_DESCRIPTION,
   USE_CASE,
   WORKFLOW_STATE,
+  processNodes,
   reduceToTemplate,
 } from '../../../../common';
 import {
@@ -104,16 +105,20 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   >();
 
   // Save/provision/deprovision button state
-  const isSaveable = isFirstSave ? true : isDirty;
+  const isSaveable =
+    props.workflow !== undefined && (isFirstSave ? true : isDirty);
   const isProvisionable =
+    props.workflow !== undefined &&
     !isDirty &&
     !props.isNewWorkflow &&
     formValidOnSubmit &&
     flowValidOnSubmit &&
     props.workflow?.state === WORKFLOW_STATE.NOT_STARTED;
   const isDeprovisionable =
+    props.workflow !== undefined &&
     !props.isNewWorkflow &&
     props.workflow?.state !== WORKFLOW_STATE.NOT_STARTED;
+  const readonly = props.workflow === undefined || isDeprovisionable;
 
   // Loading state
   const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
@@ -377,7 +382,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               </EuiButton>,
               <EuiButton
                 fill={false}
-                disabled={!isSaveable || isLoadingGlobal}
+                disabled={!isSaveable || isLoadingGlobal || isDeprovisionable}
                 isLoading={isSaving}
                 // TODO: if props.isNewWorkflow is true, clear the workflow cache if saving is successful.
                 onClick={() => {
@@ -458,6 +463,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         <Workspace
                           id="ingest"
                           workflow={workflow}
+                          readonly={readonly}
                           onNodesChange={onNodesChange}
                           onSelectionChange={onSelectionChange}
                         />
@@ -481,7 +487,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     >
                       <EuiFlexItem>
                         <ComponentDetails
+                          workflow={props.workflow}
                           selectedComponent={selectedComponent}
+                          isDeprovisionable={isDeprovisionable}
                           onFormChange={onFormChange}
                         />
                       </EuiFlexItem>
