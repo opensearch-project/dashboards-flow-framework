@@ -16,6 +16,8 @@ import {
   WorkspaceFormValues,
   WORKFLOW_STATE,
   ReactFlowComponent,
+  Workflow,
+  WorkflowTemplate,
 } from '../../common';
 
 // Append 16 random characters
@@ -70,6 +72,19 @@ export function formikToComponentData(
       })
     ),
   } as IComponentData;
+}
+
+// Helper fn to remove state-related fields from a workflow and have a stateless template
+// to export and/or pass around, use when updating, etc.
+export function reduceToTemplate(workflow: Workflow): WorkflowTemplate {
+  const {
+    id,
+    lastUpdated,
+    lastLaunched,
+    state,
+    ...workflowTemplate
+  } = workflow;
+  return workflowTemplate;
 }
 
 // Helper fn to get an initial value based on the field type

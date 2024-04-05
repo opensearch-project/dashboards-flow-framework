@@ -15,6 +15,8 @@ import {
   SEARCH_MODELS_NODE_API_PATH,
   PROVISION_WORKFLOW_NODE_API_PATH,
   DEPROVISION_WORKFLOW_NODE_API_PATH,
+  UPDATE_WORKFLOW_NODE_API_PATH,
+  WorkflowTemplate,
 } from '../common';
 
 /**
@@ -28,9 +30,10 @@ export interface RouteService {
   getWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
   searchWorkflows: (body: {}) => Promise<any | HttpFetchError>;
   getWorkflowState: (workflowId: string) => Promise<any | HttpFetchError>;
-  createWorkflow: (
-    body: {},
-    provision?: boolean
+  createWorkflow: (body: {}) => Promise<any | HttpFetchError>;
+  updateWorkflow: (
+    workflowId: string,
+    workflowTemplate: WorkflowTemplate
   ) => Promise<any | HttpFetchError>;
   provisionWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
   deprovisionWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
@@ -81,6 +84,22 @@ export function configureRoutes(core: CoreStart): RouteService {
           CREATE_WORKFLOW_NODE_API_PATH,
           {
             body: JSON.stringify(body),
+          }
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    updateWorkflow: async (
+      workflowId: string,
+      workflowTemplate: WorkflowTemplate
+    ) => {
+      try {
+        const response = await core.http.put<{ respString: string }>(
+          `${UPDATE_WORKFLOW_NODE_API_PATH}/${workflowId}`,
+          {
+            body: JSON.stringify(workflowTemplate),
           }
         );
         return response;
