@@ -12,14 +12,14 @@ import {
   EuiFieldSearch,
   EuiLoadingSpinner,
 } from '@elastic/eui';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { UseCase } from './use_case';
 import {
   DEFAULT_NEW_WORKFLOW_NAME,
   START_FROM_SCRATCH_WORKFLOW_NAME,
   Workflow,
 } from '../../../../common';
-import { AppState, cacheWorkflow } from '../../../store';
+import { AppState, cacheWorkflow, useAppDispatch } from '../../../store';
 import { getWorkflowPresets } from '../../../store/reducers';
 
 interface NewWorkflowProps {}
@@ -30,7 +30,7 @@ interface NewWorkflowProps {}
  * workflow for users to start with.
  */
 export function NewWorkflow(props: NewWorkflowProps) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { presetWorkflows, loading } = useSelector(
     (state: AppState) => state.presets
   );

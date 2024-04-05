@@ -16,14 +16,22 @@ import {
 import {
   CREATE_WORKFLOW_NODE_API_PATH,
   DELETE_WORKFLOW_NODE_API_PATH,
+  DEPROVISION_WORKFLOW_NODE_API_PATH,
   GET_PRESET_WORKFLOWS_NODE_API_PATH,
   GET_WORKFLOW_NODE_API_PATH,
   GET_WORKFLOW_STATE_NODE_API_PATH,
+  PROVISION_WORKFLOW_NODE_API_PATH,
   SEARCH_WORKFLOWS_NODE_API_PATH,
+  WORKFLOW_STATE,
+  Workflow,
   WorkflowTemplate,
   validateWorkflowTemplate,
 } from '../../common';
-import { generateCustomError, getWorkflowsFromResponses } from './helpers';
+import {
+  generateCustomError,
+  getWorkflowStateFromResponse,
+  getWorkflowsFromResponses,
+} from './helpers';
 
 /**
  * Server-side routes to process flow-framework-related node API calls and execute the
@@ -69,15 +77,36 @@ export function registerFlowFrameworkRoutes(
 
   router.post(
     {
-      path: `${CREATE_WORKFLOW_NODE_API_PATH}/{provision}`,
+      path: CREATE_WORKFLOW_NODE_API_PATH,
       validate: {
         body: schema.any(),
-        params: schema.object({
-          provision: schema.boolean(),
-        }),
       },
     },
     flowFrameworkRoutesService.createWorkflow
+  );
+
+  router.post(
+    {
+      path: `${PROVISION_WORKFLOW_NODE_API_PATH}/{workflow_id}`,
+      validate: {
+        params: schema.object({
+          workflow_id: schema.string(),
+        }),
+      },
+    },
+    flowFrameworkRoutesService.provisionWorkflow
+  );
+
+  router.post(
+    {
+      path: `${DEPROVISION_WORKFLOW_NODE_API_PATH}/{workflow_id}`,
+      validate: {
+        params: schema.object({
+          workflow_id: schema.string(),
+        }),
+      },
+    },
+    flowFrameworkRoutesService.deprovisionWorkflow
   );
 
   router.delete(
@@ -157,7 +186,6 @@ export class FlowFrameworkRoutesService {
     }
   };
 
-  // TODO: test e2e
   getWorkflowState = async (
     context: RequestHandlerContext,
     req: OpenSearchDashboardsRequest,
@@ -168,27 +196,66 @@ export class FlowFrameworkRoutesService {
       const response = await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.getWorkflowState', { workflow_id });
-      console.log('response from get workflow state: ', response);
-      // TODO: format response
-      return res.ok({ body: response });
+      const state = getWorkflowStateFromResponse(
+        response.state as typeof WORKFLOW_STATE
+      );
+      return res.ok({
+        body: { workflowId: workflow_id, workflowState: state },
+      });
     } catch (err: any) {
       return generateCustomError(res, err);
     }
   };
 
-  // TODO: test e2e
   createWorkflow = async (
     context: RequestHandlerContext,
     req: OpenSearchDashboardsRequest,
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
-    const body = req.body;
-    const { provision } = req.params as { provision: boolean };
+    const body = req.body as Workflow;
     try {
       const response = await this.client
         .asScoped(req)
-        .callAsCurrentUser('flowFramework.createWorkflow', { body, provision });
-      return res.ok({ body: { id: response._id } });
+        .callAsCurrentUser('flowFramework.createWorkflow', { body });
+      const workflowWithId = {
+        ...body,
+        id: response.workflow_id,
+      };
+      return res.ok({ body: { workflow: workflowWithId } });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  provisionWorkflow = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { workflow_id } = req.params as { workflow_id: string };
+    try {
+      await this.client
+        .asScoped(req)
+        .callAsCurrentUser('flowFramework.provisionWorkflow', { workflow_id });
+      return res.ok();
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  deprovisionWorkflow = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { workflow_id } = req.params as { workflow_id: string };
+    try {
+      await this.client
+        .asScoped(req)
+        .callAsCurrentUser('flowFramework.deprovisionWorkflow', {
+          workflow_id,
+        });
+      return res.ok();
     } catch (err: any) {
       return generateCustomError(res, err);
     }

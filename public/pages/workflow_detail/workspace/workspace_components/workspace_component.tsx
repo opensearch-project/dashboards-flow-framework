@@ -11,12 +11,11 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { setDirty } from '../../../../store';
+import { setDirty, useAppDispatch } from '../../../../store';
 import { IComponentData } from '../../../../component_types';
 import { InputHandle } from './input_handle';
 import { OutputHandle } from './output_handle';
 import { Edge, useReactFlow } from 'reactflow';
-import { useDispatch } from 'react-redux';
 
 // styling
 import '../../workspace/reactflow-styles.scss';
@@ -31,7 +30,7 @@ interface WorkspaceComponentProps {
  * As users interact with it (input data, add connections), the stored IComponent data will update.
  */
 export function WorkspaceComponent(props: WorkspaceComponentProps) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const component = props.data;
   const reactFlowInstance = useReactFlow();
 
