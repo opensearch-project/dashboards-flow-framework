@@ -19,7 +19,7 @@ export class KnnIndexer extends Indexer {
       // TODO: finalize what to expose / what to have for defaults here
       // {
       //   label: 'K-NN Settings',
-      //   name: 'knnSettings',
+      //   id: 'knnSettings',
       //   type: 'json',
       //   placeholder: 'Enter K-NN settings JSON blob...',
       // },
