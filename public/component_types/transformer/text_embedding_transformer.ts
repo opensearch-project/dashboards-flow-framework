@@ -17,7 +17,7 @@ export class TextEmbeddingTransformer extends MLTransformer {
     this.createFields = [
       {
         label: 'Model ID',
-        name: 'modelId',
+        id: 'modelId',
         type: 'select',
         selectType: 'model',
         helpText: 'The deployed text embedding model to use for embedding.',
@@ -26,7 +26,7 @@ export class TextEmbeddingTransformer extends MLTransformer {
       },
       {
         label: 'Input Field',
-        name: 'inputField',
+        id: 'inputField',
         type: 'string',
         helpText:
           'The name of the field from which to obtain text for generating text embeddings.',
@@ -36,7 +36,7 @@ export class TextEmbeddingTransformer extends MLTransformer {
 
       {
         label: 'Vector Field',
-        name: 'vectorField',
+        id: 'vectorField',
         type: 'string',
         helpText:
           '	The name of the vector field in which to store the generated text embeddings.',

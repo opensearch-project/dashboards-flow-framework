@@ -34,6 +34,7 @@ import {
   DEFAULT_NEW_WORKFLOW_DESCRIPTION,
   USE_CASE,
   WORKFLOW_STATE,
+  processNodes,
 } from '../../../../common';
 import {
   AppState,
@@ -47,7 +48,6 @@ import {
 } from '../../../store';
 import { Workspace } from './workspace';
 import { ComponentDetails } from '../component_details';
-import { processNodes } from '../utils';
 
 // styling
 import './workspace-styles.scss';
@@ -147,30 +147,36 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Metadata fields (name/description/use_case/etc.) may not exist if the user
   // cold reloads the page on a new, unsaved workflow.
   useEffect(() => {
-    let workflowCopy = { ...props.workflow } as Workflow;
-    if (!workflowCopy.ui_metadata || !workflowCopy.ui_metadata.workspaceFlow) {
-      workflowCopy.ui_metadata = {
-        ...(workflowCopy.ui_metadata || {}),
-        workspaceFlow: toWorkspaceFlow(workflowCopy.workflows),
+    if (props.workflow) {
+      let workflowCopy = { ...props.workflow } as Workflow;
+      if (
+        !workflowCopy.ui_metadata ||
+        !workflowCopy.ui_metadata.workspaceFlow
+      ) {
+        workflowCopy.ui_metadata = {
+          ...(workflowCopy.ui_metadata || {}),
+          workspaceFlow: toWorkspaceFlow(workflowCopy.workflows),
+        };
+        console.debug(
+          `There is no saved UI flow for workflow: ${workflowCopy.name}. Generating a default one.`
+        );
+      }
+
+      // TODO: tune some of the defaults, like use_case and version as these will change
+      workflowCopy = {
+        ...workflowCopy,
+        name: workflowCopy.name || DEFAULT_NEW_WORKFLOW_NAME,
+        description:
+          workflowCopy.description || DEFAULT_NEW_WORKFLOW_DESCRIPTION,
+        use_case: workflowCopy.use_case || USE_CASE.PROVISION,
+        version: workflowCopy.version || {
+          template: '1.0.0',
+          compatibility: ['2.12.0', '3.0.0'],
+        },
       };
-      console.debug(
-        `There is no saved UI flow for workflow: ${workflowCopy.name}. Generating a default one.`
-      );
+
+      setWorkflow(workflowCopy);
     }
-
-    // TODO: tune some of the defaults, like use_case and version as these will change
-    workflowCopy = {
-      ...workflowCopy,
-      name: workflowCopy.name || DEFAULT_NEW_WORKFLOW_NAME,
-      description: workflowCopy.description || DEFAULT_NEW_WORKFLOW_DESCRIPTION,
-      use_case: workflowCopy.use_case || USE_CASE.PROVISION,
-      version: workflowCopy.version || {
-        template: '1.0.0',
-        compatibility: ['2.12.0', '3.0.0'],
-      },
-    };
-
-    setWorkflow(workflowCopy);
   }, [props.workflow]);
 
   // Hook to updated the selected ReactFlow component
@@ -260,7 +266,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         let curFlowState = reactFlowInstance.toObject() as WorkspaceFlowState;
         curFlowState = {
           ...curFlowState,
-          nodes: processNodes(curFlowState.nodes),
+          nodes: processNodes(curFlowState.nodes, formikProps.values),
         };
         if (validateWorkspaceFlow(curFlowState)) {
           setFlowValidOnSubmit(true);

@@ -24,7 +24,7 @@ interface TextFieldProps {
  * An input field for a component where users input plaintext
  */
 export function TextField(props: TextFieldProps) {
-  const formField = `${props.componentId}.${props.field.name}`;
+  const formField = `${props.componentId}.${props.field.id}`;
   const { errors, touched } = useFormikContext<WorkspaceFormValues>();
 
   return (
@@ -44,10 +44,10 @@ export function TextField(props: TextFieldProps) {
               ) : undefined
             }
             helpText={props.field.helpText || undefined}
-            error={getFieldError(props.componentId, props.field.name, errors)}
+            error={getFieldError(props.componentId, props.field.id, errors)}
             isInvalid={isFieldInvalid(
               props.componentId,
-              props.field.name,
+              props.field.id,
               errors,
               touched
             )}

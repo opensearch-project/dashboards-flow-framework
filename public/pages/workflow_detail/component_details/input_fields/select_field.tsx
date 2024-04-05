@@ -48,7 +48,7 @@ export function SelectField(props: SelectFieldProps) {
     }
   }, [models]);
 
-  const formField = `${props.componentId}.${props.field.name}`;
+  const formField = `${props.componentId}.${props.field.id}`;
   const { errors, touched } = useFormikContext<WorkspaceFormValues>();
 
   return (
@@ -84,7 +84,7 @@ export function SelectField(props: SelectFieldProps) {
               }}
               isInvalid={isFieldInvalid(
                 props.componentId,
-                props.field.name,
+                props.field.id,
                 errors,
                 touched
               )}

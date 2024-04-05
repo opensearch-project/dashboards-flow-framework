@@ -42,7 +42,7 @@ export interface IComponentInput {
 export interface IComponentField {
   label: string;
   type: FieldType;
-  name: string;
+  id: string;
   value?: FieldValue;
   placeholder?: string;
   helpText?: string;
