@@ -38,6 +38,7 @@ import './workspace_edge/deletable-edge-styles.scss';
 
 interface WorkspaceProps {
   workflow?: Workflow;
+  readonly: boolean;
   onNodesChange: (nodes: ReactFlowComponent[]) => void;
   id: string;
   // TODO: make more typesafe
@@ -134,6 +135,14 @@ export function Workspace(props: WorkspaceProps) {
               onConnect={onConnect}
               className="reactflow-workspace"
               fitView
+              edgesUpdatable={!props.readonly}
+              edgesFocusable={!props.readonly}
+              nodesDraggable={!props.readonly}
+              nodesConnectable={!props.readonly}
+              nodesFocusable={!props.readonly}
+              draggable={!props.readonly}
+              panOnDrag={!props.readonly}
+              elementsSelectable={!props.readonly}
             >
               <Controls
                 showFitView={false}

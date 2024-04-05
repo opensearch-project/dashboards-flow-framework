@@ -6,6 +6,7 @@
 import React from 'react';
 import { EuiEmptyPrompt, EuiText } from '@elastic/eui';
 
+// Simple prompt to display when no components are selected.
 export function EmptyComponentInputs() {
   return (
     <EuiEmptyPrompt

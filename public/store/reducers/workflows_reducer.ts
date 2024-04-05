@@ -4,7 +4,7 @@
  */
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { Workflow, WorkflowDict } from '../../../common';
+import { Workflow, WorkflowDict, WorkflowTemplate } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
 
@@ -20,6 +20,7 @@ const GET_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/get`;
 const SEARCH_WORKFLOWS_ACTION = `${WORKFLOWS_ACTION_PREFIX}/search`;
 const GET_WORKFLOW_STATE_ACTION = `${WORKFLOWS_ACTION_PREFIX}/getState`;
 const CREATE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/create`;
+const UPDATE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/update`;
 const PROVISION_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/provision`;
 const DEPROVISION_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/deprovision`;
 const DELETE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/delete`;
@@ -83,6 +84,29 @@ export const createWorkflow = createAsyncThunk(
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
         'Error creating workflow: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
+  }
+);
+
+export const updateWorkflow = createAsyncThunk(
+  UPDATE_WORKFLOW_ACTION,
+  async (
+    workflowInfo: { workflowId: string; workflowTemplate: WorkflowTemplate },
+    { rejectWithValue }
+  ) => {
+    const { workflowId, workflowTemplate } = workflowInfo;
+    const response:
+      | any
+      | HttpFetchError = await getRouteService().updateWorkflow(
+      workflowId,
+      workflowTemplate
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error updating workflow: ' + response.body.message
       );
     } else {
       return response;
@@ -173,6 +197,10 @@ const workflowsSlice = createSlice({
         state.loading = true;
         state.errorMessage = '';
       })
+      .addCase(updateWorkflow.pending, (state, action) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
       .addCase(provisionWorkflow.pending, (state, action) => {
         state.loading = true;
         state.errorMessage = '';
@@ -228,6 +256,22 @@ const workflowsSlice = createSlice({
         state.loading = false;
         state.errorMessage = '';
       })
+      .addCase(updateWorkflow.fulfilled, (state, action) => {
+        const { workflowId, workflowTemplate } = action.payload as {
+          workflowId: string;
+          workflowTemplate: WorkflowTemplate;
+        };
+        state.workflows = {
+          ...state.workflows,
+          [workflowId]: {
+            // only overwrite the stateless / template fields. persist any existing state (e.g., lastUpdated, lastProvisioned)
+            ...state.workflows[workflowId],
+            ...workflowTemplate,
+          },
+        };
+        state.loading = false;
+        state.errorMessage = '';
+      })
       .addCase(provisionWorkflow.fulfilled, (state, action) => {
         state.loading = false;
         state.errorMessage = '';
@@ -263,6 +307,10 @@ const workflowsSlice = createSlice({
         state.loading = false;
       })
       .addCase(createWorkflow.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(updateWorkflow.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       })

@@ -22,6 +22,7 @@ import {
   GET_WORKFLOW_STATE_NODE_API_PATH,
   PROVISION_WORKFLOW_NODE_API_PATH,
   SEARCH_WORKFLOWS_NODE_API_PATH,
+  UPDATE_WORKFLOW_NODE_API_PATH,
   WORKFLOW_STATE,
   Workflow,
   WorkflowTemplate,
@@ -83,6 +84,19 @@ export function registerFlowFrameworkRoutes(
       },
     },
     flowFrameworkRoutesService.createWorkflow
+  );
+
+  router.put(
+    {
+      path: `${UPDATE_WORKFLOW_NODE_API_PATH}/{workflow_id}`,
+      validate: {
+        params: schema.object({
+          workflow_id: schema.string(),
+        }),
+        body: schema.any(),
+      },
+    },
+    flowFrameworkRoutesService.updateWorkflow
   );
 
   router.post(
@@ -222,6 +236,28 @@ export class FlowFrameworkRoutesService {
         id: response.workflow_id,
       };
       return res.ok({ body: { workflow: workflowWithId } });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  updateWorkflow = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { workflow_id } = req.params as { workflow_id: string };
+    const workflowTemplate = req.body as WorkflowTemplate;
+
+    try {
+      await this.client
+        .asScoped(req)
+        .callAsCurrentUser('flowFramework.updateWorkflow', {
+          workflow_id,
+          body: workflowTemplate,
+        });
+
+      return res.ok({ body: { workflowId: workflow_id, workflowTemplate } });
     } catch (err: any) {
       return generateCustomError(res, err);
     }
