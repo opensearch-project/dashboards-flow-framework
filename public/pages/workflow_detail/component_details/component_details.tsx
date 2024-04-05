@@ -5,15 +5,18 @@
 
 import React from 'react';
 import { EuiPanel } from '@elastic/eui';
-import { ReactFlowComponent } from '../../../../common';
+import { ReactFlowComponent, Workflow } from '../../../../common';
 import { ComponentInputs } from './component_inputs';
 import { EmptyComponentInputs } from './empty_component_inputs';
+import { ProvisionedComponentInputs } from './provisioned_component_inputs';
 
 // styling
 import '../workspace/workspace-styles.scss';
 
 interface ComponentDetailsProps {
+  workflow: Workflow | undefined;
   onFormChange: () => void;
+  isDeprovisionable: boolean;
   selectedComponent?: ReactFlowComponent;
 }
 
@@ -25,14 +28,16 @@ interface ComponentDetailsProps {
 export function ComponentDetails(props: ComponentDetailsProps) {
   return (
     <EuiPanel paddingSize="m">
-      {props.selectedComponent ? (
+      {props.isDeprovisionable ? (
+        <ProvisionedComponentInputs />
+      ) : props.selectedComponent ? (
         <ComponentInputs
           selectedComponent={props.selectedComponent}
           onFormChange={props.onFormChange}
         />
-      ) : (
+      ) : props.workflow ? (
         <EmptyComponentInputs />
-      )}
+      ) : undefined}
     </EuiPanel>
   );
 }
