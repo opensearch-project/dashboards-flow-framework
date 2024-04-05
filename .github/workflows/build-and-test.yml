@@ -45,8 +45,6 @@ jobs:
           su `id -un 1000` -c "source $NVM_DIR/nvm.sh && nvm use && node -v && yarn -v &&
                                cd ./plugins/dashboards-flow-framework &&
                                whoami && yarn osd bootstrap && yarn build && yarn run test:jest --coverage"
-      - name: Uploads coverage
-        uses: codecov/codecov-action@v1
 
   # TODO: once github actions supports windows and macos docker containers, we can
   # merge these in to the above step's matrix, including adding windows support
@@ -98,6 +96,4 @@ jobs:
         run: |
           cd OpenSearch-Dashboards/plugins/dashboards-flow-framework
           yarn run test:jest --coverage
-      - name: Uploads coverage
-        uses: codecov/codecov-action@v1
 

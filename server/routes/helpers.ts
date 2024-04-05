@@ -37,6 +37,7 @@ function toWorkflowObj(workflowHit: any): Workflow {
     description: hitSource.description || '',
     version: hitSource.version,
     workflows: hitSource.workflows,
+    ui_metadata: hitSource.ui_metadata,
     lastUpdated: hitSource.last_updated_time,
     lastLaunched: hitSource.last_provisioned_time,
   } as Workflow;

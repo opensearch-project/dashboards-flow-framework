@@ -31,19 +31,19 @@ export class Indexer extends BaseComponent {
     this.fields = [
       {
         label: 'Index Name',
-        name: 'indexName',
+        id: 'indexName',
         type: 'select',
       },
     ];
     this.createFields = [
       {
         label: 'Index Name',
-        name: 'indexName',
+        id: 'indexName',
         type: 'string',
       },
       // {
       //   label: 'Mappings',
-      //   name: 'indexMappings',
+      //   id: 'indexMappings',
       //   type: 'json',
       //   placeholder: 'Enter an index mappings JSON blob...',
       // },

@@ -13,7 +13,6 @@
     "osd": "../../scripts/use_node ../../scripts/osd",
     "opensearch": "../../scripts/use_node ../../scripts/opensearch",
     "lint:es": "../../scripts/use_node ../../scripts/eslint -c eslintrc.json",
-    "lint:es:precommit": "yarn lint:es common/* public/* server/*",
     "test:jest": "../../node_modules/.bin/jest --config ./test/jest.config.js",
     "build": "yarn plugin-helpers build && echo Renaming artifact to $npm_package_config_plugin_zip_name-$npm_package_config_plugin_version.zip && mv ./build/$npm_package_config_plugin_name*.zip ./build/$npm_package_config_plugin_zip_name-$npm_package_config_plugin_version.zip"
   },
@@ -21,9 +20,6 @@
     "type": "git",
     "url": "https://github.com/opensearch-project/dashboards-flow-framework.git"
   },
-  "pre-commit": [
-    "lint:es:precommit"
-  ],
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,css,md}": [
       "prettier --write",
@@ -35,8 +31,6 @@
     "reactflow": "^11.8.3",
     "yup": "^1.3.2"
   },
-  "devDependencies": {
-    "pre-commit": "^1.2.2"
-  },
+  "devDependencies": {},
   "resolutions": {}
 }
