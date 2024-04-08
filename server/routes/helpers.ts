@@ -5,6 +5,7 @@
 
 import {
   DEFAULT_NEW_WORKFLOW_STATE_TYPE,
+  INDEX_NOT_FOUND_EXCEPTION,
   Model,
   ModelDict,
   WORKFLOW_STATE,
@@ -24,6 +25,11 @@ export function generateCustomError(res: any, err: any) {
       },
     },
   });
+}
+
+// Helper fn to filter out backend errors that we don't want to propagate on the frontend.
+export function isIgnorableError(error: any): boolean {
+  return error.body?.error?.type === INDEX_NOT_FOUND_EXCEPTION;
 }
 
 function toWorkflowObj(workflowHit: any): Workflow {

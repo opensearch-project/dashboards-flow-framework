@@ -64,3 +64,4 @@ export const FETCH_ALL_QUERY_BODY = {
   },
   size: 1000,
 };
+export const INDEX_NOT_FOUND_EXCEPTION = 'index_not_found_exception';
