@@ -25,6 +25,7 @@ import {
   UPDATE_WORKFLOW_NODE_API_PATH,
   WORKFLOW_STATE,
   Workflow,
+  WorkflowDict,
   WorkflowTemplate,
   validateWorkflowTemplate,
 } from '../../common';
@@ -32,6 +33,7 @@ import {
   generateCustomError,
   getWorkflowStateFromResponse,
   getWorkflowsFromResponses,
+  isIgnorableError,
 } from './helpers';
 
 /**
@@ -196,6 +198,9 @@ export class FlowFrameworkRoutesService {
       );
       return res.ok({ body: { workflows: workflowDict } });
     } catch (err: any) {
+      if (isIgnorableError(err)) {
+        return res.ok({ body: { workflows: {} as WorkflowDict } });
+      }
       return generateCustomError(res, err);
     }
   };
