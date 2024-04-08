@@ -7,7 +7,6 @@ import React from 'react';
 import {
   EuiPageHeader,
   EuiButton,
-  EuiLoadingSpinner,
   EuiFlexGroup,
   EuiFlexItem,
   EuiText,
@@ -26,13 +25,11 @@ interface WorkflowDetailHeaderProps {
 
 export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
   function getTitle() {
-    return props.workflow ? (
-      props.workflow.name
-    ) : props.isNewWorkflow && !props.workflow ? (
-      DEFAULT_NEW_WORKFLOW_NAME
-    ) : (
-      <EuiLoadingSpinner size="xl" />
-    );
+    return props.workflow
+      ? props.workflow.name
+      : props.isNewWorkflow && !props.workflow
+      ? DEFAULT_NEW_WORKFLOW_NAME
+      : '';
   }
 
   function getState() {

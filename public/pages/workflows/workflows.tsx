@@ -50,7 +50,7 @@ function replaceActiveTab(activeTab: string, props: WorkflowsProps) {
  */
 export function Workflows(props: WorkflowsProps) {
   const dispatch = useAppDispatch();
-  const { workflows, loading } = useSelector(
+  const { workflows, loading, errorMessage } = useSelector(
     (state: AppState) => state.workflows
   );
 
@@ -83,6 +83,14 @@ export function Workflows(props: WorkflowsProps) {
       BREADCRUMBS.WORKFLOWS,
     ]);
   });
+
+  // Show a toast if an error message exists in state
+  useEffect(() => {
+    if (errorMessage) {
+      console.error(errorMessage);
+      getCore().notifications.toasts.addDanger(errorMessage);
+    }
+  }, [errorMessage]);
 
   // On initial render: fetch all workflows
   useEffect(() => {

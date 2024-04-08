@@ -57,12 +57,10 @@ export function TextField(props: TextFieldProps) {
               placeholder={props.field.placeholder || ''}
               compressed={false}
               value={field.value || getInitialValue(props.field.type)}
-              onChange={(e) => form.setFieldValue(formField, e.target.value)}
-              // This is a design decision to only trigger form updates onBlur() instead
-              // of onChange(). This is to rate limit the number of updates & re-renders made, as users
-              // typically rapidly type things into a text box, which would consequently trigger
-              // onChange() much more often.
-              onBlur={() => props.onFormChange()}
+              onChange={(e) => {
+                form.setFieldValue(formField, e.target.value);
+                props.onFormChange();
+              }}
             />
           </EuiFormRow>
         );
