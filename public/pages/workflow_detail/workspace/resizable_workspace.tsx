@@ -343,8 +343,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         setIsDeprovisioning(false);
                       })
                       .catch((error: any) => {
-                        // TODO: process error (toast msg?)
-                        console.log('error: ', error);
                         setIsDeprovisioning(false);
                       });
                   } else {
@@ -369,8 +367,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         setIsProvisioning(false);
                       })
                       .catch((error: any) => {
-                        // TODO: process error (toast msg?)
-                        console.log('error: ', error);
                         setIsProvisioning(false);
                       });
                   } else {
@@ -407,8 +403,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                             setIsSaving(false);
                           })
                           .catch((error: any) => {
-                            // TODO: process error (toast msg?)
-                            console.log('error: ', error);
                             setIsSaving(false);
                           });
                       } else {
@@ -420,8 +414,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                             history.go(0);
                           })
                           .catch((error: any) => {
-                            // TODO: process error (toast msg?)
-                            console.log('error: ', error);
                             setIsSaving(false);
                           });
                       }
