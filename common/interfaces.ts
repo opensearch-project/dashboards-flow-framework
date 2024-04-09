@@ -88,7 +88,7 @@ export type CreateIndexNode = TemplateNode & {
 
 export type TemplateEdge = {
   source: string;
-  target: string;
+  dest: string;
 };
 
 export type TemplateFlow = {
