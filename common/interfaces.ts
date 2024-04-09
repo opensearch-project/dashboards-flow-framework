@@ -63,9 +63,9 @@ export type TemplateNode = {
 export type CreateIngestPipelineNode = TemplateNode & {
   user_inputs: {
     pipeline_id: string;
-    model_id: string;
-    input_field: string;
-    output_field: string;
+    model_id?: string;
+    input_field?: string;
+    output_field?: string;
     configurations: {
       description?: string;
       processors: IngestProcessor[];
@@ -74,7 +74,7 @@ export type CreateIngestPipelineNode = TemplateNode & {
 };
 
 export type CreateIndexNode = TemplateNode & {
-  previous_node_inputs: {
+  previous_node_inputs?: {
     [ingest_pipeline_step_id: string]: string;
   };
   user_inputs: {
