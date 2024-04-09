@@ -42,11 +42,48 @@ export type WorkspaceFlowState = {
  ********** USE CASE TEMPLATE TYPES/INTERFACES **********
  */
 
+export type IngestProcessor = {
+  description?: string;
+};
+
+export type TextEmbeddingProcessor = IngestProcessor & {
+  text_embedding: {
+    model_id: string;
+    field_map: {};
+  };
+};
+
 export type TemplateNode = {
   id: string;
   type: string;
-  previous_node_inputs?: Map<string, any>;
-  user_inputs?: Map<string, any>;
+  previous_node_inputs?: {};
+  user_inputs?: {};
+};
+
+export type CreateIngestPipelineNode = TemplateNode & {
+  user_inputs: {
+    pipeline_id: string;
+    model_id: string;
+    input_field: string;
+    output_field: string;
+    configurations: {
+      description?: string;
+      processors: IngestProcessor[];
+    };
+  };
+};
+
+export type CreateIndexNode = TemplateNode & {
+  previous_node_inputs: {
+    [ingest_pipeline_step_id: string]: string;
+  };
+  user_inputs: {
+    index_name: string;
+    configurations: {
+      settings: {};
+      mappings: {};
+    };
+  };
 };
 
 export type TemplateEdge = {
@@ -55,8 +92,6 @@ export type TemplateEdge = {
 };
 
 export type TemplateFlow = {
-  user_inputs?: Map<string, any>;
-  previous_node_inputs?: Map<string, any>;
   nodes: TemplateNode[];
   edges?: TemplateEdge[];
 };

@@ -26,10 +26,7 @@ import {
   WorkspaceSchemaObj,
   componentDataToFormik,
   getComponentSchema,
-  toWorkspaceFlow,
-  validateWorkspaceFlow,
   WorkspaceFlowState,
-  toTemplateFlows,
   DEFAULT_NEW_WORKFLOW_NAME,
   DEFAULT_NEW_WORKFLOW_DESCRIPTION,
   USE_CASE,
@@ -37,6 +34,11 @@ import {
   processNodes,
   reduceToTemplate,
 } from '../../../../common';
+import {
+  toWorkspaceFlow,
+  validateWorkspaceFlow,
+  toTemplateFlows,
+} from '../utils';
 import {
   AppState,
   createWorkflow,
