@@ -4,14 +4,14 @@
  */
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { Workflow } from '../../../common';
+import { WorkflowTemplate } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
 
 const initialState = {
   loading: false,
   errorMessage: '',
-  presetWorkflows: [] as Workflow[],
+  presetWorkflows: [] as Partial<WorkflowTemplate>[],
 };
 
 const PRESET_ACTION_PREFIX = 'presets';
@@ -44,7 +44,9 @@ const presetsSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(getWorkflowPresets.fulfilled, (state, action) => {
-        state.presetWorkflows = action.payload.workflowTemplates;
+        state.presetWorkflows = action.payload.workflowTemplates as Partial<
+          WorkflowTemplate
+        >[];
         state.loading = false;
         state.errorMessage = '';
       })
