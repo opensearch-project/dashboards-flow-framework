@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { COMPONENT_CLASS } from '../../../common';
 import { Indexer } from './indexer';
 
 /**
@@ -11,8 +12,10 @@ import { Indexer } from './indexer';
 export class KnnIndexer extends Indexer {
   constructor() {
     super();
+    this.type = COMPONENT_CLASS.KNN_INDEXER;
     this.label = 'K-NN Indexer';
     this.description = 'A specialized indexer for K-NN indices';
+    this.baseClasses = [...this.baseClasses, this.type];
     this.createFields = [
       // @ts-ignore
       ...this.createFields,

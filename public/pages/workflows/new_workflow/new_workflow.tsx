@@ -14,13 +14,17 @@ import {
 } from '@elastic/eui';
 import { useSelector } from 'react-redux';
 import { UseCase } from './use_case';
+import { Workflow, WorkflowTemplate } from '../../../../common';
 import {
-  DEFAULT_NEW_WORKFLOW_NAME,
-  START_FROM_SCRATCH_WORKFLOW_NAME,
-  Workflow,
-} from '../../../../common';
-import { AppState, cacheWorkflow, useAppDispatch } from '../../../store';
-import { getWorkflowPresets } from '../../../store/reducers';
+  AppState,
+  cacheWorkflow,
+  useAppDispatch,
+  getWorkflowPresets,
+} from '../../../store';
+import {
+  enrichPresetWorkflowWithUiMetadata,
+  processWorkflowName,
+} from './utils';
 
 interface NewWorkflowProps {}
 
@@ -31,10 +35,15 @@ interface NewWorkflowProps {}
  */
 export function NewWorkflow(props: NewWorkflowProps) {
   const dispatch = useAppDispatch();
+
+  // workflows state
   const { presetWorkflows, loading } = useSelector(
     (state: AppState) => state.presets
   );
-  const [filteredWorkflows, setFilteredWorkflows] = useState<Workflow[]>([]);
+  const [allWorkflows, setAllWorkflows] = useState<WorkflowTemplate[]>([]);
+  const [filteredWorkflows, setFilteredWorkflows] = useState<
+    WorkflowTemplate[]
+  >([]);
 
   // search bar state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -47,13 +56,26 @@ export function NewWorkflow(props: NewWorkflowProps) {
     dispatch(getWorkflowPresets());
   }, []);
 
+  // initial hook to populate all workflows
+  // enrich them with dynamically-generated UI flows based on use case
   useEffect(() => {
-    setFilteredWorkflows(presetWorkflows);
+    if (presetWorkflows) {
+      setAllWorkflows(
+        presetWorkflows.map((presetWorkflow) =>
+          enrichPresetWorkflowWithUiMetadata(presetWorkflow)
+        )
+      );
+    }
   }, [presetWorkflows]);
+
+  // initial hook to populate filtered workflows
+  useEffect(() => {
+    setFilteredWorkflows(allWorkflows);
+  }, [allWorkflows]);
 
   // When search query updated, re-filter preset list
   useEffect(() => {
-    setFilteredWorkflows(fetchFilteredWorkflows(presetWorkflows, searchQuery));
+    setFilteredWorkflows(fetchFilteredWorkflows(allWorkflows, searchQuery));
   }, [searchQuery]);
 
   return (
@@ -105,21 +127,4 @@ function fetchFilteredWorkflows(
     : allWorkflows.filter((workflow) =>
         workflow.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-}
-
-// Utility fn to process workflow names from their presentable/readable titles
-// on the UI, to a valid name format.
-// This leads to less friction if users decide to save the name later on.
-function processWorkflowName(workflowName: string): string {
-  return workflowName === START_FROM_SCRATCH_WORKFLOW_NAME
-    ? DEFAULT_NEW_WORKFLOW_NAME
-    : toSnakeCase(workflowName);
-}
-
-function toSnakeCase(text: string): string {
-  return text
-    .replace(/\W+/g, ' ')
-    .split(/ |\B(?=[A-Z])/)
-    .map((word) => word.toLowerCase())
-    .join('_');
 }

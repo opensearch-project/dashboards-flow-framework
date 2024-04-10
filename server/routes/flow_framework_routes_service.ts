@@ -27,7 +27,6 @@ import {
   Workflow,
   WorkflowDict,
   WorkflowTemplate,
-  validateWorkflowTemplate,
 } from '../../common';
 import {
   generateCustomError,
@@ -330,17 +329,15 @@ export class FlowFrameworkRoutesService {
       const jsonTemplates = fs
         .readdirSync(jsonTemplateDir)
         .filter((file) => path.extname(file) === '.json');
-      const workflowTemplates = [] as WorkflowTemplate[];
+      const workflowTemplates = [] as Partial<WorkflowTemplate>[];
       jsonTemplates.forEach((jsonTemplate) => {
         const templateData = fs.readFileSync(
           path.join(jsonTemplateDir, jsonTemplate)
         );
-        const workflowTemplate = JSON.parse(
-          templateData.toString()
-        ) as WorkflowTemplate;
-        if (validateWorkflowTemplate(workflowTemplate)) {
-          workflowTemplates.push(workflowTemplate);
-        }
+        const workflowTemplate = JSON.parse(templateData.toString()) as Partial<
+          WorkflowTemplate
+        >;
+        workflowTemplates.push(workflowTemplate);
       });
 
       return res.ok({ body: { workflowTemplates } });
