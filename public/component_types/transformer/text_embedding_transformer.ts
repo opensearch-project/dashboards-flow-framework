@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { COMPONENT_CLASS } from '../../../common';
 import { MLTransformer } from '.';
 
 /**
@@ -11,8 +12,10 @@ import { MLTransformer } from '.';
 export class TextEmbeddingTransformer extends MLTransformer {
   constructor() {
     super();
+    this.type = COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER;
     this.label = 'Text Embedding Transformer';
     this.description = 'A specialized ML transformer for embedding text';
+    this.baseClasses = [...this.baseClasses, this.type];
     this.inputs = [];
     this.createFields = [
       {

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { WORKFLOW_STATE } from './interfaces';
+import { TemplateNode, WORKFLOW_STATE } from './interfaces';
 
 export const PLUGIN_ID = 'flow-framework';
 
@@ -46,6 +46,12 @@ export const GET_PRESET_WORKFLOWS_NODE_API_PATH = `${BASE_WORKFLOW_NODE_API_PATH
 // ML Plugin node APIs
 export const BASE_MODEL_NODE_API_PATH = `${BASE_NODE_API_PATH}/model`;
 export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
+
+/**
+ * BACKEND INTERFACES
+ */
+export const CREATE_INGEST_PIPELINE_STEP_TYPE = 'create_ingest_pipeline';
+export const CREATE_INDEX_STEP_TYPE = 'create_index';
 
 /**
  * MISCELLANEOUS
