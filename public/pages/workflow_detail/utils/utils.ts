@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { WorkspaceFlowState, WorkflowTemplate } from '../../../../common';
+import { WorkspaceFlowState } from '../../../../common';
 
 // TODO: implement this
 /**
@@ -13,17 +13,6 @@ import { WorkspaceFlowState, WorkflowTemplate } from '../../../../common';
  */
 export function validateWorkspaceFlow(
   workspaceFlow: WorkspaceFlowState
-): boolean {
-  return true;
-}
-
-// TODO: implement this
-/**
- * Validates the backend template. May be used when parsing persisted templates on server-side,
- * or when importing/exporting on the UI.
- */
-export function validateWorkflowTemplate(
-  workflowTemplate: WorkflowTemplate
 ): boolean {
   return true;
 }

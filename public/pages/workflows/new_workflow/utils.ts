@@ -12,21 +12,53 @@ import {
   KnnIndexer,
   generateId,
   ReactFlowEdge,
-  TemplateFlows,
   COMPONENT_CATEGORY,
   NODE_CATEGORY,
+  USE_CASE,
+  WorkflowTemplate,
+  COMPONENT_CLASS,
+  START_FROM_SCRATCH_WORKFLOW_NAME,
+  DEFAULT_NEW_WORKFLOW_NAME,
 } from '../../../../common';
 
-// TODO: implement this and remove hardcoded return values
-/**
- * Converts a backend set of provision/ingest/search sub-workflows into a UI-compatible set of
- * ReactFlow nodes and edges
- */
-export function toWorkspaceFlow(
-  templateFlows: TemplateFlows
-): WorkspaceFlowState {
-  const ingestId1 = generateId('text_embedding_processor');
-  const ingestId2 = generateId('knn_index');
+// Fn to produce the complete preset template with all necessary UI metadata.
+// Some UI metadata we want to generate on-the-fly using our component classes we have on client-side.
+// Thus, we only persist a minimal subset of a full template on server-side. We generate
+// the rest dynamically based on the set of supported preset use cases.
+export function enrichPresetWorkflowWithUiMetadata(
+  presetWorkflow: Partial<WorkflowTemplate>
+): WorkflowTemplate {
+  let workspaceFlowState = {} as WorkspaceFlowState;
+  switch (presetWorkflow.use_case) {
+    case USE_CASE.SEMANTIC_SEARCH: {
+      workspaceFlowState = fetchSemanticSearchWorkspaceFlow();
+      break;
+    }
+    default: {
+      workspaceFlowState = fetchEmptyWorkspaceFlow();
+      break;
+    }
+  }
+
+  return {
+    ...presetWorkflow,
+    ui_metadata: {
+      ...presetWorkflow.ui_metadata,
+      workspace_flow: workspaceFlowState,
+    },
+  } as WorkflowTemplate;
+}
+
+function fetchEmptyWorkspaceFlow(): WorkspaceFlowState {
+  return {
+    nodes: [],
+    edges: [],
+  };
+}
+
+function fetchSemanticSearchWorkspaceFlow(): WorkspaceFlowState {
+  const ingestId1 = generateId(COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER);
+  const ingestId2 = generateId(COMPONENT_CLASS.KNN_INDEXER);
   const ingestGroupId = generateId(COMPONENT_CATEGORY.INGEST);
   const searchGroupId = generateId(COMPONENT_CATEGORY.SEARCH);
   const edgeId = generateId('edge');
@@ -43,6 +75,7 @@ export function toWorkspaceFlow(
       },
       className: 'reactflow__group-node__ingest',
       selectable: true,
+      draggable: false,
       deletable: false,
     },
     {
@@ -55,7 +88,7 @@ export function toWorkspaceFlow(
       type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: true,
+      draggable: false,
       deletable: false,
     },
     {
@@ -65,7 +98,7 @@ export function toWorkspaceFlow(
       type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: true,
+      draggable: false,
       deletable: false,
     },
   ] as ReactFlowComponent[];
@@ -82,6 +115,7 @@ export function toWorkspaceFlow(
       },
       className: 'reactflow__group-node__search',
       selectable: true,
+      draggable: false,
       deletable: false,
     },
   ] as ReactFlowComponent[];
@@ -104,4 +138,21 @@ export function toWorkspaceFlow(
       },
     ] as ReactFlowEdge[],
   };
+}
+
+// Utility fn to process workflow names from their presentable/readable titles
+// on the UI, to a valid name format.
+// This leads to less friction if users decide to save the name later on.
+export function processWorkflowName(workflowName: string): string {
+  return workflowName === START_FROM_SCRATCH_WORKFLOW_NAME
+    ? DEFAULT_NEW_WORKFLOW_NAME
+    : toSnakeCase(workflowName);
+}
+
+function toSnakeCase(text: string): string {
+  return text
+    .replace(/\W+/g, ' ')
+    .split(/ |\B(?=[A-Z])/)
+    .map((word) => word.toLowerCase())
+    .join('_');
 }

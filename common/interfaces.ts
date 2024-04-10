@@ -29,7 +29,7 @@ type ReactFlowViewport = {
 };
 
 export type UIState = {
-  workspaceFlow: WorkspaceFlowState;
+  workspace_flow: WorkspaceFlowState;
 };
 
 export type WorkspaceFlowState = {
@@ -126,7 +126,7 @@ export type Workflow = WorkflowTemplate & {
 };
 
 export enum USE_CASE {
-  PROVISION = 'PROVISION',
+  SEMANTIC_SEARCH = 'SEMANTIC_SEARCH',
 }
 
 /**

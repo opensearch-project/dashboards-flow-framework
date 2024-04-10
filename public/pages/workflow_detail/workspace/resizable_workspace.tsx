@@ -18,6 +18,8 @@ import {
   EuiPageHeader,
   EuiResizableContainer,
 } from '@elastic/eui';
+import { getCore } from '../../../services';
+
 import {
   Workflow,
   WorkspaceFormValues,
@@ -27,18 +29,11 @@ import {
   componentDataToFormik,
   getComponentSchema,
   WorkspaceFlowState,
-  DEFAULT_NEW_WORKFLOW_NAME,
-  DEFAULT_NEW_WORKFLOW_DESCRIPTION,
-  USE_CASE,
   WORKFLOW_STATE,
   processNodes,
   reduceToTemplate,
 } from '../../../../common';
-import {
-  toWorkspaceFlow,
-  validateWorkspaceFlow,
-  toTemplateFlows,
-} from '../utils';
+import { validateWorkspaceFlow, toTemplateFlows } from '../utils';
 import {
   AppState,
   createWorkflow,
@@ -150,40 +145,33 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }
 
-  // Hook to update some default values for the workflow, if applicable. Flow state
-  // may not exist if it is a backend-only-created workflow, or a new, unsaved workflow.
-  // Metadata fields (name/description/use_case/etc.) may not exist if the user
-  // cold reloads the page on a new, unsaved workflow.
+  // Hook to update some default values for the workflow, if applicable.
+  // We need to handle different scenarios:
+  // 1. Rendering backend-only-created workflow / an already-created workflow with no ui_metadata.
+  //    In this case, we revert to the home page with a warn toast that we don't support it, for now.
+  //    This is because we initially have guardrails and a static set of readonly nodes/edges that we handle.
+  // 2. Rendering empty/null workflow, if refreshing the editor page where there is no cached workflow and
+  //    no workflow ID in the URL.
+  //    In this case, revert to home page and a warn toast that we don't support it for now.
+  //    This is because we initially don't support building / drag-and-drop components.
+  // 3. Rendering a cached workflow via navigation from create workflow tab
+  // 4. Rendering a created workflow with ui_metadata.
+  //    In these cases, just render what is persisted, no action needed.
   useEffect(() => {
-    if (props.workflow) {
-      let workflowCopy = { ...props.workflow } as Workflow;
-      if (
-        !workflowCopy.ui_metadata ||
-        !workflowCopy.ui_metadata.workspaceFlow
-      ) {
-        workflowCopy.ui_metadata = {
-          ...(workflowCopy.ui_metadata || {}),
-          workspaceFlow: toWorkspaceFlow(workflowCopy.workflows),
-        };
-        console.debug(
-          `There is no saved UI flow for workflow: ${workflowCopy.name}. Generating a default one.`
+    const missingUiFlow =
+      props.workflow && !props.workflow?.ui_metadata?.workspace_flow;
+    const missingCachedWorkflow = props.isNewWorkflow && !props.workflow;
+    if (missingUiFlow || missingCachedWorkflow) {
+      history.replace('/workflows');
+      if (missingCachedWorkflow) {
+        getCore().notifications.toasts.addWarning('No workflow found');
+      } else {
+        getCore().notifications.toasts.addWarning(
+          `There is no ui_metadata for workflow: ${props.workflow?.name}`
         );
       }
-
-      // TODO: tune some of the defaults, like use_case and version as these will change
-      workflowCopy = {
-        ...workflowCopy,
-        name: workflowCopy.name || DEFAULT_NEW_WORKFLOW_NAME,
-        description:
-          workflowCopy.description || DEFAULT_NEW_WORKFLOW_DESCRIPTION,
-        use_case: workflowCopy.use_case || USE_CASE.PROVISION,
-        version: workflowCopy.version || {
-          template: '1.0.0',
-          compatibility: ['2.12.0', '3.0.0'],
-        },
-      };
-
-      setWorkflow(workflowCopy);
+    } else {
+      setWorkflow(props.workflow);
     }
   }, [props.workflow]);
 
@@ -202,10 +190,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   // Initialize the form state to an existing workflow, if applicable.
   useEffect(() => {
-    if (workflow?.ui_metadata?.workspaceFlow) {
+    if (workflow?.ui_metadata?.workspace_flow) {
       const initFormValues = {} as WorkspaceFormValues;
       const initSchemaObj = {} as WorkspaceSchemaObj;
-      workflow.ui_metadata.workspaceFlow.nodes.forEach((node) => {
+      workflow.ui_metadata.workspace_flow.nodes.forEach((node) => {
         initFormValues[node.id] = componentDataToFormik(node.data);
         initSchemaObj[node.id] = getComponentSchema(node.data);
       });
@@ -282,9 +270,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
             ...workflow,
             ui_metadata: {
               ...workflow?.ui_metadata,
-              workspaceFlow: curFlowState,
+              workspace_flow: curFlowState,
             },
-            workflows: toTemplateFlows(curFlowState, formikProps.values),
+            workflows: toTemplateFlows(curFlowState),
           } as Workflow;
           processWorkflowFn(updatedWorkflow);
         } else {
