@@ -370,7 +370,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   } else {
                     // This case should not happen
                     console.debug(
-                      'Deprovisioning triggered on an invalid workflow. Ignoring.'
+                      'Provisioning triggered on an invalid workflow. Ignoring.'
                     );
                   }
                 }}
