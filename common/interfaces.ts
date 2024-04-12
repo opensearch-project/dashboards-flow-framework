@@ -16,10 +16,6 @@ export type Index = {
  */
 
 export type ReactFlowComponent = Node<IComponentData>;
-
-// TODO: we may not need this re-defined type here at all, if we don't add
-// any special fields/configuration for an edge. Currently this
-// is the same as the default Edge type.
 export type ReactFlowEdge = Edge<{}> & {};
 
 type ReactFlowViewport = {

@@ -33,6 +33,7 @@ import {
   getWorkflowStateFromResponse,
   getWorkflowsFromResponses,
   isIgnorableError,
+  toWorkflowObj,
 } from './helpers';
 
 /**
@@ -152,7 +153,9 @@ export class FlowFrameworkRoutesService {
     this.client = client;
   }
 
-  // TODO: test e2e
+  // TODO: can remove or simplify if we can fetch all data from a single API call. Tracking issue:
+  // https://github.com/opensearch-project/flow-framework/issues/171
+  // Current implementation is making two calls and combining results via helper fn
   getWorkflow = async (
     context: RequestHandlerContext,
     req: OpenSearchDashboardsRequest,
@@ -163,9 +166,19 @@ export class FlowFrameworkRoutesService {
       const response = await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.getWorkflow', { workflow_id });
-      console.log('response from get workflow: ', response);
-      // TODO: format response
-      return res.ok({ body: response });
+      const workflow = toWorkflowObj(response, workflow_id);
+
+      const stateResponse = await this.client
+        .asScoped(req)
+        .callAsCurrentUser('flowFramework.getWorkflowState', { workflow_id });
+      const state = getWorkflowStateFromResponse(
+        stateResponse.state as typeof WORKFLOW_STATE
+      );
+      const workflowWithState = {
+        ...workflow,
+        state,
+      };
+      return res.ok({ body: { workflow: workflowWithState } });
     } catch (err: any) {
       return generateCustomError(res, err);
     }
