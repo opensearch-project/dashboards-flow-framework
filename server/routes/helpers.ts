@@ -32,12 +32,10 @@ export function isIgnorableError(error: any): boolean {
   return error.body?.error?.type === INDEX_NOT_FOUND_EXCEPTION;
 }
 
-function toWorkflowObj(workflowHit: any): Workflow {
-  // TODO: update schema parsing after hit schema has been updated.
-  // https://github.com/opensearch-project/flow-framework/issues/546
-  const hitSource = workflowHit.fields.filter[0];
+// Convert backend workflow into frontend workflow obj
+export function toWorkflowObj(hitSource: any, id: string): Workflow {
   return {
-    id: workflowHit._id,
+    id,
     name: hitSource.name,
     use_case: hitSource.use_case,
     description: hitSource.description || '',
@@ -59,7 +57,10 @@ export function getWorkflowsFromResponses(
 ): WorkflowDict {
   const workflowDict = {} as WorkflowDict;
   workflowHits.forEach((workflowHit: any) => {
-    workflowDict[workflowHit._id] = toWorkflowObj(workflowHit);
+    // TODO: update schema parsing after hit schema has been updated.
+    // https://github.com/opensearch-project/flow-framework/issues/546
+    const hitSource = workflowHit.fields.filter[0];
+    workflowDict[workflowHit._id] = toWorkflowObj(hitSource, workflowHit._id);
     const workflowStateHit = workflowStateHits.find(
       (workflowStateHit) => workflowStateHit._id === workflowHit._id
     );

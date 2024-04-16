@@ -32,6 +32,7 @@ import {
   WORKFLOW_STATE,
   processNodes,
   reduceToTemplate,
+  ReactFlowEdge,
 } from '../../../../common';
 import { validateWorkspaceFlow, toTemplateFlows } from '../utils';
 import {
@@ -133,8 +134,13 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
    * - open the panel if a node is selected and the panel is closed
    * - it is assumed that only one node can be selected at once
    */
-  // TODO: make more typesafe
-  function onSelectionChange({ nodes, edges }) {
+  function onSelectionChange({
+    nodes,
+    edges,
+  }: {
+    nodes: ReactFlowComponent[];
+    edges: ReactFlowEdge[];
+  }) {
     if (nodes && nodes.length > 0) {
       setSelectedComponent(nodes[0]);
       if (!isDetailsPanelOpen) {
@@ -276,7 +282,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           } as Workflow;
           processWorkflowFn(updatedWorkflow);
         } else {
-          // TODO: bubble up flow error?
           setFlowValidOnSubmit(false);
           setIsSaving(false);
         }
@@ -336,7 +341,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         setIsDeprovisioning(false);
                       });
                   } else {
-                    // TODO: this case should not happen
+                    // This case should not happen
+                    console.debug(
+                      'Deprovisioning triggered on an invalid workflow. Ignoring.'
+                    );
                   }
                 }}
               >
@@ -360,7 +368,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         setIsProvisioning(false);
                       });
                   } else {
-                    // TODO: this case should not happen
+                    // This case should not happen
+                    console.debug(
+                      'Provisioning triggered on an invalid workflow. Ignoring.'
+                    );
                   }
                 }}
               >
@@ -370,7 +381,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 fill={false}
                 disabled={!isSaveable || isLoadingGlobal || isDeprovisionable}
                 isLoading={isSaving}
-                // TODO: if props.isNewWorkflow is true, clear the workflow cache if saving is successful.
                 onClick={() => {
                   setIsSaving(true);
                   dispatch(removeDirty());
