@@ -62,7 +62,7 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
             <Workflows {...routeProps} />
           )}
         />
-        {/* Defaulting to Workflow Management page */}
+        {/* Defaulting to Workflows page */}
         <Route
           path={`${APP_PATH.HOME}`}
           render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => (

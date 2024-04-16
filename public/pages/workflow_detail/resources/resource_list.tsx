@@ -21,9 +21,7 @@ interface ResourceListProps {
  * The searchable list of resources for a particular workflow.
  */
 export function ResourceList(props: ResourceListProps) {
-  const [allResources, setAllResources] = useState<WorkflowResource[]>(
-    props.workflow?.resourcesCreated || []
-  );
+  const [allResources, setAllResources] = useState<WorkflowResource[]>([]);
 
   // Hook to initialize all resources
   useEffect(() => {
