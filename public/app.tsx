@@ -8,7 +8,6 @@ import { Route, RouteComponentProps, Switch } from 'react-router-dom';
 import { EuiPageSideBar, EuiSideNav, EuiPageTemplate } from '@elastic/eui';
 import { Navigation, APP_PATH } from './utils';
 import {
-  Overview,
   Workflows,
   WorkflowDetail,
   WorkflowDetailRouterProps,
@@ -28,14 +27,8 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
             id: 0,
             items: [
               {
-                name: Navigation.Overview,
-                id: 1,
-                href: `#${APP_PATH.OVERVIEW}`,
-                isSelected: props.location.pathname === APP_PATH.OVERVIEW,
-              },
-              {
                 name: Navigation.Workflows,
-                id: 2,
+                id: 1,
                 href: `#${APP_PATH.WORKFLOWS}`,
                 isSelected: props.location.pathname === APP_PATH.WORKFLOWS,
               },
@@ -69,10 +62,12 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
             <Workflows {...routeProps} />
           )}
         />
-        {/* Defaulting to Overview page */}
+        {/* Defaulting to Workflow Management page */}
         <Route
           path={`${APP_PATH.HOME}`}
-          render={(routeProps: RouteComponentProps) => <Overview />}
+          render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => (
+            <Workflows {...routeProps} />
+          )}
         />
       </Switch>
     </EuiPageTemplate>
