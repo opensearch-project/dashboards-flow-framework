@@ -21,6 +21,7 @@ import { setDirty, useAppDispatch } from '../../../store';
 import {
   IComponentData,
   ReactFlowComponent,
+  ReactFlowEdge,
   Workflow,
 } from '../../../../common';
 import {
@@ -41,8 +42,13 @@ interface WorkspaceProps {
   readonly: boolean;
   onNodesChange: (nodes: ReactFlowComponent[]) => void;
   id: string;
-  // TODO: make more typesafe
-  onSelectionChange: ({ nodes, edges }) => void;
+  onSelectionChange: ({
+    nodes,
+    edges,
+  }: {
+    nodes: ReactFlowComponent[];
+    edges: ReactFlowEdge[];
+  }) => void;
 }
 
 const nodeTypes = {
