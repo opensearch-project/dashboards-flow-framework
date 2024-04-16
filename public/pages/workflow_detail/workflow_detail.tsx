@@ -14,8 +14,8 @@ import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
 import {
   AppState,
+  getWorkflow,
   searchModels,
-  searchWorkflows,
   useAppDispatch,
 } from '../../store';
 import { ResizableWorkspace } from './workspace';
@@ -109,8 +109,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   // - fetch available models as their IDs may be used when building flows
   useEffect(() => {
     if (!isNewWorkflow) {
-      // TODO: can optimize to only fetch a single workflow
-      dispatch(searchWorkflows(FETCH_ALL_QUERY_BODY));
+      dispatch(getWorkflow(workflowId));
     }
     dispatch(searchModels(FETCH_ALL_QUERY_BODY));
   }, []);

@@ -154,8 +154,6 @@ export function getComponentSchema(data: IComponentData): ObjectSchema<any> {
   return yup.object(schemaObj);
 }
 
-// TODO: finalize validations for different field types. May need
-// to refer to some backend implementations or OpenSearch documentation
 function getFieldSchema(field: IComponentField): Schema {
   let baseSchema: Schema;
   switch (field.type) {

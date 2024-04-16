@@ -22,8 +22,6 @@ export class Indexer extends BaseComponent {
       {
         id: 'transformer',
         label: 'Transformer',
-        // TODO: may need to change to be looser. it should be able to take
-        // in other component types
         baseClass: COMPONENT_CLASS.TRANSFORMER,
         acceptMultiple: false,
       },
