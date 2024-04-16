@@ -119,6 +119,8 @@ export type Workflow = WorkflowTemplate & {
   lastLaunched?: number;
   // won't exist until launched/provisioned in backend
   state?: WORKFLOW_STATE;
+  // won't exist until launched/provisioned in backend
+  resourcesCreated?: WorkflowResource[];
 };
 
 export enum USE_CASE {
@@ -150,6 +152,20 @@ export enum WORKFLOW_STATE {
   PROVISIONING = 'Provisioning',
   FAILED = 'Failed',
   COMPLETED = 'Completed',
+}
+
+export type WorkflowResource = {
+  id: string;
+  type: WORKFLOW_RESOURCE_TYPE;
+};
+
+// Based off of https://github.com/opensearch-project/flow-framework/blob/main/src/main/java/org/opensearch/flowframework/common/WorkflowResources.java
+export enum WORKFLOW_RESOURCE_TYPE {
+  PIPELINE_ID = 'Ingest pipeline',
+  INDEX_NAME = 'Index',
+  MODEL_ID = 'Model',
+  MODEL_GROUP_ID = 'Model group',
+  CONNECTOR_ID = 'Connector',
 }
 
 export type WorkflowDict = {

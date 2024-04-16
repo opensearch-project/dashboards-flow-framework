@@ -235,12 +235,13 @@ const workflowsSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(getWorkflowState.fulfilled, (state, action) => {
-        const { workflowId, workflowState } = action.payload;
+        const { workflowId, workflowState, resourcesCreated } = action.payload;
         state.workflows = {
           ...state.workflows,
           [workflowId]: {
             ...state.workflows[workflowId],
             state: workflowState,
+            resourcesCreated,
           },
         };
         state.loading = false;
