@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { TemplateNode, WORKFLOW_STATE } from './interfaces';
+import { WORKFLOW_STATE } from './interfaces';
 
 export const PLUGIN_ID = 'flow-framework';
 

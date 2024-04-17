@@ -33,6 +33,7 @@ import {
   processNodes,
   reduceToTemplate,
   ReactFlowEdge,
+  APP_PATH,
 } from '../../../../common';
 import { validateWorkspaceFlow, toTemplateFlows } from '../utils';
 import {
@@ -168,7 +169,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       props.workflow && !props.workflow?.ui_metadata?.workspace_flow;
     const missingCachedWorkflow = props.isNewWorkflow && !props.workflow;
     if (missingUiFlow || missingCachedWorkflow) {
-      history.replace('/workflows');
+      history.replace(APP_PATH.WORKFLOWS);
       if (missingCachedWorkflow) {
         getCore().notifications.toasts.addWarning('No workflow found');
       } else {
@@ -410,7 +411,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                           .unwrap()
                           .then((result) => {
                             const { workflow } = result;
-                            history.replace(`/workflows/${workflow.id}`);
+                            history.replace(
+                              `${APP_PATH.WORKFLOWS}/${workflow.id}`
+                            );
                             history.go(0);
                           })
                           .catch((error: any) => {
