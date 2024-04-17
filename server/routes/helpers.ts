@@ -8,9 +8,11 @@ import {
   INDEX_NOT_FOUND_EXCEPTION,
   Model,
   ModelDict,
+  WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STATE,
   Workflow,
   WorkflowDict,
+  WorkflowResource,
 } from '../../common';
 
 // OSD does not provide an interface for this response, but this is following the suggested
@@ -64,12 +66,17 @@ export function getWorkflowsFromResponses(
     const workflowStateHit = workflowStateHits.find(
       (workflowStateHit) => workflowStateHit._id === workflowHit._id
     );
-    const workflowState = (workflowStateHit?._source?.state ||
-      DEFAULT_NEW_WORKFLOW_STATE_TYPE) as typeof WORKFLOW_STATE;
+    const workflowState = getWorkflowStateFromResponse(
+      workflowStateHit?._source?.state
+    );
+    const workflowResourcesCreated = getResourcesCreatedFromResponse(
+      workflowStateHit?._source?.resources_created
+    );
     workflowDict[workflowHit._id] = {
       ...workflowDict[workflowHit._id],
       // @ts-ignore
-      state: WORKFLOW_STATE[workflowState],
+      state: workflowState,
+      resourcesCreated: workflowResourcesCreated,
     };
   });
   return workflowDict;
@@ -89,10 +96,32 @@ export function getModelsFromResponses(modelHits: any[]): ModelDict {
   return modelDict;
 }
 
+// Convert the workflow state into a readable/presentable state on frontend
 export function getWorkflowStateFromResponse(
   state: typeof WORKFLOW_STATE | undefined
 ): WORKFLOW_STATE {
   const finalState = state || DEFAULT_NEW_WORKFLOW_STATE_TYPE;
   // @ts-ignore
   return WORKFLOW_STATE[finalState];
+}
+
+// Convert the workflow resources into a readable/presentable state on frontend
+export function getResourcesCreatedFromResponse(
+  resourcesCreated: any[] | undefined
+): WorkflowResource[] {
+  const finalResources = [] as WorkflowResource[];
+  if (resourcesCreated) {
+    resourcesCreated.forEach((backendResource) => {
+      finalResources.push({
+        id: backendResource.resource_id,
+        type:
+          // @ts-ignore
+          WORKFLOW_RESOURCE_TYPE[
+            // the backend persists the types in lowercase. e.g., "pipeline_id"
+            (backendResource.resource_type as string).toUpperCase()
+          ],
+      } as WorkflowResource);
+    });
+  }
+  return finalResources;
 }

@@ -5,20 +5,17 @@
 
 export enum Navigation {
   FlowFramework = 'Flow Framework',
-  Overview = 'Overview',
   Workflows = 'Workflows',
 }
 
 export enum APP_PATH {
   HOME = '/',
-  OVERVIEW = '/overview',
   WORKFLOWS = '/workflows',
   WORKFLOW_DETAIL = '/workflows/:workflowId',
 }
 
 export const BREADCRUMBS = Object.freeze({
   FLOW_FRAMEWORK: { text: 'Flow Framework', href: '#/' },
-  OVERVIEW: { text: 'Overview', href: `#${APP_PATH.OVERVIEW}` },
   WORKFLOWS: { text: 'Workflows', href: `#${APP_PATH.WORKFLOWS}` },
 });
 
