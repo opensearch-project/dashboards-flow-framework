@@ -19,13 +19,12 @@ import {
   useAppDispatch,
 } from '../../store';
 import { ResizableWorkspace } from './workspace';
-import { Launches } from './launches';
-import { Prototype } from './prototype';
 import {
   DEFAULT_NEW_WORKFLOW_NAME,
   FETCH_ALL_QUERY_BODY,
   NEW_WORKFLOW_ID_URL,
 } from '../../../common';
+import { Resources } from './resources';
 
 // styling
 import './workflow-detail-styles.scss';
@@ -39,8 +38,10 @@ interface WorkflowDetailProps
 
 enum WORKFLOW_DETAILS_TAB {
   EDITOR = 'editor',
-  LAUNCHES = 'launches',
-  PROTOTYPE = 'prototype',
+  // TODO: temporarily adding a resources tab until UX is finalized.
+  // This gives clarity into what has been done on the cluster on behalf
+  // of the frontend provisioning workflows.
+  RESOURCES = 'resources',
 }
 
 const ACTIVE_TAB_PARAM = 'tab';
@@ -133,21 +134,12 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
       },
     },
     {
-      id: WORKFLOW_DETAILS_TAB.LAUNCHES,
-      label: 'Launches',
-      isSelected: selectedTabId === WORKFLOW_DETAILS_TAB.LAUNCHES,
+      id: WORKFLOW_DETAILS_TAB.RESOURCES,
+      label: 'Resources',
+      isSelected: selectedTabId === WORKFLOW_DETAILS_TAB.RESOURCES,
       onClick: () => {
-        setSelectedTabId(WORKFLOW_DETAILS_TAB.LAUNCHES);
-        replaceActiveTab(WORKFLOW_DETAILS_TAB.LAUNCHES, props);
-      },
-    },
-    {
-      id: WORKFLOW_DETAILS_TAB.PROTOTYPE,
-      label: 'Prototype',
-      isSelected: selectedTabId === WORKFLOW_DETAILS_TAB.PROTOTYPE,
-      onClick: () => {
-        setSelectedTabId(WORKFLOW_DETAILS_TAB.PROTOTYPE);
-        replaceActiveTab(WORKFLOW_DETAILS_TAB.PROTOTYPE, props);
+        setSelectedTabId(WORKFLOW_DETAILS_TAB.RESOURCES);
+        replaceActiveTab(WORKFLOW_DETAILS_TAB.RESOURCES, props);
       },
     },
   ];
@@ -169,9 +161,8 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
               />
             </ReactFlowProvider>
           )}
-          {selectedTabId === WORKFLOW_DETAILS_TAB.LAUNCHES && <Launches />}
-          {selectedTabId === WORKFLOW_DETAILS_TAB.PROTOTYPE && (
-            <Prototype workflow={workflow} />
+          {selectedTabId === WORKFLOW_DETAILS_TAB.RESOURCES && (
+            <Resources workflow={workflow} />
           )}
         </EuiPageBody>
       </EuiPage>

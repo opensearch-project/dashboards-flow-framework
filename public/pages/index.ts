@@ -4,5 +4,4 @@
  */
 
 export * from './workflows';
-export * from './overview';
 export * from './workflow_detail';

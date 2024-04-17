@@ -26,10 +26,12 @@ import {
   WORKFLOW_STATE,
   Workflow,
   WorkflowDict,
+  WorkflowResource,
   WorkflowTemplate,
 } from '../../common';
 import {
   generateCustomError,
+  getResourcesCreatedFromResponse,
   getWorkflowStateFromResponse,
   getWorkflowsFromResponses,
   isIgnorableError,
@@ -174,10 +176,14 @@ export class FlowFrameworkRoutesService {
       const state = getWorkflowStateFromResponse(
         stateResponse.state as typeof WORKFLOW_STATE
       );
+      const resourcesCreated = getResourcesCreatedFromResponse(
+        stateResponse.resources_created as WorkflowResource[]
+      );
       const workflowWithState = {
         ...workflow,
         state,
-      };
+        resourcesCreated,
+      } as Workflow;
       return res.ok({ body: { workflow: workflowWithState } });
     } catch (err: any) {
       return generateCustomError(res, err);
@@ -226,12 +232,21 @@ export class FlowFrameworkRoutesService {
     try {
       const response = await this.client
         .asScoped(req)
-        .callAsCurrentUser('flowFramework.getWorkflowState', { workflow_id });
+        .callAsCurrentUser('flowFramework.getWorkflowState', {
+          workflow_id,
+        });
       const state = getWorkflowStateFromResponse(
-        response.state as typeof WORKFLOW_STATE
+        response.state as typeof WORKFLOW_STATE | undefined
+      );
+      const resourcesCreated = getResourcesCreatedFromResponse(
+        response.resources_created as WorkflowResource[] | undefined
       );
       return res.ok({
-        body: { workflowId: workflow_id, workflowState: state },
+        body: {
+          workflowId: workflow_id,
+          workflowState: state,
+          resourcesCreated,
+        },
       });
     } catch (err: any) {
       return generateCustomError(res, err);

@@ -5,33 +5,34 @@
 
 import React from 'react';
 import {
+  EuiFlexGroup,
   EuiFlexItem,
   EuiPageContent,
   EuiSpacer,
-  EuiText,
   EuiTitle,
 } from '@elastic/eui';
 import { Workflow } from '../../../../common';
+import { ResourceList } from './resource_list';
 
-interface PrototypeProps {
+interface ResourcesProps {
   workflow?: Workflow;
 }
 
 /**
- * The prototype page. Dedicated for testing out a launched workflow.
- * Will have default simple interfaces for common application types, such as
- * conversational chatbots.
+ * A simple resources page to browse created resources for a given Workflow.
  */
-export function Prototype(props: PrototypeProps) {
+export function Resources(props: ResourcesProps) {
   return (
     <EuiPageContent>
       <EuiTitle>
-        <h2>Prototype</h2>
+        <h2>Resources</h2>
       </EuiTitle>
       <EuiSpacer size="m" />
-      <EuiFlexItem>
-        <EuiText>TODO: add prototype page</EuiText>
-      </EuiFlexItem>
+      <EuiFlexGroup direction="row">
+        <EuiFlexItem>
+          <ResourceList workflow={props.workflow} />
+        </EuiFlexItem>
+      </EuiFlexGroup>
     </EuiPageContent>
   );
 }

@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export { Overview } from './overview';
+export { Resources } from './resources';
