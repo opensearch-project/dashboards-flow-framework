@@ -15,7 +15,7 @@ export enum APP_PATH {
 }
 
 export const BREADCRUMBS = Object.freeze({
-  FLOW_FRAMEWORK: { text: 'Flow Framework', href: '#/' },
+  FLOW_FRAMEWORK: { text: 'Flow Framework' },
   WORKFLOWS: { text: 'Workflows', href: `#${APP_PATH.WORKFLOWS}` },
 });
 

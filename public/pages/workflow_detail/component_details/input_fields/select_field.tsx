@@ -19,7 +19,6 @@ import {
   getInitialValue,
   isFieldInvalid,
 } from '../../../../../common';
-import { AppState } from '../../../../store';
 
 interface SelectFieldProps {
   field: IComponentField;
@@ -32,21 +31,15 @@ interface SelectFieldProps {
  * options.
  */
 export function SelectField(props: SelectFieldProps) {
-  // Redux store state
-  // Initial store is fetched when loading base <DetectorDetail /> page. We don't
-  // re-fetch here as it could overload client-side if user clicks back and forth /
-  // keeps re-rendering this component (and subsequently re-fetching data) as they're building flows
-  const models = useSelector((state: AppState) => state.models.models);
-
   // Options state
   const [options, setOptions] = useState<string[]>([]);
 
   // Populate options depending on the select type
   useEffect(() => {
-    if (props.field.selectType === 'model' && models) {
-      setOptions(Object.keys(models));
+    // TODO: figure out how we want to utilize select types to customize the options
+    if (props.field.selectType === 'model') {
     }
-  }, [models]);
+  }, []);
 
   const formField = `${props.componentId}.${props.field.id}`;
   const { errors, touched } = useFormikContext<WorkspaceFormValues>();

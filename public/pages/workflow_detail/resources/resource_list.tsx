@@ -23,10 +23,16 @@ interface ResourceListProps {
 export function ResourceList(props: ResourceListProps) {
   const [allResources, setAllResources] = useState<WorkflowResource[]>([]);
 
-  // Hook to initialize all resources
+  // Hook to initialize all resources. Reduce to unique IDs, since
+  // the backend resources may include the same resource multiple times
+  // (e.g., register and deploy steps persist the same model ID resource)
   useEffect(() => {
     if (props.workflow?.resourcesCreated) {
-      setAllResources(props.workflow.resourcesCreated);
+      const resourcesMap = {} as { [id: string]: WorkflowResource };
+      props.workflow.resourcesCreated.forEach((resource) => {
+        resourcesMap[resource.id] = resource;
+      });
+      setAllResources(Object.values(resourcesMap));
     }
   }, [props.workflow?.resourcesCreated]);
 
