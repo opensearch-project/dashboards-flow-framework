@@ -25,6 +25,7 @@ import {
   isFieldInvalid,
   ModelFormValue,
   MODEL_CATEGORY,
+  MPNET_SENTENCE_TRANSFORMER,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 
@@ -32,16 +33,6 @@ interface ModelFieldProps {
   field: IComponentField;
   componentId: string;
   onFormChange: () => void;
-}
-
-enum MODEL_TYPE {
-  CUSTOM = 'Custom',
-  PRETRAINED = 'Pretrained',
-}
-
-enum RADIO_ID {
-  DEPLOYED = 'Deployed',
-  PRETRAINED = 'Pretrained',
 }
 
 type ModelItem = ModelFormValue & {
@@ -109,6 +100,11 @@ export function ModelField(props: ModelFieldProps) {
         category: MODEL_CATEGORY.PRETRAINED,
       },
       {
+        id: MPNET_SENTENCE_TRANSFORMER.name,
+        name: MPNET_SENTENCE_TRANSFORMER.shortenedName,
+        category: MODEL_CATEGORY.PRETRAINED,
+      },
+      {
         id: BERT_SENTENCE_TRANSFORMER.name,
         name: BERT_SENTENCE_TRANSFORMER.shortenedName,
         category: MODEL_CATEGORY.PRETRAINED,
@@ -171,7 +167,7 @@ export function ModelField(props: ModelFieldProps) {
                 options={selectableModels.map(
                   (option) =>
                     ({
-                      value: option.name,
+                      value: option.id,
                       inputDisplay: (
                         <>
                           <EuiText size="xs">{option.name}</EuiText>

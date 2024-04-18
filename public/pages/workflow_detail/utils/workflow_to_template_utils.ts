@@ -20,6 +20,14 @@ import {
   CreateIndexNode,
   TemplateFlow,
   TemplateEdge,
+  ModelFormValue,
+  MODEL_CATEGORY,
+  RegisterPretrainedModelNode,
+  PretrainedSentenceTransformer,
+  ROBERTA_SENTENCE_TRANSFORMER,
+  MPNET_SENTENCE_TRANSFORMER,
+  BERT_SENTENCE_TRANSFORMER,
+  REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE,
 } from '../../../../common';
 
 /**
@@ -68,13 +76,13 @@ function toProvisionTemplateFlow(
   edges: ReactFlowEdge[]
 ): TemplateFlow {
   const prevNodes = [] as ReactFlowComponent[];
-  const templateNodes = [] as TemplateNode[];
+  const finalTemplateNodes = [] as TemplateNode[];
   const templateEdges = [] as TemplateEdge[];
   nodes.forEach((node) => {
-    const templateNode = toTemplateNode(node, prevNodes, edges);
+    const templateNodes = toTemplateNodes(node, prevNodes, edges);
     // it may be undefined if the node is not convertible for some reason
-    if (templateNode) {
-      templateNodes.push(templateNode);
+    if (templateNodes) {
+      finalTemplateNodes.push(...templateNodes);
       prevNodes.push(node);
     }
   });
@@ -84,20 +92,20 @@ function toProvisionTemplateFlow(
   });
 
   return {
-    nodes: templateNodes,
+    nodes: finalTemplateNodes,
     edges: templateEdges,
   };
 }
 
-function toTemplateNode(
+function toTemplateNodes(
   flowNode: ReactFlowComponent,
   prevNodes: ReactFlowComponent[],
   edges: ReactFlowEdge[]
-): TemplateNode | undefined {
+): TemplateNode[] | undefined {
   if (flowNode.data.baseClasses?.includes(COMPONENT_CLASS.ML_TRANSFORMER)) {
-    return toIngestPipelineNode(flowNode);
+    return toIngestPipelineNodes(flowNode);
   } else if (flowNode.data.baseClasses?.includes(COMPONENT_CLASS.INDEXER)) {
-    return toIndexerNode(flowNode, prevNodes, edges);
+    return [toIndexerNode(flowNode, prevNodes, edges)];
   }
 }
 
@@ -110,9 +118,9 @@ function toTemplateEdge(flowEdge: ReactFlowEdge): TemplateEdge {
 
 // General fn to process all ML transform nodes. Convert into a final
 // ingest pipeline with a processor specific to the final class of the node.
-function toIngestPipelineNode(
-  flowNode: ReactFlowComponent
-): CreateIngestPipelineNode {
+// Optionally prepend a register pretrained model step if the selected model
+// is a pretrained and undeployed one.
+function toIngestPipelineNodes(flowNode: ReactFlowComponent): TemplateNode[] {
   // TODO a few improvements to make here:
   // 1. Consideration of multiple ingest processors and how to collect them all, and finally create
   //    a single ingest pipeline with all of them, in the same order as done on the UI
@@ -120,34 +128,103 @@ function toIngestPipelineNode(
   switch (flowNode.data.type) {
     case COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER:
     default: {
-      const { modelId, inputField, vectorField } = componentDataToFormik(
+      const { model, inputField, vectorField } = componentDataToFormik(
         flowNode.data
-      );
+      ) as { model: ModelFormValue; inputField: string; vectorField: string };
+      const modelId = model.id;
 
-      return {
-        id: flowNode.data.id,
-        type: CREATE_INGEST_PIPELINE_STEP_TYPE,
-        user_inputs: {
-          // TODO: expose as customizable
-          pipeline_id: 'test-pipeline',
-          model_id: modelId,
-          input_field: inputField,
-          output_field: vectorField,
-          configurations: {
-            description: 'An ingest pipeline with a text embedding processor.',
-            processors: [
-              {
-                text_embedding: {
-                  model_id: modelId,
-                  field_map: {
-                    [inputField]: vectorField,
-                  },
-                },
-              } as TextEmbeddingProcessor,
-            ],
+      let registerModelStep = undefined as
+        | RegisterPretrainedModelNode
+        | undefined;
+      if (model.category === MODEL_CATEGORY.PRETRAINED) {
+        const pretrainedModelMap = {} as {
+          [modelName: string]: PretrainedSentenceTransformer;
+        };
+        [
+          ROBERTA_SENTENCE_TRANSFORMER,
+          MPNET_SENTENCE_TRANSFORMER,
+          BERT_SENTENCE_TRANSFORMER,
+        ].map((transformer) => {
+          pretrainedModelMap[transformer.name] = transformer;
+        });
+        // the model ID in the form will be the unique name of the pretrained model
+        const pretrainedModel = pretrainedModelMap[modelId];
+        registerModelStep = {
+          id: REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE,
+          type: REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE,
+          user_inputs: {
+            name: pretrainedModel.name,
+            description: pretrainedModel.description,
+            model_format: pretrainedModel.format,
+            version: pretrainedModel.version,
+            deploy: true,
           },
-        },
-      };
+        } as RegisterPretrainedModelNode;
+      }
+
+      // If we have a register model step, add it first, and use
+      // the produced model ID in the ingest pipeline step
+      if (registerModelStep !== undefined) {
+        return [
+          registerModelStep,
+          {
+            id: flowNode.data.id,
+            type: CREATE_INGEST_PIPELINE_STEP_TYPE,
+            previous_node_inputs: {
+              [REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE]: 'model_id',
+            },
+            user_inputs: {
+              // TODO: expose as customizable
+              pipeline_id: 'test-pipeline',
+              model_id: `\${{${REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE}.model_id}}`,
+              input_field: inputField,
+              output_field: vectorField,
+              configurations: {
+                description:
+                  'An ingest pipeline with a text embedding processor.',
+                processors: [
+                  {
+                    text_embedding: {
+                      model_id: `\${{${REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE}.model_id}}`,
+                      field_map: {
+                        [inputField]: vectorField,
+                      },
+                    },
+                  } as TextEmbeddingProcessor,
+                ],
+              },
+            },
+          } as CreateIngestPipelineNode,
+        ];
+      } else {
+        return [
+          {
+            id: flowNode.data.id,
+            type: CREATE_INGEST_PIPELINE_STEP_TYPE,
+            user_inputs: {
+              // TODO: expose as customizable
+              pipeline_id: 'test-pipeline',
+              model_id: modelId,
+              input_field: inputField,
+              output_field: vectorField,
+              configurations: {
+                description:
+                  'An ingest pipeline with a text embedding processor.',
+                processors: [
+                  {
+                    text_embedding: {
+                      model_id: modelId,
+                      field_map: {
+                        [inputField]: vectorField,
+                      },
+                    },
+                  } as TextEmbeddingProcessor,
+                ],
+              },
+            },
+          } as CreateIngestPipelineNode,
+        ];
+      }
     }
   }
 }
@@ -191,6 +268,8 @@ function toIndexerNode(
               properties: {
                 [vectorField]: {
                   type: 'knn_vector',
+                  // TODO: remove hardcoding, fetch from the selected model
+                  // (existing or from pretrained configuration)
                   dimension: 768,
                   method: {
                     engine: 'lucene',

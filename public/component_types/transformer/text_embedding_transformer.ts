@@ -35,7 +35,6 @@ export class TextEmbeddingTransformer extends MLTransformer {
         helpLink:
           'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-embedding/',
       },
-
       {
         label: 'Vector Field',
         id: 'vectorField',

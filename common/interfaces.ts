@@ -82,6 +82,16 @@ export type CreateIndexNode = TemplateNode & {
   };
 };
 
+export type RegisterPretrainedModelNode = TemplateNode & {
+  user_inputs: {
+    name: string;
+    description: string;
+    model_format: string;
+    version: string;
+    deploy: boolean;
+  };
+};
+
 export type TemplateEdge = {
   source: string;
   dest: string;
@@ -147,9 +157,16 @@ export enum MODEL_CATEGORY {
   PRETRAINED = 'Pretrained',
 }
 
+export enum PRETRAINED_MODEL_FORMAT {
+  TORCH_SCRIPT = 'TORCH_SCRIPT',
+}
+
 export type PretrainedModel = {
   name: string;
   shortenedName: string;
+  description: string;
+  format: PRETRAINED_MODEL_FORMAT;
+  version: string;
 };
 
 export type PretrainedSentenceTransformer = PretrainedModel & {
