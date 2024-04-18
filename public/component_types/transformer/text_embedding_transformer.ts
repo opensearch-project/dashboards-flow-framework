@@ -19,7 +19,7 @@ export class TextEmbeddingTransformer extends MLTransformer {
     this.inputs = [];
     this.createFields = [
       {
-        label: 'Model',
+        label: 'Text Embedding Model',
         id: 'model',
         type: 'model',
         helpText: 'A text embedding model for embedding text.',

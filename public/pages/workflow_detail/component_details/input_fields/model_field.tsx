@@ -84,6 +84,7 @@ export function ModelField(props: ModelFieldProps) {
             id: modelId,
             name: models[modelId].name,
             category: MODEL_CATEGORY.DEPLOYED,
+            algorithm: models[modelId].algorithm,
           } as ModelItem);
         }
       });
@@ -98,16 +99,19 @@ export function ModelField(props: ModelFieldProps) {
         id: ROBERTA_SENTENCE_TRANSFORMER.name,
         name: ROBERTA_SENTENCE_TRANSFORMER.shortenedName,
         category: MODEL_CATEGORY.PRETRAINED,
+        algorithm: ROBERTA_SENTENCE_TRANSFORMER.algorithm,
       },
       {
         id: MPNET_SENTENCE_TRANSFORMER.name,
         name: MPNET_SENTENCE_TRANSFORMER.shortenedName,
         category: MODEL_CATEGORY.PRETRAINED,
+        algorithm: MPNET_SENTENCE_TRANSFORMER.algorithm,
       },
       {
         id: BERT_SENTENCE_TRANSFORMER.name,
         name: BERT_SENTENCE_TRANSFORMER.shortenedName,
         category: MODEL_CATEGORY.PRETRAINED,
+        algorithm: BERT_SENTENCE_TRANSFORMER.algorithm,
       },
     ];
     setPretrainedModels(modelItems);
@@ -170,9 +174,17 @@ export function ModelField(props: ModelFieldProps) {
                       value: option.id,
                       inputDisplay: (
                         <>
-                          <EuiText size="xs">{option.name}</EuiText>
+                          <EuiText size="s">{option.name}</EuiText>
+                        </>
+                      ),
+                      dropdownDisplay: (
+                        <>
+                          <EuiText size="s">{option.name}</EuiText>
                           <EuiText size="xs" color="subdued">
                             {option.category}
+                          </EuiText>
+                          <EuiText size="xs" color="subdued">
+                            {option.algorithm}
                           </EuiText>
                         </>
                       ),

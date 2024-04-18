@@ -4,6 +4,7 @@
  */
 
 import {
+  MODEL_ALGORITHM,
   PRETRAINED_MODEL_FORMAT,
   PretrainedSentenceTransformer,
   WORKFLOW_STATE,
@@ -68,6 +69,7 @@ export const ROBERTA_SENTENCE_TRANSFORMER = {
   shortenedName: 'all-distilroberta-v1',
   description: 'A sentence transformer from Hugging Face',
   format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
+  algorithm: MODEL_ALGORITHM.TEXT_EMBEDDING,
   version: '1.0.1',
   vectorDimensions: 768,
 } as PretrainedSentenceTransformer;
@@ -77,6 +79,7 @@ export const MPNET_SENTENCE_TRANSFORMER = {
   shortenedName: 'all-mpnet-base-v2',
   description: 'A sentence transformer from Hugging Face',
   format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
+  algorithm: MODEL_ALGORITHM.TEXT_EMBEDDING,
   version: '1.0.1',
   vectorDimensions: 768,
 } as PretrainedSentenceTransformer;
@@ -86,6 +89,7 @@ export const BERT_SENTENCE_TRANSFORMER = {
   shortenedName: 'msmarco-distilbert-base-tas-b',
   description: 'A sentence transformer from Hugging Face',
   format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
+  algorithm: MODEL_ALGORITHM.TEXT_EMBEDDING,
   version: '1.0.2',
   vectorDimensions: 768,
 } as PretrainedSentenceTransformer;

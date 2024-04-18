@@ -152,6 +152,28 @@ export enum MODEL_STATE {
   DEPLOY_FAILED = 'Deploy failed',
 }
 
+// Based off of https://github.com/opensearch-project/ml-commons/blob/main/common/src/main/java/org/opensearch/ml/common/FunctionName.java
+export enum MODEL_ALGORITHM {
+  LINEAR_REGRESSION = 'Linear regression',
+  KMEANS = 'K-means',
+  AD_LIBSVM = 'AD LIBSVM',
+  SAMPLE_ALGO = 'Sample algorithm',
+  LOCAL_SAMPLE_CALCULATOR = 'Local sample calculator',
+  FIT_RCF = 'Fit RCF',
+  BATCH_RCF = 'Batch RCF',
+  ANOMALY_LOCALIZATION = 'Anomaly localization',
+  RCF_SUMMARIZE = 'RCF summarize',
+  LOGISTIC_REGRESSION = 'Logistic regression',
+  TEXT_EMBEDDING = 'Text embedding',
+  METRICS_CORRELATION = 'Metrics correlation',
+  REMOTE = 'Remote',
+  SPARSE_ENCODING = 'Sparse encoding',
+  SPARSE_TOKENIZE = 'Sparse tokenize',
+  TEXT_SIMILARITY = 'Text similarity',
+  QUESTION_ANSWERING = 'Question answering',
+  AGENT = 'Agent',
+}
+
 export enum MODEL_CATEGORY {
   DEPLOYED = 'Deployed',
   PRETRAINED = 'Pretrained',
@@ -166,6 +188,7 @@ export type PretrainedModel = {
   shortenedName: string;
   description: string;
   format: PRETRAINED_MODEL_FORMAT;
+  algorithm: MODEL_ALGORITHM;
   version: string;
 };
 
@@ -181,7 +204,7 @@ export type ModelConfig = {
 export type Model = {
   id: string;
   name: string;
-  algorithm: string;
+  algorithm: MODEL_ALGORITHM;
   state: MODEL_STATE;
   modelConfig?: ModelConfig;
 };
@@ -193,6 +216,7 @@ export type ModelDict = {
 export type ModelFormValue = {
   id: string;
   category?: MODEL_CATEGORY;
+  algorithm?: MODEL_ALGORITHM;
 };
 
 /**

@@ -6,6 +6,7 @@
 import {
   DEFAULT_NEW_WORKFLOW_STATE_TYPE,
   INDEX_NOT_FOUND_EXCEPTION,
+  MODEL_ALGORITHM,
   MODEL_STATE,
   Model,
   ModelDict,
@@ -94,7 +95,8 @@ export function getModelsFromResponses(modelHits: any[]): ModelDict {
       modelDict[modelId] = {
         id: modelId,
         name: modelHit._source?.name,
-        algorithm: modelHit._source?.algorithm,
+        // @ts-ignore
+        algorithm: MODEL_ALGORITHM[modelHit._source?.algorithm],
         // @ts-ignore
         state: MODEL_STATE[modelHit._source?.model_state],
         modelConfig: {

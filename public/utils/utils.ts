@@ -102,6 +102,7 @@ export function getInitialValue(fieldType: FieldType): FieldValue {
       return {
         id: '',
         category: undefined,
+        algorithm: undefined,
       } as ModelFormValue;
     }
     case 'json': {
