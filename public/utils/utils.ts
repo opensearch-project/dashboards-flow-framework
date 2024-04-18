@@ -18,6 +18,7 @@ import {
   ReactFlowComponent,
   Workflow,
   WorkflowTemplate,
+  ModelFormValue,
 } from '../../common';
 
 // Append 16 random characters
@@ -82,6 +83,7 @@ export function reduceToTemplate(workflow: Workflow): WorkflowTemplate {
     lastUpdated,
     lastLaunched,
     state,
+    resourcesCreated,
     ...workflowTemplate
   } = workflow;
   return workflowTemplate;
@@ -95,6 +97,12 @@ export function getInitialValue(fieldType: FieldType): FieldValue {
     }
     case 'select': {
       return '';
+    }
+    case 'model': {
+      return {
+        id: '',
+        category: undefined,
+      } as ModelFormValue;
     }
     case 'json': {
       return {};
@@ -160,6 +168,13 @@ function getFieldSchema(field: IComponentField): Schema {
     case 'string':
     case 'select': {
       baseSchema = yup.string().min(1, 'Too short').max(70, 'Too long');
+      break;
+    }
+    case 'model': {
+      baseSchema = yup.object().shape({
+        id: yup.string().min(1, 'Too short').max(70, 'Too long').required(),
+        category: yup.string().required(),
+      });
       break;
     }
     case 'json': {

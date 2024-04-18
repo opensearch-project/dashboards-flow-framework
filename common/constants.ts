@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { WORKFLOW_STATE } from './interfaces';
+import { PretrainedSentenceTransformer, WORKFLOW_STATE } from './interfaces';
 
 export const PLUGIN_ID = 'flow-framework';
 
@@ -52,6 +52,22 @@ export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
  */
 export const CREATE_INGEST_PIPELINE_STEP_TYPE = 'create_ingest_pipeline';
 export const CREATE_INDEX_STEP_TYPE = 'create_index';
+
+/**
+ * ML PLUGIN PRETRAINED MODELS
+ * (based off of https://opensearch.org/docs/latest/ml-commons-plugin/pretrained-models/#sentence-transformers)
+ */
+export const ROBERTA_SENTENCE_TRANSFORMER = {
+  name: 'huggingface/sentence-transformers/all-distilroberta-v1',
+  shortenedName: 'all-distilroberta-v1',
+  vectorDimensions: 768,
+} as PretrainedSentenceTransformer;
+
+export const BERT_SENTENCE_TRANSFORMER = {
+  name: 'huggingface/sentence-transformers/msmarco-distilbert-base-tas-b',
+  shortenedName: 'msmarco-distilbert-base-tas-b',
+  vectorDimensions: 768,
+} as PretrainedSentenceTransformer;
 
 /**
  * MISCELLANEOUS

@@ -130,9 +130,52 @@ export enum USE_CASE {
 /**
  ********** ML PLUGIN TYPES/INTERFACES **********
  */
+
+// Based off of https://github.com/opensearch-project/ml-commons/blob/main/common/src/main/java/org/opensearch/ml/common/model/MLModelState.java
+export enum MODEL_STATE {
+  REGISTERED = 'Registered',
+  REGISTERING = 'Registering',
+  DEPLOYING = 'Deploying',
+  DEPLOYED = 'Deployed',
+  PARTIALLY_DEPLOYED = 'Partially deployed',
+  UNDEPLOYED = 'Undeployed',
+  DEPLOY_FAILED = 'Deploy failed',
+}
+
+export enum MODEL_CATEGORY {
+  DEPLOYED = 'Deployed',
+  PRETRAINED = 'Pretrained',
+}
+
+export type PretrainedModel = {
+  name: string;
+  shortenedName: string;
+};
+
+export type PretrainedSentenceTransformer = PretrainedModel & {
+  vectorDimensions: number;
+};
+
+export type ModelConfig = {
+  modelType?: string;
+  embeddingDimension?: number;
+};
+
 export type Model = {
   id: string;
+  name: string;
   algorithm: string;
+  state: MODEL_STATE;
+  modelConfig?: ModelConfig;
+};
+
+export type ModelDict = {
+  [modelId: string]: Model;
+};
+
+export type ModelFormValue = {
+  id: string;
+  category?: MODEL_CATEGORY;
 };
 
 /**
@@ -170,8 +213,4 @@ export enum WORKFLOW_RESOURCE_TYPE {
 
 export type WorkflowDict = {
   [workflowId: string]: Workflow;
-};
-
-export type ModelDict = {
-  [modelId: string]: Model;
 };
