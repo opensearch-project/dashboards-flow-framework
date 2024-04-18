@@ -55,6 +55,9 @@ export function ComponentInputs(props: ComponentInputsProps) {
         <EuiTitle size="m">
           <h2>{props.selectedComponent.data.label || ''}</h2>
         </EuiTitle>
+        <EuiText color="subdued">
+          {props.selectedComponent.data.description}
+        </EuiText>
         <NewOrExistingTabs
           selectedTabId={selectedTabId}
           setSelectedTabId={setSelectedTabId}

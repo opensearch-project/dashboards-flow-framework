@@ -6,3 +6,4 @@
 export { TextField } from './text_field';
 export { JsonField } from './json_field';
 export { SelectField } from './select_field';
+export { ModelField } from './model_field';

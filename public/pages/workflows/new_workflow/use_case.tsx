@@ -13,7 +13,7 @@ import {
   EuiHorizontalRule,
   EuiButton,
 } from '@elastic/eui';
-import { NEW_WORKFLOW_ID_URL, PLUGIN_ID } from '../../../../common';
+import { APP_PATH, NEW_WORKFLOW_ID_URL, PLUGIN_ID } from '../../../../common';
 
 interface UseCaseProps {
   title: string;
@@ -44,7 +44,7 @@ export function UseCase(props: UseCaseProps) {
               disabled={false}
               isLoading={false}
               onClick={props.onClick}
-              href={`${PLUGIN_ID}#/workflows/${NEW_WORKFLOW_ID_URL}`}
+              href={`${PLUGIN_ID}#${APP_PATH.WORKFLOWS}/${NEW_WORKFLOW_ID_URL}`}
             >
               Go
             </EuiButton>

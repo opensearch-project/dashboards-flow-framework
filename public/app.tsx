@@ -62,12 +62,21 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
             <Workflows {...routeProps} />
           )}
         />
-        {/* Defaulting to Workflows page */}
+        {/*
+        Defaulting to Workflows page. The pathname will need to be updated
+        to handle the redirection and get the router props consistent.
+        */}
         <Route
           path={`${APP_PATH.HOME}`}
-          render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => (
-            <Workflows {...routeProps} />
-          )}
+          render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => {
+            if (props.history.location.pathname !== APP_PATH.WORKFLOWS) {
+              props.history.replace({
+                ...history,
+                pathname: APP_PATH.WORKFLOWS,
+              });
+            }
+            return <Workflows {...routeProps} />;
+          }}
         />
       </Switch>
     </EuiPageTemplate>

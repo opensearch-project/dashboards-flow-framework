@@ -6,6 +6,8 @@
 import {
   DEFAULT_NEW_WORKFLOW_STATE_TYPE,
   INDEX_NOT_FOUND_EXCEPTION,
+  MODEL_ALGORITHM,
+  MODEL_STATE,
   Model,
   ModelDict,
   WORKFLOW_RESOURCE_TYPE,
@@ -85,13 +87,25 @@ export function getWorkflowsFromResponses(
 export function getModelsFromResponses(modelHits: any[]): ModelDict {
   const modelDict = {} as ModelDict;
   modelHits.forEach((modelHit: any) => {
-    const modelId = modelHit._source?.model_id;
-    // in case of schema changes from ML plugin, this may crash. That is ok, as the error
-    // produced will help expose the root cause
-    modelDict[modelId] = {
-      id: modelId,
-      algorithm: modelHit._source?.algorithm,
-    } as Model;
+    // search model API returns hits for each deployed model chunk. ignore these hits
+    if (modelHit._source.chunk_number === undefined) {
+      const modelId = modelHit._id;
+      // in case of schema changes from ML plugin, this may crash. That is ok, as the error
+      // produced will help expose the root cause
+      modelDict[modelId] = {
+        id: modelId,
+        name: modelHit._source?.name,
+        // @ts-ignore
+        algorithm: MODEL_ALGORITHM[modelHit._source?.algorithm],
+        // @ts-ignore
+        state: MODEL_STATE[modelHit._source?.model_state],
+        modelConfig: {
+          modelType: modelHit._source?.model_config?.model_type,
+          embeddingDimension:
+            modelHit._source?.model_config?.embedding_dimension,
+        },
+      } as Model;
+    }
   });
   return modelDict;
 }
