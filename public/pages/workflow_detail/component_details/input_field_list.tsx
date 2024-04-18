@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { EuiFlexItem, EuiSpacer } from '@elastic/eui';
-import { TextField, JsonField, SelectField } from './input_fields';
+import { TextField, JsonField, SelectField, ModelField } from './input_fields';
 import { IComponentField } from '../../../../common';
 
 /**
@@ -45,6 +45,19 @@ export function InputFieldList(props: InputFieldListProps) {
             el = (
               <EuiFlexItem key={idx}>
                 <SelectField
+                  field={field}
+                  componentId={props.componentId}
+                  onFormChange={props.onFormChange}
+                />
+                <EuiSpacer size={INPUT_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
+          case 'model': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <ModelField
                   field={field}
                   componentId={props.componentId}
                   onFormChange={props.onFormChange}

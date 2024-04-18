@@ -28,9 +28,12 @@ interface ComponentDetailsProps {
 export function ComponentDetails(props: ComponentDetailsProps) {
   return (
     <EuiPanel paddingSize="m">
-      {props.isDeprovisionable ? (
+      {/* TODO: determine if we need this view if we want the workspace to remain
+      readonly once provisioned */}
+      {/* {props.isDeprovisionable ? (
         <ProvisionedComponentInputs />
-      ) : props.selectedComponent ? (
+      ) : */}
+      {props.selectedComponent ? (
         <ComponentInputs
           selectedComponent={props.selectedComponent}
           onFormChange={props.onFormChange}

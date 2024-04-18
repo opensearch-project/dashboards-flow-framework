@@ -19,11 +19,10 @@ export class TextEmbeddingTransformer extends MLTransformer {
     this.inputs = [];
     this.createFields = [
       {
-        label: 'Model ID',
-        id: 'modelId',
-        type: 'select',
-        selectType: 'model',
-        helpText: 'The deployed text embedding model to use for embedding.',
+        label: 'Text Embedding Model',
+        id: 'model',
+        type: 'model',
+        helpText: 'A text embedding model for embedding text.',
         helpLink:
           'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model',
       },
@@ -36,7 +35,6 @@ export class TextEmbeddingTransformer extends MLTransformer {
         helpLink:
           'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-embedding/',
       },
-
       {
         label: 'Vector Field',
         id: 'vectorField',

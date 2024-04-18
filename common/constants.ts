@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { TemplateNode, WORKFLOW_STATE } from './interfaces';
+import {
+  MODEL_ALGORITHM,
+  PRETRAINED_MODEL_FORMAT,
+  PretrainedSentenceTransformer,
+  WORKFLOW_STATE,
+} from './interfaces';
 
 export const PLUGIN_ID = 'flow-framework';
 
@@ -52,6 +57,42 @@ export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
  */
 export const CREATE_INGEST_PIPELINE_STEP_TYPE = 'create_ingest_pipeline';
 export const CREATE_INDEX_STEP_TYPE = 'create_index';
+export const REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE =
+  'register_local_pretrained_model';
+
+/**
+ * ML PLUGIN PRETRAINED MODELS
+ * (based off of https://opensearch.org/docs/latest/ml-commons-plugin/pretrained-models/#sentence-transformers)
+ */
+export const ROBERTA_SENTENCE_TRANSFORMER = {
+  name: 'huggingface/sentence-transformers/all-distilroberta-v1',
+  shortenedName: 'all-distilroberta-v1',
+  description: 'A sentence transformer from Hugging Face',
+  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
+  algorithm: MODEL_ALGORITHM.TEXT_EMBEDDING,
+  version: '1.0.1',
+  vectorDimensions: 768,
+} as PretrainedSentenceTransformer;
+
+export const MPNET_SENTENCE_TRANSFORMER = {
+  name: 'huggingface/sentence-transformers/all-mpnet-base-v2',
+  shortenedName: 'all-mpnet-base-v2',
+  description: 'A sentence transformer from Hugging Face',
+  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
+  algorithm: MODEL_ALGORITHM.TEXT_EMBEDDING,
+  version: '1.0.1',
+  vectorDimensions: 768,
+} as PretrainedSentenceTransformer;
+
+export const BERT_SENTENCE_TRANSFORMER = {
+  name: 'huggingface/sentence-transformers/msmarco-distilbert-base-tas-b',
+  shortenedName: 'msmarco-distilbert-base-tas-b',
+  description: 'A sentence transformer from Hugging Face',
+  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
+  algorithm: MODEL_ALGORITHM.TEXT_EMBEDDING,
+  version: '1.0.2',
+  vectorDimensions: 768,
+} as PretrainedSentenceTransformer;
 
 /**
  * MISCELLANEOUS

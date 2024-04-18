@@ -10,7 +10,7 @@ import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../utils';
 /**
  * ************ Types *************************
  */
-export type FieldType = 'string' | 'json' | 'select';
+export type FieldType = 'string' | 'json' | 'select' | 'model';
 export type SelectType = 'model';
 export type FieldValue = string | {};
 export type ComponentFormValues = FormikValues;
