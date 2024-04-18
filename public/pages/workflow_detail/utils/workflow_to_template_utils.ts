@@ -128,9 +128,17 @@ function toIngestPipelineNodes(flowNode: ReactFlowComponent): TemplateNode[] {
   switch (flowNode.data.type) {
     case COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER:
     default: {
-      const { model, inputField, vectorField } = componentDataToFormik(
-        flowNode.data
-      ) as { model: ModelFormValue; inputField: string; vectorField: string };
+      const {
+        ingestPipelineName,
+        model,
+        inputField,
+        vectorField,
+      } = componentDataToFormik(flowNode.data) as {
+        ingestPipelineName: string;
+        model: ModelFormValue;
+        inputField: string;
+        vectorField: string;
+      };
       const modelId = model.id;
 
       let registerModelStep = undefined as
@@ -174,8 +182,7 @@ function toIngestPipelineNodes(flowNode: ReactFlowComponent): TemplateNode[] {
               [REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE]: 'model_id',
             },
             user_inputs: {
-              // TODO: expose as customizable
-              pipeline_id: 'test-pipeline',
+              pipeline_id: ingestPipelineName,
               model_id: `\${{${REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE}.model_id}}`,
               input_field: inputField,
               output_field: vectorField,
@@ -202,8 +209,7 @@ function toIngestPipelineNodes(flowNode: ReactFlowComponent): TemplateNode[] {
             id: flowNode.data.id,
             type: CREATE_INGEST_PIPELINE_STEP_TYPE,
             user_inputs: {
-              // TODO: expose as customizable
-              pipeline_id: 'test-pipeline',
+              pipeline_id: ingestPipelineName,
               model_id: modelId,
               input_field: inputField,
               output_field: vectorField,
