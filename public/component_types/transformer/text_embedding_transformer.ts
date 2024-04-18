@@ -19,14 +19,6 @@ export class TextEmbeddingTransformer extends MLTransformer {
     this.inputs = [];
     this.createFields = [
       {
-        label: 'Ingest Pipeline',
-        id: 'ingestPipelineName',
-        type: 'string',
-        helpText:
-          'The name of the ingest pipeline configured with the text embedding transformer',
-        helpLink: 'https://opensearch.org/docs/latest/ingest-pipelines/',
-      },
-      {
         label: 'Model',
         id: 'model',
         type: 'model',

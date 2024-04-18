@@ -28,6 +28,7 @@ import {
   MPNET_SENTENCE_TRANSFORMER,
   BERT_SENTENCE_TRANSFORMER,
   REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE,
+  generateId,
 } from '../../../../common';
 
 /**
@@ -128,18 +129,15 @@ function toIngestPipelineNodes(flowNode: ReactFlowComponent): TemplateNode[] {
   switch (flowNode.data.type) {
     case COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER:
     default: {
-      const {
-        ingestPipelineName,
-        model,
-        inputField,
-        vectorField,
-      } = componentDataToFormik(flowNode.data) as {
-        ingestPipelineName: string;
+      const { model, inputField, vectorField } = componentDataToFormik(
+        flowNode.data
+      ) as {
         model: ModelFormValue;
         inputField: string;
         vectorField: string;
       };
       const modelId = model.id;
+      const ingestPipelineName = generateId('ingest_pipeline');
 
       let registerModelStep = undefined as
         | RegisterPretrainedModelNode
