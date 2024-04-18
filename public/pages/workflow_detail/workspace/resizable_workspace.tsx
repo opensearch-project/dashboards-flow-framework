@@ -117,6 +117,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     props.workflow !== undefined &&
     !props.isNewWorkflow &&
     props.workflow?.state !== WORKFLOW_STATE.NOT_STARTED;
+  // TODO: maybe remove this field. It depends on final UX if we want the
+  // workspace to be readonly once provisioned or not.
   const readonly = props.workflow === undefined || isDeprovisionable;
 
   // Loading state
@@ -321,6 +323,17 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               components.
             </EuiCallOut>
           )}
+          {isDeprovisionable && isDirty && (
+            <EuiCallOut
+              title="The configured flow has been provisioned"
+              color="warning"
+              iconType="alert"
+              style={{ marginBottom: '16px' }}
+            >
+              Changes cannot be saved until the flow has first been
+              deprovisioned.
+            </EuiCallOut>
+          )}
           <EuiPageHeader
             style={{ marginBottom: '8px' }}
             rightSideItems={[
@@ -458,7 +471,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         <Workspace
                           id="ingest"
                           workflow={workflow}
-                          readonly={readonly}
+                          readonly={false}
                           onNodesChange={onNodesChange}
                           onSelectionChange={onSelectionChange}
                         />
