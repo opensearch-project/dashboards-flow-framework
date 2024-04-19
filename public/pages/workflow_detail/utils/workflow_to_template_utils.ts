@@ -256,27 +256,27 @@ function indexerToTemplateNode(
       // TODO: remove hardcoded logic here that is assuming each indexer node has
       // exactly 1 directly connected create_ingest_pipeline predecessor node that
       // contains an inputField and vectorField
-      const directlyConnectedNodeId = getDirectlyConnectedNodes(
-        flowNode,
-        edges
-      )[0];
-      const { inputField, vectorField } = getDirectlyConnectedNodeInputs(
+      const directlyConnectedNode = getDirectlyConnectedNodes(
         flowNode,
         prevNodes,
         edges
-      );
+      )[0];
+
+      const { inputField, vectorField } = getNodeValues([
+        directlyConnectedNode,
+      ]);
 
       return {
         id: flowNode.data.id,
         type: CREATE_INDEX_STEP_TYPE,
         previous_node_inputs: {
-          [directlyConnectedNodeId]: 'pipeline_id',
+          [directlyConnectedNode.id]: 'pipeline_id',
         },
         user_inputs: {
           index_name: indexName,
           configurations: {
             settings: {
-              default_pipeline: `\${{${directlyConnectedNodeId}.pipeline_id}}`,
+              default_pipeline: `\${{${directlyConnectedNode.id}.pipeline_id}}`,
             },
             mappings: {
               properties: {
@@ -304,18 +304,22 @@ function indexerToTemplateNode(
   }
 }
 
-// Fetch all directly connected predecessor node inputs
-function getDirectlyConnectedNodeInputs(
+// Fetch all directly connected predecessor nodes
+function getDirectlyConnectedNodes(
   node: ReactFlowComponent,
   prevNodes: ReactFlowComponent[],
   edges: ReactFlowEdge[]
-): FormikValues {
-  const directlyConnectedNodeIds = getDirectlyConnectedNodes(node, edges);
-  const directlyConnectedNodes = prevNodes.filter((prevNode) =>
+): ReactFlowComponent[] {
+  const directlyConnectedNodeIds = getDirectlyConnectedNodeIds(node, edges);
+  return prevNodes.filter((prevNode) =>
     directlyConnectedNodeIds.includes(prevNode.id)
   );
+}
+
+// Get all values for an arr of flow nodes
+function getNodeValues(nodes: ReactFlowComponent[]): FormikValues {
   let values = {} as FormikValues;
-  directlyConnectedNodes.forEach((node) => {
+  nodes.forEach((node) => {
     values = {
       ...values,
       ...componentDataToFormik(node.data),
@@ -324,8 +328,8 @@ function getDirectlyConnectedNodeInputs(
   return values;
 }
 
-// Simple utility fn to fetch all direct predecessor node IDs for a given node
-function getDirectlyConnectedNodes(
+// Fetch all direct predecessor node IDs for a given node
+function getDirectlyConnectedNodeIds(
   flowNode: ReactFlowComponent,
   edges: ReactFlowEdge[]
 ): string[] {
