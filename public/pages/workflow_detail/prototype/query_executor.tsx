@@ -148,7 +148,7 @@ export function QueryExecutor(props: QueryExecutorProps) {
       <EuiFlexItem>
         <EuiFlexGroup direction="column" gutterSize="m">
           <EuiFlexItem grow={false}>
-            <EuiText>Results</EuiText>
+            <EuiText size="s">Results</EuiText>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row">
