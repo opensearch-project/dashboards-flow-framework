@@ -29,6 +29,11 @@ import {
   BERT_SENTENCE_TRANSFORMER,
   REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE,
   generateId,
+  NEURAL_SPARSE_TRANSFORMER,
+  NEURAL_SPARSE_DOC_TRANSFORMER,
+  NEURAL_SPARSE_TOKENIZER_TRANSFORMER,
+  REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE,
+  SparseEncodingProcessor,
 } from '../../../../common';
 
 /**
@@ -131,12 +136,12 @@ function toTemplateEdge(flowEdge: ReactFlowEdge): TemplateEdge | undefined {
 function transformerToTemplateNodes(
   flowNode: ReactFlowComponent
 ): TemplateNode[] {
-  // TODO a few improvements to make here:
+  // TODO improvements to make here:
   // 1. Consideration of multiple ingest processors and how to collect them all, and finally create
   //    a single ingest pipeline with all of them, in the same order as done on the UI
-  // 2. Support more than just text embedding transformers
   switch (flowNode.data.type) {
     case COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER:
+    case COMPONENT_CLASS.SPARSE_ENCODER_TRANSFORMER:
     default: {
       const { model, inputField, vectorField } = componentDataToFormik(
         flowNode.data
@@ -156,13 +161,23 @@ function transformerToTemplateNodes(
           ROBERTA_SENTENCE_TRANSFORMER,
           MPNET_SENTENCE_TRANSFORMER,
           BERT_SENTENCE_TRANSFORMER,
+          NEURAL_SPARSE_TRANSFORMER,
+          NEURAL_SPARSE_DOC_TRANSFORMER,
+          NEURAL_SPARSE_TOKENIZER_TRANSFORMER,
         ].find(
           // the model ID in the form will be the unique name of the pretrained model
           (model) => model.name === modelId
         ) as PretrainedSentenceTransformer;
+
+        // workflow step type is different per use case
+        const stepType =
+          flowNode.data.type === COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
+            ? REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE
+            : REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE;
+
         registerModelStep = {
-          id: REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE,
-          type: REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE,
+          id: stepType,
+          type: stepType,
           user_inputs: {
             name: pretrainedModel.name,
             description: pretrainedModel.description,
@@ -180,6 +195,32 @@ function transformerToTemplateNodes(
           ? `\${{${REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE}.model_id}}`
           : modelId;
 
+      // processor is different per use case
+      const finalProcessor =
+        flowNode.data.type === COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
+          ? ({
+              text_embedding: {
+                model_id: finalModelId,
+                field_map: {
+                  [inputField]: vectorField,
+                },
+              },
+            } as TextEmbeddingProcessor)
+          : ({
+              sparse_encoding: {
+                model_id: finalModelId,
+                field_map: {
+                  [inputField]: vectorField,
+                },
+              },
+            } as SparseEncodingProcessor);
+
+      // ingest pipeline is different per use case
+      const finalIngestPipelineDescription =
+        flowNode.data.type === COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
+          ? 'An ingest pipeline with a text embedding processor'
+          : 'An ingest pieline with a neural sparse encoding processor';
+
       const createIngestPipelineStep = {
         id: flowNode.data.id,
         type: CREATE_INGEST_PIPELINE_STEP_TYPE,
@@ -189,17 +230,8 @@ function transformerToTemplateNodes(
           input_field: inputField,
           output_field: vectorField,
           configurations: {
-            description: 'An ingest pipeline with a text embedding processor.',
-            processors: [
-              {
-                text_embedding: {
-                  model_id: finalModelId,
-                  field_map: {
-                    [inputField]: vectorField,
-                  },
-                },
-              } as TextEmbeddingProcessor,
-            ],
+            description: finalIngestPipelineDescription,
+            processors: [finalProcessor],
           },
         },
       } as CreateIngestPipelineNode;

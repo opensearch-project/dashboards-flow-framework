@@ -26,6 +26,9 @@ import {
   ModelFormValue,
   MODEL_CATEGORY,
   MPNET_SENTENCE_TRANSFORMER,
+  NEURAL_SPARSE_TRANSFORMER,
+  NEURAL_SPARSE_DOC_TRANSFORMER,
+  NEURAL_SPARSE_TOKENIZER_TRANSFORMER,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 
@@ -112,6 +115,24 @@ export function ModelField(props: ModelFieldProps) {
         name: BERT_SENTENCE_TRANSFORMER.shortenedName,
         category: MODEL_CATEGORY.PRETRAINED,
         algorithm: BERT_SENTENCE_TRANSFORMER.algorithm,
+      },
+      {
+        id: NEURAL_SPARSE_TRANSFORMER.name,
+        name: NEURAL_SPARSE_TRANSFORMER.shortenedName,
+        category: MODEL_CATEGORY.PRETRAINED,
+        algorithm: NEURAL_SPARSE_TRANSFORMER.algorithm,
+      },
+      {
+        id: NEURAL_SPARSE_DOC_TRANSFORMER.name,
+        name: NEURAL_SPARSE_DOC_TRANSFORMER.shortenedName,
+        category: MODEL_CATEGORY.PRETRAINED,
+        algorithm: NEURAL_SPARSE_DOC_TRANSFORMER.algorithm,
+      },
+      {
+        id: NEURAL_SPARSE_TOKENIZER_TRANSFORMER.name,
+        name: NEURAL_SPARSE_TOKENIZER_TRANSFORMER.shortenedName,
+        category: MODEL_CATEGORY.PRETRAINED,
+        algorithm: NEURAL_SPARSE_TOKENIZER_TRANSFORMER.algorithm,
       },
     ];
     setPretrainedModels(modelItems);

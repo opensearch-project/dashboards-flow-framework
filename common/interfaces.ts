@@ -18,6 +18,7 @@ export type Index = {
 
 export type ReactFlowComponent = Node<IComponentData>;
 export type ReactFlowEdge = Edge<{}> & {
+  key: string;
   sourceClasses: COMPONENT_CLASS[];
   targetClasses: COMPONENT_CLASS[];
 };
@@ -48,6 +49,13 @@ export type IngestProcessor = {
 
 export type TextEmbeddingProcessor = IngestProcessor & {
   text_embedding: {
+    model_id: string;
+    field_map: {};
+  };
+};
+
+export type SparseEncodingProcessor = IngestProcessor & {
+  sparse_encoding: {
     model_id: string;
     field_map: {};
   };
@@ -139,6 +147,7 @@ export type Workflow = WorkflowTemplate & {
 
 export enum USE_CASE {
   SEMANTIC_SEARCH = 'SEMANTIC_SEARCH',
+  NEURAL_SPARSE_SEARCH = 'NEURAL_SPARSE_SEARCH',
 }
 
 /**
@@ -199,6 +208,8 @@ export type PretrainedModel = {
 export type PretrainedSentenceTransformer = PretrainedModel & {
   vectorDimensions: number;
 };
+
+export type PretrainedSparseEncodingModel = PretrainedModel & {};
 
 export type ModelConfig = {
   modelType?: string;
