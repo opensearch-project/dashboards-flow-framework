@@ -17,6 +17,7 @@ const initialState = {
 const OPENSEARCH_PREFIX = 'opensearch';
 const CAT_INDICES_ACTION = `${OPENSEARCH_PREFIX}/catIndices`;
 const SEARCH_INDEX_ACTION = `${OPENSEARCH_PREFIX}/search`;
+const INGEST_ACTION = `${OPENSEARCH_PREFIX}/ingest`;
 
 export const catIndices = createAsyncThunk(
   CAT_INDICES_ACTION,
@@ -46,6 +47,24 @@ export const searchIndex = createAsyncThunk(
     );
     if (response instanceof HttpFetchError) {
       return rejectWithValue('Error searching index: ' + response.body.message);
+    } else {
+      return response;
+    }
+  }
+);
+
+export const ingest = createAsyncThunk(
+  INGEST_ACTION,
+  async (ingestInfo: { index: string; doc: {} }, { rejectWithValue }) => {
+    const { index, doc } = ingestInfo;
+    const response: any | HttpFetchError = await getRouteService().ingest(
+      index,
+      doc
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error ingesting document: ' + response.body.message
+      );
     } else {
       return response;
     }

@@ -18,11 +18,11 @@ import {
   getIndexName,
   getSemanticSearchValues,
 } from '../../../../common';
-import { searchIndex, useAppDispatch } from '../../../store';
+import { ingest, useAppDispatch } from '../../../store';
 import { getCore } from '../../../services';
 import { getFormattedJSONString } from './utils';
 
-interface QueryExecutorProps {
+interface IngestorProps {
   workflow: Workflow;
 }
 
@@ -35,66 +35,66 @@ type SemanticSearchValues = WorkflowValues & {
   vectorField: string;
 };
 
-type QueryGeneratorFn = (
+type DocGeneratorFn = (
   queryText: string,
   workflowValues: SemanticSearchValues
 ) => {};
 
 /**
- * A basic and flexible UI for executing queries against an index. Sets up guardrails to limit
- * what is customized in the query, and setting readonly values based on the workflow's use case
+ * A basic and flexible UI for ingesting some documents against an index. Sets up guardrails to limit
+ * what is customized in the document, and setting readonly values based on the workflow's use case
  * and details.
  *
  * For example, given a semantic search workflow configured on index A, with model B, input field C, and vector field D,
- * the UI will enforce a semantic search neural query configured with B,C,D, and run it against A.
+ * the UI will enforce the ingested document to include C, and ingest it against A.
  */
-export function QueryExecutor(props: QueryExecutorProps) {
+export function Ingestor(props: IngestorProps) {
   const dispatch = useAppDispatch();
   // query state
   const [workflowValues, setWorkflowValues] = useState<WorkflowValues>();
-  const [queryGeneratorFn, setQueryGeneratorFn] = useState<QueryGeneratorFn>();
+  const [docGeneratorFn, setDocGeneratorFn] = useState<DocGeneratorFn>();
   const [indexName, setIndexName] = useState<string>('');
-  const [queryObj, setQueryObj] = useState<{}>({});
-  const [formattedQuery, setFormattedQuery] = useState<string>('');
+  const [docObj, setDocObj] = useState<{}>({});
+  const [formattedDoc, setFormattedDoc] = useState<string>('');
   const [userInput, setUserInput] = useState<string>('');
 
   // results state
-  const [resultHits, setResultHits] = useState<{}[]>([]);
-  const [formattedHits, setFormattedHits] = useState<string>('');
+  const [response, setResponse] = useState<{}>({});
+  const [formattedResponse, setFormattedResponse] = useState<string>('');
 
   // hook to set all of the workflow-related fields based on the use case
   useEffect(() => {
     setWorkflowValues(getWorkflowValues(props.workflow));
-    setQueryGeneratorFn(getQueryGeneratorFn(props.workflow));
+    setDocGeneratorFn(getDocGeneratorFn(props.workflow));
     setIndexName(getIndexName(props.workflow));
   }, [props.workflow]);
 
   // hook to generate the query once all dependent input vars are available
   useEffect(() => {
-    if (queryGeneratorFn && workflowValues) {
-      setQueryObj(queryGeneratorFn(userInput, workflowValues));
+    if (docGeneratorFn && workflowValues) {
+      setDocObj(docGeneratorFn(userInput, workflowValues));
     }
-  }, [userInput, queryGeneratorFn, workflowValues]);
+  }, [userInput, docGeneratorFn, workflowValues]);
 
   // hooks to persist the formatted data. this is so we don't
   // re-execute the JSON formatting unless necessary
   useEffect(() => {
-    setFormattedHits(getFormattedJSONString(processHits(resultHits)));
-  }, [resultHits]);
+    setFormattedResponse(getFormattedJSONString(response));
+  }, [response]);
   useEffect(() => {
-    setFormattedQuery(getFormattedJSONString(queryObj));
-  }, [queryObj]);
+    setFormattedDoc(getFormattedJSONString(docObj));
+  }, [docObj]);
 
   //
-  function onExecuteSearch() {
-    dispatch(searchIndex({ index: indexName, body: queryObj }))
+  function onExecuteIngest() {
+    dispatch(ingest({ index: indexName, doc: docObj }))
       .unwrap()
       .then(async (result) => {
-        setResultHits(result.hits.hits);
+        setResponse(result);
       })
       .catch((error: any) => {
         getCore().notifications.toasts.addDanger(error);
-        setResultHits([]);
+        setResponse({});
       });
   }
 
@@ -103,7 +103,7 @@ export function QueryExecutor(props: QueryExecutorProps) {
       <EuiFlexItem>
         <EuiFlexGroup direction="column" gutterSize="m">
           <EuiFlexItem>
-            <EuiText size="s">Execute queries to test out the results!</EuiText>
+            <EuiText size="s">Ingest some sample data to get started.</EuiText>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row">
@@ -118,8 +118,8 @@ export function QueryExecutor(props: QueryExecutorProps) {
                 />
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
-                <EuiButton onClick={onExecuteSearch} fill={false}>
-                  Search
+                <EuiButton onClick={onExecuteIngest} fill={false}>
+                  Ingest
                 </EuiButton>
               </EuiFlexItem>
             </EuiFlexGroup>
@@ -130,13 +130,11 @@ export function QueryExecutor(props: QueryExecutorProps) {
               theme="textmate"
               width="100%"
               height="50vh"
-              value={formattedQuery}
+              value={formattedDoc}
               onChange={() => {}}
               readOnly={true}
               setOptions={{
                 fontSize: '14px',
-                //   enableBasicAutocompletion: true,
-                //   enableLiveAutocompletion: true,
               }}
               aria-label="Code Editor"
               tabSize={2}
@@ -148,7 +146,7 @@ export function QueryExecutor(props: QueryExecutorProps) {
       <EuiFlexItem>
         <EuiFlexGroup direction="column" gutterSize="m">
           <EuiFlexItem grow={false}>
-            <EuiText>Results</EuiText>
+            <EuiText size="s">Response</EuiText>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row">
@@ -169,7 +167,7 @@ export function QueryExecutor(props: QueryExecutorProps) {
               theme="textmate"
               width="100%"
               height="50vh"
-              value={formattedHits}
+              value={formattedResponse}
               onChange={() => {}}
               readOnly={true}
               setOptions={{
@@ -185,13 +183,13 @@ export function QueryExecutor(props: QueryExecutorProps) {
   );
 }
 
-// getting the appropriate query generator function based on the use case
-function getQueryGeneratorFn(workflow: Workflow): QueryGeneratorFn {
+// getting the appropriate doc generator function based on the use case
+function getDocGeneratorFn(workflow: Workflow): DocGeneratorFn {
   let fn;
   switch (workflow.use_case) {
     case USE_CASE.SEMANTIC_SEARCH:
     default: {
-      fn = () => generateSemanticSearchQuery;
+      fn = () => generateSemanticSearchDoc;
     }
   }
   return fn;
@@ -209,27 +207,12 @@ function getWorkflowValues(workflow: Workflow): WorkflowValues {
   return values;
 }
 
-// utility fn to generate a semantic search query
-function generateSemanticSearchQuery(
-  queryText: string,
+// utility fn to generate a document suited for semantic search
+function generateSemanticSearchDoc(
+  docValue: string,
   workflowValues: SemanticSearchValues
 ): {} {
   return {
-    _source: {
-      excludes: [`${workflowValues.vectorField}`],
-    },
-    query: {
-      neural: {
-        [workflowValues.vectorField]: {
-          query_text: queryText,
-          model_id: workflowValues.modelId,
-          k: 5,
-        },
-      },
-    },
+    [workflowValues.inputField]: docValue,
   };
-}
-
-function processHits(hits: any[]): {}[] {
-  return hits.map((hit) => hit._source);
 }

@@ -13,6 +13,7 @@ import {
 } from '../../../../src/core/server';
 import {
   CAT_INDICES_NODE_API_PATH,
+  INGEST_NODE_API_PATH,
   Index,
   SEARCH_INDEX_NODE_API_PATH,
 } from '../../common';
@@ -48,6 +49,18 @@ export function registerOpenSearchRoutes(
       },
     },
     opensearchRoutesService.searchIndex
+  );
+  router.put(
+    {
+      path: `${INGEST_NODE_API_PATH}/{index}`,
+      validate: {
+        params: schema.object({
+          index: schema.string(),
+        }),
+        body: schema.any(),
+      },
+    },
+    opensearchRoutesService.ingest
   );
 }
 
@@ -98,6 +111,27 @@ export class OpenSearchRoutesService {
         .callAsCurrentUser('search', {
           index,
           body,
+        });
+
+      return res.ok({ body: response });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  ingest = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { index } = req.params as { index: string };
+    const doc = req.body;
+    try {
+      const response = await this.client
+        .asScoped(req)
+        .callAsCurrentUser('index', {
+          index,
+          body: doc,
         });
 
       return res.ok({ body: response });
