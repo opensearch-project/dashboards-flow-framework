@@ -135,8 +135,6 @@ export function QueryExecutor(props: QueryExecutorProps) {
               readOnly={true}
               setOptions={{
                 fontSize: '14px',
-                //   enableBasicAutocompletion: true,
-                //   enableLiveAutocompletion: true,
               }}
               aria-label="Code Editor"
               tabSize={2}
