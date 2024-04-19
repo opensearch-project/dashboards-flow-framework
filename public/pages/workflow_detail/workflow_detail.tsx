@@ -28,6 +28,7 @@ import { Resources } from './resources';
 
 // styling
 import './workflow-detail-styles.scss';
+import { Prototype } from './prototype';
 
 export interface WorkflowDetailRouterProps {
   workflowId: string;
@@ -42,6 +43,10 @@ enum WORKFLOW_DETAILS_TAB {
   // This gives clarity into what has been done on the cluster on behalf
   // of the frontend provisioning workflows.
   RESOURCES = 'resources',
+  // TODO: temporarily adding a prototype tab until UX is finalized.
+  // This allows simple UI for executing ingest and search against
+  // created workflow resources
+  PROTOTYPE = 'prototype',
 }
 
 const ACTIVE_TAB_PARAM = 'tab';
@@ -142,6 +147,15 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
         replaceActiveTab(WORKFLOW_DETAILS_TAB.RESOURCES, props);
       },
     },
+    {
+      id: WORKFLOW_DETAILS_TAB.PROTOTYPE,
+      label: 'Prototype',
+      isSelected: selectedTabId === WORKFLOW_DETAILS_TAB.PROTOTYPE,
+      onClick: () => {
+        setSelectedTabId(WORKFLOW_DETAILS_TAB.PROTOTYPE);
+        replaceActiveTab(WORKFLOW_DETAILS_TAB.PROTOTYPE, props);
+      },
+    },
   ];
 
   return (
@@ -163,6 +177,9 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
           )}
           {selectedTabId === WORKFLOW_DETAILS_TAB.RESOURCES && (
             <Resources workflow={workflow} />
+          )}
+          {selectedTabId === WORKFLOW_DETAILS_TAB.PROTOTYPE && (
+            <Prototype workflow={workflow} />
           )}
         </EuiPageBody>
       </EuiPage>
