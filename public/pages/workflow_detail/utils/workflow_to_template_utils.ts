@@ -89,7 +89,12 @@ function toProvisionTemplateFlow(
   });
 
   edges.forEach((edge) => {
-    templateEdges.push(toTemplateEdge(edge));
+    // it may be undefined if the edge is not convertible
+    // (e.g., connecting to some meta/other UI component, like "document" or "query")
+    const templateEdge = toTemplateEdge(edge);
+    if (templateEdge) {
+      templateEdges.push(templateEdge);
+    }
   });
 
   return {
@@ -110,11 +115,13 @@ function toTemplateNodes(
   }
 }
 
-function toTemplateEdge(flowEdge: ReactFlowEdge): TemplateEdge {
-  return {
-    source: flowEdge.source,
-    dest: flowEdge.target,
-  };
+function toTemplateEdge(flowEdge: ReactFlowEdge): TemplateEdge | undefined {
+  return isValidTemplateEdge(flowEdge)
+    ? {
+        source: flowEdge.source,
+        dest: flowEdge.target,
+      }
+    : undefined;
 }
 
 // General fn to process all ML transform nodes. Convert into a final
@@ -297,4 +304,13 @@ function getDirectlyConnectedNodes(
     }
   });
   return incomingNodes;
+}
+
+function isValidTemplateEdge(flowEdge: ReactFlowEdge): boolean {
+  // TODO: may need to expand to handle multiple classes in the future (e.g., some 'query' component)
+  const invalidClass = COMPONENT_CLASS.DOCUMENT;
+  return (
+    !flowEdge.sourceClasses?.includes(invalidClass) &&
+    !flowEdge.targetClasses?.includes(invalidClass)
+  );
 }

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { COMPONENT_CLASS } from '../../../common';
+import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../../../common';
 import { MLTransformer } from '.';
 
 /**
@@ -13,10 +13,18 @@ export class TextEmbeddingTransformer extends MLTransformer {
   constructor() {
     super();
     this.type = COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER;
-    this.label = 'Text Embedding Transformer';
+    this.label = 'Text Embedder';
     this.description = 'A specialized ML transformer for embedding text';
+    this.categories = [COMPONENT_CATEGORY.INGEST];
     this.baseClasses = [...this.baseClasses, this.type];
-    this.inputs = [];
+    this.inputs = [
+      {
+        id: 'document',
+        label: 'Document',
+        baseClass: COMPONENT_CLASS.DOCUMENT,
+        acceptMultiple: false,
+      },
+    ];
     this.createFields = [
       {
         label: 'Text Embedding Model',
@@ -31,7 +39,7 @@ export class TextEmbeddingTransformer extends MLTransformer {
         id: 'inputField',
         type: 'string',
         helpText:
-          'The name of the field from which to obtain text for generating text embeddings.',
+          'The name of the document field from which to obtain text for generating text embeddings.',
         helpLink:
           'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-embedding/',
       },
@@ -39,16 +47,15 @@ export class TextEmbeddingTransformer extends MLTransformer {
         label: 'Vector Field',
         id: 'vectorField',
         type: 'string',
-        helpText:
-          '	The name of the vector field in which to store the generated text embeddings.',
+        helpText: `The name of the document's vector field in which to store the generated text embeddings.`,
         helpLink:
           'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-embedding/',
       },
     ];
     this.outputs = [
       {
-        label: this.label,
-        baseClasses: this.baseClasses,
+        label: 'Transformed Document',
+        baseClasses: [COMPONENT_CLASS.DOCUMENT],
       },
     ];
   }

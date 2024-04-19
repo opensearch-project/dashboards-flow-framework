@@ -51,4 +51,6 @@ export enum COMPONENT_CLASS {
   TEXT_EMBEDDING_TRANSFORMER = 'text_embedding_transformer',
   // Query-related classes
   QUERY = 'query',
+  // Document-related classes
+  DOCUMENT = 'document',
 }

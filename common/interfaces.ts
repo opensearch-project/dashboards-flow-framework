@@ -5,6 +5,7 @@
 
 import { Node, Edge } from 'reactflow';
 import { IComponentData } from '../public/component_types';
+import { COMPONENT_CLASS } from '../public/utils';
 
 export type Index = {
   name: string;
@@ -16,7 +17,10 @@ export type Index = {
  */
 
 export type ReactFlowComponent = Node<IComponentData>;
-export type ReactFlowEdge = Edge<{}> & {};
+export type ReactFlowEdge = Edge<{}> & {
+  sourceClasses: COMPONENT_CLASS[];
+  targetClasses: COMPONENT_CLASS[];
+};
 
 type ReactFlowViewport = {
   x: number;
