@@ -18,6 +18,8 @@ import {
   getIndexName,
   getSemanticSearchValues,
 } from '../../../../common';
+import { searchIndex, useAppDispatch } from '../../../store';
+import { getCore } from '../../../services';
 
 interface QueryExecutorProps {
   workflow: Workflow;
@@ -46,15 +48,18 @@ type QueryGeneratorFn = (
  * the UI will enforce a semantic search neural query configured with B,C,D, and run it against A.
  */
 export function QueryExecutor(props: QueryExecutorProps) {
+  const dispatch = useAppDispatch();
   // query state
   const [workflowValues, setWorkflowValues] = useState<WorkflowValues>();
   const [queryGeneratorFn, setQueryGeneratorFn] = useState<QueryGeneratorFn>();
-  const [indexName, setIndexName] = useState<string>();
+  const [indexName, setIndexName] = useState<string>('');
   const [queryObj, setQueryObj] = useState<{}>({});
+  const [formattedQuery, setFormattedQuery] = useState<string>('');
   const [userInput, setUserInput] = useState<string>('');
 
   // results state
-  const [resultsObj, setResultsObj] = useState<{}>({});
+  const [resultHits, setResultHits] = useState<{}[]>([]);
+  const [formattedHits, setFormattedHits] = useState<string>('');
 
   // hook to set all of the workflow-related fields based on the use case
   useEffect(() => {
@@ -70,8 +75,26 @@ export function QueryExecutor(props: QueryExecutorProps) {
     }
   }, [userInput, queryGeneratorFn, workflowValues]);
 
-  function onExecute() {
-    console.log('executing...');
+  // hooks to persist the formatted data. this is so we don't
+  // re-execute the JSON formatting unless necessary
+  useEffect(() => {
+    setFormattedHits(getFormattedJSONString(processHits(resultHits)));
+  }, [resultHits]);
+  useEffect(() => {
+    setFormattedQuery(getFormattedJSONString(queryObj));
+  }, [queryObj]);
+
+  //
+  function onExecuteSearch() {
+    dispatch(searchIndex({ index: indexName, body: queryObj }))
+      .unwrap()
+      .then(async (result) => {
+        setResultHits(result.hits.hits);
+      })
+      .catch((error: any) => {
+        getCore().notifications.toasts.addDanger(error);
+        setResultHits([]);
+      });
   }
 
   return (
@@ -94,8 +117,8 @@ export function QueryExecutor(props: QueryExecutorProps) {
                 />
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
-                <EuiButton onClick={onExecute} fill={false}>
-                  Run!
+                <EuiButton onClick={onExecuteSearch} fill={false}>
+                  Search!
                 </EuiButton>
               </EuiFlexItem>
             </EuiFlexGroup>
@@ -106,7 +129,7 @@ export function QueryExecutor(props: QueryExecutorProps) {
               theme="textmate"
               width="100%"
               height="50vh"
-              value={getFormattedJSONString(queryObj)}
+              value={formattedQuery}
               onChange={() => {}}
               readOnly={true}
               setOptions={{
@@ -133,7 +156,7 @@ export function QueryExecutor(props: QueryExecutorProps) {
                   placeholder={indexName}
                   prepend="Index:"
                   compressed={false}
-                  disabled={false}
+                  disabled={true}
                   readOnly={true}
                 />
               </EuiFlexItem>
@@ -145,7 +168,7 @@ export function QueryExecutor(props: QueryExecutorProps) {
               theme="textmate"
               width="100%"
               height="50vh"
-              value={getFormattedJSONString(resultsObj)}
+              value={formattedHits}
               onChange={() => {}}
               readOnly={true}
               setOptions={{
@@ -209,4 +232,8 @@ function generateSemanticSearchQuery(
       },
     },
   };
+}
+
+function processHits(hits: any[]): {}[] {
+  return hits.map((hit) => hit._source);
 }

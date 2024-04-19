@@ -4,7 +4,6 @@
  */
 
 import { schema } from '@osd/config-schema';
-import { SearchRequest } from '@opensearch-project/opensearch/api/types';
 import {
   IRouter,
   IOpenSearchDashboardsResponse,
@@ -12,7 +11,11 @@ import {
   OpenSearchDashboardsRequest,
   OpenSearchDashboardsResponseFactory,
 } from '../../../../src/core/server';
-import { CAT_INDICES_NODE_API_PATH, Index } from '../../common';
+import {
+  CAT_INDICES_NODE_API_PATH,
+  Index,
+  SEARCH_INDEX_NODE_API_PATH,
+} from '../../common';
 import { generateCustomError } from './helpers';
 
 /**
@@ -33,6 +36,18 @@ export function registerOpenSearchRoutes(
       },
     },
     opensearchRoutesService.catIndices
+  );
+  router.post(
+    {
+      path: `${SEARCH_INDEX_NODE_API_PATH}/{index}`,
+      validate: {
+        params: schema.object({
+          index: schema.string(),
+        }),
+        body: schema.any(),
+      },
+    },
+    opensearchRoutesService.searchIndex
   );
 }
 
@@ -65,6 +80,27 @@ export class OpenSearchRoutesService {
       })) as Index[];
 
       return res.ok({ body: cleanedIndices });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  searchIndex = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { index } = req.params as { index: string };
+    const body = req.body;
+    try {
+      const response = await this.client
+        .asScoped(req)
+        .callAsCurrentUser('search', {
+          index,
+          body,
+        });
+
+      return res.ok({ body: response });
     } catch (err: any) {
       return generateCustomError(res, err);
     }

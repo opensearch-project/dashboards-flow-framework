@@ -16,6 +16,7 @@ const initialState = {
 
 const OPENSEARCH_PREFIX = 'opensearch';
 const CAT_INDICES_ACTION = `${OPENSEARCH_PREFIX}/catIndices`;
+const SEARCH_INDEX_ACTION = `${OPENSEARCH_PREFIX}/search`;
 
 export const catIndices = createAsyncThunk(
   CAT_INDICES_ACTION,
@@ -35,6 +36,22 @@ export const catIndices = createAsyncThunk(
   }
 );
 
+export const searchIndex = createAsyncThunk(
+  SEARCH_INDEX_ACTION,
+  async (searchIndexInfo: { index: string; body: {} }, { rejectWithValue }) => {
+    const { index, body } = searchIndexInfo;
+    const response: any | HttpFetchError = await getRouteService().searchIndex(
+      index,
+      body
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue('Error searching index: ' + response.body.message);
+    } else {
+      return response;
+    }
+  }
+);
+
 const opensearchSlice = createSlice({
   name: OPENSEARCH_PREFIX,
   initialState,
@@ -42,6 +59,10 @@ const opensearchSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(catIndices.pending, (state, action) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
+      .addCase(searchIndex.pending, (state, action) => {
         state.loading = true;
         state.errorMessage = '';
       })
@@ -54,7 +75,15 @@ const opensearchSlice = createSlice({
         state.loading = false;
         state.errorMessage = '';
       })
+      .addCase(searchIndex.fulfilled, (state, action) => {
+        state.loading = false;
+        state.errorMessage = '';
+      })
       .addCase(catIndices.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(searchIndex.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       });

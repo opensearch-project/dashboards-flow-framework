@@ -17,6 +17,7 @@ import {
   DEPROVISION_WORKFLOW_NODE_API_PATH,
   UPDATE_WORKFLOW_NODE_API_PATH,
   WorkflowTemplate,
+  SEARCH_INDEX_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -40,6 +41,7 @@ export interface RouteService {
   deleteWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
   getWorkflowPresets: () => Promise<any | HttpFetchError>;
   catIndices: (pattern: string) => Promise<any | HttpFetchError>;
+  searchIndex: (index: string, body: {}) => Promise<any | HttpFetchError>;
   searchModels: (body: {}) => Promise<any | HttpFetchError>;
 }
 
@@ -151,6 +153,19 @@ export function configureRoutes(core: CoreStart): RouteService {
       try {
         const response = await core.http.get<{ respString: string }>(
           `${CAT_INDICES_NODE_API_PATH}/${pattern}`
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    searchIndex: async (index: string, body: {}) => {
+      try {
+        const response = await core.http.post<{ respString: string }>(
+          `${SEARCH_INDEX_NODE_API_PATH}/${index}`,
+          {
+            body: JSON.stringify(body),
+          }
         );
         return response;
       } catch (e: any) {
