@@ -51,7 +51,7 @@ export function toTemplateFlows(
   };
 }
 
-function getIngestNodesAndEdges(
+export function getIngestNodesAndEdges(
   allNodes: ReactFlowComponent[],
   allEdges: ReactFlowEdge[]
 ): { ingestNodes: ReactFlowComponent[]; ingestEdges: ReactFlowEdge[] } {
