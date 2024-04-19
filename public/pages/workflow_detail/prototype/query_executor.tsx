@@ -15,6 +15,7 @@ import {
 import {
   USE_CASE,
   Workflow,
+  getIndexName,
   getSemanticSearchValues,
 } from '../../../../common';
 
@@ -48,16 +49,18 @@ export function QueryExecutor(props: QueryExecutorProps) {
   // query state
   const [workflowValues, setWorkflowValues] = useState<WorkflowValues>();
   const [queryGeneratorFn, setQueryGeneratorFn] = useState<QueryGeneratorFn>();
+  const [indexName, setIndexName] = useState<string>();
   const [queryObj, setQueryObj] = useState<{}>({});
   const [userInput, setUserInput] = useState<string>('');
 
   // results state
   const [resultsObj, setResultsObj] = useState<{}>({});
 
-  // hook to set the appropriate values and query generator fn
+  // hook to set all of the workflow-related fields based on the use case
   useEffect(() => {
     setWorkflowValues(getWorkflowValues(props.workflow));
     setQueryGeneratorFn(getQueryGeneratorFn(props.workflow));
+    setIndexName(getIndexName(props.workflow));
   }, [props.workflow]);
 
   // hook to generate the query once all dependent input vars are available
@@ -67,9 +70,7 @@ export function QueryExecutor(props: QueryExecutorProps) {
     }
   }, [userInput, queryGeneratorFn, workflowValues]);
 
-  function onExecute() {
-    console.log('executing...');
-  }
+  function onExecute() {}
 
   return (
     <EuiFlexGroup direction="row">

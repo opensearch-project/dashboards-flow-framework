@@ -20,14 +20,25 @@ import { getIngestNodesAndEdges } from './workflow_to_template_utils';
  * Collection of utility fns to extract
  * data fields from a Workflow
  */
+
+export function getIndexName(workflow: Workflow): string | undefined {
+  if (workflow?.ui_metadata?.workspace_flow) {
+    const indexerComponent = getIndexerComponent(workflow);
+    if (indexerComponent) {
+      const { indexName } = componentDataToFormik(indexerComponent.data) as {
+        indexName: string;
+      };
+      return indexName;
+    }
+  }
+}
+
 export function getSemanticSearchValues(
   workflow: Workflow
 ): { modelId: string; inputField: string; vectorField: string } {
-  const formValues = getFormValues(workflow) as WorkspaceFormValues;
-  const modelId = getModelId(workflow, formValues) as string;
+  const modelId = getModelId(workflow) as string;
   const transformerComponent = getTransformerComponent(
-    workflow,
-    formValues
+    workflow
   ) as ReactFlowComponent;
   const { inputField, vectorField } = componentDataToFormik(
     transformerComponent.data
@@ -45,12 +56,9 @@ function getFormValues(workflow: Workflow): WorkspaceFormValues | undefined {
   }
 }
 
-function getModelId(
-  workflow: Workflow,
-  formValues: WorkspaceFormValues
-): string | undefined {
+function getModelId(workflow: Workflow): string | undefined {
   if (workflow?.ui_metadata?.workspace_flow) {
-    const transformerComponent = getTransformerComponent(workflow, formValues);
+    const transformerComponent = getTransformerComponent(workflow);
     if (transformerComponent) {
       const { model } = componentDataToFormik(transformerComponent.data) as {
         model: ModelFormValue;
@@ -72,8 +80,7 @@ function getModelId(
 }
 
 function getTransformerComponent(
-  workflow: Workflow,
-  formValues: WorkspaceFormValues
+  workflow: Workflow
 ): ReactFlowComponent | undefined {
   if (workflow?.ui_metadata?.workspace_flow) {
     const { ingestNodes } = getIngestNodesAndEdges(
@@ -82,6 +89,20 @@ function getTransformerComponent(
     );
     return ingestNodes.find((ingestNode) =>
       ingestNode.data.baseClasses?.includes(COMPONENT_CLASS.ML_TRANSFORMER)
+    );
+  }
+}
+
+function getIndexerComponent(
+  workflow: Workflow
+): ReactFlowComponent | undefined {
+  if (workflow?.ui_metadata?.workspace_flow) {
+    const { ingestNodes } = getIngestNodesAndEdges(
+      workflow?.ui_metadata?.workspace_flow?.nodes,
+      workflow?.ui_metadata?.workspace_flow?.edges
+    );
+    return ingestNodes.find((ingestNode) =>
+      ingestNode.data.baseClasses?.includes(COMPONENT_CLASS.INDEXER)
     );
   }
 }
