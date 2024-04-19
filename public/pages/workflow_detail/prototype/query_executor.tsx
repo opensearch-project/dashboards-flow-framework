@@ -70,7 +70,9 @@ export function QueryExecutor(props: QueryExecutorProps) {
     }
   }, [userInput, queryGeneratorFn, workflowValues]);
 
-  function onExecute() {}
+  function onExecute() {
+    console.log('executing...');
+  }
 
   return (
     <EuiFlexGroup direction="row">
@@ -120,11 +122,24 @@ export function QueryExecutor(props: QueryExecutorProps) {
         </EuiFlexGroup>
       </EuiFlexItem>
       <EuiFlexItem>
-        <EuiFlexGroup direction="column" gutterSize="s">
+        <EuiFlexGroup direction="column" gutterSize="m">
           <EuiFlexItem grow={false}>
             <EuiText>Results</EuiText>
           </EuiFlexItem>
-          <EuiFlexItem style={{ marginTop: '70px' }}>
+          <EuiFlexItem grow={false}>
+            <EuiFlexGroup direction="row">
+              <EuiFlexItem>
+                <EuiFieldText
+                  placeholder={indexName}
+                  prepend="Index:"
+                  compressed={false}
+                  disabled={false}
+                  readOnly={true}
+                />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </EuiFlexItem>
+          <EuiFlexItem>
             <EuiCodeEditor
               mode="json"
               theme="textmate"
