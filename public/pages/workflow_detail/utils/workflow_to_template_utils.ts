@@ -34,6 +34,7 @@ import {
   NEURAL_SPARSE_TOKENIZER_TRANSFORMER,
   REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE,
   SparseEncodingProcessor,
+  IndexMappings,
 } from '../../../../common';
 
 /**
@@ -266,20 +267,12 @@ function indexerToTemplateNode(
         directlyConnectedNode,
       ]);
 
-      return {
-        id: flowNode.data.id,
-        type: CREATE_INDEX_STEP_TYPE,
-        previous_node_inputs: {
-          [directlyConnectedNode.id]: 'pipeline_id',
-        },
-        user_inputs: {
-          index_name: indexName,
-          configurations: {
-            settings: {
-              default_pipeline: `\${{${directlyConnectedNode.id}.pipeline_id}}`,
-            },
-            mappings: {
-              properties: {
+      // index mappings are different per use case
+      const finalIndexMappings = {
+        properties:
+          directlyConnectedNode.data.type ===
+          COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
+            ? {
                 [vectorField]: {
                   type: 'knn_vector',
                   // TODO: remove hardcoding, fetch from the selected model
@@ -295,8 +288,30 @@ function indexerToTemplateNode(
                 [inputField]: {
                   type: 'text',
                 },
+              }
+            : {
+                [vectorField]: {
+                  type: 'rank_features',
+                },
+                [inputField]: {
+                  type: 'text',
+                },
               },
+      } as IndexMappings;
+
+      return {
+        id: flowNode.data.id,
+        type: CREATE_INDEX_STEP_TYPE,
+        previous_node_inputs: {
+          [directlyConnectedNode.id]: 'pipeline_id',
+        },
+        user_inputs: {
+          index_name: indexName,
+          configurations: {
+            settings: {
+              default_pipeline: `\${{${directlyConnectedNode.id}.pipeline_id}}`,
             },
+            mappings: finalIndexMappings,
           },
         },
       };

@@ -61,6 +61,15 @@ export type SparseEncodingProcessor = IngestProcessor & {
   };
 };
 
+export type IndexConfiguration = {
+  settings: {};
+  mappings: IndexMappings;
+};
+
+export type IndexMappings = {
+  properties: {};
+};
+
 export type TemplateNode = {
   id: string;
   type: string;
