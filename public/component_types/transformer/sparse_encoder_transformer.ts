@@ -49,7 +49,7 @@ export class SparseEncoderTransformer extends MLTransformer {
         label: 'Vector Field',
         id: 'vectorField',
         type: 'string',
-        helpText: `The name of the document's vector field in which to store the generated text embeddings.`,
+        helpText: `The name of the document's vector field in which to store the generated sparse embeddings.`,
         helpLink:
           'https://opensearch.org/docs/latest/ingest-pipelines/processors/sparse-encoding/#configuration-parameters',
       },

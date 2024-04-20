@@ -142,6 +142,8 @@ export function ModelField(props: ModelFieldProps) {
   // e.g., only show deployed models when 'deployed' button is selected
   useEffect(() => {
     if (selectedRadioId !== undefined) {
+      // TODO: add fine-grained filtering so only relevant pretrained and existing models
+      // are visible based on the use case
       if (selectedRadioId === MODEL_CATEGORY.DEPLOYED) {
         setSelectableModels(deployedModels);
       } else {
