@@ -154,6 +154,12 @@ function transformerToTemplateNodes(
       const modelId = model.id;
       const ingestPipelineName = generateId('ingest_pipeline');
 
+      // register model workflow step type is different per use case
+      const registerModelStepType =
+        flowNode.data.type === COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
+          ? REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE
+          : REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE;
+
       let registerModelStep = undefined as
         | RegisterPretrainedModelNode
         | undefined;
@@ -170,15 +176,9 @@ function transformerToTemplateNodes(
           (model) => model.name === modelId
         ) as PretrainedSentenceTransformer;
 
-        // workflow step type is different per use case
-        const stepType =
-          flowNode.data.type === COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
-            ? REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE
-            : REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE;
-
         registerModelStep = {
-          id: stepType,
-          type: stepType,
+          id: registerModelStepType,
+          type: registerModelStepType,
           user_inputs: {
             name: pretrainedModel.name,
             description: pretrainedModel.description,
@@ -193,7 +193,7 @@ function transformerToTemplateNodes(
       // or directly from the user
       const finalModelId =
         registerModelStep !== undefined
-          ? `\${{${REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE}.model_id}}`
+          ? `\${{${registerModelStepType}.model_id}}`
           : modelId;
 
       // processor is different per use case
@@ -236,6 +236,12 @@ function transformerToTemplateNodes(
           },
         },
       } as CreateIngestPipelineNode;
+      if (registerModelStep !== undefined) {
+        createIngestPipelineStep.previous_node_inputs = {
+          ...createIngestPipelineStep.previous_node_inputs,
+          [registerModelStepType]: 'model_id',
+        };
+      }
 
       return registerModelStep !== undefined
         ? [registerModelStep, createIngestPipelineStep]

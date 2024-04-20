@@ -33,7 +33,9 @@ export function getIndexName(workflow: Workflow): string | undefined {
   }
 }
 
-export function getSemanticSearchValues(
+// Returns values for neural search use cases. Note many of them
+// persist the same values to use during ingest and search, so we keep the naming general
+export function getNeuralSearchValues(
   workflow: Workflow
 ): { modelId: string; inputField: string; vectorField: string } {
   const modelId = getModelId(workflow) as string;
