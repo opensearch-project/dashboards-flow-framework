@@ -52,6 +52,8 @@ export enum COMPONENT_CLASS {
   SPARSE_ENCODER_TRANSFORMER = 'sparse_encoder_transformer',
   // Query-related classes
   QUERY = 'query',
+  MATCH_QUERY = 'match_query',
+  NEURAL_QUERY = 'neural_query',
   // Document-related classes
   DOCUMENT = 'document',
 }

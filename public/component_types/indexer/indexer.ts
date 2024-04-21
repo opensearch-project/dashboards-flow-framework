@@ -25,6 +25,12 @@ export class Indexer extends BaseComponent {
         baseClass: COMPONENT_CLASS.DOCUMENT,
         acceptMultiple: false,
       },
+      {
+        id: 'query',
+        label: 'Query',
+        baseClass: COMPONENT_CLASS.QUERY,
+        acceptMultiple: true,
+      },
     ];
     this.fields = [
       {

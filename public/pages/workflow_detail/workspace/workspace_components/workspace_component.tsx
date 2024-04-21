@@ -10,6 +10,7 @@ import {
   EuiCard,
   EuiText,
   EuiTitle,
+  EuiSpacer,
 } from '@elastic/eui';
 import { setDirty, useAppDispatch } from '../../../../store';
 import { IComponentData } from '../../../../component_types';
@@ -76,11 +77,12 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
         </EuiFlexGroup>
       }
     >
-      <EuiFlexGroup direction="column">
+      <EuiFlexGroup direction="column" gutterSize="none">
         <EuiFlexItem>
           <EuiText size="s" color="subdued">
             {component.description}
           </EuiText>
+          <EuiSpacer size="s" />
         </EuiFlexItem>
         {component.inputs?.map((input, index) => {
           return (

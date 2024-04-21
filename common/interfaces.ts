@@ -157,6 +157,7 @@ export type Workflow = WorkflowTemplate & {
 export enum USE_CASE {
   SEMANTIC_SEARCH = 'SEMANTIC_SEARCH',
   NEURAL_SPARSE_SEARCH = 'NEURAL_SPARSE_SEARCH',
+  HYBRID_SEARCH = 'HYBRID_SEARCH',
 }
 
 /**
