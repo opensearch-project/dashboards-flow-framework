@@ -330,7 +330,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               iconType="alert"
               style={{ marginBottom: '16px' }}
             >
-              Changes cannot be saved until the flow has first been
+              Changes cannot be saved until the workflow has first been
               deprovisioned.
             </EuiCallOut>
           )}

@@ -6,3 +6,4 @@
 export * from './interfaces';
 export * from './transformer';
 export * from './indexer';
+export * from './other';

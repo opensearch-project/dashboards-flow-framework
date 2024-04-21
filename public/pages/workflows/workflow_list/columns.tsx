@@ -16,6 +16,7 @@ export const columns = (actions: any[]) => [
   {
     field: 'name',
     name: 'Name',
+    width: '20%',
     sortable: true,
     render: (name: string, workflow: Workflow) => (
       <EuiLink href={`${PLUGIN_ID}#/workflows/${workflow.id}`}>{name}</EuiLink>
@@ -29,6 +30,7 @@ export const columns = (actions: any[]) => [
   {
     field: 'use_case',
     name: 'Type',
+    width: '30%',
     sortable: true,
   },
   {

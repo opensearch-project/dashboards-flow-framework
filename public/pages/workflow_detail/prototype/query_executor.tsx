@@ -16,28 +16,24 @@ import {
   USE_CASE,
   Workflow,
   getIndexName,
-  getSemanticSearchValues,
+  getNeuralSearchValues,
 } from '../../../../common';
 import { searchIndex, useAppDispatch } from '../../../store';
 import { getCore } from '../../../services';
-import { getFormattedJSONString } from './utils';
+import {
+  NeuralSparseValues,
+  SemanticSearchValues,
+  WorkflowValues,
+  getFormattedJSONString,
+} from './utils';
 
 interface QueryExecutorProps {
   workflow: Workflow;
 }
 
-type WorkflowValues = {
-  modelId: string;
-};
-
-type SemanticSearchValues = WorkflowValues & {
-  inputField: string;
-  vectorField: string;
-};
-
 type QueryGeneratorFn = (
   queryText: string,
-  workflowValues: SemanticSearchValues
+  workflowValues: SemanticSearchValues | NeuralSparseValues
 ) => {};
 
 /**
@@ -187,9 +183,13 @@ export function QueryExecutor(props: QueryExecutorProps) {
 function getQueryGeneratorFn(workflow: Workflow): QueryGeneratorFn {
   let fn;
   switch (workflow.use_case) {
-    case USE_CASE.SEMANTIC_SEARCH:
-    default: {
+    case USE_CASE.SEMANTIC_SEARCH: {
       fn = () => generateSemanticSearchQuery;
+      break;
+    }
+    case USE_CASE.NEURAL_SPARSE_SEARCH:
+    default: {
+      fn = () => generateNeuralSparseQuery;
     }
   }
   return fn;
@@ -201,7 +201,7 @@ function getWorkflowValues(workflow: Workflow): WorkflowValues {
   switch (workflow.use_case) {
     case USE_CASE.SEMANTIC_SEARCH:
     default: {
-      values = getSemanticSearchValues(workflow);
+      values = getNeuralSearchValues(workflow);
     }
   }
   return values;
@@ -213,6 +213,7 @@ function generateSemanticSearchQuery(
   workflowValues: SemanticSearchValues
 ): {} {
   return {
+    // TODO: can make this configurable
     _source: {
       excludes: [`${workflowValues.vectorField}`],
     },
@@ -221,7 +222,29 @@ function generateSemanticSearchQuery(
         [workflowValues.vectorField]: {
           query_text: queryText,
           model_id: workflowValues.modelId,
+          // TODO: expose k as configurable
           k: 5,
+        },
+      },
+    },
+  };
+}
+
+// utility fn to generate a neural sparse search query
+function generateNeuralSparseQuery(
+  queryText: string,
+  workflowValues: NeuralSparseValues
+): {} {
+  return {
+    // TODO: can make this configurable
+    _source: {
+      excludes: [`${workflowValues.vectorField}`],
+    },
+    query: {
+      neural_sparse: {
+        [workflowValues.vectorField]: {
+          query_text: queryText,
+          model_id: workflowValues.modelId,
         },
       },
     },

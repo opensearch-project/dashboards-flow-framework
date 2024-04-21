@@ -26,6 +26,9 @@ import {
   ModelFormValue,
   MODEL_CATEGORY,
   MPNET_SENTENCE_TRANSFORMER,
+  NEURAL_SPARSE_TRANSFORMER,
+  NEURAL_SPARSE_DOC_TRANSFORMER,
+  NEURAL_SPARSE_TOKENIZER_TRANSFORMER,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 
@@ -113,6 +116,24 @@ export function ModelField(props: ModelFieldProps) {
         category: MODEL_CATEGORY.PRETRAINED,
         algorithm: BERT_SENTENCE_TRANSFORMER.algorithm,
       },
+      {
+        id: NEURAL_SPARSE_TRANSFORMER.name,
+        name: NEURAL_SPARSE_TRANSFORMER.shortenedName,
+        category: MODEL_CATEGORY.PRETRAINED,
+        algorithm: NEURAL_SPARSE_TRANSFORMER.algorithm,
+      },
+      {
+        id: NEURAL_SPARSE_DOC_TRANSFORMER.name,
+        name: NEURAL_SPARSE_DOC_TRANSFORMER.shortenedName,
+        category: MODEL_CATEGORY.PRETRAINED,
+        algorithm: NEURAL_SPARSE_DOC_TRANSFORMER.algorithm,
+      },
+      {
+        id: NEURAL_SPARSE_TOKENIZER_TRANSFORMER.name,
+        name: NEURAL_SPARSE_TOKENIZER_TRANSFORMER.shortenedName,
+        category: MODEL_CATEGORY.PRETRAINED,
+        algorithm: NEURAL_SPARSE_TOKENIZER_TRANSFORMER.algorithm,
+      },
     ];
     setPretrainedModels(modelItems);
   }, []);
@@ -121,6 +142,8 @@ export function ModelField(props: ModelFieldProps) {
   // e.g., only show deployed models when 'deployed' button is selected
   useEffect(() => {
     if (selectedRadioId !== undefined) {
+      // TODO: add fine-grained filtering so only relevant pretrained and existing models
+      // are visible based on the use case
       if (selectedRadioId === MODEL_CATEGORY.DEPLOYED) {
         setSelectableModels(deployedModels);
       } else {

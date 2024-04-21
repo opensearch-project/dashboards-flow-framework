@@ -29,6 +29,12 @@ import {
   BERT_SENTENCE_TRANSFORMER,
   REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE,
   generateId,
+  NEURAL_SPARSE_TRANSFORMER,
+  NEURAL_SPARSE_DOC_TRANSFORMER,
+  NEURAL_SPARSE_TOKENIZER_TRANSFORMER,
+  REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE,
+  SparseEncodingProcessor,
+  IndexMappings,
 } from '../../../../common';
 
 /**
@@ -89,7 +95,12 @@ function toProvisionTemplateFlow(
   });
 
   edges.forEach((edge) => {
-    templateEdges.push(toTemplateEdge(edge));
+    // it may be undefined if the edge is not convertible
+    // (e.g., connecting to some meta/other UI component, like "document" or "query")
+    const templateEdge = toTemplateEdge(edge);
+    if (templateEdge) {
+      templateEdges.push(templateEdge);
+    }
   });
 
   return {
@@ -110,11 +121,13 @@ function toTemplateNodes(
   }
 }
 
-function toTemplateEdge(flowEdge: ReactFlowEdge): TemplateEdge {
-  return {
-    source: flowEdge.source,
-    dest: flowEdge.target,
-  };
+function toTemplateEdge(flowEdge: ReactFlowEdge): TemplateEdge | undefined {
+  return isValidTemplateEdge(flowEdge)
+    ? {
+        source: flowEdge.source,
+        dest: flowEdge.target,
+      }
+    : undefined;
 }
 
 // General fn to process all ML transform nodes. Convert into a final
@@ -124,12 +137,12 @@ function toTemplateEdge(flowEdge: ReactFlowEdge): TemplateEdge {
 function transformerToTemplateNodes(
   flowNode: ReactFlowComponent
 ): TemplateNode[] {
-  // TODO a few improvements to make here:
+  // TODO improvements to make here:
   // 1. Consideration of multiple ingest processors and how to collect them all, and finally create
   //    a single ingest pipeline with all of them, in the same order as done on the UI
-  // 2. Support more than just text embedding transformers
   switch (flowNode.data.type) {
     case COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER:
+    case COMPONENT_CLASS.SPARSE_ENCODER_TRANSFORMER:
     default: {
       const { model, inputField, vectorField } = componentDataToFormik(
         flowNode.data
@@ -141,6 +154,12 @@ function transformerToTemplateNodes(
       const modelId = model.id;
       const ingestPipelineName = generateId('ingest_pipeline');
 
+      // register model workflow step type is different per use case
+      const registerModelStepType =
+        flowNode.data.type === COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
+          ? REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE
+          : REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE;
+
       let registerModelStep = undefined as
         | RegisterPretrainedModelNode
         | undefined;
@@ -149,13 +168,17 @@ function transformerToTemplateNodes(
           ROBERTA_SENTENCE_TRANSFORMER,
           MPNET_SENTENCE_TRANSFORMER,
           BERT_SENTENCE_TRANSFORMER,
+          NEURAL_SPARSE_TRANSFORMER,
+          NEURAL_SPARSE_DOC_TRANSFORMER,
+          NEURAL_SPARSE_TOKENIZER_TRANSFORMER,
         ].find(
           // the model ID in the form will be the unique name of the pretrained model
           (model) => model.name === modelId
         ) as PretrainedSentenceTransformer;
+
         registerModelStep = {
-          id: REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE,
-          type: REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE,
+          id: registerModelStepType,
+          type: registerModelStepType,
           user_inputs: {
             name: pretrainedModel.name,
             description: pretrainedModel.description,
@@ -170,8 +193,34 @@ function transformerToTemplateNodes(
       // or directly from the user
       const finalModelId =
         registerModelStep !== undefined
-          ? `\${{${REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE}.model_id}}`
+          ? `\${{${registerModelStepType}.model_id}}`
           : modelId;
+
+      // processor is different per use case
+      const finalProcessor =
+        flowNode.data.type === COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
+          ? ({
+              text_embedding: {
+                model_id: finalModelId,
+                field_map: {
+                  [inputField]: vectorField,
+                },
+              },
+            } as TextEmbeddingProcessor)
+          : ({
+              sparse_encoding: {
+                model_id: finalModelId,
+                field_map: {
+                  [inputField]: vectorField,
+                },
+              },
+            } as SparseEncodingProcessor);
+
+      // ingest pipeline is different per use case
+      const finalIngestPipelineDescription =
+        flowNode.data.type === COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
+          ? 'An ingest pipeline with a text embedding processor'
+          : 'An ingest pieline with a neural sparse encoding processor';
 
       const createIngestPipelineStep = {
         id: flowNode.data.id,
@@ -182,20 +231,17 @@ function transformerToTemplateNodes(
           input_field: inputField,
           output_field: vectorField,
           configurations: {
-            description: 'An ingest pipeline with a text embedding processor.',
-            processors: [
-              {
-                text_embedding: {
-                  model_id: finalModelId,
-                  field_map: {
-                    [inputField]: vectorField,
-                  },
-                },
-              } as TextEmbeddingProcessor,
-            ],
+            description: finalIngestPipelineDescription,
+            processors: [finalProcessor],
           },
         },
       } as CreateIngestPipelineNode;
+      if (registerModelStep !== undefined) {
+        createIngestPipelineStep.previous_node_inputs = {
+          ...createIngestPipelineStep.previous_node_inputs,
+          [registerModelStepType]: 'model_id',
+        };
+      }
 
       return registerModelStep !== undefined
         ? [registerModelStep, createIngestPipelineStep]
@@ -217,30 +263,22 @@ function indexerToTemplateNode(
       // TODO: remove hardcoded logic here that is assuming each indexer node has
       // exactly 1 directly connected create_ingest_pipeline predecessor node that
       // contains an inputField and vectorField
-      const directlyConnectedNodeId = getDirectlyConnectedNodes(
-        flowNode,
-        edges
-      )[0];
-      const { inputField, vectorField } = getDirectlyConnectedNodeInputs(
+      const directlyConnectedNode = getDirectlyConnectedNodes(
         flowNode,
         prevNodes,
         edges
-      );
+      )[0];
 
-      return {
-        id: flowNode.data.id,
-        type: CREATE_INDEX_STEP_TYPE,
-        previous_node_inputs: {
-          [directlyConnectedNodeId]: 'pipeline_id',
-        },
-        user_inputs: {
-          index_name: indexName,
-          configurations: {
-            settings: {
-              default_pipeline: `\${{${directlyConnectedNodeId}.pipeline_id}}`,
-            },
-            mappings: {
-              properties: {
+      const { inputField, vectorField } = getNodeValues([
+        directlyConnectedNode,
+      ]);
+
+      // index mappings are different per use case
+      const finalIndexMappings = {
+        properties:
+          directlyConnectedNode.data.type ===
+          COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
+            ? {
                 [vectorField]: {
                   type: 'knn_vector',
                   // TODO: remove hardcoding, fetch from the selected model
@@ -256,8 +294,30 @@ function indexerToTemplateNode(
                 [inputField]: {
                   type: 'text',
                 },
+              }
+            : {
+                [vectorField]: {
+                  type: 'rank_features',
+                },
+                [inputField]: {
+                  type: 'text',
+                },
               },
+      } as IndexMappings;
+
+      return {
+        id: flowNode.data.id,
+        type: CREATE_INDEX_STEP_TYPE,
+        previous_node_inputs: {
+          [directlyConnectedNode.id]: 'pipeline_id',
+        },
+        user_inputs: {
+          index_name: indexName,
+          configurations: {
+            settings: {
+              default_pipeline: `\${{${directlyConnectedNode.id}.pipeline_id}}`,
             },
+            mappings: finalIndexMappings,
           },
         },
       };
@@ -265,18 +325,22 @@ function indexerToTemplateNode(
   }
 }
 
-// Fetch all directly connected predecessor node inputs
-function getDirectlyConnectedNodeInputs(
+// Fetch all directly connected predecessor nodes
+function getDirectlyConnectedNodes(
   node: ReactFlowComponent,
   prevNodes: ReactFlowComponent[],
   edges: ReactFlowEdge[]
-): FormikValues {
-  const directlyConnectedNodeIds = getDirectlyConnectedNodes(node, edges);
-  const directlyConnectedNodes = prevNodes.filter((prevNode) =>
+): ReactFlowComponent[] {
+  const directlyConnectedNodeIds = getDirectlyConnectedNodeIds(node, edges);
+  return prevNodes.filter((prevNode) =>
     directlyConnectedNodeIds.includes(prevNode.id)
   );
+}
+
+// Get all values for an arr of flow nodes
+function getNodeValues(nodes: ReactFlowComponent[]): FormikValues {
   let values = {} as FormikValues;
-  directlyConnectedNodes.forEach((node) => {
+  nodes.forEach((node) => {
     values = {
       ...values,
       ...componentDataToFormik(node.data),
@@ -285,8 +349,8 @@ function getDirectlyConnectedNodeInputs(
   return values;
 }
 
-// Simple utility fn to fetch all direct predecessor node IDs for a given node
-function getDirectlyConnectedNodes(
+// Fetch all direct predecessor node IDs for a given node
+function getDirectlyConnectedNodeIds(
   flowNode: ReactFlowComponent,
   edges: ReactFlowEdge[]
 ): string[] {
@@ -297,4 +361,13 @@ function getDirectlyConnectedNodes(
     }
   });
   return incomingNodes;
+}
+
+function isValidTemplateEdge(flowEdge: ReactFlowEdge): boolean {
+  // TODO: may need to expand to handle multiple classes in the future (e.g., some 'query' component)
+  const invalidClass = COMPONENT_CLASS.DOCUMENT;
+  return (
+    !flowEdge.sourceClasses?.includes(invalidClass) &&
+    !flowEdge.targetClasses?.includes(invalidClass)
+  );
 }
