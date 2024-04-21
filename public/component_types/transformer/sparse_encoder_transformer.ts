@@ -7,14 +7,15 @@ import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../../../common';
 import { MLTransformer } from '.';
 
 /**
- * A specialized text embedding ML transformer UI component
+ * A specialized sparse encoder ML transformer UI component
  */
-export class TextEmbeddingTransformer extends MLTransformer {
+export class SparseEncoderTransformer extends MLTransformer {
   constructor() {
     super();
-    this.type = COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER;
-    this.label = 'Text Embedder';
-    this.description = 'A specialized ML transformer for embedding text';
+    this.type = COMPONENT_CLASS.SPARSE_ENCODER_TRANSFORMER;
+    this.label = 'Sparse Encoder';
+    this.description =
+      'A specialized ML transformer to perform sparse encoding';
     this.categories = [COMPONENT_CATEGORY.INGEST];
     this.baseClasses = [...this.baseClasses, this.type];
     this.inputs = [
@@ -27,10 +28,11 @@ export class TextEmbeddingTransformer extends MLTransformer {
     ];
     this.createFields = [
       {
-        label: 'Text Embedding Model',
+        label: 'Sparse Encoding Model',
         id: 'model',
         type: 'model',
-        helpText: 'A text embedding model for embedding text.',
+        helpText:
+          'A sparse encoding model to be used for generating sparse vectors.',
         helpLink:
           'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model',
       },
@@ -39,17 +41,17 @@ export class TextEmbeddingTransformer extends MLTransformer {
         id: 'inputField',
         type: 'string',
         helpText:
-          'The name of the document field from which to obtain text for generating text embeddings.',
+          'The name of the document field from which to obtain text for generating sparse embeddings.',
         helpLink:
-          'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-embedding/',
+          'https://opensearch.org/docs/latest/ingest-pipelines/processors/sparse-encoding/#configuration-parameters',
       },
       {
         label: 'Vector Field',
         id: 'vectorField',
         type: 'string',
-        helpText: `The name of the document's vector field in which to store the generated text embeddings.`,
+        helpText: `The name of the document's vector field in which to store the generated sparse embeddings.`,
         helpLink:
-          'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-embedding/',
+          'https://opensearch.org/docs/latest/ingest-pipelines/processors/sparse-encoding/#configuration-parameters',
       },
     ];
     this.outputs = [

@@ -49,6 +49,9 @@ export enum COMPONENT_CLASS {
   JSON_TO_JSON_TRANSFORMER = 'json_to_json_transformer',
   ML_TRANSFORMER = 'ml_transformer',
   TEXT_EMBEDDING_TRANSFORMER = 'text_embedding_transformer',
+  SPARSE_ENCODER_TRANSFORMER = 'sparse_encoder_transformer',
   // Query-related classes
   QUERY = 'query',
+  // Document-related classes
+  DOCUMENT = 'document',
 }
