@@ -43,9 +43,11 @@ export type WorkspaceFlowState = {
  ********** USE CASE TEMPLATE TYPES/INTERFACES **********
  */
 
-export type IngestProcessor = {
-  description?: string;
-};
+export type IngestProcessor = {};
+export type SearchProcessor = {};
+export type SearchRequestProcessor = SearchProcessor & {};
+export type SearchResponseProcessor = SearchProcessor & {};
+export type SearchPhaseResultsProcessor = SearchProcessor & {};
 
 export type TextEmbeddingProcessor = IngestProcessor & {
   text_embedding: {
@@ -58,6 +60,18 @@ export type SparseEncodingProcessor = IngestProcessor & {
   sparse_encoding: {
     model_id: string;
     field_map: {};
+  };
+};
+
+export type NormalizationProcessor = SearchProcessor & {
+  normalization: {
+    technique: string;
+  };
+  combination: {
+    technique: string;
+    parameters: {
+      weights: number[];
+    };
   };
 };
 
@@ -86,6 +100,18 @@ export type CreateIngestPipelineNode = TemplateNode & {
     configurations: {
       description?: string;
       processors: IngestProcessor[];
+    };
+  };
+};
+
+export type CreateSearchPipelineNode = TemplateNode & {
+  user_inputs: {
+    pipeline_id: string;
+    configurations: {
+      description?: string;
+      request_processors?: SearchRequestProcessor[];
+      response_processors?: SearchResponseProcessor[];
+      phase_results_processors?: SearchPhaseResultsProcessor[];
     };
   };
 };
@@ -157,6 +183,7 @@ export type Workflow = WorkflowTemplate & {
 export enum USE_CASE {
   SEMANTIC_SEARCH = 'SEMANTIC_SEARCH',
   NEURAL_SPARSE_SEARCH = 'NEURAL_SPARSE_SEARCH',
+  HYBRID_SEARCH = 'HYBRID_SEARCH',
 }
 
 /**
@@ -264,6 +291,7 @@ export enum WORKFLOW_STATE {
 
 export type WorkflowResource = {
   id: string;
+  stepType: WORKFLOW_STEP_TYPE;
   type: WORKFLOW_RESOURCE_TYPE;
 };
 
@@ -274,6 +302,25 @@ export enum WORKFLOW_RESOURCE_TYPE {
   MODEL_ID = 'Model',
   MODEL_GROUP_ID = 'Model group',
   CONNECTOR_ID = 'Connector',
+}
+
+export enum WORKFLOW_STEP_TYPE {
+  CREATE_INGEST_PIPELINE_STEP_TYPE = 'create_ingest_pipeline',
+  CREATE_SEARCH_PIPELINE_STEP_TYPE = 'create_search_pipeline',
+  CREATE_INDEX_STEP_TYPE = 'create_index',
+  REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE = 'register_local_pretrained_model',
+  REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE = 'register_local_sparse_encoding_model',
+}
+
+// We cannot disambiguate ingest vs. search pipelines based on workflow resource type. To work around
+// that, we maintain this map from workflow step type -> formatted type
+export enum WORKFLOW_STEP_TO_RESOURCE_TYPE_MAP {
+  'create_ingest_pipeline' = 'Ingest pipeline',
+  'create_search_pipeline' = 'Search pipeline',
+  'create_index' = 'Index',
+  'register_local_pretrained_model' = 'Model',
+  'register_local_sparse_encoding_model' = 'Model',
+  'deploy_model' = 'Model',
 }
 
 export type WorkflowDict = {

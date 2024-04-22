@@ -11,8 +11,6 @@ import {
   NODE_CATEGORY,
   TemplateNode,
   COMPONENT_CLASS,
-  CREATE_INGEST_PIPELINE_STEP_TYPE,
-  CREATE_INDEX_STEP_TYPE,
   CreateIngestPipelineNode,
   TextEmbeddingProcessor,
   componentDataToFormik,
@@ -27,14 +25,14 @@ import {
   ROBERTA_SENTENCE_TRANSFORMER,
   MPNET_SENTENCE_TRANSFORMER,
   BERT_SENTENCE_TRANSFORMER,
-  REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE,
   generateId,
   NEURAL_SPARSE_TRANSFORMER,
   NEURAL_SPARSE_DOC_TRANSFORMER,
   NEURAL_SPARSE_TOKENIZER_TRANSFORMER,
-  REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE,
   SparseEncodingProcessor,
   IndexMappings,
+  CreateSearchPipelineNode,
+  WORKFLOW_STEP_TYPE,
 } from '../../../../common';
 
 /**
@@ -45,11 +43,7 @@ import {
 export function toTemplateFlows(
   workspaceFlow: WorkspaceFlowState
 ): TemplateFlows {
-  const { ingestNodes, ingestEdges } = getIngestNodesAndEdges(
-    workspaceFlow.nodes,
-    workspaceFlow.edges
-  );
-  const provisionFlow = toProvisionTemplateFlow(ingestNodes, ingestEdges);
+  const provisionFlow = toProvisionTemplateFlow(workspaceFlow);
 
   // TODO: support beyond provision
   return {
@@ -57,36 +51,51 @@ export function toTemplateFlows(
   };
 }
 
-export function getIngestNodesAndEdges(
+export function getNodesAndEdgesUnderParent(
+  parentGroup: NODE_CATEGORY,
   allNodes: ReactFlowComponent[],
   allEdges: ReactFlowEdge[]
-): { ingestNodes: ReactFlowComponent[]; ingestEdges: ReactFlowEdge[] } {
-  const ingestParentId = allNodes.find(
-    (node) => node.type === NODE_CATEGORY.INGEST_GROUP
-  )?.id as string;
-  const ingestNodes = allNodes.filter(
-    (node) => node.parentNode === ingestParentId
-  );
-  const ingestIds = ingestNodes.map((node) => node.id);
-  const ingestEdges = allEdges.filter(
-    (edge) => ingestIds.includes(edge.source) || ingestIds.includes(edge.target)
+): { nodes: ReactFlowComponent[]; edges: ReactFlowEdge[] } {
+  const parentId = allNodes.find((node) => node.type === parentGroup)
+    ?.id as string;
+  const nodes = allNodes.filter((node) => node.parentNode === parentId);
+  const nodeIds = nodes.map((node) => node.id);
+  const edges = allEdges.filter(
+    (edge) => nodeIds.includes(edge.source) || nodeIds.includes(edge.target)
   );
   return {
-    ingestNodes,
-    ingestEdges,
+    nodes,
+    edges,
   };
 }
 
 // Generates the end-to-end provision subflow, if applicable
 function toProvisionTemplateFlow(
-  nodes: ReactFlowComponent[],
-  edges: ReactFlowEdge[]
+  workspaceFlow: WorkspaceFlowState
 ): TemplateFlow {
+  const {
+    nodes: ingestNodes,
+    edges: ingestEdges,
+  } = getNodesAndEdgesUnderParent(
+    NODE_CATEGORY.INGEST_GROUP,
+    workspaceFlow.nodes,
+    workspaceFlow.edges
+  );
+  const {
+    nodes: searchNodes,
+    edges: searchEdges,
+  } = getNodesAndEdgesUnderParent(
+    NODE_CATEGORY.SEARCH_GROUP,
+    workspaceFlow.nodes,
+    workspaceFlow.edges
+  );
+
+  // INGEST: iterate through nodes/edges and generate the valid template nodes
   const prevNodes = [] as ReactFlowComponent[];
   const finalTemplateNodes = [] as TemplateNode[];
   const templateEdges = [] as TemplateEdge[];
-  nodes.forEach((node) => {
-    const templateNodes = toTemplateNodes(node, prevNodes, edges);
+  ingestNodes.forEach((node) => {
+    const templateNodes = toTemplateNodes(node, prevNodes, ingestEdges);
     // it may be undefined if the node is not convertible for some reason
     if (templateNodes) {
       finalTemplateNodes.push(...templateNodes);
@@ -94,12 +103,22 @@ function toProvisionTemplateFlow(
     }
   });
 
-  edges.forEach((edge) => {
+  ingestEdges.forEach((edge) => {
     // it may be undefined if the edge is not convertible
     // (e.g., connecting to some meta/other UI component, like "document" or "query")
     const templateEdge = toTemplateEdge(edge);
     if (templateEdge) {
       templateEdges.push(templateEdge);
+    }
+  });
+
+  // SEARCH: iterate through nodes/edges and generate the valid template nodes
+  // TODO: currently the scope is limited to only expecting a single search processor
+  // node, and hence logic is hardcoded to return a single CreateSearchPipelineNode
+  searchNodes.forEach((node) => {
+    if (node.data.baseClasses?.includes(COMPONENT_CLASS.RESULTS_TRANSFORMER)) {
+      const templateNode = resultsTransformerToTemplateNode(node);
+      finalTemplateNodes.push(templateNode);
     }
   });
 
@@ -157,8 +176,8 @@ function transformerToTemplateNodes(
       // register model workflow step type is different per use case
       const registerModelStepType =
         flowNode.data.type === COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
-          ? REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE
-          : REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE;
+          ? WORKFLOW_STEP_TYPE.REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE
+          : WORKFLOW_STEP_TYPE.REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE;
 
       let registerModelStep = undefined as
         | RegisterPretrainedModelNode
@@ -224,7 +243,7 @@ function transformerToTemplateNodes(
 
       const createIngestPipelineStep = {
         id: flowNode.data.id,
-        type: CREATE_INGEST_PIPELINE_STEP_TYPE,
+        type: WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE,
         user_inputs: {
           pipeline_id: ingestPipelineName,
           model_id: finalModelId,
@@ -307,7 +326,7 @@ function indexerToTemplateNode(
 
       return {
         id: flowNode.data.id,
-        type: CREATE_INDEX_STEP_TYPE,
+        type: WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE,
         previous_node_inputs: {
           [directlyConnectedNode.id]: 'pipeline_id',
         },
@@ -323,6 +342,38 @@ function indexerToTemplateNode(
       };
     }
   }
+}
+
+// General fn to process all result transformer nodes.
+// TODO: currently hardcoding to return a static configuration of a normalization
+// phase results processor. Should make dynamic & generic
+function resultsTransformerToTemplateNode(
+  flowNode: ReactFlowComponent
+): CreateSearchPipelineNode {
+  return {
+    id: flowNode.data.id,
+    type: WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE,
+    user_inputs: {
+      pipeline_id: generateId('search_pipeline'),
+      configurations: {
+        phase_results_processors: [
+          {
+            ['normalization-processor']: {
+              normalization: {
+                technique: 'min_max',
+              },
+              combination: {
+                technique: 'arithmetic_mean',
+                parameters: {
+                  weights: `[0.3, 0.7]`,
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+  } as CreateSearchPipelineNode;
 }
 
 // Fetch all directly connected predecessor nodes

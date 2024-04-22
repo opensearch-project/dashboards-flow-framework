@@ -21,6 +21,7 @@ import {
 import { searchIndex, useAppDispatch } from '../../../store';
 import { getCore } from '../../../services';
 import {
+  HybridSearchValues,
   NeuralSparseValues,
   SemanticSearchValues,
   WorkflowValues,
@@ -83,7 +84,13 @@ export function QueryExecutor(props: QueryExecutorProps) {
 
   //
   function onExecuteSearch() {
-    dispatch(searchIndex({ index: indexName, body: queryObj }))
+    dispatch(
+      searchIndex({
+        index: indexName,
+        body: queryObj,
+        searchPipeline: workflowValues?.searchPipelineId,
+      })
+    )
       .unwrap()
       .then(async (result) => {
         setResultHits(result.hits.hits);
@@ -187,9 +194,16 @@ function getQueryGeneratorFn(workflow: Workflow): QueryGeneratorFn {
       fn = () => generateSemanticSearchQuery;
       break;
     }
-    case USE_CASE.NEURAL_SPARSE_SEARCH:
-    default: {
+    case USE_CASE.NEURAL_SPARSE_SEARCH: {
       fn = () => generateNeuralSparseQuery;
+      break;
+    }
+    case USE_CASE.HYBRID_SEARCH: {
+      fn = () => generateHybridSearchQuery;
+      break;
+    }
+    default: {
+      fn = () => () => {};
     }
   }
   return fn;
@@ -200,6 +214,8 @@ function getWorkflowValues(workflow: Workflow): WorkflowValues {
   let values;
   switch (workflow.use_case) {
     case USE_CASE.SEMANTIC_SEARCH:
+    case USE_CASE.NEURAL_SPARSE_SEARCH:
+    case USE_CASE.HYBRID_SEARCH:
     default: {
       values = getNeuralSearchValues(workflow);
     }
@@ -246,6 +262,42 @@ function generateNeuralSparseQuery(
           query_text: queryText,
           model_id: workflowValues.modelId,
         },
+      },
+    },
+  };
+}
+
+// utility fn to generate a hybrid search query
+function generateHybridSearchQuery(
+  queryText: string,
+  workflowValues: HybridSearchValues
+): {} {
+  return {
+    // TODO: can make this configurable
+    _source: {
+      excludes: [`${workflowValues.vectorField}`],
+    },
+    query: {
+      hybrid: {
+        queries: [
+          {
+            match: {
+              [workflowValues.inputField]: {
+                query: queryText,
+              },
+            },
+          },
+          {
+            neural: {
+              [workflowValues.vectorField]: {
+                query_text: queryText,
+                model_id: workflowValues.modelId,
+                // TODO: expose k as configurable
+                k: 5,
+              },
+            },
+          },
+        ],
       },
     },
   };

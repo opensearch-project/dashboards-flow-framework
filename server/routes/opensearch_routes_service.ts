@@ -50,6 +50,19 @@ export function registerOpenSearchRoutes(
     },
     opensearchRoutesService.searchIndex
   );
+  router.post(
+    {
+      path: `${SEARCH_INDEX_NODE_API_PATH}/{index}/{search_pipeline}`,
+      validate: {
+        params: schema.object({
+          index: schema.string(),
+          search_pipeline: schema.string(),
+        }),
+        body: schema.any(),
+      },
+    },
+    opensearchRoutesService.searchIndex
+  );
   router.put(
     {
       path: `${INGEST_NODE_API_PATH}/{index}`,
@@ -103,7 +116,10 @@ export class OpenSearchRoutesService {
     req: OpenSearchDashboardsRequest,
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
-    const { index } = req.params as { index: string };
+    const { index, search_pipeline } = req.params as {
+      index: string;
+      search_pipeline: string | undefined;
+    };
     const body = req.body;
     try {
       const response = await this.client
@@ -111,6 +127,7 @@ export class OpenSearchRoutesService {
         .callAsCurrentUser('search', {
           index,
           body,
+          search_pipeline,
         });
 
       return res.ok({ body: response });
