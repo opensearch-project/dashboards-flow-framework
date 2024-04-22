@@ -88,7 +88,7 @@ function fetchSemanticSearchWorkspaceFlow(): WorkspaceFlowState {
       },
       className: 'reactflow__group-node__ingest',
       selectable: true,
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
@@ -98,7 +98,7 @@ function fetchSemanticSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
@@ -111,7 +111,7 @@ function fetchSemanticSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
@@ -121,7 +121,7 @@ function fetchSemanticSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
   ] as ReactFlowComponent[];
@@ -187,7 +187,7 @@ function fetchNeuralSparseSearchWorkspaceFlow(): WorkspaceFlowState {
       },
       className: 'reactflow__group-node__ingest',
       selectable: true,
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
@@ -197,7 +197,7 @@ function fetchNeuralSparseSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
@@ -210,7 +210,7 @@ function fetchNeuralSparseSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
@@ -220,7 +220,7 @@ function fetchNeuralSparseSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
   ] as ReactFlowComponent[];
@@ -294,7 +294,7 @@ function fetchHybridSearchWorkspaceFlow(): WorkspaceFlowState {
       },
       className: 'reactflow__group-node__ingest',
       selectable: true,
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
@@ -304,7 +304,7 @@ function fetchHybridSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
@@ -317,7 +317,7 @@ function fetchHybridSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
@@ -327,7 +327,7 @@ function fetchHybridSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.CUSTOM,
       parentNode: ingestGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
   ] as ReactFlowComponent[];
@@ -340,11 +340,11 @@ function fetchHybridSearchWorkspaceFlow(): WorkspaceFlowState {
       data: { label: COMPONENT_CATEGORY.SEARCH },
       style: {
         width: 1300,
-        height: 700,
+        height: 600,
       },
       className: 'reactflow__group-node__search',
       selectable: true,
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
@@ -354,7 +354,7 @@ function fetchHybridSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.CUSTOM,
       parentNode: searchGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
@@ -364,30 +364,30 @@ function fetchHybridSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.CUSTOM,
       parentNode: searchGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
       id: searchId2,
       position: { x: 500, y: 70 },
       data: initComponentData(
-        new TextEmbeddingTransformer().toObj(),
+        new TextEmbeddingTransformer().toPlaceholderObj(),
         searchId2
       ),
       type: NODE_CATEGORY.CUSTOM,
       parentNode: searchGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
     {
       id: searchId3,
       position: { x: 900, y: 200 },
-      data: initComponentData(new KnnIndexer().toObj(), searchId3),
+      data: initComponentData(new KnnIndexer().toPlaceholderObj(), searchId3),
       type: NODE_CATEGORY.CUSTOM,
       parentNode: searchGroupId,
       extent: 'parent',
-      draggable: false,
+      draggable: true,
       deletable: false,
     },
   ] as ReactFlowComponent[];

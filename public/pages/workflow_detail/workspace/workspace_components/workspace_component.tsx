@@ -33,6 +33,9 @@ interface WorkspaceComponentProps {
 export function WorkspaceComponent(props: WorkspaceComponentProps) {
   const dispatch = useAppDispatch();
   const component = props.data;
+  // TODO: remove hardcoded logic that only create fields are allowed
+  const containsFormFields =
+    props.data.createFields !== undefined && props.data.createFields.length > 0;
   const reactFlowInstance = useReactFlow();
 
   // TODO: re-enable deletion
@@ -51,9 +54,12 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
     dispatch(setDirty());
   };
 
+  const backgroundColor = containsFormFields ? '#172430' : '#0A121A';
+
   return (
     <EuiCard
       className="react-flow__node"
+      style={{ backgroundColor }}
       textAlign="left"
       title={
         <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -77,7 +83,7 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
         </EuiFlexGroup>
       }
     >
-      <EuiFlexGroup direction="column" gutterSize="none">
+      <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem>
           <EuiText size="s" color="subdued">
             {component.description}
