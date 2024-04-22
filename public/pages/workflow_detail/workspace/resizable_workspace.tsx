@@ -52,6 +52,7 @@ import { ComponentDetails } from '../component_details';
 
 // styling
 import './workspace-styles.scss';
+import '../../../global-styles.scss';
 
 interface ResizableWorkspaceProps {
   isNewWorkflow: boolean;
@@ -444,6 +445,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           />
           <EuiResizableContainer
             direction="horizontal"
+            className="stretch-absolute"
             style={{
               marginLeft: '-8px',
             }}
