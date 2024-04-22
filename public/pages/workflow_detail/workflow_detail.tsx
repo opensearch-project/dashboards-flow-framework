@@ -25,10 +25,11 @@ import {
   NEW_WORKFLOW_ID_URL,
 } from '../../../common';
 import { Resources } from './resources';
+import { Prototype } from './prototype';
 
 // styling
 import './workflow-detail-styles.scss';
-import { Prototype } from './prototype';
+import '../../global-styles.scss';
 
 export interface WorkflowDetailRouterProps {
   workflowId: string;
@@ -161,7 +162,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   return (
     <ReactFlowProvider>
       <EuiPage>
-        <EuiPageBody className="workflow-detail">
+        <EuiPageBody className="workflow-detail stretch-relative">
           <WorkflowDetailHeader
             workflow={workflow}
             isNewWorkflow={isNewWorkflow}

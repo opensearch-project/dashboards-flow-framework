@@ -5,7 +5,12 @@
 
 import React from 'react';
 import { Route, RouteComponentProps, Switch } from 'react-router-dom';
-import { EuiPageSideBar, EuiSideNav, EuiPageTemplate } from '@elastic/eui';
+import {
+  EuiPageSideBar,
+  EuiSideNav,
+  EuiFlexGroup,
+  EuiFlexItem,
+} from '@elastic/eui';
 import { Navigation, APP_PATH } from './utils';
 import {
   Workflows,
@@ -13,6 +18,9 @@ import {
   WorkflowDetailRouterProps,
   WorkflowsRouterProps,
 } from './pages';
+
+// styling
+import './global-styles.scss';
 
 interface Props extends RouteComponentProps {}
 
@@ -41,44 +49,44 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
 
   // Render the application DOM.
   return (
-    <EuiPageTemplate
-      template="empty"
-      paddingSize="none"
-      grow={true}
-      restrictWidth={false}
-      pageContentProps={{ paddingSize: 's' }}
-      pageSideBar={sidebar}
+    <EuiFlexGroup
+      direction="row"
+      gutterSize="none"
+      className="stretch-relative"
     >
-      <Switch>
-        <Route
-          path={APP_PATH.WORKFLOW_DETAIL}
-          render={(
-            routeProps: RouteComponentProps<WorkflowDetailRouterProps>
-          ) => <WorkflowDetail {...routeProps} />}
-        />
-        <Route
-          path={APP_PATH.WORKFLOWS}
-          render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => (
-            <Workflows {...routeProps} />
-          )}
-        />
-        {/*
+      <EuiFlexItem grow={false}>{sidebar}</EuiFlexItem>
+      <EuiFlexItem>
+        <Switch>
+          <Route
+            path={APP_PATH.WORKFLOW_DETAIL}
+            render={(
+              routeProps: RouteComponentProps<WorkflowDetailRouterProps>
+            ) => <WorkflowDetail {...routeProps} />}
+          />
+          <Route
+            path={APP_PATH.WORKFLOWS}
+            render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => (
+              <Workflows {...routeProps} />
+            )}
+          />
+          {/*
         Defaulting to Workflows page. The pathname will need to be updated
         to handle the redirection and get the router props consistent.
         */}
-        <Route
-          path={`${APP_PATH.HOME}`}
-          render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => {
-            if (props.history.location.pathname !== APP_PATH.WORKFLOWS) {
-              props.history.replace({
-                ...history,
-                pathname: APP_PATH.WORKFLOWS,
-              });
-            }
-            return <Workflows {...routeProps} />;
-          }}
-        />
-      </Switch>
-    </EuiPageTemplate>
+          <Route
+            path={`${APP_PATH.HOME}`}
+            render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => {
+              if (props.history.location.pathname !== APP_PATH.WORKFLOWS) {
+                props.history.replace({
+                  ...history,
+                  pathname: APP_PATH.WORKFLOWS,
+                });
+              }
+              return <Workflows {...routeProps} />;
+            }}
+          />
+        </Switch>
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 };
