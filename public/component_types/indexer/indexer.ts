@@ -25,6 +25,12 @@ export class Indexer extends BaseComponent {
         baseClass: COMPONENT_CLASS.DOCUMENT,
         acceptMultiple: false,
       },
+      {
+        id: 'query',
+        label: 'Query',
+        baseClass: COMPONENT_CLASS.QUERY,
+        acceptMultiple: true,
+      },
     ];
     this.fields = [
       {
@@ -46,12 +52,11 @@ export class Indexer extends BaseComponent {
       //   placeholder: 'Enter an index mappings JSON blob...',
       // },
     ];
-    // this.outputs = [
-    //   {
-    //     label: this.label,
-    //     baseClasses: this.baseClasses,
-    //   },
-    // ];
-    this.outputs = [];
+    this.outputs = [
+      {
+        label: 'Results',
+        baseClasses: [COMPONENT_CLASS.RESULTS],
+      },
+    ];
   }
 }

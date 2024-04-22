@@ -128,6 +128,7 @@ export function getResourcesCreatedFromResponse(
     resourcesCreated.forEach((backendResource) => {
       finalResources.push({
         id: backendResource.resource_id,
+        stepType: backendResource.workflow_step_name,
         type:
           // @ts-ignore
           WORKFLOW_RESOURCE_TYPE[

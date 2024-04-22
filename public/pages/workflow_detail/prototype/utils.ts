@@ -21,5 +21,7 @@ export type SemanticSearchValues = WorkflowValues & {
   inputField: string;
   vectorField: string;
 };
-
 export type NeuralSparseValues = SemanticSearchValues;
+export type HybridSearchValues = SemanticSearchValues & {
+  searchPipelineId: string;
+};

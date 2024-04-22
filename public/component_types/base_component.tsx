@@ -34,4 +34,15 @@ export abstract class BaseComponent implements IComponent {
   toObj() {
     return Object.assign({}, this);
   }
+
+  // Helper fn to strip all fields for a component if we want to view it in the UI
+  // but not have it tied to any form/inputs. Example: showing an Index component in search,
+  // even if it is provisioned in ingest.
+  toPlaceholderObj() {
+    return {
+      ...Object.assign({}, this),
+      createFields: [],
+      fields: [],
+    };
+  }
 }
