@@ -85,8 +85,8 @@ function getModelId(workflow: Workflow): string | undefined {
       if (model.category === MODEL_CATEGORY.PRETRAINED) {
         const modelResource = workflow.resourcesCreated?.find(
           (resource) => resource.type === WORKFLOW_RESOURCE_TYPE.MODEL_ID
-        ) as WorkflowResource;
-        return modelResource.id;
+        );
+        return modelResource?.id;
       } else {
         return model.id;
       }

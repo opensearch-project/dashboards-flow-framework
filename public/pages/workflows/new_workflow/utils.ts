@@ -74,8 +74,14 @@ function fetchSemanticSearchWorkspaceFlow(): WorkspaceFlowState {
   const ingestId1 = generateId(COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER);
   const ingestId2 = generateId(COMPONENT_CLASS.KNN_INDEXER);
   const ingestGroupId = generateId(COMPONENT_CATEGORY.INGEST);
+  const searchGroupId = generateId(COMPONENT_CATEGORY.SEARCH);
+  const searchId0 = generateId(COMPONENT_CLASS.NEURAL_QUERY);
+  const searchId1 = generateId(COMPONENT_CLASS.SPARSE_ENCODER_TRANSFORMER);
+  const searchId2 = generateId(COMPONENT_CLASS.KNN_INDEXER);
   const edgeId0 = generateId('edge');
   const edgeId1 = generateId('edge');
+  const edgeId2 = generateId('edge');
+  const edgeId3 = generateId('edge');
 
   const ingestNodes = [
     {
@@ -126,9 +132,58 @@ function fetchSemanticSearchWorkspaceFlow(): WorkspaceFlowState {
       deletable: false,
     },
   ] as ReactFlowComponent[];
+  const searchNodes = [
+    {
+      id: searchGroupId,
+      position: { x: 400, y: 1000 },
+      type: NODE_CATEGORY.SEARCH_GROUP,
+      data: { label: COMPONENT_CATEGORY.SEARCH },
+      style: {
+        width: 1300,
+        height: 400,
+      },
+      className: 'reactflow__group-node__search',
+      selectable: true,
+      draggable: true,
+      deletable: false,
+    },
+    {
+      id: searchId0,
+      position: { x: 100, y: 70 },
+      data: initComponentData(new NeuralQuery().toObj(), searchId0),
+      type: NODE_CATEGORY.CUSTOM,
+      parentNode: searchGroupId,
+      extent: 'parent',
+      draggable: true,
+      deletable: false,
+    },
+    {
+      id: searchId1,
+      position: { x: 500, y: 70 },
+      data: initComponentData(
+        new TextEmbeddingTransformer().toPlaceholderObj(),
+        searchId1
+      ),
+      type: NODE_CATEGORY.CUSTOM,
+      parentNode: searchGroupId,
+      extent: 'parent',
+      draggable: true,
+      deletable: false,
+    },
+    {
+      id: searchId2,
+      position: { x: 900, y: 70 },
+      data: initComponentData(new KnnIndexer().toPlaceholderObj(), searchId2),
+      type: NODE_CATEGORY.CUSTOM,
+      parentNode: searchGroupId,
+      extent: 'parent',
+      draggable: true,
+      deletable: false,
+    },
+  ] as ReactFlowComponent[];
 
   return {
-    nodes: ingestNodes,
+    nodes: [...ingestNodes, ...searchNodes],
     edges: [
       {
         id: edgeId0,
@@ -164,6 +219,44 @@ function fetchSemanticSearchWorkspaceFlow(): WorkspaceFlowState {
         zIndex: 2,
         deletable: false,
       },
+      {
+        id: edgeId2,
+        key: edgeId2,
+        source: searchId0,
+        target: searchId1,
+        sourceClasses: ingestNodes.find((node) => node.id === searchId0)?.data
+          .baseClasses,
+        targetClasses: ingestNodes.find((node) => node.id === searchId1)?.data
+          .baseClasses,
+        sourceHandle: COMPONENT_CLASS.QUERY,
+        targetHandle: COMPONENT_CLASS.QUERY,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+        },
+        zIndex: 2,
+        deletable: false,
+      },
+      {
+        id: edgeId3,
+        key: edgeId3,
+        source: searchId1,
+        target: searchId2,
+        sourceClasses: ingestNodes.find((node) => node.id === searchId1)?.data
+          .baseClasses,
+        targetClasses: ingestNodes.find((node) => node.id === searchId2)?.data
+          .baseClasses,
+        sourceHandle: COMPONENT_CLASS.QUERY,
+        targetHandle: COMPONENT_CLASS.QUERY,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+        },
+        zIndex: 2,
+        deletable: false,
+      },
     ] as ReactFlowEdge[],
   };
 }
@@ -173,8 +266,14 @@ function fetchNeuralSparseSearchWorkspaceFlow(): WorkspaceFlowState {
   const ingestId1 = generateId(COMPONENT_CLASS.SPARSE_ENCODER_TRANSFORMER);
   const ingestId2 = generateId(COMPONENT_CLASS.KNN_INDEXER);
   const ingestGroupId = generateId(COMPONENT_CATEGORY.INGEST);
+  const searchGroupId = generateId(COMPONENT_CATEGORY.SEARCH);
+  const searchId0 = generateId(COMPONENT_CLASS.NEURAL_QUERY);
+  const searchId1 = generateId(COMPONENT_CLASS.SPARSE_ENCODER_TRANSFORMER);
+  const searchId2 = generateId(COMPONENT_CLASS.KNN_INDEXER);
   const edgeId0 = generateId('edge');
   const edgeId1 = generateId('edge');
+  const edgeId2 = generateId('edge');
+  const edgeId3 = generateId('edge');
 
   const ingestNodes = [
     {
@@ -226,8 +325,58 @@ function fetchNeuralSparseSearchWorkspaceFlow(): WorkspaceFlowState {
     },
   ] as ReactFlowComponent[];
 
+  const searchNodes = [
+    {
+      id: searchGroupId,
+      position: { x: 400, y: 1000 },
+      type: NODE_CATEGORY.SEARCH_GROUP,
+      data: { label: COMPONENT_CATEGORY.SEARCH },
+      style: {
+        width: 1300,
+        height: 400,
+      },
+      className: 'reactflow__group-node__search',
+      selectable: true,
+      draggable: true,
+      deletable: false,
+    },
+    {
+      id: searchId0,
+      position: { x: 100, y: 70 },
+      data: initComponentData(new NeuralQuery().toObj(), searchId0),
+      type: NODE_CATEGORY.CUSTOM,
+      parentNode: searchGroupId,
+      extent: 'parent',
+      draggable: true,
+      deletable: false,
+    },
+    {
+      id: searchId1,
+      position: { x: 500, y: 70 },
+      data: initComponentData(
+        new SparseEncoderTransformer().toPlaceholderObj(),
+        searchId1
+      ),
+      type: NODE_CATEGORY.CUSTOM,
+      parentNode: searchGroupId,
+      extent: 'parent',
+      draggable: true,
+      deletable: false,
+    },
+    {
+      id: searchId2,
+      position: { x: 900, y: 70 },
+      data: initComponentData(new KnnIndexer().toPlaceholderObj(), searchId2),
+      type: NODE_CATEGORY.CUSTOM,
+      parentNode: searchGroupId,
+      extent: 'parent',
+      draggable: true,
+      deletable: false,
+    },
+  ] as ReactFlowComponent[];
+
   return {
-    nodes: ingestNodes,
+    nodes: [...ingestNodes, ...searchNodes],
     edges: [
       {
         id: edgeId0,
@@ -255,6 +404,44 @@ function fetchNeuralSparseSearchWorkspaceFlow(): WorkspaceFlowState {
           .baseClasses,
         targetClasses: ingestNodes.find((node) => node.id === ingestId2)?.data
           .baseClasses,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+        },
+        zIndex: 2,
+        deletable: false,
+      },
+      {
+        id: edgeId2,
+        key: edgeId2,
+        source: searchId0,
+        target: searchId1,
+        sourceClasses: ingestNodes.find((node) => node.id === searchId0)?.data
+          .baseClasses,
+        targetClasses: ingestNodes.find((node) => node.id === searchId1)?.data
+          .baseClasses,
+        sourceHandle: COMPONENT_CLASS.QUERY,
+        targetHandle: COMPONENT_CLASS.QUERY,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+        },
+        zIndex: 2,
+        deletable: false,
+      },
+      {
+        id: edgeId3,
+        key: edgeId3,
+        source: searchId1,
+        target: searchId2,
+        sourceClasses: ingestNodes.find((node) => node.id === searchId1)?.data
+          .baseClasses,
+        targetClasses: ingestNodes.find((node) => node.id === searchId2)?.data
+          .baseClasses,
+        sourceHandle: COMPONENT_CLASS.QUERY,
+        targetHandle: COMPONENT_CLASS.QUERY,
         markerEnd: {
           type: MarkerType.ArrowClosed,
           width: 20,

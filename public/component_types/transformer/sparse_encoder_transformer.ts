@@ -25,6 +25,12 @@ export class SparseEncoderTransformer extends MLTransformer {
         baseClass: COMPONENT_CLASS.DOCUMENT,
         acceptMultiple: false,
       },
+      {
+        id: 'query',
+        label: 'Query',
+        baseClass: COMPONENT_CLASS.QUERY,
+        acceptMultiple: false,
+      },
     ];
     this.createFields = [
       {
@@ -58,6 +64,10 @@ export class SparseEncoderTransformer extends MLTransformer {
       {
         label: 'Transformed Document',
         baseClasses: [COMPONENT_CLASS.DOCUMENT],
+      },
+      {
+        label: 'Transformed Query',
+        baseClasses: [COMPONENT_CLASS.QUERY],
       },
     ];
   }
