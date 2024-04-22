@@ -56,16 +56,6 @@ export const BASE_MODEL_NODE_API_PATH = `${BASE_NODE_API_PATH}/model`;
 export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
 
 /**
- * BACKEND INTERFACES
- */
-export const CREATE_INGEST_PIPELINE_STEP_TYPE = 'create_ingest_pipeline';
-export const CREATE_INDEX_STEP_TYPE = 'create_index';
-export const REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE =
-  'register_local_pretrained_model';
-export const REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE =
-  'register_local_sparse_encoding_model';
-
-/**
  * ML PLUGIN PRETRAINED MODELS
  * (based off of https://opensearch.org/docs/latest/ml-commons-plugin/pretrained-models)
  */

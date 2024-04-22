@@ -13,8 +13,9 @@ import {
   Workflow,
   WORKFLOW_RESOURCE_TYPE,
   WorkflowResource,
+  NODE_CATEGORY,
 } from '../../../../common';
-import { getIngestNodesAndEdges } from './workflow_to_template_utils';
+import { getNodesAndEdgesUnderParent } from './workflow_to_template_utils';
 
 /**
  * Collection of utility fns to extract
@@ -85,7 +86,8 @@ function getTransformerComponent(
   workflow: Workflow
 ): ReactFlowComponent | undefined {
   if (workflow?.ui_metadata?.workspace_flow) {
-    const { ingestNodes } = getIngestNodesAndEdges(
+    const { nodes: ingestNodes } = getNodesAndEdgesUnderParent(
+      NODE_CATEGORY.INGEST_GROUP,
       workflow?.ui_metadata?.workspace_flow?.nodes,
       workflow?.ui_metadata?.workspace_flow?.edges
     );
@@ -99,7 +101,8 @@ function getIndexerComponent(
   workflow: Workflow
 ): ReactFlowComponent | undefined {
   if (workflow?.ui_metadata?.workspace_flow) {
-    const { ingestNodes } = getIngestNodesAndEdges(
+    const { nodes: ingestNodes } = getNodesAndEdgesUnderParent(
+      NODE_CATEGORY.INGEST_GROUP,
       workflow?.ui_metadata?.workspace_flow?.nodes,
       workflow?.ui_metadata?.workspace_flow?.edges
     );
