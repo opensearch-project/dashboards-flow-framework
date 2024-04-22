@@ -11,10 +11,15 @@ import { AppMountParameters, CoreStart } from '../../../src/core/public';
 import { FlowFrameworkDashboardsApp } from './app';
 import { store } from './store';
 
+// styling
+import './global-styles.scss';
+
 export const renderApp = (
   coreStart: CoreStart,
   { appBasePath, element }: AppMountParameters
 ) => {
+  // This is so our base element stretches to fit the entire webpage
+  element.className = 'stretch-absolute';
   ReactDOM.render(
     <Provider store={store}>
       <Router basename={appBasePath + '#/'}>
