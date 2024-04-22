@@ -20,9 +20,9 @@ export class Indexer extends BaseComponent {
     this.baseClasses = [this.type];
     this.inputs = [
       {
-        id: 'transformer',
-        label: 'Transformer',
-        baseClass: COMPONENT_CLASS.TRANSFORMER,
+        id: 'document',
+        label: 'Document',
+        baseClass: COMPONENT_CLASS.DOCUMENT,
         acceptMultiple: false,
       },
     ];

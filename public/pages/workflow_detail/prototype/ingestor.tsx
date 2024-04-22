@@ -16,28 +16,24 @@ import {
   USE_CASE,
   Workflow,
   getIndexName,
-  getSemanticSearchValues,
+  getNeuralSearchValues,
 } from '../../../../common';
 import { ingest, useAppDispatch } from '../../../store';
 import { getCore } from '../../../services';
-import { getFormattedJSONString } from './utils';
+import {
+  NeuralSparseValues,
+  SemanticSearchValues,
+  WorkflowValues,
+  getFormattedJSONString,
+} from './utils';
 
 interface IngestorProps {
   workflow: Workflow;
 }
 
-type WorkflowValues = {
-  modelId: string;
-};
-
-type SemanticSearchValues = WorkflowValues & {
-  inputField: string;
-  vectorField: string;
-};
-
 type DocGeneratorFn = (
   queryText: string,
-  workflowValues: SemanticSearchValues
+  workflowValues: SemanticSearchValues | NeuralSparseValues
 ) => {};
 
 /**
@@ -188,8 +184,9 @@ function getDocGeneratorFn(workflow: Workflow): DocGeneratorFn {
   let fn;
   switch (workflow.use_case) {
     case USE_CASE.SEMANTIC_SEARCH:
+    case USE_CASE.NEURAL_SPARSE_SEARCH:
     default: {
-      fn = () => generateSemanticSearchDoc;
+      fn = () => generateNeuralSearchDoc;
     }
   }
   return fn;
@@ -200,17 +197,18 @@ function getWorkflowValues(workflow: Workflow): WorkflowValues {
   let values;
   switch (workflow.use_case) {
     case USE_CASE.SEMANTIC_SEARCH:
+    case USE_CASE.NEURAL_SPARSE_SEARCH:
     default: {
-      values = getSemanticSearchValues(workflow);
+      values = getNeuralSearchValues(workflow);
     }
   }
   return values;
 }
 
-// utility fn to generate a document suited for semantic search
-function generateSemanticSearchDoc(
+// utility fn to generate a document suited for neural search use cases
+function generateNeuralSearchDoc(
   docValue: string,
-  workflowValues: SemanticSearchValues
+  workflowValues: SemanticSearchValues | NeuralSparseValues
 ): {} {
   return {
     [workflowValues.inputField]: docValue,

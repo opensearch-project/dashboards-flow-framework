@@ -5,6 +5,7 @@
 
 import { Node, Edge } from 'reactflow';
 import { IComponentData } from '../public/component_types';
+import { COMPONENT_CLASS } from '../public/utils';
 
 export type Index = {
   name: string;
@@ -16,7 +17,11 @@ export type Index = {
  */
 
 export type ReactFlowComponent = Node<IComponentData>;
-export type ReactFlowEdge = Edge<{}> & {};
+export type ReactFlowEdge = Edge<{}> & {
+  key: string;
+  sourceClasses: COMPONENT_CLASS[];
+  targetClasses: COMPONENT_CLASS[];
+};
 
 type ReactFlowViewport = {
   x: number;
@@ -47,6 +52,22 @@ export type TextEmbeddingProcessor = IngestProcessor & {
     model_id: string;
     field_map: {};
   };
+};
+
+export type SparseEncodingProcessor = IngestProcessor & {
+  sparse_encoding: {
+    model_id: string;
+    field_map: {};
+  };
+};
+
+export type IndexConfiguration = {
+  settings: {};
+  mappings: IndexMappings;
+};
+
+export type IndexMappings = {
+  properties: {};
 };
 
 export type TemplateNode = {
@@ -135,6 +156,7 @@ export type Workflow = WorkflowTemplate & {
 
 export enum USE_CASE {
   SEMANTIC_SEARCH = 'SEMANTIC_SEARCH',
+  NEURAL_SPARSE_SEARCH = 'NEURAL_SPARSE_SEARCH',
 }
 
 /**
@@ -195,6 +217,8 @@ export type PretrainedModel = {
 export type PretrainedSentenceTransformer = PretrainedModel & {
   vectorDimensions: number;
 };
+
+export type PretrainedSparseEncodingModel = PretrainedModel & {};
 
 export type ModelConfig = {
   modelType?: string;

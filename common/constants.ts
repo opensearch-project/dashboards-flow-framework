@@ -7,6 +7,7 @@ import {
   MODEL_ALGORITHM,
   PRETRAINED_MODEL_FORMAT,
   PretrainedSentenceTransformer,
+  PretrainedSparseEncodingModel,
   WORKFLOW_STATE,
 } from './interfaces';
 
@@ -61,11 +62,15 @@ export const CREATE_INGEST_PIPELINE_STEP_TYPE = 'create_ingest_pipeline';
 export const CREATE_INDEX_STEP_TYPE = 'create_index';
 export const REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE =
   'register_local_pretrained_model';
+export const REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE =
+  'register_local_sparse_encoding_model';
 
 /**
  * ML PLUGIN PRETRAINED MODELS
- * (based off of https://opensearch.org/docs/latest/ml-commons-plugin/pretrained-models/#sentence-transformers)
+ * (based off of https://opensearch.org/docs/latest/ml-commons-plugin/pretrained-models)
  */
+
+// ---- SENTENCE TRANSFORMERS ----
 export const ROBERTA_SENTENCE_TRANSFORMER = {
   name: 'huggingface/sentence-transformers/all-distilroberta-v1',
   shortenedName: 'all-distilroberta-v1',
@@ -95,6 +100,34 @@ export const BERT_SENTENCE_TRANSFORMER = {
   version: '1.0.2',
   vectorDimensions: 768,
 } as PretrainedSentenceTransformer;
+
+// ---- SPARSE ENCODERS ----
+export const NEURAL_SPARSE_TRANSFORMER = {
+  name: 'amazon/neural-sparse/opensearch-neural-sparse-encoding-v1',
+  shortenedName: 'opensearch-neural-sparse-encoding-v1',
+  description: 'A general neural sparse encoding model',
+  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
+  algorithm: MODEL_ALGORITHM.SPARSE_ENCODING,
+  version: '1.0.1',
+} as PretrainedSparseEncodingModel;
+
+export const NEURAL_SPARSE_DOC_TRANSFORMER = {
+  name: 'amazon/neural-sparse/opensearch-neural-sparse-encoding-doc-v1',
+  shortenedName: 'opensearch-neural-sparse-encoding-doc-v1',
+  description: 'A general neural sparse encoding model',
+  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
+  algorithm: MODEL_ALGORITHM.SPARSE_ENCODING,
+  version: '1.0.1',
+} as PretrainedSparseEncodingModel;
+
+export const NEURAL_SPARSE_TOKENIZER_TRANSFORMER = {
+  name: 'amazon/neural-sparse/opensearch-neural-sparse-tokenizer-v1',
+  shortenedName: 'opensearch-neural-sparse-tokenizer-v1',
+  description: 'A neural sparse tokenizer model',
+  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
+  algorithm: MODEL_ALGORITHM.SPARSE_ENCODING,
+  version: '1.0.1',
+} as PretrainedSparseEncodingModel;
 
 /**
  * MISCELLANEOUS

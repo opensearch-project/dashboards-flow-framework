@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { EuiSpacer, EuiText, EuiTitle } from '@elastic/eui';
+import { EuiHorizontalRule, EuiSpacer, EuiText, EuiTitle } from '@elastic/eui';
 import { InputFieldList } from './input_field_list';
 import { NODE_CATEGORY, ReactFlowComponent } from '../../../../common';
 import { NewOrExistingTabs } from '../workspace/workspace_components/new_or_existing_tabs';
@@ -58,11 +58,12 @@ export function ComponentInputs(props: ComponentInputsProps) {
         <EuiText color="subdued">
           {props.selectedComponent.data.description}
         </EuiText>
-        <NewOrExistingTabs
+        {/* TODO: Add tabs back once it is finalized how much flexibility we want */}
+        {/* <NewOrExistingTabs
           selectedTabId={selectedTabId}
           setSelectedTabId={setSelectedTabId}
-        />
-        <EuiSpacer size="s" />
+        /> */}
+        <EuiHorizontalRule size="full" />
 
         <InputFieldList
           componentId={props.selectedComponent.id}

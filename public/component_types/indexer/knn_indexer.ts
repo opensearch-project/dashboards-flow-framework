@@ -13,7 +13,7 @@ export class KnnIndexer extends Indexer {
   constructor() {
     super();
     this.type = COMPONENT_CLASS.KNN_INDEXER;
-    this.label = 'K-NN Indexer';
+    this.label = 'K-NN Index';
     this.description = 'A specialized indexer for K-NN indices';
     this.baseClasses = [...this.baseClasses, this.type];
     this.createFields = [

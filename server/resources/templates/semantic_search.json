@@ -1,11 +1,11 @@
 {
     "name": "Semantic Search",
-    "description": "This semantic search workflow includes the essential ingestion and search pipelines that covers the most common search use cases.",
+    "description": "A basic workflow containing the ingest pipeline and index configurations for performing semantic search",
     "use_case": "SEMANTIC_SEARCH",
     "version": {
         "template": "1.0.0",
         "compatibility": [
-            "2.12.0",
+            "2.13.0",
             "3.0.0"
         ]
     }
