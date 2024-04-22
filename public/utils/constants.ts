@@ -50,8 +50,14 @@ export enum COMPONENT_CLASS {
   ML_TRANSFORMER = 'ml_transformer',
   TEXT_EMBEDDING_TRANSFORMER = 'text_embedding_transformer',
   SPARSE_ENCODER_TRANSFORMER = 'sparse_encoder_transformer',
+  RESULTS_TRANSFORMER = 'results_transformer',
+  NORMALIZATION_TRANSFORMER = 'normalization_transformer',
   // Query-related classes
   QUERY = 'query',
+  MATCH_QUERY = 'match_query',
+  NEURAL_QUERY = 'neural_query',
   // Document-related classes
   DOCUMENT = 'document',
+  // Results-related classes
+  RESULTS = 'results',
 }

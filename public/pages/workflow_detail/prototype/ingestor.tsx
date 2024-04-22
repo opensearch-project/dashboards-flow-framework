@@ -185,6 +185,7 @@ function getDocGeneratorFn(workflow: Workflow): DocGeneratorFn {
   switch (workflow.use_case) {
     case USE_CASE.SEMANTIC_SEARCH:
     case USE_CASE.NEURAL_SPARSE_SEARCH:
+    case USE_CASE.HYBRID_SEARCH:
     default: {
       fn = () => generateNeuralSearchDoc;
     }
@@ -198,6 +199,7 @@ function getWorkflowValues(workflow: Workflow): WorkflowValues {
   switch (workflow.use_case) {
     case USE_CASE.SEMANTIC_SEARCH:
     case USE_CASE.NEURAL_SPARSE_SEARCH:
+    case USE_CASE.HYBRID_SEARCH:
     default: {
       values = getNeuralSearchValues(workflow);
     }

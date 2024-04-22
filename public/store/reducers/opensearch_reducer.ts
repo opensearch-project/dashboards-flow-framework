@@ -39,11 +39,15 @@ export const catIndices = createAsyncThunk(
 
 export const searchIndex = createAsyncThunk(
   SEARCH_INDEX_ACTION,
-  async (searchIndexInfo: { index: string; body: {} }, { rejectWithValue }) => {
-    const { index, body } = searchIndexInfo;
+  async (
+    searchIndexInfo: { index: string; body: {}; searchPipeline?: string },
+    { rejectWithValue }
+  ) => {
+    const { index, body, searchPipeline } = searchIndexInfo;
     const response: any | HttpFetchError = await getRouteService().searchIndex(
       index,
-      body
+      body,
+      searchPipeline
     );
     if (response instanceof HttpFetchError) {
       return rejectWithValue('Error searching index: ' + response.body.message);
