@@ -14,6 +14,7 @@ import {
   WORKFLOW_RESOURCE_TYPE,
   WorkflowResource,
   NODE_CATEGORY,
+  WORKFLOW_STEP_TYPE,
 } from '../../../../common';
 import { getNodesAndEdgesUnderParent } from './workflow_to_template_utils';
 
@@ -38,7 +39,12 @@ export function getIndexName(workflow: Workflow): string | undefined {
 // persist the same values to use during ingest and search, so we keep the naming general
 export function getNeuralSearchValues(
   workflow: Workflow
-): { modelId: string; inputField: string; vectorField: string } {
+): {
+  modelId: string;
+  inputField: string;
+  vectorField: string;
+  searchPipelineId?: string;
+} {
   const modelId = getModelId(workflow) as string;
   const transformerComponent = getTransformerComponent(
     workflow
@@ -46,7 +52,13 @@ export function getNeuralSearchValues(
   const { inputField, vectorField } = componentDataToFormik(
     transformerComponent.data
   ) as { inputField: string; vectorField: string };
-  return { modelId, inputField, vectorField };
+
+  const searchPipelineId = workflow.resourcesCreated?.find(
+    (resource) =>
+      resource.stepType === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+  )?.id;
+
+  return { modelId, inputField, vectorField, searchPipelineId };
 }
 
 function getFormValues(workflow: Workflow): WorkspaceFormValues | undefined {

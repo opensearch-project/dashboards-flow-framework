@@ -58,13 +58,7 @@ export function getNodesAndEdgesUnderParent(
 ): { nodes: ReactFlowComponent[]; edges: ReactFlowEdge[] } {
   const parentId = allNodes.find((node) => node.type === parentGroup)
     ?.id as string;
-  const nodes = allNodes.filter(
-    (node) =>
-      node.parentNode === parentId &&
-      // TODO: hardcoding that only create fields will be eligible for parsing. Make more generic in the future
-      node.data.createFields !== undefined &&
-      node.data.createFields.length > 0
-  );
+  const nodes = allNodes.filter((node) => node.parentNode === parentId);
   const nodeIds = nodes.map((node) => node.id);
   const edges = allEdges.filter(
     (edge) => nodeIds.includes(edge.source) || nodeIds.includes(edge.target)
