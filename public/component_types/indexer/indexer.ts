@@ -52,12 +52,11 @@ export class Indexer extends BaseComponent {
       //   placeholder: 'Enter an index mappings JSON blob...',
       // },
     ];
-    // this.outputs = [
-    //   {
-    //     label: this.label,
-    //     baseClasses: this.baseClasses,
-    //   },
-    // ];
-    this.outputs = [];
+    this.outputs = [
+      {
+        label: 'Results',
+        baseClasses: [COMPONENT_CLASS.RESULTS],
+      },
+    ];
   }
 }

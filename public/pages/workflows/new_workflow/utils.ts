@@ -23,6 +23,7 @@ import {
   SparseEncoderTransformer,
   NeuralQuery,
   MatchQuery,
+  NormalizationTransformer,
 } from '../../../../common';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
@@ -276,11 +277,13 @@ function fetchHybridSearchWorkspaceFlow(): WorkspaceFlowState {
   const searchId1 = generateId(COMPONENT_CLASS.NEURAL_QUERY);
   const searchId2 = generateId(COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER);
   const searchId3 = generateId(COMPONENT_CLASS.KNN_INDEXER);
+  const searchId4 = generateId(COMPONENT_CLASS.NORMALIZATION_TRANSFORMER);
   const edgeId0 = generateId('edge');
   const edgeId1 = generateId('edge');
   const edgeId2 = generateId('edge');
   const edgeId3 = generateId('edge');
   const edgeId4 = generateId('edge');
+  const edgeId5 = generateId('edge');
 
   const ingestNodes = [
     {
@@ -339,7 +342,7 @@ function fetchHybridSearchWorkspaceFlow(): WorkspaceFlowState {
       type: NODE_CATEGORY.SEARCH_GROUP,
       data: { label: COMPONENT_CATEGORY.SEARCH },
       style: {
-        width: 1300,
+        width: 1700,
         height: 600,
       },
       className: 'reactflow__group-node__search',
@@ -384,6 +387,19 @@ function fetchHybridSearchWorkspaceFlow(): WorkspaceFlowState {
       id: searchId3,
       position: { x: 900, y: 200 },
       data: initComponentData(new KnnIndexer().toPlaceholderObj(), searchId3),
+      type: NODE_CATEGORY.CUSTOM,
+      parentNode: searchGroupId,
+      extent: 'parent',
+      draggable: true,
+      deletable: false,
+    },
+    {
+      id: searchId4,
+      position: { x: 1300, y: 200 },
+      data: initComponentData(
+        new NormalizationTransformer().toObj(),
+        searchId4
+      ),
       type: NODE_CATEGORY.CUSTOM,
       parentNode: searchGroupId,
       extent: 'parent',
@@ -477,6 +493,24 @@ function fetchHybridSearchWorkspaceFlow(): WorkspaceFlowState {
         targetClasses: searchNodes.find((node) => node.id === searchId3)?.data
           .baseClasses,
         targetHandle: COMPONENT_CLASS.QUERY,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+        },
+        zIndex: 2,
+        deletable: false,
+      },
+      {
+        id: edgeId5,
+        key: edgeId5,
+        source: searchId3,
+        target: searchId4,
+        sourceClasses: searchNodes.find((node) => node.id === searchId3)?.data
+          .baseClasses,
+        targetClasses: searchNodes.find((node) => node.id === searchId4)?.data
+          .baseClasses,
+        targetHandle: COMPONENT_CLASS.RESULTS,
         markerEnd: {
           type: MarkerType.ArrowClosed,
           width: 20,

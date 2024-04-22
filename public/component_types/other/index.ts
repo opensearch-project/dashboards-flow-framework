@@ -4,4 +4,5 @@
  */
 
 export * from './document';
+export * from './results';
 export * from './query';
