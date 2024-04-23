@@ -137,7 +137,7 @@ export function Workflows(props: WorkflowsProps) {
           {selectedTabId === WORKFLOWS_TAB.MANAGE && <WorkflowList />}
           {selectedTabId === WORKFLOWS_TAB.CREATE && <NewWorkflow />}
           {selectedTabId === WORKFLOWS_TAB.MANAGE &&
-            Object.values(workflows).length === 0 &&
+            Object.keys(workflows || {}).length === 0 &&
             !loading && (
               <EmptyListMessage
                 onClickNewWorkflow={() => {
