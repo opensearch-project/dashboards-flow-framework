@@ -6,17 +6,16 @@
 import {
   ReactFlowComponent,
   COMPONENT_CLASS,
-  componentDataToFormik,
   ModelFormValue,
   MODEL_CATEGORY,
   WorkspaceFormValues,
   Workflow,
   WORKFLOW_RESOURCE_TYPE,
-  WorkflowResource,
   NODE_CATEGORY,
   WORKFLOW_STEP_TYPE,
 } from '../../../../common';
 import { getNodesAndEdgesUnderParent } from './workflow_to_template_utils';
+import { componentDataToFormik } from '../../../utils';
 
 /**
  * Collection of utility fns to extract

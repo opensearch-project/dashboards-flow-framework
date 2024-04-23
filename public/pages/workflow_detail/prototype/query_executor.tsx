@@ -12,12 +12,11 @@ import {
   EuiFlexItem,
   EuiText,
 } from '@elastic/eui';
+import { USE_CASE, Workflow } from '../../../../common';
 import {
-  USE_CASE,
-  Workflow,
   getIndexName,
   getNeuralSearchValues,
-} from '../../../../common';
+} from '../utils/data_extractor_utils';
 import { searchIndex, useAppDispatch } from '../../../store';
 import { getCore } from '../../../services';
 import {
