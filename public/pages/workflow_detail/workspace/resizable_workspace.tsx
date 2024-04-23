@@ -26,15 +26,17 @@ import {
   WorkspaceSchema,
   ReactFlowComponent,
   WorkspaceSchemaObj,
-  componentDataToFormik,
-  getComponentSchema,
   WorkspaceFlowState,
   WORKFLOW_STATE,
+  ReactFlowEdge,
+} from '../../../../common';
+import {
+  componentDataToFormik,
+  getComponentSchema,
   processNodes,
   reduceToTemplate,
-  ReactFlowEdge,
   APP_PATH,
-} from '../../../../common';
+} from '../../../utils';
 import { validateWorkspaceFlow, toTemplateFlows } from '../utils';
 import {
   AppState,

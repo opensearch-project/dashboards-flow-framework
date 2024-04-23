@@ -22,7 +22,6 @@ import {
   MODEL_STATE,
   ROBERTA_SENTENCE_TRANSFORMER,
   WorkspaceFormValues,
-  isFieldInvalid,
   ModelFormValue,
   MODEL_CATEGORY,
   MPNET_SENTENCE_TRANSFORMER,
@@ -30,6 +29,7 @@ import {
   NEURAL_SPARSE_DOC_TRANSFORMER,
   NEURAL_SPARSE_TOKENIZER_TRANSFORMER,
 } from '../../../../../common';
+import { isFieldInvalid } from '../../../../utils';
 import { AppState } from '../../../../store';
 
 interface ModelFieldProps {

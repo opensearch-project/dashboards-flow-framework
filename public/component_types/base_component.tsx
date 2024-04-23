@@ -3,13 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../utils';
 import {
+  COMPONENT_CATEGORY,
+  COMPONENT_CLASS,
   IComponent,
   IComponentField,
   IComponentInput,
   IComponentOutput,
-} from './interfaces';
+} from '../../common';
 
 /**
  * A base UI drag-and-drop component class.

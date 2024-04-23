@@ -120,6 +120,47 @@ export const NEURAL_SPARSE_TOKENIZER_TRANSFORMER = {
 } as PretrainedSparseEncodingModel;
 
 /**
+ * Various constants pertaining to the drag-and-drop UI components
+ */
+export enum COMPONENT_CATEGORY {
+  INGEST = 'Ingest',
+  SEARCH = 'Search',
+}
+
+export enum NODE_CATEGORY {
+  CUSTOM = 'custom',
+  INGEST_GROUP = 'ingestGroup',
+  SEARCH_GROUP = 'searchGroup',
+}
+
+/**
+ * A base set of component classes / types.
+ */
+export enum COMPONENT_CLASS {
+  // Indexer-related classes
+  INDEXER = 'indexer',
+  KNN_INDEXER = 'knn_indexer',
+  // Retriever-related classes
+  RETRIEVER = 'retriever',
+  // Transformer-related classes
+  TRANSFORMER = 'transformer',
+  JSON_TO_JSON_TRANSFORMER = 'json_to_json_transformer',
+  ML_TRANSFORMER = 'ml_transformer',
+  TEXT_EMBEDDING_TRANSFORMER = 'text_embedding_transformer',
+  SPARSE_ENCODER_TRANSFORMER = 'sparse_encoder_transformer',
+  RESULTS_TRANSFORMER = 'results_transformer',
+  NORMALIZATION_TRANSFORMER = 'normalization_transformer',
+  // Query-related classes
+  QUERY = 'query',
+  MATCH_QUERY = 'match_query',
+  NEURAL_QUERY = 'neural_query',
+  // Document-related classes
+  DOCUMENT = 'document',
+  // Results-related classes
+  RESULTS = 'results',
+}
+
+/**
  * MISCELLANEOUS
  */
 export const NEW_WORKFLOW_ID_URL = 'new';

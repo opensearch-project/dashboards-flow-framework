@@ -13,7 +13,8 @@ import {
   EuiHorizontalRule,
   EuiButton,
 } from '@elastic/eui';
-import { APP_PATH, NEW_WORKFLOW_ID_URL, PLUGIN_ID } from '../../../../common';
+import { NEW_WORKFLOW_ID_URL, PLUGIN_ID } from '../../../../common';
+import { APP_PATH } from '../../../utils';
 
 interface UseCaseProps {
   title: string;

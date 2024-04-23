@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../../../utils';
+import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../../../../common';
 import { BaseComponent } from '../../base_component';
 
 /**
