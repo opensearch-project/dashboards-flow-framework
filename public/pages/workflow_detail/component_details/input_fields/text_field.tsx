@@ -6,13 +6,12 @@
 import React from 'react';
 import { Field, FieldProps, useFormikContext } from 'formik';
 import { EuiFieldText, EuiFormRow, EuiLink, EuiText } from '@elastic/eui';
+import { IComponentField, WorkspaceFormValues } from '../../../../../common';
 import {
-  IComponentField,
-  WorkspaceFormValues,
-  getFieldError,
   getInitialValue,
   isFieldInvalid,
-} from '../../../../../common';
+  getFieldError,
+} from '../../../../utils';
 
 interface TextFieldProps {
   field: IComponentField;
