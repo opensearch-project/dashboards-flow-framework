@@ -13,7 +13,6 @@ import {
   COMPONENT_CLASS,
   CreateIngestPipelineNode,
   TextEmbeddingProcessor,
-  componentDataToFormik,
   ReactFlowEdge,
   CreateIndexNode,
   TemplateFlow,
@@ -25,7 +24,6 @@ import {
   ROBERTA_SENTENCE_TRANSFORMER,
   MPNET_SENTENCE_TRANSFORMER,
   BERT_SENTENCE_TRANSFORMER,
-  generateId,
   NEURAL_SPARSE_TRANSFORMER,
   NEURAL_SPARSE_DOC_TRANSFORMER,
   NEURAL_SPARSE_TOKENIZER_TRANSFORMER,
@@ -34,6 +32,7 @@ import {
   CreateSearchPipelineNode,
   WORKFLOW_STEP_TYPE,
 } from '../../../../common';
+import { componentDataToFormik, generateId } from '../../../utils';
 
 /**
  * Given a ReactFlow workspace flow with fully populated input values,

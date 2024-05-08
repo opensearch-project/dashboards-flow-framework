@@ -4,7 +4,6 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Field, FieldProps, useFormikContext } from 'formik';
 import {
   EuiFormRow,
@@ -13,12 +12,8 @@ import {
   EuiSuperSelectOption,
   EuiText,
 } from '@elastic/eui';
-import {
-  IComponentField,
-  WorkspaceFormValues,
-  getInitialValue,
-  isFieldInvalid,
-} from '../../../../../common';
+import { IComponentField, WorkspaceFormValues } from '../../../../../common';
+import { getInitialValue, isFieldInvalid } from '../../../../utils';
 
 interface SelectFieldProps {
   field: IComponentField;

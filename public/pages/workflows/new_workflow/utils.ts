@@ -7,10 +7,6 @@ import { MarkerType } from 'reactflow';
 import {
   WorkspaceFlowState,
   ReactFlowComponent,
-  initComponentData,
-  TextEmbeddingTransformer,
-  KnnIndexer,
-  generateId,
   ReactFlowEdge,
   COMPONENT_CATEGORY,
   NODE_CATEGORY,
@@ -19,12 +15,17 @@ import {
   COMPONENT_CLASS,
   START_FROM_SCRATCH_WORKFLOW_NAME,
   DEFAULT_NEW_WORKFLOW_NAME,
+} from '../../../../common';
+import { initComponentData, generateId } from '../../../utils';
+import {
+  TextEmbeddingTransformer,
+  KnnIndexer,
   Document,
   SparseEncoderTransformer,
   NeuralQuery,
   MatchQuery,
   NormalizationTransformer,
-} from '../../../../common';
+} from '../../../component_types';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
 // Some UI metadata we want to generate on-the-fly using our component classes we have on client-side.
