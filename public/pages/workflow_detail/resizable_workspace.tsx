@@ -18,7 +18,7 @@ import {
   EuiPageHeader,
   EuiResizableContainer,
 } from '@elastic/eui';
-import { getCore } from '../../../services';
+import { getCore } from '../../services';
 
 import {
   Workflow,
@@ -29,15 +29,15 @@ import {
   WorkspaceFlowState,
   WORKFLOW_STATE,
   ReactFlowEdge,
-} from '../../../../common';
+} from '../../../common';
 import {
   componentDataToFormik,
   getComponentSchema,
   processNodes,
   reduceToTemplate,
   APP_PATH,
-} from '../../../utils';
-import { validateWorkspaceFlow, toTemplateFlows } from '../utils';
+} from '../../utils';
+import { validateWorkspaceFlow, toTemplateFlows } from './utils';
 import {
   AppState,
   createWorkflow,
@@ -48,20 +48,21 @@ import {
   setDirty,
   updateWorkflow,
   useAppDispatch,
-} from '../../../store';
-import { Workspace } from './workspace';
-import { ComponentDetails } from '../component_details';
+} from '../../store';
+import { Workspace } from './workspace/workspace';
+import { ComponentDetails } from './component_details';
 
 // styling
-import './workspace-styles.scss';
-import '../../../global-styles.scss';
+import './workspace/workspace-styles.scss';
+import '../../global-styles.scss';
+import { WorkflowInputs } from './workflow_inputs';
 
 interface ResizableWorkspaceProps {
   isNewWorkflow: boolean;
   workflow?: Workflow;
 }
 
-const COMPONENT_DETAILS_PANEL_ID = 'component_details_panel_id';
+const WORKFLOW_INPUTS_PANEL_ID = 'workflow_inputs_panel_id';
 
 /**
  * The overall workspace component that maintains state related to the 2 resizable
@@ -461,6 +462,26 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               return (
                 <>
                   <EuiResizablePanel
+                    id={WORKFLOW_INPUTS_PANEL_ID}
+                    mode="collapsible"
+                    initialSize={40}
+                    minSize="25%"
+                    paddingSize="s"
+                    onToggleCollapsedInternal={() => onToggleChange()}
+                  >
+                    <EuiFlexGroup
+                      direction="column"
+                      gutterSize="s"
+                      className="workspace-panel"
+                    >
+                      <EuiFlexItem>
+                        <WorkflowInputs workflow={props.workflow} />
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
+                  </EuiResizablePanel>
+                  <EuiResizableButton />
+                  <EuiResizablePanel
+                    style={{ marginRight: '-16px' }}
                     mode="main"
                     initialSize={80}
                     minSize="50%"
@@ -478,31 +499,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                           readonly={false}
                           onNodesChange={onNodesChange}
                           onSelectionChange={onSelectionChange}
-                        />
-                      </EuiFlexItem>
-                    </EuiFlexGroup>
-                  </EuiResizablePanel>
-                  <EuiResizableButton />
-                  <EuiResizablePanel
-                    style={{ marginRight: '-16px' }}
-                    id={COMPONENT_DETAILS_PANEL_ID}
-                    mode="collapsible"
-                    initialSize={25}
-                    minSize="10%"
-                    paddingSize="s"
-                    onToggleCollapsedInternal={() => onToggleChange()}
-                  >
-                    <EuiFlexGroup
-                      direction="column"
-                      gutterSize="s"
-                      className="workspace-panel"
-                    >
-                      <EuiFlexItem>
-                        <ComponentDetails
-                          workflow={props.workflow}
-                          selectedComponent={selectedComponent}
-                          isDeprovisionable={isDeprovisionable}
-                          onFormChange={onFormChange}
                         />
                       </EuiFlexItem>
                     </EuiFlexGroup>

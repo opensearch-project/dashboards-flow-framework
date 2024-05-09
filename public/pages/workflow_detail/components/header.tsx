@@ -18,7 +18,6 @@ import {
 } from '../../../../common';
 
 interface WorkflowDetailHeaderProps {
-  tabs: any[];
   isNewWorkflow: boolean;
   workflow?: Workflow;
 }
@@ -61,7 +60,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           Delete
         </EuiButton>,
       ]}
-      tabs={props.tabs}
       bottomBorder={true}
     />
   );
