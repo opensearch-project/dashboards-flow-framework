@@ -464,7 +464,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   <EuiResizablePanel
                     id={WORKFLOW_INPUTS_PANEL_ID}
                     mode="collapsible"
-                    initialSize={40}
+                    initialSize={50}
                     minSize="25%"
                     paddingSize="s"
                     onToggleCollapsedInternal={() => onToggleChange()}
@@ -483,8 +483,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   <EuiResizablePanel
                     style={{ marginRight: '-16px' }}
                     mode="main"
-                    initialSize={80}
-                    minSize="50%"
+                    initialSize={60}
+                    minSize="25%"
                     paddingSize="s"
                   >
                     <EuiFlexGroup
