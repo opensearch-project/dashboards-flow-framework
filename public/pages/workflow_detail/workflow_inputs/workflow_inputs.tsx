@@ -36,7 +36,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       <EuiFlexGroup
         direction="column"
         justifyContent="spaceBetween"
-        style={{ height: '100%', paddingBottom: '96px' }}
+        style={{ height: '100%', paddingBottom: '48px' }}
       >
         <EuiFlexItem grow={false}>
           <EuiTitle size="s">

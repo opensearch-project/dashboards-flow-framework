@@ -50,14 +50,9 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
         </EuiFlexGroup>
       }
       rightSideItems={[
-        // TODO: finalize if this is needed
-        <EuiButton
-          fill={false}
-          color="danger"
-          style={{ marginTop: '8px' }}
-          onClick={() => {}}
-        >
-          Delete
+        // TODO: implement export functionality
+        <EuiButton fill={false} style={{ marginTop: '8px' }} onClick={() => {}}>
+          Export
         </EuiButton>,
       ]}
       bottomBorder={true}
