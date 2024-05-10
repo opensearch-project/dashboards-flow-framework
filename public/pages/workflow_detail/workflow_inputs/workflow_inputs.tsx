@@ -4,7 +4,13 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiPanel, EuiTitle } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiLoadingSpinner,
+  EuiPanel,
+  EuiTitle,
+} from '@elastic/eui';
 import { Workflow } from '../../../../common';
 import { Footer } from './footer';
 import { IngestInputs } from './ingest_inputs';
@@ -33,30 +39,34 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   return (
     <EuiPanel paddingSize="m">
-      <EuiFlexGroup
-        direction="column"
-        justifyContent="spaceBetween"
-        style={{ height: '100%', paddingBottom: '48px' }}
-      >
-        <EuiFlexItem grow={false}>
-          <EuiTitle size="s">
-            <h4>{selectedStep}</h4>
-          </EuiTitle>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          {selectedStep === CREATE_STEP.INGEST ? (
-            <IngestInputs />
-          ) : (
-            <SearchInputs />
-          )}
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <Footer
-            selectedStep={selectedStep}
-            setSelectedStep={setSelectedStep}
-          />
-        </EuiFlexItem>
-      </EuiFlexGroup>
+      {props.workflow === undefined ? (
+        <EuiLoadingSpinner size="xl" />
+      ) : (
+        <EuiFlexGroup
+          direction="column"
+          justifyContent="spaceBetween"
+          style={{ height: '100%', paddingBottom: '48px' }}
+        >
+          <EuiFlexItem grow={false}>
+            <EuiTitle size="s">
+              <h4>{selectedStep}</h4>
+            </EuiTitle>
+          </EuiFlexItem>
+          <EuiFlexItem>
+            {selectedStep === CREATE_STEP.INGEST ? (
+              <IngestInputs workflow={props.workflow} />
+            ) : (
+              <SearchInputs workflow={props.workflow} />
+            )}
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <Footer
+              selectedStep={selectedStep}
+              setSelectedStep={setSelectedStep}
+            />
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      )}
     </EuiPanel>
   );
 }
