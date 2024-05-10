@@ -3,11 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { RouteComponentProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
-import queryString from 'query-string';
 import { EuiPage, EuiPageBody } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
@@ -24,8 +23,6 @@ import {
   FETCH_ALL_QUERY_BODY,
   NEW_WORKFLOW_ID_URL,
 } from '../../../common';
-import { Resources } from './resources';
-import { Prototype } from './prototype';
 
 // styling
 import './workflow-detail-styles.scss';
@@ -37,29 +34,6 @@ export interface WorkflowDetailRouterProps {
 
 interface WorkflowDetailProps
   extends RouteComponentProps<WorkflowDetailRouterProps> {}
-
-enum WORKFLOW_DETAILS_TAB {
-  EDITOR = 'editor',
-  // TODO: temporarily adding a resources tab until UX is finalized.
-  // This gives clarity into what has been done on the cluster on behalf
-  // of the frontend provisioning workflows.
-  RESOURCES = 'resources',
-  // TODO: temporarily adding a prototype tab until UX is finalized.
-  // This allows simple UI for executing ingest and search against
-  // created workflow resources
-  PROTOTYPE = 'prototype',
-}
-
-const ACTIVE_TAB_PARAM = 'tab';
-
-function replaceActiveTab(activeTab: string, props: WorkflowDetailProps) {
-  props.history.replace({
-    ...history,
-    search: queryString.stringify({
-      [ACTIVE_TAB_PARAM]: activeTab,
-    }),
-  });
-}
 
 /**
  * The workflow details page. This is where users will configure, create, and
@@ -83,25 +57,6 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     : isNewWorkflow && !workflow
     ? DEFAULT_NEW_WORKFLOW_NAME
     : '';
-
-  // tab state
-  const tabFromUrl = queryString.parse(useLocation().search)[
-    ACTIVE_TAB_PARAM
-  ] as WORKFLOW_DETAILS_TAB;
-  const [selectedTabId, setSelectedTabId] = useState<WORKFLOW_DETAILS_TAB>(
-    tabFromUrl
-  );
-
-  // Default to editor tab if there is none or invalid tab ID specified via url.
-  useEffect(() => {
-    if (
-      !selectedTabId ||
-      !Object.values(WORKFLOW_DETAILS_TAB).includes(selectedTabId)
-    ) {
-      setSelectedTabId(WORKFLOW_DETAILS_TAB.EDITOR);
-      replaceActiveTab(WORKFLOW_DETAILS_TAB.EDITOR, props);
-    }
-  }, []);
 
   useEffect(() => {
     getCore().chrome.setBreadcrumbs([
@@ -129,36 +84,6 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     }
   }, [errorMessage]);
 
-  const tabs = [
-    {
-      id: WORKFLOW_DETAILS_TAB.EDITOR,
-      label: 'Editor',
-      isSelected: selectedTabId === WORKFLOW_DETAILS_TAB.EDITOR,
-      onClick: () => {
-        setSelectedTabId(WORKFLOW_DETAILS_TAB.EDITOR);
-        replaceActiveTab(WORKFLOW_DETAILS_TAB.EDITOR, props);
-      },
-    },
-    {
-      id: WORKFLOW_DETAILS_TAB.RESOURCES,
-      label: 'Resources',
-      isSelected: selectedTabId === WORKFLOW_DETAILS_TAB.RESOURCES,
-      onClick: () => {
-        setSelectedTabId(WORKFLOW_DETAILS_TAB.RESOURCES);
-        replaceActiveTab(WORKFLOW_DETAILS_TAB.RESOURCES, props);
-      },
-    },
-    {
-      id: WORKFLOW_DETAILS_TAB.PROTOTYPE,
-      label: 'Prototype',
-      isSelected: selectedTabId === WORKFLOW_DETAILS_TAB.PROTOTYPE,
-      onClick: () => {
-        setSelectedTabId(WORKFLOW_DETAILS_TAB.PROTOTYPE);
-        replaceActiveTab(WORKFLOW_DETAILS_TAB.PROTOTYPE, props);
-      },
-    },
-  ];
-
   return (
     <ReactFlowProvider>
       <EuiPage>
@@ -166,22 +91,13 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
           <WorkflowDetailHeader
             workflow={workflow}
             isNewWorkflow={isNewWorkflow}
-            tabs={tabs}
           />
-          {selectedTabId === WORKFLOW_DETAILS_TAB.EDITOR && (
-            <ReactFlowProvider>
-              <ResizableWorkspace
-                isNewWorkflow={isNewWorkflow}
-                workflow={workflow}
-              />
-            </ReactFlowProvider>
-          )}
-          {selectedTabId === WORKFLOW_DETAILS_TAB.RESOURCES && (
-            <Resources workflow={workflow} />
-          )}
-          {selectedTabId === WORKFLOW_DETAILS_TAB.PROTOTYPE && (
-            <Prototype workflow={workflow} />
-          )}
+          <ReactFlowProvider>
+            <ResizableWorkspace
+              isNewWorkflow={isNewWorkflow}
+              workflow={workflow}
+            />
+          </ReactFlowProvider>
         </EuiPageBody>
       </EuiPage>
     </ReactFlowProvider>

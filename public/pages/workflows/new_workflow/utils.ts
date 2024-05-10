@@ -27,6 +27,9 @@ import {
   NormalizationTransformer,
 } from '../../../component_types';
 
+// TODO: change from producing a flow state, to producing a form state w/ some preset values.
+// The form will generate the end flow state.
+
 // Fn to produce the complete preset template with all necessary UI metadata.
 // Some UI metadata we want to generate on-the-fly using our component classes we have on client-side.
 // Thus, we only persist a minimal subset of a full template on server-side. We generate

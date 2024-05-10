@@ -18,7 +18,6 @@ import {
 } from '../../../../common';
 
 interface WorkflowDetailHeaderProps {
-  tabs: any[];
   isNewWorkflow: boolean;
   workflow?: Workflow;
 }
@@ -51,17 +50,11 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
         </EuiFlexGroup>
       }
       rightSideItems={[
-        // TODO: finalize if this is needed
-        <EuiButton
-          fill={false}
-          color="danger"
-          style={{ marginTop: '8px' }}
-          onClick={() => {}}
-        >
-          Delete
+        // TODO: implement export functionality
+        <EuiButton fill={false} style={{ marginTop: '8px' }} onClick={() => {}}>
+          Export
         </EuiButton>,
       ]}
-      tabs={props.tabs}
       bottomBorder={true}
     />
   );
