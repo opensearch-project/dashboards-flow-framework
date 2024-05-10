@@ -11,14 +11,12 @@ import { Form, Formik, FormikProps } from 'formik';
 import * as yup from 'yup';
 import { cloneDeep } from 'lodash';
 import {
-  EuiButton,
   EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiPageHeader,
   EuiResizableContainer,
 } from '@elastic/eui';
-import { getCore } from '../../../services';
+import { getCore } from '../../services';
 
 import {
   Workflow,
@@ -29,39 +27,28 @@ import {
   WorkspaceFlowState,
   WORKFLOW_STATE,
   ReactFlowEdge,
-} from '../../../../common';
+} from '../../../common';
 import {
   componentDataToFormik,
   getComponentSchema,
   processNodes,
-  reduceToTemplate,
   APP_PATH,
-} from '../../../utils';
-import { validateWorkspaceFlow, toTemplateFlows } from '../utils';
-import {
-  AppState,
-  createWorkflow,
-  deprovisionWorkflow,
-  getWorkflowState,
-  provisionWorkflow,
-  removeDirty,
-  setDirty,
-  updateWorkflow,
-  useAppDispatch,
-} from '../../../store';
-import { Workspace } from './workspace';
-import { ComponentDetails } from '../component_details';
+} from '../../utils';
+import { validateWorkspaceFlow, toTemplateFlows } from './utils';
+import { AppState, setDirty, useAppDispatch } from '../../store';
+import { Workspace } from './workspace/workspace';
 
 // styling
-import './workspace-styles.scss';
-import '../../../global-styles.scss';
+import './workspace/workspace-styles.scss';
+import '../../global-styles.scss';
+import { WorkflowInputs } from './workflow_inputs';
 
 interface ResizableWorkspaceProps {
   isNewWorkflow: boolean;
   workflow?: Workflow;
 }
 
-const COMPONENT_DETAILS_PANEL_ID = 'component_details_panel_id';
+const WORKFLOW_INPUTS_PANEL_ID = 'workflow_inputs_panel_id';
 
 /**
  * The overall workspace component that maintains state related to the 2 resizable
@@ -337,114 +324,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               deprovisioned.
             </EuiCallOut>
           )}
-          <EuiPageHeader
-            style={{ marginBottom: '8px' }}
-            rightSideItems={[
-              <EuiButton
-                fill={false}
-                disabled={!isDeprovisionable || isLoadingGlobal}
-                isLoading={isDeprovisioning}
-                onClick={() => {
-                  if (workflow?.id) {
-                    setIsDeprovisioning(true);
-                    dispatch(deprovisionWorkflow(workflow.id))
-                      .unwrap()
-                      .then(async (result) => {
-                        await new Promise((f) => setTimeout(f, 3000));
-                        dispatch(getWorkflowState(workflow.id as string));
-                        setIsDeprovisioning(false);
-                      })
-                      .catch((error: any) => {
-                        setIsDeprovisioning(false);
-                      });
-                  } else {
-                    // This case should not happen
-                    console.debug(
-                      'Deprovisioning triggered on an invalid workflow. Ignoring.'
-                    );
-                  }
-                }}
-              >
-                Deprovision
-              </EuiButton>,
-              <EuiButton
-                fill={false}
-                disabled={!isProvisionable || isLoadingGlobal}
-                isLoading={isProvisioning}
-                onClick={() => {
-                  if (workflow?.id) {
-                    setIsProvisioning(true);
-                    dispatch(provisionWorkflow(workflow.id))
-                      .unwrap()
-                      .then(async (result) => {
-                        await new Promise((f) => setTimeout(f, 3000));
-                        dispatch(getWorkflowState(workflow.id as string));
-                        setIsProvisioning(false);
-                      })
-                      .catch((error: any) => {
-                        setIsProvisioning(false);
-                      });
-                  } else {
-                    // This case should not happen
-                    console.debug(
-                      'Provisioning triggered on an invalid workflow. Ignoring.'
-                    );
-                  }
-                }}
-              >
-                Provision
-              </EuiButton>,
-              <EuiButton
-                fill={false}
-                disabled={!isSaveable || isLoadingGlobal || isDeprovisionable}
-                isLoading={isSaving}
-                onClick={() => {
-                  setIsSaving(true);
-                  dispatch(removeDirty());
-                  if (isFirstSave) {
-                    setIsFirstSave(false);
-                  }
-                  validateFormAndFlow(
-                    formikProps,
-                    // The callback fn to run if everything is valid.
-                    (updatedWorkflow) => {
-                      if (updatedWorkflow.id) {
-                        dispatch(
-                          updateWorkflow({
-                            workflowId: updatedWorkflow.id,
-                            workflowTemplate: reduceToTemplate(updatedWorkflow),
-                          })
-                        )
-                          .unwrap()
-                          .then((result) => {
-                            setIsSaving(false);
-                          })
-                          .catch((error: any) => {
-                            setIsSaving(false);
-                          });
-                      } else {
-                        dispatch(createWorkflow(updatedWorkflow))
-                          .unwrap()
-                          .then((result) => {
-                            const { workflow } = result;
-                            history.replace(
-                              `${APP_PATH.WORKFLOWS}/${workflow.id}`
-                            );
-                            history.go(0);
-                          })
-                          .catch((error: any) => {
-                            setIsSaving(false);
-                          });
-                      }
-                    }
-                  );
-                }}
-              >
-                {props.isNewWorkflow || isCreating ? 'Create' : 'Save'}
-              </EuiButton>,
-            ]}
-            bottomBorder={false}
-          />
           <EuiResizableContainer
             direction="horizontal"
             className="stretch-absolute"
@@ -461,9 +340,29 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               return (
                 <>
                   <EuiResizablePanel
+                    id={WORKFLOW_INPUTS_PANEL_ID}
+                    mode="collapsible"
+                    initialSize={50}
+                    minSize="25%"
+                    paddingSize="s"
+                    onToggleCollapsedInternal={() => onToggleChange()}
+                  >
+                    <EuiFlexGroup
+                      direction="column"
+                      gutterSize="s"
+                      className="workspace-panel"
+                    >
+                      <EuiFlexItem>
+                        <WorkflowInputs workflow={props.workflow} />
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
+                  </EuiResizablePanel>
+                  <EuiResizableButton />
+                  <EuiResizablePanel
+                    style={{ marginRight: '-16px' }}
                     mode="main"
-                    initialSize={80}
-                    minSize="50%"
+                    initialSize={60}
+                    minSize="25%"
                     paddingSize="s"
                   >
                     <EuiFlexGroup
@@ -478,31 +377,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                           readonly={false}
                           onNodesChange={onNodesChange}
                           onSelectionChange={onSelectionChange}
-                        />
-                      </EuiFlexItem>
-                    </EuiFlexGroup>
-                  </EuiResizablePanel>
-                  <EuiResizableButton />
-                  <EuiResizablePanel
-                    style={{ marginRight: '-16px' }}
-                    id={COMPONENT_DETAILS_PANEL_ID}
-                    mode="collapsible"
-                    initialSize={25}
-                    minSize="10%"
-                    paddingSize="s"
-                    onToggleCollapsedInternal={() => onToggleChange()}
-                  >
-                    <EuiFlexGroup
-                      direction="column"
-                      gutterSize="s"
-                      className="workspace-panel"
-                    >
-                      <EuiFlexItem>
-                        <ComponentDetails
-                          workflow={props.workflow}
-                          selectedComponent={selectedComponent}
-                          isDeprovisionable={isDeprovisionable}
-                          onFormChange={onFormChange}
                         />
                       </EuiFlexItem>
                     </EuiFlexGroup>
