@@ -9,7 +9,6 @@ import { useHistory } from 'react-router-dom';
 import { useReactFlow } from 'reactflow';
 import { Form, Formik, FormikProps } from 'formik';
 import * as yup from 'yup';
-import { cloneDeep } from 'lodash';
 import {
   EuiCallOut,
   EuiFlexGroup,
@@ -21,18 +20,18 @@ import { getCore } from '../../services';
 import {
   Workflow,
   WorkspaceFormValues,
-  WorkspaceSchema,
   ReactFlowComponent,
-  WorkspaceSchemaObj,
   WorkspaceFlowState,
   WORKFLOW_STATE,
   ReactFlowEdge,
+  WorkflowFormValues,
+  WorkflowSchema,
 } from '../../../common';
 import {
-  componentDataToFormik,
-  getComponentSchema,
   processNodes,
   APP_PATH,
+  uiConfigToFormik,
+  uiConfigToSchema,
 } from '../../utils';
 import { validateWorkspaceFlow, toTemplateFlows } from './utils';
 import { AppState, setDirty, useAppDispatch } from '../../store';
@@ -69,8 +68,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   );
 
   // Formik form state
-  const [formValues, setFormValues] = useState<WorkspaceFormValues>({});
-  const [formSchema, setFormSchema] = useState<WorkspaceSchema>(yup.object({}));
+  const [formValues, setFormValues] = useState<WorkflowFormValues>({});
+  const [formSchema, setFormSchema] = useState<WorkflowSchema>(yup.object({}));
 
   // Validation states. Maintain separate state for form vs. overall flow so
   // we can have fine-grained errors and action items for users
@@ -83,7 +82,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     (id: string, options: { direction: 'left' | 'right' }) => {}
   );
   const onToggleChange = () => {
-    collapseFn.current(COMPONENT_DETAILS_PANEL_ID, { direction: 'left' });
+    collapseFn.current(WORKFLOW_INPUTS_PANEL_ID, { direction: 'left' });
     setisDetailsPanelOpen(!isDetailsPanelOpen);
   };
 
@@ -158,7 +157,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   //    In these cases, just render what is persisted, no action needed.
   useEffect(() => {
     const missingUiFlow =
-      props.workflow && !props.workflow?.ui_metadata?.workspace_flow;
+      props.workflow && !props.workflow?.ui_metadata?.config;
     const missingCachedWorkflow = props.isNewWorkflow && !props.workflow;
     if (missingUiFlow || missingCachedWorkflow) {
       history.replace(APP_PATH.WORKFLOWS);
@@ -189,48 +188,34 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   // Initialize the form state to an existing workflow, if applicable.
   useEffect(() => {
-    if (workflow?.ui_metadata?.workspace_flow) {
-      const initFormValues = {} as WorkspaceFormValues;
-      const initSchemaObj = {} as WorkspaceSchemaObj;
-      workflow.ui_metadata.workspace_flow.nodes.forEach((node) => {
-        initFormValues[node.id] = componentDataToFormik(node.data);
-        initSchemaObj[node.id] = getComponentSchema(node.data);
-      });
-      const initFormSchema = yup.object(initSchemaObj) as WorkspaceSchema;
+    // if (workflow?.ui_metadata?.workspace_flow) {
+    //   const initFormValues = {} as WorkspaceFormValues;
+    //   const initSchemaObj = {} as WorkspaceSchemaObj;
+    //   workflow.ui_metadata.workspace_flow.nodes.forEach((node) => {
+    //     initFormValues[node.id] = componentDataToFormik(node.data);
+    //     initSchemaObj[node.id] = getComponentSchema(node.data);
+    //   });
+    //   const initFormSchema = yup.object(initSchemaObj) as WorkspaceSchema;
+    //   setFormValues(initFormValues);
+    //   setFormSchema(initFormSchema);
+    // }
+    if (workflow?.ui_metadata?.config) {
+      // TODO: implement below fns to generate the final form and schema objs.
+      // Should generate the form and its values on-the-fly
+      // similar to what we do with ComponentData in above commented-out code.
+      // This gives us more flexibility and maintainability instead of having to update
+      // low-level form and schema when making config changes (e.g., if of type 'string',
+      // automatically generate the default form values, and the default validation schema)
+      const initFormValues = uiConfigToFormik(workflow.ui_metadata.config);
+      const initFormSchema = uiConfigToSchema(workflow.ui_metadata.config);
       setFormValues(initFormValues);
       setFormSchema(initFormSchema);
     }
   }, [workflow]);
 
-  // Update the form values and validation schema when a node is added
-  // or removed from the workspace.
-  // For the schema, we do a deep clone of the underlying object, and later re-create the schema.
-  // For the form values, we update directly to prevent the form from being reinitialized.
-  function onNodesChange(nodes: ReactFlowComponent[]): void {
-    const updatedComponentIds = nodes.map((node) => node.id);
-    const existingComponentIds = Object.keys(formValues);
-    const updatedSchemaObj = cloneDeep(formSchema.fields) as WorkspaceSchemaObj;
-
-    if (updatedComponentIds.length > existingComponentIds.length) {
-      // TODO: implement for when a node is added
-    } else if (updatedComponentIds.length < existingComponentIds.length) {
-      existingComponentIds.forEach((existingId) => {
-        if (!updatedComponentIds.includes(existingId)) {
-          // Remove the mapping for the removed component in the form values
-          // and schema.
-          delete formValues[`${existingId}`];
-          delete updatedSchemaObj[`${existingId}`];
-        }
-      });
-    } else {
-      // if it is somehow triggered without node changes, be sure
-      // to prevent updating the form or schema
-      return;
-    }
-
-    const updatedSchema = yup.object(updatedSchemaObj) as WorkspaceSchema;
-    setFormSchema(updatedSchema);
-  }
+  // TODO: leave as a placeholder for now. Current functionality is the workflow
+  // is readonly and only reacts/changes when the underlying form is updated.
+  function onNodesChange(nodes: ReactFlowComponent[]): void {}
 
   /**
    * Function to pass down to the Formik <Form> components as a listener to propagate
