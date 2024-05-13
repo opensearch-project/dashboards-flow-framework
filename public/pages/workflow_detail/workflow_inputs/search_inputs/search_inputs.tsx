@@ -8,8 +8,11 @@ import { EuiFlexGroup, EuiFlexItem, EuiHorizontalRule } from '@elastic/eui';
 import { ConfigureSearchRequest } from './configure_search_request';
 import { EnrichSearchRequest } from './enrich_search_request';
 import { EnrichSearchResponse } from './enrich_search_response';
+import { Workflow } from '../../../../../common';
 
-interface SearchInputsProps {}
+interface SearchInputsProps {
+  workflow: Workflow;
+}
 
 /**
  * The base component containing all of the search-related inputs

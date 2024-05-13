@@ -14,6 +14,43 @@ export type Index = {
 };
 
 /**
+ ********** WORKFLOW TYPES/INTERFACES **********
+TODO: over time these can become less generic as the form inputs & UX becomes finalized
+ */
+
+export type IndexConfig = {
+  isNew: boolean;
+  indexName: string;
+};
+
+export type IngestConfig = {
+  source: FormikValues;
+  enrich: FormikValues;
+  ingest: IndexConfig;
+};
+
+export type SearchConfig = {
+  request: FormikValues;
+  enrichRequest: FormikValues;
+  enrichResponse: FormikValues;
+};
+
+export type WorkflowConfig = {
+  ingest?: IngestConfig;
+  search?: SearchConfig;
+};
+
+export type WorkflowFormValues = {
+  ingest: FormikValues;
+  search: FormikValues;
+};
+
+export type WorkflowSchemaObj = {
+  [key: string]: ObjectSchema<any, any, any>;
+};
+export type WorkflowSchema = ObjectSchema<WorkflowSchemaObj>;
+
+/**
  ********** WORKSPACE TYPES/INTERFACES **********
  */
 
@@ -111,7 +148,8 @@ type ReactFlowViewport = {
 };
 
 export type UIState = {
-  workspace_flow: WorkspaceFlowState;
+  config: WorkflowConfig;
+  workspace_flow?: WorkspaceFlowState;
 };
 
 export type WorkspaceFlowState = {
