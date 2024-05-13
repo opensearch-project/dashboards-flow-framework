@@ -19,6 +19,9 @@ import {
   Workflow,
   WorkflowTemplate,
   ModelFormValue,
+  WorkflowConfig,
+  WorkflowFormValues,
+  WorkflowSchema,
 } from '../../common';
 
 // Append 16 random characters
@@ -45,6 +48,22 @@ export function initComponentData(
 /*
  **************** Formik (form) utils **********************
  */
+
+// TODO: implement this. Refer to formikToComponentData() below
+export function uiConfigToFormik(config: WorkflowConfig): WorkflowFormValues {
+  const formikValues = {} as WorkflowFormValues;
+  formikValues['ingest'] = {};
+  formikValues['search'] = {};
+  return formikValues;
+}
+
+// TODO: implement this. Refer to getComponentSchema() below
+export function uiConfigToSchema(config: WorkflowConfig): WorkflowSchema {
+  const schemaObj = {} as { [key: string]: ObjectSchema<any> };
+  schemaObj['ingest'] = {} as ObjectSchema<any>;
+  schemaObj['search'] = {} as ObjectSchema<any>;
+  return yup.object(schemaObj) as WorkflowSchema;
+}
 
 // TODO: below, we are hardcoding to only persisting and validating create fields.
 // If we support both, we will need to dynamically update.
