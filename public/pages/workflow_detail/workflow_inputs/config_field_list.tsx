@@ -55,19 +55,19 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
           //   );
           //   break;
           // }
-          // case 'model': {
-          //   el = (
-          //     <EuiFlexItem key={idx}>
-          //       <ModelField
-          //         field={field}
-          //         componentId={props.componentId}
-          //         onFormChange={props.onFormChange}
-          //       />
-          //       <EuiSpacer size={INPUT_FIELD_SPACER_SIZE} />
-          //     </EuiFlexItem>
-          //   );
-          //   break;
-          // }
+          case 'model': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <ModelField
+                  field={field}
+                  fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
+                  onFormChange={props.onFormChange}
+                />
+                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
           // case 'json': {
           //   el = (
           //     <EuiFlexItem key={idx}>

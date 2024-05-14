@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Field, FieldProps, useFormikContext } from 'formik';
+import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
   EuiFormRow,
   EuiLink,
@@ -18,7 +18,6 @@ import {
 } from '@elastic/eui';
 import {
   BERT_SENTENCE_TRANSFORMER,
-  IComponentField,
   MODEL_STATE,
   ROBERTA_SENTENCE_TRANSFORMER,
   WorkspaceFormValues,
@@ -28,13 +27,13 @@ import {
   NEURAL_SPARSE_TRANSFORMER,
   NEURAL_SPARSE_DOC_TRANSFORMER,
   NEURAL_SPARSE_TOKENIZER_TRANSFORMER,
+  IConfigField,
 } from '../../../../../common';
-import { isFieldInvalid } from '../../../../utils';
 import { AppState } from '../../../../store';
 
 interface ModelFieldProps {
-  field: IComponentField;
-  componentId: string;
+  field: IConfigField;
+  fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onFormChange: () => void;
 }
 
@@ -54,7 +53,6 @@ export function ModelField(props: ModelFieldProps) {
   // keeps re-rendering this component (and subsequently re-fetching data) as they're building flows
   const models = useSelector((state: AppState) => state.models.models);
 
-  const formField = `${props.componentId}.${props.field.id}`;
   const { errors, touched } = useFormikContext<WorkspaceFormValues>();
 
   // Deployed models state
@@ -153,13 +151,13 @@ export function ModelField(props: ModelFieldProps) {
   }, [selectedRadioId, deployedModels, pretrainedModels]);
 
   return (
-    <Field name={formField}>
+    <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
         // a hook to update the model category and trigger reloading
         // of valid models to select from
         useEffect(() => {
-          setSelectedRadioId(field.value.category);
-        }, [field.value.category]);
+          setSelectedRadioId(field.value?.category || MODEL_CATEGORY.DEPLOYED);
+        }, [field.value?.category]);
         return (
           <EuiFormRow
             label={props.field.label}
@@ -177,12 +175,12 @@ export function ModelField(props: ModelFieldProps) {
             <>
               <EuiRadioGroup
                 options={radioOptions}
-                idSelected={field.value.category}
+                idSelected={field.value?.category || MODEL_CATEGORY.DEPLOYED}
                 onChange={(radioId) => {
                   // if user selects a new category:
                   // 1. clear the saved ID
                   // 2. update the field category
-                  form.setFieldValue(formField, {
+                  form.setFieldValue(props.fieldPath, {
                     id: '',
                     category: radioId,
                   } as ModelFormValue);
@@ -214,20 +212,17 @@ export function ModelField(props: ModelFieldProps) {
                       disabled: false,
                     } as EuiSuperSelectOption<string>)
                 )}
-                valueOfSelected={field.value.id || ''}
+                valueOfSelected={field.value?.id || ''}
                 onChange={(option: string) => {
-                  form.setFieldValue(formField, {
+                  form.setFieldValue(props.fieldPath, {
                     id: option,
                     category: selectedRadioId,
                   } as ModelFormValue);
                   props.onFormChange();
                 }}
-                isInvalid={isFieldInvalid(
-                  props.componentId,
-                  props.field.id,
-                  errors,
-                  touched
-                )}
+                isInvalid={
+                  getIn(errors, field.name) && getIn(touched, field.name)
+                }
               />
             </>
           </EuiFormRow>

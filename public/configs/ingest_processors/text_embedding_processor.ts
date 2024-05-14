@@ -16,14 +16,14 @@ export class TextEmbeddingProcessor extends BaseIngestProcessor {
     this.name = 'Text embedding processor';
     this.type = 'text_embedding';
     this.fields = [
-      // {
-      //   label: 'Text Embedding Model',
-      //   id: 'model',
-      //   type: 'model',
-      //   helpText: 'A text embedding model for embedding text.',
-      //   helpLink:
-      //     'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model',
-      // },
+      {
+        label: 'Text Embedding Model',
+        id: 'model',
+        type: 'model',
+        helpText: 'A text embedding model for embedding text.',
+        helpLink:
+          'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model',
+      },
       {
         label: 'Input Field',
         id: 'inputField',
