@@ -27,6 +27,7 @@ import {
   ConfigFieldValue,
   WorkflowSchemaObj,
   IConfigField,
+  IndexConfig,
 } from '../../common';
 
 // Append 16 random characters
@@ -94,6 +95,18 @@ function searchConfigToFormik(
   return searchFormikValues;
 }
 
+// TODO: this may need more tuning. Currently this is force-converting the FormikValues obj
+// into a WorkflowConfig obj. It takes the assumption the form will include all possible
+// config values, including defaults.
+export function formikToUiConfig(
+  formValues: WorkflowFormValues
+): WorkflowConfig {
+  const workflowConfig = {} as WorkflowConfig;
+  workflowConfig['ingest'] = formValues.ingest as IngestConfig;
+  workflowConfig['search'] = formValues.search as SearchConfig;
+  return workflowConfig;
+}
+
 /*
  **************** Schema / validation utils **********************
  */
@@ -113,6 +126,7 @@ function ingestConfigToSchema(
   if (ingestConfig) {
     // TODO: implement for the other sub-categories
     ingestSchemaObj['enrich'] = enrichConfigToSchema(ingestConfig.enrich);
+    ingestSchemaObj['index'] = indexConfigToSchema(ingestConfig.index);
   }
   return yup.object(ingestSchemaObj);
 }
@@ -128,6 +142,12 @@ function enrichConfigToSchema(enrichConfig: EnrichConfig): Schema {
   });
 
   return yup.object(enrichSchemaObj);
+}
+
+function indexConfigToSchema(indexConfig: IndexConfig): Schema {
+  const indexSchemaObj = {} as { [key: string]: Schema };
+  indexSchemaObj['name'] = getFieldSchema(indexConfig.name);
+  return yup.object(indexSchemaObj);
 }
 
 // TODO: implement this

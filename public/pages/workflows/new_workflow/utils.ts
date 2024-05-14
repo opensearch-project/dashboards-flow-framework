@@ -58,8 +58,8 @@ function fetchEmptyMetadata(): UIState {
         enrich: {
           processors: [],
         },
-        ingest: {
-          id: 'enrich',
+        index: {
+          id: 'index',
           fields: [],
         },
       },
@@ -101,9 +101,12 @@ function fetchSemanticSearchMetadata(): UIState {
             },
           ],
         },
-        ingest: {
-          id: 'enrich',
-          fields: [],
+        index: {
+          name: {
+            id: 'indexName',
+            type: 'string',
+            label: 'Index name',
+          },
         },
       },
       search: {

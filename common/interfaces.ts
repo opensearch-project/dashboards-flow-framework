@@ -46,10 +46,14 @@ export type EnrichConfig = {
   processors: IConfig[];
 };
 
+export type IndexConfig = {
+  name: IConfigField;
+};
+
 export type IngestConfig = {
   source: IConfig;
   enrich: EnrichConfig;
-  ingest: IConfig;
+  index: IndexConfig;
 };
 
 export type SearchConfig = {

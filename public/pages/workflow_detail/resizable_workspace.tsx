@@ -9,31 +9,23 @@ import { useHistory } from 'react-router-dom';
 import { useReactFlow } from 'reactflow';
 import { Form, Formik, FormikProps } from 'formik';
 import * as yup from 'yup';
-import {
-  EuiCallOut,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiResizableContainer,
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiResizableContainer } from '@elastic/eui';
 import { getCore } from '../../services';
 
 import {
   Workflow,
-  WorkspaceFormValues,
   ReactFlowComponent,
-  WorkspaceFlowState,
   WORKFLOW_STATE,
   ReactFlowEdge,
   WorkflowFormValues,
   WorkflowSchema,
 } from '../../../common';
 import {
-  processNodes,
   APP_PATH,
   uiConfigToFormik,
   uiConfigToSchema,
+  formikToUiConfig,
 } from '../../utils';
-import { validateWorkspaceFlow, toTemplateFlows } from './utils';
 import { AppState, setDirty, useAppDispatch } from '../../store';
 import { Workspace } from './workspace/workspace';
 
@@ -41,6 +33,7 @@ import { Workspace } from './workspace/workspace';
 import './workspace/workspace-styles.scss';
 import '../../global-styles.scss';
 import { WorkflowInputs } from './workflow_inputs';
+import { configToTemplateFlows } from './utils';
 
 interface ResizableWorkspaceProps {
   isNewWorkflow: boolean;
@@ -71,10 +64,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [formValues, setFormValues] = useState<WorkflowFormValues>({});
   const [formSchema, setFormSchema] = useState<WorkflowSchema>(yup.object({}));
 
-  // Validation states. Maintain separate state for form vs. overall flow so
-  // we can have fine-grained errors and action items for users
+  // Validation states
   const [formValidOnSubmit, setFormValidOnSubmit] = useState<boolean>(true);
-  const [flowValidOnSubmit, setFlowValidOnSubmit] = useState<boolean>(true);
 
   // Component details side panel state
   const [isDetailsPanelOpen, setisDetailsPanelOpen] = useState<boolean>(true);
@@ -100,7 +91,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     !isDirty &&
     !props.isNewWorkflow &&
     formValidOnSubmit &&
-    flowValidOnSubmit &&
     props.workflow?.state === WORKFLOW_STATE.NOT_STARTED;
   const isDeprovisionable =
     props.workflow !== undefined &&
@@ -228,9 +218,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   }
 
   // Utility validation fn used before executing any API calls (save, provision)
-  function validateFormAndFlow(
-    formikProps: FormikProps<WorkspaceFormValues>,
-    processWorkflowFn: (workflow: Workflow) => void
+  function validateAndSubmit(
+    formikProps: FormikProps<WorkflowFormValues>
   ): void {
     // Submit the form to bubble up any errors.
     // Ideally we handle Promise accept/rejects with submitForm(), but there is
@@ -243,26 +232,44 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         setIsSaving(false);
       } else {
         setFormValidOnSubmit(true);
-        let curFlowState = reactFlowInstance.toObject() as WorkspaceFlowState;
-        curFlowState = {
-          ...curFlowState,
-          nodes: processNodes(curFlowState.nodes, formikProps.values),
-        };
-        if (validateWorkspaceFlow(curFlowState)) {
-          setFlowValidOnSubmit(true);
-          const updatedWorkflow = {
-            ...workflow,
-            ui_metadata: {
-              ...workflow?.ui_metadata,
-              workspace_flow: curFlowState,
-            },
-            workflows: toTemplateFlows(curFlowState),
-          } as Workflow;
-          processWorkflowFn(updatedWorkflow);
-        } else {
-          setFlowValidOnSubmit(false);
-          setIsSaving(false);
-        }
+        const updatedConfig = formikToUiConfig(formikProps.values);
+        const updatedWorkflow = {
+          ...workflow,
+          ui_metadata: {
+            ...workflow?.ui_metadata,
+            config: updatedConfig,
+          },
+          workflows: configToTemplateFlows(updatedConfig),
+        } as Workflow;
+        console.log('final updated workflow: ', updatedWorkflow);
+        // if (updatedWorkflow.id) {
+        //   dispatch(
+        //     updateWorkflow({
+        //       workflowId: updatedWorkflow.id,
+        //       workflowTemplate: reduceToTemplate(updatedWorkflow),
+        //     })
+        //   )
+        //     .unwrap()
+        //     .then((result) => {
+        //       setIsSaving(false);
+        //     })
+        //     .catch((error: any) => {
+        //       setIsSaving(false);
+        //     });
+        // } else {
+        //   dispatch(createWorkflow(updatedWorkflow))
+        //     .unwrap()
+        //     .then((result) => {
+        //       const { workflow } = result;
+        //       history.replace(
+        //         `${APP_PATH.WORKFLOWS}/${workflow.id}`
+        //       );
+        //       history.go(0);
+        //     })
+        //     .catch((error: any) => {
+        //       setIsSaving(false);
+        //     });
+        // }
       }
     });
   }
@@ -277,7 +284,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     >
       {(formikProps) => (
         <Form>
-          {!formValidOnSubmit && (
+          {/*
+            TODO: finalize where/how to show invalidations
+            */}
+          {/* {!formValidOnSubmit && (
             <EuiCallOut
               title="There are empty or invalid fields"
               color="danger"
@@ -285,17 +295,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               style={{ marginBottom: '16px' }}
             >
               Please address the highlighted fields and try saving again.
-            </EuiCallOut>
-          )}
-          {!flowValidOnSubmit && (
-            <EuiCallOut
-              title="The configured flow is invalid"
-              color="danger"
-              iconType="alert"
-              style={{ marginBottom: '16px' }}
-            >
-              Please ensure there are no open connections between the
-              components.
             </EuiCallOut>
           )}
           {isDeprovisionable && isDirty && (
@@ -308,7 +307,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               Changes cannot be saved until the workflow has first been
               deprovisioned.
             </EuiCallOut>
-          )}
+          )} */}
           <EuiResizableContainer
             direction="horizontal"
             className="stretch-absolute"
@@ -340,7 +339,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                       <EuiFlexItem>
                         <WorkflowInputs
                           workflow={props.workflow}
-                          onFormChange={() => onFormChange()}
+                          formikProps={formikProps}
+                          onFormChange={onFormChange}
+                          validateAndSubmit={validateAndSubmit}
                         />
                       </EuiFlexItem>
                     </EuiFlexGroup>
