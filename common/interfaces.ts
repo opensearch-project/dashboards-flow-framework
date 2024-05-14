@@ -18,21 +18,44 @@ export type Index = {
 TODO: over time these can become less generic as the form inputs & UX becomes finalized
  */
 
-export type IndexConfig = {
-  isNew: boolean;
-  indexName: string;
+export type ConfigFieldType = 'string' | 'json' | 'select' | 'model';
+export type ConfigSelectType = 'model';
+export type ConfigFieldValue = string | {};
+export interface IConfigField {
+  label: string;
+  type: ConfigFieldType;
+  id: string;
+  value?: ConfigFieldValue;
+  placeholder?: string;
+  helpText?: string;
+  helpLink?: string;
+  selectType?: ConfigSelectType;
+}
+
+export interface IConfigMetadata {
+  label?: string;
+}
+
+export interface IConfig {
+  id: string;
+  fields: IConfigField[];
+  metadata?: IConfigMetadata;
+}
+
+export type EnrichConfig = {
+  processors: IConfig[];
 };
 
 export type IngestConfig = {
-  source: FormikValues;
-  enrich: FormikValues;
-  ingest: IndexConfig;
+  source: IConfig;
+  enrich: EnrichConfig;
+  ingest: IConfig;
 };
 
 export type SearchConfig = {
-  request: FormikValues;
-  enrichRequest: FormikValues;
-  enrichResponse: FormikValues;
+  request: IConfig;
+  enrichRequest: IConfig;
+  enrichResponse: IConfig;
 };
 
 export type WorkflowConfig = {

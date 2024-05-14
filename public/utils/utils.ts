@@ -3,13 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { FormikErrors, FormikTouched, FormikValues } from 'formik';
+import { FormikValues } from 'formik';
 import { EuiFilterSelectItem } from '@elastic/eui';
 import { Schema, ObjectSchema } from 'yup';
 import * as yup from 'yup';
 import {
-  FieldType,
-  FieldValue,
   IComponent,
   IComponentData,
   IComponentField,
@@ -22,6 +20,13 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
   WorkflowSchema,
+  IngestConfig,
+  SearchConfig,
+  EnrichConfig,
+  ConfigFieldType,
+  ConfigFieldValue,
+  WorkflowSchemaObj,
+  IConfigField,
 } from '../../common';
 
 // Append 16 random characters
@@ -46,23 +51,92 @@ export function initComponentData(
 }
 
 /*
- **************** Formik (form) utils **********************
+ **************** Formik / form utils **********************
  */
 
-// TODO: implement this. Refer to formikToComponentData() below
 export function uiConfigToFormik(config: WorkflowConfig): WorkflowFormValues {
   const formikValues = {} as WorkflowFormValues;
-  formikValues['ingest'] = {};
-  formikValues['search'] = {};
+  formikValues['ingest'] = ingestConfigToFormik(config.ingest);
+  formikValues['search'] = searchConfigToFormik(config.search);
   return formikValues;
 }
 
+function ingestConfigToFormik(
+  ingestConfig: IngestConfig | undefined
+): FormikValues {
+  let ingestFormikValues = {} as FormikValues;
+  if (ingestConfig) {
+    // TODO: implement for the other sub-categories
+    ingestFormikValues['enrich'] = enrichConfigToFormik(ingestConfig.enrich);
+  }
+  return ingestFormikValues;
+}
+
+function enrichConfigToFormik(enrichConfig: EnrichConfig): FormikValues {
+  let formValues = {} as FormikValues;
+
+  enrichConfig.processors.forEach((processorConfig) => {
+    let fieldValues = {} as FormikValues;
+    processorConfig.fields.forEach((field) => {
+      fieldValues[field.id] = field.value || getInitialValue(field.type);
+    });
+    formValues[processorConfig.id] = fieldValues;
+  });
+
+  return formValues;
+}
+
+// TODO: implement this
+function searchConfigToFormik(
+  searchConfig: SearchConfig | undefined
+): FormikValues {
+  let searchFormikValues = {} as FormikValues;
+  return searchFormikValues;
+}
+
+/*
+ **************** Schema / validation utils **********************
+ */
+
 // TODO: implement this. Refer to getComponentSchema() below
 export function uiConfigToSchema(config: WorkflowConfig): WorkflowSchema {
-  const schemaObj = {} as { [key: string]: ObjectSchema<any> };
-  schemaObj['ingest'] = {} as ObjectSchema<any>;
-  schemaObj['search'] = {} as ObjectSchema<any>;
+  const schemaObj = {} as WorkflowSchemaObj;
+  schemaObj['ingest'] = ingestConfigToSchema(config.ingest);
+  schemaObj['search'] = searchConfigToSchema(config.search);
   return yup.object(schemaObj) as WorkflowSchema;
+}
+
+function ingestConfigToSchema(
+  ingestConfig: IngestConfig | undefined
+): ObjectSchema<any> {
+  const ingestSchemaObj = {} as { [key: string]: Schema };
+  if (ingestConfig) {
+    // TODO: implement for the other sub-categories
+    ingestSchemaObj['enrich'] = enrichConfigToSchema(ingestConfig.enrich);
+  }
+  return yup.object(ingestSchemaObj);
+}
+
+function enrichConfigToSchema(enrichConfig: EnrichConfig): Schema {
+  const enrichSchemaObj = {} as { [key: string]: Schema };
+  enrichConfig.processors.forEach((processorConfig) => {
+    const processorSchemaObj = {} as { [key: string]: Schema };
+    processorConfig.fields.forEach((field) => {
+      processorSchemaObj[field.id] = getFieldSchema(field);
+    });
+    enrichSchemaObj[processorConfig.id] = yup.object(processorSchemaObj);
+  });
+
+  return yup.object(enrichSchemaObj);
+}
+
+// TODO: implement this
+function searchConfigToSchema(
+  searchConfig: SearchConfig | undefined
+): ObjectSchema<any> {
+  const searchSchemaObj = {} as { [key: string]: Schema };
+
+  return yup.object(searchSchemaObj);
 }
 
 // TODO: below, we are hardcoding to only persisting and validating create fields.
@@ -109,7 +183,7 @@ export function reduceToTemplate(workflow: Workflow): WorkflowTemplate {
 }
 
 // Helper fn to get an initial value based on the field type
-export function getInitialValue(fieldType: FieldType): FieldValue {
+export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
   switch (fieldType) {
     case 'string': {
       return '';
@@ -128,26 +202,6 @@ export function getInitialValue(fieldType: FieldType): FieldValue {
       return {};
     }
   }
-}
-
-export function isFieldInvalid(
-  componentId: string,
-  fieldName: string,
-  errors: FormikErrors<WorkspaceFormValues>,
-  touched: FormikTouched<WorkspaceFormValues>
-): boolean {
-  return (
-    errors[componentId]?.[fieldName] !== undefined &&
-    touched[componentId]?.[fieldName] !== undefined
-  );
-}
-
-export function getFieldError(
-  componentId: string,
-  fieldName: string,
-  errors: FormikErrors<WorkspaceFormValues>
-): string | undefined {
-  return errors[componentId]?.[fieldName] as string | undefined;
 }
 
 // Process the raw ReactFlow nodes.
@@ -182,7 +236,7 @@ export function getComponentSchema(data: IComponentData): ObjectSchema<any> {
   return yup.object(schemaObj);
 }
 
-function getFieldSchema(field: IComponentField): Schema {
+function getFieldSchema(field: IConfigField): Schema {
   let baseSchema: Schema;
   switch (field.type) {
     case 'string':

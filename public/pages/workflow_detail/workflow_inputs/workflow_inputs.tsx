@@ -18,6 +18,7 @@ import { SearchInputs } from './search_inputs';
 
 interface WorkflowInputsProps {
   workflow: Workflow | undefined;
+  onFormChange: () => void;
 }
 
 export enum CREATE_STEP {
@@ -54,7 +55,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             {selectedStep === CREATE_STEP.INGEST ? (
-              <IngestInputs workflow={props.workflow} />
+              <IngestInputs
+                workflow={props.workflow}
+                onFormChange={props.onFormChange}
+              />
             ) : (
               <SearchInputs workflow={props.workflow} />
             )}

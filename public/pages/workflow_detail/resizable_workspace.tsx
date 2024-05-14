@@ -338,7 +338,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                       className="workspace-panel"
                     >
                       <EuiFlexItem>
-                        <WorkflowInputs workflow={props.workflow} />
+                        <WorkflowInputs
+                          workflow={props.workflow}
+                          onFormChange={() => onFormChange()}
+                        />
                       </EuiFlexItem>
                     </EuiFlexGroup>
                   </EuiResizablePanel>

@@ -12,6 +12,7 @@ import { Workflow } from '../../../../../common';
 
 interface IngestInputsProps {
   workflow: Workflow;
+  onFormChange: () => void;
 }
 
 /**
@@ -27,7 +28,10 @@ export function IngestInputs(props: IngestInputsProps) {
         <EuiHorizontalRule margin="none" />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <EnrichData />
+        <EnrichData
+          workflow={props.workflow}
+          onFormChange={props.onFormChange}
+        />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiHorizontalRule margin="none" />

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { TextEmbeddingProcessor } from '../../../configs';
 import {
   USE_CASE,
   WorkflowTemplate,
@@ -20,7 +21,7 @@ export function enrichPresetWorkflowWithUiMetadata(
   // provide preset values for the different preset use cases.
   switch (presetWorkflow.use_case) {
     case USE_CASE.SEMANTIC_SEARCH: {
-      uiMetadata = fetchEmptyMetadata();
+      uiMetadata = fetchSemanticSearchMetadata();
       break;
     }
     case USE_CASE.NEURAL_SPARSE_SEARCH: {
@@ -50,17 +51,74 @@ function fetchEmptyMetadata(): UIState {
   return {
     config: {
       ingest: {
-        source: {},
-        enrich: {},
+        source: {
+          id: 'source',
+          fields: [],
+        },
+        enrich: {
+          processors: [],
+        },
         ingest: {
-          isNew: true,
-          indexName: 'my-index',
+          id: 'enrich',
+          fields: [],
         },
       },
       search: {
-        request: {},
-        enrichRequest: {},
-        enrichResponse: {},
+        request: {
+          id: 'request',
+          fields: [],
+        },
+        enrichRequest: {
+          id: 'enrichRequest',
+          fields: [],
+        },
+        enrichResponse: {
+          id: 'enrichResponse',
+          fields: [],
+        },
+      },
+    },
+  };
+}
+
+function fetchSemanticSearchMetadata(): UIState {
+  const processor = new TextEmbeddingProcessor();
+  return {
+    config: {
+      ingest: {
+        source: {
+          id: 'source',
+          fields: [],
+        },
+        enrich: {
+          processors: [
+            {
+              id: processor.id,
+              fields: processor.fields,
+              metadata: {
+                label: processor.name,
+              },
+            },
+          ],
+        },
+        ingest: {
+          id: 'enrich',
+          fields: [],
+        },
+      },
+      search: {
+        request: {
+          id: 'request',
+          fields: [],
+        },
+        enrichRequest: {
+          id: 'enrichRequest',
+          fields: [],
+        },
+        enrichResponse: {
+          id: 'enrichResponse',
+          fields: [],
+        },
       },
     },
   };
