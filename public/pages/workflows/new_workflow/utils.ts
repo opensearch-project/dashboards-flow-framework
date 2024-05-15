@@ -10,6 +10,7 @@ import {
   START_FROM_SCRATCH_WORKFLOW_NAME,
   DEFAULT_NEW_WORKFLOW_NAME,
   UIState,
+  IConfig,
 } from '../../../../common';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
@@ -59,49 +60,6 @@ function fetchEmptyMetadata(): UIState {
           processors: [],
         },
         index: {
-          id: 'index',
-          fields: [],
-        },
-      },
-      search: {
-        request: {
-          id: 'request',
-          fields: [],
-        },
-        enrichRequest: {
-          id: 'enrichRequest',
-          fields: [],
-        },
-        enrichResponse: {
-          id: 'enrichResponse',
-          fields: [],
-        },
-      },
-    },
-  };
-}
-
-function fetchSemanticSearchMetadata(): UIState {
-  const processor = new TextEmbeddingProcessor();
-  return {
-    config: {
-      ingest: {
-        source: {
-          id: 'source',
-          fields: [],
-        },
-        enrich: {
-          processors: [
-            {
-              id: processor.id,
-              fields: processor.fields,
-              metadata: {
-                label: processor.name,
-              },
-            },
-          ],
-        },
-        index: {
           name: {
             id: 'indexName',
             type: 'string',
@@ -125,6 +83,24 @@ function fetchSemanticSearchMetadata(): UIState {
       },
     },
   };
+}
+
+function fetchSemanticSearchMetadata(): UIState {
+  // We can reuse the base state. Only need to override a few things,
+  // such as preset ingest processors.
+  let baseState = fetchEmptyMetadata();
+  const processor = new TextEmbeddingProcessor();
+  // @ts-ignore
+  baseState.config.ingest.enrich.processors = [
+    {
+      id: processor.id,
+      fields: processor.fields,
+      metadata: {
+        label: processor.name,
+      },
+    },
+  ] as IConfig[];
+  return baseState;
 }
 
 // function fetchSemanticSearchWorkspaceFlow(): WorkspaceFlowState {
