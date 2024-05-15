@@ -52,7 +52,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           justifyContent="spaceBetween"
           style={{
             height: '100%',
-            paddingBottom: '48px',
           }}
         >
           <EuiFlexItem grow={false}>
@@ -60,7 +59,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <h4>{selectedStep}</h4>
             </EuiTitle>
           </EuiFlexItem>
-          <EuiFlexItem>
+          <EuiFlexItem
+            grow={true}
+            style={{ overflowY: 'scroll', maxHeight: '55vh' }}
+          >
             {selectedStep === CREATE_STEP.INGEST ? (
               <IngestInputs
                 workflow={props.workflow}
