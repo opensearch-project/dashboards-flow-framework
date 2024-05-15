@@ -3,12 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { TextEmbeddingProcessor } from '../../../configs';
 import {
   USE_CASE,
   WorkflowTemplate,
   START_FROM_SCRATCH_WORKFLOW_NAME,
   DEFAULT_NEW_WORKFLOW_NAME,
   UIState,
+  IConfig,
 } from '../../../../common';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
@@ -20,7 +22,7 @@ export function enrichPresetWorkflowWithUiMetadata(
   // provide preset values for the different preset use cases.
   switch (presetWorkflow.use_case) {
     case USE_CASE.SEMANTIC_SEARCH: {
-      uiMetadata = fetchEmptyMetadata();
+      uiMetadata = fetchSemanticSearchMetadata();
       break;
     }
     case USE_CASE.NEURAL_SPARSE_SEARCH: {
@@ -50,20 +52,55 @@ function fetchEmptyMetadata(): UIState {
   return {
     config: {
       ingest: {
-        source: {},
-        enrich: {},
-        ingest: {
-          isNew: true,
-          indexName: 'my-index',
+        source: {
+          id: 'source',
+          fields: [],
+        },
+        enrich: {
+          processors: [],
+        },
+        index: {
+          name: {
+            id: 'indexName',
+            type: 'string',
+            label: 'Index name',
+          },
         },
       },
       search: {
-        request: {},
-        enrichRequest: {},
-        enrichResponse: {},
+        request: {
+          id: 'request',
+          fields: [],
+        },
+        enrichRequest: {
+          id: 'enrichRequest',
+          fields: [],
+        },
+        enrichResponse: {
+          id: 'enrichResponse',
+          fields: [],
+        },
       },
     },
   };
+}
+
+function fetchSemanticSearchMetadata(): UIState {
+  // We can reuse the base state. Only need to override a few things,
+  // such as preset ingest processors.
+  let baseState = fetchEmptyMetadata();
+  const processor = new TextEmbeddingProcessor();
+  // @ts-ignore
+  baseState.config.ingest.enrich.processors = [
+    {
+      id: processor.id,
+      fields: processor.fields,
+      metadata: {
+        label: processor.name,
+      },
+    },
+  ] as IConfig[];
+  return baseState;
 }
 
 // function fetchSemanticSearchWorkspaceFlow(): WorkspaceFlowState {

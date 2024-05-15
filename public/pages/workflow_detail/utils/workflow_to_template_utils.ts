@@ -31,13 +31,37 @@ import {
   IndexMappings,
   CreateSearchPipelineNode,
   WORKFLOW_STEP_TYPE,
+  WorkflowConfig,
 } from '../../../../common';
 import { componentDataToFormik, generateId } from '../../../utils';
 
 /**
+ * Given a WorkflowConfig with fully populated input values,
+ * generate a backend-compatible set of sub-workflows.
+ */
+
+export function configToTemplateFlows(config: WorkflowConfig): TemplateFlows {
+  const provisionFlow = configToProvisionTemplateFlow(config);
+
+  return {
+    provision: provisionFlow,
+  };
+}
+
+// TODO: implement this
+function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
+  const nodes = [] as TemplateNode[];
+  const edges = [] as TemplateEdge[];
+
+  return {
+    nodes,
+    edges,
+  };
+}
+
+/**
  * Given a ReactFlow workspace flow with fully populated input values,
  * generate a backend-compatible set of sub-workflows.
- *
  */
 export function toTemplateFlows(
   workspaceFlow: WorkspaceFlowState
