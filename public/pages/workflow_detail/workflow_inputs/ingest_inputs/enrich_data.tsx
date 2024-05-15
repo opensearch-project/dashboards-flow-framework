@@ -4,12 +4,17 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiText, EuiTitle } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiTitle } from '@elastic/eui';
+import { ProcessorsList } from './processors_list';
+import { Workflow } from '../../../../../common';
 
-interface EnrichDataProps {}
+interface EnrichDataProps {
+  workflow: Workflow;
+  onFormChange: () => void;
+}
 
 /**
- * Input component for configuring any data enrichment for ingest (ingest pipeline processors etc.)
+ * Base component for configuring any data enrichment
  */
 export function EnrichData(props: EnrichDataProps) {
   return (
@@ -20,7 +25,10 @@ export function EnrichData(props: EnrichDataProps) {
         </EuiTitle>
       </EuiFlexItem>
       <EuiFlexItem>
-        <EuiText grow={false}>TODO</EuiText>
+        <ProcessorsList
+          workflow={props.workflow}
+          onFormChange={props.onFormChange}
+        />
       </EuiFlexItem>
     </EuiFlexGroup>
   );
