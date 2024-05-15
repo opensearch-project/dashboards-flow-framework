@@ -25,8 +25,15 @@ import {
   uiConfigToFormik,
   uiConfigToSchema,
   formikToUiConfig,
+  reduceToTemplate,
 } from '../../utils';
-import { AppState, setDirty, useAppDispatch } from '../../store';
+import {
+  AppState,
+  createWorkflow,
+  setDirty,
+  updateWorkflow,
+  useAppDispatch,
+} from '../../store';
 import { Workspace } from './workspace/workspace';
 
 // styling
@@ -241,35 +248,32 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           },
           workflows: configToTemplateFlows(updatedConfig),
         } as Workflow;
-        console.log('final updated workflow: ', updatedWorkflow);
-        // if (updatedWorkflow.id) {
-        //   dispatch(
-        //     updateWorkflow({
-        //       workflowId: updatedWorkflow.id,
-        //       workflowTemplate: reduceToTemplate(updatedWorkflow),
-        //     })
-        //   )
-        //     .unwrap()
-        //     .then((result) => {
-        //       setIsSaving(false);
-        //     })
-        //     .catch((error: any) => {
-        //       setIsSaving(false);
-        //     });
-        // } else {
-        //   dispatch(createWorkflow(updatedWorkflow))
-        //     .unwrap()
-        //     .then((result) => {
-        //       const { workflow } = result;
-        //       history.replace(
-        //         `${APP_PATH.WORKFLOWS}/${workflow.id}`
-        //       );
-        //       history.go(0);
-        //     })
-        //     .catch((error: any) => {
-        //       setIsSaving(false);
-        //     });
-        // }
+        if (updatedWorkflow.id) {
+          dispatch(
+            updateWorkflow({
+              workflowId: updatedWorkflow.id,
+              workflowTemplate: reduceToTemplate(updatedWorkflow),
+            })
+          )
+            .unwrap()
+            .then((result) => {
+              setIsSaving(false);
+            })
+            .catch((error: any) => {
+              setIsSaving(false);
+            });
+        } else {
+          dispatch(createWorkflow(updatedWorkflow))
+            .unwrap()
+            .then((result) => {
+              const { workflow } = result;
+              history.replace(`${APP_PATH.WORKFLOWS}/${workflow.id}`);
+              history.go(0);
+            })
+            .catch((error: any) => {
+              setIsSaving(false);
+            });
+        }
       }
     });
   }

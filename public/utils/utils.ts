@@ -69,6 +69,7 @@ function ingestConfigToFormik(
   if (ingestConfig) {
     // TODO: implement for the other sub-categories
     ingestFormikValues['enrich'] = enrichConfigToFormik(ingestConfig.enrich);
+    ingestFormikValues['index'] = indexConfigToFormik(ingestConfig.index);
   }
   return ingestFormikValues;
 }
@@ -84,6 +85,13 @@ function enrichConfigToFormik(enrichConfig: EnrichConfig): FormikValues {
     formValues[processorConfig.id] = fieldValues;
   });
 
+  return formValues;
+}
+
+function indexConfigToFormik(indexConfig: IndexConfig): FormikValues {
+  let formValues = {} as FormikValues;
+  formValues['name'] =
+    indexConfig.name.value || getInitialValue(indexConfig.name.type);
   return formValues;
 }
 

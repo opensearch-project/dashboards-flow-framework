@@ -222,6 +222,8 @@ export function ModelField(props: ModelFieldProps) {
                 }}
                 isInvalid={
                   getIn(errors, field.name) && getIn(touched, field.name)
+                    ? true
+                    : undefined
                 }
               />
             </>

@@ -72,7 +72,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <SearchInputs workflow={props.workflow} />
             )}
           </EuiFlexItem>
-          <EuiFlexItem grow={false}>
+          <EuiFlexItem grow={false} style={{ marginBottom: '-10px' }}>
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
@@ -100,7 +100,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         <EuiButton
                           disabled={false}
                           onClick={() => {
-                            console.log('creating...');
                             props.validateAndSubmit(props.formikProps);
                           }}
                         >
