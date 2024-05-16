@@ -29,6 +29,7 @@ import {
   WorkflowSchemaObj,
   IConfigField,
   IndexConfig,
+  IProcessorConfig,
 } from '../../common';
 
 // Append 16 random characters
@@ -78,14 +79,19 @@ function enrichConfigToFormik(enrichConfig: EnrichConfig): FormikValues {
   let formValues = {} as FormikValues;
 
   enrichConfig.processors.forEach((processorConfig) => {
-    let fieldValues = {} as FormikValues;
-    processorConfig.fields.forEach((field) => {
-      fieldValues[field.id] = field.value || getInitialValue(field.type);
-    });
-    formValues[processorConfig.id] = fieldValues;
+    formValues[processorConfig.id] = processorConfigToFormik(processorConfig);
   });
-
   return formValues;
+}
+
+export function processorConfigToFormik(
+  processorConfig: IProcessorConfig
+): FormikValues {
+  const fieldValues = {} as FormikValues;
+  processorConfig.fields.forEach((field) => {
+    fieldValues[field.id] = field.value || getInitialValue(field.type);
+  });
+  return fieldValues;
 }
 
 function indexConfigToFormik(indexConfig: IndexConfig): FormikValues {

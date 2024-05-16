@@ -6,7 +6,12 @@
 import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
-import { COMPONENT_CLASS, COMPONENT_CATEGORY } from './constants';
+import {
+  COMPONENT_CLASS,
+  COMPONENT_CATEGORY,
+  PROCESSOR_TYPE,
+  MODEL_TYPE,
+} from './constants';
 
 export type Index = {
   name: string;
@@ -42,8 +47,16 @@ export interface IConfig {
   metadata?: IConfigMetadata;
 }
 
+export interface IProcessorConfig extends IConfig {
+  type: PROCESSOR_TYPE;
+}
+
+export interface IModelProcessorConfig extends IProcessorConfig {
+  modelType: MODEL_TYPE;
+}
+
 export type EnrichConfig = {
-  processors: IConfig[];
+  processors: IProcessorConfig[];
 };
 
 export type IndexConfig = {
