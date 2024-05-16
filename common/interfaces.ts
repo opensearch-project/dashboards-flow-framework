@@ -63,8 +63,8 @@ export type SearchConfig = {
 };
 
 export type WorkflowConfig = {
-  ingest?: IngestConfig;
-  search?: SearchConfig;
+  ingest: IngestConfig;
+  search: SearchConfig;
 };
 
 export type WorkflowFormValues = {

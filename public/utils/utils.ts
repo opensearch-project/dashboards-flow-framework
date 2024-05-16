@@ -7,6 +7,7 @@ import { FormikValues } from 'formik';
 import { EuiFilterSelectItem } from '@elastic/eui';
 import { Schema, ObjectSchema } from 'yup';
 import * as yup from 'yup';
+import { cloneDeep } from 'lodash';
 import {
   IComponent,
   IComponentData,
@@ -67,7 +68,6 @@ function ingestConfigToFormik(
 ): FormikValues {
   let ingestFormikValues = {} as FormikValues;
   if (ingestConfig) {
-    // TODO: implement for the other sub-categories
     ingestFormikValues['enrich'] = enrichConfigToFormik(ingestConfig.enrich);
     ingestFormikValues['index'] = indexConfigToFormik(ingestConfig.index);
   }
@@ -103,16 +103,60 @@ function searchConfigToFormik(
   return searchFormikValues;
 }
 
-// TODO: this may need more tuning. Currently this is force-converting the FormikValues obj
-// into a WorkflowConfig obj. It takes the assumption the form will include all possible
-// config values, including defaults.
+// Injecting all of the form values into the config
 export function formikToUiConfig(
-  formValues: WorkflowFormValues
+  formValues: WorkflowFormValues,
+  existingConfig: WorkflowConfig
 ): WorkflowConfig {
-  const workflowConfig = {} as WorkflowConfig;
-  workflowConfig['ingest'] = formValues.ingest as IngestConfig;
-  workflowConfig['search'] = formValues.search as SearchConfig;
-  return workflowConfig;
+  let updatedConfig = cloneDeep(existingConfig);
+  updatedConfig['ingest'] = formikToIngestUiConfig(
+    formValues.ingest,
+    updatedConfig.ingest
+  );
+  updatedConfig['search'] = {} as SearchConfig;
+
+  return {
+    ...updatedConfig,
+    ingest: formikToIngestUiConfig(formValues.ingest, updatedConfig.ingest),
+  };
+}
+
+function formikToIngestUiConfig(
+  ingestFormValues: FormikValues,
+  existingConfig: IngestConfig
+): IngestConfig {
+  return {
+    ...existingConfig,
+    enrich: formikToEnrichUiConfig(
+      ingestFormValues['enrich'],
+      existingConfig.enrich
+    ),
+    index: formikToIndexUiConfig(
+      ingestFormValues['index'],
+      existingConfig.index
+    ),
+  };
+}
+
+function formikToEnrichUiConfig(
+  enrichFormValues: FormikValues,
+  existingConfig: EnrichConfig
+): EnrichConfig {
+  existingConfig.processors.forEach((processorConfig) => {
+    const processorFormValues = enrichFormValues[processorConfig.id];
+    processorConfig.fields.forEach((processorField) => {
+      processorField.value = processorFormValues[processorField.id];
+    });
+  });
+  return existingConfig;
+}
+
+function formikToIndexUiConfig(
+  indexFormValues: FormikValues,
+  existingConfig: IndexConfig
+): IndexConfig {
+  existingConfig['name'].value = indexFormValues['name'];
+  return existingConfig;
 }
 
 /*
