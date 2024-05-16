@@ -61,7 +61,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           </EuiFlexItem>
           <EuiFlexItem
             grow={true}
-            style={{ overflowY: 'scroll', maxHeight: '55vh' }}
+            style={{
+              overflowY: 'scroll',
+              overflowX: 'hidden',
+              maxHeight: '55vh',
+            }}
           >
             {selectedStep === CREATE_STEP.INGEST ? (
               <IngestInputs

@@ -10,7 +10,8 @@ import {
   START_FROM_SCRATCH_WORKFLOW_NAME,
   DEFAULT_NEW_WORKFLOW_NAME,
   UIState,
-  IConfig,
+  PROCESSOR_TYPE,
+  IModelProcessorConfig,
 } from '../../../../common';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
@@ -93,13 +94,15 @@ function fetchSemanticSearchMetadata(): UIState {
   // @ts-ignore
   baseState.config.ingest.enrich.processors = [
     {
+      type: PROCESSOR_TYPE.MODEL,
+      modelType: processor.type,
       id: processor.id,
       fields: processor.fields,
       metadata: {
         label: processor.name,
       },
     },
-  ] as IConfig[];
+  ] as IModelProcessorConfig;
   return baseState;
 }
 
