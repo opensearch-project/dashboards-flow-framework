@@ -6,7 +6,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Connection, Handle, Position, useReactFlow } from 'reactflow';
 import { EuiText } from '@elastic/eui';
-import { IComponent, IComponentOutput } from '../../../../component_types';
+import { IComponent, IComponentOutput } from '../../../../../common';
 import { calculateHandlePosition, isValidConnection } from './utils';
 
 interface OutputHandleProps {
@@ -18,7 +18,6 @@ export function OutputHandle(props: OutputHandleProps) {
   const ref = useRef(null);
   const reactFlowInstance = useReactFlow();
   const [position, setPosition] = useState<number>(0);
-  const outputClasses = props.output.baseClasses.join('|');
 
   useEffect(() => {
     setPosition(calculateHandlePosition(ref));
@@ -30,7 +29,7 @@ export function OutputHandle(props: OutputHandleProps) {
         <EuiText textAlign="right">{props.output.label}</EuiText>
         <Handle
           type="source"
-          id={outputClasses}
+          id={props.output.id}
           position={Position.Right}
           isValidConnection={(connection: Connection) =>
             // @ts-ignore

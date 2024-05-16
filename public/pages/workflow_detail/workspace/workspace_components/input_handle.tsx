@@ -6,7 +6,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Connection, Handle, Position, useReactFlow } from 'reactflow';
 import { EuiText } from '@elastic/eui';
-import { IComponent, IComponentInput } from '../../../../component_types';
+import { IComponent, IComponentInput } from '../../../../../common';
 import { calculateHandlePosition, isValidConnection } from './utils';
 
 interface InputHandleProps {
@@ -29,7 +29,7 @@ export function InputHandle(props: InputHandleProps) {
         <EuiText textAlign="left">{props.input.label}</EuiText>
         <Handle
           type="target"
-          id={props.input.baseClass}
+          id={props.input.id}
           position={Position.Left}
           isValidConnection={(connection: Connection) =>
             // @ts-ignore
