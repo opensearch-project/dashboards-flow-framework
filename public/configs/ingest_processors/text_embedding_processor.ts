@@ -3,18 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { MODEL_TYPE } from '../../../common';
 import { generateId } from '../../utils';
-import { BaseIngestProcessor } from './base_ingest_processor';
+import { ModelProcessor } from './model_processor';
 
 /**
  * A specialized text embedding processor config
  */
-export class TextEmbeddingProcessor extends BaseIngestProcessor {
+export class TextEmbeddingProcessor extends ModelProcessor {
   constructor() {
     super();
     this.id = generateId('text_embedding_processor');
     this.name = 'Text embedding processor';
-    this.type = 'text_embedding';
+    this.type = MODEL_TYPE.TEXT_EMBEDDING;
     this.fields = [
       {
         label: 'Text Embedding Model',

@@ -19,6 +19,7 @@ import {
   ReactFlowEdge,
   WorkflowFormValues,
   WorkflowSchema,
+  WorkflowConfig,
 } from '../../../common';
 import {
   APP_PATH,
@@ -222,7 +223,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         setIsSaving(false);
       } else {
         setFormValidOnSubmit(true);
-        const updatedConfig = formikToUiConfig(formikProps.values);
+        const updatedConfig = formikToUiConfig(
+          formikProps.values,
+          workflow?.ui_metadata?.config as WorkflowConfig
+        );
         const updatedWorkflow = {
           ...workflow,
           ui_metadata: {
