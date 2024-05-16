@@ -120,6 +120,19 @@ export const NEURAL_SPARSE_TOKENIZER_TRANSFORMER = {
 } as PretrainedSparseEncodingModel;
 
 /**
+ * Various constants pertaining to Workflow configs
+ */
+
+export enum PROCESSOR_TYPE {
+  MODEL = 'model_processor',
+}
+
+export enum MODEL_TYPE {
+  TEXT_EMBEDDING = 'text_embedding',
+  SPARSE_ENCODER = 'sparse_encoder',
+}
+
+/**
  * Various constants pertaining to the drag-and-drop UI components
  */
 export enum COMPONENT_CATEGORY {
