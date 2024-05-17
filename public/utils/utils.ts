@@ -11,10 +11,7 @@ import { cloneDeep } from 'lodash';
 import {
   IComponent,
   IComponentData,
-  IComponentField,
-  WorkspaceFormValues,
   WORKFLOW_STATE,
-  ReactFlowComponent,
   Workflow,
   WorkflowTemplate,
   ModelFormValue,
@@ -169,7 +166,6 @@ function formikToIndexUiConfig(
  **************** Schema / validation utils **********************
  */
 
-// TODO: implement this. Refer to getComponentSchema() below
 export function uiConfigToSchema(config: WorkflowConfig): WorkflowSchema {
   const schemaObj = {} as WorkflowSchemaObj;
   schemaObj['ingest'] = ingestConfigToSchema(config.ingest);
@@ -217,35 +213,6 @@ function searchConfigToSchema(
   return yup.object(searchSchemaObj);
 }
 
-// TODO: below, we are hardcoding to only persisting and validating create fields.
-// If we support both, we will need to dynamically update.
-// Converting stored values in component data to initial formik values
-export function componentDataToFormik(data: IComponentData): FormikValues {
-  const formikValues = {} as FormikValues;
-  data.createFields?.forEach((field) => {
-    formikValues[field.id] = field.value || getInitialValue(field.type);
-  });
-  return formikValues;
-}
-
-// TODO: below, we are hardcoding to only persisting and validating create fields.
-// If we support both, we will need to dynamically update.
-// Injecting the current form values into the component data
-export function formikToComponentData(
-  origData: IComponentData,
-  formValues: FormikValues
-): IComponentData {
-  return {
-    ...origData,
-    createFields: origData.createFields?.map(
-      (createField: IComponentField) => ({
-        ...createField,
-        value: formValues[createField.id],
-      })
-    ),
-  } as IComponentData;
-}
-
 // Helper fn to remove state-related fields from a workflow and have a stateless template
 // to export and/or pass around, use when updating, etc.
 export function reduceToTemplate(workflow: Workflow): WorkflowTemplate {
@@ -282,37 +249,9 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
   }
 }
 
-// Process the raw ReactFlow nodes.
-// De-select them all, and propagate the form data to the internal node data
-export function processNodes(
-  nodes: ReactFlowComponent[],
-  formValues: WorkspaceFormValues
-): ReactFlowComponent[] {
-  return nodes.map((node: ReactFlowComponent) => {
-    return {
-      ...node,
-      selected: false,
-      data: formikToComponentData(
-        { ...node.data, selected: false },
-        formValues[node.id]
-      ),
-    };
-  });
-}
-
 /*
  **************** Yup (validation) utils **********************
  */
-
-// TODO: below, we are hardcoding to only persisting and validating create fields.
-// If we support both, we will need to dynamically update.
-export function getComponentSchema(data: IComponentData): ObjectSchema<any> {
-  const schemaObj = {} as { [key: string]: Schema };
-  data.createFields?.forEach((field) => {
-    schemaObj[field.id] = getFieldSchema(field);
-  });
-  return yup.object(schemaObj);
-}
 
 function getFieldSchema(field: IConfigField): Schema {
   let baseSchema: Schema;

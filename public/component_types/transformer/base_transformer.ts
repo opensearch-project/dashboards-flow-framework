@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../../../common';
+import { COMPONENT_CLASS } from '../../../common';
 import { BaseComponent } from '../base_component';
 
 /**
@@ -14,8 +14,18 @@ export abstract class BaseTransformer extends BaseComponent {
     super();
     this.type = COMPONENT_CLASS.TRANSFORMER;
     this.label = 'Transformer';
-    this.categories = [COMPONENT_CATEGORY.INGEST, COMPONENT_CATEGORY.SEARCH];
-    this.allowsCreation = false;
-    this.baseClasses = [this.type];
+    this.inputs = [
+      {
+        id: 'input',
+        label: 'Input',
+        acceptMultiple: false,
+      },
+    ];
+    this.outputs = [
+      {
+        id: 'output',
+        label: 'Output',
+      },
+    ];
   }
 }

@@ -35,7 +35,7 @@ import {
   updateWorkflow,
   useAppDispatch,
 } from '../../store';
-import { Workspace } from './workspace/workspace';
+import { Workspace } from './workspace';
 
 // styling
 import './workspace/workspace-styles.scss';

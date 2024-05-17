@@ -15,6 +15,5 @@ export class MLTransformer extends BaseTransformer {
     this.type = COMPONENT_CLASS.ML_TRANSFORMER;
     this.label = 'ML Transformer';
     this.description = 'A general ML transformer';
-    this.baseClasses = [...this.baseClasses, this.type];
   }
 }

@@ -6,12 +6,7 @@
 import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
-import {
-  COMPONENT_CLASS,
-  COMPONENT_CATEGORY,
-  PROCESSOR_TYPE,
-  MODEL_TYPE,
-} from './constants';
+import { COMPONENT_CLASS, PROCESSOR_TYPE, MODEL_TYPE } from './constants';
 
 export type Index = {
   name: string;
@@ -106,15 +101,15 @@ export type WorkspaceSchemaObj = {
 };
 export type WorkspaceSchema = ObjectSchema<WorkspaceSchemaObj>;
 
-/**
- * Represents a single base class as an input handle for a component.
- * It may accept multiples of that class.
- */
 export interface IComponentInput {
   id: string;
   label: string;
-  baseClass: COMPONENT_CLASS;
   acceptMultiple: boolean;
+}
+
+export interface IComponentOutput {
+  id: string;
+  label: string;
 }
 
 /**
@@ -133,35 +128,13 @@ export interface IComponentField {
 }
 
 /**
- * Represents the list of base classes as a single output handle for
- * a component.
- */
-export interface IComponentOutput {
-  label: string;
-  baseClasses: COMPONENT_CLASS[];
-}
-
-/**
  * The base interface the components will implement.
  */
 export interface IComponent {
   type: COMPONENT_CLASS;
   label: string;
   description: string;
-  // will be used for grouping together in the drag-and-drop component library
-  // and determining which flows the component can be drug into the workspace flows
-  categories: COMPONENT_CATEGORY[];
-  // determines if this component allows for new creation. this means to
-  // allow a "create" option on the UI component, as well as potentially
-  // include in the use case template construction ('provisioning' flow)
-  allowsCreation: boolean;
-  // the list of base classes that will be used in the component output
-  baseClasses?: COMPONENT_CLASS[];
   inputs?: IComponentInput[];
-  fields?: IComponentField[];
-  // if the component supports creation, we will have a different set of input fields
-  // the user needs to fill out
-  createFields?: IComponentField[];
   outputs?: IComponentOutput[];
 }
 

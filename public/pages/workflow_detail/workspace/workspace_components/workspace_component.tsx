@@ -12,11 +12,9 @@ import {
   EuiTitle,
   EuiSpacer,
 } from '@elastic/eui';
-import { setDirty, useAppDispatch } from '../../../../store';
-import { IComponentData } from '../../../../component_types';
+import { IComponentData } from '../../../../../common';
 import { InputHandle } from './input_handle';
 import { OutputHandle } from './output_handle';
-import { Edge, useReactFlow } from 'reactflow';
 
 // styling
 import '../../workspace/reactflow-styles.scss';
@@ -31,35 +29,11 @@ interface WorkspaceComponentProps {
  * As users interact with it (input data, add connections), the stored IComponent data will update.
  */
 export function WorkspaceComponent(props: WorkspaceComponentProps) {
-  const dispatch = useAppDispatch();
   const component = props.data;
-  // TODO: remove hardcoded logic that only create fields are allowed
-  const containsFormFields =
-    props.data.createFields !== undefined && props.data.createFields.length > 0;
-  const reactFlowInstance = useReactFlow();
-
-  // TODO: re-enable deletion
-  const deleteNode = (nodeId: string) => {
-    reactFlowInstance.setNodes(
-      reactFlowInstance.getNodes().filter((node: Node) => node.id !== nodeId)
-    );
-    // Also delete any dangling edges attached to the component
-    reactFlowInstance.setEdges(
-      reactFlowInstance
-        .getEdges()
-        .filter(
-          (edge: Edge) => edge.source !== nodeId && edge.target !== nodeId
-        )
-    );
-    dispatch(setDirty());
-  };
-
-  const backgroundColor = containsFormFields ? '#172430' : '#0A121A';
 
   return (
     <EuiCard
       className="react-flow__node"
-      style={{ backgroundColor }}
       textAlign="left"
       title={
         <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -68,18 +42,7 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
               <h3>{component.label}</h3>
             </EuiTitle>
           </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            {
-              // TODO: re-enable deletion
-            }
-            {/* <EuiButtonIcon
-              iconType="trash"
-              onClick={() => {
-                deleteNode(component.id);
-              }}
-              aria-label="Delete"
-            /> */}
-          </EuiFlexItem>
+          <EuiFlexItem grow={false}></EuiFlexItem>
         </EuiFlexGroup>
       }
     >

@@ -7,15 +7,21 @@ import { COMPONENT_CLASS } from '../../../common';
 import { BaseComponent } from '../base_component';
 
 /**
- * A basic Document placeholder UI component.
- * Does not have any functionality.
+ * A base indexer UI component
  */
-export class Document extends BaseComponent {
+export abstract class BaseIndexer extends BaseComponent {
   constructor() {
     super();
-    this.type = COMPONENT_CLASS.DOCUMENT;
-    this.label = 'Document';
-    this.description = 'A document to be ingested';
+    this.type = COMPONENT_CLASS.INDEXER;
+    this.label = 'Indexer';
+    this.description = 'A general indexer';
+    this.inputs = [
+      {
+        id: 'input',
+        label: 'Input',
+        acceptMultiple: false,
+      },
+    ];
     this.outputs = [
       {
         id: 'output',
