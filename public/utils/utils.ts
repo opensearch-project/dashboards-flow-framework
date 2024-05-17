@@ -43,6 +43,7 @@ import {
   KnnIndexer,
   MLTransformer,
   NeuralQuery,
+  Results,
   SparseEncoderTransformer,
   TextEmbeddingTransformer,
 } from '../component_types';
@@ -374,7 +375,7 @@ function ingestConfigToWorkspaceFlow(
 
   nodes.push(parentNode);
 
-  // Get nodes from the sub-configurations
+  // Get nodes/edges from the sub-configurations
   const sourceWorkspaceFlow = sourceConfigToWorkspaceFlow(
     ingestConfig.source,
     parentNode.id
@@ -521,46 +522,192 @@ function getIngestEdges(
   enrichFlow: WorkspaceFlowState,
   indexFlow: WorkspaceFlowState
 ): ReactFlowEdge[] {
-  const startAndEndNodesSource = getStartAndEndNodes(sourceFlow);
+  const startAndEndNodesSource = getStartAndEndNodes(sourceFlow) as {
+    startNode: ReactFlowComponent;
+    endNode: ReactFlowComponent;
+  };
+  // May be undefined if no ingest processors defined
   const startAndEndNodesEnrich = getStartAndEndNodes(enrichFlow);
-  const startAndEndNodesIndex = getStartAndEndNodes(indexFlow);
+  const startAndEndNodesIndex = getStartAndEndNodes(indexFlow) as {
+    startNode: ReactFlowComponent;
+    endNode: ReactFlowComponent;
+  };
 
-  const sourceToEnrichEdgeId = generateId('edge');
-  const enrichToIndexEdgeId = generateId('edge');
+  // Users may omit search request processors altogether. Need to handle cases separately.
+  if (startAndEndNodesEnrich !== undefined) {
+    const sourceToEnrichEdgeId = generateId('edge');
+    const enrichToIndexEdgeId = generateId('edge');
 
-  return [
-    {
-      id: sourceToEnrichEdgeId,
-      key: sourceToEnrichEdgeId,
-      source: startAndEndNodesSource.endNode.id,
-      target: startAndEndNodesEnrich.startNode.id,
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 20,
-        height: 20,
+    return [
+      {
+        id: sourceToEnrichEdgeId,
+        key: sourceToEnrichEdgeId,
+        source: startAndEndNodesSource.endNode.id,
+        target: startAndEndNodesEnrich.startNode.id,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+        },
+        zIndex: 2,
+        deletable: false,
       },
-      zIndex: 2,
-      deletable: false,
-    },
-    {
-      id: enrichToIndexEdgeId,
-      key: enrichToIndexEdgeId,
-      source: startAndEndNodesEnrich.endNode.id,
-      target: startAndEndNodesIndex.startNode.id,
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 20,
-        height: 20,
+      {
+        id: enrichToIndexEdgeId,
+        key: enrichToIndexEdgeId,
+        source: startAndEndNodesEnrich.endNode.id,
+        target: startAndEndNodesIndex.startNode.id,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+        },
+        zIndex: 2,
+        deletable: false,
       },
-      zIndex: 2,
-      deletable: false,
+    ] as ReactFlowEdge[];
+  } else {
+    const sourceToIndexEdgeId = generateId('edge');
+    return [
+      {
+        id: sourceToIndexEdgeId,
+        key: sourceToIndexEdgeId,
+        source: startAndEndNodesSource.endNode.id,
+        target: startAndEndNodesIndex.startNode.id,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+        },
+        zIndex: 2,
+        deletable: false,
+      },
+    ] as ReactFlowEdge[];
+  }
+}
+
+function searchConfigToWorkspaceFlow(
+  searchConfig: SearchConfig
+): WorkspaceFlowState {
+  const nodes = [] as ReactFlowComponent[];
+  const edges = [] as ReactFlowEdge[];
+
+  // Parent search node
+  const parentNode = {
+    id: generateId(COMPONENT_CATEGORY.SEARCH),
+    position: { x: 400, y: 1000 },
+    type: NODE_CATEGORY.SEARCH_GROUP,
+    data: { label: COMPONENT_CATEGORY.SEARCH },
+    style: {
+      width: 1300,
+      height: 400,
     },
-  ] as ReactFlowEdge[];
+    className: 'reactflow__group-node__search',
+    selectable: true,
+    draggable: true,
+    deletable: false,
+  } as ReactFlowComponent;
+
+  nodes.push(parentNode);
+
+  // By default, always include an index node and a results node.
+  const indexNodeId = generateId(COMPONENT_CLASS.KNN_INDEXER);
+  const indexNode = {
+    id: indexNodeId,
+    position: { x: 500, y: 70 },
+    data: initComponentData(new KnnIndexer().toObj(), indexNodeId),
+    type: NODE_CATEGORY.CUSTOM,
+    parentNode: parentNode.id,
+    extent: 'parent',
+    draggable: true,
+    deletable: false,
+  } as ReactFlowComponent;
+  const resultsNodeId = generateId(COMPONENT_CLASS.RESULTS);
+  const resultsNode = {
+    id: resultsNodeId,
+    position: { x: 900, y: 70 },
+    data: initComponentData(new Results().toObj(), resultsNodeId),
+    type: NODE_CATEGORY.CUSTOM,
+    parentNode: parentNode.id,
+    extent: 'parent',
+    draggable: true,
+    deletable: false,
+  } as ReactFlowComponent;
+  nodes.push(indexNode, resultsNode);
+
+  // Get nodes/edges from the sub-configurations
+  const requestWorkspaceFlow = requestConfigToWorkspaceFlow(
+    searchConfig.request,
+    parentNode.id
+  );
+  const enrichRequestWorkspaceFlow = enrichRequestConfigToWorkspaceFlow(
+    searchConfig.enrichRequest,
+    parentNode.id
+  );
+  const enrichResponseWorkspaceFlow = enrichResponseConfigToWorkspaceFlow(
+    searchConfig.enrichResponse,
+    parentNode.id
+  );
+
+  nodes.push(
+    ...requestWorkspaceFlow.nodes,
+    ...enrichRequestWorkspaceFlow.nodes,
+    ...enrichResponseWorkspaceFlow.nodes
+  );
+  edges.push(
+    ...requestWorkspaceFlow.edges,
+    ...enrichRequestWorkspaceFlow.edges,
+    ...enrichResponseWorkspaceFlow.edges
+  );
+
+  // Link up the set of localized nodes/edges per sub-workflow
+  edges.push(
+    ...getSearchEdges(
+      requestWorkspaceFlow,
+      enrichRequestWorkspaceFlow,
+      indexNode,
+      enrichResponseWorkspaceFlow,
+      resultsNode
+    )
+  );
+
+  return {
+    nodes,
+    edges,
+  };
+}
+
+// TODO: make more generic.
+// Currently hardcoding a single NeuralQuery node as the source.
+function requestConfigToWorkspaceFlow(
+  requestConfig: IConfig,
+  parentNodeId: string
+): WorkspaceFlowState {
+  const nodes = [] as ReactFlowComponent[];
+  const edges = [] as ReactFlowEdge[];
+
+  const queryNodeId = generateId(COMPONENT_CLASS.NEURAL_QUERY);
+  nodes.push({
+    id: queryNodeId,
+    position: { x: 100, y: 70 },
+    data: initComponentData(new NeuralQuery().toObj(), queryNodeId),
+    type: NODE_CATEGORY.CUSTOM,
+    parentNode: parentNodeId,
+    extent: 'parent',
+    draggable: true,
+    deletable: false,
+  });
+
+  return {
+    nodes,
+    edges,
+  };
 }
 
 // TODO: implement this
-function searchConfigToWorkspaceFlow(
-  searchConfig: SearchConfig
+function enrichRequestConfigToWorkspaceFlow(
+  enrichConfig: IConfig,
+  parentNodeId: string
 ): WorkspaceFlowState {
   const nodes = [] as ReactFlowComponent[];
   const edges = [] as ReactFlowEdge[];
@@ -571,11 +718,160 @@ function searchConfigToWorkspaceFlow(
   };
 }
 
+// TODO: implement this
+function enrichResponseConfigToWorkspaceFlow(
+  enrichResponseConfig: IConfig,
+  parentNodeId: string
+): WorkspaceFlowState {
+  const nodes = [] as ReactFlowComponent[];
+  const edges = [] as ReactFlowEdge[];
+
+  return {
+    nodes,
+    edges,
+  };
+}
+
+// Given the set of localized flows per sub-configuration, generate the global search-level edges.
+// This takes the assumption the flow is linear, and all sub-configuration flows are fully connected.
+function getSearchEdges(
+  requestFlow: WorkspaceFlowState,
+  enrichRequestFlow: WorkspaceFlowState,
+  indexNode: ReactFlowComponent,
+  enrichResponseFlow: WorkspaceFlowState,
+  resultsNode: ReactFlowComponent
+): ReactFlowEdge[] {
+  const startAndEndNodesRequest = getStartAndEndNodes(requestFlow) as {
+    startNode: ReactFlowComponent;
+    endNode: ReactFlowComponent;
+  };
+  // May be undefined if no search request processors defined
+  const startAndEndNodesEnrichRequest = getStartAndEndNodes(enrichRequestFlow);
+  // May be undefined if no search response processors defined
+  const startAndEndNodesEnrichResponse = getStartAndEndNodes(
+    enrichResponseFlow
+  );
+  const edges = [] as ReactFlowEdge[];
+
+  // Users may omit search request processors altogether. Need to handle cases separately.
+  if (startAndEndNodesEnrichRequest !== undefined) {
+    const requestToEnrichRequestEdgeId = generateId('edge');
+    const enrichRequestToIndexEdgeId = generateId('edge');
+    edges.push(
+      ...([
+        {
+          id: requestToEnrichRequestEdgeId,
+          key: requestToEnrichRequestEdgeId,
+          source: startAndEndNodesRequest?.endNode.id,
+          target: startAndEndNodesEnrichRequest.startNode.id,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+          },
+          zIndex: 2,
+          deletable: false,
+        },
+        {
+          id: enrichRequestToIndexEdgeId,
+          key: enrichRequestToIndexEdgeId,
+          source: startAndEndNodesEnrichRequest.endNode.id,
+          target: indexNode.id,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+          },
+          zIndex: 2,
+          deletable: false,
+        },
+      ] as ReactFlowEdge[])
+    );
+  } else {
+    const requestToIndexEdgeId = generateId('edge');
+    edges.push({
+      id: requestToIndexEdgeId,
+      key: requestToIndexEdgeId,
+      source: startAndEndNodesRequest?.endNode.id,
+      target: indexNode.id,
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 20,
+        height: 20,
+      },
+      zIndex: 2,
+      deletable: false,
+    } as ReactFlowEdge);
+  }
+
+  // Users may omit search response processors altogether. Need to handle cases separately.
+  if (startAndEndNodesEnrichResponse !== undefined) {
+    const indexToEnrichResponseEdgeId = generateId('edge');
+    const enrichResponseToResultsEdgeId = generateId('edge');
+
+    edges.push(
+      ...([
+        {
+          id: indexToEnrichResponseEdgeId,
+          key: indexToEnrichResponseEdgeId,
+          source: indexNode.id,
+          target: startAndEndNodesEnrichResponse.startNode.id,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+          },
+          zIndex: 2,
+          deletable: false,
+        },
+        {
+          id: enrichResponseToResultsEdgeId,
+          key: enrichResponseToResultsEdgeId,
+          source: startAndEndNodesEnrichResponse.endNode.id,
+          target: resultsNode.id,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+          },
+          zIndex: 2,
+          deletable: false,
+        },
+      ] as ReactFlowEdge[])
+    );
+  } else {
+    const indexToResultsEdgeId = generateId('edge');
+    edges.push({
+      id: indexToResultsEdgeId,
+      key: indexToResultsEdgeId,
+      source: indexNode.id,
+      target: resultsNode.id,
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 20,
+        height: 20,
+      },
+      zIndex: 2,
+      deletable: false,
+    } as ReactFlowEdge);
+  }
+
+  return edges;
+}
+
 // Get start and end nodes in a flow. This assumes the flow is linear and fully connected,
 // such that there will always be a single start and single end node.
 function getStartAndEndNodes(
   workspaceFlow: WorkspaceFlowState
-): { startNode: ReactFlowComponent; endNode: ReactFlowComponent } {
+):
+  | {
+      startNode: ReactFlowComponent;
+      endNode: ReactFlowComponent;
+    }
+  | undefined {
+  if (workspaceFlow.nodes.length === 0) {
+    return undefined;
+  }
   if (workspaceFlow.nodes.length === 1) {
     return {
       startNode: workspaceFlow.nodes[0],
@@ -593,163 +889,5 @@ function getStartAndEndNodes(
     endNode: workspaceFlow.nodes.filter(
       (node) => !nodeIdsWithSource.includes(node.id)
     )[0],
-  };
-}
-
-function fetchSemanticSearchWorkspaceFlow(): WorkspaceFlowState {
-  const ingestId0 = generateId(COMPONENT_CLASS.DOCUMENT);
-  const ingestId1 = generateId(COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER);
-  const ingestId2 = generateId(COMPONENT_CLASS.KNN_INDEXER);
-  const ingestGroupId = generateId(COMPONENT_CATEGORY.INGEST);
-  const searchGroupId = generateId(COMPONENT_CATEGORY.SEARCH);
-  const searchId0 = generateId(COMPONENT_CLASS.NEURAL_QUERY);
-  const searchId1 = generateId(COMPONENT_CLASS.SPARSE_ENCODER_TRANSFORMER);
-  const searchId2 = generateId(COMPONENT_CLASS.KNN_INDEXER);
-  const edgeId0 = generateId('edge');
-  const edgeId1 = generateId('edge');
-  const edgeId2 = generateId('edge');
-  const edgeId3 = generateId('edge');
-
-  const ingestNodes = [
-    {
-      id: ingestId0,
-      position: { x: 100, y: 70 },
-      data: initComponentData(new Document().toObj(), ingestId0),
-      type: NODE_CATEGORY.CUSTOM,
-      parentNode: ingestGroupId,
-      extent: 'parent',
-      draggable: true,
-      deletable: false,
-    },
-    {
-      id: ingestId1,
-      position: { x: 500, y: 70 },
-      data: initComponentData(
-        new TextEmbeddingTransformer().toObj(),
-        ingestId1
-      ),
-      type: NODE_CATEGORY.CUSTOM,
-      parentNode: ingestGroupId,
-      extent: 'parent',
-      draggable: true,
-      deletable: false,
-    },
-    {
-      id: ingestId2,
-      position: { x: 900, y: 70 },
-      data: initComponentData(new KnnIndexer().toObj(), ingestId2),
-      type: NODE_CATEGORY.CUSTOM,
-      parentNode: ingestGroupId,
-      extent: 'parent',
-      draggable: true,
-      deletable: false,
-    },
-  ] as ReactFlowComponent[];
-  const searchNodes = [
-    {
-      id: searchGroupId,
-      position: { x: 400, y: 1000 },
-      type: NODE_CATEGORY.SEARCH_GROUP,
-      data: { label: COMPONENT_CATEGORY.SEARCH },
-      style: {
-        width: 1300,
-        height: 400,
-      },
-      className: 'reactflow__group-node__search',
-      selectable: true,
-      draggable: true,
-      deletable: false,
-    },
-    {
-      id: searchId0,
-      position: { x: 100, y: 70 },
-      data: initComponentData(new NeuralQuery().toObj(), searchId0),
-      type: NODE_CATEGORY.CUSTOM,
-      parentNode: searchGroupId,
-      extent: 'parent',
-      draggable: true,
-      deletable: false,
-    },
-    {
-      id: searchId1,
-      position: { x: 500, y: 70 },
-      data: initComponentData(
-        new TextEmbeddingTransformer().toPlaceholderObj(),
-        searchId1
-      ),
-      type: NODE_CATEGORY.CUSTOM,
-      parentNode: searchGroupId,
-      extent: 'parent',
-      draggable: true,
-      deletable: false,
-    },
-    {
-      id: searchId2,
-      position: { x: 900, y: 70 },
-      data: initComponentData(new KnnIndexer().toPlaceholderObj(), searchId2),
-      type: NODE_CATEGORY.CUSTOM,
-      parentNode: searchGroupId,
-      extent: 'parent',
-      draggable: true,
-      deletable: false,
-    },
-  ] as ReactFlowComponent[];
-
-  return {
-    nodes: [...ingestNodes, ...searchNodes],
-    edges: [
-      {
-        id: edgeId0,
-        key: edgeId0,
-        source: ingestId0,
-        target: ingestId1,
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 20,
-          height: 20,
-        },
-        zIndex: 2,
-        deletable: false,
-      },
-      {
-        id: edgeId1,
-        key: edgeId1,
-        source: ingestId1,
-        target: ingestId2,
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 20,
-          height: 20,
-        },
-        zIndex: 2,
-        deletable: false,
-      },
-      {
-        id: edgeId2,
-        key: edgeId2,
-        source: searchId0,
-        target: searchId1,
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 20,
-          height: 20,
-        },
-        zIndex: 2,
-        deletable: false,
-      },
-      {
-        id: edgeId3,
-        key: edgeId3,
-        source: searchId1,
-        target: searchId2,
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 20,
-          height: 20,
-        },
-        zIndex: 2,
-        deletable: false,
-      },
-    ] as ReactFlowEdge[],
   };
 }
