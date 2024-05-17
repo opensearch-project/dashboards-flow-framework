@@ -17,7 +17,7 @@ import {
   searchModels,
   useAppDispatch,
 } from '../../store';
-import { ResizableWorkspace } from './workspace';
+import { ResizableWorkspace } from './resizable_workspace';
 import {
   DEFAULT_NEW_WORKFLOW_NAME,
   FETCH_ALL_QUERY_BODY,

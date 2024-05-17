@@ -4,10 +4,8 @@
  */
 
 import {
-  COMPONENT_CATEGORY,
   COMPONENT_CLASS,
   IComponent,
-  IComponentField,
   IComponentInput,
   IComponentOutput,
 } from '../../common';
@@ -19,16 +17,14 @@ export abstract class BaseComponent implements IComponent {
   type: COMPONENT_CLASS;
   label: string;
   description: string;
-  categories: COMPONENT_CATEGORY[];
-  allowsCreation: boolean;
-  baseClasses: COMPONENT_CLASS[];
   inputs?: IComponentInput[];
-  fields?: IComponentField[];
-  createFields?: IComponentField[];
   outputs?: IComponentOutput[];
 
   // No-op constructor. If there are general / defaults for field values, add in here.
-  constructor() {}
+  constructor() {
+    this.inputs = [];
+    this.outputs = [];
+  }
 
   // Persist a standard toObj() fn that all component classes can use. This is necessary
   // so we have standard JS Object when serializing comoponent state in redux.

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../../../common';
+import { COMPONENT_CLASS } from '../../../common';
 import { ResultsTransformer } from './results_transformer';
 
 /**
@@ -15,7 +15,5 @@ export class NormalizationTransformer extends ResultsTransformer {
     (this.type = COMPONENT_CLASS.NORMALIZATION_TRANSFORMER),
       (this.label = 'Normalization Transformer');
     this.description = 'A transformer to normalize search results';
-    this.baseClasses = [...this.baseClasses, this.type];
-    this.categories = [COMPONENT_CATEGORY.SEARCH];
   }
 }

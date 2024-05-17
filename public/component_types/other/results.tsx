@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { COMPONENT_CATEGORY, COMPONENT_CLASS } from '../../../common';
+import { COMPONENT_CLASS } from '../../../common';
 import { BaseComponent } from '../base_component';
 
 /**
@@ -16,15 +16,5 @@ export class Results extends BaseComponent {
     this.type = COMPONENT_CLASS.RESULTS;
     this.label = 'Results';
     this.description = 'OpenSearch results';
-    this.categories = [COMPONENT_CATEGORY.SEARCH];
-    this.allowsCreation = false;
-    this.baseClasses = [this.type];
-    this.inputs = [];
-    this.outputs = [
-      {
-        label: this.label,
-        baseClasses: this.baseClasses,
-      },
-    ];
   }
 }
