@@ -23,6 +23,7 @@ import {
   ReactFlowComponent,
   ReactFlowEdge,
   Workflow,
+  WorkflowConfig,
 } from '../../../../common';
 import {
   IngestGroupComponent,
@@ -30,6 +31,7 @@ import {
   WorkspaceComponent,
 } from './workspace_components';
 import { DeletableEdge } from './workspace_edge';
+import { uiConfigToWorkspaceFlow } from '../../../utils';
 
 // styling
 import 'reactflow/dist/style.css';
@@ -107,12 +109,15 @@ export function Workspace(props: WorkspaceProps) {
     [setEdges]
   );
 
-  // Initialization. Set the nodes and edges to an existing workflow state,
+  // Initialization. Generate the nodes and edges based on the workflow config.
   useEffect(() => {
     const workflow = { ...props.workflow };
-    if (workflow?.ui_metadata?.workspace_flow) {
-      setNodes(workflow.ui_metadata.workspace_flow.nodes);
-      setEdges(workflow.ui_metadata.workspace_flow.edges);
+    if (workflow?.ui_metadata?.config) {
+      const proposedWorkspaceFlow = uiConfigToWorkspaceFlow(
+        workflow.ui_metadata?.config as WorkflowConfig
+      );
+      setNodes(proposedWorkspaceFlow.nodes);
+      setEdges(proposedWorkspaceFlow.edges);
     }
   }, [props.workflow]);
 
@@ -141,6 +146,7 @@ export function Workspace(props: WorkspaceProps) {
               onConnect={onConnect}
               className="reactflow-workspace"
               fitView
+              minZoom={0.2}
               edgesUpdatable={!props.readonly}
               edgesFocusable={!props.readonly}
               nodesDraggable={!props.readonly}
