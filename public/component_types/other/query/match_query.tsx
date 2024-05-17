@@ -16,13 +16,5 @@ export class MatchQuery extends Query {
     this.type = COMPONENT_CLASS.MATCH_QUERY;
     this.label = 'Match Query';
     this.description = 'An OpenSearch match query';
-    this.inputs = [];
-    this.baseClasses = [...this.baseClasses, this.type];
-    this.outputs = [
-      {
-        label: this.label,
-        baseClasses: this.baseClasses,
-      },
-    ];
   }
 }
