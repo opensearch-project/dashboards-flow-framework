@@ -16,5 +16,6 @@ export class Results extends BaseComponent {
     this.type = COMPONENT_CLASS.RESULTS;
     this.label = 'Results';
     this.description = 'OpenSearch results';
+    this.inputs = [{ id: 'input', label: 'Input', acceptMultiple: false }];
   }
 }
