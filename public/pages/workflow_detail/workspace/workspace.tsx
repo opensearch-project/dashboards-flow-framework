@@ -13,7 +13,6 @@ import ReactFlow, {
   BackgroundVariant,
   useStore,
   useReactFlow,
-  useOnSelectionChange,
   MarkerType,
 } from 'reactflow';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
@@ -21,7 +20,6 @@ import { setDirty, useAppDispatch } from '../../../store';
 import {
   IComponentData,
   ReactFlowComponent,
-  ReactFlowEdge,
   Workflow,
   WorkflowConfig,
 } from '../../../../common';
@@ -44,13 +42,6 @@ interface WorkspaceProps {
   readonly: boolean;
   onNodesChange: (nodes: ReactFlowComponent[]) => void;
   id: string;
-  onSelectionChange: ({
-    nodes,
-    edges,
-  }: {
-    nodes: ReactFlowComponent[];
-    edges: ReactFlowEdge[];
-  }) => void;
 }
 
 const nodeTypes = {
@@ -76,14 +67,6 @@ export function Workspace(props: WorkspaceProps) {
   useEffect(() => {
     props.onNodesChange(nodes);
   }, [nodesLength]);
-
-  /**
-   * Hook provided by reactflow to listen on when nodes are selected / de-selected.
-   * Trigger the callback fn to propagate changes to parent components.
-   */
-  useOnSelectionChange({
-    onChange: props.onSelectionChange,
-  });
 
   const onConnect = useCallback(
     (params) => {

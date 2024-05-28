@@ -18,6 +18,9 @@ import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
 import { FormikProps } from 'formik';
 
+// styling
+import '../workspace/workspace-styles.scss';
+
 interface WorkflowInputsProps {
   workflow: Workflow | undefined;
   formikProps: FormikProps<WorkflowFormValues>;
@@ -43,7 +46,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   useEffect(() => {}, [selectedStep]);
 
   return (
-    <EuiPanel paddingSize="m">
+    <EuiPanel paddingSize="m" grow={true} className="workspace-panel">
       {props.workflow === undefined ? (
         <EuiLoadingSpinner size="xl" />
       ) : (
