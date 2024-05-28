@@ -6,7 +6,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { useReactFlow } from 'reactflow';
 import { Form, Formik, FormikProps } from 'formik';
 import * as yup from 'yup';
 import {
@@ -14,16 +13,13 @@ import {
   EuiFlexItem,
   EuiPanel,
   EuiResizableContainer,
-  EuiText,
   EuiTitle,
 } from '@elastic/eui';
 import { getCore } from '../../services';
 
 import {
   Workflow,
-  ReactFlowComponent,
   WORKFLOW_STATE,
-  ReactFlowEdge,
   WorkflowFormValues,
   WorkflowSchema,
   WorkflowConfig,
@@ -107,12 +103,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     setIsToolsPanelOpen(!isToolsPanelOpen);
   };
 
-  // Selected component state
-  const reactFlowInstance = useReactFlow();
-  const [selectedComponent, setSelectedComponent] = useState<
-    ReactFlowComponent
-  >();
-
   // Save/provision/deprovision button state
   const isSaveable =
     props.workflow !== undefined && (isFirstSave ? true : isDirty);
@@ -168,19 +158,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }, [props.workflow]);
 
-  // Hook to updated the selected ReactFlow component
-  useEffect(() => {
-    reactFlowInstance?.setNodes((nodes: ReactFlowComponent[]) =>
-      nodes.map((node) => {
-        node.data = {
-          ...node.data,
-          selected: node.id === selectedComponent?.id ? true : false,
-        };
-        return node;
-      })
-    );
-  }, [selectedComponent]);
-
   // Initialize the form state to an existing workflow, if applicable.
   useEffect(() => {
     if (workflow?.ui_metadata?.config) {
@@ -190,10 +167,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       setFormSchema(initFormSchema);
     }
   }, [workflow]);
-
-  // TODO: leave as a placeholder for now. Current functionality is the workflow
-  // is readonly and only reacts/changes when the underlying form is updated.
-  function onNodesChange(nodes: ReactFlowComponent[]): void {}
 
   /**
    * Function to pass down to the Formik <Form> components as a listener to propagate
@@ -362,7 +335,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                                     id="ingest"
                                     workflow={workflow}
                                     readonly={false}
-                                    onNodesChange={onNodesChange}
                                   />
                                 </EuiFlexItem>
                               </EuiFlexGroup>
