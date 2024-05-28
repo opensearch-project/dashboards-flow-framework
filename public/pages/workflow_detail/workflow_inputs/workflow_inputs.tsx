@@ -67,7 +67,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             style={{
               overflowY: 'scroll',
               overflowX: 'hidden',
-              maxHeight: '55vh',
             }}
           >
             {selectedStep === CREATE_STEP.INGEST ? (

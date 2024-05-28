@@ -94,6 +94,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     collapseFnHorizontal.current(WORKFLOW_INPUTS_PANEL_ID, {
       direction: 'left',
     });
+    setIsWorkflowInputsPanelOpen(!isWorkflowInputsPanelOpen);
   };
 
   // Tools side panel state
@@ -103,6 +104,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   );
   const onToggleToolsChange = () => {
     collapseFnVertical.current(TOOLS_PANEL_ID, { direction: 'bottom' });
+    setIsToolsPanelOpen(!isToolsPanelOpen);
   };
 
   // Selected component state
@@ -274,7 +276,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
             direction="horizontal"
             className="stretch-absolute"
             style={{
-              marginLeft: '-8px',
+              marginLeft: isWorkflowInputsPanelOpen ? '-8px' : '0px',
               marginTop: '-8px',
             }}
           >
@@ -307,7 +309,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   </EuiResizablePanel>
                   <EuiResizableButton />
                   <EuiResizablePanel
-                    style={{ marginRight: '-32px' }}
+                    style={{
+                      marginRight: '-32px',
+                      marginBottom: isToolsPanelOpen ? '0px' : '24px',
+                    }}
                     mode="main"
                     initialSize={60}
                     minSize="25%"
