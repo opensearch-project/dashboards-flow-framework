@@ -9,7 +9,14 @@ import { useHistory } from 'react-router-dom';
 import { useReactFlow } from 'reactflow';
 import { Form, Formik, FormikProps } from 'formik';
 import * as yup from 'yup';
-import { EuiFlexGroup, EuiFlexItem, EuiResizableContainer } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiPanel,
+  EuiResizableContainer,
+  EuiText,
+  EuiTitle,
+} from '@elastic/eui';
 import { getCore } from '../../services';
 
 import {
@@ -49,6 +56,7 @@ interface ResizableWorkspaceProps {
 }
 
 const WORKFLOW_INPUTS_PANEL_ID = 'workflow_inputs_panel_id';
+const TOOLS_PANEL_ID = 'tools_panel_id';
 
 /**
  * The overall workspace component that maintains state related to the 2 resizable
@@ -75,14 +83,28 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Validation states
   const [formValidOnSubmit, setFormValidOnSubmit] = useState<boolean>(true);
 
-  // Component details side panel state
-  const [isDetailsPanelOpen, setisDetailsPanelOpen] = useState<boolean>(true);
-  const collapseFn = useRef(
+  // Workflow inputs side panel state
+  const [isWorkflowInputsPanelOpen, setIsWorkflowInputsPanelOpen] = useState<
+    boolean
+  >(true);
+  const collapseFnHorizontal = useRef(
     (id: string, options: { direction: 'left' | 'right' }) => {}
   );
-  const onToggleChange = () => {
-    collapseFn.current(WORKFLOW_INPUTS_PANEL_ID, { direction: 'left' });
-    setisDetailsPanelOpen(!isDetailsPanelOpen);
+  const onToggleWorkflowInputsChange = () => {
+    collapseFnHorizontal.current(WORKFLOW_INPUTS_PANEL_ID, {
+      direction: 'left',
+    });
+    setIsWorkflowInputsPanelOpen(!isWorkflowInputsPanelOpen);
+  };
+
+  // Tools side panel state
+  const [isToolsPanelOpen, setIsToolsPanelOpen] = useState<boolean>(true);
+  const collapseFnVertical = useRef(
+    (id: string, options: { direction: 'top' | 'bottom' }) => {}
+  );
+  const onToggleToolsChange = () => {
+    collapseFnVertical.current(TOOLS_PANEL_ID, { direction: 'bottom' });
+    setIsWorkflowInputsPanelOpen(!isWorkflowInputsPanelOpen);
   };
 
   // Selected component state
@@ -133,8 +155,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   }) {
     if (nodes && nodes.length > 0) {
       setSelectedComponent(nodes[0]);
-      if (!isDetailsPanelOpen) {
-        onToggleChange();
+      if (!isWorkflowInputsPanelOpen) {
+        onToggleWorkflowInputsChange();
       }
     } else {
       setSelectedComponent(undefined);
@@ -308,8 +330,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           >
             {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
               if (togglePanel) {
-                collapseFn.current = (panelId: string, { direction }) =>
-                  togglePanel(panelId, { direction });
+                collapseFnHorizontal.current = (
+                  panelId: string,
+                  { direction }
+                ) => togglePanel(panelId, { direction });
               }
 
               return (
@@ -320,7 +344,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     initialSize={50}
                     minSize="25%"
                     paddingSize="s"
-                    onToggleCollapsedInternal={() => onToggleChange()}
+                    onToggleCollapsedInternal={() =>
+                      onToggleWorkflowInputsChange()
+                    }
                   >
                     <EuiFlexGroup
                       direction="column"
@@ -339,27 +365,94 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   </EuiResizablePanel>
                   <EuiResizableButton />
                   <EuiResizablePanel
-                    style={{ marginRight: '-16px' }}
+                    style={{ marginRight: '-32px' }}
                     mode="main"
                     initialSize={60}
                     minSize="25%"
                     paddingSize="s"
                   >
-                    <EuiFlexGroup
-                      direction="column"
-                      gutterSize="s"
-                      className="workspace-panel"
+                    <EuiResizableContainer
+                      direction="vertical"
+                      style={{
+                        marginLeft: '-8px',
+                        marginTop: '-7px',
+                        height: '90%',
+                        padding: 'none',
+                      }}
                     >
-                      <EuiFlexItem>
-                        <Workspace
-                          id="ingest"
-                          workflow={workflow}
-                          readonly={false}
-                          onNodesChange={onNodesChange}
-                          onSelectionChange={onSelectionChange}
-                        />
-                      </EuiFlexItem>
-                    </EuiFlexGroup>
+                      {(
+                        EuiResizablePanel,
+                        EuiResizableButton,
+                        { togglePanel }
+                      ) => {
+                        if (togglePanel) {
+                          collapseFnVertical.current = (
+                            panelId: string,
+                            { direction }
+                          ) =>
+                            // ignore is added since docs are incorrectly missing "top" and "bottom"
+                            // as valid direction options for vertically-configured resizable panels.
+                            // @ts-ignore
+                            togglePanel(panelId, { direction });
+                        }
+
+                        return (
+                          <>
+                            <EuiResizablePanel
+                              mode="main"
+                              initialSize={60}
+                              minSize="25%"
+                              paddingSize="s"
+                              style={{ marginBottom: '-6px' }}
+                            >
+                              <EuiFlexGroup
+                                direction="column"
+                                gutterSize="s"
+                                style={{ height: '100%' }}
+                              >
+                                <EuiFlexItem>
+                                  <Workspace
+                                    id="ingest"
+                                    workflow={workflow}
+                                    readonly={false}
+                                    onNodesChange={onNodesChange}
+                                    onSelectionChange={onSelectionChange}
+                                  />
+                                </EuiFlexItem>
+                              </EuiFlexGroup>
+                            </EuiResizablePanel>
+                            <EuiResizableButton />
+                            <EuiResizablePanel
+                              id={TOOLS_PANEL_ID}
+                              mode="collapsible"
+                              initialSize={50}
+                              minSize="25%"
+                              paddingSize="s"
+                              onToggleCollapsedInternal={() =>
+                                onToggleToolsChange()
+                              }
+                              style={{ marginBottom: '-14px' }}
+                            >
+                              <EuiFlexGroup
+                                direction="column"
+                                gutterSize="s"
+                                style={{
+                                  height: '100%',
+                                }}
+                              >
+                                <EuiFlexItem>
+                                  <EuiPanel paddingSize="m">
+                                    <EuiTitle>
+                                      <h3>Tools</h3>
+                                    </EuiTitle>
+                                  </EuiPanel>
+                                </EuiFlexItem>
+                              </EuiFlexGroup>
+                            </EuiResizablePanel>
+                          </>
+                        );
+                      }}
+                    </EuiResizableContainer>
                   </EuiResizablePanel>
                 </>
               );
