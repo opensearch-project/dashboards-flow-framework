@@ -45,6 +45,7 @@ import { Workspace } from './workspace';
 // styling
 import './workspace/workspace-styles.scss';
 import '../../global-styles.scss';
+import { Tools } from './tools';
 
 interface ResizableWorkspaceProps {
   isNewWorkflow: boolean;
@@ -360,9 +361,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                               >
                                 <EuiFlexItem>
                                   <EuiPanel paddingSize="m">
-                                    <EuiTitle>
-                                      <h3>Tools</h3>
-                                    </EuiTitle>
+                                    <Tools workflow={workflow} />
                                   </EuiPanel>
                                 </EuiFlexItem>
                               </EuiFlexGroup>
