@@ -8,9 +8,7 @@ import {
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiSpacer,
   EuiText,
-  EuiTitle,
 } from '@elastic/eui';
 import { Workflow } from '../../../../../common';
 import { ResourceList } from './resource_list';
@@ -28,10 +26,6 @@ export function Resources(props: ResourcesProps) {
       {props.workflow?.resourcesCreated &&
       props.workflow.resourcesCreated.length > 0 ? (
         <>
-          <EuiTitle>
-            <h2>Resources</h2>
-          </EuiTitle>
-          <EuiSpacer size="m" />
           <EuiFlexGroup direction="row">
             <EuiFlexItem>
               <ResourceList workflow={props.workflow} />

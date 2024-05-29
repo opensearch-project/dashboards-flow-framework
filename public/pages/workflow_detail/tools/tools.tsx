@@ -80,22 +80,22 @@ export function Tools(props: ToolsProps) {
         <EuiFlexGroup direction="column">
           {selectedTabId === TAB_ID.INGEST && (
             <EuiFlexItem>
-              <EuiText>Run ingestion placeholder</EuiText>
+              <EuiText>TODO: Run ingestion placeholder</EuiText>
             </EuiFlexItem>
           )}
           {selectedTabId === TAB_ID.QUERY && (
             <EuiFlexItem>
-              <EuiText>Run queries placeholder</EuiText>
+              <EuiText>TODO: Run queries placeholder</EuiText>
             </EuiFlexItem>
           )}
           {selectedTabId === TAB_ID.ERRORS && (
             <EuiFlexItem>
-              <EuiText>View errors placeholder</EuiText>
+              <EuiText>TODO: View errors placeholder</EuiText>
             </EuiFlexItem>
           )}
           {selectedTabId === TAB_ID.RESOURCES && (
             <EuiFlexItem>
-              <Resources />
+              <Resources workflow={props.workflow} />
             </EuiFlexItem>
           )}
         </EuiFlexGroup>
