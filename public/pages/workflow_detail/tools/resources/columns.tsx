@@ -6,7 +6,7 @@
 import {
   WORKFLOW_STEP_TO_RESOURCE_TYPE_MAP,
   WORKFLOW_STEP_TYPE,
-} from '../../../../common';
+} from '../../../../../common';
 
 export const columns = [
   {

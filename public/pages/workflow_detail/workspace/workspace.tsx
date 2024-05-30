@@ -11,20 +11,11 @@ import ReactFlow, {
   useEdgesState,
   addEdge,
   BackgroundVariant,
-  useStore,
-  useReactFlow,
-  useOnSelectionChange,
   MarkerType,
 } from 'reactflow';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 import { setDirty, useAppDispatch } from '../../../store';
-import {
-  IComponentData,
-  ReactFlowComponent,
-  ReactFlowEdge,
-  Workflow,
-  WorkflowConfig,
-} from '../../../../common';
+import { IComponentData, Workflow, WorkflowConfig } from '../../../../common';
 import {
   IngestGroupComponent,
   SearchGroupComponent,
@@ -42,15 +33,7 @@ import './workspace_edge/deletable-edge-styles.scss';
 interface WorkspaceProps {
   workflow?: Workflow;
   readonly: boolean;
-  onNodesChange: (nodes: ReactFlowComponent[]) => void;
   id: string;
-  onSelectionChange: ({
-    nodes,
-    edges,
-  }: {
-    nodes: ReactFlowComponent[];
-    edges: ReactFlowEdge[];
-  }) => void;
 }
 
 const nodeTypes = {
@@ -65,25 +48,8 @@ export function Workspace(props: WorkspaceProps) {
 
   // ReactFlow state
   const reactFlowWrapper = useRef(null);
-  const reactFlowInstance = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState<IComponentData>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
-  // Listener for node additions or deletions to propagate to parent component
-  const nodesLength = useStore(
-    (state) => Array.from(state.nodeInternals.values()).length || 0
-  );
-  useEffect(() => {
-    props.onNodesChange(nodes);
-  }, [nodesLength]);
-
-  /**
-   * Hook provided by reactflow to listen on when nodes are selected / de-selected.
-   * Trigger the callback fn to propagate changes to parent components.
-   */
-  useOnSelectionChange({
-    onChange: props.onSelectionChange,
-  });
 
   const onConnect = useCallback(
     (params) => {

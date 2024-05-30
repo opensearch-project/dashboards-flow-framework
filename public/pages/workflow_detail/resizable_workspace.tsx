@@ -6,17 +6,20 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { useReactFlow } from 'reactflow';
 import { Form, Formik, FormikProps } from 'formik';
 import * as yup from 'yup';
-import { EuiFlexGroup, EuiFlexItem, EuiResizableContainer } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiPanel,
+  EuiResizableContainer,
+  EuiTitle,
+} from '@elastic/eui';
 import { getCore } from '../../services';
 
 import {
   Workflow,
-  ReactFlowComponent,
   WORKFLOW_STATE,
-  ReactFlowEdge,
   WorkflowFormValues,
   WorkflowSchema,
   WorkflowConfig,
@@ -35,13 +38,14 @@ import {
   updateWorkflow,
   useAppDispatch,
 } from '../../store';
+import { WorkflowInputs } from './workflow_inputs';
+import { configToTemplateFlows } from './utils';
 import { Workspace } from './workspace';
 
 // styling
 import './workspace/workspace-styles.scss';
 import '../../global-styles.scss';
-import { WorkflowInputs } from './workflow_inputs';
-import { configToTemplateFlows } from './utils';
+import { Tools } from './tools';
 
 interface ResizableWorkspaceProps {
   isNewWorkflow: boolean;
@@ -49,6 +53,7 @@ interface ResizableWorkspaceProps {
 }
 
 const WORKFLOW_INPUTS_PANEL_ID = 'workflow_inputs_panel_id';
+const TOOLS_PANEL_ID = 'tools_panel_id';
 
 /**
  * The overall workspace component that maintains state related to the 2 resizable
@@ -75,21 +80,29 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Validation states
   const [formValidOnSubmit, setFormValidOnSubmit] = useState<boolean>(true);
 
-  // Component details side panel state
-  const [isDetailsPanelOpen, setisDetailsPanelOpen] = useState<boolean>(true);
-  const collapseFn = useRef(
+  // Workflow inputs side panel state
+  const [isWorkflowInputsPanelOpen, setIsWorkflowInputsPanelOpen] = useState<
+    boolean
+  >(true);
+  const collapseFnHorizontal = useRef(
     (id: string, options: { direction: 'left' | 'right' }) => {}
   );
-  const onToggleChange = () => {
-    collapseFn.current(WORKFLOW_INPUTS_PANEL_ID, { direction: 'left' });
-    setisDetailsPanelOpen(!isDetailsPanelOpen);
+  const onToggleWorkflowInputsChange = () => {
+    collapseFnHorizontal.current(WORKFLOW_INPUTS_PANEL_ID, {
+      direction: 'left',
+    });
+    setIsWorkflowInputsPanelOpen(!isWorkflowInputsPanelOpen);
   };
 
-  // Selected component state
-  const reactFlowInstance = useReactFlow();
-  const [selectedComponent, setSelectedComponent] = useState<
-    ReactFlowComponent
-  >();
+  // Tools side panel state
+  const [isToolsPanelOpen, setIsToolsPanelOpen] = useState<boolean>(true);
+  const collapseFnVertical = useRef(
+    (id: string, options: { direction: 'top' | 'bottom' }) => {}
+  );
+  const onToggleToolsChange = () => {
+    collapseFnVertical.current(TOOLS_PANEL_ID, { direction: 'bottom' });
+    setIsToolsPanelOpen(!isToolsPanelOpen);
+  };
 
   // Save/provision/deprovision button state
   const isSaveable =
@@ -115,31 +128,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const isCreating = isSaving && props.isNewWorkflow;
   const isLoadingGlobal =
     loading || isProvisioning || isDeprovisioning || isSaving || isCreating;
-
-  /**
-   * Custom listener on when nodes are selected / de-selected. Passed to
-   * downstream ReactFlow components you can listen using
-   * the out-of-the-box useOnSelectionChange hook.
-   * - populate panel content appropriately
-   * - open the panel if a node is selected and the panel is closed
-   * - it is assumed that only one node can be selected at once
-   */
-  function onSelectionChange({
-    nodes,
-    edges,
-  }: {
-    nodes: ReactFlowComponent[];
-    edges: ReactFlowEdge[];
-  }) {
-    if (nodes && nodes.length > 0) {
-      setSelectedComponent(nodes[0]);
-      if (!isDetailsPanelOpen) {
-        onToggleChange();
-      }
-    } else {
-      setSelectedComponent(undefined);
-    }
-  }
 
   // Hook to update some default values for the workflow, if applicable.
   // We need to handle different scenarios:
@@ -171,19 +159,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }, [props.workflow]);
 
-  // Hook to updated the selected ReactFlow component
-  useEffect(() => {
-    reactFlowInstance?.setNodes((nodes: ReactFlowComponent[]) =>
-      nodes.map((node) => {
-        node.data = {
-          ...node.data,
-          selected: node.id === selectedComponent?.id ? true : false,
-        };
-        return node;
-      })
-    );
-  }, [selectedComponent]);
-
   // Initialize the form state to an existing workflow, if applicable.
   useEffect(() => {
     if (workflow?.ui_metadata?.config) {
@@ -193,10 +168,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       setFormSchema(initFormSchema);
     }
   }, [workflow]);
-
-  // TODO: leave as a placeholder for now. Current functionality is the workflow
-  // is readonly and only reacts/changes when the underlying form is updated.
-  function onNodesChange(nodes: ReactFlowComponent[]): void {}
 
   /**
    * Function to pass down to the Formik <Form> components as a listener to propagate
@@ -275,41 +246,20 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     >
       {(formikProps) => (
         <Form>
-          {/*
-            TODO: finalize where/how to show invalidations
-            */}
-          {/* {!formValidOnSubmit && (
-            <EuiCallOut
-              title="There are empty or invalid fields"
-              color="danger"
-              iconType="alert"
-              style={{ marginBottom: '16px' }}
-            >
-              Please address the highlighted fields and try saving again.
-            </EuiCallOut>
-          )}
-          {isDeprovisionable && isDirty && (
-            <EuiCallOut
-              title="The configured flow has been provisioned"
-              color="warning"
-              iconType="alert"
-              style={{ marginBottom: '16px' }}
-            >
-              Changes cannot be saved until the workflow has first been
-              deprovisioned.
-            </EuiCallOut>
-          )} */}
           <EuiResizableContainer
             direction="horizontal"
             className="stretch-absolute"
             style={{
-              marginLeft: '-8px',
+              marginLeft: isWorkflowInputsPanelOpen ? '-8px' : '0px',
+              marginTop: '-8px',
             }}
           >
             {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
               if (togglePanel) {
-                collapseFn.current = (panelId: string, { direction }) =>
-                  togglePanel(panelId, { direction });
+                collapseFnHorizontal.current = (
+                  panelId: string,
+                  { direction }
+                ) => togglePanel(panelId, { direction });
               }
 
               return (
@@ -320,46 +270,106 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     initialSize={50}
                     minSize="25%"
                     paddingSize="s"
-                    onToggleCollapsedInternal={() => onToggleChange()}
+                    onToggleCollapsedInternal={() =>
+                      onToggleWorkflowInputsChange()
+                    }
                   >
-                    <EuiFlexGroup
-                      direction="column"
-                      gutterSize="s"
-                      className="workspace-panel"
-                    >
-                      <EuiFlexItem>
-                        <WorkflowInputs
-                          workflow={props.workflow}
-                          formikProps={formikProps}
-                          onFormChange={onFormChange}
-                          validateAndSubmit={validateAndSubmit}
-                        />
-                      </EuiFlexItem>
-                    </EuiFlexGroup>
+                    <WorkflowInputs
+                      workflow={props.workflow}
+                      formikProps={formikProps}
+                      onFormChange={onFormChange}
+                      validateAndSubmit={validateAndSubmit}
+                    />
                   </EuiResizablePanel>
                   <EuiResizableButton />
                   <EuiResizablePanel
-                    style={{ marginRight: '-16px' }}
+                    style={{
+                      marginRight: '-32px',
+                      marginBottom: isToolsPanelOpen ? '0px' : '24px',
+                    }}
                     mode="main"
                     initialSize={60}
                     minSize="25%"
                     paddingSize="s"
                   >
-                    <EuiFlexGroup
-                      direction="column"
-                      gutterSize="s"
+                    <EuiResizableContainer
                       className="workspace-panel"
+                      direction="vertical"
+                      style={{
+                        marginLeft: '-8px',
+                        marginTop: '-8px',
+                        padding: 'none',
+                      }}
                     >
-                      <EuiFlexItem>
-                        <Workspace
-                          id="ingest"
-                          workflow={workflow}
-                          readonly={false}
-                          onNodesChange={onNodesChange}
-                          onSelectionChange={onSelectionChange}
-                        />
-                      </EuiFlexItem>
-                    </EuiFlexGroup>
+                      {(
+                        EuiResizablePanel,
+                        EuiResizableButton,
+                        { togglePanel }
+                      ) => {
+                        if (togglePanel) {
+                          collapseFnVertical.current = (
+                            panelId: string,
+                            { direction }
+                          ) =>
+                            // ignore is added since docs are incorrectly missing "top" and "bottom"
+                            // as valid direction options for vertically-configured resizable panels.
+                            // @ts-ignore
+                            togglePanel(panelId, { direction });
+                        }
+
+                        return (
+                          <>
+                            <EuiResizablePanel
+                              mode="main"
+                              initialSize={60}
+                              minSize="25%"
+                              paddingSize="s"
+                              style={{ marginBottom: '-8px' }}
+                            >
+                              <EuiFlexGroup
+                                direction="column"
+                                gutterSize="s"
+                                style={{ height: '100%' }}
+                              >
+                                <EuiFlexItem>
+                                  <Workspace
+                                    id="ingest"
+                                    workflow={workflow}
+                                    readonly={false}
+                                  />
+                                </EuiFlexItem>
+                              </EuiFlexGroup>
+                            </EuiResizablePanel>
+                            <EuiResizableButton />
+                            <EuiResizablePanel
+                              id={TOOLS_PANEL_ID}
+                              mode="collapsible"
+                              initialSize={50}
+                              minSize="25%"
+                              paddingSize="s"
+                              onToggleCollapsedInternal={() =>
+                                onToggleToolsChange()
+                              }
+                              style={{ marginBottom: '-24px' }}
+                            >
+                              <EuiFlexGroup
+                                direction="column"
+                                gutterSize="s"
+                                style={{
+                                  height: '100%',
+                                }}
+                              >
+                                <EuiFlexItem>
+                                  <EuiPanel paddingSize="m">
+                                    <Tools workflow={workflow} />
+                                  </EuiPanel>
+                                </EuiFlexItem>
+                              </EuiFlexGroup>
+                            </EuiResizablePanel>
+                          </>
+                        );
+                      }}
+                    </EuiResizableContainer>
                   </EuiResizablePanel>
                 </>
               );
