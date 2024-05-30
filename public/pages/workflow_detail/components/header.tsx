@@ -41,6 +41,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
 
   return (
     <EuiPageHeader
+      style={{ marginTop: '-8px' }}
       pageTitle={
         <EuiFlexGroup direction="row" alignItems="flexEnd" gutterSize="m">
           <EuiFlexItem grow={false}>{getTitle()}</EuiFlexItem>
@@ -55,7 +56,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           Export
         </EuiButton>,
       ]}
-      bottomBorder={true}
+      bottomBorder={false}
     />
   );
 }
