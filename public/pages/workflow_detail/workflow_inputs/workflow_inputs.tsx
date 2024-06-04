@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { FormikProps } from 'formik';
 import {
   EuiButton,
+  EuiButtonEmpty,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
@@ -16,7 +18,7 @@ import {
 import { Workflow, WorkflowFormValues } from '../../../../common';
 import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
-import { FormikProps } from 'formik';
+import { useAppDispatch } from '../../../store';
 
 // styling
 import '../workspace/workspace-styles.scss';
@@ -39,11 +41,47 @@ export enum CREATE_STEP {
  */
 
 export function WorkflowInputs(props: WorkflowInputsProps) {
+  const dispatch = useAppDispatch();
+
+  // selected step state
   const [selectedStep, setSelectedStep] = useState<CREATE_STEP>(
     CREATE_STEP.INGEST
   );
 
-  useEffect(() => {}, [selectedStep]);
+  // ingestion data state. We need to persist separately from the form, since
+  // we do not need/want to persist this in form state or in backend
+  const [ingestDocs, setIngestDocs] = useState<{}[]>([]);
+
+  // TODO: running props.validateAndSubmit(props.formikProps) will need to be ran before every ingest and
+  // search, if the form is dirty / values have changed. This will update the workflow if needed.
+  // Note that the temporary data (the ingest docs and the search query) will not need to be persisted
+  // in the form (need to confirm if query-side / using search template, will need to persist something)
+  function validateAndRunIngestion(): void {
+    console.log('running ingestion...');
+    try {
+      props.validateAndSubmit(props.formikProps);
+      const indexName = props.formikProps.values.ingest.index.name;
+      const doc = ingestDocs[0];
+      // dispatch(ingest({ index: indexName, doc: docObj }))
+      //   .unwrap()
+      //   .then(async (resp) => {
+      //     //setResponse(result);
+      //     console.log('response: ', resp);
+      //   })
+      //   .catch((error: any) => {
+      //     getCore().notifications.toasts.addDanger(error);
+      //     // setResponse({});
+      //     console.log('error: ', error);
+      //   });
+    } catch (err) {
+      console.log('error: ', err);
+    }
+  }
+
+  function validateAndRunQuery(): void {
+    console.log('running query...');
+    props.validateAndSubmit(props.formikProps);
+  }
 
   return (
     <EuiPanel paddingSize="m" grow={true} className="workspace-panel">
@@ -73,6 +111,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <IngestInputs
                 workflow={props.workflow}
                 onFormChange={props.onFormChange}
+                ingestDocs={ingestDocs}
+                setIngestDocs={setIngestDocs}
               />
             ) : (
               <SearchInputs workflow={props.workflow} />
@@ -86,30 +126,42 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <EuiFlexItem>
                 <EuiFlexGroup direction="row" justifyContent="flexEnd">
                   {selectedStep === CREATE_STEP.INGEST ? (
-                    <EuiFlexItem grow={false}>
-                      <EuiButton
-                        onClick={() => setSelectedStep(CREATE_STEP.SEARCH)}
-                      >
-                        Next
-                      </EuiButton>
-                    </EuiFlexItem>
+                    <>
+                      <EuiFlexItem grow={false}>
+                        <EuiButtonEmpty
+                          onClick={() => setSelectedStep(CREATE_STEP.SEARCH)}
+                        >
+                          Skip
+                        </EuiButtonEmpty>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiButton
+                          fill={true}
+                          onClick={() => {
+                            validateAndRunIngestion();
+                          }}
+                        >
+                          Run ingestion
+                        </EuiButton>
+                      </EuiFlexItem>
+                    </>
                   ) : (
                     <>
                       <EuiFlexItem grow={false}>
-                        <EuiButton
+                        <EuiButtonEmpty
                           onClick={() => setSelectedStep(CREATE_STEP.INGEST)}
                         >
                           Back
-                        </EuiButton>
+                        </EuiButtonEmpty>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiButton
                           disabled={false}
                           onClick={() => {
-                            props.validateAndSubmit(props.formikProps);
+                            validateAndRunQuery();
                           }}
                         >
-                          Create
+                          Run query
                         </EuiButton>
                       </EuiFlexItem>
                     </>

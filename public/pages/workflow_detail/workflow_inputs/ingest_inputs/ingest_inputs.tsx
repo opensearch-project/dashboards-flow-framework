@@ -13,6 +13,8 @@ import { Workflow } from '../../../../../common';
 interface IngestInputsProps {
   workflow: Workflow;
   onFormChange: () => void;
+  ingestDocs: {}[];
+  setIngestDocs: (docs: {}[]) => void;
 }
 
 /**
@@ -22,7 +24,10 @@ export function IngestInputs(props: IngestInputsProps) {
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
-        <SourceData />
+        <SourceData
+          ingestDocs={props.ingestDocs}
+          setIngestDocs={props.setIngestDocs}
+        />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiHorizontalRule margin="none" />
