@@ -15,10 +15,16 @@ import {
   EuiPanel,
   EuiTitle,
 } from '@elastic/eui';
-import { Workflow, WorkflowFormValues } from '../../../../common';
+import {
+  Workflow,
+  WorkflowConfig,
+  WorkflowFormValues,
+} from '../../../../common';
 import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
-import { useAppDispatch } from '../../../store';
+import { updateWorkflow, useAppDispatch } from '../../../store';
+import { formikToUiConfig, reduceToTemplate } from '../../../utils';
+import { configToTemplateFlows } from '../utils';
 
 // styling
 import '../workspace/workspace-styles.scss';
@@ -27,7 +33,6 @@ interface WorkflowInputsProps {
   workflow: Workflow | undefined;
   formikProps: FormikProps<WorkflowFormValues>;
   onFormChange: () => void;
-  validateAndSubmit: (formikProps: FormikProps<WorkflowFormValues>) => void;
 }
 
 export enum CREATE_STEP {
@@ -52,6 +57,49 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // we do not need/want to persist this in form state or in backend
   const [ingestDocs, setIngestDocs] = useState<{}[]>([]);
 
+  // Utility fn to update the workflow
+  function executeUpdate(updatedWorkflow: Workflow): void {
+    dispatch(
+      updateWorkflow({
+        workflowId: updatedWorkflow.id as string,
+        workflowTemplate: reduceToTemplate(updatedWorkflow),
+      })
+    )
+      .unwrap()
+      .then((result) => {})
+      .catch((error: any) => {});
+  }
+
+  // Utility fn to validate the form and update the workflow if valid
+  function validateAndUpdateWorkflow(
+    formikProps: FormikProps<WorkflowFormValues>
+  ): void {
+    // Submit the form to bubble up any errors.
+    // Ideally we handle Promise accept/rejects with submitForm(), but there is
+    // open issues for that - see https://github.com/jaredpalmer/formik/issues/2057
+    // The workaround is to additionally execute validateForm() which will return any errors found.
+    formikProps.submitForm();
+    formikProps.validateForm().then((validationResults: {}) => {
+      if (Object.keys(validationResults).length > 0) {
+        console.error('Form invalid');
+      } else {
+        const updatedConfig = formikToUiConfig(
+          formikProps.values,
+          props.workflow?.ui_metadata?.config as WorkflowConfig
+        );
+        const updatedWorkflow = {
+          ...props.workflow,
+          ui_metadata: {
+            ...props.workflow?.ui_metadata,
+            config: updatedConfig,
+          },
+          workflows: configToTemplateFlows(updatedConfig),
+        } as Workflow;
+        executeUpdate(updatedWorkflow);
+      }
+    });
+  }
+
   // TODO: running props.validateAndSubmit(props.formikProps) will need to be ran before every ingest and
   // search, if the form is dirty / values have changed. This will update the workflow if needed.
   // Note that the temporary data (the ingest docs and the search query) will not need to be persisted
@@ -59,7 +107,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   function validateAndRunIngestion(): void {
     console.log('running ingestion...');
     try {
-      props.validateAndSubmit(props.formikProps);
+      validateAndUpdateWorkflow(props.formikProps);
       const indexName = props.formikProps.values.ingest.index.name;
       const doc = ingestDocs[0];
       // dispatch(ingest({ index: indexName, doc: docObj }))
@@ -80,7 +128,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   function validateAndRunQuery(): void {
     console.log('running query...');
-    props.validateAndSubmit(props.formikProps);
+    validateAndUpdateWorkflow(props.formikProps);
   }
 
   return (

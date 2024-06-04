@@ -6,7 +6,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { Form, Formik, FormikProps } from 'formik';
+import { Form, Formik } from 'formik';
 import * as yup from 'yup';
 import {
   EuiFlexGroup,
@@ -16,28 +16,10 @@ import {
 } from '@elastic/eui';
 import { getCore } from '../../services';
 
-import {
-  Workflow,
-  WorkflowFormValues,
-  WorkflowSchema,
-  WorkflowConfig,
-} from '../../../common';
-import {
-  APP_PATH,
-  uiConfigToFormik,
-  uiConfigToSchema,
-  formikToUiConfig,
-  reduceToTemplate,
-} from '../../utils';
-import {
-  AppState,
-  createWorkflow,
-  setDirty,
-  updateWorkflow,
-  useAppDispatch,
-} from '../../store';
+import { Workflow, WorkflowFormValues, WorkflowSchema } from '../../../common';
+import { APP_PATH, uiConfigToFormik, uiConfigToSchema } from '../../utils';
+import { AppState, setDirty, useAppDispatch } from '../../store';
 import { WorkflowInputs } from './workflow_inputs';
-import { configToTemplateFlows } from './utils';
 import { Workspace } from './workspace';
 
 // styling
@@ -72,9 +54,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Formik form state
   const [formValues, setFormValues] = useState<WorkflowFormValues>({});
   const [formSchema, setFormSchema] = useState<WorkflowSchema>(yup.object({}));
-
-  // Validation states
-  const [formValidOnSubmit, setFormValidOnSubmit] = useState<boolean>(true);
 
   // Workflow inputs side panel state
   const [isWorkflowInputsPanelOpen, setIsWorkflowInputsPanelOpen] = useState<
@@ -139,56 +118,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }
 
-  // Utility validation fn used before executing any API calls (save, provision)
-  function validateAndSubmit(
-    formikProps: FormikProps<WorkflowFormValues>
-  ): void {
-    // Submit the form to bubble up any errors.
-    // Ideally we handle Promise accept/rejects with submitForm(), but there is
-    // open issues for that - see https://github.com/jaredpalmer/formik/issues/2057
-    // The workaround is to additionally execute validateForm() which will return any errors found.
-    formikProps.submitForm();
-    formikProps.validateForm().then((validationResults: {}) => {
-      if (Object.keys(validationResults).length > 0) {
-        setFormValidOnSubmit(false);
-      } else {
-        setFormValidOnSubmit(true);
-        const updatedConfig = formikToUiConfig(
-          formikProps.values,
-          workflow?.ui_metadata?.config as WorkflowConfig
-        );
-        const updatedWorkflow = {
-          ...workflow,
-          ui_metadata: {
-            ...workflow?.ui_metadata,
-            config: updatedConfig,
-          },
-          workflows: configToTemplateFlows(updatedConfig),
-        } as Workflow;
-        if (updatedWorkflow.id) {
-          dispatch(
-            updateWorkflow({
-              workflowId: updatedWorkflow.id,
-              workflowTemplate: reduceToTemplate(updatedWorkflow),
-            })
-          )
-            .unwrap()
-            .then((result) => {})
-            .catch((error: any) => {});
-        } else {
-          dispatch(createWorkflow(updatedWorkflow))
-            .unwrap()
-            .then((result) => {
-              const { workflow } = result;
-              history.replace(`${APP_PATH.WORKFLOWS}/${workflow.id}`);
-              history.go(0);
-            })
-            .catch((error: any) => {});
-        }
-      }
-    });
-  }
-
   return (
     <Formik
       enableReinitialize={true}
@@ -231,7 +160,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                       workflow={props.workflow}
                       formikProps={formikProps}
                       onFormChange={onFormChange}
-                      validateAndSubmit={validateAndSubmit}
                     />
                   </EuiResizablePanel>
                   <EuiResizableButton />
