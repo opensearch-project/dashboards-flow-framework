@@ -21,7 +21,6 @@ import { ResizableWorkspace } from './resizable_workspace';
 import {
   DEFAULT_NEW_WORKFLOW_NAME,
   FETCH_ALL_QUERY_BODY,
-  NEW_WORKFLOW_ID_URL,
 } from '../../../common';
 
 // styling
@@ -39,24 +38,18 @@ interface WorkflowDetailProps
  * The workflow details page. This is where users will configure, create, and
  * test their created workflows. Additionally, can be used to load existing workflows
  * to view details and/or make changes to them.
- * New, unsaved workflows are cached in the redux store and displayed here.
  */
 
 export function WorkflowDetail(props: WorkflowDetailProps) {
   const dispatch = useAppDispatch();
-  const { workflows, cachedWorkflow, errorMessage } = useSelector(
+  const { workflows, errorMessage } = useSelector(
     (state: AppState) => state.workflows
   );
 
   // selected workflow state
   const workflowId = props.match?.params?.workflowId;
-  const isNewWorkflow = workflowId === NEW_WORKFLOW_ID_URL;
-  const workflow = isNewWorkflow ? cachedWorkflow : workflows[workflowId];
-  const workflowName = workflow
-    ? workflow.name
-    : isNewWorkflow && !workflow
-    ? DEFAULT_NEW_WORKFLOW_NAME
-    : '';
+  const workflow = workflows[workflowId];
+  const workflowName = workflow ? workflow.name : DEFAULT_NEW_WORKFLOW_NAME;
 
   useEffect(() => {
     getCore().chrome.setBreadcrumbs([
@@ -67,12 +60,11 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   });
 
   // On initial load:
-  // - fetch workflow, if there is an existing workflow ID
+  // - fetch workflow
   // - fetch available models as their IDs may be used when building flows
   useEffect(() => {
-    if (!isNewWorkflow) {
-      dispatch(getWorkflow(workflowId));
-    }
+    dispatch(getWorkflow(workflowId));
+
     dispatch(searchModels(FETCH_ALL_QUERY_BODY));
   }, []);
 
@@ -88,15 +80,9 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     <ReactFlowProvider>
       <EuiPage>
         <EuiPageBody className="workflow-detail stretch-relative">
-          <WorkflowDetailHeader
-            workflow={workflow}
-            isNewWorkflow={isNewWorkflow}
-          />
+          <WorkflowDetailHeader workflow={workflow} />
           <ReactFlowProvider>
-            <ResizableWorkspace
-              isNewWorkflow={isNewWorkflow}
-              workflow={workflow}
-            />
+            <ResizableWorkspace workflow={workflow} />
           </ReactFlowProvider>
         </EuiPageBody>
       </EuiPage>

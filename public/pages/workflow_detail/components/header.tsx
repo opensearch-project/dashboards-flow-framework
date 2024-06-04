@@ -18,25 +18,16 @@ import {
 } from '../../../../common';
 
 interface WorkflowDetailHeaderProps {
-  isNewWorkflow: boolean;
   workflow?: Workflow;
 }
 
 export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
   function getTitle() {
-    return props.workflow
-      ? props.workflow.name
-      : props.isNewWorkflow && !props.workflow
-      ? DEFAULT_NEW_WORKFLOW_NAME
-      : '';
+    return props.workflow ? props.workflow.name : DEFAULT_NEW_WORKFLOW_NAME;
   }
 
   function getState() {
-    return props.workflow?.state
-      ? props.workflow.state
-      : props.isNewWorkflow
-      ? DEFAULT_NEW_WORKFLOW_STATE
-      : null;
+    return props.workflow ? props.workflow.state : DEFAULT_NEW_WORKFLOW_STATE;
   }
 
   return (
