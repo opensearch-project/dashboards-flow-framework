@@ -6,40 +6,20 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { Form, Formik, FormikProps } from 'formik';
+import { Form, Formik } from 'formik';
 import * as yup from 'yup';
 import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiPanel,
   EuiResizableContainer,
-  EuiTitle,
 } from '@elastic/eui';
 import { getCore } from '../../services';
 
-import {
-  Workflow,
-  WORKFLOW_STATE,
-  WorkflowFormValues,
-  WorkflowSchema,
-  WorkflowConfig,
-} from '../../../common';
-import {
-  APP_PATH,
-  uiConfigToFormik,
-  uiConfigToSchema,
-  formikToUiConfig,
-  reduceToTemplate,
-} from '../../utils';
-import {
-  AppState,
-  createWorkflow,
-  setDirty,
-  updateWorkflow,
-  useAppDispatch,
-} from '../../store';
+import { Workflow, WorkflowFormValues, WorkflowSchema } from '../../../common';
+import { APP_PATH, uiConfigToFormik, uiConfigToSchema } from '../../utils';
+import { AppState, setDirty, useAppDispatch } from '../../store';
 import { WorkflowInputs } from './workflow_inputs';
-import { configToTemplateFlows } from './utils';
 import { Workspace } from './workspace';
 
 // styling
@@ -48,7 +28,6 @@ import '../../global-styles.scss';
 import { Tools } from './tools';
 
 interface ResizableWorkspaceProps {
-  isNewWorkflow: boolean;
   workflow?: Workflow;
 }
 
@@ -66,7 +45,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Overall workspace state
   const { isDirty } = useSelector((state: AppState) => state.workspace);
   const { loading } = useSelector((state: AppState) => state.workflows);
-  const [isFirstSave, setIsFirstSave] = useState<boolean>(props.isNewWorkflow);
 
   // Workflow state
   const [workflow, setWorkflow] = useState<Workflow | undefined>(
@@ -76,9 +54,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Formik form state
   const [formValues, setFormValues] = useState<WorkflowFormValues>({});
   const [formSchema, setFormSchema] = useState<WorkflowSchema>(yup.object({}));
-
-  // Validation states
-  const [formValidOnSubmit, setFormValidOnSubmit] = useState<boolean>(true);
 
   // Workflow inputs side panel state
   const [isWorkflowInputsPanelOpen, setIsWorkflowInputsPanelOpen] = useState<
@@ -104,56 +79,20 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     setIsToolsPanelOpen(!isToolsPanelOpen);
   };
 
-  // Save/provision/deprovision button state
-  const isSaveable =
-    props.workflow !== undefined && (isFirstSave ? true : isDirty);
-  const isProvisionable =
-    props.workflow !== undefined &&
-    !isDirty &&
-    !props.isNewWorkflow &&
-    formValidOnSubmit &&
-    props.workflow?.state === WORKFLOW_STATE.NOT_STARTED;
-  const isDeprovisionable =
-    props.workflow !== undefined &&
-    !props.isNewWorkflow &&
-    props.workflow?.state !== WORKFLOW_STATE.NOT_STARTED;
-  // TODO: maybe remove this field. It depends on final UX if we want the
-  // workspace to be readonly once provisioned or not.
-  const readonly = props.workflow === undefined || isDeprovisionable;
-
-  // Loading state
-  const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
-  const [isDeprovisioning, setIsDeprovisioning] = useState<boolean>(false);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const isCreating = isSaving && props.isNewWorkflow;
-  const isLoadingGlobal =
-    loading || isProvisioning || isDeprovisioning || isSaving || isCreating;
-
   // Hook to update some default values for the workflow, if applicable.
   // We need to handle different scenarios:
-  // 1. Rendering backend-only-created workflow / an already-created workflow with no ui_metadata.
+  // 1. Rendering backend-only-created workflow / an existing workflow with no ui_metadata.
   //    In this case, we revert to the home page with a warn toast that we don't support it, for now.
-  //    This is because we initially have guardrails and a static set of readonly nodes/edges that we handle.
-  // 2. Rendering empty/null workflow, if refreshing the editor page where there is no cached workflow and
-  //    no workflow ID in the URL.
-  //    In this case, revert to home page and a warn toast that we don't support it for now.
-  //    This is because we initially don't support building / drag-and-drop components.
-  // 3. Rendering a cached workflow via navigation from create workflow tab
-  // 4. Rendering a created workflow with ui_metadata.
+  // 2. Rendering a created workflow with ui_metadata.
   //    In these cases, just render what is persisted, no action needed.
   useEffect(() => {
     const missingUiFlow =
       props.workflow && !props.workflow?.ui_metadata?.config;
-    const missingCachedWorkflow = props.isNewWorkflow && !props.workflow;
-    if (missingUiFlow || missingCachedWorkflow) {
+    if (missingUiFlow) {
       history.replace(APP_PATH.WORKFLOWS);
-      if (missingCachedWorkflow) {
-        getCore().notifications.toasts.addWarning('No workflow found');
-      } else {
-        getCore().notifications.toasts.addWarning(
-          `There is no ui_metadata for workflow: ${props.workflow?.name}`
-        );
-      }
+      getCore().notifications.toasts.addWarning(
+        `There is no ui_metadata for workflow: ${props.workflow?.name}`
+      );
     } else {
       setWorkflow(props.workflow);
     }
@@ -177,63 +116,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     if (!isDirty) {
       dispatch(setDirty());
     }
-  }
-
-  // Utility validation fn used before executing any API calls (save, provision)
-  function validateAndSubmit(
-    formikProps: FormikProps<WorkflowFormValues>
-  ): void {
-    // Submit the form to bubble up any errors.
-    // Ideally we handle Promise accept/rejects with submitForm(), but there is
-    // open issues for that - see https://github.com/jaredpalmer/formik/issues/2057
-    // The workaround is to additionally execute validateForm() which will return any errors found.
-    formikProps.submitForm();
-    formikProps.validateForm().then((validationResults: {}) => {
-      if (Object.keys(validationResults).length > 0) {
-        setFormValidOnSubmit(false);
-        setIsSaving(false);
-      } else {
-        setFormValidOnSubmit(true);
-        const updatedConfig = formikToUiConfig(
-          formikProps.values,
-          workflow?.ui_metadata?.config as WorkflowConfig
-        );
-        const updatedWorkflow = {
-          ...workflow,
-          ui_metadata: {
-            ...workflow?.ui_metadata,
-            config: updatedConfig,
-          },
-          workflows: configToTemplateFlows(updatedConfig),
-        } as Workflow;
-        if (updatedWorkflow.id) {
-          dispatch(
-            updateWorkflow({
-              workflowId: updatedWorkflow.id,
-              workflowTemplate: reduceToTemplate(updatedWorkflow),
-            })
-          )
-            .unwrap()
-            .then((result) => {
-              setIsSaving(false);
-            })
-            .catch((error: any) => {
-              setIsSaving(false);
-            });
-        } else {
-          dispatch(createWorkflow(updatedWorkflow))
-            .unwrap()
-            .then((result) => {
-              const { workflow } = result;
-              history.replace(`${APP_PATH.WORKFLOWS}/${workflow.id}`);
-              history.go(0);
-            })
-            .catch((error: any) => {
-              setIsSaving(false);
-            });
-        }
-      }
-    });
   }
 
   return (
@@ -278,7 +160,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                       workflow={props.workflow}
                       formikProps={formikProps}
                       onFormChange={onFormChange}
-                      validateAndSubmit={validateAndSubmit}
                     />
                   </EuiResizablePanel>
                   <EuiResizableButton />
