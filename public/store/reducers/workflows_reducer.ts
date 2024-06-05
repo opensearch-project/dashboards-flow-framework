@@ -12,7 +12,6 @@ const initialState = {
   loading: false,
   errorMessage: '',
   workflows: {} as WorkflowDict,
-  cachedWorkflow: undefined as Workflow | undefined,
 };
 
 const WORKFLOWS_ACTION_PREFIX = 'workflows';
@@ -24,8 +23,6 @@ const UPDATE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/update`;
 const PROVISION_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/provision`;
 const DEPROVISION_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/deprovision`;
 const DELETE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/delete`;
-const CACHE_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/cache`;
-const CLEAR_CACHED_WORKFLOW_ACTION = `${WORKFLOWS_ACTION_PREFIX}/clearCache`;
 
 export const getWorkflow = createAsyncThunk(
   GET_WORKFLOW_ACTION,
@@ -164,20 +161,6 @@ export const deleteWorkflow = createAsyncThunk(
   }
 );
 
-export const cacheWorkflow = createAsyncThunk(
-  CACHE_WORKFLOW_ACTION,
-  async (workflow: Workflow) => {
-    return workflow;
-  }
-);
-
-// A no-op function to trigger a reducer case.
-// Will clear any stored workflow in the cachedWorkflow state
-export const clearCachedWorkflow = createAsyncThunk(
-  CLEAR_CACHED_WORKFLOW_ACTION,
-  async () => {}
-);
-
 const workflowsSlice = createSlice({
   name: 'workflows',
   initialState,
@@ -285,13 +268,6 @@ const workflowsSlice = createSlice({
         delete state.workflows[workflowId];
         state.loading = false;
         state.errorMessage = '';
-      })
-      .addCase(cacheWorkflow.fulfilled, (state, action) => {
-        const workflow = action.payload;
-        state.cachedWorkflow = workflow;
-      })
-      .addCase(clearCachedWorkflow.fulfilled, (state, action) => {
-        state.cachedWorkflow = undefined;
       })
       // Rejected states: set state consistently across all actions
       .addCase(getWorkflow.rejected, (state, action) => {

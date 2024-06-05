@@ -176,7 +176,6 @@ export enum COMPONENT_CLASS {
 /**
  * MISCELLANEOUS
  */
-export const NEW_WORKFLOW_ID_URL = 'new';
 export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';
