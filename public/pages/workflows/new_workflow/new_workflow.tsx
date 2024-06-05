@@ -15,16 +15,8 @@ import {
 import { useSelector } from 'react-redux';
 import { UseCase } from './use_case';
 import { Workflow, WorkflowTemplate } from '../../../../common';
-import {
-  AppState,
-  cacheWorkflow,
-  useAppDispatch,
-  getWorkflowPresets,
-} from '../../../store';
-import {
-  enrichPresetWorkflowWithUiMetadata,
-  processWorkflowName,
-} from './utils';
+import { AppState, useAppDispatch, getWorkflowPresets } from '../../../store';
+import { enrichPresetWorkflowWithUiMetadata } from './utils';
 
 interface NewWorkflowProps {}
 
@@ -95,18 +87,7 @@ export function NewWorkflow(props: NewWorkflowProps) {
             {filteredWorkflows.map((workflow: Workflow, index) => {
               return (
                 <EuiFlexItem key={index}>
-                  <UseCase
-                    title={workflow.name}
-                    description={workflow.description || ''}
-                    onClick={() =>
-                      dispatch(
-                        cacheWorkflow({
-                          ...workflow,
-                          name: processWorkflowName(workflow.name),
-                        })
-                      )
-                    }
-                  />
+                  <UseCase workflow={workflow} />
                 </EuiFlexItem>
               );
             })}
