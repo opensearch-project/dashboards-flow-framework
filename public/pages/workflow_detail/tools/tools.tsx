@@ -5,12 +5,10 @@
 
 import React, { useState } from 'react';
 import {
-  EuiCodeBlock,
   EuiCodeEditor,
   EuiFlexGroup,
   EuiFlexItem,
   EuiPanel,
-  EuiSpacer,
   EuiTab,
   EuiTabs,
   EuiText,
@@ -60,12 +58,10 @@ const inputTabs = [
 export function Tools(props: ToolsProps) {
   const [selectedTabId, setSelectedTabId] = useState<string>(TAB_ID.INGEST);
 
-  console.log('ingestresponse in tools: ', props.ingestResponse);
   return (
     <EuiPanel paddingSize="m" grow={true} style={{ height: '100%' }}>
       <EuiFlexGroup
         direction="column"
-        //justifyContent="spaceBetween"
         style={{
           height: '100%',
         }}
@@ -91,55 +87,28 @@ export function Tools(props: ToolsProps) {
             })}
           </EuiTabs>
         </EuiFlexItem>
-        <EuiFlexItem
-          grow={true}
-          style={
-            {
-              // overflowY: 'scroll',
-              // overflowX: 'hidden',
-            }
-          }
-        >
+        <EuiFlexItem grow={true}>
           <EuiFlexGroup direction="column">
-            <EuiFlexItem
-              grow={true}
-              // style={{
-              //   overflowY: 'scroll',
-              //   overflowX: 'hidden',
-              // }}
-            >
+            <EuiFlexItem grow={true}>
               <>
                 {selectedTabId === TAB_ID.INGEST && (
-                  //TODO: investigate existing editor more
+                  // TODO: known issue with the editor where resizing the resizablecontainer does not
+                  // trigger vertical scroll updates. Updating the window, or reloading the component
+                  // by switching tabs etc. will refresh it correctly.
                   <EuiCodeEditor
                     mode="json"
                     theme="textmate"
                     width="100%"
                     height="100%"
-                    onScroll={(event) => {
-                      console.log('scroll event fired!');
-                    }}
                     value={props.ingestResponse}
                     onChange={(input) => {}}
                     readOnly={true}
                     setOptions={{
-                      fontSize: '14px',
+                      fontSize: '12px',
+                      autoScrollEditorIntoView: true,
                     }}
-                    aria-label="Code Editor"
                     tabSize={2}
                   />
-                  // <EuiCodeBlock
-                  //   language="json"
-                  //   fontSize="m"
-                  //   paddingSize="m"
-                  //   // TODO: dynamically fetch the available space to determine the overflow height.
-                  //   overflowHeight={100}
-                  //   // style={{
-                  //   //   height: '100%',
-                  //   // }}
-                  // >
-                  //   {props.ingestResponse}
-                  // </EuiCodeBlock>
                 )}
                 {selectedTabId === TAB_ID.QUERY && (
                   <EuiText>TODO: Run queries placeholder</EuiText>
