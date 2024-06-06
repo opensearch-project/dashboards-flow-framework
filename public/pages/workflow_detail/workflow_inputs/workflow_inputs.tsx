@@ -24,10 +24,12 @@ import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
 import {
   deprovisionWorkflow,
+  ingest,
   provisionWorkflow,
   updateWorkflow,
   useAppDispatch,
 } from '../../../store';
+import { getCore } from '../../../services';
 import { formikToUiConfig, reduceToTemplate } from '../../../utils';
 import { configToTemplateFlows } from '../utils';
 
@@ -38,6 +40,7 @@ interface WorkflowInputsProps {
   workflow: Workflow | undefined;
   formikProps: FormikProps<WorkflowFormValues>;
   onFormChange: () => void;
+  setIngestResponse: (ingestResponse: string) => void;
 }
 
 export enum CREATE_STEP {
@@ -58,8 +61,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     CREATE_STEP.INGEST
   );
 
-  // ingestion data state. We need to persist separately from the form, since
-  // we do not need/want to persist this in form state or in backend
+  // ingest state
   const [ingestDocs, setIngestDocs] = useState<{}[]>([]);
 
   // Utility fn to update the workflow, including any updated/new resources
@@ -145,23 +147,22 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     let success = false;
     try {
       success = await validateAndUpdateWorkflow(props.formikProps);
-      if (success) {
+      if (success && ingestDocs.length > 0) {
         const indexName = props.formikProps.values.ingest.index.name;
         const doc = ingestDocs[0];
-        // dispatch(ingest({ index: indexName, doc: docObj }))
-        //   .unwrap()
-        //   .then(async (resp) => {
-        //     //setResponse(result);
-        //     console.log('response: ', resp);
-        //   })
-        //   .catch((error: any) => {
-        //     getCore().notifications.toasts.addDanger(error);
-        //     // setResponse({});
-        //     console.log('error: ', error);
-        //   });
+        dispatch(ingest({ index: indexName, doc }))
+          .unwrap()
+          .then(async (resp) => {
+            props.setIngestResponse(JSON.stringify(resp));
+          })
+          .catch((error: any) => {
+            getCore().notifications.toasts.addDanger(error);
+            props.setIngestResponse('');
+            throw error;
+          });
       }
-    } catch (err) {
-      console.log('Error ingesting documents: ', err);
+    } catch (error) {
+      console.error('Error ingesting documents: ', error);
     }
 
     return success;

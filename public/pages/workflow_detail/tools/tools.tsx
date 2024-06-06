@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import {
+  EuiCodeEditor,
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
@@ -18,6 +19,7 @@ import { Resources } from './resources';
 
 interface ToolsProps {
   workflow?: Workflow;
+  ingestResponse: string;
 }
 
 enum TAB_ID {
@@ -77,10 +79,35 @@ export function Tools(props: ToolsProps) {
           })}
         </EuiTabs>
         <EuiSpacer size="m" />
-        <EuiFlexGroup direction="column">
+        <EuiFlexGroup
+          direction="column"
+          justifyContent="spaceBetween"
+          style={{
+            height: '80%',
+          }}
+        >
           {selectedTabId === TAB_ID.INGEST && (
-            <EuiFlexItem>
-              <EuiText>TODO: Run ingestion placeholder</EuiText>
+            <EuiFlexItem
+              grow={true}
+              style={{
+                overflowY: 'scroll',
+                overflowX: 'hidden',
+              }}
+            >
+              <EuiCodeEditor
+                mode="json"
+                theme="textmate"
+                width="100%"
+                height="100%"
+                value={props.ingestResponse}
+                onChange={(input) => {}}
+                readOnly={true}
+                setOptions={{
+                  fontSize: '14px',
+                }}
+                aria-label="Code Editor"
+                tabSize={2}
+              />
             </EuiFlexItem>
           )}
           {selectedTabId === TAB_ID.QUERY && (
