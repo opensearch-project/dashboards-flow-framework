@@ -153,7 +153,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         dispatch(ingest({ index: indexName, doc }))
           .unwrap()
           .then(async (resp) => {
-            props.setIngestResponse(JSON.stringify(resp));
+            props.setIngestResponse(JSON.stringify(resp, undefined, 2));
           })
           .catch((error: any) => {
             getCore().notifications.toasts.addDanger(error);

@@ -5,9 +5,11 @@
 
 import React, { useState } from 'react';
 import {
+  EuiCodeBlock,
   EuiCodeEditor,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiPanel,
   EuiSpacer,
   EuiTab,
   EuiTabs,
@@ -57,76 +59,102 @@ const inputTabs = [
  */
 export function Tools(props: ToolsProps) {
   const [selectedTabId, setSelectedTabId] = useState<string>(TAB_ID.INGEST);
+
+  console.log('ingestresponse in tools: ', props.ingestResponse);
   return (
-    <>
-      <EuiTitle>
-        <h2>Tools</h2>
-      </EuiTitle>
-      <EuiSpacer size="m" />
-      <>
-        <EuiTabs size="m" expand={false}>
-          {inputTabs.map((tab, idx) => {
-            return (
-              <EuiTab
-                onClick={() => setSelectedTabId(tab.id)}
-                isSelected={tab.id === selectedTabId}
-                disabled={tab.disabled}
-                key={idx}
-              >
-                {tab.name}
-              </EuiTab>
-            );
-          })}
-        </EuiTabs>
-        <EuiSpacer size="m" />
-        <EuiFlexGroup
-          direction="column"
-          justifyContent="spaceBetween"
-          style={{
-            height: '80%',
-          }}
+    <EuiPanel paddingSize="m" grow={true} style={{ height: '100%' }}>
+      <EuiFlexGroup
+        direction="column"
+        //justifyContent="spaceBetween"
+        style={{
+          height: '100%',
+        }}
+      >
+        <EuiFlexItem grow={false}>
+          <EuiTitle>
+            <h2>Tools</h2>
+          </EuiTitle>
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiTabs size="m" expand={false}>
+            {inputTabs.map((tab, idx) => {
+              return (
+                <EuiTab
+                  onClick={() => setSelectedTabId(tab.id)}
+                  isSelected={tab.id === selectedTabId}
+                  disabled={tab.disabled}
+                  key={idx}
+                >
+                  {tab.name}
+                </EuiTab>
+              );
+            })}
+          </EuiTabs>
+        </EuiFlexItem>
+        <EuiFlexItem
+          grow={true}
+          style={
+            {
+              // overflowY: 'scroll',
+              // overflowX: 'hidden',
+            }
+          }
         >
-          {selectedTabId === TAB_ID.INGEST && (
+          <EuiFlexGroup direction="column">
             <EuiFlexItem
               grow={true}
-              style={{
-                overflowY: 'scroll',
-                overflowX: 'hidden',
-              }}
+              // style={{
+              //   overflowY: 'scroll',
+              //   overflowX: 'hidden',
+              // }}
             >
-              <EuiCodeEditor
-                mode="json"
-                theme="textmate"
-                width="100%"
-                height="100%"
-                value={props.ingestResponse}
-                onChange={(input) => {}}
-                readOnly={true}
-                setOptions={{
-                  fontSize: '14px',
-                }}
-                aria-label="Code Editor"
-                tabSize={2}
-              />
+              <>
+                {selectedTabId === TAB_ID.INGEST && (
+                  //TODO: investigate existing editor more
+                  <EuiCodeEditor
+                    mode="json"
+                    theme="textmate"
+                    width="100%"
+                    height="100%"
+                    onScroll={(event) => {
+                      console.log('scroll event fired!');
+                    }}
+                    value={props.ingestResponse}
+                    onChange={(input) => {}}
+                    readOnly={true}
+                    setOptions={{
+                      fontSize: '14px',
+                    }}
+                    aria-label="Code Editor"
+                    tabSize={2}
+                  />
+                  // <EuiCodeBlock
+                  //   language="json"
+                  //   fontSize="m"
+                  //   paddingSize="m"
+                  //   // TODO: dynamically fetch the available space to determine the overflow height.
+                  //   overflowHeight={100}
+                  //   // style={{
+                  //   //   height: '100%',
+                  //   // }}
+                  // >
+                  //   {props.ingestResponse}
+                  // </EuiCodeBlock>
+                )}
+                {selectedTabId === TAB_ID.QUERY && (
+                  <EuiText>TODO: Run queries placeholder</EuiText>
+                )}
+                {selectedTabId === TAB_ID.ERRORS && (
+                  <EuiText>TODO: View errors placeholder</EuiText>
+                )}
+                {selectedTabId === TAB_ID.RESOURCES && (
+                  <Resources workflow={props.workflow} />
+                )}
+              </>
             </EuiFlexItem>
-          )}
-          {selectedTabId === TAB_ID.QUERY && (
-            <EuiFlexItem>
-              <EuiText>TODO: Run queries placeholder</EuiText>
-            </EuiFlexItem>
-          )}
-          {selectedTabId === TAB_ID.ERRORS && (
-            <EuiFlexItem>
-              <EuiText>TODO: View errors placeholder</EuiText>
-            </EuiFlexItem>
-          )}
-          {selectedTabId === TAB_ID.RESOURCES && (
-            <EuiFlexItem>
-              <Resources workflow={props.workflow} />
-            </EuiFlexItem>
-          )}
-        </EuiFlexGroup>
-      </>
-    </>
+          </EuiFlexGroup>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiPanel>
   );
 }

@@ -235,24 +235,12 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                               onToggleCollapsedInternal={() =>
                                 onToggleToolsChange()
                               }
-                              style={{ marginBottom: '-24px' }}
+                              style={{ marginBottom: '-16px' }}
                             >
-                              <EuiFlexGroup
-                                direction="column"
-                                gutterSize="s"
-                                style={{
-                                  height: '100%',
-                                }}
-                              >
-                                <EuiFlexItem>
-                                  <EuiPanel paddingSize="m">
-                                    <Tools
-                                      workflow={workflow}
-                                      ingestResponse={ingestResponse}
-                                    />
-                                  </EuiPanel>
-                                </EuiFlexItem>
-                              </EuiFlexGroup>
+                              <Tools
+                                workflow={workflow}
+                                ingestResponse={ingestResponse}
+                              />
                             </EuiResizablePanel>
                           </>
                         );
