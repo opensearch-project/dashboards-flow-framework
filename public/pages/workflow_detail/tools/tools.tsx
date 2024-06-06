@@ -5,9 +5,10 @@
 
 import React, { useState } from 'react';
 import {
+  EuiCodeEditor,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiSpacer,
+  EuiPanel,
   EuiTab,
   EuiTabs,
   EuiText,
@@ -18,6 +19,7 @@ import { Resources } from './resources';
 
 interface ToolsProps {
   workflow?: Workflow;
+  ingestResponse: string;
 }
 
 enum TAB_ID {
@@ -55,51 +57,73 @@ const inputTabs = [
  */
 export function Tools(props: ToolsProps) {
   const [selectedTabId, setSelectedTabId] = useState<string>(TAB_ID.INGEST);
+
   return (
-    <>
-      <EuiTitle>
-        <h2>Tools</h2>
-      </EuiTitle>
-      <EuiSpacer size="m" />
-      <>
-        <EuiTabs size="m" expand={false}>
-          {inputTabs.map((tab, idx) => {
-            return (
-              <EuiTab
-                onClick={() => setSelectedTabId(tab.id)}
-                isSelected={tab.id === selectedTabId}
-                disabled={tab.disabled}
-                key={idx}
-              >
-                {tab.name}
-              </EuiTab>
-            );
-          })}
-        </EuiTabs>
-        <EuiSpacer size="m" />
-        <EuiFlexGroup direction="column">
-          {selectedTabId === TAB_ID.INGEST && (
-            <EuiFlexItem>
-              <EuiText>TODO: Run ingestion placeholder</EuiText>
+    <EuiPanel paddingSize="m" grow={true} style={{ height: '100%' }}>
+      <EuiFlexGroup
+        direction="column"
+        style={{
+          height: '100%',
+        }}
+      >
+        <EuiFlexItem grow={false}>
+          <EuiTitle>
+            <h2>Tools</h2>
+          </EuiTitle>
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiTabs size="m" expand={false}>
+            {inputTabs.map((tab, idx) => {
+              return (
+                <EuiTab
+                  onClick={() => setSelectedTabId(tab.id)}
+                  isSelected={tab.id === selectedTabId}
+                  disabled={tab.disabled}
+                  key={idx}
+                >
+                  {tab.name}
+                </EuiTab>
+              );
+            })}
+          </EuiTabs>
+        </EuiFlexItem>
+        <EuiFlexItem grow={true}>
+          <EuiFlexGroup direction="column">
+            <EuiFlexItem grow={true}>
+              <>
+                {selectedTabId === TAB_ID.INGEST && (
+                  // TODO: known issue with the editor where resizing the resizablecontainer does not
+                  // trigger vertical scroll updates. Updating the window, or reloading the component
+                  // by switching tabs etc. will refresh it correctly.
+                  <EuiCodeEditor
+                    mode="json"
+                    theme="textmate"
+                    width="100%"
+                    height="100%"
+                    value={props.ingestResponse}
+                    onChange={(input) => {}}
+                    readOnly={true}
+                    setOptions={{
+                      fontSize: '12px',
+                      autoScrollEditorIntoView: true,
+                    }}
+                    tabSize={2}
+                  />
+                )}
+                {selectedTabId === TAB_ID.QUERY && (
+                  <EuiText>TODO: Run queries placeholder</EuiText>
+                )}
+                {selectedTabId === TAB_ID.ERRORS && (
+                  <EuiText>TODO: View errors placeholder</EuiText>
+                )}
+                {selectedTabId === TAB_ID.RESOURCES && (
+                  <Resources workflow={props.workflow} />
+                )}
+              </>
             </EuiFlexItem>
-          )}
-          {selectedTabId === TAB_ID.QUERY && (
-            <EuiFlexItem>
-              <EuiText>TODO: Run queries placeholder</EuiText>
-            </EuiFlexItem>
-          )}
-          {selectedTabId === TAB_ID.ERRORS && (
-            <EuiFlexItem>
-              <EuiText>TODO: View errors placeholder</EuiText>
-            </EuiFlexItem>
-          )}
-          {selectedTabId === TAB_ID.RESOURCES && (
-            <EuiFlexItem>
-              <Resources workflow={props.workflow} />
-            </EuiFlexItem>
-          )}
-        </EuiFlexGroup>
-      </>
-    </>
+          </EuiFlexGroup>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiPanel>
   );
 }
