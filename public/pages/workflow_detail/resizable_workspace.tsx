@@ -69,6 +69,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     setIsWorkflowInputsPanelOpen(!isWorkflowInputsPanelOpen);
   };
 
+  // ingest state
+  const [ingestResponse, setIngestResponse] = useState<string>('');
+
   // Tools side panel state
   const [isToolsPanelOpen, setIsToolsPanelOpen] = useState<boolean>(true);
   const collapseFnVertical = useRef(
@@ -160,6 +163,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                       workflow={props.workflow}
                       formikProps={formikProps}
                       onFormChange={onFormChange}
+                      setIngestResponse={setIngestResponse}
                     />
                   </EuiResizablePanel>
                   <EuiResizableButton />
@@ -231,21 +235,12 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                               onToggleCollapsedInternal={() =>
                                 onToggleToolsChange()
                               }
-                              style={{ marginBottom: '-24px' }}
+                              style={{ marginBottom: '-16px' }}
                             >
-                              <EuiFlexGroup
-                                direction="column"
-                                gutterSize="s"
-                                style={{
-                                  height: '100%',
-                                }}
-                              >
-                                <EuiFlexItem>
-                                  <EuiPanel paddingSize="m">
-                                    <Tools workflow={workflow} />
-                                  </EuiPanel>
-                                </EuiFlexItem>
-                              </EuiFlexGroup>
+                              <Tools
+                                workflow={workflow}
+                                ingestResponse={ingestResponse}
+                              />
                             </EuiResizablePanel>
                           </>
                         );
