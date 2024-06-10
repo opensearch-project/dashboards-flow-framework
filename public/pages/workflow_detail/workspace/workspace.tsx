@@ -15,7 +15,7 @@ import ReactFlow, {
 } from 'reactflow';
 import { EuiFlexItem, EuiFlexGroup } from '@elastic/eui';
 import { setDirty, useAppDispatch } from '../../../store';
-import { IComponentData, Workflow, WorkflowConfig } from '../../../../common';
+import { IComponentData, WorkflowConfig } from '../../../../common';
 import {
   IngestGroupComponent,
   SearchGroupComponent,
@@ -31,9 +31,7 @@ import './workspace-styles.scss';
 import './workspace_edge/deletable-edge-styles.scss';
 
 interface WorkspaceProps {
-  workflow?: Workflow;
-  readonly: boolean;
-  id: string;
+  uiConfig?: WorkflowConfig;
 }
 
 const nodeTypes = {
@@ -77,15 +75,12 @@ export function Workspace(props: WorkspaceProps) {
 
   // Initialization. Generate the nodes and edges based on the workflow config.
   useEffect(() => {
-    const workflow = { ...props.workflow };
-    if (workflow?.ui_metadata?.config) {
-      const proposedWorkspaceFlow = uiConfigToWorkspaceFlow(
-        workflow.ui_metadata?.config as WorkflowConfig
-      );
+    if (props.uiConfig) {
+      const proposedWorkspaceFlow = uiConfigToWorkspaceFlow(props.uiConfig);
       setNodes(proposedWorkspaceFlow.nodes);
       setEdges(proposedWorkspaceFlow.edges);
     }
-  }, [props.workflow]);
+  }, [props.uiConfig]);
 
   return (
     <EuiFlexGroup
@@ -101,7 +96,7 @@ export function Workspace(props: WorkspaceProps) {
         <div className="reactflow-parent-wrapper">
           <div className="reactflow-wrapper" ref={reactFlowWrapper}>
             <ReactFlow
-              id={props.id}
+              id="workspace"
               nodes={nodes}
               edges={edges}
               nodeTypes={nodeTypes}
@@ -113,14 +108,14 @@ export function Workspace(props: WorkspaceProps) {
               className="reactflow-workspace"
               fitView
               minZoom={0.2}
-              edgesUpdatable={!props.readonly}
-              edgesFocusable={!props.readonly}
-              nodesDraggable={!props.readonly}
-              nodesConnectable={!props.readonly}
-              nodesFocusable={!props.readonly}
-              draggable={!props.readonly}
-              panOnDrag={!props.readonly}
-              elementsSelectable={!props.readonly}
+              edgesUpdatable={false}
+              edgesFocusable={false}
+              nodesDraggable={false}
+              nodesConnectable={false}
+              nodesFocusable={false}
+              draggable={true}
+              panOnDrag={true}
+              elementsSelectable={false}
             >
               <Controls
                 showFitView={false}
