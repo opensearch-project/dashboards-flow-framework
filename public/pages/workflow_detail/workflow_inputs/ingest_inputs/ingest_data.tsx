@@ -4,17 +4,12 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiRadioGroup,
-  EuiTitle,
-} from '@elastic/eui';
-import { IConfigField, Workflow } from '../../../../../common';
+import { EuiFlexGroup, EuiFlexItem, EuiTitle } from '@elastic/eui';
+import { IConfigField, WorkflowConfig } from '../../../../../common';
 import { SelectField, TextField } from '../input_fields';
 
 interface IngestDataProps {
-  workflow: Workflow;
+  uiConfig: WorkflowConfig;
   onFormChange: () => void;
 }
 
@@ -31,10 +26,7 @@ export function IngestData(props: IngestDataProps) {
       </EuiFlexItem>
       <EuiFlexItem>
         <TextField
-          field={
-            props.workflow.ui_metadata?.config?.ingest?.index
-              ?.name as IConfigField
-          }
+          field={props.uiConfig.ingest.index?.name as IConfigField}
           fieldPath={'ingest.index.name'}
           onFormChange={props.onFormChange}
         />
