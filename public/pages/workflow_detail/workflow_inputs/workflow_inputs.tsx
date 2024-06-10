@@ -249,6 +249,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       <EuiFlexItem grow={false}>
                         <EuiButton
                           disabled={false}
+                          fill={true}
                           onClick={() => {
                             validateAndRunQuery();
                           }}

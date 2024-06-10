@@ -4,10 +4,19 @@
  */
 
 import React from 'react';
-import { EuiButton, EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
+import {
+  EuiButton,
+  EuiButtonIcon,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiHorizontalRule,
+  EuiPanel,
+  EuiText,
+} from '@elastic/eui';
 import { cloneDeep } from 'lodash';
 import { IConfig, PROCESSOR_TYPE, WorkflowConfig } from '../../../../../common';
 import { ConfigFieldList } from '../config_field_list';
+import { generateId } from '../../../../utils';
 
 interface ProcessorsListProps {
   onFormChange: () => void;
@@ -25,39 +34,61 @@ export function ProcessorsList(props: ProcessorsListProps) {
         (processor: IConfig, processorIndex) => {
           return (
             <EuiFlexItem key={processorIndex}>
-              <EuiText>
-                {processor.metadata?.label || 'Ingest processor'}
-              </EuiText>
-              <ConfigFieldList
-                config={processor}
-                baseConfigPath="ingest.enrich"
-                onFormChange={props.onFormChange}
-              />
+              <EuiPanel>
+                <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                  <EuiFlexItem grow={false}>
+                    <EuiText>
+                      {processor.metadata?.label || 'Ingest processor'}
+                    </EuiText>
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <EuiButtonIcon
+                      iconType={'trash'}
+                      color="danger"
+                      aria-label="Delete"
+                      onClick={() => {
+                        let newConfig = cloneDeep(
+                          props.uiConfig as WorkflowConfig
+                        );
+                        newConfig.ingest.enrich.processors = newConfig.ingest.enrich.processors.filter(
+                          (processorConfig) =>
+                            processorConfig.id !== processor.id
+                        );
+                        props.setUiConfig(newConfig);
+                      }}
+                    />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+                <EuiHorizontalRule size="full" margin="s" />
+                <ConfigFieldList
+                  config={processor}
+                  baseConfigPath="ingest.enrich"
+                  onFormChange={props.onFormChange}
+                />
+              </EuiPanel>
             </EuiFlexItem>
           );
         }
       )}
-      <EuiFlexItem>
-        <EuiButton
-          onClick={() => {
-            // 1. generate a new ui config with the added processor
-            // 2. hook back to base file with the updated ui config
-            // 3. base file updates the form values / form schema based on the updated config
-            // 4. new page is rendered with the updated list of final processors
-            let newConfig = cloneDeep(props.uiConfig as WorkflowConfig);
-            newConfig.ingest.enrich.processors = [
-              ...newConfig.ingest.enrich.processors,
-              {
-                type: PROCESSOR_TYPE.MODEL,
-                id: 'test-id',
-                fields: [],
-              },
-            ];
-            props.setUiConfig(newConfig);
-          }}
-        >
-          Add new processor
-        </EuiButton>
+      <EuiFlexItem grow={false}>
+        <div>
+          <EuiButton
+            onClick={() => {
+              let newConfig = cloneDeep(props.uiConfig as WorkflowConfig);
+              newConfig.ingest.enrich.processors = [
+                ...newConfig.ingest.enrich.processors,
+                {
+                  type: PROCESSOR_TYPE.MODEL,
+                  id: generateId('test-id'),
+                  fields: [],
+                },
+              ];
+              props.setUiConfig(newConfig);
+            }}
+          >
+            Add another processor
+          </EuiButton>
+        </div>
       </EuiFlexItem>
     </EuiFlexGroup>
   );
