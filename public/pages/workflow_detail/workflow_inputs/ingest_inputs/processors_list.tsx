@@ -109,7 +109,9 @@ export function ProcessorsList(props: ProcessorsListProps) {
               addProcessor(generateId('test-processor'));
             }}
           >
-            Add another processor
+            {props.uiConfig?.ingest.enrich.processors.length > 0
+              ? 'Add another processor'
+              : 'Add processor'}
           </EuiButton>
         </div>
       </EuiFlexItem>
