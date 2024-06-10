@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { FormikProps } from 'formik';
+import { useFormikContext } from 'formik';
 import {
   EuiButton,
   EuiButtonEmpty,
@@ -38,8 +38,9 @@ import '../workspace/workspace-styles.scss';
 
 interface WorkflowInputsProps {
   workflow: Workflow | undefined;
-  formikProps: FormikProps<WorkflowFormValues>;
   onFormChange: () => void;
+  uiConfig: WorkflowConfig | undefined;
+  setUiConfig: (uiConfig: WorkflowConfig) => void;
   setIngestResponse: (ingestResponse: string) => void;
 }
 
@@ -54,6 +55,9 @@ export enum CREATE_STEP {
  */
 
 export function WorkflowInputs(props: WorkflowInputsProps) {
+  const { submitForm, validateForm, values } = useFormikContext<
+    WorkflowFormValues
+  >();
   const dispatch = useAppDispatch();
 
   // selected step state
@@ -102,24 +106,21 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   }
 
   // Utility fn to validate the form and update the workflow if valid
-  async function validateAndUpdateWorkflow(
-    formikProps: FormikProps<WorkflowFormValues>
-  ): Promise<boolean> {
+  async function validateAndUpdateWorkflow(): Promise<boolean> {
     let success = false;
     // Submit the form to bubble up any errors.
     // Ideally we handle Promise accept/rejects with submitForm(), but there is
     // open issues for that - see https://github.com/jaredpalmer/formik/issues/2057
     // The workaround is to additionally execute validateForm() which will return any errors found.
-    formikProps.submitForm();
-    await formikProps
-      .validateForm()
+    submitForm();
+    await validateForm()
       .then(async (validationResults: {}) => {
         if (Object.keys(validationResults).length > 0) {
           console.error('Form invalid');
         } else {
           const updatedConfig = formikToUiConfig(
-            formikProps.values,
-            props.workflow?.ui_metadata?.config as WorkflowConfig
+            values,
+            props.uiConfig as WorkflowConfig
           );
           const updatedWorkflow = {
             ...props.workflow,
@@ -139,16 +140,16 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     return success;
   }
 
-  // TODO: running props.validateAndSubmit(props.formikProps) will need to be ran before every ingest and
+  // TODO: running props.validateAndSubmit() will need to be ran before every ingest and
   // search, if the form is dirty / values have changed. This will update the workflow if needed.
   // Note that the temporary data (the ingest docs and the search query) will not need to be persisted
   // in the form (need to confirm if query-side / using search template, will need to persist something)
   async function validateAndRunIngestion(): Promise<boolean> {
     let success = false;
     try {
-      success = await validateAndUpdateWorkflow(props.formikProps);
+      success = await validateAndUpdateWorkflow();
       if (success && ingestDocs.length > 0) {
-        const indexName = props.formikProps.values.ingest.index.name;
+        const indexName = values.ingest.index.name;
         const doc = ingestDocs[0];
         dispatch(ingest({ index: indexName, doc }))
           .unwrap()
@@ -170,12 +171,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   function validateAndRunQuery(): void {
     console.log('running query...');
-    validateAndUpdateWorkflow(props.formikProps);
+    validateAndUpdateWorkflow();
   }
 
   return (
     <EuiPanel paddingSize="m" grow={true} className="workspace-panel">
-      {props.workflow === undefined ? (
+      {props.uiConfig === undefined ? (
         <EuiLoadingSpinner size="xl" />
       ) : (
         <EuiFlexGroup
@@ -199,13 +200,14 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           >
             {selectedStep === CREATE_STEP.INGEST ? (
               <IngestInputs
-                workflow={props.workflow}
                 onFormChange={props.onFormChange}
                 ingestDocs={ingestDocs}
                 setIngestDocs={setIngestDocs}
+                uiConfig={props.uiConfig}
+                setUiConfig={props.setUiConfig}
               />
             ) : (
-              <SearchInputs workflow={props.workflow} />
+              <SearchInputs uiConfig={props.uiConfig} />
             )}
           </EuiFlexItem>
           <EuiFlexItem grow={false} style={{ marginBottom: '-10px' }}>
@@ -247,6 +249,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       <EuiFlexItem grow={false}>
                         <EuiButton
                           disabled={false}
+                          fill={true}
                           onClick={() => {
                             validateAndRunQuery();
                           }}
