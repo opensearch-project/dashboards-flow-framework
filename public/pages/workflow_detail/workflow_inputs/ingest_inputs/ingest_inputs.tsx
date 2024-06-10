@@ -8,13 +8,14 @@ import { EuiFlexGroup, EuiFlexItem, EuiHorizontalRule } from '@elastic/eui';
 import { SourceData } from './source_data';
 import { EnrichData } from './enrich_data';
 import { IngestData } from './ingest_data';
-import { Workflow } from '../../../../../common';
+import { WorkflowConfig } from '../../../../../common';
 
 interface IngestInputsProps {
-  workflow: Workflow;
   onFormChange: () => void;
   ingestDocs: {}[];
   setIngestDocs: (docs: {}[]) => void;
+  uiConfig: WorkflowConfig;
+  setUiConfig: (uiConfig: WorkflowConfig) => void;
 }
 
 /**
@@ -34,8 +35,9 @@ export function IngestInputs(props: IngestInputsProps) {
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EnrichData
-          workflow={props.workflow}
           onFormChange={props.onFormChange}
+          uiConfig={props.uiConfig}
+          setUiConfig={props.setUiConfig}
         />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
@@ -43,7 +45,7 @@ export function IngestInputs(props: IngestInputsProps) {
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <IngestData
-          workflow={props.workflow}
+          uiConfig={props.uiConfig}
           onFormChange={props.onFormChange}
         />
       </EuiFlexItem>

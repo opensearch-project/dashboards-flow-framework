@@ -6,11 +6,12 @@
 import React from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiTitle } from '@elastic/eui';
 import { ProcessorsList } from './processors_list';
-import { Workflow } from '../../../../../common';
+import { WorkflowConfig } from '../../../../../common';
 
 interface EnrichDataProps {
-  workflow: Workflow;
   onFormChange: () => void;
+  uiConfig: WorkflowConfig;
+  setUiConfig: (uiConfig: WorkflowConfig) => void;
 }
 
 /**
@@ -26,8 +27,9 @@ export function EnrichData(props: EnrichDataProps) {
       </EuiFlexItem>
       <EuiFlexItem>
         <ProcessorsList
-          workflow={props.workflow}
           onFormChange={props.onFormChange}
+          uiConfig={props.uiConfig}
+          setUiConfig={props.setUiConfig}
         />
       </EuiFlexItem>
     </EuiFlexGroup>
