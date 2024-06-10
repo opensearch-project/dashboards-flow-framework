@@ -45,7 +45,15 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
   ) as IProcessorConfig;
 
   nodes.push(...mlProcessorConfigToTemplateNodes(mlProcessorConfig));
-  nodes.push(indexConfigToTemplateNode(mlProcessorConfig, config.ingest.index));
+  nodes.push(
+    indexConfigToTemplateNode(
+      config.ingest.index,
+      nodes.find(
+        (node) =>
+          node.type === WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE
+      ) as CreateIngestPipelineNode
+    )
+  );
 
   return {
     nodes,
@@ -84,7 +92,7 @@ function mlProcessorConfigToTemplateNodes(
         'An ingest pipeline with an ML inference processor.';
 
       const createIngestPipelineStep = {
-        id: mlProcessorConfig.id,
+        id: ingestPipelineName,
         type: WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE,
         user_inputs: {
           pipeline_id: ingestPipelineName,
@@ -102,15 +110,12 @@ function mlProcessorConfigToTemplateNodes(
 }
 
 // General fn to convert an index config to a final CreateIndexNode template node.
-// Requires the processor configs
+// Requires any ingest/pipeline node details to set any defaults
 function indexConfigToTemplateNode(
-  mlProcessorConfig: IProcessorConfig,
-  indexConfig: IndexConfig
+  indexConfig: IndexConfig,
+  ingestPipelineNode: CreateIngestPipelineNode
 ): CreateIndexNode {
   const indexName = indexConfig.name.value as string;
-  const { model } = processorConfigToFormik(mlProcessorConfig) as {
-    model: ModelFormValue;
-  };
 
   // TODO: extract model details to determine the mappings
 
@@ -123,13 +128,13 @@ function indexConfigToTemplateNode(
     id: 'create_index',
     type: WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE,
     previous_node_inputs: {
-      [mlProcessorConfig.id]: 'pipeline_id',
+      [ingestPipelineNode.id]: 'pipeline_id',
     },
     user_inputs: {
       index_name: indexName,
       configurations: {
         settings: {
-          default_pipeline: `\${{${mlProcessorConfig.id}.pipeline_id}}`,
+          default_pipeline: `\${{${ingestPipelineNode.id}.pipeline_id}}`,
         },
         mappings: finalIndexMappings,
       },

@@ -14,8 +14,8 @@ export abstract class MLProcessor extends BaseConfig {
     super();
     this.fields = [
       {
-        label: 'Model ID',
-        id: 'modelId',
+        label: 'Model',
+        id: 'model',
         type: 'model',
         helpText: 'The model ID.',
         helpLink:
