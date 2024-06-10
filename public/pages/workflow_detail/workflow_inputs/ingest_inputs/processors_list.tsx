@@ -14,9 +14,15 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { cloneDeep } from 'lodash';
-import { IConfig, PROCESSOR_TYPE, WorkflowConfig } from '../../../../../common';
+import { useFormikContext } from 'formik';
+import {
+  IConfig,
+  PROCESSOR_TYPE,
+  WorkflowConfig,
+  WorkflowFormValues,
+} from '../../../../../common';
 import { ConfigFieldList } from '../config_field_list';
-import { generateId } from '../../../../utils';
+import { formikToUiConfig, generateId } from '../../../../utils';
 
 interface ProcessorsListProps {
   onFormChange: () => void;
@@ -28,6 +34,37 @@ interface ProcessorsListProps {
  * Input component for configuring ingest pipeline processors
  */
 export function ProcessorsList(props: ProcessorsListProps) {
+  const { values } = useFormikContext<WorkflowFormValues>();
+
+  // Adding a processor to the config. Fetch the existing one
+  // (getting any updated/interim values along the way) and add to
+  // the list of processors
+  function addProcessor(processorIdToAdd: string): void {
+    const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
+    let newConfig = formikToUiConfig(values, existingConfig);
+    newConfig.ingest.enrich.processors = [
+      ...newConfig.ingest.enrich.processors,
+      {
+        type: PROCESSOR_TYPE.MODEL,
+        id: processorIdToAdd,
+        fields: [],
+      },
+    ];
+    props.setUiConfig(newConfig);
+  }
+
+  // Deleting a processor from the config. Fetch the existing one
+  // (getting any updated/interim values along the way) delete
+  // the specified processor from the list of processors
+  function deleteProcessor(processorIdToDelete: string): void {
+    const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
+    let newConfig = formikToUiConfig(values, existingConfig);
+    newConfig.ingest.enrich.processors = newConfig.ingest.enrich.processors.filter(
+      (processorConfig) => processorConfig.id !== processorIdToDelete
+    );
+    props.setUiConfig(newConfig);
+  }
+
   return (
     <EuiFlexGroup direction="column">
       {props.uiConfig?.ingest.enrich.processors.map(
@@ -47,14 +84,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
                       color="danger"
                       aria-label="Delete"
                       onClick={() => {
-                        let newConfig = cloneDeep(
-                          props.uiConfig as WorkflowConfig
-                        );
-                        newConfig.ingest.enrich.processors = newConfig.ingest.enrich.processors.filter(
-                          (processorConfig) =>
-                            processorConfig.id !== processor.id
-                        );
-                        props.setUiConfig(newConfig);
+                        deleteProcessor(processor.id);
                       }}
                     />
                   </EuiFlexItem>
@@ -74,16 +104,9 @@ export function ProcessorsList(props: ProcessorsListProps) {
         <div>
           <EuiButton
             onClick={() => {
-              let newConfig = cloneDeep(props.uiConfig as WorkflowConfig);
-              newConfig.ingest.enrich.processors = [
-                ...newConfig.ingest.enrich.processors,
-                {
-                  type: PROCESSOR_TYPE.MODEL,
-                  id: generateId('test-id'),
-                  fields: [],
-                },
-              ];
-              props.setUiConfig(newConfig);
+              // TODO: enhance this to either choose from a list of preset
+              // processors, or at the least a usable generic processor
+              addProcessor(generateId('test-processor'));
             }}
           >
             Add another processor
