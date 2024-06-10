@@ -8,15 +8,15 @@ import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiPanel,
-  EuiResizableContainer,
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiResizableContainer } from '@elastic/eui';
 import { getCore } from '../../services';
 
-import { Workflow, WorkflowFormValues, WorkflowSchema } from '../../../common';
+import {
+  Workflow,
+  WorkflowConfig,
+  WorkflowFormValues,
+  WorkflowSchema,
+} from '../../../common';
 import { APP_PATH, uiConfigToFormik, uiConfigToSchema } from '../../utils';
 import { AppState, setDirty, useAppDispatch } from '../../store';
 import { WorkflowInputs } from './workflow_inputs';
@@ -54,6 +54,12 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Formik form state
   const [formValues, setFormValues] = useState<WorkflowFormValues>({});
   const [formSchema, setFormSchema] = useState<WorkflowSchema>(yup.object({}));
+
+  // Temp UI config state. For persisting changes to the UI config that may
+  // not be saved in the backend (e.g., adding / removing an ingest processor)
+  const [uiConfig, setUiConfig] = useState<WorkflowConfig | undefined>(
+    undefined
+  );
 
   // Workflow inputs side panel state
   const [isWorkflowInputsPanelOpen, setIsWorkflowInputsPanelOpen] = useState<
@@ -101,15 +107,22 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }, [props.workflow]);
 
-  // Initialize the form state to an existing workflow, if applicable.
+  // Initialize the form state based on the workflow's config, if applicable.
   useEffect(() => {
     if (workflow?.ui_metadata?.config) {
-      const initFormValues = uiConfigToFormik(workflow.ui_metadata.config);
-      const initFormSchema = uiConfigToSchema(workflow.ui_metadata.config);
+      setUiConfig(workflow.ui_metadata.config);
+    }
+  }, [workflow]);
+
+  // Initialize the form state based on the current UI config
+  useEffect(() => {
+    if (uiConfig) {
+      const initFormValues = uiConfigToFormik(uiConfig);
+      const initFormSchema = uiConfigToSchema(uiConfig);
       setFormValues(initFormValues);
       setFormSchema(initFormSchema);
     }
-  }, [workflow]);
+  }, [uiConfig]);
 
   /**
    * Function to pass down to the Formik <Form> components as a listener to propagate
@@ -161,8 +174,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   >
                     <WorkflowInputs
                       workflow={props.workflow}
-                      formikProps={formikProps}
                       onFormChange={onFormChange}
+                      uiConfig={uiConfig}
+                      setUiConfig={setUiConfig}
                       setIngestResponse={setIngestResponse}
                     />
                   </EuiResizablePanel>
