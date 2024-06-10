@@ -17,6 +17,8 @@ import { cloneDeep } from 'lodash';
 import { useFormikContext } from 'formik';
 import {
   IConfig,
+  IModelProcessorConfig,
+  MODEL_TYPE,
   PROCESSOR_TYPE,
   WorkflowConfig,
   WorkflowFormValues,
@@ -39,6 +41,8 @@ export function ProcessorsList(props: ProcessorsListProps) {
   // Adding a processor to the config. Fetch the existing one
   // (getting any updated/interim values along the way) and add to
   // the list of processors
+  // TODO: enhance this to either choose from a list of preset
+  // processors, or at the least a usable generic processor
   function addProcessor(processorIdToAdd: string): void {
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
     let newConfig = formikToUiConfig(values, existingConfig);
@@ -46,9 +50,10 @@ export function ProcessorsList(props: ProcessorsListProps) {
       ...newConfig.ingest.enrich.processors,
       {
         type: PROCESSOR_TYPE.MODEL,
+        modelType: MODEL_TYPE.TEXT_EMBEDDING,
         id: processorIdToAdd,
         fields: [],
-      },
+      } as IModelProcessorConfig,
     ];
     props.setUiConfig(newConfig);
   }
@@ -104,8 +109,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
         <div>
           <EuiButton
             onClick={() => {
-              // TODO: enhance this to either choose from a list of preset
-              // processors, or at the least a usable generic processor
               addProcessor(generateId('test-processor'));
             }}
           >

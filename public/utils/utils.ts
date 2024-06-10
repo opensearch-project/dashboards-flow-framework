@@ -331,6 +331,11 @@ export function getStateOptions(): EuiFilterSelectItem[] {
  **************** ReactFlow workspace utils **********************
  */
 
+const PARENT_NODE_HEIGHT = 350;
+const NODE_HEIGHT_Y = 70;
+const NODE_WIDTH = 300; // based off of the value set in reactflow-styles.scss
+const NODE_SPACING = 100; // the margin (in # pixels) between the components
+
 export function uiConfigToWorkspaceFlow(
   config: WorkflowConfig
 ): WorkspaceFlowState {
@@ -351,6 +356,15 @@ export function uiConfigToWorkspaceFlow(
   };
 }
 
+// Helper fn for determining the ingest parent width, based on the number of processors and the specified
+// spacing/margin between nodes
+function generateIngestParentWidth(ingestConfig: IngestConfig): number {
+  return (
+    (ingestConfig.enrich.processors.length + 2) * (NODE_WIDTH + NODE_SPACING) +
+    NODE_SPACING
+  );
+}
+
 function ingestConfigToWorkspaceFlow(
   ingestConfig: IngestConfig
 ): WorkspaceFlowState {
@@ -364,8 +378,8 @@ function ingestConfigToWorkspaceFlow(
     type: NODE_CATEGORY.INGEST_GROUP,
     data: { label: COMPONENT_CATEGORY.INGEST },
     style: {
-      width: 1300,
-      height: 400,
+      width: generateIngestParentWidth(ingestConfig),
+      height: PARENT_NODE_HEIGHT,
     },
     className: 'reactflow__group-node__ingest',
   } as ReactFlowComponent;
@@ -385,7 +399,10 @@ function ingestConfigToWorkspaceFlow(
   const indexNodeId = generateId(COMPONENT_CLASS.KNN_INDEXER);
   const indexNode = {
     id: indexNodeId,
-    position: { x: 900, y: 70 },
+    position: {
+      x: parentNode.style.width - (NODE_WIDTH + NODE_SPACING),
+      y: NODE_HEIGHT_Y,
+    },
     data: initComponentData(new KnnIndexer().toObj(), indexNodeId),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
@@ -411,6 +428,7 @@ function ingestConfigToWorkspaceFlow(
   };
 }
 
+// TODO: support non-model-type processor configs
 function enrichConfigToWorkspaceFlow(
   enrichConfig: EnrichConfig,
   parentNodeId: string
@@ -418,38 +436,49 @@ function enrichConfigToWorkspaceFlow(
   const nodes = [] as ReactFlowComponent[];
   const edges = [] as ReactFlowEdge[];
 
-  // TODO: few assumptions are made here, such as there will always be
-  // a single model-related processor. In the future make this more flexible and generic.
-  const modelProcessorConfig = enrichConfig.processors.find(
+  let xPosition = NODE_WIDTH + NODE_SPACING * 2; // node padding + (width of doc node) + node padding
+  let prevNodeId = undefined as string | undefined;
+
+  const modelProcessorConfigs = enrichConfig.processors.filter(
     (processorConfig) => processorConfig.type === PROCESSOR_TYPE.MODEL
-  ) as IModelProcessorConfig;
+  ) as IModelProcessorConfig[];
 
-  let transformer = {} as MLTransformer;
-  let transformerNodeId = '';
-  switch (modelProcessorConfig.modelType) {
-    case MODEL_TYPE.TEXT_EMBEDDING: {
-      transformer = new TextEmbeddingTransformer();
-      transformerNodeId = generateId(
-        COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
-      );
-      break;
+  modelProcessorConfigs.forEach((modelProcessorConfig) => {
+    let transformer = {} as MLTransformer;
+    let transformerNodeId = '';
+    switch (modelProcessorConfig.modelType) {
+      case MODEL_TYPE.TEXT_EMBEDDING: {
+        transformer = new TextEmbeddingTransformer();
+        transformerNodeId = generateId(
+          COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
+        );
+        break;
+      }
+      case MODEL_TYPE.SPARSE_ENCODER: {
+        transformer = new SparseEncoderTransformer();
+        transformerNodeId = generateId(
+          COMPONENT_CLASS.SPARSE_ENCODER_TRANSFORMER
+        );
+        break;
+      }
     }
-    case MODEL_TYPE.SPARSE_ENCODER: {
-      transformer = new SparseEncoderTransformer();
-      transformerNodeId = generateId(
-        COMPONENT_CLASS.SPARSE_ENCODER_TRANSFORMER
-      );
-      break;
-    }
-  }
 
-  nodes.push({
-    id: transformerNodeId,
-    position: { x: 500, y: 70 },
-    data: initComponentData(transformer, transformerNodeId),
-    type: NODE_CATEGORY.CUSTOM,
-    parentNode: parentNodeId,
-    extent: 'parent',
+    nodes.push({
+      id: transformerNodeId,
+      position: { x: xPosition, y: NODE_HEIGHT_Y },
+      data: initComponentData(transformer, transformerNodeId),
+      type: NODE_CATEGORY.CUSTOM,
+      parentNode: parentNodeId,
+      extent: 'parent',
+    });
+    xPosition += NODE_SPACING + NODE_WIDTH;
+
+    if (prevNodeId) {
+      edges.push(
+        generateReactFlowEdge(generateId('edge'), prevNodeId, transformerNodeId)
+      );
+    }
+    prevNodeId = transformerNodeId;
   });
   return {
     nodes,
@@ -505,7 +534,7 @@ function searchConfigToWorkspaceFlow(
     data: { label: COMPONENT_CATEGORY.SEARCH },
     style: {
       width: 1300,
-      height: 400,
+      height: PARENT_NODE_HEIGHT,
     },
     className: 'reactflow__group-node__search',
   } as ReactFlowComponent;
