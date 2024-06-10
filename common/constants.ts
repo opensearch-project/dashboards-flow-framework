@@ -124,7 +124,7 @@ export const NEURAL_SPARSE_TOKENIZER_TRANSFORMER = {
  */
 
 export enum PROCESSOR_TYPE {
-  MODEL = 'model_processor',
+  ML = 'ml_processor',
 }
 
 export enum MODEL_TYPE {

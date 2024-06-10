@@ -6,7 +6,7 @@
 import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
-import { COMPONENT_CLASS, PROCESSOR_TYPE, MODEL_TYPE } from './constants';
+import { COMPONENT_CLASS, PROCESSOR_TYPE } from './constants';
 
 export type Index = {
   name: string;
@@ -44,10 +44,6 @@ export interface IConfig {
 
 export interface IProcessorConfig extends IConfig {
   type: PROCESSOR_TYPE;
-}
-
-export interface IModelProcessorConfig extends IProcessorConfig {
-  modelType: MODEL_TYPE;
 }
 
 export type EnrichConfig = {
@@ -180,6 +176,14 @@ export type SearchProcessor = {};
 export type SearchRequestProcessor = SearchProcessor & {};
 export type SearchResponseProcessor = SearchProcessor & {};
 export type SearchPhaseResultsProcessor = SearchProcessor & {};
+
+export type MLInferenceProcessor = IngestProcessor & {
+  ml_inference: {
+    model_id: string;
+    input_map: {};
+    output_map: {};
+  };
+};
 
 export type TextEmbeddingProcessor = IngestProcessor & {
   text_embedding: {

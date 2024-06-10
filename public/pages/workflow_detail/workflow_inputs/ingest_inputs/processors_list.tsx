@@ -17,8 +17,6 @@ import { cloneDeep } from 'lodash';
 import { useFormikContext } from 'formik';
 import {
   IConfig,
-  IModelProcessorConfig,
-  MODEL_TYPE,
   PROCESSOR_TYPE,
   WorkflowConfig,
   WorkflowFormValues,
@@ -49,8 +47,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
     newConfig.ingest.enrich.processors = [
       ...newConfig.ingest.enrich.processors,
       {
-        type: PROCESSOR_TYPE.MODEL,
-        modelType: MODEL_TYPE.TEXT_EMBEDDING,
+        type: PROCESSOR_TYPE.ML,
         id: processorIdToAdd,
         fields: [],
       } as IModelProcessorConfig,
