@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { EuiFlexItem, EuiSpacer } from '@elastic/eui';
-import { TextField, JsonField, SelectField, ModelField } from './input_fields';
+import { TextField, ModelField, MapField } from './input_fields';
 import { IConfig } from '../../../../common';
 
 /**
@@ -59,6 +59,19 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
             el = (
               <EuiFlexItem key={idx}>
                 <ModelField
+                  field={field}
+                  fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
+                  onFormChange={props.onFormChange}
+                />
+                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
+          case 'map': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <MapField
                   field={field}
                   fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
                   onFormChange={props.onFormChange}

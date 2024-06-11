@@ -8,6 +8,7 @@ import { EuiFilterSelectItem } from '@elastic/eui';
 import { Schema, ObjectSchema } from 'yup';
 import * as yup from 'yup';
 import { cloneDeep } from 'lodash';
+import { MarkerType } from 'reactflow';
 import {
   IComponent,
   IComponentData,
@@ -34,9 +35,7 @@ import {
   COMPONENT_CATEGORY,
   NODE_CATEGORY,
   IConfig,
-  IModelProcessorConfig,
   PROCESSOR_TYPE,
-  MODEL_TYPE,
 } from '../../common';
 import {
   Document,
@@ -44,10 +43,7 @@ import {
   MLTransformer,
   NeuralQuery,
   Results,
-  SparseEncoderTransformer,
-  TextEmbeddingTransformer,
 } from '../component_types';
-import { MarkerType } from 'reactflow';
 
 // Append 16 random characters
 export function generateId(prefix: string): string {
@@ -263,6 +259,9 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
         algorithm: undefined,
       } as ModelFormValue;
     }
+    case 'map': {
+      return [];
+    }
     case 'json': {
       return {};
     }
@@ -286,6 +285,19 @@ function getFieldSchema(field: IConfigField): Schema {
         id: yup.string().min(1, 'Too short').max(70, 'Too long').required(),
         category: yup.string().required(),
       });
+      break;
+    }
+    case 'map': {
+      baseSchema = yup.array().of(
+        yup.object().shape({
+          key: yup.string().min(1, 'Too short').max(70, 'Too long').required(),
+          value: yup
+            .string()
+            .min(1, 'Too short')
+            .max(70, 'Too long')
+            .required(),
+        })
+      );
       break;
     }
     case 'json': {
@@ -439,26 +451,18 @@ function enrichConfigToWorkspaceFlow(
   let xPosition = NODE_WIDTH + NODE_SPACING * 2; // node padding + (width of doc node) + node padding
   let prevNodeId = undefined as string | undefined;
 
-  const modelProcessorConfigs = enrichConfig.processors.filter(
-    (processorConfig) => processorConfig.type === PROCESSOR_TYPE.MODEL
-  ) as IModelProcessorConfig[];
+  const mlProcessorConfigs = enrichConfig.processors.filter(
+    (processorConfig) => processorConfig.type === PROCESSOR_TYPE.ML
+  ) as IProcessorConfig[];
 
-  modelProcessorConfigs.forEach((modelProcessorConfig) => {
+  mlProcessorConfigs.forEach((mlProcessorConfig) => {
     let transformer = {} as MLTransformer;
     let transformerNodeId = '';
-    switch (modelProcessorConfig.modelType) {
-      case MODEL_TYPE.TEXT_EMBEDDING: {
-        transformer = new TextEmbeddingTransformer();
-        transformerNodeId = generateId(
-          COMPONENT_CLASS.TEXT_EMBEDDING_TRANSFORMER
-        );
-        break;
-      }
-      case MODEL_TYPE.SPARSE_ENCODER: {
-        transformer = new SparseEncoderTransformer();
-        transformerNodeId = generateId(
-          COMPONENT_CLASS.SPARSE_ENCODER_TRANSFORMER
-        );
+    switch (mlProcessorConfig.type) {
+      case PROCESSOR_TYPE.ML:
+      default: {
+        transformer = new MLTransformer();
+        transformerNodeId = generateId(COMPONENT_CLASS.ML_TRANSFORMER);
         break;
       }
     }
