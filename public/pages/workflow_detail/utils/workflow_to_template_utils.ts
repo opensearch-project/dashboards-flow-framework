@@ -73,6 +73,7 @@ function mlProcessorConfigToTemplateNodes(
   switch (mlProcessorConfig.type) {
     case PROCESSOR_TYPE.ML:
     default: {
+      // TODO: extract mappings here too
       const { model } = processorConfigToFormik(mlProcessorConfig) as {
         model: ModelFormValue;
       };

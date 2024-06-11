@@ -54,6 +54,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
       } as IProcessorConfig,
     ];
     props.setUiConfig(newConfig);
+    props.onFormChange();
   }
 
   // Deleting a processor from the config. Fetch the existing one
@@ -66,6 +67,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
       (processorConfig) => processorConfig.id !== processorIdToDelete
     );
     props.setUiConfig(newConfig);
+    props.onFormChange();
   }
 
   return (

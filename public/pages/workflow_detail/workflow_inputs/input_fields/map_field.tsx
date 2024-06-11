@@ -10,42 +10,43 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormControlLayoutDelimited,
-  EuiPanel,
   EuiText,
 } from '@elastic/eui';
 import { Field, FieldProps, useFormikContext } from 'formik';
 import {
   IConfigField,
   MapEntry,
+  MapFormValue,
   WorkflowFormValues,
 } from '../../../../../common';
-import { ConfigFieldList } from '../config_field_list';
-import { formikToUiConfig, generateId } from '../../../../utils';
 
 interface MapFieldProps {
   field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onFormChange: () => void;
-  //uiConfig: WorkflowConfig;
-  //setUiConfig: (uiConfig: WorkflowConfig) => void;
 }
 
 /**
  * Input component for configuring field mappings
  */
 export function MapField(props: MapFieldProps) {
-  const { values } = useFormikContext<WorkflowFormValues>();
+  const { setFieldValue } = useFormikContext<WorkflowFormValues>();
 
-  const mappingField = [] as string[];
-
-  // Adding a field mapping
-  function addMapping(mappingIdToAdd: string): void {
-    // TODO
+  // Adding a map entry to the end of the existing arr
+  function addMapEntry(curEntries: MapFormValue): void {
+    const updatedEntries = [...curEntries, { key: '', value: '' } as MapEntry];
+    setFieldValue(props.fieldPath, updatedEntries);
+    props.onFormChange();
   }
 
-  // Deleting a field mapping
-  function deleteMapping(mappingIdToDelete: string): void {
-    // TODO
+  // Deleting a map entry
+  function deleteMapEntry(
+    curEntries: MapFormValue,
+    entryIndexToDelete: number
+  ): void {
+    curEntries.splice(entryIndexToDelete, 1);
+    setFieldValue(props.fieldPath, curEntries);
+    props.onFormChange();
   }
 
   return (
@@ -59,38 +60,53 @@ export function MapField(props: MapFieldProps) {
             {field.value?.map((mapping: MapEntry, idx: number) => {
               return (
                 <EuiFlexItem key={idx}>
-                  <EuiPanel>
-                    <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                      <EuiFlexItem grow={false}>
-                        <EuiFormControlLayoutDelimited
-                          startControl={
-                            <input
-                              type="string"
-                              placeholder="Key"
-                              className="euiFieldText"
-                            />
-                          }
-                          endControl={
-                            <input
-                              type="string"
-                              placeholder="Value"
-                              className="euiFieldText"
-                            />
-                          }
-                        />
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiButtonIcon
-                          iconType={'trash'}
-                          color="danger"
-                          aria-label="Delete"
-                          onClick={() => {
-                            deleteMapping('test');
-                          }}
-                        />
-                      </EuiFlexItem>
-                    </EuiFlexGroup>
-                  </EuiPanel>
+                  <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                    <EuiFlexItem grow={false}>
+                      <EuiFormControlLayoutDelimited
+                        startControl={
+                          <input
+                            type="string"
+                            placeholder="Key"
+                            className="euiFieldText"
+                            value={mapping.key}
+                            onChange={(e) => {
+                              form.setFieldValue(
+                                `${props.fieldPath}.${idx}.key`,
+                                e.target.value
+                              );
+                              props.onFormChange();
+                            }}
+                          />
+                        }
+                        endControl={
+                          <input
+                            type="string"
+                            placeholder="Value"
+                            className="euiFieldText"
+                            value={mapping.value}
+                            onChange={(e) => {
+                              form.setFieldValue(
+                                `${props.fieldPath}.${idx}.value`,
+                                e.target.value
+                              );
+                              props.onFormChange();
+                            }}
+                          />
+                        }
+                      />
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiButtonIcon
+                        style={{ marginTop: '8px' }}
+                        iconType={'trash'}
+                        color="danger"
+                        aria-label="Delete"
+                        onClick={() => {
+                          deleteMapEntry(field.value, idx);
+                        }}
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
                 </EuiFlexItem>
               );
             })}
@@ -98,7 +114,7 @@ export function MapField(props: MapFieldProps) {
               <div>
                 <EuiButton
                   onClick={() => {
-                    addMapping('test');
+                    addMapEntry(field.value);
                   }}
                 >
                   {field.value?.length > 0
