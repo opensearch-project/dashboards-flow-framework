@@ -259,6 +259,9 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
         algorithm: undefined,
       } as ModelFormValue;
     }
+    case 'map': {
+      return [];
+    }
     case 'json': {
       return {};
     }
@@ -282,6 +285,19 @@ function getFieldSchema(field: IConfigField): Schema {
         id: yup.string().min(1, 'Too short').max(70, 'Too long').required(),
         category: yup.string().required(),
       });
+      break;
+    }
+    case 'map': {
+      baseSchema = yup.array().of(
+        yup.object().shape({
+          key: yup.string().min(1, 'Too short').max(70, 'Too long').required(),
+          value: yup
+            .string()
+            .min(1, 'Too short')
+            .max(70, 'Too long')
+            .required(),
+        })
+      );
       break;
     }
     case 'json': {

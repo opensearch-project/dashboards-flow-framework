@@ -66,10 +66,11 @@ export function ModelField(props: ModelFieldProps) {
       id: MODEL_CATEGORY.DEPLOYED,
       label: 'Existing deployed models',
     },
-    {
-      id: MODEL_CATEGORY.PRETRAINED,
-      label: 'Pretrained models',
-    },
+    // TODO: finalize if pretrained models will be supported or not
+    // {
+    //   id: MODEL_CATEGORY.PRETRAINED,
+    //   label: 'Pretrained models',
+    // },
   ] as EuiRadioGroupOption[];
   const [selectedRadioId, setSelectedRadioId] = useState<
     MODEL_CATEGORY | undefined

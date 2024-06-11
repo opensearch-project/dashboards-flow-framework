@@ -18,7 +18,7 @@ export type Index = {
 TODO: over time these can become less generic as the form inputs & UX becomes finalized
  */
 
-export type ConfigFieldType = 'string' | 'json' | 'select' | 'model';
+export type ConfigFieldType = 'string' | 'json' | 'select' | 'model' | 'map';
 export type ConfigSelectType = 'model';
 export type ConfigFieldValue = string | {};
 export interface IConfigField {
@@ -70,6 +70,13 @@ export type WorkflowConfig = {
   ingest: IngestConfig;
   search: SearchConfig;
 };
+
+export type MapEntry = {
+  key: string;
+  value: string;
+};
+
+export type MapFormValue = MapEntry[];
 
 export type WorkflowFormValues = {
   ingest: FormikValues;

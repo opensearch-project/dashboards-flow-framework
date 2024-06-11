@@ -17,6 +17,7 @@ import { cloneDeep } from 'lodash';
 import { useFormikContext } from 'formik';
 import {
   IConfig,
+  IProcessorConfig,
   PROCESSOR_TYPE,
   WorkflowConfig,
   WorkflowFormValues,
@@ -50,7 +51,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
         type: PROCESSOR_TYPE.ML,
         id: processorIdToAdd,
         fields: [],
-      } as IModelProcessorConfig,
+      } as IProcessorConfig,
     ];
     props.setUiConfig(newConfig);
   }

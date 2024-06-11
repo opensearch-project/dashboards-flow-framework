@@ -24,7 +24,7 @@ export abstract class MLProcessor extends BaseConfig {
       {
         label: 'Input Map',
         id: 'inputMap',
-        type: 'string',
+        type: 'map',
         helpText: `An array specifying how to map fields from the ingested document to the model’s input.`,
         helpLink:
           'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters',
@@ -32,7 +32,7 @@ export abstract class MLProcessor extends BaseConfig {
       {
         label: 'Output Map',
         id: 'outputMap',
-        type: 'string',
+        type: 'map',
         helpText: `An array specifying how to map the model’s output to new fields.`,
         helpLink:
           'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters',
