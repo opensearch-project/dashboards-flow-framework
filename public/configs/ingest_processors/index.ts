@@ -4,3 +4,4 @@
  */
 
 export * from './text_embedding_processor';
+export * from './ml_ingest_processor';

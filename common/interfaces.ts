@@ -6,7 +6,7 @@
 import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
-import { COMPONENT_CLASS, PROCESSOR_TYPE, MODEL_TYPE } from './constants';
+import { COMPONENT_CLASS, PROCESSOR_TYPE } from './constants';
 
 export type Index = {
   name: string;
@@ -18,7 +18,7 @@ export type Index = {
 TODO: over time these can become less generic as the form inputs & UX becomes finalized
  */
 
-export type ConfigFieldType = 'string' | 'json' | 'select' | 'model';
+export type ConfigFieldType = 'string' | 'json' | 'select' | 'model' | 'map';
 export type ConfigSelectType = 'model';
 export type ConfigFieldValue = string | {};
 export interface IConfigField {
@@ -46,10 +46,6 @@ export interface IProcessorConfig extends IConfig {
   type: PROCESSOR_TYPE;
 }
 
-export interface IModelProcessorConfig extends IProcessorConfig {
-  modelType: MODEL_TYPE;
-}
-
 export type EnrichConfig = {
   processors: IProcessorConfig[];
 };
@@ -74,6 +70,13 @@ export type WorkflowConfig = {
   ingest: IngestConfig;
   search: SearchConfig;
 };
+
+export type MapEntry = {
+  key: string;
+  value: string;
+};
+
+export type MapFormValue = MapEntry[];
 
 export type WorkflowFormValues = {
   ingest: FormikValues;
@@ -180,6 +183,14 @@ export type SearchProcessor = {};
 export type SearchRequestProcessor = SearchProcessor & {};
 export type SearchResponseProcessor = SearchProcessor & {};
 export type SearchPhaseResultsProcessor = SearchProcessor & {};
+
+export type MLInferenceProcessor = IngestProcessor & {
+  ml_inference: {
+    model_id: string;
+    input_map?: {};
+    output_map?: {};
+  };
+};
 
 export type TextEmbeddingProcessor = IngestProcessor & {
   text_embedding: {

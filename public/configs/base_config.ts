@@ -10,11 +10,13 @@ import { IConfig, IConfigField } from '../../common';
  */
 export abstract class BaseConfig implements IConfig {
   id: string;
+  name: string;
   fields: IConfigField[];
 
   // No-op constructor. If there are general / defaults for field values, add in here.
   constructor() {
     this.id = '';
+    this.name = '';
     this.fields = [];
   }
 
