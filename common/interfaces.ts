@@ -187,8 +187,8 @@ export type SearchPhaseResultsProcessor = SearchProcessor & {};
 export type MLInferenceProcessor = IngestProcessor & {
   ml_inference: {
     model_id: string;
-    input_map: {};
-    output_map: {};
+    input_map?: {};
+    output_map?: {};
   };
 };
 

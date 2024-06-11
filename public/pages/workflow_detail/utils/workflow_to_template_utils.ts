@@ -83,17 +83,21 @@ function mlProcessorConfigToTemplateNodes(
       };
       const ingestPipelineName = generateId('ingest_pipeline');
 
-      const finalProcessor = {
+      let finalProcessor = {
         ml_inference: {
           model_id: model.id,
-          input_map: inputMap.map((mapEntry) => ({
-            [mapEntry.key]: mapEntry.value,
-          })),
-          output_map: outputMap.map((mapEntry) => ({
-            [mapEntry.key]: mapEntry.value,
-          })),
         },
       } as MLInferenceProcessor;
+      if (inputMap?.length > 0) {
+        finalProcessor.ml_inference.input_map = inputMap.map((mapEntry) => ({
+          [mapEntry.key]: mapEntry.value,
+        }));
+      }
+      if (outputMap?.length > 0) {
+        finalProcessor.ml_inference.output_map = outputMap.map((mapEntry) => ({
+          [mapEntry.key]: mapEntry.value,
+        }));
+      }
 
       const finalIngestPipelineDescription =
         'An ingest pipeline with an ML inference processor.';

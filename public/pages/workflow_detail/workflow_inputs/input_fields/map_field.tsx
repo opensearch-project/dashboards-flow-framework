@@ -94,7 +94,10 @@ export function MapField(props: MapFieldProps) {
                           startControl={
                             <input
                               type="string"
-                              placeholder="Key"
+                              // TODO: find a way to config/title the placeholder text.
+                              // For example, K/V values have different meanings if input
+                              // map or output map for ML inference processors.
+                              placeholder="Input"
                               className="euiFieldText"
                               value={mapping.key}
                               onChange={(e) => {
@@ -109,7 +112,7 @@ export function MapField(props: MapFieldProps) {
                           endControl={
                             <input
                               type="string"
-                              placeholder="Value"
+                              placeholder="Output"
                               className="euiFieldText"
                               value={mapping.value}
                               onChange={(e) => {
