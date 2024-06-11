@@ -18,6 +18,7 @@ import {
   IndexConfig,
   IProcessorConfig,
   MLInferenceProcessor,
+  MapFormValue,
 } from '../../../../common';
 import { generateId, processorConfigToFormik } from '../../../utils';
 
@@ -73,22 +74,27 @@ function mlProcessorConfigToTemplateNodes(
   switch (mlProcessorConfig.type) {
     case PROCESSOR_TYPE.ML:
     default: {
-      // TODO: extract mappings here too
-      const { model } = processorConfigToFormik(mlProcessorConfig) as {
+      const { model, inputMap, outputMap } = processorConfigToFormik(
+        mlProcessorConfig
+      ) as {
         model: ModelFormValue;
+        inputMap: MapFormValue;
+        outputMap: MapFormValue;
       };
       const ingestPipelineName = generateId('ingest_pipeline');
 
-      // processor is different per use case
       const finalProcessor = {
         ml_inference: {
           model_id: model.id,
-          input_map: {},
-          output_map: {},
+          input_map: inputMap.map((mapEntry) => ({
+            [mapEntry.key]: mapEntry.value,
+          })),
+          output_map: outputMap.map((mapEntry) => ({
+            [mapEntry.key]: mapEntry.value,
+          })),
         },
       } as MLInferenceProcessor;
 
-      // ingest pipeline is different per use case
       const finalIngestPipelineDescription =
         'An ingest pipeline with an ML inference processor.';
 
