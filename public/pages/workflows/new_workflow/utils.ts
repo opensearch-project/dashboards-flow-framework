@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { TextEmbeddingProcessor } from '../../../configs';
+import { MLIngestProcessor } from '../../../configs';
 import {
   USE_CASE,
   WorkflowTemplate,
@@ -11,13 +11,13 @@ import {
   DEFAULT_NEW_WORKFLOW_NAME,
   UIState,
   PROCESSOR_TYPE,
-  IModelProcessorConfig,
   COMPONENT_CLASS,
   COMPONENT_CATEGORY,
   NODE_CATEGORY,
   ReactFlowComponent,
   ReactFlowEdge,
   WorkspaceFlowState,
+  IProcessorConfig,
 } from '../../../../common';
 import { generateId, initComponentData } from '../../../utils';
 import { MarkerType } from 'reactflow';
@@ -108,19 +108,18 @@ function fetchSemanticSearchMetadata(): UIState {
   // We can reuse the base state. Only need to override a few things,
   // such as preset ingest processors.
   let baseState = fetchEmptyMetadata();
-  const processor = new TextEmbeddingProcessor();
+  const processor = new MLIngestProcessor();
   // @ts-ignore
   baseState.config.ingest.enrich.processors = [
     {
-      type: PROCESSOR_TYPE.MODEL,
-      modelType: processor.type,
+      type: PROCESSOR_TYPE.ML,
       id: processor.id,
       fields: processor.fields,
       metadata: {
         label: processor.name,
       },
     },
-  ] as IModelProcessorConfig;
+  ] as IProcessorConfig;
   return baseState;
 }
 

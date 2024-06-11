@@ -61,9 +61,7 @@ export function getWorkflowsFromResponses(
 ): WorkflowDict {
   const workflowDict = {} as WorkflowDict;
   workflowHits.forEach((workflowHit: any) => {
-    // TODO: update schema parsing after hit schema has been updated.
-    // https://github.com/opensearch-project/flow-framework/issues/546
-    const hitSource = workflowHit.fields.filter[0];
+    const hitSource = workflowHit._source;
     workflowDict[workflowHit._id] = toWorkflowObj(hitSource, workflowHit._id);
     const workflowStateHit = workflowStateHits.find(
       (workflowStateHit) => workflowStateHit._id === workflowHit._id

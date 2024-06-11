@@ -17,8 +17,7 @@ import { cloneDeep } from 'lodash';
 import { useFormikContext } from 'formik';
 import {
   IConfig,
-  IModelProcessorConfig,
-  MODEL_TYPE,
+  IProcessorConfig,
   PROCESSOR_TYPE,
   WorkflowConfig,
   WorkflowFormValues,
@@ -49,13 +48,13 @@ export function ProcessorsList(props: ProcessorsListProps) {
     newConfig.ingest.enrich.processors = [
       ...newConfig.ingest.enrich.processors,
       {
-        type: PROCESSOR_TYPE.MODEL,
-        modelType: MODEL_TYPE.TEXT_EMBEDDING,
+        type: PROCESSOR_TYPE.ML,
         id: processorIdToAdd,
         fields: [],
-      } as IModelProcessorConfig,
+      } as IProcessorConfig,
     ];
     props.setUiConfig(newConfig);
+    props.onFormChange();
   }
 
   // Deleting a processor from the config. Fetch the existing one
@@ -68,6 +67,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
       (processorConfig) => processorConfig.id !== processorIdToDelete
     );
     props.setUiConfig(newConfig);
+    props.onFormChange();
   }
 
   return (
@@ -112,7 +112,9 @@ export function ProcessorsList(props: ProcessorsListProps) {
               addProcessor(generateId('test-processor'));
             }}
           >
-            Add another processor
+            {props.uiConfig?.ingest.enrich.processors.length > 0
+              ? 'Add another processor'
+              : 'Add processor'}
           </EuiButton>
         </div>
       </EuiFlexItem>
