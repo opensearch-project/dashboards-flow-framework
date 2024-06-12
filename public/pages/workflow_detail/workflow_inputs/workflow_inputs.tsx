@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   EuiButton,
   EuiButtonEmpty,
@@ -24,6 +25,7 @@ import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
 import {
   deprovisionWorkflow,
+  getWorkflow,
   ingest,
   provisionWorkflow,
   updateWorkflow,
@@ -90,6 +92,14 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               .unwrap()
               .then((result) => {
                 success = true;
+                // Kicking off an async task to re-fetch the workflow details
+                // after some amount of time. Provisioning will finish in an indeterminate
+                // amount of time and may be long and expensive; we add this single
+                // auto-fetching to cover the majority of provisioning updates which
+                // are inexpensive and will finish within milliseconds.
+                new Promise((f) => setTimeout(f, 1000)).then(async () => {
+                  dispatch(getWorkflow(updatedWorkflow.id as string));
+                });
               })
               .catch((error: any) => {
                 console.error('Error provisioning updated workflow: ', error);
@@ -147,20 +157,24 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   async function validateAndRunIngestion(): Promise<boolean> {
     let success = false;
     try {
-      success = await validateAndUpdateWorkflow();
-      if (success && ingestDocs.length > 0) {
-        const indexName = values.ingest.index.name;
-        const doc = ingestDocs[0];
-        dispatch(ingest({ index: indexName, doc }))
-          .unwrap()
-          .then(async (resp) => {
-            props.setIngestResponse(JSON.stringify(resp, undefined, 2));
-          })
-          .catch((error: any) => {
-            getCore().notifications.toasts.addDanger(error);
-            props.setIngestResponse('');
-            throw error;
-          });
+      if (ingestDocs.length > 0 && !isEmpty(ingestDocs[0])) {
+        success = await validateAndUpdateWorkflow();
+        if (success) {
+          const indexName = values.ingest.index.name;
+          const doc = ingestDocs[0];
+          dispatch(ingest({ index: indexName, doc }))
+            .unwrap()
+            .then(async (resp) => {
+              props.setIngestResponse(JSON.stringify(resp, undefined, 2));
+            })
+            .catch((error: any) => {
+              getCore().notifications.toasts.addDanger(error);
+              props.setIngestResponse('');
+              throw error;
+            });
+        }
+      } else {
+        getCore().notifications.toasts.addDanger('No valid document provided');
       }
     } catch (error) {
       console.error('Error ingesting documents: ', error);
