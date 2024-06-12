@@ -26,7 +26,9 @@ export function SourceData(props: SourceDataProps) {
     try {
       const json = JSON.parse(jsonStr);
       props.setIngestDocs([json]);
-    } catch (e) {}
+    } catch (e) {
+      props.setIngestDocs([]);
+    }
   }, [jsonStr]);
 
   return (
