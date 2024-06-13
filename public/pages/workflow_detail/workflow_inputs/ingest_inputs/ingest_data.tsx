@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiTitle } from '@elastic/eui';
 import { IConfigField, WorkflowConfig } from '../../../../../common';
-import { SelectField, TextField } from '../input_fields';
+import { TextField } from '../input_fields';
 
 interface IngestDataProps {
   uiConfig: WorkflowConfig;

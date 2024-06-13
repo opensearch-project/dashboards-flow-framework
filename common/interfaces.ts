@@ -31,15 +31,10 @@ export interface IConfigField {
   helpLink?: string;
   selectType?: ConfigSelectType;
 }
-
-export interface IConfigMetadata {
-  label?: string;
-}
-
 export interface IConfig {
   id: string;
+  name: string;
   fields: IConfigField[];
-  metadata?: IConfigMetadata;
 }
 
 export interface IProcessorConfig extends IConfig {
