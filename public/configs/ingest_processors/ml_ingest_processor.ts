@@ -12,7 +12,6 @@ import { MLProcessor } from '../ml_processor';
 export class MLIngestProcessor extends MLProcessor {
   constructor() {
     super();
-    this.id = generateId('ml_ingest_processor');
-    this.name = 'ML ingest processor';
+    this.id = generateId('ml_processor_ingest');
   }
 }

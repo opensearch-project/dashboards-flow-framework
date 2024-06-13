@@ -3,14 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   EuiButton,
   EuiButtonIcon,
+  EuiContextMenu,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
   EuiPanel,
+  EuiPopover,
   EuiText,
 } from '@elastic/eui';
 import { cloneDeep } from 'lodash';
@@ -18,12 +20,12 @@ import { useFormikContext } from 'formik';
 import {
   IConfig,
   IProcessorConfig,
-  PROCESSOR_TYPE,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
 import { ConfigFieldList } from '../config_field_list';
-import { formikToUiConfig, generateId } from '../../../../utils';
+import { formikToUiConfig } from '../../../../utils';
+import { MLIngestProcessor } from '../../../../configs';
 
 interface ProcessorsListProps {
   onFormChange: () => void;
@@ -31,27 +33,31 @@ interface ProcessorsListProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
 }
 
+const PANEL_ID = 0;
+
 /**
  * Input component for configuring ingest pipeline processors
  */
 export function ProcessorsList(props: ProcessorsListProps) {
   const { values } = useFormikContext<WorkflowFormValues>();
 
+  // Popover state when adding new processors
+  const [isPopoverOpen, setPopover] = useState(false);
+  const closePopover = () => {
+    setPopover(false);
+  };
+
   // Adding a processor to the config. Fetch the existing one
   // (getting any updated/interim values along the way) and add to
   // the list of processors
   // TODO: enhance this to either choose from a list of preset
   // processors, or at the least a usable generic processor
-  function addProcessor(processorIdToAdd: string): void {
+  function addProcessor(processor: IProcessorConfig): void {
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
     let newConfig = formikToUiConfig(values, existingConfig);
     newConfig.ingest.enrich.processors = [
       ...newConfig.ingest.enrich.processors,
-      {
-        type: PROCESSOR_TYPE.ML,
-        id: processorIdToAdd,
-        fields: [],
-      } as IProcessorConfig,
+      processor,
     ];
     props.setUiConfig(newConfig);
     props.onFormChange();
@@ -79,9 +85,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
               <EuiPanel>
                 <EuiFlexGroup direction="row" justifyContent="spaceBetween">
                   <EuiFlexItem grow={false}>
-                    <EuiText>
-                      {processor.metadata?.label || 'Ingest processor'}
-                    </EuiText>
+                    <EuiText>{processor.name || 'Ingest processor'}</EuiText>
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiButtonIcon
@@ -107,15 +111,45 @@ export function ProcessorsList(props: ProcessorsListProps) {
       )}
       <EuiFlexItem grow={false}>
         <div>
-          <EuiButton
-            onClick={() => {
-              addProcessor(generateId('test-processor'));
-            }}
+          <EuiPopover
+            button={
+              <EuiButton
+                iconType="arrowDown"
+                iconSide="right"
+                onClick={() => {
+                  setPopover(!isPopoverOpen);
+                }}
+              >
+                {props.uiConfig?.ingest.enrich.processors.length > 0
+                  ? 'Add another processor'
+                  : 'Add processor'}
+              </EuiButton>
+            }
+            isOpen={isPopoverOpen}
+            closePopover={closePopover}
+            panelPaddingSize="none"
+            anchorPosition="downLeft"
           >
-            {props.uiConfig?.ingest.enrich.processors.length > 0
-              ? 'Add another processor'
-              : 'Add processor'}
-          </EuiButton>
+            <EuiContextMenu
+              initialPanelId={PANEL_ID}
+              panels={[
+                {
+                  id: PANEL_ID,
+                  title: 'Processors',
+                  // TODO: add more processor types
+                  items: [
+                    {
+                      name: 'ML Inference Processor',
+                      onClick: () => {
+                        closePopover();
+                        addProcessor(new MLIngestProcessor().toObj());
+                      },
+                    },
+                  ],
+                },
+              ]}
+            />
+          </EuiPopover>
         </div>
       </EuiFlexItem>
     </EuiFlexGroup>
