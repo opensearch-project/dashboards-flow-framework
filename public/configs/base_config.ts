@@ -23,6 +23,10 @@ export abstract class BaseConfig implements IConfig {
   // Persist a standard toObj() fn that all component classes can use. This is necessary
   // so we have standard JS Object when serializing comoponent state in redux.
   toObj() {
-    return Object.assign({}, this);
+    return {
+      id: this.id,
+      name: this.name,
+      fields: this.fields,
+    } as IConfig;
   }
 }

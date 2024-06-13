@@ -108,18 +108,7 @@ function fetchSemanticSearchMetadata(): UIState {
   // We can reuse the base state. Only need to override a few things,
   // such as preset ingest processors.
   let baseState = fetchEmptyMetadata();
-  const processor = new MLIngestProcessor();
-  // @ts-ignore
-  baseState.config.ingest.enrich.processors = [
-    {
-      type: PROCESSOR_TYPE.ML,
-      id: processor.id,
-      fields: processor.fields,
-      metadata: {
-        label: processor.name,
-      },
-    },
-  ] as IProcessorConfig;
+  baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
   return baseState;
 }
 
