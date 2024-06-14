@@ -24,7 +24,7 @@ export function EnrichSearchRequest(props: EnrichSearchRequestProps) {
       <ProcessorsTitle
         title="Enhance query request"
         processorCount={
-          props.uiConfig.search?.enrichRequest?.processors?.length || 0
+          props.uiConfig.search.enrichRequest.processors?.length || 0
         }
       />
       <EuiFlexItem>

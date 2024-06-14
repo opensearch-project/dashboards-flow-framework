@@ -26,7 +26,11 @@ import {
 } from '../../../../common';
 import { ConfigFieldList } from './config_field_list';
 import { formikToUiConfig } from '../../../utils';
-import { MLIngestProcessor } from '../../../configs';
+import {
+  MLIngestProcessor,
+  MLSearchRequestProcessor,
+  MLSearchResponseProcessor,
+} from '../../../configs';
 
 interface ProcessorsListProps {
   onFormChange: () => void;
@@ -38,7 +42,7 @@ interface ProcessorsListProps {
 const PANEL_ID = 0;
 
 /**
- * Input component for configuring ingest pipeline processors
+ * General component for configuring pipeline processors (ingest / search request / search response)
  */
 export function ProcessorsList(props: ProcessorsListProps) {
   const { values } = useFormikContext<WorkflowFormValues>();
@@ -102,9 +106,27 @@ export function ProcessorsList(props: ProcessorsListProps) {
   function deleteProcessor(processorIdToDelete: string): void {
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
     let newConfig = formikToUiConfig(values, existingConfig);
-    newConfig.ingest.enrich.processors = newConfig.ingest.enrich.processors.filter(
-      (processorConfig) => processorConfig.id !== processorIdToDelete
-    );
+    switch (props.context) {
+      case PROCESSOR_CONTEXT.INGEST: {
+        newConfig.ingest.enrich.processors = newConfig.ingest.enrich.processors.filter(
+          (processorConfig) => processorConfig.id !== processorIdToDelete
+        );
+        break;
+      }
+      case PROCESSOR_CONTEXT.SEARCH_REQUEST: {
+        newConfig.search.enrichRequest.processors = newConfig.search.enrichRequest.processors.filter(
+          (processorConfig) => processorConfig.id !== processorIdToDelete
+        );
+        break;
+      }
+      case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
+        newConfig.search.enrichResponse.processors = newConfig.search.enrichResponse.processors.filter(
+          (processorConfig) => processorConfig.id !== processorIdToDelete
+        );
+        break;
+      }
+    }
+
     props.setUiConfig(newConfig);
     props.onFormChange();
   }
@@ -117,7 +139,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
             <EuiPanel>
               <EuiFlexGroup direction="row" justifyContent="spaceBetween">
                 <EuiFlexItem grow={false}>
-                  <EuiText>{processor.name || 'Ingest processor'}</EuiText>
+                  <EuiText>{processor.name || 'Processor'}</EuiText>
                 </EuiFlexItem>
                 <EuiFlexItem grow={false}>
                   <EuiButtonIcon
@@ -133,7 +155,13 @@ export function ProcessorsList(props: ProcessorsListProps) {
               <EuiHorizontalRule size="full" margin="s" />
               <ConfigFieldList
                 config={processor}
-                baseConfigPath="ingest.enrich"
+                baseConfigPath={
+                  props.context === PROCESSOR_CONTEXT.INGEST
+                    ? 'ingest.enrich'
+                    : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                    ? 'search.enrichRequest'
+                    : 'search.enrichResponse'
+                }
                 onFormChange={props.onFormChange}
               />
             </EuiPanel>
@@ -173,7 +201,13 @@ export function ProcessorsList(props: ProcessorsListProps) {
                       name: 'ML Inference Processor',
                       onClick: () => {
                         closePopover();
-                        addProcessor(new MLIngestProcessor().toObj());
+                        const processorToAdd =
+                          props.context === PROCESSOR_CONTEXT.INGEST
+                            ? new MLIngestProcessor()
+                            : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                            ? new MLSearchRequestProcessor()
+                            : new MLSearchResponseProcessor();
+                        addProcessor(processorToAdd.toObj());
                       },
                     },
                   ],

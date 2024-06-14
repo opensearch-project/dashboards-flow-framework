@@ -242,7 +242,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 setUiConfig={props.setUiConfig}
               />
             ) : (
-              <SearchInputs uiConfig={props.uiConfig} />
+              <SearchInputs
+                uiConfig={props.uiConfig}
+                setUiConfig={props.setUiConfig}
+                onFormChange={props.onFormChange}
+              />
             )}
           </EuiFlexItem>
           <EuiFlexItem grow={false} style={{ marginBottom: '-10px' }}>

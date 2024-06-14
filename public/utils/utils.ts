@@ -143,7 +143,10 @@ export function formikToUiConfig(
     formValues.ingest,
     updatedConfig.ingest
   );
-  updatedConfig['search'] = {} as SearchConfig;
+  updatedConfig['search'] = formikToSearchUiConfig(
+    formValues.search,
+    updatedConfig.search
+  ) as SearchConfig;
 
   return {
     ...updatedConfig,
@@ -168,6 +171,31 @@ function formikToIngestUiConfig(
   };
 }
 
+function formikToIndexUiConfig(
+  indexFormValues: FormikValues,
+  existingConfig: IndexConfig
+): IndexConfig {
+  existingConfig['name'].value = indexFormValues['name'];
+  return existingConfig;
+}
+
+function formikToSearchUiConfig(
+  searchFormValues: FormikValues,
+  existingConfig: SearchConfig
+): SearchConfig {
+  return {
+    ...existingConfig,
+    enrichRequest: formikToProcessorsUiConfig(
+      searchFormValues['enrichRequest'],
+      existingConfig.enrichRequest
+    ),
+    enrichResponse: formikToProcessorsUiConfig(
+      searchFormValues['enrichResponse'],
+      existingConfig.enrichResponse
+    ),
+  };
+}
+
 function formikToProcessorsUiConfig(
   formValues: FormikValues,
   existingConfig: ProcessorsConfig
@@ -178,14 +206,6 @@ function formikToProcessorsUiConfig(
       processorField.value = processorFormValues[processorField.id];
     });
   });
-  return existingConfig;
-}
-
-function formikToIndexUiConfig(
-  indexFormValues: FormikValues,
-  existingConfig: IndexConfig
-): IndexConfig {
-  existingConfig['name'].value = indexFormValues['name'];
   return existingConfig;
 }
 
