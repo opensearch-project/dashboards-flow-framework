@@ -27,13 +27,13 @@ export function SearchInputs(props: SearchInputsProps) {
         <EuiHorizontalRule margin="none" />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <EnrichSearchRequest />
+        <EnrichSearchRequest uiConfig={props.uiConfig} />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiHorizontalRule margin="none" />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <EnrichSearchResponse />
+        <EnrichSearchResponse uiConfig={props.uiConfig} />
       </EuiFlexItem>
     </EuiFlexGroup>
   );

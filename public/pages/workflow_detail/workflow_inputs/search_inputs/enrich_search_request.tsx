@@ -4,9 +4,13 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiText, EuiTitle } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
+import { ProcessorsTitle } from '../../../../general_components';
+import { WorkflowConfig } from '../../../../../common';
 
-interface EnrichSearchRequestProps {}
+interface EnrichSearchRequestProps {
+  uiConfig: WorkflowConfig;
+}
 
 /**
  * Input component for enriching a search request (configuring search request processors, etc.)
@@ -14,11 +18,12 @@ interface EnrichSearchRequestProps {}
 export function EnrichSearchRequest(props: EnrichSearchRequestProps) {
   return (
     <EuiFlexGroup direction="column">
-      <EuiFlexItem grow={false}>
-        <EuiTitle size="xs">
-          <h4>Enrich search request</h4>
-        </EuiTitle>
-      </EuiFlexItem>
+      <ProcessorsTitle
+        title="Enhance query request"
+        processorCount={
+          props.uiConfig.search.enrichRequest.processors?.length || 0
+        }
+      />
       <EuiFlexItem>
         <EuiText grow={false}>TODO</EuiText>
       </EuiFlexItem>

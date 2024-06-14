@@ -15,8 +15,8 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
-        <EuiTitle size="xs">
-          <h4>Configure search request</h4>
+        <EuiTitle size="s">
+          <h2>Configure query</h2>
         </EuiTitle>
       </EuiFlexItem>
       <EuiFlexItem>

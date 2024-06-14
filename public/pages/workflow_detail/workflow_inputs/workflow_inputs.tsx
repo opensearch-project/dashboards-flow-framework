@@ -216,6 +216,15 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               ]}
             ></EuiStepsHorizontal>
           </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiTitle>
+              <h2>
+                {selectedStep === CREATE_STEP.INGEST
+                  ? 'Define ingest pipeline'
+                  : 'Define search pipeline'}
+              </h2>
+            </EuiTitle>
+          </EuiFlexItem>
           <EuiFlexItem
             grow={true}
             style={{

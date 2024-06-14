@@ -34,8 +34,8 @@ export function SourceData(props: SourceDataProps) {
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
-        <EuiTitle size="xs">
-          <h4>Source data</h4>
+        <EuiTitle size="s">
+          <h2>Source data</h2>
         </EuiTitle>
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
