@@ -14,7 +14,7 @@ import {
   EuiHorizontalRule,
   EuiLoadingSpinner,
   EuiPanel,
-  EuiTitle,
+  EuiStepsHorizontal,
 } from '@elastic/eui';
 import {
   Workflow,
@@ -46,9 +46,9 @@ interface WorkflowInputsProps {
   setIngestResponse: (ingestResponse: string) => void;
 }
 
-export enum CREATE_STEP {
-  INGEST = 'Step 1: Define ingestion pipeline',
-  SEARCH = 'Step 2: Define search pipeline',
+export enum STEP {
+  INGEST = 'Ingestion pipeline',
+  SEARCH = 'Search pipeline',
 }
 
 /**
@@ -63,9 +63,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const dispatch = useAppDispatch();
 
   // selected step state
-  const [selectedStep, setSelectedStep] = useState<CREATE_STEP>(
-    CREATE_STEP.INGEST
-  );
+  const [selectedStep, setSelectedStep] = useState<STEP>(STEP.INGEST);
 
   // ingest state
   const [ingestDocs, setIngestDocs] = useState<{}[]>([]);
@@ -201,9 +199,22 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           }}
         >
           <EuiFlexItem grow={false}>
-            <EuiTitle size="s">
-              <h4>{selectedStep}</h4>
-            </EuiTitle>
+            <EuiStepsHorizontal
+              steps={[
+                {
+                  title: STEP.INGEST,
+                  isComplete: selectedStep === STEP.SEARCH,
+                  isSelected: selectedStep === STEP.INGEST,
+                  onClick: () => {},
+                },
+                {
+                  title: STEP.SEARCH,
+                  isComplete: false,
+                  isSelected: selectedStep === STEP.SEARCH,
+                  onClick: () => {},
+                },
+              ]}
+            ></EuiStepsHorizontal>
           </EuiFlexItem>
           <EuiFlexItem
             grow={true}
@@ -212,7 +223,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               overflowX: 'hidden',
             }}
           >
-            {selectedStep === CREATE_STEP.INGEST ? (
+            {selectedStep === STEP.INGEST ? (
               <IngestInputs
                 onFormChange={props.onFormChange}
                 ingestDocs={ingestDocs}
@@ -231,11 +242,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               </EuiFlexItem>
               <EuiFlexItem>
                 <EuiFlexGroup direction="row" justifyContent="flexEnd">
-                  {selectedStep === CREATE_STEP.INGEST ? (
+                  {selectedStep === STEP.INGEST ? (
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
-                          onClick={() => setSelectedStep(CREATE_STEP.SEARCH)}
+                          onClick={() => setSelectedStep(STEP.SEARCH)}
                         >
                           Skip
                         </EuiButtonEmpty>
@@ -255,7 +266,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
-                          onClick={() => setSelectedStep(CREATE_STEP.INGEST)}
+                          onClick={() => setSelectedStep(STEP.INGEST)}
                         >
                           Back
                         </EuiButtonEmpty>
