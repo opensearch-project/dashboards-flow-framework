@@ -16,7 +16,7 @@ interface ProcessorsTitleProps {
  */
 export function ProcessorsTitle(props: ProcessorsTitleProps) {
   return (
-    <EuiFlexItem grow={false} style={{ flex: 1, flexDirection: 'row' }}>
+    <EuiFlexItem grow={false}>
       <EuiTitle size="s">
         <div>
           <h2
