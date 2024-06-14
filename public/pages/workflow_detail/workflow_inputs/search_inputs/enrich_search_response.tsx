@@ -4,12 +4,15 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { ProcessorsTitle } from '../../../../general_components';
-import { WorkflowConfig } from '../../../../../common';
+import { PROCESSOR_CONTEXT, WorkflowConfig } from '../../../../../common';
+import { ProcessorsList } from '../processors_list';
 
 interface EnrichSearchResponseProps {
   uiConfig: WorkflowConfig;
+  setUiConfig: (uiConfig: WorkflowConfig) => void;
+  onFormChange: () => void;
 }
 
 /**
@@ -21,11 +24,16 @@ export function EnrichSearchResponse(props: EnrichSearchResponseProps) {
       <ProcessorsTitle
         title="Enhance query results"
         processorCount={
-          props.uiConfig.search.enrichRequest.processors?.length || 0
+          props.uiConfig.search?.enrichRequest?.processors?.length || 0
         }
       />
       <EuiFlexItem>
-        <EuiText grow={false}>TODO</EuiText>
+        <ProcessorsList
+          onFormChange={props.onFormChange}
+          uiConfig={props.uiConfig}
+          setUiConfig={props.setUiConfig}
+          context={PROCESSOR_CONTEXT.SEARCH_RESPONSE}
+        />
       </EuiFlexItem>
     </EuiFlexGroup>
   );

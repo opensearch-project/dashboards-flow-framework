@@ -5,8 +5,8 @@
 
 import React from 'react';
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
-import { ProcessorsList } from './processors_list';
-import { WorkflowConfig } from '../../../../../common';
+import { ProcessorsList } from '../processors_list';
+import { PROCESSOR_CONTEXT, WorkflowConfig } from '../../../../../common';
 import { ProcessorsTitle } from '../../../../general_components';
 
 interface EnrichDataProps {
@@ -30,6 +30,7 @@ export function EnrichData(props: EnrichDataProps) {
           onFormChange={props.onFormChange}
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
+          context={PROCESSOR_CONTEXT.INGEST}
         />
       </EuiFlexItem>
     </EuiFlexGroup>

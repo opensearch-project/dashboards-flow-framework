@@ -21,7 +21,7 @@ import {
   WorkflowSchema,
   IngestConfig,
   SearchConfig,
-  EnrichConfig,
+  ProcessorsConfig,
   ConfigFieldType,
   ConfigFieldValue,
   WorkflowSchemaObj,
@@ -34,7 +34,6 @@ import {
   COMPONENT_CLASS,
   COMPONENT_CATEGORY,
   NODE_CATEGORY,
-  IConfig,
   PROCESSOR_TYPE,
 } from '../../common';
 import {
@@ -82,16 +81,19 @@ function ingestConfigToFormik(
 ): FormikValues {
   let ingestFormikValues = {} as FormikValues;
   if (ingestConfig) {
-    ingestFormikValues['enrich'] = enrichConfigToFormik(ingestConfig.enrich);
+    ingestFormikValues['enrich'] = processorsConfigToFormik(
+      ingestConfig.enrich
+    );
     ingestFormikValues['index'] = indexConfigToFormik(ingestConfig.index);
   }
   return ingestFormikValues;
 }
 
-function enrichConfigToFormik(enrichConfig: EnrichConfig): FormikValues {
+function processorsConfigToFormik(
+  processorsConfig: ProcessorsConfig
+): FormikValues {
   let formValues = {} as FormikValues;
-
-  enrichConfig.processors.forEach((processorConfig) => {
+  processorsConfig.processors.forEach((processorConfig) => {
     formValues[processorConfig.id] = processorConfigToFormik(processorConfig);
   });
   return formValues;
@@ -114,11 +116,20 @@ function indexConfigToFormik(indexConfig: IndexConfig): FormikValues {
   return formValues;
 }
 
-// TODO: implement this
 function searchConfigToFormik(
   searchConfig: SearchConfig | undefined
 ): FormikValues {
   let searchFormikValues = {} as FormikValues;
+  if (searchConfig) {
+    // TODO: implement for request
+    searchFormikValues['request'] = {};
+    searchFormikValues['enrichRequest'] = processorsConfigToFormik(
+      searchConfig.enrichRequest
+    );
+    searchFormikValues['enrichResponse'] = processorsConfigToFormik(
+      searchConfig.enrichResponse
+    );
+  }
   return searchFormikValues;
 }
 
@@ -146,7 +157,7 @@ function formikToIngestUiConfig(
 ): IngestConfig {
   return {
     ...existingConfig,
-    enrich: formikToEnrichUiConfig(
+    enrich: formikToProcessorsUiConfig(
       ingestFormValues['enrich'],
       existingConfig.enrich
     ),
@@ -157,12 +168,12 @@ function formikToIngestUiConfig(
   };
 }
 
-function formikToEnrichUiConfig(
-  enrichFormValues: FormikValues,
-  existingConfig: EnrichConfig
-): EnrichConfig {
+function formikToProcessorsUiConfig(
+  formValues: FormikValues,
+  existingConfig: ProcessorsConfig
+): ProcessorsConfig {
   existingConfig.processors.forEach((processorConfig) => {
-    const processorFormValues = enrichFormValues[processorConfig.id];
+    const processorFormValues = formValues[processorConfig.id];
     processorConfig.fields.forEach((processorField) => {
       processorField.value = processorFormValues[processorField.id];
     });
@@ -195,23 +206,23 @@ function ingestConfigToSchema(
   const ingestSchemaObj = {} as { [key: string]: Schema };
   if (ingestConfig) {
     // TODO: implement for the other sub-categories
-    ingestSchemaObj['enrich'] = enrichConfigToSchema(ingestConfig.enrich);
+    ingestSchemaObj['enrich'] = processorsConfigToSchema(ingestConfig.enrich);
     ingestSchemaObj['index'] = indexConfigToSchema(ingestConfig.index);
   }
   return yup.object(ingestSchemaObj);
 }
 
-function enrichConfigToSchema(enrichConfig: EnrichConfig): Schema {
-  const enrichSchemaObj = {} as { [key: string]: Schema };
-  enrichConfig.processors.forEach((processorConfig) => {
+function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
+  const processorsSchemaObj = {} as { [key: string]: Schema };
+  processorsConfig.processors.forEach((processorConfig) => {
     const processorSchemaObj = {} as { [key: string]: Schema };
     processorConfig.fields.forEach((field) => {
       processorSchemaObj[field.id] = getFieldSchema(field);
     });
-    enrichSchemaObj[processorConfig.id] = yup.object(processorSchemaObj);
+    processorsSchemaObj[processorConfig.id] = yup.object(processorSchemaObj);
   });
 
-  return yup.object(enrichSchemaObj);
+  return yup.object(processorsSchemaObj);
 }
 
 function indexConfigToSchema(indexConfig: IndexConfig): Schema {
@@ -442,7 +453,7 @@ function ingestConfigToWorkspaceFlow(
 
 // TODO: support non-model-type processor configs
 function enrichConfigToWorkspaceFlow(
-  enrichConfig: EnrichConfig,
+  enrichConfig: ProcessorsConfig,
   parentNodeId: string
 ): WorkspaceFlowState {
   const nodes = [] as ReactFlowComponent[];
@@ -613,7 +624,7 @@ function searchConfigToWorkspaceFlow(
 
 // TODO: implement this
 function enrichRequestConfigToWorkspaceFlow(
-  enrichConfig: IConfig,
+  enrichRequestConfig: ProcessorsConfig,
   parentNodeId: string
 ): WorkspaceFlowState {
   const nodes = [] as ReactFlowComponent[];
@@ -627,7 +638,7 @@ function enrichRequestConfigToWorkspaceFlow(
 
 // TODO: implement this
 function enrichResponseConfigToWorkspaceFlow(
-  enrichResponseConfig: IConfig,
+  enrichRequestConfig: ProcessorsConfig,
   parentNodeId: string
 ): WorkspaceFlowState {
   const nodes = [] as ReactFlowComponent[];
