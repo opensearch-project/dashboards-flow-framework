@@ -69,6 +69,7 @@ function fetchEmptyMetadata(): UIState {
       ingest: {
         source: {
           id: 'source',
+          name: 'Source',
           fields: [],
         },
         enrich: {
@@ -85,15 +86,14 @@ function fetchEmptyMetadata(): UIState {
       search: {
         request: {
           id: 'request',
+          name: 'Request',
           fields: [],
         },
         enrichRequest: {
-          id: 'enrichRequest',
-          fields: [],
+          processors: [],
         },
         enrichResponse: {
-          id: 'enrichResponse',
-          fields: [],
+          processors: [],
         },
       },
     },

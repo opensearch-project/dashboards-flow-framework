@@ -15,6 +15,7 @@ import {
   EuiLoadingSpinner,
   EuiPanel,
   EuiStepsHorizontal,
+  EuiTitle,
 } from '@elastic/eui';
 import {
   Workflow,
@@ -216,6 +217,15 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               ]}
             ></EuiStepsHorizontal>
           </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiTitle>
+              <h2>
+                {selectedStep === STEP.INGEST
+                  ? 'Define ingest pipeline'
+                  : 'Define search pipeline'}
+              </h2>
+            </EuiTitle>
+          </EuiFlexItem>
           <EuiFlexItem
             grow={true}
             style={{
@@ -232,7 +242,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 setUiConfig={props.setUiConfig}
               />
             ) : (
-              <SearchInputs uiConfig={props.uiConfig} />
+              <SearchInputs
+                uiConfig={props.uiConfig}
+                setUiConfig={props.setUiConfig}
+                onFormChange={props.onFormChange}
+              />
             )}
           </EuiFlexItem>
           <EuiFlexItem grow={false} style={{ marginBottom: '-10px' }}>
