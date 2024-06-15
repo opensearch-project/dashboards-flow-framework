@@ -41,7 +41,7 @@ export interface IProcessorConfig extends IConfig {
   type: PROCESSOR_TYPE;
 }
 
-export type EnrichConfig = {
+export type ProcessorsConfig = {
   processors: IProcessorConfig[];
 };
 
@@ -51,14 +51,14 @@ export type IndexConfig = {
 
 export type IngestConfig = {
   source: IConfig;
-  enrich: EnrichConfig;
+  enrich: ProcessorsConfig;
   index: IndexConfig;
 };
 
 export type SearchConfig = {
   request: IConfig;
-  enrichRequest: IConfig;
-  enrichResponse: IConfig;
+  enrichRequest: ProcessorsConfig;
+  enrichResponse: ProcessorsConfig;
 };
 
 export type WorkflowConfig = {

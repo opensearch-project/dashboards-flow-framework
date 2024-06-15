@@ -20,8 +20,8 @@ export function IngestData(props: IngestDataProps) {
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
-        <EuiTitle size="xs">
-          <h4>Ingest data</h4>
+        <EuiTitle size="s">
+          <h2>Ingest data</h2>
         </EuiTitle>
       </EuiFlexItem>
       <EuiFlexItem>
