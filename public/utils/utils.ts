@@ -408,6 +408,19 @@ function generateIngestParentWidth(ingestConfig: IngestConfig): number {
   );
 }
 
+// Helper fn for determining the search parent width, based on the number of
+// search request processors, search response processors, and the specified
+// spacing/margin between nodes
+function generateSearchParentWidth(searchConfig: SearchConfig): number {
+  return (
+    (searchConfig.enrichRequest.processors.length +
+      searchConfig.enrichResponse.processors.length +
+      3) *
+      (NODE_WIDTH + NODE_SPACING) +
+    NODE_SPACING
+  );
+}
+
 function ingestConfigToWorkspaceFlow(
   ingestConfig: IngestConfig
 ): WorkspaceFlowState {
@@ -454,9 +467,10 @@ function ingestConfigToWorkspaceFlow(
   nodes.push(docNode, indexNode);
 
   // Get nodes/edges from the sub-configurations
-  const enrichWorkspaceFlow = enrichConfigToWorkspaceFlow(
+  const enrichWorkspaceFlow = processorsConfigToWorkspaceFlow(
     ingestConfig.enrich,
-    parentNode.id
+    parentNode.id,
+    NODE_WIDTH + NODE_SPACING * 2 // node padding + (width of doc node) + node padding
   );
 
   nodes.push(...enrichWorkspaceFlow.nodes);
@@ -465,56 +479,6 @@ function ingestConfigToWorkspaceFlow(
   // Link up the set of localized nodes/edges per sub-workflow
   edges.push(...getIngestEdges(docNode, enrichWorkspaceFlow, indexNode));
 
-  return {
-    nodes,
-    edges,
-  };
-}
-
-// TODO: support non-model-type processor configs
-function enrichConfigToWorkspaceFlow(
-  enrichConfig: ProcessorsConfig,
-  parentNodeId: string
-): WorkspaceFlowState {
-  const nodes = [] as ReactFlowComponent[];
-  const edges = [] as ReactFlowEdge[];
-
-  let xPosition = NODE_WIDTH + NODE_SPACING * 2; // node padding + (width of doc node) + node padding
-  let prevNodeId = undefined as string | undefined;
-
-  const mlProcessorConfigs = enrichConfig.processors.filter(
-    (processorConfig) => processorConfig.type === PROCESSOR_TYPE.ML
-  ) as IProcessorConfig[];
-
-  mlProcessorConfigs.forEach((mlProcessorConfig) => {
-    let transformer = {} as MLTransformer;
-    let transformerNodeId = '';
-    switch (mlProcessorConfig.type) {
-      case PROCESSOR_TYPE.ML:
-      default: {
-        transformer = new MLTransformer();
-        transformerNodeId = generateId(COMPONENT_CLASS.ML_TRANSFORMER);
-        break;
-      }
-    }
-
-    nodes.push({
-      id: transformerNodeId,
-      position: { x: xPosition, y: NODE_HEIGHT_Y },
-      data: initComponentData(transformer, transformerNodeId),
-      type: NODE_CATEGORY.CUSTOM,
-      parentNode: parentNodeId,
-      extent: 'parent',
-    });
-    xPosition += NODE_SPACING + NODE_WIDTH;
-
-    if (prevNodeId) {
-      edges.push(
-        generateReactFlowEdge(generateId('edge'), prevNodeId, transformerNodeId)
-      );
-    }
-    prevNodeId = transformerNodeId;
-  });
   return {
     nodes,
     edges,
@@ -568,13 +532,27 @@ function searchConfigToWorkspaceFlow(
     type: NODE_CATEGORY.SEARCH_GROUP,
     data: { label: COMPONENT_CATEGORY.SEARCH },
     style: {
-      width: 1300,
+      width: generateSearchParentWidth(searchConfig),
       height: PARENT_NODE_HEIGHT,
     },
     className: 'reactflow__group-node__search',
   } as ReactFlowComponent;
 
   nodes.push(parentNode);
+
+  // Get nodes/edges from the processor sub-configurations
+  const enrichRequestWorkspaceFlow = processorsConfigToWorkspaceFlow(
+    searchConfig.enrichRequest,
+    parentNode.id,
+    NODE_WIDTH + NODE_SPACING * 2 // node padding + (width of query node) + node padding
+  );
+  const enrichResponseWorkspaceFlow = processorsConfigToWorkspaceFlow(
+    searchConfig.enrichResponse,
+    parentNode.id,
+    NODE_SPACING +
+      (NODE_WIDTH + NODE_SPACING) *
+        (enrichRequestWorkspaceFlow.nodes.length + 2) // node padding + (width + padding of query node, any request processor nodes, and index node)
+  );
 
   // By default, always include a query node, an index node, and a results node.
   const queryNodeId = generateId(COMPONENT_CLASS.NEURAL_QUERY);
@@ -589,7 +567,13 @@ function searchConfigToWorkspaceFlow(
   const indexNodeId = generateId(COMPONENT_CLASS.KNN_INDEXER);
   const indexNode = {
     id: indexNodeId,
-    position: { x: 500, y: 70 },
+    position: {
+      x:
+        parentNode.style.width -
+        (NODE_WIDTH + NODE_SPACING) *
+          (enrichResponseWorkspaceFlow.nodes.length + 2),
+      y: NODE_HEIGHT_Y,
+    },
     data: initComponentData(new KnnIndexer().toObj(), indexNodeId),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
@@ -598,23 +582,16 @@ function searchConfigToWorkspaceFlow(
   const resultsNodeId = generateId(COMPONENT_CLASS.RESULTS);
   const resultsNode = {
     id: resultsNodeId,
-    position: { x: 900, y: 70 },
+    position: {
+      x: parentNode.style.width - (NODE_WIDTH + NODE_SPACING),
+      y: NODE_HEIGHT_Y,
+    },
     data: initComponentData(new Results().toObj(), resultsNodeId),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
   } as ReactFlowComponent;
   nodes.push(queryNode, indexNode, resultsNode);
-
-  // Get nodes/edges from the sub-configurations
-  const enrichRequestWorkspaceFlow = enrichRequestConfigToWorkspaceFlow(
-    searchConfig.enrichRequest,
-    parentNode.id
-  );
-  const enrichResponseWorkspaceFlow = enrichResponseConfigToWorkspaceFlow(
-    searchConfig.enrichResponse,
-    parentNode.id
-  );
 
   nodes.push(
     ...enrichRequestWorkspaceFlow.nodes,
@@ -642,28 +619,52 @@ function searchConfigToWorkspaceFlow(
   };
 }
 
-// TODO: implement this
-function enrichRequestConfigToWorkspaceFlow(
-  enrichRequestConfig: ProcessorsConfig,
-  parentNodeId: string
+// Helper fn to generate a dynamic list of processor nodes
+// based on the list of processors in a config
+// TODO: support non-model-type processors
+function processorsConfigToWorkspaceFlow(
+  processorsConfig: ProcessorsConfig,
+  parentNodeId: string,
+  xPosition: number
 ): WorkspaceFlowState {
   const nodes = [] as ReactFlowComponent[];
   const edges = [] as ReactFlowEdge[];
 
-  return {
-    nodes,
-    edges,
-  };
-}
+  let prevNodeId = undefined as string | undefined;
 
-// TODO: implement this
-function enrichResponseConfigToWorkspaceFlow(
-  enrichRequestConfig: ProcessorsConfig,
-  parentNodeId: string
-): WorkspaceFlowState {
-  const nodes = [] as ReactFlowComponent[];
-  const edges = [] as ReactFlowEdge[];
+  const mlProcessorConfigs = processorsConfig.processors.filter(
+    (processorConfig) => processorConfig.type === PROCESSOR_TYPE.ML
+  ) as IProcessorConfig[];
 
+  mlProcessorConfigs.forEach((mlProcessorConfig) => {
+    let transformer = {} as MLTransformer;
+    let transformerNodeId = '';
+    switch (mlProcessorConfig.type) {
+      case PROCESSOR_TYPE.ML:
+      default: {
+        transformer = new MLTransformer();
+        transformerNodeId = generateId(COMPONENT_CLASS.ML_TRANSFORMER);
+        break;
+      }
+    }
+
+    nodes.push({
+      id: transformerNodeId,
+      position: { x: xPosition, y: NODE_HEIGHT_Y },
+      data: initComponentData(transformer, transformerNodeId),
+      type: NODE_CATEGORY.CUSTOM,
+      parentNode: parentNodeId,
+      extent: 'parent',
+    });
+    xPosition += NODE_SPACING + NODE_WIDTH;
+
+    if (prevNodeId) {
+      edges.push(
+        generateReactFlowEdge(generateId('edge'), prevNodeId, transformerNodeId)
+      );
+    }
+    prevNodeId = transformerNodeId;
+  });
   return {
     nodes,
     edges,
