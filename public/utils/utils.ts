@@ -570,9 +570,8 @@ function searchConfigToWorkspaceFlow(
     position: {
       x:
         parentNode.style.width -
-        (NODE_WIDTH + NODE_SPACING) -
-        (NODE_WIDTH + NODE_SPACING) -
-        (NODE_WIDTH + NODE_SPACING) * enrichResponseWorkspaceFlow.nodes.length,
+        (NODE_WIDTH + NODE_SPACING) *
+          (enrichResponseWorkspaceFlow.nodes.length + 2),
       y: NODE_HEIGHT_Y,
     },
     data: initComponentData(new KnnIndexer().toObj(), indexNodeId),
