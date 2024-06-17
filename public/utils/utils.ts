@@ -620,7 +620,9 @@ function searchConfigToWorkspaceFlow(
   };
 }
 
-// TODO: support non-model-type processor configs
+// Helper fn to generate a dynamic list of processor nodes
+// based on the list of processors in a config
+// TODO: support non-model-type processors
 function processorsConfigToWorkspaceFlow(
   processorsConfig: ProcessorsConfig,
   parentNodeId: string,
