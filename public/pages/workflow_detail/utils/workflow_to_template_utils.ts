@@ -77,8 +77,9 @@ function ingestConfigToTemplateNodes(
   const ingestProcessors = processorConfigsToTemplateProcessors(
     ingestConfig.enrich.processors
   );
+  const hasProcessors = ingestProcessors.length > 0;
 
-  return ingestProcessors.length > 0
+  return hasProcessors
     ? [
         {
           id: ingestPipelineName,
@@ -105,9 +106,10 @@ function searchConfigToTemplateNodes(
   const searchResponseProcessors = processorConfigsToTemplateProcessors(
     searchConfig.enrichResponse.processors
   );
+  const hasProcessors =
+    searchRequestProcessors.length > 0 || searchResponseProcessors.length > 0;
 
-  return searchRequestProcessors.length > 0 ||
-    searchResponseProcessors.length > 0
+  return hasProcessors
     ? [
         {
           id: searchPipelineName,
@@ -184,26 +186,34 @@ function indexConfigToTemplateNode(
 
   let finalPreviousNodeInputs = {};
   let finalSettings = {};
-  if (ingestPipelineNode) {
-    finalPreviousNodeInputs = {
-      ...finalPreviousNodeInputs,
-      [ingestPipelineNode.id]: 'pipeline_id',
-    };
-    finalSettings = {
-      ...finalSettings,
-      default_pipeline: `\${{${ingestPipelineNode.id}.pipeline_id}}`,
-    };
+
+  function updateFinalInputsAndSettings(
+    createPipelineNode:
+      | CreateIngestPipelineNode
+      | CreateSearchPipelineNode
+      | undefined
+  ): void {
+    if (createPipelineNode) {
+      finalPreviousNodeInputs = {
+        ...finalPreviousNodeInputs,
+        [createPipelineNode.id]: 'pipeline_id',
+      };
+
+      // Search and ingest pipelines expect different keys for setting index defaults
+      const pipelineKey =
+        createPipelineNode.type ===
+        WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE
+          ? 'default_pipeline'
+          : 'index.search.default_pipeline';
+
+      finalSettings = {
+        ...finalSettings,
+        [pipelineKey]: `\${{${createPipelineNode.id}.pipeline_id}}`,
+      };
+    }
   }
-  if (searchPipelineNode) {
-    finalPreviousNodeInputs = {
-      ...finalPreviousNodeInputs,
-      [searchPipelineNode.id]: 'pipeline_id',
-    };
-    finalSettings = {
-      ...finalSettings,
-      ['index.search.default_pipeline']: `\${{${searchPipelineNode.id}.pipeline_id}}`,
-    };
-  }
+  updateFinalInputsAndSettings(ingestPipelineNode);
+  updateFinalInputsAndSettings(searchPipelineNode);
 
   return {
     id: 'create_index',
