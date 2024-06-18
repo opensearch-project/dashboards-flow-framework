@@ -67,6 +67,7 @@ function fetchEmptyMetadata(): UIState {
   return {
     config: {
       ingest: {
+        enabled: true,
         source: {
           id: 'source',
           name: 'Source',

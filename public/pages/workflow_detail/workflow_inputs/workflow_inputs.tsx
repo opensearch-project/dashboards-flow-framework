@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
@@ -38,6 +38,7 @@ import {
   formikToUiConfig,
   reduceToTemplate,
   configToTemplateFlows,
+  hasProvisionedIngestResources,
 } from '../../../utils';
 
 // styling
@@ -73,9 +74,19 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // ingest state
   const [ingestDocs, setIngestDocs] = useState<{}[]>([]);
+  const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
 
   // query state
   const [query, setQuery] = useState<{}>({});
+
+  // maintain global states
+  const onIngest = selectedStep === STEP.INGEST;
+  const onIngestAndProvisioned = onIngest && ingestProvisioned;
+  const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
+
+  useEffect(() => {
+    setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
+  }, [props.workflow]);
 
   // Utility fn to update the workflow, including any updated/new resources
   // Eventually, should be able to use fine-grained provisioning to do a single API call
@@ -246,8 +257,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           <EuiFlexItem grow={false}>
             <EuiTitle>
               <h2>
-                {selectedStep === STEP.INGEST
+                {onIngestAndUnprovisioned
                   ? 'Define ingest pipeline'
+                  : onIngestAndProvisioned
+                  ? 'Edit ingest pipeline'
                   : 'Define search pipeline'}
               </h2>
             </EuiTitle>
@@ -259,7 +272,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               overflowX: 'hidden',
             }}
           >
-            {selectedStep === STEP.INGEST ? (
+            {onIngest ? (
               <IngestInputs
                 onFormChange={props.onFormChange}
                 setIngestDocs={setIngestDocs}
@@ -282,7 +295,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               </EuiFlexItem>
               <EuiFlexItem>
                 <EuiFlexGroup direction="row" justifyContent="flexEnd">
-                  {selectedStep === STEP.INGEST ? (
+                  {onIngestAndUnprovisioned ? (
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
@@ -299,6 +312,27 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           }}
                         >
                           Run ingestion
+                        </EuiButton>
+                      </EuiFlexItem>
+                    </>
+                  ) : onIngestAndProvisioned ? (
+                    <>
+                      <EuiFlexItem grow={false}>
+                        <EuiButton
+                          fill={false}
+                          onClick={() => {
+                            validateAndRunIngestion();
+                          }}
+                        >
+                          Run ingestion
+                        </EuiButton>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiButton
+                          fill={true}
+                          onClick={() => setSelectedStep(STEP.SEARCH)}
+                        >
+                          {`Next >`}
                         </EuiButton>
                       </EuiFlexItem>
                     </>
