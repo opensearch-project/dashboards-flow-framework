@@ -12,7 +12,6 @@ import {
 } from '@elastic/eui';
 
 interface SourceDataProps {
-  ingestDocs: {}[];
   setIngestDocs: (docs: {}[]) => void;
 }
 

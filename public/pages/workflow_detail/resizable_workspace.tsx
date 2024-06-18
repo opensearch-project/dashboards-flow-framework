@@ -78,6 +78,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // ingest state
   const [ingestResponse, setIngestResponse] = useState<string>('');
 
+  // query state
+  const [queryResponse, setQueryResponse] = useState<string>('');
+
   // Tools side panel state
   const [isToolsPanelOpen, setIsToolsPanelOpen] = useState<boolean>(true);
   const collapseFnVertical = useRef(
@@ -178,6 +181,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                       uiConfig={uiConfig}
                       setUiConfig={setUiConfig}
                       setIngestResponse={setIngestResponse}
+                      setQueryResponse={setQueryResponse}
                     />
                   </EuiResizablePanel>
                   <EuiResizableButton />
@@ -250,6 +254,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                               <Tools
                                 workflow={workflow}
                                 ingestResponse={ingestResponse}
+                                queryResponse={queryResponse}
                               />
                             </EuiResizablePanel>
                           </>

@@ -29,6 +29,7 @@ import {
   getWorkflow,
   ingest,
   provisionWorkflow,
+  searchIndex,
   updateWorkflow,
   useAppDispatch,
 } from '../../../store';
@@ -48,6 +49,7 @@ interface WorkflowInputsProps {
   uiConfig: WorkflowConfig | undefined;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setIngestResponse: (ingestResponse: string) => void;
+  setQueryResponse: (queryResponse: string) => void;
 }
 
 export enum STEP {
@@ -71,6 +73,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // ingest state
   const [ingestDocs, setIngestDocs] = useState<{}[]>([]);
+
+  // query state
+  const [query, setQuery] = useState<{}>({});
 
   // Utility fn to update the workflow, including any updated/new resources
   // Eventually, should be able to use fine-grained provisioning to do a single API call
@@ -152,10 +157,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     return success;
   }
 
-  // TODO: running props.validateAndSubmit() will need to be ran before every ingest and
-  // search, if the form is dirty / values have changed. This will update the workflow if needed.
-  // Note that the temporary data (the ingest docs and the search query) will not need to be persisted
-  // in the form (need to confirm if query-side / using search template, will need to persist something)
   async function validateAndRunIngestion(): Promise<boolean> {
     let success = false;
     try {
@@ -181,13 +182,35 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     } catch (error) {
       console.error('Error ingesting documents: ', error);
     }
-
     return success;
   }
 
-  function validateAndRunQuery(): void {
-    console.log('running query...');
-    validateAndUpdateWorkflow();
+  async function validateAndRunQuery(): Promise<boolean> {
+    let success = false;
+    try {
+      if (!isEmpty(query)) {
+        success = await validateAndUpdateWorkflow();
+        if (success) {
+          const indexName = values.ingest.index.name;
+          dispatch(searchIndex({ index: indexName, body: query }))
+            .unwrap()
+            .then(async (resp) => {
+              const hits = resp.hits.hits;
+              props.setQueryResponse(JSON.stringify(hits, undefined, 2));
+            })
+            .catch((error: any) => {
+              getCore().notifications.toasts.addDanger(error);
+              props.setQueryResponse('');
+              throw error;
+            });
+        }
+      } else {
+        getCore().notifications.toasts.addDanger('No valid query provided');
+      }
+    } catch (error) {
+      console.error('Error running query: ', error);
+    }
+    return success;
   }
 
   return (
@@ -239,7 +262,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             {selectedStep === STEP.INGEST ? (
               <IngestInputs
                 onFormChange={props.onFormChange}
-                ingestDocs={ingestDocs}
                 setIngestDocs={setIngestDocs}
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
@@ -248,6 +270,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <SearchInputs
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
+                setQuery={setQuery}
                 onFormChange={props.onFormChange}
               />
             )}

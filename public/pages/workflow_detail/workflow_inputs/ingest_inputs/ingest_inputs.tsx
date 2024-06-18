@@ -12,7 +12,6 @@ import { WorkflowConfig } from '../../../../../common';
 
 interface IngestInputsProps {
   onFormChange: () => void;
-  ingestDocs: {}[];
   setIngestDocs: (docs: {}[]) => void;
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
@@ -25,10 +24,7 @@ export function IngestInputs(props: IngestInputsProps) {
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
-        <SourceData
-          ingestDocs={props.ingestDocs}
-          setIngestDocs={props.setIngestDocs}
-        />
+        <SourceData setIngestDocs={props.setIngestDocs} />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiHorizontalRule margin="none" />
