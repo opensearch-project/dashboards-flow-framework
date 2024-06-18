@@ -33,8 +33,11 @@ import {
   useAppDispatch,
 } from '../../../store';
 import { getCore } from '../../../services';
-import { formikToUiConfig, reduceToTemplate } from '../../../utils';
-import { configToTemplateFlows } from '../utils';
+import {
+  formikToUiConfig,
+  reduceToTemplate,
+  configToTemplateFlows,
+} from '../../../utils';
 
 // styling
 import '../workspace/workspace-styles.scss';

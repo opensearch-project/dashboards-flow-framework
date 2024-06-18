@@ -20,16 +20,18 @@ import {
   MLInferenceProcessor,
   MapFormValue,
   IngestProcessor,
+  Workflow,
+  WorkflowTemplate,
+  CreateSearchPipelineNode,
   SearchProcessor,
   IngestConfig,
   SearchConfig,
-  CreateSearchPipelineNode,
-} from '../../../../common';
-import { generateId, processorConfigToFormik } from '../../../utils';
+} from '../../common';
+import { processorConfigToFormik } from './config_to_form_utils';
+import { generateId } from './utils';
 
-/**
- * Given a WorkflowConfig with fully populated input values,
- * generate a backend-compatible set of sub-workflows.
+/*
+ **************** Config -> template utils **********************
  */
 
 export function configToTemplateFlows(config: WorkflowConfig): TemplateFlows {
@@ -227,4 +229,18 @@ function indexConfigToTemplateNode(
       },
     },
   };
+}
+
+// Helper fn to remove state-related fields from a workflow and have a stateless template
+// to export and/or pass around, use when updating, etc.
+export function reduceToTemplate(workflow: Workflow): WorkflowTemplate {
+  const {
+    id,
+    lastUpdated,
+    lastLaunched,
+    state,
+    resourcesCreated,
+    ...workflowTemplate
+  } = workflow;
+  return workflowTemplate;
 }
