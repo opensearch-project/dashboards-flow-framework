@@ -55,6 +55,8 @@ function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
 function indexConfigToSchema(indexConfig: IndexConfig): Schema {
   const indexSchemaObj = {} as { [key: string]: Schema };
   indexSchemaObj['name'] = getFieldSchema(indexConfig.name);
+  indexSchemaObj['mappings'] = getFieldSchema(indexConfig.mappings);
+  indexSchemaObj['settings'] = getFieldSchema(indexConfig.settings);
   return yup.object(indexSchemaObj);
 }
 

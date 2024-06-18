@@ -65,6 +65,10 @@ function indexConfigToFormik(indexConfig: IndexConfig): FormikValues {
   let formValues = {} as FormikValues;
   formValues['name'] =
     indexConfig.name.value || getInitialValue(indexConfig.name.type);
+  formValues['mappings'] =
+    indexConfig.mappings.value || getInitialValue(indexConfig.mappings.type);
+  formValues['settings'] =
+    indexConfig.settings.value || getInitialValue(indexConfig.settings.type);
   return formValues;
 }
 

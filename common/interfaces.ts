@@ -47,6 +47,8 @@ export type ProcessorsConfig = {
 
 export type IndexConfig = {
   name: IConfigField;
+  mappings: IConfigField;
+  settings: IConfigField;
 };
 
 export type IngestConfig = {

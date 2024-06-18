@@ -82,6 +82,16 @@ function fetchEmptyMetadata(): UIState {
             type: 'string',
             label: 'Index name',
           },
+          mappings: {
+            id: 'indexMappings',
+            type: 'json',
+            label: 'Index mappings',
+          },
+          settings: {
+            id: 'indexSettings',
+            type: 'json',
+            label: 'Index settings',
+          },
         },
       },
       search: {
