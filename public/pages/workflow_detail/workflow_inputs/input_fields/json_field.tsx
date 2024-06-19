@@ -27,9 +27,9 @@ export function JsonField(props: JsonFieldProps) {
   // initializing the text to be the stringified form value
   useEffect(() => {
     if (props.fieldPath && values) {
-      const formValue = getIn(values, props.fieldPath);
+      const formValue = getIn(values, props.fieldPath) as string;
       if (formValue) {
-        setJsonStr(JSON.stringify(formValue, undefined, 2));
+        setJsonStr(formValue);
       }
     }
   }, [props.fieldPath, values]);
@@ -65,14 +65,15 @@ export function JsonField(props: JsonFieldProps) {
               }}
               onBlur={() => {
                 try {
-                  const jsonObj = JSON.parse(jsonStr);
-                  setJsonStr(JSON.stringify(jsonObj, undefined, 2));
-                  form.setFieldValue(props.fieldPath, jsonObj);
-                  props.onFormChange();
+                  form.setFieldValue(
+                    field.name,
+                    JSON.stringify(JSON.parse(jsonStr), undefined, 2)
+                  );
                 } catch (error) {
-                  // TODO: get error propagating correctly so the form field is updated
+                  form.setFieldValue(field.name, jsonStr);
+                } finally {
                   form.setFieldTouched(field.name);
-                  form.setFieldError(field.name, 'Invalid JSON');
+                  props.onFormChange();
                 }
               }}
               readOnly={false}

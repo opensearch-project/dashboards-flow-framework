@@ -109,7 +109,7 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
       return [];
     }
     case 'json': {
-      return {};
+      return '{}';
     }
   }
 }

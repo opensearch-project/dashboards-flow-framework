@@ -102,7 +102,16 @@ function getFieldSchema(field: IConfigField): Schema {
       break;
     }
     case 'json': {
-      baseSchema = yup.object().json();
+      baseSchema = yup.string().test('json', 'Invalid JSON', (value) => {
+        try {
+          // @ts-ignore
+          JSON.parse(value);
+          return true;
+        } catch (error) {
+          return false;
+        }
+      });
+
       break;
     }
   }
