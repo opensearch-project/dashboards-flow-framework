@@ -21,22 +21,26 @@ import {
  **************** Config -> formik utils **********************
  */
 
-export function uiConfigToFormik(config: WorkflowConfig): WorkflowFormValues {
+// if the user has input any ingest docs, persist them in the form.
+// we don't persist in the config as it logically does not belong there,
+// and can be extremely large. so we pass that as a standalone field
+export function uiConfigToFormik(
+  config: WorkflowConfig,
+  ingestDocs: string
+): WorkflowFormValues {
   const formikValues = {} as WorkflowFormValues;
-  formikValues['ingest'] = ingestConfigToFormik(config.ingest);
+  formikValues['ingest'] = ingestConfigToFormik(config.ingest, ingestDocs);
   formikValues['search'] = searchConfigToFormik(config.search);
   return formikValues;
 }
 
 function ingestConfigToFormik(
-  ingestConfig: IngestConfig | undefined
+  ingestConfig: IngestConfig | undefined,
+  ingestDocs: string
 ): FormikValues {
   let ingestFormikValues = {} as FormikValues;
   if (ingestConfig) {
-    // TODO: how to persist the form state for docs if this gets updated.
-    // It is triggered when processors are added/deleted since we need to
-    // re-generate the form since the underlying config has been updated.
-    ingestFormikValues['docs'] = getInitialValue('json');
+    ingestFormikValues['docs'] = ingestDocs || getInitialValue('json');
     ingestFormikValues['enrich'] = processorsConfigToFormik(
       ingestConfig.enrich
     );

@@ -7,7 +7,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Form, Formik } from 'formik';
-import { isEmpty } from 'lodash';
 import * as yup from 'yup';
 import { EuiFlexGroup, EuiFlexItem, EuiResizableContainer } from '@elastic/eui';
 import { getCore } from '../../services';
@@ -124,14 +123,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Initialize the form state based on the current UI config
   useEffect(() => {
     if (uiConfig) {
-      const initFormValues = uiConfigToFormik(uiConfig);
-      // if the user has input any ingest docs, persist them in the form.
-      // when users add/remove processors, the config is updated, but
-      // since we don't persist docs in the config, need to persist on
-      // frontend only.
-      if (!isEmpty(ingestDocs)) {
-        initFormValues.ingest.docs = ingestDocs;
-      }
+      const initFormValues = uiConfigToFormik(uiConfig, ingestDocs);
       const initFormSchema = uiConfigToSchema(uiConfig);
       setFormValues(initFormValues);
       setFormSchema(initFormSchema);
