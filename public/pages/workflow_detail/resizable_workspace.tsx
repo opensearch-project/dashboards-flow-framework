@@ -7,6 +7,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Form, Formik } from 'formik';
+import { isEmpty } from 'lodash';
 import * as yup from 'yup';
 import { EuiFlexGroup, EuiFlexItem, EuiResizableContainer } from '@elastic/eui';
 import { getCore } from '../../services';
@@ -21,11 +22,11 @@ import { APP_PATH, uiConfigToFormik, uiConfigToSchema } from '../../utils';
 import { AppState, setDirty, useAppDispatch } from '../../store';
 import { WorkflowInputs } from './workflow_inputs';
 import { Workspace } from './workspace';
+import { Tools } from './tools';
 
 // styling
 import './workspace/workspace-styles.scss';
 import '../../global-styles.scss';
-import { Tools } from './tools';
 
 interface ResizableWorkspaceProps {
   workflow?: Workflow;
@@ -54,6 +55,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Formik form state
   const [formValues, setFormValues] = useState<WorkflowFormValues>({});
   const [formSchema, setFormSchema] = useState<WorkflowSchema>(yup.object({}));
+
+  // ingest state
+  const [ingestDocs, setIngestDocs] = useState<string>('');
 
   // Temp UI config state. For persisting changes to the UI config that may
   // not be saved in the backend (e.g., adding / removing an ingest processor)
@@ -121,6 +125,13 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   useEffect(() => {
     if (uiConfig) {
       const initFormValues = uiConfigToFormik(uiConfig);
+      // if the user has input any ingest docs, persist them in the form.
+      // when users add/remove processors, the config is updated, but
+      // since we don't persist docs in the config, need to persist on
+      // frontend only.
+      if (!isEmpty(ingestDocs)) {
+        initFormValues.ingest.docs = ingestDocs;
+      }
       const initFormSchema = uiConfigToSchema(uiConfig);
       setFormValues(initFormValues);
       setFormSchema(initFormSchema);
@@ -182,6 +193,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                       setUiConfig={setUiConfig}
                       setIngestResponse={setIngestResponse}
                       setQueryResponse={setQueryResponse}
+                      ingestDocs={ingestDocs}
+                      setIngestDocs={setIngestDocs}
                     />
                   </EuiResizablePanel>
                   <EuiResizableButton />

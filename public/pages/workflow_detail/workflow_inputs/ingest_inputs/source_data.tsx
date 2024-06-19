@@ -10,7 +10,7 @@ import { JsonField } from '../input_fields';
 import { IConfigField, WorkspaceFormValues } from '../../../../../common';
 
 interface SourceDataProps {
-  setIngestDocs: (docs: {}[]) => void;
+  setIngestDocs: (docs: string) => void;
   onFormChange: () => void;
 }
 
@@ -23,11 +23,8 @@ export function SourceData(props: SourceDataProps) {
   // Hook to listen when the docs form value changes.
   // Try to set the ingestDocs if possible
   useEffect(() => {
-    try {
-      const json = JSON.parse(values.ingest.docs);
-      props.setIngestDocs([json]);
-    } catch (e) {
-      props.setIngestDocs([]);
+    if (values?.ingest?.docs) {
+      props.setIngestDocs(values.ingest.docs);
     }
   }, [values?.ingest?.docs]);
 

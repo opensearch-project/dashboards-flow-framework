@@ -29,8 +29,6 @@ export function JsonField(props: JsonFieldProps) {
   useEffect(() => {
     if (props.fieldPath && values) {
       const formValue = getIn(values, props.fieldPath) as string;
-      console.log('form value: ', formValue);
-      console.log('values: ', values);
       if (formValue) {
         setJsonStr(formValue);
       }

@@ -12,7 +12,7 @@ import { WorkflowConfig } from '../../../../../common';
 
 interface IngestInputsProps {
   onFormChange: () => void;
-  setIngestDocs: (docs: {}[]) => void;
+  setIngestDocs: (docs: string) => void;
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
 }

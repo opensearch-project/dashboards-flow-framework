@@ -51,6 +51,8 @@ interface WorkflowInputsProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setIngestResponse: (ingestResponse: string) => void;
   setQueryResponse: (queryResponse: string) => void;
+  ingestDocs: string;
+  setIngestDocs: (docs: string) => void;
 }
 
 export enum STEP {
@@ -73,7 +75,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const [selectedStep, setSelectedStep] = useState<STEP>(STEP.INGEST);
 
   // ingest state
-  const [ingestDocs, setIngestDocs] = useState<{}[]>([]);
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
 
   // query state
@@ -171,11 +172,17 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   async function validateAndRunIngestion(): Promise<boolean> {
     let success = false;
     try {
-      if (ingestDocs.length > 0 && !isEmpty(ingestDocs[0])) {
+      let ingestDocsObjs = [] as {}[];
+      try {
+        // TODO: test with multiple objs, make sure parsing logic works
+        const ingestDocObj = JSON.parse(props.ingestDocs);
+        ingestDocsObjs = [ingestDocObj];
+      } catch (e) {}
+      if (ingestDocsObjs.length > 0 && !isEmpty(ingestDocsObjs[0])) {
         success = await validateAndUpdateWorkflow();
         if (success) {
           const indexName = values.ingest.index.name;
-          const doc = ingestDocs[0];
+          const doc = ingestDocsObjs[0];
           dispatch(ingest({ index: indexName, doc }))
             .unwrap()
             .then(async (resp) => {
@@ -275,7 +282,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             {onIngest ? (
               <IngestInputs
                 onFormChange={props.onFormChange}
-                setIngestDocs={setIngestDocs}
+                setIngestDocs={props.setIngestDocs}
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
               />
