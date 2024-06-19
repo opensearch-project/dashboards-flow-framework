@@ -68,11 +68,7 @@ function fetchEmptyMetadata(): UIState {
     config: {
       ingest: {
         enabled: true,
-        source: {
-          id: 'source',
-          name: 'Source',
-          fields: [],
-        },
+        source: {},
         enrich: {
           processors: [],
         },

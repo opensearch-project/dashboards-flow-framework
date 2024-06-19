@@ -12,6 +12,7 @@ interface JsonFieldProps {
   field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onFormChange: () => void;
+  editorHeight?: string;
 }
 
 /**
@@ -28,6 +29,8 @@ export function JsonField(props: JsonFieldProps) {
   useEffect(() => {
     if (props.fieldPath && values) {
       const formValue = getIn(values, props.fieldPath) as string;
+      console.log('form value: ', formValue);
+      console.log('values: ', values);
       if (formValue) {
         setJsonStr(formValue);
       }
@@ -58,7 +61,7 @@ export function JsonField(props: JsonFieldProps) {
               mode="json"
               theme="textmate"
               width="100%"
-              height="15vh"
+              height={props.editorHeight || '15vh'}
               value={jsonStr}
               onChange={(input) => {
                 setJsonStr(input);

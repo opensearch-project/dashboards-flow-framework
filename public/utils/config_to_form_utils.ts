@@ -33,6 +33,10 @@ function ingestConfigToFormik(
 ): FormikValues {
   let ingestFormikValues = {} as FormikValues;
   if (ingestConfig) {
+    // TODO: how to persist the form state for docs if this gets updated.
+    // It is triggered when processors are added/deleted since we need to
+    // re-generate the form since the underlying config has been updated.
+    ingestFormikValues['docs'] = getInitialValue('json');
     ingestFormikValues['enrich'] = processorsConfigToFormik(
       ingestConfig.enrich
     );

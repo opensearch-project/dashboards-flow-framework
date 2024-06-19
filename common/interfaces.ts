@@ -53,7 +53,7 @@ export type IndexConfig = {
 
 export type IngestConfig = {
   enabled: boolean;
-  source: IConfig;
+  source: {};
   enrich: ProcessorsConfig;
   index: IndexConfig;
 };
