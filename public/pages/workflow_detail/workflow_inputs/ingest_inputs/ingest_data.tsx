@@ -7,6 +7,7 @@ import React from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiTitle } from '@elastic/eui';
 import { IConfigField, WorkflowConfig } from '../../../../../common';
 import { TextField } from '../input_fields';
+import { AdvancedSettings } from './advanced_settings';
 
 interface IngestDataProps {
   uiConfig: WorkflowConfig;
@@ -28,6 +29,12 @@ export function IngestData(props: IngestDataProps) {
         <TextField
           field={props.uiConfig.ingest.index?.name as IConfigField}
           fieldPath={'ingest.index.name'}
+          onFormChange={props.onFormChange}
+        />
+      </EuiFlexItem>
+      <EuiFlexItem>
+        <AdvancedSettings
+          uiConfig={props.uiConfig}
           onFormChange={props.onFormChange}
         />
       </EuiFlexItem>

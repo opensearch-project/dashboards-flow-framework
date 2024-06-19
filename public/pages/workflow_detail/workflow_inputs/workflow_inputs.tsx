@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
@@ -29,6 +29,7 @@ import {
   getWorkflow,
   ingest,
   provisionWorkflow,
+  searchIndex,
   updateWorkflow,
   useAppDispatch,
 } from '../../../store';
@@ -37,6 +38,7 @@ import {
   formikToUiConfig,
   reduceToTemplate,
   configToTemplateFlows,
+  hasProvisionedIngestResources,
 } from '../../../utils';
 
 // styling
@@ -48,6 +50,9 @@ interface WorkflowInputsProps {
   uiConfig: WorkflowConfig | undefined;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setIngestResponse: (ingestResponse: string) => void;
+  setQueryResponse: (queryResponse: string) => void;
+  ingestDocs: string;
+  setIngestDocs: (docs: string) => void;
 }
 
 export enum STEP {
@@ -70,7 +75,19 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const [selectedStep, setSelectedStep] = useState<STEP>(STEP.INGEST);
 
   // ingest state
-  const [ingestDocs, setIngestDocs] = useState<{}[]>([]);
+  const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
+
+  // query state
+  const [query, setQuery] = useState<{}>({});
+
+  // maintain global states
+  const onIngest = selectedStep === STEP.INGEST;
+  const onIngestAndProvisioned = onIngest && ingestProvisioned;
+  const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
+
+  useEffect(() => {
+    setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
+  }, [props.workflow]);
 
   // Utility fn to update the workflow, including any updated/new resources
   // Eventually, should be able to use fine-grained provisioning to do a single API call
@@ -152,18 +169,20 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     return success;
   }
 
-  // TODO: running props.validateAndSubmit() will need to be ran before every ingest and
-  // search, if the form is dirty / values have changed. This will update the workflow if needed.
-  // Note that the temporary data (the ingest docs and the search query) will not need to be persisted
-  // in the form (need to confirm if query-side / using search template, will need to persist something)
   async function validateAndRunIngestion(): Promise<boolean> {
     let success = false;
     try {
-      if (ingestDocs.length > 0 && !isEmpty(ingestDocs[0])) {
+      let ingestDocsObjs = [] as {}[];
+      try {
+        // TODO: test with multiple objs, make sure parsing logic works
+        const ingestDocObj = JSON.parse(props.ingestDocs);
+        ingestDocsObjs = [ingestDocObj];
+      } catch (e) {}
+      if (ingestDocsObjs.length > 0 && !isEmpty(ingestDocsObjs[0])) {
         success = await validateAndUpdateWorkflow();
         if (success) {
           const indexName = values.ingest.index.name;
-          const doc = ingestDocs[0];
+          const doc = ingestDocsObjs[0];
           dispatch(ingest({ index: indexName, doc }))
             .unwrap()
             .then(async (resp) => {
@@ -181,13 +200,35 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     } catch (error) {
       console.error('Error ingesting documents: ', error);
     }
-
     return success;
   }
 
-  function validateAndRunQuery(): void {
-    console.log('running query...');
-    validateAndUpdateWorkflow();
+  async function validateAndRunQuery(): Promise<boolean> {
+    let success = false;
+    try {
+      if (!isEmpty(query)) {
+        success = await validateAndUpdateWorkflow();
+        if (success) {
+          const indexName = values.ingest.index.name;
+          dispatch(searchIndex({ index: indexName, body: query }))
+            .unwrap()
+            .then(async (resp) => {
+              const hits = resp.hits.hits;
+              props.setQueryResponse(JSON.stringify(hits, undefined, 2));
+            })
+            .catch((error: any) => {
+              getCore().notifications.toasts.addDanger(error);
+              props.setQueryResponse('');
+              throw error;
+            });
+        }
+      } else {
+        getCore().notifications.toasts.addDanger('No valid query provided');
+      }
+    } catch (error) {
+      console.error('Error running query: ', error);
+    }
+    return success;
   }
 
   return (
@@ -223,8 +264,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           <EuiFlexItem grow={false}>
             <EuiTitle>
               <h2>
-                {selectedStep === STEP.INGEST
+                {onIngestAndUnprovisioned
                   ? 'Define ingest pipeline'
+                  : onIngestAndProvisioned
+                  ? 'Edit ingest pipeline'
                   : 'Define search pipeline'}
               </h2>
             </EuiTitle>
@@ -236,11 +279,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               overflowX: 'hidden',
             }}
           >
-            {selectedStep === STEP.INGEST ? (
+            {onIngest ? (
               <IngestInputs
                 onFormChange={props.onFormChange}
-                ingestDocs={ingestDocs}
-                setIngestDocs={setIngestDocs}
+                setIngestDocs={props.setIngestDocs}
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
               />
@@ -248,6 +290,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <SearchInputs
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
+                setQuery={setQuery}
                 onFormChange={props.onFormChange}
               />
             )}
@@ -259,7 +302,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               </EuiFlexItem>
               <EuiFlexItem>
                 <EuiFlexGroup direction="row" justifyContent="flexEnd">
-                  {selectedStep === STEP.INGEST ? (
+                  {onIngestAndUnprovisioned ? (
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
@@ -276,6 +319,27 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           }}
                         >
                           Run ingestion
+                        </EuiButton>
+                      </EuiFlexItem>
+                    </>
+                  ) : onIngestAndProvisioned ? (
+                    <>
+                      <EuiFlexItem grow={false}>
+                        <EuiButton
+                          fill={false}
+                          onClick={() => {
+                            validateAndRunIngestion();
+                          }}
+                        >
+                          Run ingestion
+                        </EuiButton>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiButton
+                          fill={true}
+                          onClick={() => setSelectedStep(STEP.SEARCH)}
+                        >
+                          {`Next >`}
                         </EuiButton>
                       </EuiFlexItem>
                     </>

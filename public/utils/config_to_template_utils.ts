@@ -179,15 +179,8 @@ function indexConfigToTemplateNode(
   ingestPipelineNode?: CreateIngestPipelineNode,
   searchPipelineNode?: CreateSearchPipelineNode
 ): CreateIndexNode {
-  const indexName = indexConfig.name.value as string;
-
-  // TODO: extract model details to determine the mappings
-  const finalIndexMappings = {
-    properties: {},
-  } as IndexMappings;
-
+  let finalSettings = indexConfig.settings.value as {};
   let finalPreviousNodeInputs = {};
-  let finalSettings = {};
 
   function updateFinalInputsAndSettings(
     createPipelineNode:
@@ -222,10 +215,10 @@ function indexConfigToTemplateNode(
     type: WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE,
     previous_node_inputs: finalPreviousNodeInputs,
     user_inputs: {
-      index_name: indexName,
+      index_name: indexConfig.name.value as string,
       configurations: {
         settings: finalSettings,
-        mappings: finalIndexMappings,
+        mappings: indexConfig.mappings.value as IndexMappings,
       },
     },
   };
