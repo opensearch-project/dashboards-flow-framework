@@ -12,8 +12,8 @@ import {
   SearchConfig,
   ProcessorsConfig,
   WorkflowSchemaObj,
-  IConfigField,
   IndexConfig,
+  ConfigFieldType,
 } from '../../common';
 
 /*
@@ -32,7 +32,7 @@ function ingestConfigToSchema(
 ): ObjectSchema<any> {
   const ingestSchemaObj = {} as { [key: string]: Schema };
   if (ingestConfig) {
-    // TODO: implement for the other sub-categories
+    ingestSchemaObj['docs'] = getFieldSchema('json');
     ingestSchemaObj['enrich'] = processorsConfigToSchema(ingestConfig.enrich);
     ingestSchemaObj['index'] = indexConfigToSchema(ingestConfig.index);
   }
@@ -44,7 +44,7 @@ function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
   processorsConfig.processors.forEach((processorConfig) => {
     const processorSchemaObj = {} as { [key: string]: Schema };
     processorConfig.fields.forEach((field) => {
-      processorSchemaObj[field.id] = getFieldSchema(field);
+      processorSchemaObj[field.id] = getFieldSchema(field.type);
     });
     processorsSchemaObj[processorConfig.id] = yup.object(processorSchemaObj);
   });
@@ -54,7 +54,9 @@ function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
 
 function indexConfigToSchema(indexConfig: IndexConfig): Schema {
   const indexSchemaObj = {} as { [key: string]: Schema };
-  indexSchemaObj['name'] = getFieldSchema(indexConfig.name);
+  indexSchemaObj['name'] = getFieldSchema(indexConfig.name.type);
+  indexSchemaObj['mappings'] = getFieldSchema(indexConfig.mappings.type);
+  indexSchemaObj['settings'] = getFieldSchema(indexConfig.settings.type);
   return yup.object(indexSchemaObj);
 }
 
@@ -71,9 +73,9 @@ function searchConfigToSchema(
  **************** Yup (validation) utils **********************
  */
 
-function getFieldSchema(field: IConfigField): Schema {
+function getFieldSchema(fieldType: ConfigFieldType): Schema {
   let baseSchema: Schema;
-  switch (field.type) {
+  switch (fieldType) {
     case 'string':
     case 'select': {
       baseSchema = yup.string().min(1, 'Too short').max(70, 'Too long');
@@ -100,7 +102,16 @@ function getFieldSchema(field: IConfigField): Schema {
       break;
     }
     case 'json': {
-      baseSchema = yup.object().json();
+      baseSchema = yup.string().test('json', 'Invalid JSON', (value) => {
+        try {
+          // @ts-ignore
+          JSON.parse(value);
+          return true;
+        } catch (error) {
+          return false;
+        }
+      });
+
       break;
     }
   }

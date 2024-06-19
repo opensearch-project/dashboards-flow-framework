@@ -67,11 +67,8 @@ function fetchEmptyMetadata(): UIState {
   return {
     config: {
       ingest: {
-        source: {
-          id: 'source',
-          name: 'Source',
-          fields: [],
-        },
+        enabled: true,
+        source: {},
         enrich: {
           processors: [],
         },
@@ -80,6 +77,16 @@ function fetchEmptyMetadata(): UIState {
             id: 'indexName',
             type: 'string',
             label: 'Index name',
+          },
+          mappings: {
+            id: 'indexMappings',
+            type: 'json',
+            label: 'Index mappings',
+          },
+          settings: {
+            id: 'indexSettings',
+            type: 'json',
+            label: 'Index settings',
           },
         },
       },

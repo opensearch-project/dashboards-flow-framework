@@ -4,7 +4,7 @@
  */
 
 import { EuiFilterSelectItem } from '@elastic/eui';
-import { WORKFLOW_STATE } from '../../common';
+import { WORKFLOW_STATE, WORKFLOW_STEP_TYPE, Workflow } from '../../common';
 
 // Append 16 random characters
 export function generateId(prefix: string): string {
@@ -38,4 +38,20 @@ export function getStateOptions(): EuiFilterSelectItem[] {
       checked: 'on',
     } as EuiFilterSelectItem,
   ];
+}
+
+export function hasProvisionedIngestResources(
+  workflow: Workflow | undefined
+): boolean {
+  let result = false;
+  workflow?.resourcesCreated?.some((resource) => {
+    if (
+      resource.stepType ===
+        WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE ||
+      resource.stepType === WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE
+    ) {
+      result = true;
+    }
+  });
+  return result;
 }

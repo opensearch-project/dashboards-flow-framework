@@ -60,6 +60,8 @@ function formikToIndexUiConfig(
   existingConfig: IndexConfig
 ): IndexConfig {
   existingConfig['name'].value = indexFormValues['name'];
+  existingConfig['mappings'].value = indexFormValues['mappings'];
+  existingConfig['settings'].value = indexFormValues['settings'];
   return existingConfig;
 }
 
