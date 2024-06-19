@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { isEmpty } from 'lodash';
 import {
   EuiCodeEditor,
   EuiFlexGroup,
@@ -20,6 +21,7 @@ import { Resources } from './resources';
 interface ToolsProps {
   workflow?: Workflow;
   ingestResponse: string;
+  queryResponse: string;
 }
 
 enum TAB_ID {
@@ -58,6 +60,20 @@ const inputTabs = [
 export function Tools(props: ToolsProps) {
   const [selectedTabId, setSelectedTabId] = useState<string>(TAB_ID.INGEST);
 
+  // auto-navigate to ingest response if a populated value has been set, indicating ingest has been ran
+  useEffect(() => {
+    if (!isEmpty(props.ingestResponse)) {
+      setSelectedTabId(TAB_ID.INGEST);
+    }
+  }, [props.ingestResponse]);
+
+  // auto-navigate to query response if a populated value has been set, indicating search has been ran
+  useEffect(() => {
+    if (!isEmpty(props.queryResponse)) {
+      setSelectedTabId(TAB_ID.QUERY);
+    }
+  }, [props.queryResponse]);
+
   return (
     <EuiPanel paddingSize="m" grow={true} style={{ height: '100%' }}>
       <EuiFlexGroup
@@ -94,14 +110,14 @@ export function Tools(props: ToolsProps) {
                 {selectedTabId === TAB_ID.INGEST && (
                   // TODO: known issue with the editor where resizing the resizablecontainer does not
                   // trigger vertical scroll updates. Updating the window, or reloading the component
-                  // by switching tabs etc. will refresh it correctly.
+                  // by switching tabs etc. will refresh it correctly. This applies to the code editor
+                  // components in both ingest and query below.
                   <EuiCodeEditor
                     mode="json"
                     theme="textmate"
                     width="100%"
                     height="100%"
                     value={props.ingestResponse}
-                    onChange={(input) => {}}
                     readOnly={true}
                     setOptions={{
                       fontSize: '12px',
@@ -111,7 +127,19 @@ export function Tools(props: ToolsProps) {
                   />
                 )}
                 {selectedTabId === TAB_ID.QUERY && (
-                  <EuiText>TODO: Run queries placeholder</EuiText>
+                  <EuiCodeEditor
+                    mode="json"
+                    theme="textmate"
+                    width="100%"
+                    height="100%"
+                    value={props.queryResponse}
+                    readOnly={true}
+                    setOptions={{
+                      fontSize: '12px',
+                      autoScrollEditorIntoView: true,
+                    }}
+                    tabSize={2}
+                  />
                 )}
                 {selectedTabId === TAB_ID.ERRORS && (
                   <EuiText>TODO: View errors placeholder</EuiText>

@@ -47,10 +47,13 @@ export type ProcessorsConfig = {
 
 export type IndexConfig = {
   name: IConfigField;
+  mappings: IConfigField;
+  settings: IConfigField;
 };
 
 export type IngestConfig = {
-  source: IConfig;
+  enabled: boolean;
+  source: {};
   enrich: ProcessorsConfig;
   index: IndexConfig;
 };

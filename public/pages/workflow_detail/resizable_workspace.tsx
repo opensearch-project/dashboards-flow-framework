@@ -21,11 +21,11 @@ import { APP_PATH, uiConfigToFormik, uiConfigToSchema } from '../../utils';
 import { AppState, setDirty, useAppDispatch } from '../../store';
 import { WorkflowInputs } from './workflow_inputs';
 import { Workspace } from './workspace';
+import { Tools } from './tools';
 
 // styling
 import './workspace/workspace-styles.scss';
 import '../../global-styles.scss';
-import { Tools } from './tools';
 
 interface ResizableWorkspaceProps {
   workflow?: Workflow;
@@ -55,6 +55,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [formValues, setFormValues] = useState<WorkflowFormValues>({});
   const [formSchema, setFormSchema] = useState<WorkflowSchema>(yup.object({}));
 
+  // ingest state
+  const [ingestDocs, setIngestDocs] = useState<string>('');
+
   // Temp UI config state. For persisting changes to the UI config that may
   // not be saved in the backend (e.g., adding / removing an ingest processor)
   const [uiConfig, setUiConfig] = useState<WorkflowConfig | undefined>(
@@ -77,6 +80,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   // ingest state
   const [ingestResponse, setIngestResponse] = useState<string>('');
+
+  // query state
+  const [queryResponse, setQueryResponse] = useState<string>('');
 
   // Tools side panel state
   const [isToolsPanelOpen, setIsToolsPanelOpen] = useState<boolean>(true);
@@ -117,7 +123,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Initialize the form state based on the current UI config
   useEffect(() => {
     if (uiConfig) {
-      const initFormValues = uiConfigToFormik(uiConfig);
+      const initFormValues = uiConfigToFormik(uiConfig, ingestDocs);
       const initFormSchema = uiConfigToSchema(uiConfig);
       setFormValues(initFormValues);
       setFormSchema(initFormSchema);
@@ -178,6 +184,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                       uiConfig={uiConfig}
                       setUiConfig={setUiConfig}
                       setIngestResponse={setIngestResponse}
+                      setQueryResponse={setQueryResponse}
+                      ingestDocs={ingestDocs}
+                      setIngestDocs={setIngestDocs}
                     />
                   </EuiResizablePanel>
                   <EuiResizableButton />
@@ -250,6 +259,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                               <Tools
                                 workflow={workflow}
                                 ingestResponse={ingestResponse}
+                                queryResponse={queryResponse}
                               />
                             </EuiResizablePanel>
                           </>

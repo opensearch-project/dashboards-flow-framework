@@ -12,8 +12,7 @@ import { WorkflowConfig } from '../../../../../common';
 
 interface IngestInputsProps {
   onFormChange: () => void;
-  ingestDocs: {}[];
-  setIngestDocs: (docs: {}[]) => void;
+  setIngestDocs: (docs: string) => void;
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
 }
@@ -22,12 +21,14 @@ interface IngestInputsProps {
  * The base component containing all of the ingest-related inputs
  */
 export function IngestInputs(props: IngestInputsProps) {
+  // TODO: add some toggle to enable/disable ingest altogether.
+  // UX not finalized on where that will live currently
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
         <SourceData
-          ingestDocs={props.ingestDocs}
           setIngestDocs={props.setIngestDocs}
+          onFormChange={props.onFormChange}
         />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>

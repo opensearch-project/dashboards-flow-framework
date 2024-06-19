@@ -21,18 +21,26 @@ import {
  **************** Config -> formik utils **********************
  */
 
-export function uiConfigToFormik(config: WorkflowConfig): WorkflowFormValues {
+// if the user has input any ingest docs, persist them in the form.
+// we don't persist in the config as it logically does not belong there,
+// and can be extremely large. so we pass that as a standalone field
+export function uiConfigToFormik(
+  config: WorkflowConfig,
+  ingestDocs: string
+): WorkflowFormValues {
   const formikValues = {} as WorkflowFormValues;
-  formikValues['ingest'] = ingestConfigToFormik(config.ingest);
+  formikValues['ingest'] = ingestConfigToFormik(config.ingest, ingestDocs);
   formikValues['search'] = searchConfigToFormik(config.search);
   return formikValues;
 }
 
 function ingestConfigToFormik(
-  ingestConfig: IngestConfig | undefined
+  ingestConfig: IngestConfig | undefined,
+  ingestDocs: string
 ): FormikValues {
   let ingestFormikValues = {} as FormikValues;
   if (ingestConfig) {
+    ingestFormikValues['docs'] = ingestDocs || getInitialValue('json');
     ingestFormikValues['enrich'] = processorsConfigToFormik(
       ingestConfig.enrich
     );
@@ -65,6 +73,10 @@ function indexConfigToFormik(indexConfig: IndexConfig): FormikValues {
   let formValues = {} as FormikValues;
   formValues['name'] =
     indexConfig.name.value || getInitialValue(indexConfig.name.type);
+  formValues['mappings'] =
+    indexConfig.mappings.value || getInitialValue(indexConfig.mappings.type);
+  formValues['settings'] =
+    indexConfig.settings.value || getInitialValue(indexConfig.settings.type);
   return formValues;
 }
 
@@ -105,7 +117,7 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
       return [];
     }
     case 'json': {
-      return {};
+      return '{}';
     }
   }
 }
