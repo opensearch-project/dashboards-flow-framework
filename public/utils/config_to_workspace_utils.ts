@@ -33,10 +33,6 @@ import { generateId } from './utils';
  **************** Config -> workspace utils **********************
  */
 
-/*
- **************** ReactFlow workspace utils **********************
- */
-
 const PARENT_NODE_HEIGHT = 350;
 const NODE_HEIGHT_Y = 70;
 const NODE_WIDTH = 300; // based off of the value set in reactflow-styles.scss

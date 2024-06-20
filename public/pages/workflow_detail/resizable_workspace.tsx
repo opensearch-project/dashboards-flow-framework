@@ -58,6 +58,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // ingest state
   const [ingestDocs, setIngestDocs] = useState<string>('');
 
+  // query state
+  const [query, setQuery] = useState<string>('');
+
   // Temp UI config state. For persisting changes to the UI config that may
   // not be saved in the backend (e.g., adding / removing an ingest processor)
   const [uiConfig, setUiConfig] = useState<WorkflowConfig | undefined>(
@@ -123,7 +126,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Initialize the form state based on the current UI config
   useEffect(() => {
     if (uiConfig) {
-      const initFormValues = uiConfigToFormik(uiConfig, ingestDocs);
+      const initFormValues = uiConfigToFormik(uiConfig, ingestDocs, query);
       const initFormSchema = uiConfigToSchema(uiConfig);
       setFormValues(initFormValues);
       setFormSchema(initFormSchema);
@@ -187,6 +190,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                       setQueryResponse={setQueryResponse}
                       ingestDocs={ingestDocs}
                       setIngestDocs={setIngestDocs}
+                      query={query}
+                      setQuery={setQuery}
                     />
                   </EuiResizablePanel>
                   <EuiResizableButton />
