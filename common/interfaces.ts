@@ -59,7 +59,7 @@ export type IngestConfig = {
 };
 
 export type SearchConfig = {
-  request: IConfig;
+  request: {};
   enrichRequest: ProcessorsConfig;
   enrichResponse: ProcessorsConfig;
 };

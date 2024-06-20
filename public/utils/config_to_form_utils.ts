@@ -26,11 +26,12 @@ import {
 // and can be extremely large. so we pass that as a standalone field
 export function uiConfigToFormik(
   config: WorkflowConfig,
-  ingestDocs: string
+  ingestDocs: string,
+  query: string
 ): WorkflowFormValues {
   const formikValues = {} as WorkflowFormValues;
   formikValues['ingest'] = ingestConfigToFormik(config.ingest, ingestDocs);
-  formikValues['search'] = searchConfigToFormik(config.search);
+  formikValues['search'] = searchConfigToFormik(config.search, query);
   return formikValues;
 }
 
@@ -81,12 +82,12 @@ function indexConfigToFormik(indexConfig: IndexConfig): FormikValues {
 }
 
 function searchConfigToFormik(
-  searchConfig: SearchConfig | undefined
+  searchConfig: SearchConfig | undefined,
+  query: string
 ): FormikValues {
   let searchFormikValues = {} as FormikValues;
   if (searchConfig) {
-    // TODO: implement for request
-    searchFormikValues['request'] = {};
+    searchFormikValues['request'] = query || getInitialValue('json');
     searchFormikValues['enrichRequest'] = processorsConfigToFormik(
       searchConfig.enrichRequest
     );
