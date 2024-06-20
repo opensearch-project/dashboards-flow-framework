@@ -190,7 +190,6 @@ function indexConfigToTemplateNode(
     finalMappings = JSON.parse(indexConfig.mappings?.value);
   } catch (e) {}
 
-  indexConfig.settings.value as {};
   let finalPreviousNodeInputs = {};
 
   function updateFinalInputsAndSettings(
