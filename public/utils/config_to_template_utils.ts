@@ -179,7 +179,18 @@ function indexConfigToTemplateNode(
   ingestPipelineNode?: CreateIngestPipelineNode,
   searchPipelineNode?: CreateSearchPipelineNode
 ): CreateIndexNode {
-  let finalSettings = indexConfig.settings.value as {};
+  let finalSettings = {};
+  let finalMappings = {};
+  try {
+    // @ts-ignore
+    finalSettings = JSON.parse(indexConfig.settings?.value);
+  } catch (e) {}
+  try {
+    // @ts-ignore
+    finalMappings = JSON.parse(indexConfig.mappings?.value);
+  } catch (e) {}
+
+  indexConfig.settings.value as {};
   let finalPreviousNodeInputs = {};
 
   function updateFinalInputsAndSettings(
@@ -218,7 +229,7 @@ function indexConfigToTemplateNode(
       index_name: indexConfig.name.value as string,
       configurations: {
         settings: finalSettings,
-        mappings: indexConfig.mappings.value as IndexMappings,
+        mappings: finalMappings,
       },
     },
   };
