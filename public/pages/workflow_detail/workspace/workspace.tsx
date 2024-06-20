@@ -54,10 +54,8 @@ export function Workspace(props: WorkspaceProps) {
 
   // Visual/JSON toggle states
   const [visualSelected, setVisualSelected] = useState<boolean>(true);
-  const [jsonSelected, setJsonSelected] = useState<boolean>(false);
   function toggleSelection(): void {
     setVisualSelected(!visualSelected);
-    setJsonSelected(!jsonSelected);
   }
 
   // JSON state
@@ -140,7 +138,7 @@ export function Workspace(props: WorkspaceProps) {
                 </EuiFilterButton>
                 <EuiFilterButton
                   size="l"
-                  hasActiveFilters={jsonSelected}
+                  hasActiveFilters={!visualSelected}
                   onClick={() => toggleSelection()}
                 >
                   JSON
