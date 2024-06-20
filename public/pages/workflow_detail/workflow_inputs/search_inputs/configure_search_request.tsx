@@ -3,38 +3,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
-import {
-  EuiCodeEditor,
-  EuiFieldText,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiFormRow,
-  EuiTitle,
-} from '@elastic/eui';
-import { Field, FieldProps } from 'formik';
+import React, { useEffect } from 'react';
+import { EuiFlexGroup, EuiFlexItem, EuiTitle } from '@elastic/eui';
+import { useFormikContext } from 'formik';
+import { IConfigField, WorkspaceFormValues } from '../../../../../common';
+import { JsonField } from '../input_fields';
 
 interface ConfigureSearchRequestProps {
-  setQuery: (query: {}) => void;
+  setQuery: (query: string) => void;
+  onFormChange: () => void;
 }
 
 /**
  * Input component for configuring a search request
  */
 export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
-  const indexFieldPath = 'ingest.index.name';
+  const { values } = useFormikContext<WorkspaceFormValues>();
 
-  // query state
-  const [queryStr, setQueryStr] = useState<string>('{}');
-
+  // Hook to listen when the query form value changes.
+  // Try to set the query request if possible
   useEffect(() => {
-    try {
-      const query = JSON.parse(queryStr);
-      props.setQuery(query);
-    } catch (e) {
-      props.setQuery({});
+    if (values?.search?.request) {
+      props.setQuery(values.search.request);
     }
-  }, [queryStr]);
+  }, [values?.search?.request]);
 
   return (
     <EuiFlexGroup direction="column">
@@ -43,46 +35,20 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           <h2>Configure query</h2>
         </EuiTitle>
       </EuiFlexItem>
-      <EuiFlexItem>
-        <EuiFlexGroup direction="column">
-          <EuiFlexItem grow={false}>
-            <Field name={indexFieldPath}>
-              {({ field, form }: FieldProps) => {
-                return (
-                  // TODO: make this dynamic depending on if ingest is defined or not.
-                  // 1/ (incomplete) if no ingest, make this a dropdown to select existing indices
-                  // 2/ (complete) if ingest, show the defined index from ingest config, make it readonly
-                  <EuiFormRow key={indexFieldPath} label={'Retrieval index'}>
-                    <EuiFieldText
-                      {...field}
-                      compressed={false}
-                      value={field.value}
-                      readOnly={true}
-                    />
-                  </EuiFormRow>
-                );
-              }}
-            </Field>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiCodeEditor
-              mode="json"
-              theme="textmate"
-              width="100%"
-              height="25vh"
-              value={queryStr}
-              onChange={(input) => {
-                setQueryStr(input);
-              }}
-              readOnly={false}
-              setOptions={{
-                fontSize: '14px',
-              }}
-              aria-label="Code Editor"
-              tabSize={2}
-            />
-          </EuiFlexItem>
-        </EuiFlexGroup>
+      <EuiFlexItem grow={false}>
+        <JsonField
+          // We want to integrate query into the form, but not persist in the config.
+          // So, we create the ConfigField explicitly inline, instead of pulling
+          // from the config.
+          field={
+            {
+              label: 'Define query',
+            } as IConfigField
+          }
+          fieldPath={'search.request'}
+          onFormChange={props.onFormChange}
+          editorHeight="25vh"
+        />
       </EuiFlexItem>
     </EuiFlexGroup>
   );

@@ -53,6 +53,8 @@ interface WorkflowInputsProps {
   setQueryResponse: (queryResponse: string) => void;
   ingestDocs: string;
   setIngestDocs: (docs: string) => void;
+  query: string;
+  setQuery: (query: string) => void;
 }
 
 export enum STEP {
@@ -76,9 +78,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // ingest state
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
-
-  // query state
-  const [query, setQuery] = useState<{}>({});
 
   // maintain global states
   const onIngest = selectedStep === STEP.INGEST;
@@ -145,6 +144,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     await validateForm()
       .then(async (validationResults: {}) => {
         if (Object.keys(validationResults).length > 0) {
+          // TODO: may want to persist more fine-grained form validation (ingest vs. search)
+          // For example, running an ingest should be possible, even with some
+          // invalid query or search processor config. And vice versa.
           console.error('Form invalid');
         } else {
           const updatedConfig = formikToUiConfig(
@@ -206,11 +208,15 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   async function validateAndRunQuery(): Promise<boolean> {
     let success = false;
     try {
-      if (!isEmpty(query)) {
+      let queryObj = {};
+      try {
+        queryObj = JSON.parse(props.query);
+      } catch (e) {}
+      if (!isEmpty(queryObj)) {
         success = await validateAndUpdateWorkflow();
         if (success) {
           const indexName = values.ingest.index.name;
-          dispatch(searchIndex({ index: indexName, body: query }))
+          dispatch(searchIndex({ index: indexName, body: props.query }))
             .unwrap()
             .then(async (resp) => {
               const hits = resp.hits.hits;
@@ -290,7 +296,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <SearchInputs
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
-                setQuery={setQuery}
+                setQuery={props.setQuery}
                 onFormChange={props.onFormChange}
               />
             )}
