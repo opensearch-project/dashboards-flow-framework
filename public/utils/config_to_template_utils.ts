@@ -11,7 +11,6 @@ import {
   TemplateFlow,
   TemplateEdge,
   ModelFormValue,
-  IndexMappings,
   WORKFLOW_STEP_TYPE,
   WorkflowConfig,
   PROCESSOR_TYPE,
@@ -46,10 +45,10 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
   const nodes = [] as TemplateNode[];
   const edges = [] as TemplateEdge[];
 
-  nodes.push(
-    ...ingestConfigToTemplateNodes(config.ingest),
-    ...searchConfigToTemplateNodes(config.search)
-  );
+  if (config.ingest.enabled) {
+    nodes.push(...ingestConfigToTemplateNodes(config.ingest));
+  }
+  nodes.push(...searchConfigToTemplateNodes(config.search));
 
   const createIngestPipelineNode = nodes.find(
     (node) => node.type === WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE
@@ -58,13 +57,15 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
     (node) => node.type === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
   ) as CreateSearchPipelineNode;
 
-  nodes.push(
-    indexConfigToTemplateNode(
-      config.ingest.index,
-      createIngestPipelineNode,
-      createSearchPipelineNode
-    )
-  );
+  if (config.ingest.enabled) {
+    nodes.push(
+      indexConfigToTemplateNode(
+        config.ingest.index,
+        createIngestPipelineNode,
+        createSearchPipelineNode
+      )
+    );
+  }
 
   return {
     nodes,
