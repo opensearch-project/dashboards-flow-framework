@@ -91,11 +91,7 @@ function fetchEmptyMetadata(): UIState {
         },
       },
       search: {
-        request: {
-          id: 'request',
-          name: 'Request',
-          fields: [],
-        },
+        request: {},
         enrichRequest: {
           processors: [],
         },

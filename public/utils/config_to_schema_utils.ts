@@ -39,6 +39,30 @@ function ingestConfigToSchema(
   return yup.object(ingestSchemaObj);
 }
 
+function indexConfigToSchema(indexConfig: IndexConfig): Schema {
+  const indexSchemaObj = {} as { [key: string]: Schema };
+  indexSchemaObj['name'] = getFieldSchema(indexConfig.name.type);
+  indexSchemaObj['mappings'] = getFieldSchema(indexConfig.mappings.type);
+  indexSchemaObj['settings'] = getFieldSchema(indexConfig.settings.type);
+  return yup.object(indexSchemaObj);
+}
+
+function searchConfigToSchema(
+  searchConfig: SearchConfig | undefined
+): ObjectSchema<any> {
+  const searchSchemaObj = {} as { [key: string]: Schema };
+  if (searchConfig) {
+    searchSchemaObj['request'] = getFieldSchema('json');
+    searchSchemaObj['enrichRequest'] = processorsConfigToSchema(
+      searchConfig.enrichRequest
+    );
+    searchSchemaObj['enrichResponse'] = processorsConfigToSchema(
+      searchConfig.enrichResponse
+    );
+  }
+  return yup.object(searchSchemaObj);
+}
+
 function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
   const processorsSchemaObj = {} as { [key: string]: Schema };
   processorsConfig.processors.forEach((processorConfig) => {
@@ -50,23 +74,6 @@ function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
   });
 
   return yup.object(processorsSchemaObj);
-}
-
-function indexConfigToSchema(indexConfig: IndexConfig): Schema {
-  const indexSchemaObj = {} as { [key: string]: Schema };
-  indexSchemaObj['name'] = getFieldSchema(indexConfig.name.type);
-  indexSchemaObj['mappings'] = getFieldSchema(indexConfig.mappings.type);
-  indexSchemaObj['settings'] = getFieldSchema(indexConfig.settings.type);
-  return yup.object(indexSchemaObj);
-}
-
-// TODO: implement this
-function searchConfigToSchema(
-  searchConfig: SearchConfig | undefined
-): ObjectSchema<any> {
-  const searchSchemaObj = {} as { [key: string]: Schema };
-
-  return yup.object(searchSchemaObj);
 }
 
 /*

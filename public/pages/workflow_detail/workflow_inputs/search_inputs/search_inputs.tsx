@@ -13,7 +13,7 @@ import { WorkflowConfig } from '../../../../../common';
 interface SearchInputsProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
-  setQuery: (query: {}) => void;
+  setQuery: (query: string) => void;
   onFormChange: () => void;
 }
 
@@ -24,7 +24,10 @@ export function SearchInputs(props: SearchInputsProps) {
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
-        <ConfigureSearchRequest setQuery={props.setQuery} />
+        <ConfigureSearchRequest
+          setQuery={props.setQuery}
+          onFormChange={props.onFormChange}
+        />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiHorizontalRule margin="none" />
