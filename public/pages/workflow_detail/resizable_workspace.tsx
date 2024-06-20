@@ -240,7 +240,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                                 style={{ height: '100%' }}
                               >
                                 <EuiFlexItem>
-                                  <Workspace uiConfig={uiConfig} />
+                                  <Workspace
+                                    workflow={props.workflow}
+                                    uiConfig={uiConfig}
+                                  />
                                 </EuiFlexItem>
                               </EuiFlexGroup>
                             </EuiResizablePanel>
