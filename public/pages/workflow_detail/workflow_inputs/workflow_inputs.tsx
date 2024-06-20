@@ -363,7 +363,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         fill={true}
                         onClick={() => setSelectedStep(STEP.SEARCH)}
                       >
-                        {`Next >`}
+                        {`Search pipeline >`}
                       </EuiButton>
                     </EuiFlexItem>
                   ) : onIngestAndUnprovisioned ? (
@@ -403,7 +403,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           fill={true}
                           onClick={() => setSelectedStep(STEP.SEARCH)}
                         >
-                          {`Next >`}
+                          {`Search pipeline >`}
                         </EuiButton>
                       </EuiFlexItem>
                     </>
