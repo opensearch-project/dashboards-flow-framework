@@ -45,10 +45,10 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
   const nodes = [] as TemplateNode[];
   const edges = [] as TemplateEdge[];
 
-  if (config.ingest.enabled) {
-    nodes.push(...ingestConfigToTemplateNodes(config.ingest));
-  }
-  nodes.push(...searchConfigToTemplateNodes(config.search));
+  nodes.push(
+    ...ingestConfigToTemplateNodes(config.ingest),
+    ...searchConfigToTemplateNodes(config.search)
+  );
 
   const createIngestPipelineNode = nodes.find(
     (node) => node.type === WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE
@@ -82,7 +82,7 @@ function ingestConfigToTemplateNodes(
   );
   const hasProcessors = ingestProcessors.length > 0;
 
-  return hasProcessors
+  return hasProcessors && ingestConfig.enabled
     ? [
         {
           id: ingestPipelineName,
