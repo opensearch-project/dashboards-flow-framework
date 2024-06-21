@@ -30,6 +30,7 @@ import {
   ResourceList,
 } from '../../../general_components';
 import { WORKFLOWS_TAB } from '../workflows';
+import { getCore } from '../../../services';
 
 interface WorkflowListProps {
   setSelectedTabId: (tabId: WORKFLOWS_TAB) => void;
@@ -142,9 +143,23 @@ export function WorkflowList(props: WorkflowListProps) {
           onClose={() => {
             clearDeleteState();
           }}
-          onConfirm={() => {
-            dispatch(deleteWorkflow(selectedWorkflow.id as string));
+          onConfirm={async () => {
             clearDeleteState();
+            await dispatch(deleteWorkflow(selectedWorkflow.id as string))
+              .unwrap()
+              .then((result) => {
+                getCore().notifications.toasts.addSuccess(
+                  `Successfully deleted ${selectedWorkflow.name}`
+                );
+              })
+              .catch((err: any) => {
+                getCore().notifications.toasts.addSuccess(
+                  `Failed to delete ${selectedWorkflow.name}`
+                );
+                console.error(
+                  `Failed to delete ${selectedWorkflow.name}: ${err}`
+                );
+              });
           }}
         />
       )}
