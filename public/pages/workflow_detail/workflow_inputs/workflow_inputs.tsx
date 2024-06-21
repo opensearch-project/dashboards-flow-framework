@@ -43,6 +43,7 @@ import {
   hasProvisionedIngestResources,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
+import { ExportOptions } from './export_options';
 
 // styling
 import '../workspace/workspace-styles.scss';
@@ -63,6 +64,7 @@ interface WorkflowInputsProps {
 enum STEP {
   INGEST = 'Ingestion pipeline',
   SEARCH = 'Search pipeline',
+  EXPORT = 'Export',
 }
 
 enum INGEST_OPTION {
@@ -89,6 +91,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // maintain global states
   const onIngest = selectedStep === STEP.INGEST;
+  const onSearch = selectedStep === STEP.SEARCH;
+  const onExport = selectedStep === STEP.EXPORT;
   const ingestEnabled = values?.ingest?.enabled || false;
   const onIngestAndProvisioned = onIngest && ingestProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
@@ -264,14 +268,20 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               steps={[
                 {
                   title: STEP.INGEST,
-                  isComplete: selectedStep === STEP.SEARCH,
-                  isSelected: selectedStep === STEP.INGEST,
+                  isComplete: onSearch || onExport,
+                  isSelected: onIngest,
                   onClick: () => {},
                 },
                 {
                   title: STEP.SEARCH,
+                  isComplete: onExport,
+                  isSelected: onSearch,
+                  onClick: () => {},
+                },
+                {
+                  title: STEP.EXPORT,
                   isComplete: false,
-                  isSelected: selectedStep === STEP.SEARCH,
+                  isSelected: onExport,
                   onClick: () => {},
                 },
               ]}
@@ -321,7 +331,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       ? 'Define ingest pipeline'
                       : onIngestAndProvisioned
                       ? 'Edit ingest pipeline'
-                      : 'Define search pipeline'}
+                      : onSearch
+                      ? 'Define search pipeline'
+                      : 'Export project as'}
                   </h2>
                 </EuiTitle>
               </EuiFlexItem>
@@ -339,13 +351,15 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
                   />
-                ) : (
+                ) : onSearch ? (
                   <SearchInputs
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
                     setQuery={props.setQuery}
                     onFormChange={props.onFormChange}
                   />
+                ) : (
+                  <ExportOptions workflow={props.workflow} />
                 )}
               </EuiFlexItem>
             </>
@@ -407,7 +421,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         </EuiButton>
                       </EuiFlexItem>
                     </>
-                  ) : (
+                  ) : onSearch ? (
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
@@ -419,12 +433,44 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       <EuiFlexItem grow={false}>
                         <EuiButton
                           disabled={false}
-                          fill={true}
+                          fill={false}
                           onClick={() => {
                             validateAndRunQuery();
                           }}
                         >
                           Run query
+                        </EuiButton>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiButton
+                          disabled={false}
+                          fill={false}
+                          onClick={() => {
+                            setSelectedStep(STEP.EXPORT);
+                          }}
+                        >
+                          {`Export >`}
+                        </EuiButton>
+                      </EuiFlexItem>
+                    </>
+                  ) : (
+                    <>
+                      <EuiFlexItem grow={false}>
+                        <EuiButtonEmpty
+                          onClick={() => setSelectedStep(STEP.SEARCH)}
+                        >
+                          Back
+                        </EuiButtonEmpty>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiButton
+                          disabled={false}
+                          fill={true}
+                          onClick={() => {
+                            // TODO: final UX for export flow is TBD.
+                          }}
+                        >
+                          Export
                         </EuiButton>
                       </EuiFlexItem>
                     </>
