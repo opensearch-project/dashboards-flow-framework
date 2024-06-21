@@ -299,11 +299,11 @@ export type TemplateFlows = {
 export type WorkflowTemplate = {
   name: string;
   description: string;
-  use_case: USE_CASE;
   // TODO: finalize on version type when that is implemented
   // https://github.com/opensearch-project/flow-framework/issues/526
   version: any;
   workflows: TemplateFlows;
+  use_case?: USE_CASE;
   // UI state and any ReactFlow state may not exist if a workflow is created via API/backend-only.
   ui_metadata?: UIState;
 };
