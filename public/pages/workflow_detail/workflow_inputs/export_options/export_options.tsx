@@ -72,6 +72,7 @@ export function ExportOptions(props: SearchInputsProps) {
           <EuiCodeBlock
             language={selectedOption === EXPORT_OPTION.JSON ? 'json' : 'yaml'}
             fontSize="m"
+            isCopyable={true}
           >
             {formattedConfig}
           </EuiCodeBlock>
