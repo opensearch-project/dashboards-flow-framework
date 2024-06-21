@@ -14,6 +14,12 @@ import {
   EuiFilterSelectItem,
   EuiFieldSearch,
   EuiLoadingSpinner,
+  EuiFlyout,
+  EuiFlyoutHeader,
+  EuiTitle,
+  EuiFlyoutBody,
+  EuiText,
+  EuiLink,
 } from '@elastic/eui';
 import { AppState, deleteWorkflow, useAppDispatch } from '../../../store';
 import { UIState, WORKFLOW_TYPE, Workflow } from '../../../../common';
@@ -21,9 +27,13 @@ import { columns } from './columns';
 import {
   DeleteWorkflowModal,
   MultiSelectFilter,
+  ResourceList,
 } from '../../../general_components';
+import { WORKFLOWS_TAB } from '../workflows';
 
-interface WorkflowListProps {}
+interface WorkflowListProps {
+  setSelectedTabId: (tabId: WORKFLOWS_TAB) => void;
+}
 
 const sorting = {
   sort: {
@@ -59,15 +69,22 @@ export function WorkflowList(props: WorkflowListProps) {
     (state: AppState) => state.workflows
   );
 
-  // delete workflow state
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [workflowToDelete, setWorkflowToDelete] = useState<
+  // actions state
+  const [selectedWorkflow, setSelectedWorkflow] = useState<
     Workflow | undefined
   >(undefined);
+
+  // delete workflow state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   function clearDeleteState() {
-    setWorkflowToDelete(undefined);
+    setSelectedWorkflow(undefined);
     setIsDeleteModalOpen(false);
   }
+
+  // view workflow resources state
+  const [isResourcesFlyoutOpen, setIsResourcesFlyoutOpen] = useState<boolean>(
+    false
+  );
 
   // search bar state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -95,32 +112,71 @@ export function WorkflowList(props: WorkflowListProps) {
   const tableActions = [
     {
       name: 'Delete',
-      description: 'Delete this workflow',
+      description: 'Delete',
       type: 'icon',
       icon: 'trash',
       color: 'danger',
       onClick: (item: Workflow) => {
-        setWorkflowToDelete(item);
+        setSelectedWorkflow(item);
         setIsDeleteModalOpen(true);
+      },
+    },
+    {
+      name: 'View resources',
+      description: 'View related resources',
+      type: 'icon',
+      icon: 'link',
+      color: 'primary',
+      onClick: (item: Workflow) => {
+        setSelectedWorkflow(item);
+        setIsResourcesFlyoutOpen(true);
       },
     },
   ];
 
   return (
     <>
-      {isDeleteModalOpen && workflowToDelete?.id !== undefined && (
+      {isDeleteModalOpen && selectedWorkflow?.id !== undefined && (
         <DeleteWorkflowModal
-          workflow={workflowToDelete}
+          workflow={selectedWorkflow}
           onClose={() => {
             clearDeleteState();
           }}
           onConfirm={() => {
-            dispatch(deleteWorkflow(workflowToDelete.id as string));
+            dispatch(deleteWorkflow(selectedWorkflow.id as string));
             clearDeleteState();
           }}
         />
       )}
+      {isResourcesFlyoutOpen && selectedWorkflow && (
+        <EuiFlyout
+          ownFocus={true}
+          onClose={() => setIsResourcesFlyoutOpen(false)}
+        >
+          <EuiFlyoutHeader hasBorder={true}>
+            <EuiTitle size="m">
+              <h2>{`Active resources with ${selectedWorkflow.name}`}</h2>
+            </EuiTitle>
+          </EuiFlyoutHeader>
+          <EuiFlyoutBody>
+            <ResourceList workflow={selectedWorkflow} />
+          </EuiFlyoutBody>
+        </EuiFlyout>
+      )}
       <EuiFlexGroup direction="column">
+        <EuiFlexItem>
+          <EuiFlexGroup direction="row" style={{ marginLeft: '0px' }}>
+            <EuiText color="subdued">{`Manage existing workflows or`}</EuiText>
+            &nbsp;
+            <EuiText>
+              <EuiLink
+                onClick={() => props.setSelectedTabId(WORKFLOWS_TAB.CREATE)}
+              >
+                create a new workflow
+              </EuiLink>
+            </EuiText>
+          </EuiFlexGroup>
+        </EuiFlexItem>
         <EuiFlexItem>
           <EuiFlexGroup direction="row" gutterSize="m">
             <EuiFlexItem grow={true}>

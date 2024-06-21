@@ -6,6 +6,7 @@
 import React from 'react';
 import {
   EuiButton,
+  EuiButtonEmpty,
   EuiModal,
   EuiModalBody,
   EuiModalFooter,
@@ -33,11 +34,15 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
-        <EuiText>The workflow will be permanently deleted.</EuiText>
+        <EuiText>
+          The workflow will be permanently deleted. This action cannot be
+          undone. Resources created by this workflow will be retained.
+        </EuiText>
       </EuiModalBody>
       <EuiModalFooter>
+        <EuiButtonEmpty onClick={props.onClose}> Cancel</EuiButtonEmpty>
         <EuiButton onClick={props.onConfirm} fill={true} color="danger">
-          Confirm
+          Delete
         </EuiButton>
       </EuiModalFooter>
     </EuiModal>
