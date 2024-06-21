@@ -11,7 +11,6 @@ import {
   TemplateFlow,
   TemplateEdge,
   ModelFormValue,
-  IndexMappings,
   WORKFLOW_STEP_TYPE,
   WorkflowConfig,
   PROCESSOR_TYPE,
@@ -58,13 +57,15 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
     (node) => node.type === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
   ) as CreateSearchPipelineNode;
 
-  nodes.push(
-    indexConfigToTemplateNode(
-      config.ingest.index,
-      createIngestPipelineNode,
-      createSearchPipelineNode
-    )
-  );
+  if (config.ingest.enabled) {
+    nodes.push(
+      indexConfigToTemplateNode(
+        config.ingest.index,
+        createIngestPipelineNode,
+        createSearchPipelineNode
+      )
+    );
+  }
 
   return {
     nodes,
@@ -81,7 +82,7 @@ function ingestConfigToTemplateNodes(
   );
   const hasProcessors = ingestProcessors.length > 0;
 
-  return hasProcessors
+  return hasProcessors && ingestConfig.enabled
     ? [
         {
           id: ingestPipelineName,
@@ -179,7 +180,17 @@ function indexConfigToTemplateNode(
   ingestPipelineNode?: CreateIngestPipelineNode,
   searchPipelineNode?: CreateSearchPipelineNode
 ): CreateIndexNode {
-  let finalSettings = indexConfig.settings.value as {};
+  let finalSettings = {};
+  let finalMappings = {};
+  try {
+    // @ts-ignore
+    finalSettings = JSON.parse(indexConfig.settings?.value);
+  } catch (e) {}
+  try {
+    // @ts-ignore
+    finalMappings = JSON.parse(indexConfig.mappings?.value);
+  } catch (e) {}
+
   let finalPreviousNodeInputs = {};
 
   function updateFinalInputsAndSettings(
@@ -218,7 +229,7 @@ function indexConfigToTemplateNode(
       index_name: indexConfig.name.value as string,
       configurations: {
         settings: finalSettings,
-        mappings: indexConfig.mappings.value as IndexMappings,
+        mappings: finalMappings,
       },
     },
   };
