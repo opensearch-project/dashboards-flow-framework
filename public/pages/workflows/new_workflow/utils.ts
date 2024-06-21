@@ -18,6 +18,7 @@ import {
   ReactFlowEdge,
   WorkspaceFlowState,
   IProcessorConfig,
+  WORKFLOW_TYPE,
 } from '../../../../common';
 import { generateId, initComponentData } from '../../../utils';
 import { MarkerType } from 'reactflow';
@@ -33,21 +34,12 @@ export function enrichPresetWorkflowWithUiMetadata(
   presetWorkflow: Partial<WorkflowTemplate>
 ): WorkflowTemplate {
   let uiMetadata = {} as UIState;
-  // TODO: for now we are defaulting to empty for all presets. As the form values become finalized,
-  // provide preset values for the different preset use cases.
-  switch (presetWorkflow.use_case) {
-    case USE_CASE.SEMANTIC_SEARCH: {
+  switch (presetWorkflow.ui_metadata?.type || WORKFLOW_TYPE.CUSTOM) {
+    case WORKFLOW_TYPE.SEMANTIC_SEARCH: {
       uiMetadata = fetchSemanticSearchMetadata();
       break;
     }
-    case USE_CASE.NEURAL_SPARSE_SEARCH: {
-      uiMetadata = fetchEmptyMetadata();
-      break;
-    }
-    case USE_CASE.HYBRID_SEARCH: {
-      uiMetadata = fetchEmptyMetadata();
-      break;
-    }
+    // TODO: add more presets
     default: {
       uiMetadata = fetchEmptyMetadata();
       break;
@@ -65,6 +57,7 @@ export function enrichPresetWorkflowWithUiMetadata(
 
 function fetchEmptyMetadata(): UIState {
   return {
+    type: WORKFLOW_TYPE.CUSTOM,
     config: {
       ingest: {
         enabled: true,
@@ -111,6 +104,7 @@ function fetchSemanticSearchMetadata(): UIState {
   // We can reuse the base state. Only need to override a few things,
   // such as preset ingest processors.
   let baseState = fetchEmptyMetadata();
+  baseState.type = WORKFLOW_TYPE.SEMANTIC_SEARCH;
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
   return baseState;
 }

@@ -6,7 +6,7 @@
 import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
-import { COMPONENT_CLASS, PROCESSOR_TYPE } from './constants';
+import { COMPONENT_CLASS, PROCESSOR_TYPE, WORKFLOW_TYPE } from './constants';
 
 export type Index = {
   name: string;
@@ -163,6 +163,7 @@ type ReactFlowViewport = {
 
 export type UIState = {
   config: WorkflowConfig;
+  type: WORKFLOW_TYPE;
   workspace_flow?: WorkspaceFlowState;
 };
 

@@ -123,6 +123,12 @@ export const NEURAL_SPARSE_TOKENIZER_TRANSFORMER = {
  * Various constants pertaining to Workflow configs
  */
 
+// frontend-specific workflow types, derived from the available preset templates
+export enum WORKFLOW_TYPE {
+  SEMANTIC_SEARCH = 'Semantic search',
+  CUSTOM = 'Custom',
+}
+
 export enum PROCESSOR_TYPE {
   ML = 'ml_processor',
 }
