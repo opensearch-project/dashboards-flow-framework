@@ -11,7 +11,7 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { Workflow } from '../../../../../common';
-import { ResourceList } from './resource_list';
+import { ResourceList } from '../../../../general_components';
 
 interface ResourcesProps {
   workflow?: Workflow;

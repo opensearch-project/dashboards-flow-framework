@@ -14,17 +14,27 @@ import {
   EuiFilterSelectItem,
   EuiFieldSearch,
   EuiLoadingSpinner,
+  EuiFlyout,
+  EuiFlyoutHeader,
+  EuiTitle,
+  EuiFlyoutBody,
+  EuiText,
+  EuiLink,
 } from '@elastic/eui';
 import { AppState, deleteWorkflow, useAppDispatch } from '../../../store';
-import { Workflow } from '../../../../common';
+import { UIState, WORKFLOW_TYPE, Workflow } from '../../../../common';
 import { columns } from './columns';
 import {
   DeleteWorkflowModal,
   MultiSelectFilter,
+  ResourceList,
 } from '../../../general_components';
-import { getStateOptions } from '../../../utils';
+import { WORKFLOWS_TAB } from '../workflows';
+import { getCore } from '../../../services';
 
-interface WorkflowListProps {}
+interface WorkflowListProps {
+  setSelectedTabId: (tabId: WORKFLOWS_TAB) => void;
+}
 
 const sorting = {
   sort: {
@@ -32,6 +42,24 @@ const sorting = {
     direction: 'asc' as Direction,
   },
 };
+
+const filterOptions = [
+  // @ts-ignore
+  {
+    name: WORKFLOW_TYPE.SEMANTIC_SEARCH,
+    checked: 'on',
+  } as EuiFilterSelectItem,
+  // @ts-ignore
+  {
+    name: WORKFLOW_TYPE.CUSTOM,
+    checked: 'on',
+  } as EuiFilterSelectItem,
+  // @ts-ignore
+  {
+    name: WORKFLOW_TYPE.UNKNOWN,
+    checked: 'on',
+  } as EuiFilterSelectItem,
+];
 
 /**
  * The searchable list of created workflows.
@@ -42,15 +70,22 @@ export function WorkflowList(props: WorkflowListProps) {
     (state: AppState) => state.workflows
   );
 
-  // delete workflow state
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [workflowToDelete, setWorkflowToDelete] = useState<
+  // actions state
+  const [selectedWorkflow, setSelectedWorkflow] = useState<
     Workflow | undefined
   >(undefined);
+
+  // delete workflow state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   function clearDeleteState() {
-    setWorkflowToDelete(undefined);
+    setSelectedWorkflow(undefined);
     setIsDeleteModalOpen(false);
   }
+
+  // view workflow resources state
+  const [isResourcesFlyoutOpen, setIsResourcesFlyoutOpen] = useState<boolean>(
+    false
+  );
 
   // search bar state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -59,8 +94,8 @@ export function WorkflowList(props: WorkflowListProps) {
   }, 200);
 
   // filters state
-  const [selectedStates, setSelectedStates] = useState<EuiFilterSelectItem[]>(
-    getStateOptions()
+  const [selectedTypes, setSelectedTypes] = useState<EuiFilterSelectItem[]>(
+    filterOptions
   );
   const [filteredWorkflows, setFilteredWorkflows] = useState<Workflow[]>([]);
 
@@ -69,41 +104,94 @@ export function WorkflowList(props: WorkflowListProps) {
     setFilteredWorkflows(
       fetchFilteredWorkflows(
         Object.values(workflows),
-        selectedStates,
+        selectedTypes,
         searchQuery
       )
     );
-  }, [selectedStates, searchQuery, workflows]);
+  }, [selectedTypes, searchQuery, workflows]);
 
   const tableActions = [
     {
       name: 'Delete',
-      description: 'Delete this workflow',
+      description: 'Delete',
       type: 'icon',
       icon: 'trash',
       color: 'danger',
       onClick: (item: Workflow) => {
-        setWorkflowToDelete(item);
+        setSelectedWorkflow(item);
         setIsDeleteModalOpen(true);
+      },
+    },
+    {
+      name: 'View resources',
+      description: 'View related resources',
+      type: 'icon',
+      icon: 'link',
+      color: 'primary',
+      onClick: (item: Workflow) => {
+        setSelectedWorkflow(item);
+        setIsResourcesFlyoutOpen(true);
       },
     },
   ];
 
   return (
     <>
-      {isDeleteModalOpen && workflowToDelete?.id !== undefined && (
+      {isDeleteModalOpen && selectedWorkflow?.id !== undefined && (
         <DeleteWorkflowModal
-          workflow={workflowToDelete}
+          workflow={selectedWorkflow}
           onClose={() => {
             clearDeleteState();
           }}
-          onConfirm={() => {
-            dispatch(deleteWorkflow(workflowToDelete.id as string));
+          onConfirm={async () => {
             clearDeleteState();
+            await dispatch(deleteWorkflow(selectedWorkflow.id as string))
+              .unwrap()
+              .then((result) => {
+                getCore().notifications.toasts.addSuccess(
+                  `Successfully deleted ${selectedWorkflow.name}`
+                );
+              })
+              .catch((err: any) => {
+                getCore().notifications.toasts.addSuccess(
+                  `Failed to delete ${selectedWorkflow.name}`
+                );
+                console.error(
+                  `Failed to delete ${selectedWorkflow.name}: ${err}`
+                );
+              });
           }}
         />
       )}
+      {isResourcesFlyoutOpen && selectedWorkflow && (
+        <EuiFlyout
+          ownFocus={true}
+          onClose={() => setIsResourcesFlyoutOpen(false)}
+        >
+          <EuiFlyoutHeader hasBorder={true}>
+            <EuiTitle size="m">
+              <h2>{`Active resources with ${selectedWorkflow.name}`}</h2>
+            </EuiTitle>
+          </EuiFlyoutHeader>
+          <EuiFlyoutBody>
+            <ResourceList workflow={selectedWorkflow} />
+          </EuiFlyoutBody>
+        </EuiFlyout>
+      )}
       <EuiFlexGroup direction="column">
+        <EuiFlexItem>
+          <EuiFlexGroup direction="row" style={{ marginLeft: '0px' }}>
+            <EuiText color="subdued">{`Manage existing workflows or`}</EuiText>
+            &nbsp;
+            <EuiText>
+              <EuiLink
+                onClick={() => props.setSelectedTabId(WORKFLOWS_TAB.CREATE)}
+              >
+                create a new workflow
+              </EuiLink>
+            </EuiText>
+          </EuiFlexGroup>
+        </EuiFlexItem>
         <EuiFlexItem>
           <EuiFlexGroup direction="row" gutterSize="m">
             <EuiFlexItem grow={true}>
@@ -114,9 +202,9 @@ export function WorkflowList(props: WorkflowListProps) {
               />
             </EuiFlexItem>
             <MultiSelectFilter
-              filters={getStateOptions()}
+              filters={filterOptions}
               title="Status"
-              setSelectedFilters={setSelectedStates}
+              setSelectedFilters={setSelectedTypes}
             />
           </EuiFlexGroup>
         </EuiFlexItem>
@@ -140,13 +228,21 @@ export function WorkflowList(props: WorkflowListProps) {
 // Collect the final workflow list after applying all filters
 function fetchFilteredWorkflows(
   allWorkflows: Workflow[],
-  stateFilters: EuiFilterSelectItem[],
+  typeFilters: EuiFilterSelectItem[],
   searchQuery: string
 ): Workflow[] {
+  // If missing/invalid ui metadata, add defaults
+  const allWorkflowsWithDefaults = allWorkflows.map((workflow) => ({
+    ...workflow,
+    ui_metadata: {
+      ...workflow.ui_metadata,
+      type: workflow.ui_metadata?.type || WORKFLOW_TYPE.UNKNOWN,
+    } as UIState,
+  }));
   // @ts-ignore
-  const stateFilterStrings = stateFilters.map((filter) => filter.name);
-  const filteredWorkflows = allWorkflows.filter((workflow) =>
-    stateFilterStrings.includes(workflow.state)
+  const typeFilterStrings = typeFilters.map((filter) => filter.name);
+  const filteredWorkflows = allWorkflowsWithDefaults.filter((workflow) =>
+    typeFilterStrings.includes(workflow.ui_metadata?.type)
   );
   return searchQuery.length === 0
     ? filteredWorkflows
