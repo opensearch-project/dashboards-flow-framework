@@ -70,7 +70,7 @@ export function ExportOptions(props: SearchInputsProps) {
       {props.workflow !== undefined && (
         <EuiFlexItem grow={false}>
           <EuiCodeBlock
-            language={selectedOption === EXPORT_OPTION.JSON ? 'json' : 'yaml'}
+            language={selectedOption}
             fontSize="m"
             isCopyable={true}
           >
