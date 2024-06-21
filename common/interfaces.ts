@@ -6,7 +6,7 @@
 import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
-import { COMPONENT_CLASS, PROCESSOR_TYPE } from './constants';
+import { COMPONENT_CLASS, PROCESSOR_TYPE, WORKFLOW_TYPE } from './constants';
 
 export type Index = {
   name: string;
@@ -163,6 +163,7 @@ type ReactFlowViewport = {
 
 export type UIState = {
   config: WorkflowConfig;
+  type: WORKFLOW_TYPE;
   workspace_flow?: WorkspaceFlowState;
 };
 
@@ -298,11 +299,11 @@ export type TemplateFlows = {
 export type WorkflowTemplate = {
   name: string;
   description: string;
-  use_case: USE_CASE;
   // TODO: finalize on version type when that is implemented
   // https://github.com/opensearch-project/flow-framework/issues/526
   version: any;
   workflows: TemplateFlows;
+  use_case?: USE_CASE;
   // UI state and any ReactFlow state may not exist if a workflow is created via API/backend-only.
   ui_metadata?: UIState;
 };

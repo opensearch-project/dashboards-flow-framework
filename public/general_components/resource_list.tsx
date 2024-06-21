@@ -10,8 +10,8 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
 } from '@elastic/eui';
-import { Workflow, WorkflowResource } from '../../../../../common';
-import { columns } from './columns';
+import { Workflow, WorkflowResource } from '../../common';
+import { columns } from '../pages/workflow_detail/tools/resources/columns';
 
 interface ResourceListProps {
   workflow?: Workflow;

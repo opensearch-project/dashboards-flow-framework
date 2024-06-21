@@ -27,7 +27,7 @@ export interface WorkflowsRouterProps {}
 
 interface WorkflowsProps extends RouteComponentProps<WorkflowsRouterProps> {}
 
-enum WORKFLOWS_TAB {
+export enum WORKFLOWS_TAB {
   MANAGE = 'manage',
   CREATE = 'create',
 }
@@ -134,7 +134,9 @@ export function Workflows(props: WorkflowsProps) {
             </h2>
           </EuiTitle>
           <EuiSpacer size="m" />
-          {selectedTabId === WORKFLOWS_TAB.MANAGE && <WorkflowList />}
+          {selectedTabId === WORKFLOWS_TAB.MANAGE && (
+            <WorkflowList setSelectedTabId={setSelectedTabId} />
+          )}
           {selectedTabId === WORKFLOWS_TAB.CREATE && <NewWorkflow />}
           {selectedTabId === WORKFLOWS_TAB.MANAGE &&
             Object.keys(workflows || {}).length === 0 &&
