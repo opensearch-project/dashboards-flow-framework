@@ -14,7 +14,9 @@ import {
   EuiHorizontalRule,
   EuiLoadingSpinner,
   EuiPanel,
+  EuiSpacer,
   EuiStepsHorizontal,
+  EuiText,
   EuiTitle,
 } from '@elastic/eui';
 import {
@@ -40,6 +42,7 @@ import {
   configToTemplateFlows,
   hasProvisionedIngestResources,
 } from '../../../utils';
+import { BooleanField } from './input_fields';
 
 // styling
 import '../workspace/workspace-styles.scss';
@@ -57,9 +60,14 @@ interface WorkflowInputsProps {
   setQuery: (query: string) => void;
 }
 
-export enum STEP {
+enum STEP {
   INGEST = 'Ingestion pipeline',
   SEARCH = 'Search pipeline',
+}
+
+enum INGEST_OPTION {
+  CREATE = 'create',
+  SKIP = 'skip',
 }
 
 /**
@@ -81,8 +89,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // maintain global states
   const onIngest = selectedStep === STEP.INGEST;
+  const ingestEnabled = values?.ingest?.enabled || false;
   const onIngestAndProvisioned = onIngest && ingestProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
+  const onIngestAndDisabled = onIngest && !ingestEnabled;
 
   useEffect(() => {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
@@ -265,42 +275,81 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   onClick: () => {},
                 },
               ]}
-            ></EuiStepsHorizontal>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiTitle>
-              <h2>
-                {onIngestAndUnprovisioned
-                  ? 'Define ingest pipeline'
-                  : onIngestAndProvisioned
-                  ? 'Edit ingest pipeline'
-                  : 'Define search pipeline'}
-              </h2>
-            </EuiTitle>
-          </EuiFlexItem>
-          <EuiFlexItem
-            grow={true}
-            style={{
-              overflowY: 'scroll',
-              overflowX: 'hidden',
-            }}
-          >
-            {onIngest ? (
-              <IngestInputs
-                onFormChange={props.onFormChange}
-                setIngestDocs={props.setIngestDocs}
-                uiConfig={props.uiConfig}
-                setUiConfig={props.setUiConfig}
-              />
-            ) : (
-              <SearchInputs
-                uiConfig={props.uiConfig}
-                setUiConfig={props.setUiConfig}
-                setQuery={props.setQuery}
-                onFormChange={props.onFormChange}
-              />
+            />
+            {onIngest && (
+              <>
+                <EuiSpacer size="m" />
+                <BooleanField
+                  fieldPath="ingest.enabled"
+                  onFormChange={props.onFormChange}
+                  enabledOption={{
+                    id: INGEST_OPTION.CREATE,
+                    label: (
+                      <EuiFlexGroup direction="column" gutterSize="none">
+                        <EuiText color="default">
+                          Create an ingest pipeline
+                        </EuiText>
+                        <EuiText size="xs" color="subdued">
+                          Configure and ingest data into an index.
+                        </EuiText>
+                      </EuiFlexGroup>
+                    ),
+                  }}
+                  disabledOption={{
+                    id: INGEST_OPTION.SKIP,
+                    label: (
+                      <EuiFlexGroup direction="column" gutterSize="none">
+                        <EuiText color="default">
+                          Skip ingestion pipeline
+                        </EuiText>
+                        <EuiText size="xs" color="subdued">
+                          Use an existing index with data ingested.
+                        </EuiText>
+                      </EuiFlexGroup>
+                    ),
+                  }}
+                />
+              </>
             )}
           </EuiFlexItem>
+          {!onIngestAndDisabled && (
+            <>
+              <EuiFlexItem grow={false}>
+                <EuiTitle>
+                  <h2>
+                    {onIngestAndUnprovisioned
+                      ? 'Define ingest pipeline'
+                      : onIngestAndProvisioned
+                      ? 'Edit ingest pipeline'
+                      : 'Define search pipeline'}
+                  </h2>
+                </EuiTitle>
+              </EuiFlexItem>
+              <EuiFlexItem
+                grow={true}
+                style={{
+                  overflowY: 'scroll',
+                  overflowX: 'hidden',
+                }}
+              >
+                {onIngest ? (
+                  <IngestInputs
+                    onFormChange={props.onFormChange}
+                    setIngestDocs={props.setIngestDocs}
+                    uiConfig={props.uiConfig}
+                    setUiConfig={props.setUiConfig}
+                  />
+                ) : (
+                  <SearchInputs
+                    uiConfig={props.uiConfig}
+                    setUiConfig={props.setUiConfig}
+                    setQuery={props.setQuery}
+                    onFormChange={props.onFormChange}
+                  />
+                )}
+              </EuiFlexItem>
+            </>
+          )}
           <EuiFlexItem grow={false} style={{ marginBottom: '-10px' }}>
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
@@ -308,7 +357,16 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               </EuiFlexItem>
               <EuiFlexItem>
                 <EuiFlexGroup direction="row" justifyContent="flexEnd">
-                  {onIngestAndUnprovisioned ? (
+                  {onIngest && !ingestEnabled ? (
+                    <EuiFlexItem grow={false}>
+                      <EuiButton
+                        fill={true}
+                        onClick={() => setSelectedStep(STEP.SEARCH)}
+                      >
+                        {`Search pipeline >`}
+                      </EuiButton>
+                    </EuiFlexItem>
+                  ) : onIngestAndUnprovisioned ? (
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
@@ -345,7 +403,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           fill={true}
                           onClick={() => setSelectedStep(STEP.SEARCH)}
                         >
-                          {`Next >`}
+                          {`Search pipeline >`}
                         </EuiButton>
                       </EuiFlexItem>
                     </>

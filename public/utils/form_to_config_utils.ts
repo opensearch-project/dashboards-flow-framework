@@ -44,6 +44,7 @@ function formikToIngestUiConfig(
 ): IngestConfig {
   return {
     ...existingConfig,
+    enabled: ingestFormValues['enabled'],
     enrich: formikToProcessorsUiConfig(
       ingestFormValues['enrich'],
       existingConfig.enrich
