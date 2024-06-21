@@ -16,39 +16,26 @@ export const columns = (actions: any[]) => [
   {
     field: 'name',
     name: 'Name',
-    width: '20%',
+    width: '33%',
     sortable: true,
     render: (name: string, workflow: Workflow) => (
       <EuiLink href={`${PLUGIN_ID}#/workflows/${workflow.id}`}>{name}</EuiLink>
     ),
   },
   {
-    field: 'state',
-    name: 'Status',
-    sortable: true,
-  },
-  {
-    field: 'use_case',
+    field: 'ui_metadata.type',
     name: 'Type',
-    width: '30%',
+    width: '33%',
     sortable: true,
   },
   {
     field: 'lastUpdated',
-    name: 'Last updated',
+    name: 'Last saved',
+    width: '33%',
     sortable: true,
     render: (lastUpdated: number) =>
       lastUpdated !== undefined
         ? toFormattedDate(lastUpdated)
-        : EMPTY_FIELD_STRING,
-  },
-  {
-    field: 'lastLaunched',
-    name: 'Last launched',
-    sortable: true,
-    render: (lastLaunched: number) =>
-      lastLaunched !== undefined
-        ? toFormattedDate(lastLaunched)
         : EMPTY_FIELD_STRING,
   },
   {

@@ -16,13 +16,12 @@ import {
   EuiLoadingSpinner,
 } from '@elastic/eui';
 import { AppState, deleteWorkflow, useAppDispatch } from '../../../store';
-import { Workflow } from '../../../../common';
+import { UIState, WORKFLOW_TYPE, Workflow } from '../../../../common';
 import { columns } from './columns';
 import {
   DeleteWorkflowModal,
   MultiSelectFilter,
 } from '../../../general_components';
-import { getStateOptions } from '../../../utils';
 
 interface WorkflowListProps {}
 
@@ -32,6 +31,24 @@ const sorting = {
     direction: 'asc' as Direction,
   },
 };
+
+const filterOptions = [
+  // @ts-ignore
+  {
+    name: WORKFLOW_TYPE.SEMANTIC_SEARCH,
+    checked: 'on',
+  } as EuiFilterSelectItem,
+  // @ts-ignore
+  {
+    name: WORKFLOW_TYPE.CUSTOM,
+    checked: 'on',
+  } as EuiFilterSelectItem,
+  // @ts-ignore
+  {
+    name: WORKFLOW_TYPE.UNKNOWN,
+    checked: 'on',
+  } as EuiFilterSelectItem,
+];
 
 /**
  * The searchable list of created workflows.
@@ -59,8 +76,8 @@ export function WorkflowList(props: WorkflowListProps) {
   }, 200);
 
   // filters state
-  const [selectedStates, setSelectedStates] = useState<EuiFilterSelectItem[]>(
-    getStateOptions()
+  const [selectedTypes, setSelectedTypes] = useState<EuiFilterSelectItem[]>(
+    filterOptions
   );
   const [filteredWorkflows, setFilteredWorkflows] = useState<Workflow[]>([]);
 
@@ -69,11 +86,11 @@ export function WorkflowList(props: WorkflowListProps) {
     setFilteredWorkflows(
       fetchFilteredWorkflows(
         Object.values(workflows),
-        selectedStates,
+        selectedTypes,
         searchQuery
       )
     );
-  }, [selectedStates, searchQuery, workflows]);
+  }, [selectedTypes, searchQuery, workflows]);
 
   const tableActions = [
     {
@@ -114,9 +131,9 @@ export function WorkflowList(props: WorkflowListProps) {
               />
             </EuiFlexItem>
             <MultiSelectFilter
-              filters={getStateOptions()}
+              filters={filterOptions}
               title="Status"
-              setSelectedFilters={setSelectedStates}
+              setSelectedFilters={setSelectedTypes}
             />
           </EuiFlexGroup>
         </EuiFlexItem>
@@ -140,13 +157,21 @@ export function WorkflowList(props: WorkflowListProps) {
 // Collect the final workflow list after applying all filters
 function fetchFilteredWorkflows(
   allWorkflows: Workflow[],
-  stateFilters: EuiFilterSelectItem[],
+  typeFilters: EuiFilterSelectItem[],
   searchQuery: string
 ): Workflow[] {
+  // If missing/invalid ui metadata, add defaults
+  const allWorkflowsWithDefaults = allWorkflows.map((workflow) => ({
+    ...workflow,
+    ui_metadata: {
+      ...workflow.ui_metadata,
+      type: workflow.ui_metadata?.type || WORKFLOW_TYPE.UNKNOWN,
+    } as UIState,
+  }));
   // @ts-ignore
-  const stateFilterStrings = stateFilters.map((filter) => filter.name);
-  const filteredWorkflows = allWorkflows.filter((workflow) =>
-    stateFilterStrings.includes(workflow.state)
+  const typeFilterStrings = typeFilters.map((filter) => filter.name);
+  const filteredWorkflows = allWorkflowsWithDefaults.filter((workflow) =>
+    typeFilterStrings.includes(workflow.ui_metadata?.type)
   );
   return searchQuery.length === 0
     ? filteredWorkflows

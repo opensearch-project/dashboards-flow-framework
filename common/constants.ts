@@ -127,6 +127,7 @@ export const NEURAL_SPARSE_TOKENIZER_TRANSFORMER = {
 export enum WORKFLOW_TYPE {
   SEMANTIC_SEARCH = 'Semantic search',
   CUSTOM = 'Custom',
+  UNKNOWN = 'Unknown',
 }
 
 export enum PROCESSOR_TYPE {
