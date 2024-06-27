@@ -26,7 +26,6 @@ export function SourceData(props: SourceDataProps) {
   const { values, setFieldValue } = useFormikContext<WorkspaceFormValues>();
 
   // files state. when a file is read, update the form value.
-  // TODO: double check json arr works, to handle multiple docs.
   const fileReader = new FileReader();
   fileReader.onload = (e) => {
     if (e.target) {
@@ -51,8 +50,9 @@ export function SourceData(props: SourceDataProps) {
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiFilePicker
+          accept="application/json"
           multiple={false}
-          initialPromptText="Select a json file containing documents"
+          initialPromptText="Select a JSON file containing documents"
           onChange={(files) => {
             if (files && files.length > 0) {
               fileReader.readAsText(files[0]);
