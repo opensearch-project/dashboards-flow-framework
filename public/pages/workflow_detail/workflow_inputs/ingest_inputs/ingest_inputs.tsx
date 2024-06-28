@@ -21,8 +21,6 @@ interface IngestInputsProps {
  * The base component containing all of the ingest-related inputs
  */
 export function IngestInputs(props: IngestInputsProps) {
-  // TODO: add some toggle to enable/disable ingest altogether.
-  // UX not finalized on where that will live currently
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
