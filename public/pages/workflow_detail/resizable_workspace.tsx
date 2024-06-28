@@ -5,11 +5,16 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
-import { EuiFlexGroup, EuiFlexItem, EuiResizableContainer } from '@elastic/eui';
-import { getCore } from '../../services';
+import {
+  EuiCodeBlock,
+  EuiEmptyPrompt,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiResizableContainer,
+  EuiText,
+} from '@elastic/eui';
 
 import {
   Workflow,
@@ -17,7 +22,11 @@ import {
   WorkflowFormValues,
   WorkflowSchema,
 } from '../../../common';
-import { APP_PATH, uiConfigToFormik, uiConfigToSchema } from '../../utils';
+import {
+  reduceToTemplate,
+  uiConfigToFormik,
+  uiConfigToSchema,
+} from '../../utils';
 import { AppState, setDirty, useAppDispatch } from '../../store';
 import { WorkflowInputs } from './workflow_inputs';
 import { Workspace } from './workspace';
@@ -40,7 +49,6 @@ const TOOLS_PANEL_ID = 'tools_panel_id';
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const dispatch = useAppDispatch();
-  const history = useHistory();
 
   // Overall workspace state
   const { isDirty } = useSelector((state: AppState) => state.workspace);
@@ -97,20 +105,15 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     setIsToolsPanelOpen(!isToolsPanelOpen);
   };
 
-  // Hook to update some default values for the workflow, if applicable.
-  // We need to handle different scenarios:
-  // 1. Rendering backend-only-created workflow / an existing workflow with no ui_metadata.
-  //    In this case, we revert to the home page with a warn toast that we don't support it, for now.
-  // 2. Rendering a created workflow with ui_metadata.
-  //    In these cases, just render what is persisted, no action needed.
+  // workflow state
+  const [isValidWorkflow, setIsValidWorkflow] = useState<boolean>(true);
+
+  // Hook to check if the workflow is valid or not
   useEffect(() => {
     const missingUiFlow =
       props.workflow && !props.workflow?.ui_metadata?.config;
     if (missingUiFlow) {
-      history.replace(APP_PATH.WORKFLOWS);
-      getCore().notifications.toasts.addWarning(
-        `There is no ui_metadata for workflow: ${props.workflow?.name}`
-      );
+      setIsValidWorkflow(false);
     } else {
       setWorkflow(props.workflow);
     }
@@ -143,7 +146,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }
 
-  return (
+  return isValidWorkflow ? (
     <Formik
       enableReinitialize={true}
       initialValues={formValues}
@@ -282,5 +285,28 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         </Form>
       )}
     </Formik>
+  ) : (
+    <>
+      <EuiEmptyPrompt
+        iconType={'cross'}
+        title={<h2>Unable to view workflow details</h2>}
+        titleSize="s"
+        body={
+          <>
+            <EuiText>
+              Only valid workflows created from this OpenSearch Dashboards
+              application are editable and viewable.
+            </EuiText>
+          </>
+        }
+      />
+      <EuiCodeBlock language="json" fontSize="m" isCopyable={false}>
+        {JSON.stringify(
+          reduceToTemplate(props.workflow as Workflow),
+          undefined,
+          2
+        )}
+      </EuiCodeBlock>
+    </>
   );
 }
