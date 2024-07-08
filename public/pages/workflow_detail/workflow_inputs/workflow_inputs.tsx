@@ -450,27 +450,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         {`Search pipeline >`}
                       </EuiButton>
                     </EuiFlexItem>
-                  ) : onIngestAndUnprovisioned ? (
-                    <>
-                      <EuiFlexItem grow={false}>
-                        <EuiButtonEmpty
-                          onClick={() => setSelectedStep(STEP.SEARCH)}
-                        >
-                          Skip
-                        </EuiButtonEmpty>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiButton
-                          fill={true}
-                          onClick={() => {
-                            validateAndRunIngestion();
-                          }}
-                        >
-                          Run ingestion
-                        </EuiButton>
-                      </EuiFlexItem>
-                    </>
-                  ) : onIngestAndProvisioned ? (
+                  ) : onIngest ? (
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButton
@@ -478,6 +458,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             validateAndRunIngestion();
                           }}
+                          disabled={ingestProvisioned}
                         >
                           Run ingestion
                         </EuiButton>
@@ -486,6 +467,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         <EuiButton
                           fill={true}
                           onClick={() => setSelectedStep(STEP.SEARCH)}
+                          disabled={!ingestProvisioned}
                         >
                           {`Search pipeline >`}
                         </EuiButton>
