@@ -12,7 +12,13 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
+  EuiIcon,
   EuiLoadingSpinner,
+  EuiModal,
+  EuiModalBody,
+  EuiModalFooter,
+  EuiModalHeader,
+  EuiModalHeaderTitle,
   EuiPanel,
   EuiSpacer,
   EuiStepsHorizontal,
@@ -78,7 +84,7 @@ enum INGEST_OPTION {
  */
 
 export function WorkflowInputs(props: WorkflowInputsProps) {
-  const { submitForm, validateForm, values } = useFormikContext<
+  const { submitForm, validateForm, setFieldValue, values } = useFormikContext<
     WorkflowFormValues
   >();
   const dispatch = useAppDispatch();
@@ -88,6 +94,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // ingest state
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
+
+  // confirm modal state
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   // maintain global states
   const onIngest = selectedStep === STEP.INGEST;
@@ -286,7 +295,50 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 },
               ]}
             />
-            {onIngest && (
+            {isModalOpen && (
+              <EuiModal onClose={() => setIsModalOpen(false)}>
+                <EuiModalHeader>
+                  <EuiModalHeaderTitle>
+                    <p>{`Delete resources for workflow ${props.workflow.name}?`}</p>
+                  </EuiModalHeaderTitle>
+                </EuiModalHeader>
+                <EuiModalBody>
+                  <EuiText>
+                    The resources for this workflow will be permanently deleted.
+                    This action cannot be undone.
+                  </EuiText>
+                </EuiModalBody>
+                <EuiModalFooter>
+                  <EuiButtonEmpty onClick={() => setIsModalOpen(false)}>
+                    {' '}
+                    Cancel
+                  </EuiButtonEmpty>
+                  <EuiButton
+                    onClick={async () => {
+                      // @ts-ignore
+                      await dispatch(deprovisionWorkflow(props.workflow.id))
+                        .unwrap()
+                        .then(async (result) => {
+                          setFieldValue('ingest.enabled', false);
+                          // @ts-ignore
+                          await dispatch(getWorkflow(props.workflow.id));
+                        })
+                        .catch((error: any) => {
+                          getCore().notifications.toasts.addDanger(error);
+                        })
+                        .finally(() => {
+                          setIsModalOpen(false);
+                        });
+                    }}
+                    fill={true}
+                    color="danger"
+                  >
+                    Delete resources
+                  </EuiButton>
+                </EuiModalFooter>
+              </EuiModal>
+            )}
+            {onIngestAndUnprovisioned && (
               <>
                 <EuiSpacer size="m" />
                 <BooleanField
@@ -327,13 +379,31 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <EuiFlexItem grow={false}>
                 <EuiTitle>
                   <h2>
-                    {onIngestAndUnprovisioned
-                      ? 'Define ingest pipeline'
-                      : onIngestAndProvisioned
-                      ? 'Edit ingest pipeline'
-                      : onSearch
-                      ? 'Define search pipeline'
-                      : 'Export project as'}
+                    {onIngestAndUnprovisioned ? (
+                      'Define ingest pipeline'
+                    ) : onIngestAndProvisioned ? (
+                      <EuiFlexGroup
+                        direction="row"
+                        justifyContent="spaceBetween"
+                      >
+                        <EuiFlexItem grow={false}>
+                          Edit ingest pipeline
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiButtonEmpty
+                            color="danger"
+                            onClick={() => setIsModalOpen(true)}
+                          >
+                            <EuiIcon type="trash" />
+                            {`    `}Delete resources
+                          </EuiButtonEmpty>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    ) : onSearch ? (
+                      'Define search pipeline'
+                    ) : (
+                      'Export project as'
+                    )}
                   </h2>
                 </EuiTitle>
               </EuiFlexItem>
