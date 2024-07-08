@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
@@ -33,10 +34,12 @@ import {
 import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
 import {
+  AppState,
   deprovisionWorkflow,
   getWorkflow,
   ingest,
   provisionWorkflow,
+  removeDirty,
   searchIndex,
   updateWorkflow,
   useAppDispatch,
@@ -47,6 +50,7 @@ import {
   reduceToTemplate,
   configToTemplateFlows,
   hasProvisionedIngestResources,
+  hasProvisionedSearchResources,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import { ExportOptions } from './export_options';
@@ -89,11 +93,15 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   >();
   const dispatch = useAppDispatch();
 
+  // Overall workspace state
+  const { isDirty } = useSelector((state: AppState) => state.workspace);
+
   // selected step state
   const [selectedStep, setSelectedStep] = useState<STEP>(STEP.INGEST);
 
-  // ingest state
+  // provisioned resources states
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
+  const [searchProvisioned, setSearchProvisioned] = useState<boolean>(false);
 
   // confirm modal state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -109,6 +117,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   useEffect(() => {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
+    setSearchProvisioned(hasProvisionedSearchResources(props.workflow));
   }, [props.workflow]);
 
   // Utility fn to update the workflow, including any updated/new resources
@@ -212,6 +221,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             .unwrap()
             .then(async (resp) => {
               props.setIngestResponse(JSON.stringify(resp, undefined, 2));
+              dispatch(removeDirty());
             })
             .catch((error: any) => {
               getCore().notifications.toasts.addDanger(error);
@@ -244,6 +254,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             .then(async (resp) => {
               const hits = resp.hits.hits;
               props.setQueryResponse(JSON.stringify(hits, undefined, 2));
+              dispatch(removeDirty());
             })
             .catch((error: any) => {
               getCore().notifications.toasts.addDanger(error);
@@ -458,7 +469,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             validateAndRunIngestion();
                           }}
-                          disabled={ingestProvisioned}
+                          disabled={ingestProvisioned && !isDirty}
                         >
                           Run ingestion
                         </EuiButton>
@@ -467,7 +478,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         <EuiButton
                           fill={true}
                           onClick={() => setSelectedStep(STEP.SEARCH)}
-                          disabled={!ingestProvisioned}
+                          disabled={!ingestProvisioned || isDirty}
                         >
                           {`Search pipeline >`}
                         </EuiButton>
@@ -484,7 +495,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiButton
-                          disabled={false}
+                          disabled={searchProvisioned && !isDirty}
                           fill={false}
                           onClick={() => {
                             validateAndRunQuery();
@@ -495,7 +506,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiButton
-                          disabled={false}
+                          disabled={!searchProvisioned || isDirty}
                           fill={false}
                           onClick={() => {
                             setSelectedStep(STEP.EXPORT);
