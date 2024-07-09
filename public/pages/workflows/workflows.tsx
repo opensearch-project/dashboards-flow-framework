@@ -5,7 +5,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useHistory, useLocation } from 'react-router-dom';
-import yaml from 'js-yaml';
 import {
   EuiPageHeader,
   EuiTitle,
@@ -21,14 +20,14 @@ import {
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiModalBody,
-  EuiFormRow,
-  EuiFieldText,
   EuiModalFooter,
   EuiFilePicker,
+  EuiCallOut,
+  EuiFlexItem,
 } from '@elastic/eui';
 import queryString from 'query-string';
 import { useSelector } from 'react-redux';
-import { APP_PATH, BREADCRUMBS } from '../../utils';
+import { BREADCRUMBS, isValidJsonOrYaml } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
@@ -75,6 +74,10 @@ export function Workflows(props: WorkflowsProps) {
 
   // import modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
+  function onModalClose(): void {
+    setIsImportModalOpen(false);
+    setFileContents(undefined);
+  }
 
   // file contents state
   const [fileContents, setFileContents] = useState<string | undefined>(
@@ -92,19 +95,6 @@ export function Workflows(props: WorkflowsProps) {
     ACTIVE_TAB_PARAM
   ] as WORKFLOWS_TAB;
   const [selectedTabId, setSelectedTabId] = useState<WORKFLOWS_TAB>(tabFromUrl);
-
-  function isValidJsonOrYaml(fileContents: string | undefined): boolean {
-    try {
-      JSON.parse(fileContents);
-      return true;
-    } catch (e) {}
-    try {
-      yaml.load(fileContents);
-      return true;
-    } catch (e) {}
-
-    return false;
-  }
 
   // If there is no selected tab or invalid tab, default to manage tab
   useEffect(() => {
@@ -147,46 +137,62 @@ export function Workflows(props: WorkflowsProps) {
   return (
     <>
       {isImportModalOpen && (
-        <EuiModal onClose={() => setIsImportModalOpen(false)}>
+        <EuiModal onClose={() => onModalClose()} style={{ width: '40vw' }}>
           <EuiModalHeader>
             <EuiModalHeaderTitle>
               <p>{`Import a workflow (JSON/YAML)`}</p>
             </EuiModalHeaderTitle>
           </EuiModalHeader>
           <EuiModalBody>
-            <>
-              <EuiFilePicker
-                isInvalid={
-                  fileContents !== undefined && !isValidJsonOrYaml(fileContents)
-                }
-                multiple={false}
-                initialPromptText="Select or drag and drop a file"
-                onChange={(files) => {
-                  if (files && files.length > 0) {
-                    fileReader.readAsText(files[0]);
+            <EuiFlexGroup
+              direction="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              {fileContents !== undefined && !isValidJsonOrYaml(fileContents) && (
+                <>
+                  <EuiFlexItem>
+                    <EuiCallOut
+                      title="The uploaded file is not a valid workflow, remove the file and upload a compatible workflow in JSON or YAML format."
+                      iconType={'alert'}
+                      color="danger"
+                    />
+                  </EuiFlexItem>
+                  <EuiSpacer size="m" />
+                </>
+              )}
+              <EuiFlexItem grow={false}>
+                <EuiFilePicker
+                  isInvalid={
+                    fileContents !== undefined &&
+                    !isValidJsonOrYaml(fileContents)
                   }
-                }}
-                display="large"
-              />
-              <EuiSpacer size="s" />
-              <EuiText size="s" color="subdued">
-                Must be in JSON or YAML format.
-              </EuiText>
-              <EuiText size="s" color="danger">
-                {fileContents !== undefined && !isValidJsonOrYaml(fileContents)
-                  ? 'Selected file is invalid'
-                  : undefined}
-              </EuiText>
-            </>
+                  multiple={false}
+                  initialPromptText="Select or drag and drop a file"
+                  onChange={(files) => {
+                    if (files && files.length > 0) {
+                      fileReader.readAsText(files[0]);
+                    }
+                  }}
+                  display="large"
+                />
+              </EuiFlexItem>
+              <EuiFlexItem>
+                <EuiText size="s" color="subdued">
+                  Must be in JSON or YAML format.
+                </EuiText>
+              </EuiFlexItem>
+            </EuiFlexGroup>
           </EuiModalBody>
           <EuiModalFooter>
-            <EuiButtonEmpty onClick={() => setIsImportModalOpen(false)}>
+            <EuiButtonEmpty onClick={() => onModalClose()}>
               Cancel
             </EuiButtonEmpty>
             <EuiButton
               disabled={
                 fileContents === undefined || !isValidJsonOrYaml(fileContents)
               }
+              // TODO: convert to an obj and import it. need to handle cases such as no ui_metadata, what can be loaded, etc.
               onClick={() => {
                 // const workflowToCreate = {
                 //   ...props.workflow,

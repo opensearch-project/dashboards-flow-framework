@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import yaml from 'js-yaml';
 import { WORKFLOW_STEP_TYPE, Workflow } from '../../common';
 
 // Append 16 random characters
@@ -42,4 +43,17 @@ export function hasProvisionedSearchResources(
     }
   });
   return result;
+}
+
+export function isValidJsonOrYaml(fileContents: string | undefined): boolean {
+  try {
+    JSON.parse(fileContents);
+    return true;
+  } catch (e) {}
+  try {
+    yaml.load(fileContents);
+    return true;
+  } catch (e) {}
+
+  return false;
 }
