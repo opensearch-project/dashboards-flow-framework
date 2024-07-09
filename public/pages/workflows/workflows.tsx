@@ -27,7 +27,12 @@ import {
 } from '@elastic/eui';
 import queryString from 'query-string';
 import { useSelector } from 'react-redux';
-import { BREADCRUMBS, isValidJsonOrYaml } from '../../utils';
+import {
+  BREADCRUMBS,
+  getObjFromJsonOrYamlString,
+  isValidUiWorkflow,
+  isValidWorkflow,
+} from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
@@ -77,12 +82,17 @@ export function Workflows(props: WorkflowsProps) {
   function onModalClose(): void {
     setIsImportModalOpen(false);
     setFileContents(undefined);
+    setFileObj(undefined);
   }
 
   // file contents state
   const [fileContents, setFileContents] = useState<string | undefined>(
     undefined
   );
+  const [fileObj, setFileObj] = useState<object | undefined>(undefined);
+  useEffect(() => {
+    setFileObj(getObjFromJsonOrYamlString(fileContents));
+  }, [fileContents]);
   const fileReader = new FileReader();
   fileReader.onload = (e) => {
     if (e.target) {
@@ -149,7 +159,7 @@ export function Workflows(props: WorkflowsProps) {
               justifyContent="center"
               alignItems="center"
             >
-              {fileContents !== undefined && !isValidJsonOrYaml(fileContents) && (
+              {fileContents !== undefined && !isValidWorkflow(fileObj) && (
                 <>
                   <EuiFlexItem>
                     <EuiCallOut
@@ -161,12 +171,23 @@ export function Workflows(props: WorkflowsProps) {
                   <EuiSpacer size="m" />
                 </>
               )}
+              {fileContents !== undefined &&
+                fileObj !== undefined &&
+                isValidWorkflow(fileObj) &&
+                !isValidUiWorkflow(fileObj) && (
+                  <>
+                    <EuiFlexItem>
+                      <EuiCallOut
+                        title="The uploaded file may not be compatible with Search Studio. You may not be able to edit or run this file with Search Studio."
+                        iconType={'help'}
+                        color="warning"
+                      />
+                    </EuiFlexItem>
+                    <EuiSpacer size="m" />
+                  </>
+                )}
               <EuiFlexItem grow={false}>
                 <EuiFilePicker
-                  isInvalid={
-                    fileContents !== undefined &&
-                    !isValidJsonOrYaml(fileContents)
-                  }
                   multiple={false}
                   initialPromptText="Select or drag and drop a file"
                   onChange={(files) => {
@@ -189,11 +210,9 @@ export function Workflows(props: WorkflowsProps) {
               Cancel
             </EuiButtonEmpty>
             <EuiButton
-              disabled={
-                fileContents === undefined || !isValidJsonOrYaml(fileContents)
-              }
-              // TODO: convert to an obj and import it. need to handle cases such as no ui_metadata, what can be loaded, etc.
+              disabled={fileContents === undefined || fileObj === undefined}
               onClick={() => {
+                console.log('fileobj: ', fileObj);
                 // const workflowToCreate = {
                 //   ...props.workflow,
                 //   name: workflowName,

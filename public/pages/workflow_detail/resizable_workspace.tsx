@@ -23,6 +23,7 @@ import {
   WorkflowSchema,
 } from '../../../common';
 import {
+  isValidUiWorkflow,
   reduceToTemplate,
   uiConfigToFormik,
   uiConfigToSchema,
@@ -110,8 +111,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   // Hook to check if the workflow is valid or not
   useEffect(() => {
-    const missingUiFlow =
-      props.workflow && !props.workflow?.ui_metadata?.config;
+    const missingUiFlow = props.workflow && !isValidUiWorkflow(props.workflow);
     if (missingUiFlow) {
       setIsValidWorkflow(false);
     } else {

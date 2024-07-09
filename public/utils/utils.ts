@@ -45,15 +45,26 @@ export function hasProvisionedSearchResources(
   return result;
 }
 
-export function isValidJsonOrYaml(fileContents: string | undefined): boolean {
+export function getObjFromJsonOrYamlString(
+  fileContents: string | undefined
+): object | undefined {
   try {
-    JSON.parse(fileContents);
-    return true;
+    const jsonObj = JSON.parse(fileContents);
+    return jsonObj;
   } catch (e) {}
   try {
-    yaml.load(fileContents);
-    return true;
+    const yamlObj = yaml.load(fileContents) as object;
+    return yamlObj;
   } catch (e) {}
+  return undefined;
+}
 
-  return false;
+// Based off of https://opensearch.org/docs/latest/automating-configurations/api/create-workflow/#request-fields
+// Only "name" field is required
+export function isValidWorkflow(workflowObj: object | undefined): boolean {
+  return workflowObj?.name !== undefined;
+}
+
+export function isValidUiWorkflow(workflowObj: object | undefined): boolean {
+  return workflowObj?.ui_metadata?.config !== undefined;
 }
