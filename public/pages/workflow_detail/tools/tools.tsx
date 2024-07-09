@@ -6,17 +6,18 @@
 import React, { useEffect, useState } from 'react';
 import { isEmpty } from 'lodash';
 import {
-  EuiCodeEditor,
   EuiFlexGroup,
   EuiFlexItem,
   EuiPanel,
   EuiTab,
   EuiTabs,
-  EuiText,
   EuiTitle,
 } from '@elastic/eui';
 import { Workflow } from '../../../../common';
 import { Resources } from './resources';
+import { Query } from './query';
+import { Ingest } from './ingest';
+import { Errors } from './errors';
 
 interface ToolsProps {
   workflow?: Workflow;
@@ -108,42 +109,12 @@ export function Tools(props: ToolsProps) {
             <EuiFlexItem grow={true}>
               <>
                 {selectedTabId === TAB_ID.INGEST && (
-                  // TODO: known issue with the editor where resizing the resizablecontainer does not
-                  // trigger vertical scroll updates. Updating the window, or reloading the component
-                  // by switching tabs etc. will refresh it correctly. This applies to the code editor
-                  // components in both ingest and query below.
-                  <EuiCodeEditor
-                    mode="json"
-                    theme="textmate"
-                    width="100%"
-                    height="100%"
-                    value={props.ingestResponse}
-                    readOnly={true}
-                    setOptions={{
-                      fontSize: '12px',
-                      autoScrollEditorIntoView: true,
-                    }}
-                    tabSize={2}
-                  />
+                  <Ingest ingestResponse={props.ingestResponse} />
                 )}
                 {selectedTabId === TAB_ID.QUERY && (
-                  <EuiCodeEditor
-                    mode="json"
-                    theme="textmate"
-                    width="100%"
-                    height="100%"
-                    value={props.queryResponse}
-                    readOnly={true}
-                    setOptions={{
-                      fontSize: '12px',
-                      autoScrollEditorIntoView: true,
-                    }}
-                    tabSize={2}
-                  />
+                  <Query queryResponse={props.queryResponse} />
                 )}
-                {selectedTabId === TAB_ID.ERRORS && (
-                  <EuiText>TODO: View errors placeholder</EuiText>
-                )}
+                {selectedTabId === TAB_ID.ERRORS && <Errors />}
                 {selectedTabId === TAB_ID.RESOURCES && (
                   <Resources workflow={props.workflow} />
                 )}

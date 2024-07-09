@@ -17,17 +17,14 @@ export abstract class MLProcessor extends Processor {
     this.name = 'ML Inference Processor';
     this.fields = [
       {
-        label: 'Model',
         id: 'model',
         type: 'model',
-        helpText: 'The model ID.',
-        helpLink:
-          'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model',
       },
       {
         label: 'Input Map',
         id: 'inputMap',
         type: 'map',
+        // TODO: move these fields directly into the component once design is finalized
         helpText: `An array specifying how to map fields from the ingested document to the model’s input.`,
         helpLink:
           'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters',
@@ -36,6 +33,7 @@ export abstract class MLProcessor extends Processor {
         label: 'Output Map',
         id: 'outputMap',
         type: 'map',
+        // TODO: move these fields directly into the component once design is finalized
         helpText: `An array specifying how to map the model’s output to new fields.`,
         helpLink:
           'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters',

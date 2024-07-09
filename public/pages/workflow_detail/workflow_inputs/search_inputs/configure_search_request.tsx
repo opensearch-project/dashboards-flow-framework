@@ -92,14 +92,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <JsonField
-          // We want to integrate query into the form, but not persist in the config.
-          // So, we create the ConfigField explicitly inline, instead of pulling
-          // from the config.
-          field={
-            {
-              label: 'Define query',
-            } as IConfigField
-          }
+          label="Define query"
           fieldPath={'search.request'}
           onFormChange={props.onFormChange}
           editorHeight="25vh"
