@@ -64,7 +64,6 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   // - fetch available models as their IDs may be used when building flows
   useEffect(() => {
     dispatch(getWorkflow(workflowId));
-
     dispatch(searchModels(FETCH_ALL_QUERY_BODY));
   }, []);
 
