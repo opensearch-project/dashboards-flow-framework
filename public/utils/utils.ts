@@ -29,3 +29,17 @@ export function hasProvisionedIngestResources(
   });
   return result;
 }
+
+export function hasProvisionedSearchResources(
+  workflow: Workflow | undefined
+): boolean {
+  let result = false;
+  workflow?.resourcesCreated?.some((resource) => {
+    if (
+      resource.stepType === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+    ) {
+      result = true;
+    }
+  });
+  return result;
+}
