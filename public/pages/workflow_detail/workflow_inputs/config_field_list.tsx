@@ -29,28 +29,15 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
       {configFields.map((field, idx) => {
         let el;
         switch (field.type) {
-          case 'string': {
-            el = (
-              <EuiFlexItem key={idx}>
-                <TextField
-                  field={field}
-                  fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
-                  onFormChange={props.onFormChange}
-                />
-                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
-              </EuiFlexItem>
-            );
-            break;
-          }
-          // case 'select': {
+          // case 'string': {
           //   el = (
           //     <EuiFlexItem key={idx}>
-          //       <SelectField
+          //       <TextField
           //         field={field}
-          //         componentId={props.componentId}
+          //         fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
           //         onFormChange={props.onFormChange}
           //       />
-          //       <EuiSpacer size={INPUT_FIELD_SPACER_SIZE} />
+          //       <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
           //     </EuiFlexItem>
           //   );
           //   break;

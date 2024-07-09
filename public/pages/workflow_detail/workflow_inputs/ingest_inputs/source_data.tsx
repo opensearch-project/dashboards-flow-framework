@@ -63,14 +63,7 @@ export function SourceData(props: SourceDataProps) {
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <JsonField
-          // We want to integrate docs into the form, but not persist in the config.
-          // So, we create the ConfigField explicitly inline, instead of pulling
-          // from the config.
-          field={
-            {
-              label: 'Upload JSON documents',
-            } as IConfigField
-          }
+          label="Upload JSON documents"
           fieldPath={'ingest.docs'}
           onFormChange={props.onFormChange}
           editorHeight="25vh"
