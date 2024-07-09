@@ -91,7 +91,6 @@ function getFieldSchema(fieldType: ConfigFieldType): Schema {
     case 'model': {
       baseSchema = yup.object().shape({
         id: yup.string().min(1, 'Too short').max(70, 'Too long').required(),
-        category: yup.string().required(),
       });
       break;
     }

@@ -6,12 +6,14 @@
 import React, { useEffect, useState } from 'react';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import { EuiCodeEditor, EuiFormRow, EuiLink, EuiText } from '@elastic/eui';
-import { IConfigField, WorkspaceFormValues } from '../../../../../common';
+import { WorkspaceFormValues } from '../../../../../common';
 
 interface JsonFieldProps {
-  field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onFormChange: () => void;
+  label: string;
+  helpLink?: string;
+  helpText?: string;
   editorHeight?: string;
 }
 
@@ -41,17 +43,17 @@ export function JsonField(props: JsonFieldProps) {
         return (
           <EuiFormRow
             key={props.fieldPath}
-            label={props.field.label}
+            label={props.label}
             labelAppend={
-              props.field.helpLink ? (
+              props.helpLink ? (
                 <EuiText size="xs">
-                  <EuiLink href={props.field.helpLink} target="_blank">
+                  <EuiLink href={props.helpLink} target="_blank">
                     Learn more
                   </EuiLink>
                 </EuiText>
               ) : undefined
             }
-            helpText={props.field.helpText || undefined}
+            helpText={props.helpText || undefined}
             error={getIn(errors, field.name)}
             isInvalid={getIn(errors, field.name) && getIn(touched, field.name)}
           >

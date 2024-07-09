@@ -111,7 +111,6 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
     case 'model': {
       return {
         id: '',
-        category: undefined,
         algorithm: undefined,
       } as ModelFormValue;
     }
