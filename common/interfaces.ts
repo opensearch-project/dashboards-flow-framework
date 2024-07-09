@@ -19,17 +19,18 @@ TODO: over time these can become less generic as the form inputs & UX becomes fi
  */
 
 export type ConfigFieldType = 'string' | 'json' | 'select' | 'model' | 'map';
-export type ConfigSelectType = 'model';
 export type ConfigFieldValue = string | {};
 export interface IConfigField {
   type: ConfigFieldType;
   id: string;
   value?: ConfigFieldValue;
+  // TODO: remove below fields out of this interface and directly into the necessary components.
+  // This is to minimize what we persist here, which is added into ui_metadata and indexed.
+  // Once the config for ML inference processors is finalized, we can migrate these out.
   label?: string;
   placeholder?: string;
   helpText?: string;
   helpLink?: string;
-  selectType?: ConfigSelectType;
 }
 export interface IConfig {
   id: string;
@@ -91,7 +92,6 @@ export type WorkflowSchema = ObjectSchema<WorkflowSchemaObj>;
  */
 
 export type FieldType = 'string' | 'json' | 'select' | 'model';
-export type SelectType = 'model';
 export type FieldValue = string | {};
 export type ComponentFormValues = FormikValues;
 export type WorkspaceFormValues = {
@@ -125,7 +125,6 @@ export interface IComponentField {
   placeholder?: string;
   helpText?: string;
   helpLink?: string;
-  selectType?: SelectType;
 }
 
 /**

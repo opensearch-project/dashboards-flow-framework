@@ -42,19 +42,6 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
           //   );
           //   break;
           // }
-          // case 'select': {
-          //   el = (
-          //     <EuiFlexItem key={idx}>
-          //       <SelectField
-          //         field={field}
-          //         componentId={props.componentId}
-          //         onFormChange={props.onFormChange}
-          //       />
-          //       <EuiSpacer size={INPUT_FIELD_SPACER_SIZE} />
-          //     </EuiFlexItem>
-          //   );
-          //   break;
-          // }
           case 'model': {
             el = (
               <EuiFlexItem key={idx}>
