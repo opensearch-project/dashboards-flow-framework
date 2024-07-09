@@ -43,10 +43,7 @@ export function IngestInputs(props: IngestInputsProps) {
         <EuiHorizontalRule margin="none" />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <IngestData
-          uiConfig={props.uiConfig}
-          onFormChange={props.onFormChange}
-        />
+        <IngestData onFormChange={props.onFormChange} />
       </EuiFlexItem>
     </EuiFlexGroup>
   );

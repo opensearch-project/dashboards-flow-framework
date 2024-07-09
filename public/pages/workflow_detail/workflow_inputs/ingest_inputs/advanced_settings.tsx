@@ -10,11 +10,9 @@ import {
   EuiFlexItem,
   EuiSpacer,
 } from '@elastic/eui';
-import { IConfigField, WorkflowConfig } from '../../../../../common';
 import { JsonField } from '../input_fields';
 
 interface AdvancedSettingsProps {
-  uiConfig: WorkflowConfig;
   onFormChange: () => void;
 }
 
@@ -30,14 +28,14 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
           <EuiFlexGroup direction="column">
             <EuiFlexItem>
               <JsonField
-                field={props.uiConfig.ingest.index?.mappings as IConfigField}
+                label="Index mappings"
                 fieldPath={'ingest.index.mappings'}
                 onFormChange={props.onFormChange}
               />
             </EuiFlexItem>
             <EuiFlexItem>
               <JsonField
-                field={props.uiConfig.ingest.index?.settings as IConfigField}
+                label="Index settings"
                 fieldPath={'ingest.index.settings'}
                 onFormChange={props.onFormChange}
               />

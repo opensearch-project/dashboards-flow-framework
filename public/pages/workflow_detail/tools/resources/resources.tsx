@@ -18,7 +18,8 @@ interface ResourcesProps {
 }
 
 /**
- * A simple resources page to browse created resources for a given Workflow.
+ * The basic resources component for the Tools panel. Displays all created
+ * resources for the particular workflow
  */
 export function Resources(props: ResourcesProps) {
   return (

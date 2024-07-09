@@ -19,17 +19,18 @@ TODO: over time these can become less generic as the form inputs & UX becomes fi
  */
 
 export type ConfigFieldType = 'string' | 'json' | 'select' | 'model' | 'map';
-export type ConfigSelectType = 'model';
 export type ConfigFieldValue = string | {};
 export interface IConfigField {
-  label: string;
   type: ConfigFieldType;
   id: string;
   value?: ConfigFieldValue;
+  // TODO: remove below fields out of this interface and directly into the necessary components.
+  // This is to minimize what we persist here, which is added into ui_metadata and indexed.
+  // Once the config for ML inference processors is finalized, we can migrate these out.
+  label?: string;
   placeholder?: string;
   helpText?: string;
   helpLink?: string;
-  selectType?: ConfigSelectType;
 }
 export interface IConfig {
   id: string;
@@ -91,7 +92,6 @@ export type WorkflowSchema = ObjectSchema<WorkflowSchemaObj>;
  */
 
 export type FieldType = 'string' | 'json' | 'select' | 'model';
-export type SelectType = 'model';
 export type FieldValue = string | {};
 export type ComponentFormValues = FormikValues;
 export type WorkspaceFormValues = {
@@ -125,7 +125,6 @@ export interface IComponentField {
   placeholder?: string;
   helpText?: string;
   helpLink?: string;
-  selectType?: SelectType;
 }
 
 /**
@@ -164,6 +163,7 @@ type ReactFlowViewport = {
 export type UIState = {
   config: WorkflowConfig;
   type: WORKFLOW_TYPE;
+  // Will be used in future when changing from form-based to flow-based configs via drag-and-drop
   workspace_flow?: WorkspaceFlowState;
 };
 
@@ -271,16 +271,6 @@ export type CreateIndexNode = TemplateNode & {
   };
 };
 
-export type RegisterPretrainedModelNode = TemplateNode & {
-  user_inputs: {
-    name: string;
-    description: string;
-    model_format: string;
-    version: string;
-    deploy: boolean;
-  };
-};
-
 export type TemplateEdge = {
   source: string;
   dest: string;
@@ -365,30 +355,6 @@ export enum MODEL_ALGORITHM {
   AGENT = 'Agent',
 }
 
-export enum MODEL_CATEGORY {
-  DEPLOYED = 'Deployed',
-  PRETRAINED = 'Pretrained',
-}
-
-export enum PRETRAINED_MODEL_FORMAT {
-  TORCH_SCRIPT = 'TORCH_SCRIPT',
-}
-
-export type PretrainedModel = {
-  name: string;
-  shortenedName: string;
-  description: string;
-  format: PRETRAINED_MODEL_FORMAT;
-  algorithm: MODEL_ALGORITHM;
-  version: string;
-};
-
-export type PretrainedSentenceTransformer = PretrainedModel & {
-  vectorDimensions: number;
-};
-
-export type PretrainedSparseEncodingModel = PretrainedModel & {};
-
 export type ModelConfig = {
   modelType?: string;
   embeddingDimension?: number;
@@ -408,7 +374,6 @@ export type ModelDict = {
 
 export type ModelFormValue = {
   id: string;
-  category?: MODEL_CATEGORY;
   algorithm?: MODEL_ALGORITHM;
 };
 
@@ -450,8 +415,6 @@ export enum WORKFLOW_STEP_TYPE {
   CREATE_INGEST_PIPELINE_STEP_TYPE = 'create_ingest_pipeline',
   CREATE_SEARCH_PIPELINE_STEP_TYPE = 'create_search_pipeline',
   CREATE_INDEX_STEP_TYPE = 'create_index',
-  REGISTER_LOCAL_PRETRAINED_MODEL_STEP_TYPE = 'register_local_pretrained_model',
-  REGISTER_LOCAL_SPARSE_ENCODING_MODEL_STEP_TYPE = 'register_local_sparse_encoding_model',
 }
 
 // We cannot disambiguate ingest vs. search pipelines based on workflow resource type. To work around
@@ -460,9 +423,6 @@ export enum WORKFLOW_STEP_TO_RESOURCE_TYPE_MAP {
   'create_ingest_pipeline' = 'Ingest pipeline',
   'create_search_pipeline' = 'Search pipeline',
   'create_index' = 'Index',
-  'register_local_pretrained_model' = 'Model',
-  'register_local_sparse_encoding_model' = 'Model',
-  'deploy_model' = 'Model',
 }
 
 export type WorkflowDict = {

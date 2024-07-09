@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  MODEL_ALGORITHM,
-  PRETRAINED_MODEL_FORMAT,
-  PretrainedSentenceTransformer,
-  PretrainedSparseEncodingModel,
-  WORKFLOW_STATE,
-} from './interfaces';
+import { WORKFLOW_STATE } from './interfaces';
 
 export const PLUGIN_ID = 'flow-framework';
 
@@ -54,70 +48,6 @@ export const GET_PRESET_WORKFLOWS_NODE_API_PATH = `${BASE_WORKFLOW_NODE_API_PATH
 // ML Plugin node APIs
 export const BASE_MODEL_NODE_API_PATH = `${BASE_NODE_API_PATH}/model`;
 export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
-
-/**
- * ML PLUGIN PRETRAINED MODELS
- * (based off of https://opensearch.org/docs/latest/ml-commons-plugin/pretrained-models)
- */
-
-// ---- SENTENCE TRANSFORMERS ----
-export const ROBERTA_SENTENCE_TRANSFORMER = {
-  name: 'huggingface/sentence-transformers/all-distilroberta-v1',
-  shortenedName: 'all-distilroberta-v1',
-  description: 'A sentence transformer from Hugging Face',
-  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
-  algorithm: MODEL_ALGORITHM.TEXT_EMBEDDING,
-  version: '1.0.1',
-  vectorDimensions: 768,
-} as PretrainedSentenceTransformer;
-
-export const MPNET_SENTENCE_TRANSFORMER = {
-  name: 'huggingface/sentence-transformers/all-mpnet-base-v2',
-  shortenedName: 'all-mpnet-base-v2',
-  description: 'A sentence transformer from Hugging Face',
-  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
-  algorithm: MODEL_ALGORITHM.TEXT_EMBEDDING,
-  version: '1.0.1',
-  vectorDimensions: 768,
-} as PretrainedSentenceTransformer;
-
-export const BERT_SENTENCE_TRANSFORMER = {
-  name: 'huggingface/sentence-transformers/msmarco-distilbert-base-tas-b',
-  shortenedName: 'msmarco-distilbert-base-tas-b',
-  description: 'A sentence transformer from Hugging Face',
-  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
-  algorithm: MODEL_ALGORITHM.TEXT_EMBEDDING,
-  version: '1.0.2',
-  vectorDimensions: 768,
-} as PretrainedSentenceTransformer;
-
-// ---- SPARSE ENCODERS ----
-export const NEURAL_SPARSE_TRANSFORMER = {
-  name: 'amazon/neural-sparse/opensearch-neural-sparse-encoding-v1',
-  shortenedName: 'opensearch-neural-sparse-encoding-v1',
-  description: 'A general neural sparse encoding model',
-  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
-  algorithm: MODEL_ALGORITHM.SPARSE_ENCODING,
-  version: '1.0.1',
-} as PretrainedSparseEncodingModel;
-
-export const NEURAL_SPARSE_DOC_TRANSFORMER = {
-  name: 'amazon/neural-sparse/opensearch-neural-sparse-encoding-doc-v1',
-  shortenedName: 'opensearch-neural-sparse-encoding-doc-v1',
-  description: 'A general neural sparse encoding model',
-  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
-  algorithm: MODEL_ALGORITHM.SPARSE_ENCODING,
-  version: '1.0.1',
-} as PretrainedSparseEncodingModel;
-
-export const NEURAL_SPARSE_TOKENIZER_TRANSFORMER = {
-  name: 'amazon/neural-sparse/opensearch-neural-sparse-tokenizer-v1',
-  shortenedName: 'opensearch-neural-sparse-tokenizer-v1',
-  description: 'A neural sparse tokenizer model',
-  format: PRETRAINED_MODEL_FORMAT.TORCH_SCRIPT,
-  algorithm: MODEL_ALGORITHM.SPARSE_ENCODING,
-  version: '1.0.1',
-} as PretrainedSparseEncodingModel;
 
 /**
  * Various constants pertaining to Workflow configs
