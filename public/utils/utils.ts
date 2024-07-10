@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import yaml from 'js-yaml';
 import { WORKFLOW_STEP_TYPE, Workflow } from '../../common';
 
 // Append 16 random characters
@@ -42,4 +43,32 @@ export function hasProvisionedSearchResources(
     }
   });
   return result;
+}
+
+export function getObjFromJsonOrYamlString(
+  fileContents: string | undefined
+): object | undefined {
+  try {
+    const jsonObj = JSON.parse(fileContents);
+    return jsonObj;
+  } catch (e) {}
+  try {
+    const yamlObj = yaml.load(fileContents) as object;
+    return yamlObj;
+  } catch (e) {}
+  return undefined;
+}
+
+// Based off of https://opensearch.org/docs/latest/automating-configurations/api/create-workflow/#request-fields
+// Only "name" field is required
+export function isValidWorkflow(workflowObj: object | undefined): boolean {
+  return workflowObj?.name !== undefined;
+}
+
+export function isValidUiWorkflow(workflowObj: object | undefined): boolean {
+  return (
+    isValidWorkflow(workflowObj) &&
+    workflowObj?.ui_metadata?.config !== undefined &&
+    workflowObj?.ui_metadata?.type !== undefined
+  );
 }

@@ -23,6 +23,7 @@ import {
   WorkflowSchema,
 } from '../../../common';
 import {
+  isValidUiWorkflow,
   reduceToTemplate,
   uiConfigToFormik,
   uiConfigToSchema,
@@ -110,8 +111,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   // Hook to check if the workflow is valid or not
   useEffect(() => {
-    const missingUiFlow =
-      props.workflow && !props.workflow?.ui_metadata?.config;
+    const missingUiFlow = props.workflow && !isValidUiWorkflow(props.workflow);
     if (missingUiFlow) {
       setIsValidWorkflow(false);
     } else {
@@ -286,27 +286,31 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       )}
     </Formik>
   ) : (
-    <>
-      <EuiEmptyPrompt
-        iconType={'cross'}
-        title={<h2>Unable to view workflow details</h2>}
-        titleSize="s"
-        body={
-          <>
-            <EuiText>
-              Only valid workflows created from this OpenSearch Dashboards
-              application are editable and viewable.
-            </EuiText>
-          </>
-        }
-      />
-      <EuiCodeBlock language="json" fontSize="m" isCopyable={false}>
-        {JSON.stringify(
-          reduceToTemplate(props.workflow as Workflow),
-          undefined,
-          2
-        )}
-      </EuiCodeBlock>
-    </>
+    <EuiFlexGroup direction="column">
+      <EuiFlexItem grow={3}>
+        <EuiEmptyPrompt
+          iconType={'cross'}
+          title={<h2>Unable to view workflow details</h2>}
+          titleSize="s"
+          body={
+            <>
+              <EuiText>
+                Only valid workflows created from this OpenSearch Dashboards
+                application are editable and viewable.
+              </EuiText>
+            </>
+          }
+        />
+      </EuiFlexItem>
+      <EuiFlexItem grow={7}>
+        <EuiCodeBlock language="json" fontSize="m" isCopyable={false}>
+          {JSON.stringify(
+            reduceToTemplate(props.workflow as Workflow),
+            undefined,
+            2
+          )}
+        </EuiCodeBlock>
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 }
