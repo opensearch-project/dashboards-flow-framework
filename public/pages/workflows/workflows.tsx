@@ -163,16 +163,38 @@ export function Workflows(props: WorkflowsProps) {
                   </h2>
                 </EuiTitle>
               }
-              rightSideItems={[
-                <EuiButton
-                  style={{ marginTop: '8px' }}
-                  onClick={() => {
-                    setIsImportModalOpen(true);
-                  }}
-                >
-                  Import workflow
-                </EuiButton>,
-              ]}
+              rightSideItems={
+                selectedTabId === WORKFLOWS_TAB.MANAGE
+                  ? [
+                      <EuiButton
+                        style={{ marginTop: '8px' }}
+                        fill={true}
+                        onClick={() => {
+                          setSelectedTabId(WORKFLOWS_TAB.CREATE);
+                        }}
+                      >
+                        Create workflow
+                      </EuiButton>,
+                      <EuiButton
+                        style={{ marginTop: '8px' }}
+                        onClick={() => {
+                          setIsImportModalOpen(true);
+                        }}
+                      >
+                        Import workflow
+                      </EuiButton>,
+                    ]
+                  : [
+                      <EuiButton
+                        style={{ marginTop: '8px' }}
+                        onClick={() => {
+                          setIsImportModalOpen(true);
+                        }}
+                      >
+                        Import workflow
+                      </EuiButton>,
+                    ]
+              }
               bottomBorder={false}
             />
             {selectedTabId === WORKFLOWS_TAB.MANAGE ? (
