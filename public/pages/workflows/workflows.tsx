@@ -13,37 +13,19 @@ import {
   EuiPageContent,
   EuiSpacer,
   EuiFlexGroup,
-  EuiButtonEmpty,
   EuiButton,
   EuiText,
-  EuiModal,
-  EuiModalHeader,
-  EuiModalHeaderTitle,
-  EuiModalBody,
-  EuiModalFooter,
-  EuiFilePicker,
-  EuiCallOut,
-  EuiFlexItem,
 } from '@elastic/eui';
 import queryString from 'query-string';
 import { useSelector } from 'react-redux';
-import {
-  BREADCRUMBS,
-  getObjFromJsonOrYamlString,
-  isValidUiWorkflow,
-  isValidWorkflow,
-} from '../../utils';
+import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
-import {
-  AppState,
-  createWorkflow,
-  searchWorkflows,
-  useAppDispatch,
-} from '../../store';
+import { AppState, searchWorkflows, useAppDispatch } from '../../store';
 import { EmptyListMessage } from './empty_list_message';
-import { FETCH_ALL_QUERY_BODY, Workflow } from '../../../common';
+import { FETCH_ALL_QUERY_BODY } from '../../../common';
+import { ImportWorkflowModal } from './import_workflow';
 
 export interface WorkflowsRouterProps {}
 
@@ -67,8 +49,8 @@ function replaceActiveTab(activeTab: string, props: WorkflowsProps) {
 
 /**
  * The base workflows page. From here, users can toggle between views to access
- * existing created workflows, or explore the library of workflow templates
- * to get started on a new workflow.
+ * existing created workflows, explore the library of workflow templates
+ * to get started on a new workflow, or import local workflow templates.
  */
 export function Workflows(props: WorkflowsProps) {
   const dispatch = useAppDispatch();
@@ -78,26 +60,6 @@ export function Workflows(props: WorkflowsProps) {
 
   // import modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
-  function onModalClose(): void {
-    setIsImportModalOpen(false);
-    setFileContents(undefined);
-    setFileObj(undefined);
-  }
-
-  // file contents state
-  const [fileContents, setFileContents] = useState<string | undefined>(
-    undefined
-  );
-  const [fileObj, setFileObj] = useState<object | undefined>(undefined);
-  useEffect(() => {
-    setFileObj(getObjFromJsonOrYamlString(fileContents));
-  }, [fileContents]);
-  const fileReader = new FileReader();
-  fileReader.onload = (e) => {
-    if (e.target) {
-      setFileContents(e.target.result as string);
-    }
-  };
 
   // tab state
   const tabFromUrl = queryString.parse(useLocation().search)[
@@ -146,94 +108,11 @@ export function Workflows(props: WorkflowsProps) {
   return (
     <>
       {isImportModalOpen && (
-        <EuiModal onClose={() => onModalClose()} style={{ width: '40vw' }}>
-          <EuiModalHeader>
-            <EuiModalHeaderTitle>
-              <p>{`Import a workflow (JSON/YAML)`}</p>
-            </EuiModalHeaderTitle>
-          </EuiModalHeader>
-          <EuiModalBody>
-            <EuiFlexGroup
-              direction="column"
-              justifyContent="center"
-              alignItems="center"
-            >
-              {fileContents !== undefined && !isValidWorkflow(fileObj) && (
-                <>
-                  <EuiFlexItem>
-                    <EuiCallOut
-                      title="The uploaded file is not a valid workflow, remove the file and upload a compatible workflow in JSON or YAML format."
-                      iconType={'alert'}
-                      color="danger"
-                    />
-                  </EuiFlexItem>
-                  <EuiSpacer size="m" />
-                </>
-              )}
-              {isValidWorkflow(fileObj) && !isValidUiWorkflow(fileObj) && (
-                <>
-                  <EuiFlexItem>
-                    <EuiCallOut
-                      title="The uploaded file may not be compatible with Search Studio. You may not be able to edit or run this file with Search Studio."
-                      iconType={'help'}
-                      color="warning"
-                    />
-                  </EuiFlexItem>
-                  <EuiSpacer size="m" />
-                </>
-              )}
-              <EuiFlexItem grow={false}>
-                <EuiFilePicker
-                  multiple={false}
-                  initialPromptText="Select or drag and drop a file"
-                  onChange={(files) => {
-                    if (files && files.length > 0) {
-                      fileReader.readAsText(files[0]);
-                    }
-                  }}
-                  display="large"
-                />
-              </EuiFlexItem>
-              <EuiFlexItem>
-                <EuiText size="s" color="subdued">
-                  Must be in JSON or YAML format.
-                </EuiText>
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </EuiModalBody>
-          <EuiModalFooter>
-            <EuiButtonEmpty onClick={() => onModalClose()}>
-              Cancel
-            </EuiButtonEmpty>
-            <EuiButton
-              disabled={!isValidWorkflow(fileObj)}
-              onClick={() => {
-                dispatch(createWorkflow(fileObj as Workflow))
-                  .unwrap()
-                  .then((result) => {
-                    const { workflow } = result;
-                    dispatch(searchWorkflows(FETCH_ALL_QUERY_BODY));
-                    setSelectedTabId(WORKFLOWS_TAB.MANAGE);
-                    getCore().notifications.toasts.addSuccess(
-                      `Successfully imported ${workflow.name}`
-                    );
-                  })
-                  .catch((error: any) => {
-                    getCore().notifications.toasts.addDanger(error);
-                  })
-                  .finally(() => {
-                    onModalClose();
-                  });
-              }}
-              fill={true}
-              color="primary"
-            >
-              {isValidWorkflow(fileObj) && !isValidUiWorkflow(fileObj)
-                ? 'Import anyway'
-                : 'Import'}
-            </EuiButton>
-          </EuiModalFooter>
-        </EuiModal>
+        <ImportWorkflowModal
+          isImportModalOpen={isImportModalOpen}
+          setIsImportModalOpen={setIsImportModalOpen}
+          setSelectedTabId={setSelectedTabId}
+        />
       )}
       <EuiPage>
         <EuiPageBody>
@@ -241,7 +120,7 @@ export function Workflows(props: WorkflowsProps) {
             pageTitle={
               <EuiFlexGroup direction="column" style={{ margin: '0px' }}>
                 <EuiTitle size="l">
-                  <h2>Search Studio</h2>
+                  <h1>Search Studio</h1>
                 </EuiTitle>
                 <EuiText color="subdued">
                   Design, experiment, and prototype your solutions with
@@ -278,7 +157,6 @@ export function Workflows(props: WorkflowsProps) {
               pageTitle={
                 <EuiTitle size="m">
                   <h2>
-                    {' '}
                     {selectedTabId === WORKFLOWS_TAB.MANAGE
                       ? 'Workflows'
                       : 'Create from a template'}
