@@ -12,7 +12,7 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
-import { IConfigField, WorkspaceFormValues } from '../../../../../common';
+import { WorkspaceFormValues } from '../../../../../common';
 
 interface SourceDataProps {
   setIngestDocs: (docs: string) => void;

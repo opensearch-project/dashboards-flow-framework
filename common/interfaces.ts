@@ -287,12 +287,13 @@ export type TemplateFlows = {
 
 // A stateless template of a workflow
 export type WorkflowTemplate = {
+  // Name is the only required field: see https://opensearch.org/docs/latest/automating-configurations/api/create-workflow/#request-fields
   name: string;
-  description: string;
+  description?: string;
   // TODO: finalize on version type when that is implemented
   // https://github.com/opensearch-project/flow-framework/issues/526
-  version: any;
-  workflows: TemplateFlows;
+  version?: any;
+  workflows?: TemplateFlows;
   use_case?: USE_CASE;
   // UI state and any ReactFlow state may not exist if a workflow is created via API/backend-only.
   ui_metadata?: UIState;

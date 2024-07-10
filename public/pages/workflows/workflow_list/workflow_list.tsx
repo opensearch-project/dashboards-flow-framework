@@ -19,7 +19,6 @@ import {
   EuiTitle,
   EuiFlyoutBody,
   EuiText,
-  EuiLink,
 } from '@elastic/eui';
 import { AppState, deleteWorkflow, useAppDispatch } from '../../../store';
 import { UIState, WORKFLOW_TYPE, Workflow } from '../../../../common';
@@ -181,15 +180,7 @@ export function WorkflowList(props: WorkflowListProps) {
       <EuiFlexGroup direction="column">
         <EuiFlexItem>
           <EuiFlexGroup direction="row" style={{ marginLeft: '0px' }}>
-            <EuiText color="subdued">{`Manage existing workflows or`}</EuiText>
-            &nbsp;
-            <EuiText>
-              <EuiLink
-                onClick={() => props.setSelectedTabId(WORKFLOWS_TAB.CREATE)}
-              >
-                create a new workflow
-              </EuiLink>
-            </EuiText>
+            <EuiText color="subdued">{`Manage existing workflows`}</EuiText>
           </EuiFlexGroup>
         </EuiFlexItem>
         <EuiFlexItem>
