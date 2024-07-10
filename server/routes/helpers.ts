@@ -69,6 +69,7 @@ export function getWorkflowsFromResponses(
     const workflowState = getWorkflowStateFromResponse(
       workflowStateHit?._source?.state
     );
+    const workflowError = workflowStateHit?._source?.error;
     const workflowResourcesCreated = getResourcesCreatedFromResponse(
       workflowStateHit?._source?.resources_created
     );
@@ -76,6 +77,7 @@ export function getWorkflowsFromResponses(
       ...workflowDict[workflowHit._id],
       // @ts-ignore
       state: workflowState,
+      error: workflowError,
       resourcesCreated: workflowResourcesCreated,
     };
   });
