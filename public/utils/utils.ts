@@ -66,5 +66,9 @@ export function isValidWorkflow(workflowObj: object | undefined): boolean {
 }
 
 export function isValidUiWorkflow(workflowObj: object | undefined): boolean {
-  return workflowObj?.ui_metadata?.config !== undefined;
+  return (
+    isValidWorkflow(workflowObj) &&
+    workflowObj?.ui_metadata?.config !== undefined &&
+    workflowObj?.ui_metadata?.type !== undefined
+  );
 }

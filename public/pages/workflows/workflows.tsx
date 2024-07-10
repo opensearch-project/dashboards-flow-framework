@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps, useHistory, useLocation } from 'react-router-dom';
+import { RouteComponentProps, useLocation } from 'react-router-dom';
 import {
   EuiPageHeader,
   EuiTitle,
@@ -43,7 +43,7 @@ import {
   useAppDispatch,
 } from '../../store';
 import { EmptyListMessage } from './empty_list_message';
-import { FETCH_ALL_QUERY_BODY } from '../../../common';
+import { FETCH_ALL_QUERY_BODY, Workflow } from '../../../common';
 
 export interface WorkflowsRouterProps {}
 
@@ -72,7 +72,6 @@ function replaceActiveTab(activeTab: string, props: WorkflowsProps) {
  */
 export function Workflows(props: WorkflowsProps) {
   const dispatch = useAppDispatch();
-  const history = useHistory();
   const { workflows, loading, errorMessage } = useSelector(
     (state: AppState) => state.workflows
   );
@@ -171,21 +170,18 @@ export function Workflows(props: WorkflowsProps) {
                   <EuiSpacer size="m" />
                 </>
               )}
-              {fileContents !== undefined &&
-                fileObj !== undefined &&
-                isValidWorkflow(fileObj) &&
-                !isValidUiWorkflow(fileObj) && (
-                  <>
-                    <EuiFlexItem>
-                      <EuiCallOut
-                        title="The uploaded file may not be compatible with Search Studio. You may not be able to edit or run this file with Search Studio."
-                        iconType={'help'}
-                        color="warning"
-                      />
-                    </EuiFlexItem>
-                    <EuiSpacer size="m" />
-                  </>
-                )}
+              {isValidWorkflow(fileObj) && !isValidUiWorkflow(fileObj) && (
+                <>
+                  <EuiFlexItem>
+                    <EuiCallOut
+                      title="The uploaded file may not be compatible with Search Studio. You may not be able to edit or run this file with Search Studio."
+                      iconType={'help'}
+                      color="warning"
+                    />
+                  </EuiFlexItem>
+                  <EuiSpacer size="m" />
+                </>
+              )}
               <EuiFlexItem grow={false}>
                 <EuiFilePicker
                   multiple={false}
@@ -210,28 +206,31 @@ export function Workflows(props: WorkflowsProps) {
               Cancel
             </EuiButtonEmpty>
             <EuiButton
-              disabled={fileContents === undefined || fileObj === undefined}
+              disabled={!isValidWorkflow(fileObj)}
               onClick={() => {
-                console.log('fileobj: ', fileObj);
-                // const workflowToCreate = {
-                //   ...props.workflow,
-                //   name: workflowName,
-                // };
-                // dispatch(createWorkflow(workflowToCreate))
-                //   .unwrap()
-                //   .then((result) => {
-                //     const { workflow } = result;
-                //     history.replace(APP_PATH.WORKFLOWS);
-                //     history.go(0);
-                //   })
-                //   .catch((err: any) => {
-                //     console.error(err);
-                //   });
+                dispatch(createWorkflow(fileObj as Workflow))
+                  .unwrap()
+                  .then((result) => {
+                    const { workflow } = result;
+                    dispatch(searchWorkflows(FETCH_ALL_QUERY_BODY));
+                    setSelectedTabId(WORKFLOWS_TAB.MANAGE);
+                    getCore().notifications.toasts.addSuccess(
+                      `Successfully imported ${workflow.name}`
+                    );
+                  })
+                  .catch((error: any) => {
+                    getCore().notifications.toasts.addDanger(error);
+                  })
+                  .finally(() => {
+                    onModalClose();
+                  });
               }}
               fill={true}
               color="primary"
             >
-              Import
+              {isValidWorkflow(fileObj) && !isValidUiWorkflow(fileObj)
+                ? 'Import anyway'
+                : 'Import'}
             </EuiButton>
           </EuiModalFooter>
         </EuiModal>
