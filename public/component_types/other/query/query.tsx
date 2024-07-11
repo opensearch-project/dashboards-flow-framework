@@ -7,10 +7,10 @@ import { COMPONENT_CLASS } from '../../../../common';
 import { BaseComponent } from '../../base_component';
 
 /**
- * A basic Query placeholder UI component.
+ * A basic query placeholder UI component.
  * Does not have any functionality.
  */
-export abstract class Query extends BaseComponent {
+export class Query extends BaseComponent {
   constructor() {
     super();
     this.type = COMPONENT_CLASS.QUERY;

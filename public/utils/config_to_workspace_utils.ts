@@ -24,7 +24,7 @@ import {
   Document,
   KnnIndexer,
   MLTransformer,
-  NeuralQuery,
+  Query,
   Results,
 } from '../component_types';
 import { generateId } from './utils';
@@ -187,7 +187,7 @@ function searchConfigToWorkspaceFlow(
   // Parent search node
   const parentNode = {
     id: generateId(COMPONENT_CATEGORY.SEARCH),
-    position: { x: 400, y: 1000 },
+    position: { x: 400, y: 800 },
     type: NODE_CATEGORY.SEARCH_GROUP,
     data: { label: COMPONENT_CATEGORY.SEARCH },
     style: {
@@ -214,11 +214,11 @@ function searchConfigToWorkspaceFlow(
   );
 
   // By default, always include a query node, an index node, and a results node.
-  const queryNodeId = generateId(COMPONENT_CLASS.NEURAL_QUERY);
+  const queryNodeId = generateId(COMPONENT_CLASS.QUERY);
   const queryNode = {
     id: queryNodeId,
     position: { x: 100, y: 70 },
-    data: initComponentData(new NeuralQuery().toObj(), queryNodeId),
+    data: initComponentData(new Query().toObj(), queryNodeId),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
