@@ -65,7 +65,9 @@ export function SourceData(props: SourceDataProps) {
         <JsonField
           label="Upload JSON documents"
           fieldPath={'ingest.docs'}
-          onFormChange={props.onFormChange}
+          // when ingest doc values change, don't update the form
+          // since we initially only support running ingest once per configuration
+          onFormChange={() => {}}
           editorHeight="25vh"
         />
       </EuiFlexItem>

@@ -9,8 +9,8 @@ const initialState = {
   isDirty: false,
 };
 
-const workspaceSlice = createSlice({
-  name: 'workspace',
+const formSlice = createSlice({
+  name: 'form',
   initialState,
   reducers: {
     setDirty(state) {
@@ -22,5 +22,5 @@ const workspaceSlice = createSlice({
   },
 });
 
-export const workspaceReducer = workspaceSlice.reducer;
-export const { setDirty, removeDirty } = workspaceSlice.actions;
+export const formReducer = formSlice.reducer;
+export const { setDirty, removeDirty } = formSlice.actions;
