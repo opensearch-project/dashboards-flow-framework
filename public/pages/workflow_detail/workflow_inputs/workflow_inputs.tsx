@@ -224,7 +224,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               dispatch(removeDirty());
             })
             .catch((error: any) => {
-              getCore().notifications.toasts.addDanger(error);
               props.setIngestResponse('');
               throw error;
             });
@@ -257,7 +256,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               dispatch(removeDirty());
             })
             .catch((error: any) => {
-              getCore().notifications.toasts.addDanger(error);
               props.setQueryResponse('');
               throw error;
             });
@@ -334,9 +332,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           // @ts-ignore
                           await dispatch(getWorkflow(props.workflow.id));
                         })
-                        .catch((error: any) => {
-                          getCore().notifications.toasts.addDanger(error);
-                        })
+                        .catch((error: any) => {})
                         .finally(() => {
                           setIsModalOpen(false);
                         });

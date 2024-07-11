@@ -4,7 +4,7 @@
  */
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { Workflow, WorkflowDict, WorkflowTemplate } from '../../../common';
+import { WorkflowDict, WorkflowTemplate } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
 

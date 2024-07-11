@@ -243,6 +243,7 @@ export function reduceToTemplate(workflow: Workflow): WorkflowTemplate {
     lastUpdated,
     lastLaunched,
     state,
+    error,
     resourcesCreated,
     ...workflowTemplate
   } = workflow;

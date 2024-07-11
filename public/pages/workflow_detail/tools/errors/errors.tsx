@@ -4,14 +4,27 @@
  */
 
 import React from 'react';
-import { EuiText } from '@elastic/eui';
+import { EuiCodeBlock, EuiText } from '@elastic/eui';
+import { isEmpty } from 'lodash';
 
-interface ErrorsProps {}
+interface ErrorsProps {
+  errorMessage: string;
+}
 
 /**
  * The basic errors component for the Tools panel.
  * Displays any errors found while users configure and test their workflow.
  */
 export function Errors(props: ErrorsProps) {
-  return <EuiText>TODO: add errors details here</EuiText>;
+  return (
+    <>
+      {isEmpty(props.errorMessage) ? (
+        <EuiText>There are no errors.</EuiText>
+      ) : (
+        <EuiCodeBlock fontSize="m" isCopyable={false}>
+          {props.errorMessage}
+        </EuiCodeBlock>
+      )}
+    </>
+  );
 }
