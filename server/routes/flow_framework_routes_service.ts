@@ -182,6 +182,7 @@ export class FlowFrameworkRoutesService {
       const workflowWithState = {
         ...workflow,
         state,
+        error: stateResponse.error,
         resourcesCreated,
       } as Workflow;
       return res.ok({ body: { workflow: workflowWithState } });

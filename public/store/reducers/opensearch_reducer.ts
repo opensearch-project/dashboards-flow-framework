@@ -89,6 +89,10 @@ const opensearchSlice = createSlice({
         state.loading = true;
         state.errorMessage = '';
       })
+      .addCase(ingest.pending, (state, action) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
       .addCase(catIndices.fulfilled, (state, action) => {
         const indicesMap = new Map<string, Index>();
         action.payload.forEach((index: Index) => {
@@ -102,11 +106,19 @@ const opensearchSlice = createSlice({
         state.loading = false;
         state.errorMessage = '';
       })
+      .addCase(ingest.fulfilled, (state, action) => {
+        state.loading = false;
+        state.errorMessage = '';
+      })
       .addCase(catIndices.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       })
       .addCase(searchIndex.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(ingest.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       });
