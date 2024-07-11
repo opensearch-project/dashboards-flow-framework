@@ -6,7 +6,7 @@
 import React from 'react';
 import {
   EuiButton,
-  EuiButtonIcon,
+  EuiSmallButtonIcon,
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
@@ -155,7 +155,7 @@ export function MapField(props: MapFieldProps) {
                         </EuiFlexGroup>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
-                        <EuiButtonIcon
+                        <EuiSmallButtonIcon
                           style={{ marginTop: '8px' }}
                           iconType={'trash'}
                           color="danger"

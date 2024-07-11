@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   EuiSmallButton,
-  EuiButtonIcon,
+  EuiSmallButtonIcon,
   EuiContextMenu,
   EuiFlexGroup,
   EuiFlexItem,
@@ -143,7 +143,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
                   <EuiText>{processor.name || 'Processor'}</EuiText>
                 </EuiFlexItem>
                 <EuiFlexItem grow={false}>
-                  <EuiButtonIcon
+                  <EuiSmallButtonIcon
                     iconType={'trash'}
                     color="danger"
                     aria-label="Delete"
