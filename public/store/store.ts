@@ -7,15 +7,15 @@ import { ThunkDispatch, configureStore } from '@reduxjs/toolkit';
 import { AnyAction, combineReducers } from 'redux';
 import { useDispatch } from 'react-redux';
 import {
-  workspaceReducer,
   opensearchReducer,
   workflowsReducer,
   presetsReducer,
   modelsReducer,
+  formReducer,
 } from './reducers';
 
 const rootReducer = combineReducers({
-  workspace: workspaceReducer,
+  form: formReducer,
   workflows: workflowsReducer,
   presets: presetsReducer,
   models: modelsReducer,
