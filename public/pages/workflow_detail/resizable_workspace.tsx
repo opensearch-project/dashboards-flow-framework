@@ -52,8 +52,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const dispatch = useAppDispatch();
 
   // Overall workspace state
-  const { isDirty } = useSelector((state: AppState) => state.workspace);
-  const { loading } = useSelector((state: AppState) => state.workflows);
+  const { isDirty } = useSelector((state: AppState) => state.form);
 
   // Workflow state
   const [workflow, setWorkflow] = useState<Workflow | undefined>(

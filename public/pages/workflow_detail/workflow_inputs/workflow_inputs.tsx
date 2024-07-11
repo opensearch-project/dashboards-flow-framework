@@ -10,6 +10,7 @@ import { isEmpty } from 'lodash';
 import {
   EuiButton,
   EuiButtonEmpty,
+  EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
@@ -94,7 +95,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const dispatch = useAppDispatch();
 
   // Overall workspace state
-  const { isDirty } = useSelector((state: AppState) => state.workspace);
+  const { isDirty } = useSelector((state: AppState) => state.form);
 
   // selected step state
   const [selectedStep, setSelectedStep] = useState<STEP>(STEP.INGEST);
@@ -345,6 +346,15 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 </EuiModalFooter>
               </EuiModal>
             )}
+            {onIngest &&
+              isDirty &&
+              hasProvisionedSearchResources(props.workflow) && (
+                <EuiCallOut
+                  title="Making changes to ingest may affect your configured search flow"
+                  iconType={'alert'}
+                  color="warning"
+                />
+              )}
             {onIngestAndUnprovisioned && (
               <>
                 <EuiSpacer size="m" />
@@ -452,7 +462,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     <EuiFlexItem grow={false}>
                       <EuiButton
                         fill={true}
-                        onClick={() => setSelectedStep(STEP.SEARCH)}
+                        onClick={() => {
+                          setSelectedStep(STEP.SEARCH);
+                          dispatch(removeDirty());
+                        }}
                       >
                         {`Search pipeline >`}
                       </EuiButton>
@@ -473,7 +486,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       <EuiFlexItem grow={false}>
                         <EuiButton
                           fill={true}
-                          onClick={() => setSelectedStep(STEP.SEARCH)}
+                          onClick={() => {
+                            setSelectedStep(STEP.SEARCH);
+                          }}
                           disabled={!ingestProvisioned || isDirty}
                         >
                           {`Search pipeline >`}
@@ -484,6 +499,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
+                          disabled={isDirty}
                           onClick={() => setSelectedStep(STEP.INGEST)}
                         >
                           Back

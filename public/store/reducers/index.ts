@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './workspace_reducer';
+export * from './form_reducer';
 export * from './opensearch_reducer';
 export * from './workflows_reducer';
 export * from './presets_reducer';
