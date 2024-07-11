@@ -8,10 +8,10 @@ import { useSelector } from 'react-redux';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
   EuiCallOut,
-  EuiFormRow,
+  EuiCompressedFormRow,
   EuiLink,
   EuiSpacer,
-  EuiSuperSelect,
+  EuiCompressedSuperSelect,
   EuiSuperSelectOption,
   EuiText,
 } from '@elastic/eui';
@@ -85,7 +85,7 @@ export function ModelField(props: ModelFieldProps) {
       <Field name={props.fieldPath}>
         {({ field, form }: FieldProps) => {
           return (
-            <EuiFormRow
+            <EuiompressedFormRow
               label={'Model'}
               labelAppend={
                 <EuiText size="xs">
@@ -96,7 +96,7 @@ export function ModelField(props: ModelFieldProps) {
               }
               helpText={'The model ID.'}
             >
-              <EuiSuperSelect
+              <EuiompressedSuperSelect
                 options={deployedModels.map(
                   (option) =>
                     ({
@@ -135,7 +135,7 @@ export function ModelField(props: ModelFieldProps) {
                     : undefined
                 }
               />
-            </EuiFormRow>
+            </EuiompressedFormRow>
           );
         }}
       </Field>

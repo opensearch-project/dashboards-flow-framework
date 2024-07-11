@@ -9,7 +9,7 @@ import {
   EuiSmallButtonIcon,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiFormRow,
+  EuiCompressedFormRow,
   EuiIcon,
   EuiLink,
   EuiText,
@@ -70,7 +70,7 @@ export function MapField(props: MapFieldProps) {
     <Field name={props.fieldPath} key={props.fieldPath}>
       {({ field, form }: FieldProps) => {
         return (
-          <EuiFormRow
+          <EuiCompressedFormRow
             fullWidth={true}
             key={props.fieldPath}
             label={props.label}
@@ -184,7 +184,7 @@ export function MapField(props: MapFieldProps) {
                 </div>
               </EuiFlexItem>
             </EuiFlexGroup>
-          </EuiFormRow>
+          </EuiCompressedFormRow>
         );
       }}
     </Field>
