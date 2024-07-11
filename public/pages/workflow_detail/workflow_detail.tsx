@@ -42,9 +42,7 @@ interface WorkflowDetailProps
 
 export function WorkflowDetail(props: WorkflowDetailProps) {
   const dispatch = useAppDispatch();
-  const { workflows, errorMessage } = useSelector(
-    (state: AppState) => state.workflows
-  );
+  const { workflows } = useSelector((state: AppState) => state.workflows);
 
   // selected workflow state
   const workflowId = props.match?.params?.workflowId;
@@ -66,14 +64,6 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     dispatch(getWorkflow(workflowId));
     dispatch(searchModels(FETCH_ALL_QUERY_BODY));
   }, []);
-
-  // Show a toast if an error message exists in state
-  useEffect(() => {
-    if (errorMessage) {
-      console.error(errorMessage);
-      getCore().notifications.toasts.addDanger(errorMessage);
-    }
-  }, [errorMessage]);
 
   return (
     <ReactFlowProvider>

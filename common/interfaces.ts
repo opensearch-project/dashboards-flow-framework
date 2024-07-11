@@ -310,6 +310,8 @@ export type Workflow = WorkflowTemplate & {
   // won't exist until launched/provisioned in backend
   state?: WORKFLOW_STATE;
   // won't exist until launched/provisioned in backend
+  error?: string;
+  // won't exist until launched/provisioned in backend
   resourcesCreated?: WorkflowResource[];
 };
 

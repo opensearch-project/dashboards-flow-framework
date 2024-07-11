@@ -4,6 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { AppState } from '../../../store';
 import { isEmpty } from 'lodash';
 import {
   EuiFlexGroup,
@@ -59,16 +61,47 @@ const inputTabs = [
  * The base Tools component for performing ingest and search, viewing resources, and debugging.
  */
 export function Tools(props: ToolsProps) {
+  // error message state
+  const { opensearch, workflows } = useSelector((state: AppState) => state);
+  const opensearchError = opensearch.errorMessage;
+  const workflowsError = workflows.errorMessage;
+  const [curErrorMessage, setCurErrorMessage] = useState<string>('');
+
+  // selected tab state
   const [selectedTabId, setSelectedTabId] = useState<string>(TAB_ID.INGEST);
 
-  // auto-navigate to ingest response if a populated value has been set, indicating ingest has been ran
+  // auto-navigate to errors tab if a new error has been set as a result of
+  // executing OpenSearch or Flow Framework workflow APIs, or from the workflow state
+  // (note that if provision/deprovision fails, there is no concrete exception returned at the API level -
+  // it is just set in the workflow's error field when fetching workflow state)
+  useEffect(() => {
+    setCurErrorMessage(opensearchError);
+    if (!isEmpty(opensearchError)) {
+      setSelectedTabId(TAB_ID.ERRORS);
+    }
+  }, [opensearchError]);
+
+  useEffect(() => {
+    setCurErrorMessage(workflowsError);
+    if (!isEmpty(workflowsError)) {
+      setSelectedTabId(TAB_ID.ERRORS);
+    }
+  }, [workflowsError]);
+  useEffect(() => {
+    setCurErrorMessage(props.workflow?.error || '');
+    if (!isEmpty(props.workflow?.error)) {
+      setSelectedTabId(TAB_ID.ERRORS);
+    }
+  }, [props.workflow?.error]);
+
+  // auto-navigate to ingest tab if a populated value has been set, indicating ingest has been ran
   useEffect(() => {
     if (!isEmpty(props.ingestResponse)) {
       setSelectedTabId(TAB_ID.INGEST);
     }
   }, [props.ingestResponse]);
 
-  // auto-navigate to query response if a populated value has been set, indicating search has been ran
+  // auto-navigate to query tab if a populated value has been set, indicating search has been ran
   useEffect(() => {
     if (!isEmpty(props.queryResponse)) {
       setSelectedTabId(TAB_ID.QUERY);
@@ -114,7 +147,9 @@ export function Tools(props: ToolsProps) {
                 {selectedTabId === TAB_ID.QUERY && (
                   <Query queryResponse={props.queryResponse} />
                 )}
-                {selectedTabId === TAB_ID.ERRORS && <Errors />}
+                {selectedTabId === TAB_ID.ERRORS && (
+                  <Errors errorMessage={curErrorMessage} />
+                )}
                 {selectedTabId === TAB_ID.RESOURCES && (
                   <Resources workflow={props.workflow} />
                 )}
