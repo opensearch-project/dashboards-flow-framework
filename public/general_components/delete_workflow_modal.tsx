@@ -6,7 +6,7 @@
 import React from 'react';
 import {
   EuiSmallButton,
-  EuiButtonEmpty,
+  EuiSmallButtonEmpty,
   EuiModal,
   EuiModalBody,
   EuiModalFooter,
@@ -40,7 +40,7 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
         </EuiText>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiButtonEmpty onClick={props.onClose}> Cancel</EuiButtonEmpty>
+        <EuiSmallButtonEmpty onClick={props.onClose}> Cancel</EuiSmallButtonEmpty>
         <EuiSmallButton onClick={props.onConfirm} fill={true} color="danger">
           Delete
         </EuiSmallButton>

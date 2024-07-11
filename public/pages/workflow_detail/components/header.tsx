@@ -10,7 +10,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiText,
-  EuiButtonEmpty,
+  EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import {
   DEFAULT_NEW_WORKFLOW_STATE,
@@ -59,7 +59,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
         </EuiFlexGroup>
       }
       rightSideItems={[
-        <EuiButtonEmpty
+        <EuiSmallButtonEmpty
           style={{ marginTop: '8px' }}
           onClick={() => {
             // TODO: add lightweight save here when available
@@ -67,7 +67,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           }}
         >
           Close
-        </EuiButtonEmpty>,
+        </EuiSmallButtonEmpty>,
         <EuiText style={{ marginTop: '16px' }} color="subdued" size="s">
           {`Last updated: ${workflowLastUpdated}`}
         </EuiText>,
