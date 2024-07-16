@@ -194,7 +194,7 @@ export function WorkflowList(props: WorkflowListProps) {
             </EuiFlexItem>
             <MultiSelectFilter
               filters={filterOptions}
-              title="Status"
+              title="Type"
               setSelectedFilters={setSelectedTypes}
             />
           </EuiFlexGroup>
