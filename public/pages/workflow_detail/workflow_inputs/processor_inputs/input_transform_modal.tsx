@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useFormikContext } from 'formik';
 import {
   EuiButton,
   EuiButtonEmpty,
@@ -19,7 +20,8 @@ import {
   EuiSpacer,
   EuiText,
 } from '@elastic/eui';
-import { PROCESSOR_CONTEXT } from '../../../../../common';
+import { PROCESSOR_CONTEXT, WorkflowFormValues } from '../../../../../common';
+import { formikToIngestPipeline } from '../../../../utils';
 
 interface InputTransformModalProps {
   context: PROCESSOR_CONTEXT;
@@ -31,6 +33,8 @@ interface InputTransformModalProps {
  * A modal to configure advanced JSON-to-JSON transforms into a model's expected input
  */
 export function InputTransformModal(props: InputTransformModalProps) {
+  const { values } = useFormikContext<WorkflowFormValues>();
+
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
       <EuiModalHeader>
@@ -48,6 +52,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   switch (props.context) {
                     case PROCESSOR_CONTEXT.INGEST: {
                       // TODO: complete for ingest. generate and simulate an ingest pipeline up to this point
+                      const curIngestPipeline = formikToIngestPipeline(values);
                       break;
                     }
                     // TODO: complete for search request / search response contexts
