@@ -20,10 +20,17 @@ import {
   EuiSpacer,
   EuiText,
 } from '@elastic/eui';
-import { PROCESSOR_CONTEXT, WorkflowFormValues } from '../../../../../common';
+import {
+  IProcessorConfig,
+  PROCESSOR_CONTEXT,
+  WorkflowConfig,
+  WorkflowFormValues,
+} from '../../../../../common';
 import { formikToIngestPipeline } from '../../../../utils';
 
 interface InputTransformModalProps {
+  uiConfig: WorkflowConfig;
+  config: IProcessorConfig;
   context: PROCESSOR_CONTEXT;
   onClose: () => void;
   onConfirm: () => void;
@@ -51,8 +58,13 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 onClick={() => {
                   switch (props.context) {
                     case PROCESSOR_CONTEXT.INGEST: {
-                      // TODO: complete for ingest. generate and simulate an ingest pipeline up to this point
-                      const curIngestPipeline = formikToIngestPipeline(values);
+                      // TODO: simulate an ingest pipeline up to this point
+                      const curIngestPipeline = formikToIngestPipeline(
+                        values,
+                        props.uiConfig,
+                        props.config.id
+                      );
+                      console.log('cur ingestpipeline: ', curIngestPipeline);
                       break;
                     }
                     // TODO: complete for search request / search response contexts

@@ -153,6 +153,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
               </EuiFlexGroup>
               <EuiHorizontalRule size="full" margin="s" />
               <ProcessorInputs
+                uiConfig={props.uiConfig}
                 config={processor}
                 baseConfigPath={
                   props.context === PROCESSOR_CONTEXT.INGEST

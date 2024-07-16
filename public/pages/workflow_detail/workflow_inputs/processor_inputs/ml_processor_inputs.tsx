@@ -11,6 +11,7 @@ import {
   IProcessorConfig,
   IConfigField,
   PROCESSOR_CONTEXT,
+  WorkflowConfig,
 } from '../../../../../common';
 import { MapField, ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
@@ -18,6 +19,7 @@ import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
 
 interface MLProcessorInputsProps {
+  uiConfig: WorkflowConfig;
   config: IProcessorConfig;
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
   onFormChange: () => void;
@@ -53,13 +55,13 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
 
   // transform option state
   const [selectedOption, setSelectedOption] = useState<TRANSFORM_OPTION>(
-    TRANSFORM_OPTION.SIMPLE
+    TRANSFORM_OPTION.ADVANCED
   );
 
   // advanced transformations modal state
   const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
     boolean
-  >(true);
+  >(false);
   const [isOutputTransformModalOpen, setIsOutputTransformModalOpen] = useState<
     boolean
   >(false);
@@ -68,6 +70,8 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     <>
       {isInputTransformModalOpen && (
         <InputTransformModal
+          uiConfig={props.uiConfig}
+          config={props.config}
           context={props.context}
           onClose={() => setIsInputTransformModalOpen(false)}
           onConfirm={() => {

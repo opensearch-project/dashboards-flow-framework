@@ -3,7 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { WorkflowFormValues } from '../../common';
+import { isEmpty } from 'lodash';
+import {
+  IProcessorConfig,
+  IngestPipelineConfig,
+  SearchPipelineConfig,
+  WorkflowConfig,
+  WorkflowFormValues,
+} from '../../common';
+import { formikToUiConfig } from './form_to_config_utils';
+import { processorConfigsToTemplateProcessors } from './config_to_template_utils';
 
 /*
    **************** Form -> pipeline utils **********************
@@ -13,9 +22,33 @@ import { WorkflowFormValues } from '../../common';
    the input schema at a certain stage of a pipeline.
    */
 
-export function formikToIngestPipeline(values: WorkflowFormValues): {} {
-  const ingestConfig = values.ingest;
-  console.log('ingest config: ', ingestConfig);
-  // TODO: may be able to convert form -> config -> template, where template has the API-formatted configs.
-  return {};
+export function formikToIngestPipeline(
+  values: WorkflowFormValues,
+  existingConfig: WorkflowConfig,
+  curProcessorId: string
+): IngestPipelineConfig | SearchPipelineConfig | undefined {
+  const uiConfig = formikToUiConfig(values, existingConfig);
+  const precedingProcessors = getPrecedingProcessors(
+    uiConfig.ingest.enrich.processors,
+    curProcessorId
+  );
+  if (!isEmpty(precedingProcessors)) {
+    return {
+      processors: processorConfigsToTemplateProcessors(precedingProcessors),
+    } as IngestPipelineConfig | SearchPipelineConfig;
+  }
+  return undefined;
+}
+
+function getPrecedingProcessors(
+  allProcessors: IProcessorConfig[],
+  curProcessorId: string
+): IProcessorConfig[] {
+  const precedingProcessors = [] as IProcessorConfig[];
+  allProcessors.forEach((processor) => {
+    if (processor.id !== curProcessorId) {
+      precedingProcessors.push(processor);
+    }
+  });
+  return precedingProcessors;
 }

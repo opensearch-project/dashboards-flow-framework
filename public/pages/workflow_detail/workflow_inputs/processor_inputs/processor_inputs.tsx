@@ -9,6 +9,7 @@ import {
   IProcessorConfig,
   PROCESSOR_CONTEXT,
   PROCESSOR_TYPE,
+  WorkflowConfig,
 } from '../../../../../common';
 import { MLProcessorInputs } from './ml_processor_inputs';
 
@@ -17,6 +18,7 @@ import { MLProcessorInputs } from './ml_processor_inputs';
  */
 
 interface ProcessorInputsProps {
+  uiConfig: WorkflowConfig;
   config: IProcessorConfig;
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
   onFormChange: () => void;
@@ -36,6 +38,7 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
             el = (
               <EuiFlexItem>
                 <MLProcessorInputs
+                  uiConfig={props.uiConfig}
                   config={props.config}
                   baseConfigPath={props.baseConfigPath}
                   onFormChange={props.onFormChange}

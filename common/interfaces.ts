@@ -46,6 +46,10 @@ export type ProcessorsConfig = {
   processors: IProcessorConfig[];
 };
 
+export type IngestPipelineConfig = ProcessorsConfig;
+
+export type SearchPipelineConfig = ProcessorsConfig;
+
 export type IndexConfig = {
   name: IConfigField;
   mappings: IConfigField;
