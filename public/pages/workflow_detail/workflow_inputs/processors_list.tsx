@@ -162,6 +162,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
                     : 'search.enrichResponse'
                 }
                 onFormChange={props.onFormChange}
+                context={props.context}
               />
             </EuiPanel>
           </EuiFlexItem>

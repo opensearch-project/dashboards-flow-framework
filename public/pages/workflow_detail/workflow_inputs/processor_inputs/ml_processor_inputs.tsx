@@ -5,20 +5,23 @@
 
 import React, { useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
-import { EuiButton, EuiRadioGroup, EuiSpacer } from '@elastic/eui';
+import { EuiButton, EuiRadioGroup, EuiSpacer, EuiText } from '@elastic/eui';
 import {
   WorkspaceFormValues,
   IProcessorConfig,
   IConfigField,
+  PROCESSOR_CONTEXT,
 } from '../../../../../common';
 import { MapField, ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
-import { AdvancedTransformModal } from './advanced_transform_modal';
+import { InputTransformModal } from './input_transform_modal';
+import { OutputTransformModal } from './output_transform_modal';
 
 interface MLProcessorInputsProps {
   config: IProcessorConfig;
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
   onFormChange: () => void;
+  context: PROCESSOR_CONTEXT;
 }
 
 enum TRANSFORM_OPTION {
@@ -53,20 +56,32 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     TRANSFORM_OPTION.SIMPLE
   );
 
-  // advanced transform modal state
-  const [
-    isAdvancedTransformModalOpen,
-    setIsAdvancedTransformModalOpen,
-  ] = useState<boolean>(false);
+  // advanced transformations modal state
+  const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
+    boolean
+  >(true);
+  const [isOutputTransformModalOpen, setIsOutputTransformModalOpen] = useState<
+    boolean
+  >(false);
 
   return (
     <>
-      {isAdvancedTransformModalOpen && (
-        <AdvancedTransformModal
-          onClose={() => setIsAdvancedTransformModalOpen(false)}
+      {isInputTransformModalOpen && (
+        <InputTransformModal
+          context={props.context}
+          onClose={() => setIsInputTransformModalOpen(false)}
           onConfirm={() => {
-            console.log('saving transform configuration...');
-            setIsAdvancedTransformModalOpen(false);
+            console.log('saving transform input configuration...');
+            setIsInputTransformModalOpen(false);
+          }}
+        />
+      )}
+      {isOutputTransformModalOpen && (
+        <OutputTransformModal
+          onClose={() => setIsOutputTransformModalOpen(false)}
+          onConfirm={() => {
+            console.log('saving transform output configuration...');
+            setIsOutputTransformModalOpen(false);
           }}
         />
       )}
@@ -77,6 +92,8 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       />
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
         <>
+          <EuiSpacer size="s" />
+          <EuiText size="s">{`Configure data transformations (optional)`}</EuiText>
           <EuiSpacer size="s" />
           <EuiRadioGroup
             options={[
@@ -124,13 +141,23 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             <>
               <EuiSpacer size="s" />
               <EuiButton
-                style={{ width: '150px' }}
+                style={{ width: '300px' }}
                 fill={false}
                 onClick={() => {
-                  setIsAdvancedTransformModalOpen(true);
+                  setIsInputTransformModalOpen(true);
                 }}
               >
-                Configure
+                Configure input transformation
+              </EuiButton>
+              <EuiSpacer size="s" />
+              <EuiButton
+                style={{ width: '300px' }}
+                fill={false}
+                onClick={() => {
+                  setIsOutputTransformModalOpen(true);
+                }}
+              >
+                Configure output transformation
               </EuiButton>
             </>
           )}
