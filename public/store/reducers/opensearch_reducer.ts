@@ -5,7 +5,11 @@
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { getRouteService } from '../../services';
-import { Index } from '../../../common';
+import {
+  Index,
+  IngestPipelineConfig,
+  SimulateIngestPipelineDoc,
+} from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 
 const initialState = {
@@ -18,6 +22,7 @@ const OPENSEARCH_PREFIX = 'opensearch';
 const CAT_INDICES_ACTION = `${OPENSEARCH_PREFIX}/catIndices`;
 const SEARCH_INDEX_ACTION = `${OPENSEARCH_PREFIX}/search`;
 const INGEST_ACTION = `${OPENSEARCH_PREFIX}/ingest`;
+const SIMULATE_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/simulatePipeline`;
 
 export const catIndices = createAsyncThunk(
   CAT_INDICES_ACTION,
@@ -68,6 +73,25 @@ export const ingest = createAsyncThunk(
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
         'Error ingesting document: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
+  }
+);
+
+export const simulatePipeline = createAsyncThunk(
+  SIMULATE_PIPELINE_ACTION,
+  async (
+    body: { pipeline: IngestPipelineConfig; docs: SimulateIngestPipelineDoc[] },
+    { rejectWithValue }
+  ) => {
+    const response:
+      | any
+      | HttpFetchError = await getRouteService().simulatePipeline(body);
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error simulating ingest pipeline: ' + response.body.message
       );
     } else {
       return response;

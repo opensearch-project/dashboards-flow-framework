@@ -19,6 +19,9 @@ import {
   WorkflowTemplate,
   SEARCH_INDEX_NODE_API_PATH,
   INGEST_NODE_API_PATH,
+  SIMULATE_PIPELINE_NODE_API_PATH,
+  IngestPipelineConfig,
+  SimulateIngestPipelineDoc,
 } from '../common';
 
 /**
@@ -49,6 +52,10 @@ export interface RouteService {
   ) => Promise<any | HttpFetchError>;
   ingest: (index: string, doc: {}) => Promise<any | HttpFetchError>;
   searchModels: (body: {}) => Promise<any | HttpFetchError>;
+  simulatePipeline: (body: {
+    pipeline: IngestPipelineConfig;
+    docs: SimulateIngestPipelineDoc[];
+  }) => Promise<any | HttpFetchError>;
 }
 
 export function configureRoutes(core: CoreStart): RouteService {
@@ -196,6 +203,22 @@ export function configureRoutes(core: CoreStart): RouteService {
       try {
         const response = await core.http.post<{ respString: string }>(
           SEARCH_MODELS_NODE_API_PATH,
+          {
+            body: JSON.stringify(body),
+          }
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    simulatePipeline: async (body: {
+      pipeline: IngestPipelineConfig;
+      docs: SimulateIngestPipelineDoc[];
+    }) => {
+      try {
+        const response = await core.http.post<{ respString: string }>(
+          SIMULATE_PIPELINE_NODE_API_PATH,
           {
             body: JSON.stringify(body),
           }

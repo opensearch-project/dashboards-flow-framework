@@ -152,7 +152,7 @@ export function WorkflowList(props: WorkflowListProps) {
                 );
               })
               .catch((err: any) => {
-                getCore().notifications.toasts.addSuccess(
+                getCore().notifications.toasts.addDanger(
                   `Failed to delete ${selectedWorkflow.name}`
                 );
                 console.error(

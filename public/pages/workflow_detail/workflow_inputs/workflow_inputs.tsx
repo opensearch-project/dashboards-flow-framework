@@ -209,7 +209,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     try {
       let ingestDocsObjs = [] as {}[];
       try {
-        // TODO: test with multiple objs, make sure parsing logic works
+        // TODO: change to bulk API
         const ingestDocObj = JSON.parse(props.ingestDocs);
         ingestDocsObjs = [ingestDocObj];
       } catch (e) {}
