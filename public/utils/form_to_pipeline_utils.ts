@@ -45,8 +45,10 @@ function getPrecedingProcessors(
   curProcessorId: string
 ): IProcessorConfig[] {
   const precedingProcessors = [] as IProcessorConfig[];
-  allProcessors.forEach((processor) => {
-    if (processor.id !== curProcessorId) {
+  allProcessors.some((processor) => {
+    if (processor.id === curProcessorId) {
+      return true;
+    } else {
       precedingProcessors.push(processor);
     }
   });
