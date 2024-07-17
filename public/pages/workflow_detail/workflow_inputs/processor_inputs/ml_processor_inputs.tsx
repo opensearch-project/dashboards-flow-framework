@@ -26,13 +26,8 @@ interface MLProcessorInputsProps {
   context: PROCESSOR_CONTEXT;
 }
 
-enum TRANSFORM_OPTION {
-  SIMPLE = 'SIMPLE',
-  ADVANCED = 'ADVANCED',
-}
-
 /**
- * Component to render ML processor inputs. Offers a simple and advanced flow for configuring data transforms
+ * Component to render ML processor inputs. Offers simple and advanced flows for configuring data transforms
  * before and after executing an ML inference request
  */
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
@@ -52,11 +47,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     (field) => field.id === 'outputMap'
   ) as IConfigField;
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
-
-  // transform option state
-  const [selectedOption, setSelectedOption] = useState<TRANSFORM_OPTION>(
-    TRANSFORM_OPTION.ADVANCED
-  );
 
   // advanced transformations modal state
   const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
@@ -99,72 +89,48 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           <EuiSpacer size="s" />
           <EuiText size="s">{`Configure data transformations (optional)`}</EuiText>
           <EuiSpacer size="s" />
-          <EuiRadioGroup
-            options={[
-              {
-                id: TRANSFORM_OPTION.SIMPLE,
-                label: 'Simple',
-              },
-              {
-                id: TRANSFORM_OPTION.ADVANCED,
-                label: 'Advanced',
-              },
-            ]}
-            idSelected={selectedOption}
-            onChange={(option) => {
-              setSelectedOption(option as TRANSFORM_OPTION);
+          <EuiSpacer size="s" />
+          <EuiButton
+            style={{ width: '300px' }}
+            fill={false}
+            onClick={() => {
+              setIsInputTransformModalOpen(true);
             }}
+          >
+            Advanced input configuration
+          </EuiButton>
+          <EuiSpacer size="s" />
+          <MapField
+            field={inputMapField}
+            fieldPath={inputMapFieldPath}
+            label="Input map"
+            helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
+            helpLink={
+              'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
+            }
+            onFormChange={props.onFormChange}
           />
-          {selectedOption === TRANSFORM_OPTION.SIMPLE && (
-            <>
-              <EuiSpacer size="s" />
-              <MapField
-                field={inputMapField}
-                fieldPath={inputMapFieldPath}
-                label="Input map"
-                helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
-                helpLink={
-                  'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
-                }
-                onFormChange={props.onFormChange}
-              />
-              <EuiSpacer size="s" />
-              <MapField
-                field={outputMapField}
-                fieldPath={outputMapFieldPath}
-                label="Output map"
-                helpText={`An array specifying how to map the model’s output to new fields.`}
-                helpLink={
-                  'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
-                }
-                onFormChange={props.onFormChange}
-              />
-            </>
-          )}
-          {selectedOption === TRANSFORM_OPTION.ADVANCED && (
-            <>
-              <EuiSpacer size="s" />
-              <EuiButton
-                style={{ width: '300px' }}
-                fill={false}
-                onClick={() => {
-                  setIsInputTransformModalOpen(true);
-                }}
-              >
-                Configure input transformation
-              </EuiButton>
-              <EuiSpacer size="s" />
-              <EuiButton
-                style={{ width: '300px' }}
-                fill={false}
-                onClick={() => {
-                  setIsOutputTransformModalOpen(true);
-                }}
-              >
-                Configure output transformation
-              </EuiButton>
-            </>
-          )}
+          <EuiSpacer size="l" />
+          <EuiButton
+            style={{ width: '300px' }}
+            fill={false}
+            onClick={() => {
+              setIsOutputTransformModalOpen(true);
+            }}
+          >
+            Advanced output configuration
+          </EuiButton>
+          <EuiSpacer size="s" />
+          <MapField
+            field={outputMapField}
+            fieldPath={outputMapFieldPath}
+            label="Output map"
+            helpText={`An array specifying how to map the model’s output to new fields.`}
+            helpLink={
+              'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
+            }
+            onFormChange={props.onFormChange}
+          />
         </>
       )}
     </>

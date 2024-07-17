@@ -50,7 +50,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
 
   // source input / transformed output state
   const [sourceInput, setSourceInput] = useState<string>('[]');
-  const [transformedOutput, setTransformedOutput] = useState<string>('[]');
+  const [transformedOutput, setTransformedOutput] = useState<string>('TODO');
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -63,8 +63,9 @@ export function InputTransformModal(props: InputTransformModalProps) {
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
+              <EuiText>Expected input</EuiText>
               <EuiButton
-                style={{ width: '250px' }}
+                style={{ width: '100px' }}
                 onClick={async () => {
                   switch (props.context) {
                     case PROCESSOR_CONTEXT.INGEST: {
@@ -105,7 +106,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   }
                 }}
               >
-                Fetch expected input
+                Fetch
               </EuiButton>
               <EuiSpacer size="s" />
               <EuiCodeBlock fontSize="m" isCopyable={false}>
@@ -120,7 +121,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
               <EuiCodeEditor
                 mode="json"
                 theme="textmate"
-                value={`{"a": "b"}`}
+                value={`TODO`}
                 readOnly={false}
                 setOptions={{
                   fontSize: '12px',
