@@ -108,10 +108,10 @@ function getFieldSchema(fieldType: ConfigFieldType): Schema {
       break;
     }
     case 'json': {
-      baseSchema = yup.string().test('json', 'Invalid JSON', (value) => {
+      baseSchema = yup.string().test('json', 'Invalid JSON array', (value) => {
         try {
           // @ts-ignore
-          JSON.parse(value);
+          return Array.isArray(JSON.parse(value));
           return true;
         } catch (error) {
           return false;

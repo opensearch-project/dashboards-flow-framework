@@ -42,7 +42,7 @@ function ingestConfigToFormik(
   let ingestFormikValues = {} as FormikValues;
   if (ingestConfig) {
     ingestFormikValues['enabled'] = ingestConfig.enabled;
-    ingestFormikValues['docs'] = ingestDocs || getInitialValue('json');
+    ingestFormikValues['docs'] = ingestDocs || '[]';
     ingestFormikValues['enrich'] = processorsConfigToFormik(
       ingestConfig.enrich
     );

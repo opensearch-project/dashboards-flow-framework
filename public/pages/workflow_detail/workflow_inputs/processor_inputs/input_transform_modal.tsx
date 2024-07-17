@@ -49,8 +49,8 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const { values } = useFormikContext<WorkflowFormValues>();
 
   // source input / transformed output state
-  const [sourceInput, setSourceInput] = useState<string>('{}');
-  const [transformedOutput, setTransformedOutput] = useState<string>('{}');
+  const [sourceInput, setSourceInput] = useState<string>('[]');
+  const [transformedOutput, setTransformedOutput] = useState<string>('[]');
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
