@@ -17,7 +17,13 @@ export type Index = {
  ********** WORKFLOW TYPES/INTERFACES **********
  */
 
-export type ConfigFieldType = 'string' | 'json' | 'select' | 'model' | 'map';
+export type ConfigFieldType =
+  | 'string'
+  | 'json'
+  | 'jsonArray'
+  | 'select'
+  | 'model'
+  | 'map';
 export type ConfigFieldValue = string | {};
 export interface IConfigField {
   type: ConfigFieldType;
