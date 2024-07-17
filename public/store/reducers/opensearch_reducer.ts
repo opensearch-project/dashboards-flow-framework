@@ -22,6 +22,7 @@ const OPENSEARCH_PREFIX = 'opensearch';
 const CAT_INDICES_ACTION = `${OPENSEARCH_PREFIX}/catIndices`;
 const SEARCH_INDEX_ACTION = `${OPENSEARCH_PREFIX}/search`;
 const INGEST_ACTION = `${OPENSEARCH_PREFIX}/ingest`;
+const BULK_ACTION = `${OPENSEARCH_PREFIX}/bulk`;
 const SIMULATE_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/simulatePipeline`;
 
 export const catIndices = createAsyncThunk(
@@ -74,6 +75,25 @@ export const ingest = createAsyncThunk(
       return rejectWithValue(
         'Error ingesting document: ' + response.body.message
       );
+    } else {
+      return response;
+    }
+  }
+);
+
+export const bulk = createAsyncThunk(
+  BULK_ACTION,
+  async (
+    bulkInfo: { body: {}; ingestPipeline?: string },
+    { rejectWithValue }
+  ) => {
+    const { body, ingestPipeline } = bulkInfo;
+    const response: any | HttpFetchError = await getRouteService().bulk(
+      body,
+      ingestPipeline
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue('Error performing bulk: ' + response.body.message);
     } else {
       return response;
     }

@@ -448,6 +448,9 @@ export type SimulateIngestPipelineDocResponse = {
       timestamp: string;
     };
   };
+  error?: {
+    reason: string;
+  };
 };
 
 // from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#example-specify-a-pipeline-in-the-path

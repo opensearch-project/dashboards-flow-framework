@@ -12,6 +12,7 @@ import {
   OpenSearchDashboardsResponseFactory,
 } from '../../../../src/core/server';
 import {
+  BULK_NODE_API_PATH,
   CAT_INDICES_NODE_API_PATH,
   INGEST_NODE_API_PATH,
   Index,
@@ -78,6 +79,27 @@ export function registerOpenSearchRoutes(
       },
     },
     opensearchRoutesService.ingest
+  );
+  router.post(
+    {
+      path: `${BULK_NODE_API_PATH}/{pipeline}`,
+      validate: {
+        params: schema.object({
+          pipeline: schema.string(),
+        }),
+        body: schema.any(),
+      },
+    },
+    opensearchRoutesService.bulk
+  );
+  router.post(
+    {
+      path: BULK_NODE_API_PATH,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    opensearchRoutesService.bulk
   );
   router.post(
     {
@@ -165,6 +187,30 @@ export class OpenSearchRoutesService {
         .callAsCurrentUser('index', {
           index,
           body: doc,
+        });
+
+      return res.ok({ body: response });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  bulk = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { pipeline } = req.params as {
+      pipeline: string | undefined;
+    };
+    const body = req.body;
+
+    try {
+      const response = await this.client
+        .asScoped(req)
+        .callAsCurrentUser('bulk', {
+          body,
+          pipeline,
         });
 
       return res.ok({ body: response });

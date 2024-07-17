@@ -79,7 +79,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       if (curIngestPipeline !== undefined) {
                         const curDocs = prepareDocsForSimulate(
                           values.ingest.docs,
-                          values.ingest.indexName
+                          values.ingest.index.name
                         );
                         await dispatch(
                           simulatePipeline({
@@ -97,12 +97,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                             );
                           });
                       } else {
-                        // TODO: change to bulk API
-                        const ingestDocObj = JSON.parse(values.ingest.docs);
-                        const ingestDocsObjs = [ingestDocObj];
-                        setSourceInput(
-                          JSON.stringify(ingestDocsObjs, undefined, 2)
-                        );
+                        setSourceInput(values.ingest.docs);
                       }
                       break;
                     }
@@ -162,14 +157,16 @@ function prepareDocsForSimulate(
   docs: string,
   indexName: string
 ): SimulateIngestPipelineDoc[] {
-  // TODO: enhance to support bulk/multiple documents
-  return [
-    {
+  const preparedDocs = [] as SimulateIngestPipelineDoc[];
+  const docObjs = JSON.parse(docs) as {}[];
+  docObjs.forEach((doc) => {
+    preparedDocs.push({
       _index: indexName,
       _id: generateId(),
-      _source: JSON.parse(docs),
-    },
-  ];
+      _source: doc,
+    });
+  });
+  return preparedDocs;
 }
 
 // docs are returned in a certain format from the simulate ingest pipeline API. We want
@@ -177,8 +174,24 @@ function prepareDocsForSimulate(
 function unwrapTransformedDocs(
   simulatePipelineResponse: SimulateIngestPipelineResponse
 ) {
+  let errorDuringSimulate = undefined as string | undefined;
   const transformedDocsSources = simulatePipelineResponse.docs.map(
-    (transformedDoc) => transformedDoc.doc._source
+    (transformedDoc) => {
+      if (transformedDoc.error !== undefined) {
+        errorDuringSimulate = transformedDoc.error.reason || '';
+      } else {
+        return transformedDoc.doc._source;
+      }
+    }
   );
+
+  // there is an edge case where simulate may fail if there is some server-side or OpenSearch issue when
+  // running ingest (e.g., hitting rate limits on remote model)
+  // We pull out any returned error from a document and propagate it to the user.
+  if (errorDuringSimulate !== undefined) {
+    getCore().notifications.toasts.addDanger(
+      `Failed to simulate ingest on all documents: ${errorDuringSimulate}`
+    );
+  }
   return JSON.stringify(transformedDocsSources, undefined, 2);
 }

@@ -22,6 +22,7 @@ import {
   SIMULATE_PIPELINE_NODE_API_PATH,
   IngestPipelineConfig,
   SimulateIngestPipelineDoc,
+  BULK_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -51,6 +52,7 @@ export interface RouteService {
     searchPipeline?: string
   ) => Promise<any | HttpFetchError>;
   ingest: (index: string, doc: {}) => Promise<any | HttpFetchError>;
+  bulk: (body: {}, ingestPipeline?: string) => Promise<any | HttpFetchError>;
   searchModels: (body: {}) => Promise<any | HttpFetchError>;
   simulatePipeline: (body: {
     pipeline: IngestPipelineConfig;
@@ -194,6 +196,19 @@ export function configureRoutes(core: CoreStart): RouteService {
             body: JSON.stringify(doc),
           }
         );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    bulk: async (body: {}, ingestPipeline?: string) => {
+      try {
+        const path = ingestPipeline
+          ? `${BULK_NODE_API_PATH}/${ingestPipeline}`
+          : BULK_NODE_API_PATH;
+        const response = await core.http.post<{ respString: string }>(path, {
+          body: JSON.stringify(body),
+        });
         return response;
       } catch (e: any) {
         return e as HttpFetchError;
