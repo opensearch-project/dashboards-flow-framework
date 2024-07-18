@@ -92,10 +92,11 @@ export function registerFlowFrameworkRoutes(
 
   router.put(
     {
-      path: `${UPDATE_WORKFLOW_NODE_API_PATH}/{workflow_id}`,
+      path: `${UPDATE_WORKFLOW_NODE_API_PATH}/{workflow_id}/{update_fields}`,
       validate: {
         params: schema.object({
           workflow_id: schema.string(),
+          update_fields: schema.boolean(),
         }),
         body: schema.any(),
       },
@@ -292,14 +293,18 @@ export class FlowFrameworkRoutesService {
     req: OpenSearchDashboardsRequest,
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
-    const { workflow_id } = req.params as { workflow_id: string };
+    const { workflow_id, update_fields } = req.params as {
+      workflow_id: string;
+      update_fields: boolean;
+    };
     const workflowTemplate = req.body as WorkflowTemplate;
-
     try {
       await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.updateWorkflow', {
           workflow_id,
+          // default update_fields to false if not explicitly set otherwise
+          update_fields: update_fields,
           body: workflowTemplate,
         });
 

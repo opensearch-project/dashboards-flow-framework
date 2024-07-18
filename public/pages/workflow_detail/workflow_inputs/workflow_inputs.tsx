@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useFormikContext } from 'formik';
-import { isEmpty } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 import {
   EuiButton,
   EuiButtonEmpty,
@@ -31,6 +31,7 @@ import {
   Workflow,
   WorkflowConfig,
   WorkflowFormValues,
+  WorkflowTemplate,
 } from '../../../../common';
 import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
@@ -91,9 +92,13 @@ enum INGEST_OPTION {
  */
 
 export function WorkflowInputs(props: WorkflowInputsProps) {
-  const { submitForm, validateForm, setFieldValue, values } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const {
+    submitForm,
+    validateForm,
+    setFieldValue,
+    values,
+    touched,
+  } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
 
   // Overall workspace state
@@ -117,6 +122,57 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const onIngestAndProvisioned = onIngest && ingestProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
+
+  const [autosave, setAutosave] = useState<boolean>(false);
+  function triggerAutosave(): void {
+    setAutosave(!autosave);
+  }
+
+  // Auto-save the UI metadata when users update form values.
+  // Only update the underlying workflow template (deprovision/provision) when
+  // users explicitly run ingest/search and need to have updated resources
+  // to test against.
+  // We use useCallback() with an autosave flag that is only set within the fn itself.
+  // This is so we can fetch the latest values (uiConfig, formik values) inside a memoized fn,
+  // but only when we need to
+  const debounceAutosave = useCallback(
+    debounce(async () => {
+      triggerAutosave();
+    }, 1000),
+    [autosave]
+  );
+
+  useEffect(() => {
+    (async () => {
+      if (!isEmpty(touched)) {
+        const updatedTemplate = {
+          name: props.workflow?.name,
+          ui_metadata: {
+            ...props.workflow?.ui_metadata,
+            config: formikToUiConfig(values, props.uiConfig as WorkflowConfig),
+          },
+        } as WorkflowTemplate;
+        await dispatch(
+          updateWorkflow({
+            workflowId: props.workflow?.id as string,
+            workflowTemplate: updatedTemplate,
+            updateFields: true,
+          })
+        )
+          .unwrap()
+          .then(async (result) => {})
+          .catch((error: any) => {
+            console.error('Error autosaving workflow: ', error);
+          });
+      }
+    })();
+  }, [autosave]);
+
+  useEffect(() => {
+    if (values?.ingest !== undefined) {
+      debounceAutosave();
+    }
+  }, [values?.ingest]);
 
   useEffect(() => {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
