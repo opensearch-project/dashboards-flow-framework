@@ -15,10 +15,15 @@ export type Index = {
 
 /**
  ********** WORKFLOW TYPES/INTERFACES **********
-TODO: over time these can become less generic as the form inputs & UX becomes finalized
  */
 
-export type ConfigFieldType = 'string' | 'json' | 'select' | 'model' | 'map';
+export type ConfigFieldType =
+  | 'string'
+  | 'json'
+  | 'jsonArray'
+  | 'select'
+  | 'model'
+  | 'map';
 export type ConfigFieldValue = string | {};
 export interface IConfigField {
   type: ConfigFieldType;
@@ -45,6 +50,12 @@ export interface IProcessorConfig extends IConfig {
 export type ProcessorsConfig = {
   processors: IProcessorConfig[];
 };
+
+export type IngestPipelineConfig = ProcessorsConfig & {
+  description?: string;
+};
+
+export type SearchPipelineConfig = ProcessorsConfig;
 
 export type IndexConfig = {
   name: IConfigField;
@@ -384,13 +395,6 @@ export type ModelFormValue = {
  ********** MISC TYPES/INTERFACES ************
  */
 
-// TODO: finalize how we have the launch data model
-export type WorkflowLaunch = {
-  id: string;
-  state: WORKFLOW_STATE;
-  lastUpdated: number;
-};
-
 // Based off of https://github.com/opensearch-project/flow-framework/blob/main/src/main/java/org/opensearch/flowframework/model/State.java
 export enum WORKFLOW_STATE {
   NOT_STARTED = 'Not started',
@@ -430,4 +434,32 @@ export enum WORKFLOW_STEP_TO_RESOURCE_TYPE_MAP {
 
 export type WorkflowDict = {
   [workflowId: string]: Workflow;
+};
+
+/**
+ ********** OPENSEARCH TYPES/INTERFACES ************
+ */
+
+// from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#example-specify-a-pipeline-in-the-path
+export type SimulateIngestPipelineDoc = {
+  _index: string;
+  _id: string;
+  _source: {};
+};
+
+// from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#example-specify-a-pipeline-in-the-path
+export type SimulateIngestPipelineDocResponse = {
+  doc: SimulateIngestPipelineDoc & {
+    _ingest: {
+      timestamp: string;
+    };
+  };
+  error?: {
+    reason: string;
+  };
+};
+
+// from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#example-specify-a-pipeline-in-the-path
+export type SimulateIngestPipelineResponse = {
+  docs: SimulateIngestPipelineDocResponse[];
 };

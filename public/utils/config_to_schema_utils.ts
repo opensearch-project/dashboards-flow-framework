@@ -32,7 +32,7 @@ function ingestConfigToSchema(
 ): ObjectSchema<any> {
   const ingestSchemaObj = {} as { [key: string]: Schema };
   if (ingestConfig) {
-    ingestSchemaObj['docs'] = getFieldSchema('json');
+    ingestSchemaObj['docs'] = getFieldSchema('jsonArray');
     ingestSchemaObj['enrich'] = processorsConfigToSchema(ingestConfig.enrich);
     ingestSchemaObj['index'] = indexConfigToSchema(ingestConfig.index);
   }
@@ -117,6 +117,21 @@ function getFieldSchema(fieldType: ConfigFieldType): Schema {
           return false;
         }
       });
+
+      break;
+    }
+    case 'jsonArray': {
+      baseSchema = yup
+        .string()
+        .test('jsonArray', 'Invalid JSON array', (value) => {
+          try {
+            // @ts-ignore
+            return Array.isArray(JSON.parse(value));
+            return true;
+          } catch (error) {
+            return false;
+          }
+        });
 
       break;
     }

@@ -25,6 +25,9 @@ import {
 interface MapFieldProps {
   field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
+  label: string;
+  helpLink?: string;
+  helpText?: string;
   onFormChange: () => void;
 }
 
@@ -60,17 +63,17 @@ export function MapField(props: MapFieldProps) {
         return (
           <EuiFormRow
             key={props.fieldPath}
-            label={props.field.label}
+            label={props.label}
             labelAppend={
-              props.field.helpLink ? (
+              props.helpLink ? (
                 <EuiText size="xs">
-                  <EuiLink href={props.field.helpLink} target="_blank">
+                  <EuiLink href={props.helpLink} target="_blank">
                     Learn more
                   </EuiLink>
                 </EuiText>
               ) : undefined
             }
-            helpText={props.field.helpText || undefined}
+            helpText={props.helpText || undefined}
             error={
               getIn(errors, field.name) !== undefined &&
               getIn(errors, field.name).length > 0
