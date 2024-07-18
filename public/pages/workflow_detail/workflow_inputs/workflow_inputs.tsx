@@ -123,18 +123,17 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
 
-  const [autosave, setAutosave] = useState<boolean>(false);
-  function triggerAutosave(): void {
-    setAutosave(!autosave);
-  }
-
   // Auto-save the UI metadata when users update form values.
   // Only update the underlying workflow template (deprovision/provision) when
   // users explicitly run ingest/search and need to have updated resources
   // to test against.
   // We use useCallback() with an autosave flag that is only set within the fn itself.
   // This is so we can fetch the latest values (uiConfig, formik values) inside a memoized fn,
-  // but only when we need to
+  // but only when we need to.
+  const [autosave, setAutosave] = useState<boolean>(false);
+  function triggerAutosave(): void {
+    setAutosave(!autosave);
+  }
   const debounceAutosave = useCallback(
     debounce(async () => {
       triggerAutosave();
@@ -142,6 +141,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     [autosave]
   );
 
+  // Hook to execute autosave when triggered. Runs the update API with update_fields set to true,
+  // to update the ui_metadata without updating the underlying template for a provisioned workflow.
   useEffect(() => {
     (async () => {
       if (!isEmpty(touched)) {
@@ -168,11 +169,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     })();
   }, [autosave]);
 
+  // Hook to listen for changes to form values and trigger autosave
   useEffect(() => {
-    if (values?.ingest !== undefined) {
+    if (!isEmpty(values)) {
       debounceAutosave();
     }
-  }, [values?.ingest]);
+  }, [values]);
 
   useEffect(() => {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
