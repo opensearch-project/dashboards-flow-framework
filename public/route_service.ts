@@ -19,6 +19,10 @@ import {
   WorkflowTemplate,
   SEARCH_INDEX_NODE_API_PATH,
   INGEST_NODE_API_PATH,
+  SIMULATE_PIPELINE_NODE_API_PATH,
+  IngestPipelineConfig,
+  SimulateIngestPipelineDoc,
+  BULK_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -48,7 +52,12 @@ export interface RouteService {
     searchPipeline?: string
   ) => Promise<any | HttpFetchError>;
   ingest: (index: string, doc: {}) => Promise<any | HttpFetchError>;
+  bulk: (body: {}, ingestPipeline?: string) => Promise<any | HttpFetchError>;
   searchModels: (body: {}) => Promise<any | HttpFetchError>;
+  simulatePipeline: (body: {
+    pipeline: IngestPipelineConfig;
+    docs: SimulateIngestPipelineDoc[];
+  }) => Promise<any | HttpFetchError>;
 }
 
 export function configureRoutes(core: CoreStart): RouteService {
@@ -192,10 +201,39 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
+    bulk: async (body: {}, ingestPipeline?: string) => {
+      try {
+        const path = ingestPipeline
+          ? `${BULK_NODE_API_PATH}/${ingestPipeline}`
+          : BULK_NODE_API_PATH;
+        const response = await core.http.post<{ respString: string }>(path, {
+          body: JSON.stringify(body),
+        });
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
     searchModels: async (body: {}) => {
       try {
         const response = await core.http.post<{ respString: string }>(
           SEARCH_MODELS_NODE_API_PATH,
+          {
+            body: JSON.stringify(body),
+          }
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    simulatePipeline: async (body: {
+      pipeline: IngestPipelineConfig;
+      docs: SimulateIngestPipelineDoc[];
+    }) => {
+      try {
+        const response = await core.http.post<{ respString: string }>(
+          SIMULATE_PIPELINE_NODE_API_PATH,
           {
             body: JSON.stringify(body),
           }

@@ -7,12 +7,14 @@ import yaml from 'js-yaml';
 import { WORKFLOW_STEP_TYPE, Workflow } from '../../common';
 
 // Append 16 random characters
-export function generateId(prefix: string): string {
+export function generateId(prefix?: string): string {
   const uniqueChar = () => {
     // eslint-disable-next-line no-bitwise
     return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
   };
-  return `${prefix}_${uniqueChar()}${uniqueChar()}${uniqueChar()}${uniqueChar()}`;
+  return `${
+    prefix || ''
+  }_${uniqueChar()}${uniqueChar()}${uniqueChar()}${uniqueChar()}`;
 }
 
 export function hasProvisionedIngestResources(
