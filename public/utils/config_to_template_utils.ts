@@ -131,7 +131,7 @@ function searchConfigToTemplateNodes(
 
 // General fn to process all processor configs and convert them
 // into a final list of template-formatted IngestProcessor/SearchProcessors.
-function processorConfigsToTemplateProcessors(
+export function processorConfigsToTemplateProcessors(
   processorConfigs: IProcessorConfig[]
 ): (IngestProcessor | SearchProcessor)[] {
   const processorsList = [] as (IngestProcessor | SearchProcessor)[];

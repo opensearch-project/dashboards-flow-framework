@@ -12,10 +12,15 @@ import {
   OpenSearchDashboardsResponseFactory,
 } from '../../../../src/core/server';
 import {
+  BULK_NODE_API_PATH,
   CAT_INDICES_NODE_API_PATH,
   INGEST_NODE_API_PATH,
   Index,
+  IngestPipelineConfig,
   SEARCH_INDEX_NODE_API_PATH,
+  SIMULATE_PIPELINE_NODE_API_PATH,
+  SimulateIngestPipelineDoc,
+  SimulateIngestPipelineResponse,
 } from '../../common';
 import { generateCustomError } from './helpers';
 
@@ -74,6 +79,39 @@ export function registerOpenSearchRoutes(
       },
     },
     opensearchRoutesService.ingest
+  );
+  router.post(
+    {
+      path: `${BULK_NODE_API_PATH}/{pipeline}`,
+      validate: {
+        params: schema.object({
+          pipeline: schema.string(),
+        }),
+        body: schema.any(),
+      },
+    },
+    opensearchRoutesService.bulk
+  );
+  router.post(
+    {
+      path: BULK_NODE_API_PATH,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    opensearchRoutesService.bulk
+  );
+  router.post(
+    {
+      path: SIMULATE_PIPELINE_NODE_API_PATH,
+      validate: {
+        body: schema.object({
+          pipeline: schema.any(),
+          docs: schema.any(),
+        }),
+      },
+    },
+    opensearchRoutesService.simulatePipeline
   );
 }
 
@@ -152,6 +190,51 @@ export class OpenSearchRoutesService {
         });
 
       return res.ok({ body: response });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  bulk = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { pipeline } = req.params as {
+      pipeline: string | undefined;
+    };
+    const body = req.body;
+
+    try {
+      const response = await this.client
+        .asScoped(req)
+        .callAsCurrentUser('bulk', {
+          body,
+          pipeline,
+        });
+
+      return res.ok({ body: response });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  simulatePipeline = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { pipeline, docs } = req.body as {
+      pipeline: IngestPipelineConfig;
+      docs: SimulateIngestPipelineDoc[];
+    };
+    try {
+      const response = await this.client
+        .asScoped(req)
+        .callAsCurrentUser('ingest.simulate', { body: { pipeline, docs } });
+      return res.ok({
+        body: { docs: response.docs } as SimulateIngestPipelineResponse,
+      });
     } catch (err: any) {
       return generateCustomError(res, err);
     }

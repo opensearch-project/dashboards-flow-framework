@@ -36,9 +36,9 @@ import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
 import {
   AppState,
+  bulk,
   deprovisionWorkflow,
   getWorkflow,
-  ingest,
   provisionWorkflow,
   removeDirty,
   searchIndex,
@@ -52,6 +52,7 @@ import {
   configToTemplateFlows,
   hasProvisionedIngestResources,
   hasProvisionedSearchResources,
+  generateId,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import { ExportOptions } from './export_options';
@@ -209,16 +210,16 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     try {
       let ingestDocsObjs = [] as {}[];
       try {
-        // TODO: test with multiple objs, make sure parsing logic works
-        const ingestDocObj = JSON.parse(props.ingestDocs);
-        ingestDocsObjs = [ingestDocObj];
+        ingestDocsObjs = JSON.parse(props.ingestDocs);
       } catch (e) {}
       if (ingestDocsObjs.length > 0 && !isEmpty(ingestDocsObjs[0])) {
         success = await validateAndUpdateWorkflow();
         if (success) {
-          const indexName = values.ingest.index.name;
-          const doc = ingestDocsObjs[0];
-          dispatch(ingest({ index: indexName, doc }))
+          const bulkBody = prepareBulkBody(
+            values.ingest.index.name,
+            ingestDocsObjs
+          );
+          dispatch(bulk({ body: bulkBody }))
             .unwrap()
             .then(async (resp) => {
               props.setIngestResponse(JSON.stringify(resp, undefined, 2));
@@ -230,7 +231,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             });
         }
       } else {
-        getCore().notifications.toasts.addDanger('No valid document provided');
+        getCore().notifications.toasts.addDanger(
+          'No valid document provided. Ensure it is a valid JSON array.'
+        );
       }
     } catch (error) {
       console.error('Error ingesting documents: ', error);
@@ -558,4 +561,20 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       )}
     </EuiPanel>
   );
+}
+
+// ingesting multiple documents must follow the proper format for the bulk API.
+// see https://opensearch.org/docs/latest/api-reference/document-apis/bulk/#request-body
+function prepareBulkBody(indexName: string, docObjs: {}[]): {} {
+  const bulkBody = [] as any[];
+  docObjs.forEach((doc) => {
+    bulkBody.push({
+      index: {
+        _index: indexName,
+        _id: generateId(),
+      },
+    });
+    bulkBody.push(doc);
+  });
+  return bulkBody;
 }

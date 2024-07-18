@@ -18,19 +18,18 @@ import {
 import { cloneDeep } from 'lodash';
 import { useFormikContext } from 'formik';
 import {
-  IConfig,
   IProcessorConfig,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../common';
-import { ConfigFieldList } from './config_field_list';
 import { formikToUiConfig } from '../../../utils';
 import {
   MLIngestProcessor,
   MLSearchRequestProcessor,
   MLSearchResponseProcessor,
 } from '../../../configs';
+import { ProcessorInputs } from './processor_inputs';
 
 interface ProcessorsListProps {
   onFormChange: () => void;
@@ -133,7 +132,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
 
   return (
     <EuiFlexGroup direction="column">
-      {processors.map((processor: IConfig, processorIndex) => {
+      {processors.map((processor: IProcessorConfig, processorIndex) => {
         return (
           <EuiFlexItem key={processorIndex}>
             <EuiPanel>
@@ -153,7 +152,8 @@ export function ProcessorsList(props: ProcessorsListProps) {
                 </EuiFlexItem>
               </EuiFlexGroup>
               <EuiHorizontalRule size="full" margin="s" />
-              <ConfigFieldList
+              <ProcessorInputs
+                uiConfig={props.uiConfig}
                 config={processor}
                 baseConfigPath={
                   props.context === PROCESSOR_CONTEXT.INGEST
@@ -163,6 +163,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
                     : 'search.enrichResponse'
                 }
                 onFormChange={props.onFormChange}
+                context={props.context}
               />
             </EuiPanel>
           </EuiFlexItem>

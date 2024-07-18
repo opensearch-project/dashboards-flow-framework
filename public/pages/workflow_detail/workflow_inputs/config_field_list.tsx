@@ -55,19 +55,19 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
             );
             break;
           }
-          case 'map': {
-            el = (
-              <EuiFlexItem key={idx}>
-                <MapField
-                  field={field}
-                  fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
-                  onFormChange={props.onFormChange}
-                />
-                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
-              </EuiFlexItem>
-            );
-            break;
-          }
+          // case 'map': {
+          //   el = (
+          //     <EuiFlexItem key={idx}>
+          //       <MapField
+          //         field={field}
+          //         fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
+          //         onFormChange={props.onFormChange}
+          //       />
+          //       <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+          //     </EuiFlexItem>
+          //   );
+          //   break;
+          // }
           // case 'json': {
           //   el = (
           //     <EuiFlexItem key={idx}>
