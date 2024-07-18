@@ -313,6 +313,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         queryObj = JSON.parse(props.query);
       } catch (e) {}
       if (!isEmpty(queryObj)) {
+        // TODO: currently this will execute deprovision in child fns.
+        // In the future, we must omit deprovisioning the index, as it contains
+        // the data we are executing the query against. Tracking issue:
+        // https://github.com/opensearch-project/flow-framework/issues/717
         success = await validateAndUpdateWorkflow();
         if (success) {
           const indexName = values.ingest.index.name;
