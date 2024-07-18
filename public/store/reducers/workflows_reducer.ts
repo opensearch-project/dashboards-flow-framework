@@ -129,11 +129,16 @@ export const provisionWorkflow = createAsyncThunk(
 
 export const deprovisionWorkflow = createAsyncThunk(
   DEPROVISION_WORKFLOW_ACTION,
-  async (workflowId: string, { rejectWithValue }) => {
+  async (
+    deprovisionInfo: { workflowId: string; resourceIds?: string },
+    { rejectWithValue }
+  ) => {
+    const { workflowId, resourceIds } = deprovisionInfo;
     const response:
       | any
       | HttpFetchError = await getRouteService().deprovisionWorkflow(
-      workflowId
+      workflowId,
+      resourceIds
     );
     if (response instanceof HttpFetchError) {
       return rejectWithValue(

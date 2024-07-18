@@ -4,7 +4,11 @@
  */
 
 import yaml from 'js-yaml';
-import { WORKFLOW_STEP_TYPE, Workflow } from '../../common';
+import {
+  WORKFLOW_RESOURCE_TYPE,
+  WORKFLOW_STEP_TYPE,
+  Workflow,
+} from '../../common';
 
 // Append 16 random characters
 export function generateId(prefix?: string): string {
@@ -45,6 +49,27 @@ export function hasProvisionedSearchResources(
     }
   });
   return result;
+}
+
+// returns a comma-delimited string of all resource IDs that need to be force deleted.
+// see https://github.com/opensearch-project/flow-framework/pull/763
+export function getResourcesToBeForceDeleted(
+  workflow: Workflow | undefined
+): string | undefined {
+  const resources = workflow?.resourcesCreated?.filter(
+    (workflowResource) =>
+      workflowResource.type === WORKFLOW_RESOURCE_TYPE.INDEX_NAME ||
+      workflowResource.type === WORKFLOW_RESOURCE_TYPE.PIPELINE_ID
+  );
+
+  if (resources !== undefined && resources.length > 0) {
+    return resources
+      .map((resource) => resource.id)
+      .map(String)
+      .join(',');
+  } else {
+    return undefined;
+  }
 }
 
 export function getObjFromJsonOrYamlString(

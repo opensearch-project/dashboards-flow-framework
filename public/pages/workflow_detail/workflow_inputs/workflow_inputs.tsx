@@ -53,6 +53,7 @@ import {
   hasProvisionedIngestResources,
   hasProvisionedSearchResources,
   generateId,
+  getResourcesToBeForceDeleted,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import { ExportOptions } from './export_options';
@@ -129,7 +130,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     updatedWorkflow: Workflow
   ): Promise<boolean> {
     let success = false;
-    await dispatch(deprovisionWorkflow(updatedWorkflow.id as string))
+    await dispatch(
+      deprovisionWorkflow({
+        workflowId: updatedWorkflow.id as string,
+        resourceIds: getResourcesToBeForceDeleted(props.workflow),
+      })
+    )
       .unwrap()
       .then(async (result) => {
         await dispatch(
@@ -312,7 +318,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <EuiModal onClose={() => setIsModalOpen(false)}>
                 <EuiModalHeader>
                   <EuiModalHeaderTitle>
-                    <p>{`Delete resources for workflow ${props.workflow.name}?`}</p>
+                    <p>{`Delete resources for workflow ${props.workflow?.name}?`}</p>
                   </EuiModalHeaderTitle>
                 </EuiModalHeader>
                 <EuiModalBody>
@@ -328,8 +334,14 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   </EuiButtonEmpty>
                   <EuiButton
                     onClick={async () => {
-                      // @ts-ignore
-                      await dispatch(deprovisionWorkflow(props.workflow.id))
+                      await dispatch(
+                        deprovisionWorkflow({
+                          workflowId: props.workflow?.id as string,
+                          resourceIds: getResourcesToBeForceDeleted(
+                            props.workflow
+                          ),
+                        })
+                      )
                         .unwrap()
                         .then(async (result) => {
                           setFieldValue('ingest.enabled', false);

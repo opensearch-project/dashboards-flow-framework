@@ -113,6 +113,23 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
     method: 'POST',
   });
 
+  flowFramework.forceDeprovisionWorkflow = ca({
+    url: {
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>/_deprovision?allow_delete=<%=resource_ids%>`,
+      req: {
+        workflow_id: {
+          type: 'string',
+          required: true,
+        },
+        resource_ids: {
+          type: 'string',
+          required: true,
+        },
+      },
+    },
+    method: 'POST',
+  });
+
   flowFramework.deleteWorkflow = ca({
     url: {
       fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>`,
