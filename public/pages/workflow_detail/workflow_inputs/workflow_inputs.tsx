@@ -137,7 +137,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const debounceAutosave = useCallback(
     debounce(async () => {
       triggerAutosave();
-    }, 1000),
+    }, 10000),
     [autosave]
   );
 
