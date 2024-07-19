@@ -104,6 +104,10 @@ export function MapField(props: MapFieldProps) {
                               className="euiFieldText"
                               value={mapping.key}
                               onChange={(e) => {
+                                form.setFieldTouched(
+                                  `${props.fieldPath}.${idx}.key`,
+                                  true
+                                );
                                 form.setFieldValue(
                                   `${props.fieldPath}.${idx}.key`,
                                   e.target.value
@@ -119,6 +123,10 @@ export function MapField(props: MapFieldProps) {
                               className="euiFieldText"
                               value={mapping.value}
                               onChange={(e) => {
+                                form.setFieldTouched(
+                                  `${props.fieldPath}.${idx}.value`,
+                                  true
+                                );
                                 form.setFieldValue(
                                   `${props.fieldPath}.${idx}.value`,
                                   e.target.value

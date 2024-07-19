@@ -108,6 +108,7 @@ export function ModelField(props: ModelFieldProps) {
               )}
               valueOfSelected={field.value?.id || ''}
               onChange={(option: string) => {
+                form.setFieldTouched(props.fieldPath, true);
                 form.setFieldValue(props.fieldPath, {
                   id: option,
                 } as ModelFormValue);

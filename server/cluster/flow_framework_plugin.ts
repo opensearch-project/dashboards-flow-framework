@@ -75,10 +75,14 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
 
   flowFramework.updateWorkflow = ca({
     url: {
-      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>`,
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>?update_fields=<%=update_fields%>`,
       req: {
         workflow_id: {
           type: 'string',
+          required: true,
+        },
+        update_fields: {
+          type: 'boolean',
           required: true,
         },
       },
@@ -105,6 +109,23 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
       fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>/_deprovision`,
       req: {
         workflow_id: {
+          type: 'string',
+          required: true,
+        },
+      },
+    },
+    method: 'POST',
+  });
+
+  flowFramework.forceDeprovisionWorkflow = ca({
+    url: {
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>/_deprovision?allow_delete=<%=resource_ids%>`,
+      req: {
+        workflow_id: {
+          type: 'string',
+          required: true,
+        },
+        resource_ids: {
           type: 'string',
           required: true,
         },
