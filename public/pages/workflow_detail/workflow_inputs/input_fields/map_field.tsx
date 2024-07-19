@@ -37,7 +37,7 @@ interface MapFieldProps {
  * Input component for configuring field mappings
  */
 export function MapField(props: MapFieldProps) {
-  const { setFieldValue, errors, touched } = useFormikContext<
+  const { setFieldValue, setFieldTouched, errors, touched } = useFormikContext<
     WorkflowFormValues
   >();
 
@@ -45,6 +45,7 @@ export function MapField(props: MapFieldProps) {
   function addMapEntry(curEntries: MapFormValue): void {
     const updatedEntries = [...curEntries, { key: '', value: '' } as MapEntry];
     setFieldValue(props.fieldPath, updatedEntries);
+    setFieldTouched(props.fieldPath, true);
     props.onFormChange();
   }
 
@@ -56,6 +57,7 @@ export function MapField(props: MapFieldProps) {
     const updatedEntries = [...curEntries];
     updatedEntries.splice(entryIndexToDelete, 1);
     setFieldValue(props.fieldPath, updatedEntries);
+    setFieldTouched(props.fieldPath, true);
     props.onFormChange();
   }
 
