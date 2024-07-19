@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useFormikContext } from 'formik';
-import { isEmpty } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 import {
   EuiButton,
   EuiButtonEmpty,
@@ -31,6 +31,7 @@ import {
   Workflow,
   WorkflowConfig,
   WorkflowFormValues,
+  WorkflowTemplate,
 } from '../../../../common';
 import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
@@ -53,6 +54,7 @@ import {
   hasProvisionedIngestResources,
   hasProvisionedSearchResources,
   generateId,
+  getResourcesToBeForceDeleted,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import { ExportOptions } from './export_options';
@@ -90,9 +92,13 @@ enum INGEST_OPTION {
  */
 
 export function WorkflowInputs(props: WorkflowInputsProps) {
-  const { submitForm, validateForm, setFieldValue, values } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const {
+    submitForm,
+    validateForm,
+    setFieldValue,
+    values,
+    touched,
+  } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
 
   // Overall workspace state
@@ -117,6 +123,59 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
 
+  // Auto-save the UI metadata when users update form values.
+  // Only update the underlying workflow template (deprovision/provision) when
+  // users explicitly run ingest/search and need to have updated resources
+  // to test against.
+  // We use useCallback() with an autosave flag that is only set within the fn itself.
+  // This is so we can fetch the latest values (uiConfig, formik values) inside a memoized fn,
+  // but only when we need to.
+  const [autosave, setAutosave] = useState<boolean>(false);
+  function triggerAutosave(): void {
+    setAutosave(!autosave);
+  }
+  const debounceAutosave = useCallback(
+    debounce(async () => {
+      triggerAutosave();
+    }, 10000),
+    [autosave]
+  );
+
+  // Hook to execute autosave when triggered. Runs the update API with update_fields set to true,
+  // to update the ui_metadata without updating the underlying template for a provisioned workflow.
+  useEffect(() => {
+    (async () => {
+      if (!isEmpty(touched)) {
+        const updatedTemplate = {
+          name: props.workflow?.name,
+          ui_metadata: {
+            ...props.workflow?.ui_metadata,
+            config: formikToUiConfig(values, props.uiConfig as WorkflowConfig),
+          },
+        } as WorkflowTemplate;
+        await dispatch(
+          updateWorkflow({
+            workflowId: props.workflow?.id as string,
+            workflowTemplate: updatedTemplate,
+            updateFields: true,
+          })
+        )
+          .unwrap()
+          .then(async (result) => {})
+          .catch((error: any) => {
+            console.error('Error autosaving workflow: ', error);
+          });
+      }
+    })();
+  }, [autosave]);
+
+  // Hook to listen for changes to form values and trigger autosave
+  useEffect(() => {
+    if (!isEmpty(values)) {
+      debounceAutosave();
+    }
+  }, [values]);
+
   useEffect(() => {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
     setSearchProvisioned(hasProvisionedSearchResources(props.workflow));
@@ -129,7 +188,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     updatedWorkflow: Workflow
   ): Promise<boolean> {
     let success = false;
-    await dispatch(deprovisionWorkflow(updatedWorkflow.id as string))
+    await dispatch(
+      deprovisionWorkflow({
+        workflowId: updatedWorkflow.id as string,
+        resourceIds: getResourcesToBeForceDeleted(props.workflow),
+      })
+    )
       .unwrap()
       .then(async (result) => {
         await dispatch(
@@ -249,6 +313,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         queryObj = JSON.parse(props.query);
       } catch (e) {}
       if (!isEmpty(queryObj)) {
+        // TODO: currently this will execute deprovision in child fns.
+        // In the future, we must omit deprovisioning the index, as it contains
+        // the data we are executing the query against. Tracking issue:
+        // https://github.com/opensearch-project/flow-framework/issues/717
         success = await validateAndUpdateWorkflow();
         if (success) {
           const indexName = values.ingest.index.name;
@@ -312,7 +380,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <EuiModal onClose={() => setIsModalOpen(false)}>
                 <EuiModalHeader>
                   <EuiModalHeaderTitle>
-                    <p>{`Delete resources for workflow ${props.workflow.name}?`}</p>
+                    <p>{`Delete resources for workflow ${props.workflow?.name}?`}</p>
                   </EuiModalHeaderTitle>
                 </EuiModalHeader>
                 <EuiModalBody>
@@ -328,8 +396,14 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   </EuiButtonEmpty>
                   <EuiButton
                     onClick={async () => {
-                      // @ts-ignore
-                      await dispatch(deprovisionWorkflow(props.workflow.id))
+                      await dispatch(
+                        deprovisionWorkflow({
+                          workflowId: props.workflow?.id as string,
+                          resourceIds: getResourcesToBeForceDeleted(
+                            props.workflow
+                          ),
+                        })
+                      )
                         .unwrap()
                         .then(async (result) => {
                           setFieldValue('ingest.enabled', false);
