@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
-import { EuiButton, EuiRadioGroup, EuiSpacer, EuiText } from '@elastic/eui';
+import { EuiButton, EuiSpacer, EuiText } from '@elastic/eui';
 import {
   WorkspaceFormValues,
   IProcessorConfig,
@@ -63,6 +63,9 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           uiConfig={props.uiConfig}
           config={props.config}
           context={props.context}
+          inputMapField={inputMapField}
+          inputMapFieldPath={inputMapFieldPath}
+          onFormChange={props.onFormChange}
           onClose={() => setIsInputTransformModalOpen(false)}
           onConfirm={() => {
             console.log('saving transform input configuration...');
@@ -108,6 +111,8 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             helpLink={
               'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
             }
+            keyPlaceholder="Model input field"
+            valuePlaceholder="Document field"
             onFormChange={props.onFormChange}
           />
           <EuiSpacer size="l" />
@@ -129,6 +134,8 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             helpLink={
               'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
             }
+            keyPlaceholder="New document field"
+            valuePlaceholder="Model output field"
             onFormChange={props.onFormChange}
           />
         </>

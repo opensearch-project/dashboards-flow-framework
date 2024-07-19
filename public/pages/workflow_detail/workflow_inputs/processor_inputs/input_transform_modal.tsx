@@ -4,12 +4,14 @@
  */
 
 import React, { useState } from 'react';
-import { useFormikContext } from 'formik';
+import { useFormikContext, getIn } from 'formik';
+import { isEmpty } from 'lodash';
+import jsonpath from 'jsonpath';
 import {
   EuiButton,
   EuiButtonEmpty,
+  EuiCallOut,
   EuiCodeBlock,
-  EuiCodeEditor,
   EuiFlexGroup,
   EuiFlexItem,
   EuiModal,
@@ -21,6 +23,7 @@ import {
   EuiText,
 } from '@elastic/eui';
 import {
+  IConfigField,
   IProcessorConfig,
   IngestPipelineConfig,
   PROCESSOR_CONTEXT,
@@ -32,13 +35,17 @@ import {
 import { formikToIngestPipeline, generateId } from '../../../../utils';
 import { simulatePipeline, useAppDispatch } from '../../../../store';
 import { getCore } from '../../../../services';
+import { MapField } from '../input_fields';
 
 interface InputTransformModalProps {
   uiConfig: WorkflowConfig;
   config: IProcessorConfig;
   context: PROCESSOR_CONTEXT;
+  inputMapField: IConfigField;
+  inputMapFieldPath: string;
   onClose: () => void;
   onConfirm: () => void;
+  onFormChange: () => void;
 }
 
 /**
@@ -50,13 +57,20 @@ export function InputTransformModal(props: InputTransformModalProps) {
 
   // source input / transformed output state
   const [sourceInput, setSourceInput] = useState<string>('[]');
-  const [transformedOutput, setTransformedOutput] = useState<string>('TODO');
+  const [transformedOutput, setTransformedOutput] = useState<string>('[]');
+
+  const mapValues = getIn(values, `ingest.enrich.${props.config.id}.inputMap`);
+  const containsInvalidJsonPaths =
+    mapValues.find(
+      (mapValue: { key: string; value: string }) =>
+        !mapValue.value.startsWith('$.')
+    ) !== undefined;
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <p>{`Configure input transform`}</p>
+          <p>{`Configure JSONPath input transforms`}</p>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
@@ -117,23 +131,94 @@ export function InputTransformModal(props: InputTransformModalProps) {
           <EuiFlexItem>
             <>
               <EuiText>Define transform with JSONPath</EuiText>
+              <EuiText size="s" color="subdued">
+                To explicitly use JSONPath, please ensure to prepend with the
+                root object selector "$"
+              </EuiText>
               <EuiSpacer size="s" />
-              <EuiCodeEditor
-                mode="json"
-                theme="textmate"
-                value={`TODO`}
-                readOnly={false}
-                setOptions={{
-                  fontSize: '12px',
-                  autoScrollEditorIntoView: true,
-                }}
-                tabSize={2}
+              <MapField
+                field={props.inputMapField}
+                fieldPath={props.inputMapFieldPath}
+                label="Input map"
+                helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
+                helpLink={
+                  'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
+                }
+                keyPlaceholder="Model input field"
+                valuePlaceholder="JSONPath ($...)"
+                onFormChange={props.onFormChange}
               />
             </>
           </EuiFlexItem>
           <EuiFlexItem>
             <>
               <EuiText>Expected output</EuiText>
+              {containsInvalidJsonPaths && (
+                <>
+                  <EuiCallOut
+                    title={`Ensure all JSONPath entries start with the root selector "$."`}
+                    iconType={'alert'}
+                    color="warning"
+                  />
+                  <EuiSpacer size="s" />
+                </>
+              )}
+
+              <EuiButton
+                style={{ width: '100px' }}
+                disabled={
+                  isEmpty(mapValues) ||
+                  isEmpty(JSON.parse(sourceInput)) ||
+                  containsInvalidJsonPaths
+                }
+                onClick={async () => {
+                  switch (props.context) {
+                    case PROCESSOR_CONTEXT.INGEST: {
+                      if (
+                        !isEmpty(mapValues) &&
+                        !isEmpty(JSON.parse(sourceInput))
+                      ) {
+                        let output = {};
+                        let sampleSourceInput = {};
+                        try {
+                          sampleSourceInput = JSON.parse(sourceInput)[0];
+                        } catch {}
+
+                        mapValues.forEach(
+                          (mapValue: { key: string; value: string }) => {
+                            const jsonpathInput = mapValue.value;
+                            try {
+                              const transformedResult = jsonpath.query(
+                                sampleSourceInput,
+                                jsonpathInput
+                              );
+                              output = {
+                                ...output,
+                                [mapValue.key]: transformedResult || '',
+                              };
+
+                              setTransformedOutput(
+                                JSON.stringify(output, undefined, 2)
+                              );
+                            } catch (e: any) {
+                              console.error(e);
+                              getCore().notifications.toasts.addDanger(
+                                'Error generating expected output. Ensure your inputs are valid JSONPath syntax.',
+                                e
+                              );
+                            }
+                          }
+                        );
+                      }
+
+                      break;
+                    }
+                    // TODO: complete for search request / search response contexts
+                  }
+                }}
+              >
+                Generate
+              </EuiButton>
               <EuiSpacer size="s" />
               <EuiCodeBlock fontSize="m" isCopyable={false}>
                 {transformedOutput}

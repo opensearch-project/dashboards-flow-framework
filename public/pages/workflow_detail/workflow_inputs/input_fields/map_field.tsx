@@ -28,6 +28,8 @@ interface MapFieldProps {
   label: string;
   helpLink?: string;
   helpText?: string;
+  keyPlaceholder?: string;
+  valuePlaceholder?: string;
   onFormChange: () => void;
 }
 
@@ -97,10 +99,7 @@ export function MapField(props: MapFieldProps) {
                           startControl={
                             <input
                               type="string"
-                              // TODO: find a way to config/title the placeholder text.
-                              // For example, K/V values have different meanings if input
-                              // map or output map for ML inference processors.
-                              placeholder="Input"
+                              placeholder={props.keyPlaceholder || 'Input'}
                               className="euiFieldText"
                               value={mapping.key}
                               onChange={(e) => {
@@ -119,7 +118,7 @@ export function MapField(props: MapFieldProps) {
                           endControl={
                             <input
                               type="string"
-                              placeholder="Output"
+                              placeholder={props.valuePlaceholder || 'Output'}
                               className="euiFieldText"
                               value={mapping.value}
                               onChange={(e) => {
