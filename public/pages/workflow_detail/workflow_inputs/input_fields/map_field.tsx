@@ -28,6 +28,8 @@ interface MapFieldProps {
   label: string;
   helpLink?: string;
   helpText?: string;
+  keyPlaceholder?: string;
+  valuePlaceholder?: string;
   onFormChange: () => void;
 }
 
@@ -35,7 +37,7 @@ interface MapFieldProps {
  * Input component for configuring field mappings
  */
 export function MapField(props: MapFieldProps) {
-  const { setFieldValue, errors, touched } = useFormikContext<
+  const { setFieldValue, setFieldTouched, errors, touched } = useFormikContext<
     WorkflowFormValues
   >();
 
@@ -43,6 +45,7 @@ export function MapField(props: MapFieldProps) {
   function addMapEntry(curEntries: MapFormValue): void {
     const updatedEntries = [...curEntries, { key: '', value: '' } as MapEntry];
     setFieldValue(props.fieldPath, updatedEntries);
+    setFieldTouched(props.fieldPath, true);
     props.onFormChange();
   }
 
@@ -54,6 +57,7 @@ export function MapField(props: MapFieldProps) {
     const updatedEntries = [...curEntries];
     updatedEntries.splice(entryIndexToDelete, 1);
     setFieldValue(props.fieldPath, updatedEntries);
+    setFieldTouched(props.fieldPath, true);
     props.onFormChange();
   }
 
@@ -97,10 +101,7 @@ export function MapField(props: MapFieldProps) {
                           startControl={
                             <input
                               type="string"
-                              // TODO: find a way to config/title the placeholder text.
-                              // For example, K/V values have different meanings if input
-                              // map or output map for ML inference processors.
-                              placeholder="Input"
+                              placeholder={props.keyPlaceholder || 'Input'}
                               className="euiFieldText"
                               value={mapping.key}
                               onChange={(e) => {
@@ -119,7 +120,7 @@ export function MapField(props: MapFieldProps) {
                           endControl={
                             <input
                               type="string"
-                              placeholder="Output"
+                              placeholder={props.valuePlaceholder || 'Output'}
                               className="euiFieldText"
                               value={mapping.value}
                               onChange={(e) => {

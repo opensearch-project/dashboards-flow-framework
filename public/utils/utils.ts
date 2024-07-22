@@ -21,6 +21,10 @@ export function generateId(prefix?: string): string {
   }_${uniqueChar()}${uniqueChar()}${uniqueChar()}${uniqueChar()}`;
 }
 
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function hasProvisionedIngestResources(
   workflow: Workflow | undefined
 ): boolean {
