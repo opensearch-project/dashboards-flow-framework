@@ -9,7 +9,6 @@ import { isEmpty, get } from 'lodash';
 import jsonpath from 'jsonpath';
 import {
   EuiButton,
-  EuiButtonEmpty,
   EuiCodeBlock,
   EuiFlexGroup,
   EuiFlexItem,
@@ -44,7 +43,6 @@ interface InputTransformModalProps {
   inputMapField: IConfigField;
   inputMapFieldPath: string;
   onClose: () => void;
-  onConfirm: () => void;
   onFormChange: () => void;
 }
 
@@ -66,7 +64,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <p>{`Configure advanced input transforms`}</p>
+          <p>{`Configure input`}</p>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
@@ -234,9 +232,8 @@ export function InputTransformModal(props: InputTransformModalProps) {
         </EuiFlexGroup>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiButtonEmpty onClick={props.onClose}>Cancel</EuiButtonEmpty>
-        <EuiButton onClick={props.onConfirm} fill={true} color="primary">
-          Save
+        <EuiButton onClick={props.onClose} fill={false} color="primary">
+          Close
         </EuiButton>
       </EuiModalFooter>
     </EuiModal>

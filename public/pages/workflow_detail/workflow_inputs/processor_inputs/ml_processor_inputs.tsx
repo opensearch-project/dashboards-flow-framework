@@ -79,10 +79,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           inputMapFieldPath={inputMapFieldPath}
           onFormChange={props.onFormChange}
           onClose={() => setIsInputTransformModalOpen(false)}
-          onConfirm={() => {
-            console.log('saving transform input configuration...');
-            setIsInputTransformModalOpen(false);
-          }}
         />
       )}
       {isOutputTransformModalOpen && (
@@ -156,7 +152,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           ) : (
             <>
               <EuiButton
-                style={{ width: '300px' }}
+                style={{ width: '200px' }}
                 fill={false}
                 onClick={() => {
                   setIsInputTransformModalOpen(true);
@@ -167,7 +163,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <EuiSpacer size="s" />
 
               <EuiButton
-                style={{ width: '300px' }}
+                style={{ width: '200px' }}
                 fill={false}
                 onClick={() => {
                   setIsOutputTransformModalOpen(true);

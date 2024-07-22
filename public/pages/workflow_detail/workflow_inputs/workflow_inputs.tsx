@@ -162,7 +162,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           })
         )
           .unwrap()
-          .then(async (result) => {})
+          .then(async (result) => {
+            // get any updates after autosave
+            new Promise((f) => setTimeout(f, 1000)).then(async () => {
+              dispatch(getWorkflow(props.workflow?.id as string));
+            });
+          })
           .catch((error: any) => {
             console.error('Error autosaving workflow: ', error);
           });
