@@ -5,12 +5,11 @@
 
 import React, { useState } from 'react';
 import { useFormikContext, getIn } from 'formik';
-import { isEmpty } from 'lodash';
+import { isEmpty, get } from 'lodash';
 import jsonpath from 'jsonpath';
 import {
   EuiButton,
   EuiButtonEmpty,
-  EuiCallOut,
   EuiCodeBlock,
   EuiFlexGroup,
   EuiFlexItem,
@@ -26,6 +25,7 @@ import {
   IConfigField,
   IProcessorConfig,
   IngestPipelineConfig,
+  JSONPATH_ROOT_SELECTOR,
   PROCESSOR_CONTEXT,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
@@ -59,18 +59,14 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const [sourceInput, setSourceInput] = useState<string>('[]');
   const [transformedOutput, setTransformedOutput] = useState<string>('[]');
 
+  // parse out the values and determine if there are none/some/all valid jsonpaths
   const mapValues = getIn(values, `ingest.enrich.${props.config.id}.inputMap`);
-  const containsInvalidJsonPaths =
-    mapValues.find(
-      (mapValue: { key: string; value: string }) =>
-        !mapValue.value.startsWith('$.')
-    ) !== undefined;
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <p>{`Configure JSONPath input transforms`}</p>
+          <p>{`Configure advanced input transforms`}</p>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
@@ -130,10 +126,10 @@ export function InputTransformModal(props: InputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiText>Define transform with JSONPath</EuiText>
+              <EuiText>Define transform</EuiText>
               <EuiText size="s" color="subdued">
-                To explicitly use JSONPath, please ensure to prepend with the
-                root object selector "$"
+                {`Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
+                root object selector "${JSONPATH_ROOT_SELECTOR}"`}
               </EuiText>
               <EuiSpacer size="s" />
               <MapField
@@ -145,7 +141,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
                 }
                 keyPlaceholder="Model input field"
-                valuePlaceholder="JSONPath ($...)"
+                valuePlaceholder="Document field"
                 onFormChange={props.onFormChange}
               />
             </>
@@ -153,23 +149,10 @@ export function InputTransformModal(props: InputTransformModalProps) {
           <EuiFlexItem>
             <>
               <EuiText>Expected output</EuiText>
-              {containsInvalidJsonPaths && (
-                <>
-                  <EuiCallOut
-                    title={`Ensure all JSONPath entries start with the root selector "$."`}
-                    iconType={'alert'}
-                    color="warning"
-                  />
-                  <EuiSpacer size="s" />
-                </>
-              )}
-
               <EuiButton
                 style={{ width: '100px' }}
                 disabled={
-                  isEmpty(mapValues) ||
-                  isEmpty(JSON.parse(sourceInput)) ||
-                  containsInvalidJsonPaths
+                  isEmpty(mapValues) || isEmpty(JSON.parse(sourceInput))
                 }
                 onClick={async () => {
                   switch (props.context) {
@@ -186,12 +169,35 @@ export function InputTransformModal(props: InputTransformModalProps) {
 
                         mapValues.forEach(
                           (mapValue: { key: string; value: string }) => {
-                            const jsonpathInput = mapValue.value;
+                            const path = mapValue.value;
                             try {
-                              const transformedResult = jsonpath.query(
-                                sampleSourceInput,
-                                jsonpathInput
-                              );
+                              let transformedResult = undefined;
+                              // ML inference processors will use standard dot notation or JSONPath depending on the input.
+                              // We follow the same logic here to generate consistent results.
+                              if (
+                                mapValue.value.startsWith(
+                                  JSONPATH_ROOT_SELECTOR
+                                )
+                              ) {
+                                // JSONPath transform
+                                transformedResult = jsonpath.query(
+                                  sampleSourceInput,
+                                  path
+                                );
+                                // Bracket notation not supported - throw an error
+                              } else if (
+                                mapValue.value.includes(']') ||
+                                mapValue.value.includes(']')
+                              ) {
+                                throw new Error();
+                                // Standard dot notation
+                              } else {
+                                transformedResult = get(
+                                  sampleSourceInput,
+                                  path
+                                );
+                              }
+
                               output = {
                                 ...output,
                                 [mapValue.key]: transformedResult || '',
@@ -203,7 +209,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                             } catch (e: any) {
                               console.error(e);
                               getCore().notifications.toasts.addDanger(
-                                'Error generating expected output. Ensure your inputs are valid JSONPath syntax.',
+                                'Error generating expected output. Ensure your inputs are valid JSONPath or dot notation syntax.',
                                 e
                               );
                             }
