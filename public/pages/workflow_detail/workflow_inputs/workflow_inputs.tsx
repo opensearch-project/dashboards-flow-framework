@@ -54,6 +54,7 @@ import {
   hasProvisionedIngestResources,
   hasProvisionedSearchResources,
   generateId,
+  sleep,
   getResourcesToBeForceDeleted,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
@@ -161,7 +162,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           })
         )
           .unwrap()
-          .then(async (result) => {})
+          .then(async (result) => {
+            // get any updates after autosave
+            new Promise((f) => setTimeout(f, 1000)).then(async () => {
+              dispatch(getWorkflow(props.workflow?.id as string));
+            });
+          })
           .catch((error: any) => {
             console.error('Error autosaving workflow: ', error);
           });
@@ -183,7 +189,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // Utility fn to update the workflow, including any updated/new resources
   // Eventually, should be able to use fine-grained provisioning to do a single API call
-  // instead of the currently-implemented deprovision -> update -> provision
+  // instead of the currently-implemented deprovision -> update -> provision.
+  // To simplify and minimize errors, we set various sleep calls in between the actions
+  // to allow time for full deprovisioning / provisioning to occur, such as index deletion
+  // & index re-creation.
+  // TODO: update to fine-grained provisioning when available.
   async function updateWorkflowAndResources(
     updatedWorkflow: Workflow
   ): Promise<boolean> {
@@ -204,9 +214,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         )
           .unwrap()
           .then(async (result) => {
+            await sleep(1000);
             await dispatch(provisionWorkflow(updatedWorkflow.id as string))
               .unwrap()
-              .then((result) => {
+              .then(async (result) => {
+                await sleep(1000);
                 success = true;
                 // Kicking off an async task to re-fetch the workflow details
                 // after some amount of time. Provisioning will finish in an indeterminate
