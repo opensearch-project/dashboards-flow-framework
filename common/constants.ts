@@ -113,6 +113,12 @@ export enum COMPONENT_CLASS {
 }
 
 /**
+ * LINKS
+ */
+export const ML_INFERENCE_DOCS_LINK =
+  'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters';
+
+/**
  * MISCELLANEOUS
  */
 export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
