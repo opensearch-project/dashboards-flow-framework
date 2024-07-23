@@ -11,10 +11,11 @@ import { WorkspaceFormValues } from '../../../../../common';
 interface JsonFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onFormChange: () => void;
-  label: string;
+  label?: string;
   helpLink?: string;
   helpText?: string;
   editorHeight?: string;
+  readOnly?: boolean;
 }
 
 /**
@@ -79,7 +80,7 @@ export function JsonField(props: JsonFieldProps) {
                   props.onFormChange();
                 }
               }}
-              readOnly={false}
+              readOnly={props.readOnly || false}
               setOptions={{
                 fontSize: '14px',
               }}

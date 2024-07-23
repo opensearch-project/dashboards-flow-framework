@@ -25,6 +25,7 @@ import {
   IProcessorConfig,
   IngestPipelineConfig,
   JSONPATH_ROOT_SELECTOR,
+  ML_INFERENCE_DOCS_LINK,
   PROCESSOR_CONTEXT,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
@@ -135,9 +136,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 fieldPath={props.inputMapFieldPath}
                 label="Input map"
                 helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
-                helpLink={
-                  'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
-                }
+                helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="Model input field"
                 valuePlaceholder="Document field"
                 onFormChange={props.onFormChange}

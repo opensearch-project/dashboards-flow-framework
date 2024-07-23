@@ -10,6 +10,7 @@ import {
   DEFAULT_NEW_WORKFLOW_NAME,
   UIState,
   WORKFLOW_TYPE,
+  FETCH_ALL_QUERY_BODY,
 } from '../../../../common';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
@@ -64,7 +65,11 @@ function fetchEmptyMetadata(): UIState {
         },
       },
       search: {
-        request: {},
+        request: {
+          id: 'request',
+          type: 'json',
+          value: JSON.stringify(FETCH_ALL_QUERY_BODY, undefined, 2),
+        },
         enrichRequest: {
           processors: [],
         },

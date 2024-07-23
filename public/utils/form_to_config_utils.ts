@@ -72,6 +72,10 @@ function formikToSearchUiConfig(
 ): SearchConfig {
   return {
     ...existingConfig,
+    request: {
+      ...existingConfig.request,
+      value: searchFormValues['request'],
+    },
     enrichRequest: formikToProcessorsUiConfig(
       searchFormValues['enrichRequest'],
       existingConfig.enrichRequest
