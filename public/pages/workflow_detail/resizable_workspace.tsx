@@ -128,7 +128,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Initialize the form state based on the current UI config
   useEffect(() => {
     if (uiConfig) {
-      const initFormValues = uiConfigToFormik(uiConfig, ingestDocs, query);
+      const initFormValues = uiConfigToFormik(uiConfig, ingestDocs);
       const initFormSchema = uiConfigToSchema(uiConfig);
       setFormValues(initFormValues);
       setFormSchema(initFormSchema);

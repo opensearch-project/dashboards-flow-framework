@@ -29,13 +29,6 @@ export interface IConfigField {
   type: ConfigFieldType;
   id: string;
   value?: ConfigFieldValue;
-  // TODO: remove below fields out of this interface and directly into the necessary components.
-  // This is to minimize what we persist here, which is added into ui_metadata and indexed.
-  // Once the config for ML inference processors is finalized, we can migrate these out.
-  label?: string;
-  placeholder?: string;
-  helpText?: string;
-  helpLink?: string;
 }
 export interface IConfig {
   id: string;
@@ -71,7 +64,7 @@ export type IngestConfig = {
 };
 
 export type SearchConfig = {
-  request: {};
+  request: IConfigField;
   enrichRequest: ProcessorsConfig;
   enrichResponse: ProcessorsConfig;
 };
