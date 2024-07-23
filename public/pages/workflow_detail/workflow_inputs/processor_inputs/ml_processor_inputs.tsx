@@ -6,9 +6,9 @@
 import React, { useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import {
-  EuiButton,
-  EuiFilterButton,
-  EuiFilterGroup,
+  EuiButtonEmpty,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiSpacer,
   EuiText,
 } from '@elastic/eui';
@@ -64,11 +64,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     boolean
   >(false);
 
-  // advanced / simple transform state
-  const [isSimpleTransformSelected, setIsSimpleTransformSelected] = useState<
-    boolean
-  >(true);
-
   return (
     <>
       {isInputTransformModalOpen && (
@@ -101,78 +96,76 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
         <>
           <EuiSpacer size="s" />
-          <EuiText size="s">{`Configure data transformations (optional)`}</EuiText>
+          <EuiFlexGroup direction="row">
+            <EuiFlexItem grow={false}>
+              <EuiText
+                size="m"
+                style={{ marginTop: '4px' }}
+              >{`Configure input transformations (optional)`}</EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButtonEmpty
+                style={{ width: '100px' }}
+                size="s"
+                onClick={() => {
+                  setIsInputTransformModalOpen(true);
+                }}
+              >
+                Preview
+              </EuiButtonEmpty>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+          <EuiSpacer size="s" />
           <EuiText size="s" color="subdued">
             {`Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
           </EuiText>
           <EuiSpacer size="s" />
-          <EuiFilterGroup>
-            <EuiFilterButton
-              grow={false}
-              hasActiveFilters={isSimpleTransformSelected}
-              onClick={() => setIsSimpleTransformSelected(true)}
-            >
-              Simple
-            </EuiFilterButton>
-            <EuiFilterButton
-              grow={false}
-              hasActiveFilters={!isSimpleTransformSelected}
-              onClick={() => setIsSimpleTransformSelected(false)}
-            >
-              Advanced
-            </EuiFilterButton>
-          </EuiFilterGroup>
-          <EuiSpacer size="s" />
-          {isSimpleTransformSelected ? (
-            <>
-              <MapField
-                field={inputMapField}
-                fieldPath={inputMapFieldPath}
-                label="Input map"
-                helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
-                helpLink={ML_INFERENCE_DOCS_LINK}
-                keyPlaceholder="Model input field"
-                valuePlaceholder="Document field"
-                onFormChange={props.onFormChange}
-              />
-              <EuiSpacer size="l" />
-              <MapField
-                field={outputMapField}
-                fieldPath={outputMapFieldPath}
-                label="Output map"
-                helpText={`An array specifying how to map the model’s output to new fields.`}
-                helpLink={ML_INFERENCE_DOCS_LINK}
-                keyPlaceholder="New document field"
-                valuePlaceholder="Model output field"
-                onFormChange={props.onFormChange}
-              />
-            </>
-          ) : (
-            <>
-              <EuiButton
-                style={{ width: '200px' }}
-                fill={false}
-                onClick={() => {
-                  setIsInputTransformModalOpen(true);
-                }}
-              >
-                Configure input
-              </EuiButton>
-              <EuiSpacer size="s" />
-
-              <EuiButton
-                style={{ width: '200px' }}
-                fill={false}
+          <MapField
+            field={inputMapField}
+            fieldPath={inputMapFieldPath}
+            label="Input Map"
+            helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
+            helpLink={
+              'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
+            }
+            keyPlaceholder="Model input field"
+            valuePlaceholder="Document field"
+            onFormChange={props.onFormChange}
+          />
+          <EuiSpacer size="l" />
+          <EuiFlexGroup direction="row">
+            <EuiFlexItem grow={false}>
+              <EuiText
+                size="m"
+                style={{ marginTop: '4px' }}
+              >{`Configure output transformations (optional)`}</EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButtonEmpty
+                style={{ width: '100px' }}
+                size="s"
                 onClick={() => {
                   setIsOutputTransformModalOpen(true);
                 }}
               >
-                Configure output
-              </EuiButton>
-            </>
-          )}
-
+                Preview
+              </EuiButtonEmpty>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+          <EuiSpacer size="s" />
+          <MapField
+            field={outputMapField}
+            fieldPath={outputMapFieldPath}
+            label="Output Map"
+            helpText={`An array specifying how to map the model’s output to new fields.`}
+            helpLink={
+              'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
+            }
+            keyPlaceholder="New document field"
+            valuePlaceholder="Model output field"
+            onFormChange={props.onFormChange}
+          />
           <EuiSpacer size="s" />
         </>
       )}

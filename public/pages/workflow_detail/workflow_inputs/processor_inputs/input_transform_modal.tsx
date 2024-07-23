@@ -8,7 +8,7 @@ import { useFormikContext, getIn } from 'formik';
 import { isEmpty } from 'lodash';
 import {
   EuiButton,
-  EuiCodeBlock,
+  EuiCodeEditor,
   EuiFlexGroup,
   EuiFlexItem,
   EuiModal,
@@ -71,7 +71,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
           <p>{`Configure input`}</p>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
-      <EuiModalBody>
+      <EuiModalBody style={{ height: '60vh' }}>
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
@@ -123,9 +123,22 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 Fetch
               </EuiButton>
               <EuiSpacer size="s" />
-              <EuiCodeBlock fontSize="m" isCopyable={false}>
-                {sourceInput}
-              </EuiCodeBlock>
+              <EuiCodeEditor
+                mode="json"
+                theme="textmate"
+                width="100%"
+                height="15vh"
+                value={sourceInput}
+                readOnly={true}
+                setOptions={{
+                  fontSize: '12px',
+                  autoScrollEditorIntoView: true,
+                  showLineNumbers: false,
+                  showGutter: false,
+                  showPrintMargin: false,
+                }}
+                tabSize={2}
+              />
             </>
           </EuiFlexItem>
           <EuiFlexItem>
@@ -179,9 +192,22 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 Generate
               </EuiButton>
               <EuiSpacer size="s" />
-              <EuiCodeBlock fontSize="m" isCopyable={false}>
-                {transformedOutput}
-              </EuiCodeBlock>
+              <EuiCodeEditor
+                mode="json"
+                theme="textmate"
+                width="100%"
+                height="15vh"
+                value={transformedOutput}
+                readOnly={true}
+                setOptions={{
+                  fontSize: '12px',
+                  autoScrollEditorIntoView: true,
+                  showLineNumbers: false,
+                  showGutter: false,
+                  showPrintMargin: false,
+                }}
+                tabSize={2}
+              />
             </>
           </EuiFlexItem>
         </EuiFlexGroup>
