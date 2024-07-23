@@ -126,9 +126,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             fieldPath={inputMapFieldPath}
             label="Input Map"
             helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
-            helpLink={
-              'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
-            }
+            helpLink={ML_INFERENCE_DOCS_LINK}
             keyPlaceholder="Model input field"
             valuePlaceholder="Document field"
             onFormChange={props.onFormChange}
@@ -159,9 +157,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             fieldPath={outputMapFieldPath}
             label="Output Map"
             helpText={`An array specifying how to map the model’s output to new fields.`}
-            helpLink={
-              'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
-            }
+            helpLink={ML_INFERENCE_DOCS_LINK}
             keyPlaceholder="New document field"
             valuePlaceholder="Model output field"
             onFormChange={props.onFormChange}
