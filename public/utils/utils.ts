@@ -4,11 +4,16 @@
  */
 
 import yaml from 'js-yaml';
+import jsonpath from 'jsonpath';
+import { get } from 'lodash';
 import {
+  JSONPATH_ROOT_SELECTOR,
+  ModelFormValue,
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STEP_TYPE,
   Workflow,
 } from '../../common';
+import { getCore } from '../services';
 
 // Append 16 random characters
 export function generateId(prefix?: string): string {
@@ -102,4 +107,39 @@ export function isValidUiWorkflow(workflowObj: object | undefined): boolean {
     workflowObj?.ui_metadata?.config !== undefined &&
     workflowObj?.ui_metadata?.type !== undefined
   );
+}
+
+// ML inference processors will use standard dot notation or JSONPath depending on the input.
+// We follow the same logic here to generate consistent results.
+export function generateTransform(
+  input: {},
+  map: { key: string; value: string }[]
+): {} {
+  let output = {};
+  map.forEach((mapEntry) => {
+    const path = mapEntry.value;
+    try {
+      let transformedResult = undefined;
+      if (mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR)) {
+        // JSONPath transform
+        transformedResult = jsonpath.query(input, path);
+        // Non-JSONPath bracket notation not supported - throw an error
+      } else if (mapEntry.value.includes('[') || mapEntry.value.includes(']')) {
+        throw new Error();
+        // Standard dot notation
+      } else {
+        transformedResult = get(input, path);
+      }
+      output = {
+        ...output,
+        [mapEntry.key]: transformedResult || '',
+      };
+    } catch (e: any) {
+      getCore().notifications.toasts.addDanger(
+        'Error generating expected output. Ensure your transforms are valid JSONPath or dot notation syntax.',
+        e
+      );
+    }
+  });
+  return output;
 }

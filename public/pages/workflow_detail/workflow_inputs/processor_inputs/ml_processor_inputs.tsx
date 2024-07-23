@@ -84,11 +84,13 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       )}
       {isOutputTransformModalOpen && (
         <OutputTransformModal
+          uiConfig={props.uiConfig}
+          config={props.config}
+          context={props.context}
+          outputMapField={outputMapField}
+          outputMapFieldPath={outputMapFieldPath}
+          onFormChange={props.onFormChange}
           onClose={() => setIsOutputTransformModalOpen(false)}
-          onConfirm={() => {
-            console.log('saving transform output configuration...');
-            setIsOutputTransformModalOpen(false);
-          }}
         />
       )}
       <ModelField
