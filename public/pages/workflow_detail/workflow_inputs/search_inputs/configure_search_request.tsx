@@ -5,8 +5,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useFormikContext, getIn } from 'formik';
 import {
   EuiButton,
+  EuiCodeBlock,
   EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
@@ -21,7 +23,6 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { useFormikContext } from 'formik';
 import { WorkspaceFormValues } from '../../../../../common';
 import { JsonField } from '../input_fields';
 import { AppState, catIndices, useAppDispatch } from '../../../../store';
@@ -141,12 +142,9 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           </EuiButton>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <JsonField
-            fieldPath={'search.request'}
-            onFormChange={props.onFormChange}
-            editorHeight="25vh"
-            readOnly={true}
-          />
+          <EuiCodeBlock language="json" fontSize="m" isCopyable={false}>
+            {getIn(values, 'search.request')}
+          </EuiCodeBlock>
         </EuiFlexItem>
       </EuiFlexGroup>
     </>

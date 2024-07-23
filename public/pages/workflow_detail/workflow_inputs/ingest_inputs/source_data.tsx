@@ -4,9 +4,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useFormikContext } from 'formik';
+import { useFormikContext, getIn } from 'formik';
 import {
   EuiButton,
+  EuiCodeBlock,
   EuiFilePicker,
   EuiFlexGroup,
   EuiFlexItem,
@@ -61,7 +62,7 @@ export function SourceData(props: SourceDataProps) {
         >
           <EuiModalHeader>
             <EuiModalHeaderTitle>
-              <p>{`Add sample JSON documents`}</p>
+              <p>{`Configure sample JSON documents`}</p>
             </EuiModalHeaderTitle>
           </EuiModalHeader>
           <EuiModalBody>
@@ -117,15 +118,13 @@ export function SourceData(props: SourceDataProps) {
             size="s"
             onClick={() => setIsLoadModalOpen(true)}
           >
-            Add
+            Configure
           </EuiButton>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <JsonField
-            fieldPath={'ingest.docs'}
-            readOnly={true}
-            onFormChange={() => {}}
-          />
+          <EuiCodeBlock language="json" fontSize="m" isCopyable={false}>
+            {getIn(values, 'ingest.docs')}
+          </EuiCodeBlock>
         </EuiFlexItem>
       </EuiFlexGroup>
     </>
