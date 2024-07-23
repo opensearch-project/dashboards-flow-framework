@@ -51,8 +51,8 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
     undefined
   );
 
-  // Query modal state
-  const [isQueryModalOpen, setIsQueryModalOpen] = useState<boolean>(false);
+  // Edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
 
   // Hook to listen when the query form value changes.
   // Try to set the query request if possible
@@ -72,14 +72,14 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
 
   return (
     <>
-      {isQueryModalOpen && (
+      {isEditModalOpen && (
         <EuiModal
-          onClose={() => setIsQueryModalOpen(false)}
+          onClose={() => setIsEditModalOpen(false)}
           style={{ width: '70vw' }}
         >
           <EuiModalHeader>
             <EuiModalHeaderTitle>
-              <p>{`Configure query`}</p>
+              <p>{`Edit query`}</p>
             </EuiModalHeaderTitle>
           </EuiModalHeader>
           <EuiModalBody>
@@ -93,7 +93,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           </EuiModalBody>
           <EuiModalFooter>
             <EuiButton
-              onClick={() => setIsQueryModalOpen(false)}
+              onClick={() => setIsEditModalOpen(false)}
               fill={false}
               color="primary"
             >
@@ -136,9 +136,9 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
             fill={false}
             style={{ width: '100px' }}
             size="s"
-            onClick={() => setIsQueryModalOpen(true)}
+            onClick={() => setIsEditModalOpen(true)}
           >
-            Configure
+            Edit
           </EuiButton>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>

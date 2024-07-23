@@ -34,8 +34,8 @@ interface SourceDataProps {
 export function SourceData(props: SourceDataProps) {
   const { values, setFieldValue } = useFormikContext<WorkspaceFormValues>();
 
-  // load modal state
-  const [isLoadModalOpen, setIsLoadModalOpen] = useState<boolean>(false);
+  // edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
 
   // files state. when a file is read, update the form value.
   const fileReader = new FileReader();
@@ -55,14 +55,14 @@ export function SourceData(props: SourceDataProps) {
 
   return (
     <>
-      {isLoadModalOpen && (
+      {isEditModalOpen && (
         <EuiModal
-          onClose={() => setIsLoadModalOpen(false)}
+          onClose={() => setIsEditModalOpen(false)}
           style={{ width: '70vw' }}
         >
           <EuiModalHeader>
             <EuiModalHeaderTitle>
-              <p>{`Configure sample JSON documents`}</p>
+              <p>{`Edit source data`}</p>
             </EuiModalHeaderTitle>
           </EuiModalHeader>
           <EuiModalBody>
@@ -96,7 +96,7 @@ export function SourceData(props: SourceDataProps) {
           </EuiModalBody>
           <EuiModalFooter>
             <EuiButton
-              onClick={() => setIsLoadModalOpen(false)}
+              onClick={() => setIsEditModalOpen(false)}
               fill={false}
               color="primary"
             >
@@ -116,9 +116,9 @@ export function SourceData(props: SourceDataProps) {
             fill={false}
             style={{ width: '100px' }}
             size="s"
-            onClick={() => setIsLoadModalOpen(true)}
+            onClick={() => setIsEditModalOpen(true)}
           >
-            Configure
+            Edit
           </EuiButton>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
