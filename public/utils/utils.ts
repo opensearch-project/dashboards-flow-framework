@@ -8,7 +8,8 @@ import jsonpath from 'jsonpath';
 import { get } from 'lodash';
 import {
   JSONPATH_ROOT_SELECTOR,
-  ModelFormValue,
+  SimulateIngestPipelineDoc,
+  SimulateIngestPipelineResponse,
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STEP_TYPE,
   Workflow,
@@ -107,6 +108,51 @@ export function isValidUiWorkflow(workflowObj: object | undefined): boolean {
     workflowObj?.ui_metadata?.config !== undefined &&
     workflowObj?.ui_metadata?.type !== undefined
   );
+}
+
+// Docs are expected to be in a certain format to be passed to the simulate ingest pipeline API.
+// for details, see https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest
+export function prepareDocsForSimulate(
+  docs: string,
+  indexName: string
+): SimulateIngestPipelineDoc[] {
+  const preparedDocs = [] as SimulateIngestPipelineDoc[];
+  const docObjs = JSON.parse(docs) as {}[];
+  docObjs.forEach((doc) => {
+    preparedDocs.push({
+      _index: indexName,
+      _id: generateId(),
+      _source: doc,
+    });
+  });
+  return preparedDocs;
+}
+
+// Docs are returned in a certain format from the simulate ingest pipeline API. We want
+// to format them into a more readable string to display
+export function unwrapTransformedDocs(
+  simulatePipelineResponse: SimulateIngestPipelineResponse
+) {
+  let errorDuringSimulate = undefined as string | undefined;
+  const transformedDocsSources = simulatePipelineResponse.docs.map(
+    (transformedDoc) => {
+      if (transformedDoc.error !== undefined) {
+        errorDuringSimulate = transformedDoc.error.reason || '';
+      } else {
+        return transformedDoc.doc._source;
+      }
+    }
+  );
+
+  // there is an edge case where simulate may fail if there is some server-side or OpenSearch issue when
+  // running ingest (e.g., hitting rate limits on remote model)
+  // We pull out any returned error from a document and propagate it to the user.
+  if (errorDuringSimulate !== undefined) {
+    getCore().notifications.toasts.addDanger(
+      `Failed to simulate ingest on all documents: ${errorDuringSimulate}`
+    );
+  }
+  return JSON.stringify(transformedDocsSources, undefined, 2);
 }
 
 // ML inference processors will use standard dot notation or JSONPath depending on the input.

@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { useFormikContext, getIn } from 'formik';
-import { isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, set } from 'lodash';
 import {
   EuiButton,
   EuiCodeBlock,
@@ -25,15 +25,15 @@ import {
   IngestPipelineConfig,
   JSONPATH_ROOT_SELECTOR,
   PROCESSOR_CONTEXT,
-  SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
 import {
   formikToIngestPipeline,
-  generateId,
   generateTransform,
+  prepareDocsForSimulate,
+  unwrapTransformedDocs,
 } from '../../../../utils';
 import { simulatePipeline, useAppDispatch } from '../../../../store';
 import { getCore } from '../../../../services';
@@ -74,15 +74,23 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
-              <EuiText>Expected output</EuiText>
+              <EuiText>Expected input</EuiText>
               <EuiButton
                 style={{ width: '100px' }}
                 onClick={async () => {
                   switch (props.context) {
                     case PROCESSOR_CONTEXT.INGEST: {
-                      // get the current ingest pipeline up to, and including this processor
+                      // get the current ingest pipeline up to, and including this processor.
+                      // remove any currently-configured output map since we only want the transformation
+                      // up to, and including, the input map transformations
+                      const valuesWithoutOutputMapConfig = cloneDeep(values);
+                      set(
+                        valuesWithoutOutputMapConfig,
+                        `ingest.enrich.${props.config.id}.outputMap`,
+                        []
+                      );
                       const curIngestPipeline = formikToIngestPipeline(
-                        values,
+                        valuesWithoutOutputMapConfig,
                         props.uiConfig,
                         props.config.id,
                         true
@@ -187,49 +195,4 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
       </EuiModalFooter>
     </EuiModal>
   );
-}
-
-// docs are expected to be in a certain format to be passed to the simulate ingest pipeline API.
-// for details, see https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest
-function prepareDocsForSimulate(
-  docs: string,
-  indexName: string
-): SimulateIngestPipelineDoc[] {
-  const preparedDocs = [] as SimulateIngestPipelineDoc[];
-  const docObjs = JSON.parse(docs) as {}[];
-  docObjs.forEach((doc) => {
-    preparedDocs.push({
-      _index: indexName,
-      _id: generateId(),
-      _source: doc,
-    });
-  });
-  return preparedDocs;
-}
-
-// docs are returned in a certain format from the simulate ingest pipeline API. We want
-// to format them into a more readable string to display
-function unwrapTransformedDocs(
-  simulatePipelineResponse: SimulateIngestPipelineResponse
-) {
-  let errorDuringSimulate = undefined as string | undefined;
-  const transformedDocsSources = simulatePipelineResponse.docs.map(
-    (transformedDoc) => {
-      if (transformedDoc.error !== undefined) {
-        errorDuringSimulate = transformedDoc.error.reason || '';
-      } else {
-        return transformedDoc.doc._source;
-      }
-    }
-  );
-
-  // there is an edge case where simulate may fail if there is some server-side or OpenSearch issue when
-  // running ingest (e.g., hitting rate limits on remote model)
-  // We pull out any returned error from a document and propagate it to the user.
-  if (errorDuringSimulate !== undefined) {
-    getCore().notifications.toasts.addDanger(
-      `Failed to simulate ingest on all documents: ${errorDuringSimulate}`
-    );
-  }
-  return JSON.stringify(transformedDocsSources, undefined, 2);
 }

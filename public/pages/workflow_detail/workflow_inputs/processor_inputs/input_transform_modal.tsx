@@ -26,15 +26,15 @@ import {
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
   PROCESSOR_CONTEXT,
-  SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
 import {
   formikToIngestPipeline,
-  generateId,
   generateTransform,
+  prepareDocsForSimulate,
+  unwrapTransformedDocs,
 } from '../../../../utils';
 import { simulatePipeline, useAppDispatch } from '../../../../store';
 import { getCore } from '../../../../services';
@@ -193,49 +193,4 @@ export function InputTransformModal(props: InputTransformModalProps) {
       </EuiModalFooter>
     </EuiModal>
   );
-}
-
-// docs are expected to be in a certain format to be passed to the simulate ingest pipeline API.
-// for details, see https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest
-function prepareDocsForSimulate(
-  docs: string,
-  indexName: string
-): SimulateIngestPipelineDoc[] {
-  const preparedDocs = [] as SimulateIngestPipelineDoc[];
-  const docObjs = JSON.parse(docs) as {}[];
-  docObjs.forEach((doc) => {
-    preparedDocs.push({
-      _index: indexName,
-      _id: generateId(),
-      _source: doc,
-    });
-  });
-  return preparedDocs;
-}
-
-// docs are returned in a certain format from the simulate ingest pipeline API. We want
-// to format them into a more readable string to display
-function unwrapTransformedDocs(
-  simulatePipelineResponse: SimulateIngestPipelineResponse
-) {
-  let errorDuringSimulate = undefined as string | undefined;
-  const transformedDocsSources = simulatePipelineResponse.docs.map(
-    (transformedDoc) => {
-      if (transformedDoc.error !== undefined) {
-        errorDuringSimulate = transformedDoc.error.reason || '';
-      } else {
-        return transformedDoc.doc._source;
-      }
-    }
-  );
-
-  // there is an edge case where simulate may fail if there is some server-side or OpenSearch issue when
-  // running ingest (e.g., hitting rate limits on remote model)
-  // We pull out any returned error from a document and propagate it to the user.
-  if (errorDuringSimulate !== undefined) {
-    getCore().notifications.toasts.addDanger(
-      `Failed to simulate ingest on all documents: ${errorDuringSimulate}`
-    );
-  }
-  return JSON.stringify(transformedDocsSources, undefined, 2);
 }
