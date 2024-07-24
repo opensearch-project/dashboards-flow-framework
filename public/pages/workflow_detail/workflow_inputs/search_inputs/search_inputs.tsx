@@ -14,6 +14,7 @@ interface SearchInputsProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setQuery: (query: string) => void;
+  setQueryResponse: (queryResponse: string) => void;
   onFormChange: () => void;
 }
 
@@ -26,6 +27,7 @@ export function SearchInputs(props: SearchInputsProps) {
       <EuiFlexItem grow={false}>
         <ConfigureSearchRequest
           setQuery={props.setQuery}
+          setQueryResponse={props.setQueryResponse}
           onFormChange={props.onFormChange}
         />
       </EuiFlexItem>
