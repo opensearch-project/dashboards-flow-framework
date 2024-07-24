@@ -5,11 +5,10 @@
 
 import React, { useState } from 'react';
 import { useFormikContext, getIn } from 'formik';
-import { isEmpty, get } from 'lodash';
-import jsonpath from 'jsonpath';
+import { isEmpty } from 'lodash';
 import {
   EuiButton,
-  EuiCodeBlock,
+  EuiCodeEditor,
   EuiFlexGroup,
   EuiFlexItem,
   EuiModal,
@@ -27,12 +26,16 @@ import {
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
   PROCESSOR_CONTEXT,
-  SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
-import { formikToIngestPipeline, generateId } from '../../../../utils';
+import {
+  formikToIngestPipeline,
+  generateTransform,
+  prepareDocsForSimulate,
+  unwrapTransformedDocs,
+} from '../../../../utils';
 import { simulatePipeline, useAppDispatch } from '../../../../store';
 import { getCore } from '../../../../services';
 import { MapField } from '../input_fields';
@@ -58,8 +61,8 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const [sourceInput, setSourceInput] = useState<string>('[]');
   const [transformedOutput, setTransformedOutput] = useState<string>('[]');
 
-  // parse out the values and determine if there are none/some/all valid jsonpaths
-  const mapValues = getIn(values, `ingest.enrich.${props.config.id}.inputMap`);
+  // get the current input map
+  const map = getIn(values, `ingest.enrich.${props.config.id}.inputMap`);
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -68,7 +71,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
           <p>{`Configure input`}</p>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
-      <EuiModalBody>
+      <EuiModalBody style={{ height: '60vh' }}>
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
@@ -78,10 +81,12 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 onClick={async () => {
                   switch (props.context) {
                     case PROCESSOR_CONTEXT.INGEST: {
+                      // get the current ingest pipeline up to, but not including, this processor
                       const curIngestPipeline = formikToIngestPipeline(
                         values,
                         props.uiConfig,
-                        props.config.id
+                        props.config.id,
+                        false
                       );
                       // if there are preceding processors, we need to generate the ingest pipeline
                       // up to this point and simulate, in order to get the latest transformed
@@ -103,7 +108,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                           })
                           .catch((error: any) => {
                             getCore().notifications.toasts.addDanger(
-                              `Failed to fetch input schema`
+                              `Failed to fetch input data`
                             );
                           });
                       } else {
@@ -118,9 +123,22 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 Fetch
               </EuiButton>
               <EuiSpacer size="s" />
-              <EuiCodeBlock fontSize="m" isCopyable={false}>
-                {sourceInput}
-              </EuiCodeBlock>
+              <EuiCodeEditor
+                mode="json"
+                theme="textmate"
+                width="100%"
+                height="15vh"
+                value={sourceInput}
+                readOnly={true}
+                setOptions={{
+                  fontSize: '12px',
+                  autoScrollEditorIntoView: true,
+                  showLineNumbers: false,
+                  showGutter: false,
+                  showPrintMargin: false,
+                }}
+                tabSize={2}
+              />
             </>
           </EuiFlexItem>
           <EuiFlexItem>
@@ -148,72 +166,23 @@ export function InputTransformModal(props: InputTransformModalProps) {
               <EuiText>Expected output</EuiText>
               <EuiButton
                 style={{ width: '100px' }}
-                disabled={
-                  isEmpty(mapValues) || isEmpty(JSON.parse(sourceInput))
-                }
+                disabled={isEmpty(map) || isEmpty(JSON.parse(sourceInput))}
                 onClick={async () => {
                   switch (props.context) {
                     case PROCESSOR_CONTEXT.INGEST: {
-                      if (
-                        !isEmpty(mapValues) &&
-                        !isEmpty(JSON.parse(sourceInput))
-                      ) {
-                        let output = {};
+                      if (!isEmpty(map) && !isEmpty(JSON.parse(sourceInput))) {
                         let sampleSourceInput = {};
                         try {
                           sampleSourceInput = JSON.parse(sourceInput)[0];
+                          const output = generateTransform(
+                            sampleSourceInput,
+                            map
+                          );
+                          setTransformedOutput(
+                            JSON.stringify(output, undefined, 2)
+                          );
                         } catch {}
-
-                        mapValues.forEach(
-                          (mapValue: { key: string; value: string }) => {
-                            const path = mapValue.value;
-                            try {
-                              let transformedResult = undefined;
-                              // ML inference processors will use standard dot notation or JSONPath depending on the input.
-                              // We follow the same logic here to generate consistent results.
-                              if (
-                                mapValue.value.startsWith(
-                                  JSONPATH_ROOT_SELECTOR
-                                )
-                              ) {
-                                // JSONPath transform
-                                transformedResult = jsonpath.query(
-                                  sampleSourceInput,
-                                  path
-                                );
-                                // Bracket notation not supported - throw an error
-                              } else if (
-                                mapValue.value.includes(']') ||
-                                mapValue.value.includes(']')
-                              ) {
-                                throw new Error();
-                                // Standard dot notation
-                              } else {
-                                transformedResult = get(
-                                  sampleSourceInput,
-                                  path
-                                );
-                              }
-
-                              output = {
-                                ...output,
-                                [mapValue.key]: transformedResult || '',
-                              };
-
-                              setTransformedOutput(
-                                JSON.stringify(output, undefined, 2)
-                              );
-                            } catch (e: any) {
-                              console.error(e);
-                              getCore().notifications.toasts.addDanger(
-                                'Error generating expected output. Ensure your inputs are valid JSONPath or dot notation syntax.',
-                                e
-                              );
-                            }
-                          }
-                        );
                       }
-
                       break;
                     }
                     // TODO: complete for search request / search response contexts
@@ -223,9 +192,22 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 Generate
               </EuiButton>
               <EuiSpacer size="s" />
-              <EuiCodeBlock fontSize="m" isCopyable={false}>
-                {transformedOutput}
-              </EuiCodeBlock>
+              <EuiCodeEditor
+                mode="json"
+                theme="textmate"
+                width="100%"
+                height="15vh"
+                value={transformedOutput}
+                readOnly={true}
+                setOptions={{
+                  fontSize: '12px',
+                  autoScrollEditorIntoView: true,
+                  showLineNumbers: false,
+                  showGutter: false,
+                  showPrintMargin: false,
+                }}
+                tabSize={2}
+              />
             </>
           </EuiFlexItem>
         </EuiFlexGroup>
@@ -237,49 +219,4 @@ export function InputTransformModal(props: InputTransformModalProps) {
       </EuiModalFooter>
     </EuiModal>
   );
-}
-
-// docs are expected to be in a certain format to be passed to the simulate ingest pipeline API.
-// for details, see https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest
-function prepareDocsForSimulate(
-  docs: string,
-  indexName: string
-): SimulateIngestPipelineDoc[] {
-  const preparedDocs = [] as SimulateIngestPipelineDoc[];
-  const docObjs = JSON.parse(docs) as {}[];
-  docObjs.forEach((doc) => {
-    preparedDocs.push({
-      _index: indexName,
-      _id: generateId(),
-      _source: doc,
-    });
-  });
-  return preparedDocs;
-}
-
-// docs are returned in a certain format from the simulate ingest pipeline API. We want
-// to format them into a more readable string to display
-function unwrapTransformedDocs(
-  simulatePipelineResponse: SimulateIngestPipelineResponse
-) {
-  let errorDuringSimulate = undefined as string | undefined;
-  const transformedDocsSources = simulatePipelineResponse.docs.map(
-    (transformedDoc) => {
-      if (transformedDoc.error !== undefined) {
-        errorDuringSimulate = transformedDoc.error.reason || '';
-      } else {
-        return transformedDoc.doc._source;
-      }
-    }
-  );
-
-  // there is an edge case where simulate may fail if there is some server-side or OpenSearch issue when
-  // running ingest (e.g., hitting rate limits on remote model)
-  // We pull out any returned error from a document and propagate it to the user.
-  if (errorDuringSimulate !== undefined) {
-    getCore().notifications.toasts.addDanger(
-      `Failed to simulate ingest on all documents: ${errorDuringSimulate}`
-    );
-  }
-  return JSON.stringify(transformedDocsSources, undefined, 2);
 }

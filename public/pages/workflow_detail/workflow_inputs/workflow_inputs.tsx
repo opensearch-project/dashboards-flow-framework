@@ -532,6 +532,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
                     setQuery={props.setQuery}
+                    setQueryResponse={props.setQueryResponse}
                     onFormChange={props.onFormChange}
                   />
                 ) : (
