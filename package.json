@@ -5,7 +5,7 @@
   "main": "index.js",
   "config": {
     "plugin_version": "3.0.0.0",
-    "plugin_name": "flowFramework",
+    "plugin_name": "flowFrameworkDashboards",
     "plugin_zip_name": "dashboards-flow-framework"
   },
   "scripts": {
