@@ -176,6 +176,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
               <EuiButton
                 iconType="arrowDown"
                 iconSide="right"
+                size="s"
                 onClick={() => {
                   setPopover(!isPopoverOpen);
                 }}
