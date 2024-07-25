@@ -178,6 +178,12 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 keyPlaceholder="New document field"
                 valuePlaceholder="Model output field"
                 onFormChange={props.onFormChange}
+                // If the map we are adding is the first one, populate the selected option to index 0
+                onMapAdd={(curArray) => {
+                  if (isEmpty(curArray)) {
+                    setSelectedOutputOption(0);
+                  }
+                }}
                 // If the map we are deleting is the one we last used to test, reset the state and
                 // default to the first map in the list.
                 onMapDelete={(idxToDelete) => {

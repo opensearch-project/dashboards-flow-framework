@@ -53,6 +53,10 @@ interface InputTransformModalProps {
   onFormChange: () => void;
 }
 
+// TODO: InputTransformModal and OutputTransformModal are very similar, and can
+// likely be refactored and have more reusable components. Leave as-is until the
+// UI is more finalized.
+
 /**
  * A modal to configure advanced JSON-to-JSON transforms into a model's expected input
  */
@@ -177,6 +181,12 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 keyPlaceholder="Model input field"
                 valuePlaceholder="Document field"
                 onFormChange={props.onFormChange}
+                // If the map we are adding is the first one, populate the selected option to index 0
+                onMapAdd={(curArray) => {
+                  if (isEmpty(curArray)) {
+                    setSelectedOutputOption(0);
+                  }
+                }}
                 // If the map we are deleting is the one we last used to test, reset the state and
                 // default to the first map in the list.
                 onMapDelete={(idxToDelete) => {

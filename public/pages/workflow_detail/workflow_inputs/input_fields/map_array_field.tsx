@@ -33,6 +33,7 @@ interface MapArrayFieldProps {
   keyPlaceholder?: string;
   valuePlaceholder?: string;
   onFormChange: () => void;
+  onMapAdd?: (curArray: MapArrayFormValue) => void;
   onMapDelete?: (idxToDelete: number) => void;
 }
 
@@ -49,6 +50,9 @@ export function MapArrayField(props: MapArrayFieldProps) {
     setFieldValue(props.fieldPath, [...curMapArray, []]);
     setFieldTouched(props.fieldPath, true);
     props.onFormChange();
+    if (props.onMapAdd) {
+      props.onMapAdd(curMapArray);
+    }
   }
 
   // Deleting a map
