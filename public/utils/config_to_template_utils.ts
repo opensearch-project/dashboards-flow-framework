@@ -25,6 +25,8 @@ import {
   SearchProcessor,
   IngestConfig,
   SearchConfig,
+  MapFormValue,
+  MapEntry,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
 import { generateId } from './utils';
@@ -155,23 +157,15 @@ export function processorConfigsToTemplateProcessors(
           },
         } as MLInferenceProcessor;
         if (inputMap?.length > 0) {
-          processor.ml_inference.input_map = inputMap.map((mapFormValue) => {
-            let curMap = {} as { key: string; value: string };
-            mapFormValue.forEach((mapEntry) => {
-              curMap = {
-                ...curMap,
-                [mapEntry.key]: mapEntry.value,
-              };
-            });
-            return curMap;
-          });
+          processor.ml_inference.input_map = inputMap.map((mapFormValue) =>
+            mergeMapIntoSingleObj(mapFormValue)
+          );
         }
 
-        // TODO complete for output map
         if (outputMap?.length > 0) {
-          processor.ml_inference.output_map = outputMap.map((mapEntry) => ({
-            [mapEntry.key]: mapEntry.value,
-          }));
+          processor.ml_inference.output_map = outputMap.map((mapFormValue) =>
+            mergeMapIntoSingleObj(mapFormValue)
+          );
         }
 
         processorsList.push(processor);
@@ -257,4 +251,18 @@ export function reduceToTemplate(workflow: Workflow): WorkflowTemplate {
     ...workflowTemplate
   } = workflow;
   return workflowTemplate;
+}
+
+// Helper fn to merge the form map (an arr of objs) into a single obj, such that each key
+// is an obj property, and each value is a property value. Used to format into the
+// expected inputs for input_maps and output_maps of the ML inference processors.
+function mergeMapIntoSingleObj(mapFormValue: MapFormValue): {} {
+  let curMap = {} as MapEntry;
+  mapFormValue.forEach((mapEntry) => {
+    curMap = {
+      ...curMap,
+      [mapEntry.key]: mapEntry.value,
+    };
+  });
+  return curMap;
 }

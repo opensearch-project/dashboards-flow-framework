@@ -33,6 +33,7 @@ interface MapArrayFieldProps {
   keyPlaceholder?: string;
   valuePlaceholder?: string;
   onFormChange: () => void;
+  onMapDelete?: (idxToDelete: number) => void;
 }
 
 /**
@@ -60,6 +61,9 @@ export function MapArrayField(props: MapArrayFieldProps) {
     setFieldValue(props.fieldPath, updatedMapArray);
     setFieldTouched(props.fieldPath, true);
     props.onFormChange();
+    if (props.onMapDelete) {
+      props.onMapDelete(entryIndexToDelete);
+    }
   }
 
   return (
@@ -115,8 +119,8 @@ export function MapArrayField(props: MapArrayFieldProps) {
                           <EuiPanel grow={false}>
                             <MapField
                               fieldPath={`${props.fieldPath}.${idx}`}
-                              keyPlaceholder="Model input field"
-                              valuePlaceholder="Document field"
+                              keyPlaceholder={props.keyPlaceholder}
+                              valuePlaceholder={props.valuePlaceholder}
                               onFormChange={props.onFormChange}
                             />
                           </EuiPanel>
