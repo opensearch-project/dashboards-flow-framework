@@ -149,6 +149,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
               </EuiText>
               <EuiSpacer size="s" />
+              {/**TODO update to be map array field */}
               <MapField
                 field={props.outputMapField}
                 fieldPath={props.outputMapFieldPath}

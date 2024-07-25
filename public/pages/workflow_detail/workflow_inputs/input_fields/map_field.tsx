@@ -16,16 +16,14 @@ import {
 } from '@elastic/eui';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
-  IConfigField,
   MapEntry,
   MapFormValue,
   WorkflowFormValues,
 } from '../../../../../common';
 
 interface MapFieldProps {
-  field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
-  label: string;
+  label?: string;
   helpLink?: string;
   helpText?: string;
   keyPlaceholder?: string;
@@ -62,7 +60,7 @@ export function MapField(props: MapFieldProps) {
   }
 
   return (
-    <Field name={props.fieldPath}>
+    <Field name={props.fieldPath} key={props.fieldPath}>
       {({ field, form }: FieldProps) => {
         return (
           <EuiFormRow

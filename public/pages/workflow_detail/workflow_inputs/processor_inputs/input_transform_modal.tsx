@@ -149,6 +149,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
               </EuiText>
               <EuiSpacer size="s" />
+              {/**TODO update to be map array field */}
               <MapField
                 field={props.inputMapField}
                 fieldPath={props.inputMapFieldPath}

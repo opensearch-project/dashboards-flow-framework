@@ -17,7 +17,7 @@ import {
   IndexConfig,
   IProcessorConfig,
   MLInferenceProcessor,
-  MapFormValue,
+  MapArrayFormValue,
   IngestProcessor,
   Workflow,
   WorkflowTemplate,
@@ -145,8 +145,8 @@ export function processorConfigsToTemplateProcessors(
           processorConfig
         ) as {
           model: ModelFormValue;
-          inputMap: MapFormValue;
-          outputMap: MapFormValue;
+          inputMap: MapArrayFormValue;
+          outputMap: MapArrayFormValue;
         };
 
         let processor = {
@@ -155,10 +155,19 @@ export function processorConfigsToTemplateProcessors(
           },
         } as MLInferenceProcessor;
         if (inputMap?.length > 0) {
-          processor.ml_inference.input_map = inputMap.map((mapEntry) => ({
-            [mapEntry.key]: mapEntry.value,
-          }));
+          processor.ml_inference.input_map = inputMap.map((mapFormValue) => {
+            let curMap = {} as { key: string; value: string };
+            mapFormValue.forEach((mapEntry) => {
+              curMap = {
+                ...curMap,
+                [mapEntry.key]: mapEntry.value,
+              };
+            });
+            return curMap;
+          });
         }
+
+        // TODO complete for output map
         if (outputMap?.length > 0) {
           processor.ml_inference.output_map = outputMap.map((mapEntry) => ({
             [mapEntry.key]: mapEntry.value,

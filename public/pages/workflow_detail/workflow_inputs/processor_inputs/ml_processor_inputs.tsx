@@ -21,7 +21,7 @@ import {
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
 } from '../../../../../common';
-import { MapField, ModelField } from '../input_fields';
+import { MapField, MapArrayField, ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
 import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
@@ -121,7 +121,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
           </EuiText>
           <EuiSpacer size="s" />
-          <MapField
+          <MapArrayField
             field={inputMapField}
             fieldPath={inputMapFieldPath}
             label="Input Map"
@@ -152,6 +152,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
+          {/**TODO update to be map array field */}
           <MapField
             field={outputMapField}
             fieldPath={outputMapFieldPath}
