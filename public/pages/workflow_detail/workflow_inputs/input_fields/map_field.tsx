@@ -64,6 +64,7 @@ export function MapField(props: MapFieldProps) {
       {({ field, form }: FieldProps) => {
         return (
           <EuiFormRow
+            fullWidth={true}
             key={props.fieldPath}
             label={props.label}
             labelAppend={
@@ -93,9 +94,10 @@ export function MapField(props: MapFieldProps) {
               {field.value?.map((mapping: MapEntry, idx: number) => {
                 return (
                   <EuiFlexItem key={idx}>
-                    <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                      <EuiFlexItem grow={false}>
+                    <EuiFlexGroup direction="row">
+                      <EuiFlexItem grow={true}>
                         <EuiFormControlLayoutDelimited
+                          fullWidth={true}
                           startControl={
                             <input
                               type="string"

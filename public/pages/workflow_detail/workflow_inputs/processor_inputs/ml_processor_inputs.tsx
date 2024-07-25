@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import {
   EuiButtonEmpty,
+  EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
@@ -51,10 +52,12 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     (field) => field.id === 'inputMap'
   ) as IConfigField;
   const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${inputMapField.id}`;
+  const inputMapValue = getIn(values, inputMapFieldPath);
   const outputMapField = props.config.fields.find(
     (field) => field.id === 'outputMap'
   ) as IConfigField;
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
+  const outputMapValue = getIn(values, outputMapFieldPath);
 
   // advanced transformations modal state
   const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
@@ -163,6 +166,16 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             onFormChange={props.onFormChange}
           />
           <EuiSpacer size="s" />
+          {inputMapValue.length !== outputMapValue.length &&
+            inputMapValue.length > 0 &&
+            outputMapValue.length > 0 && (
+              <EuiCallOut
+                size="s"
+                title="Input and output maps must have equal length if both are defined"
+                iconType={'alert'}
+                color="danger"
+              />
+            )}
         </>
       )}
     </>

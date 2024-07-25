@@ -71,6 +71,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
       {({ field, form }: FieldProps) => {
         return (
           <EuiFormRow
+            fullWidth={true}
             key={props.fieldPath}
             label={props.label}
             labelAppend={
@@ -111,21 +112,14 @@ export function MapArrayField(props: MapArrayFieldProps) {
                         />
                       }
                     >
-                      <EuiFlexGroup
-                        direction="row"
-                        justifyContent="spaceBetween"
-                      >
-                        <EuiFlexItem grow={false}>
-                          <EuiPanel grow={false}>
-                            <MapField
-                              fieldPath={`${props.fieldPath}.${idx}`}
-                              keyPlaceholder={props.keyPlaceholder}
-                              valuePlaceholder={props.valuePlaceholder}
-                              onFormChange={props.onFormChange}
-                            />
-                          </EuiPanel>
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
+                      <EuiPanel grow={true}>
+                        <MapField
+                          fieldPath={`${props.fieldPath}.${idx}`}
+                          keyPlaceholder={props.keyPlaceholder}
+                          valuePlaceholder={props.valuePlaceholder}
+                          onFormChange={props.onFormChange}
+                        />
+                      </EuiPanel>
                     </EuiAccordion>
                   </EuiFlexItem>
                 );
