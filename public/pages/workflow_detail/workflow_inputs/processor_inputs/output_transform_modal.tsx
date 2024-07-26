@@ -16,6 +16,8 @@ import {
   EuiModalFooter,
   EuiModalHeader,
   EuiModalHeaderTitle,
+  EuiSelect,
+  EuiSelectOption,
   EuiSpacer,
   EuiText,
 } from '@elastic/eui';
@@ -24,6 +26,8 @@ import {
   IProcessorConfig,
   IngestPipelineConfig,
   JSONPATH_ROOT_SELECTOR,
+  ML_INFERENCE_DOCS_LINK,
+  MapArrayFormValue,
   PROCESSOR_CONTEXT,
   SimulateIngestPipelineResponse,
   WorkflowConfig,
@@ -37,7 +41,7 @@ import {
 } from '../../../../utils';
 import { simulatePipeline, useAppDispatch } from '../../../../store';
 import { getCore } from '../../../../services';
-import { MapField } from '../input_fields';
+import { MapArrayField } from '../input_fields';
 
 interface OutputTransformModalProps {
   uiConfig: WorkflowConfig;
@@ -58,10 +62,19 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
 
   // source input / transformed output state
   const [sourceInput, setSourceInput] = useState<string>('[]');
-  const [transformedOutput, setTransformedOutput] = useState<string>('[]');
+  const [transformedOutput, setTransformedOutput] = useState<string>('{}');
 
   // get the current output map
-  const map = getIn(values, `ingest.enrich.${props.config.id}.outputMap`);
+  const map = getIn(values, props.outputMapFieldPath) as MapArrayFormValue;
+
+  // selected output state
+  const outputOptions = map.map((_, idx) => ({
+    value: idx,
+    text: `Prediction output ${idx + 1}`,
+  })) as EuiSelectOption[];
+  const [selectedOutputOption, setSelectedOutputOption] = useState<
+    number | undefined
+  >((outputOptions[0]?.value as number) ?? undefined);
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -149,36 +162,62 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
               </EuiText>
               <EuiSpacer size="s" />
-              <MapField
+              <MapArrayField
                 field={props.outputMapField}
                 fieldPath={props.outputMapFieldPath}
-                label="Output map"
-                helpText={`An array specifying how to map fields from the model's output to the new document fields.`}
-                helpLink={
-                  'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
-                }
+                label="Output Map"
+                helpText={`An array specifying how to map the model’s output to new fields.`}
+                helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="New document field"
                 valuePlaceholder="Model output field"
                 onFormChange={props.onFormChange}
+                // If the map we are adding is the first one, populate the selected option to index 0
+                onMapAdd={(curArray) => {
+                  if (isEmpty(curArray)) {
+                    setSelectedOutputOption(0);
+                  }
+                }}
+                // If the map we are deleting is the one we last used to test, reset the state and
+                // default to the first map in the list.
+                onMapDelete={(idxToDelete) => {
+                  if (selectedOutputOption === idxToDelete) {
+                    setSelectedOutputOption(0);
+                    setTransformedOutput('{}');
+                  }
+                }}
               />
             </>
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiText>Expected output</EuiText>
+              <EuiSelect
+                prepend={<EuiText>Expected output for</EuiText>}
+                compressed={true}
+                options={outputOptions}
+                value={selectedOutputOption}
+                onChange={(e) => {
+                  setSelectedOutputOption(Number(e.target.value));
+                  setTransformedOutput('{}');
+                }}
+              />
+              <EuiSpacer size="s" />
               <EuiButton
                 style={{ width: '100px' }}
                 disabled={isEmpty(map) || isEmpty(JSON.parse(sourceInput))}
                 onClick={async () => {
                   switch (props.context) {
                     case PROCESSOR_CONTEXT.INGEST: {
-                      if (!isEmpty(map) && !isEmpty(JSON.parse(sourceInput))) {
+                      if (
+                        !isEmpty(map) &&
+                        !isEmpty(JSON.parse(sourceInput)) &&
+                        selectedOutputOption !== undefined
+                      ) {
                         let sampleSourceInput = {};
                         try {
                           sampleSourceInput = JSON.parse(sourceInput)[0];
                           const output = generateTransform(
                             sampleSourceInput,
-                            map
+                            map[selectedOutputOption]
                           );
                           setTransformedOutput(
                             JSON.stringify(output, undefined, 2)

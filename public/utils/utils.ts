@@ -8,6 +8,7 @@ import jsonpath from 'jsonpath';
 import { get } from 'lodash';
 import {
   JSONPATH_ROOT_SELECTOR,
+  MapFormValue,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
   WORKFLOW_RESOURCE_TYPE,
@@ -157,10 +158,7 @@ export function unwrapTransformedDocs(
 
 // ML inference processors will use standard dot notation or JSONPath depending on the input.
 // We follow the same logic here to generate consistent results.
-export function generateTransform(
-  input: {},
-  map: { key: string; value: string }[]
-): {} {
+export function generateTransform(input: {}, map: MapFormValue): {} {
   let output = {};
   map.forEach((mapEntry) => {
     const path = mapEntry.value;

@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import {
   EuiButtonEmpty,
+  EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
@@ -21,7 +22,7 @@ import {
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
 } from '../../../../../common';
-import { MapField, ModelField } from '../input_fields';
+import { MapArrayField, ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
 import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
@@ -51,10 +52,12 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     (field) => field.id === 'inputMap'
   ) as IConfigField;
   const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${inputMapField.id}`;
+  const inputMapValue = getIn(values, inputMapFieldPath);
   const outputMapField = props.config.fields.find(
     (field) => field.id === 'outputMap'
   ) as IConfigField;
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
+  const outputMapValue = getIn(values, outputMapFieldPath);
 
   // advanced transformations modal state
   const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
@@ -121,7 +124,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
           </EuiText>
           <EuiSpacer size="s" />
-          <MapField
+          <MapArrayField
             field={inputMapField}
             fieldPath={inputMapFieldPath}
             label="Input Map"
@@ -152,7 +155,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
-          <MapField
+          <MapArrayField
             field={outputMapField}
             fieldPath={outputMapFieldPath}
             label="Output Map"
@@ -163,6 +166,16 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             onFormChange={props.onFormChange}
           />
           <EuiSpacer size="s" />
+          {inputMapValue.length !== outputMapValue.length &&
+            inputMapValue.length > 0 &&
+            outputMapValue.length > 0 && (
+              <EuiCallOut
+                size="s"
+                title="Input and output maps must have equal length if both are defined"
+                iconType={'alert'}
+                color="danger"
+              />
+            )}
         </>
       )}
     </>

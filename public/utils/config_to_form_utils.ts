@@ -15,7 +15,6 @@ import {
   ConfigFieldType,
   ConfigFieldValue,
   ModelFormValue,
-  FETCH_ALL_QUERY_BODY,
 } from '../../common';
 
 /*
@@ -122,6 +121,9 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
     }
     case 'jsonArray': {
       return '[]';
+    }
+    case 'mapArray': {
+      return [];
     }
   }
 }

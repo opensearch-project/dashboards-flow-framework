@@ -16,6 +16,8 @@ import {
   EuiModalFooter,
   EuiModalHeader,
   EuiModalHeaderTitle,
+  EuiSelect,
+  EuiSelectOption,
   EuiSpacer,
   EuiText,
 } from '@elastic/eui';
@@ -25,6 +27,7 @@ import {
   IngestPipelineConfig,
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
+  MapArrayFormValue,
   PROCESSOR_CONTEXT,
   SimulateIngestPipelineResponse,
   WorkflowConfig,
@@ -38,7 +41,7 @@ import {
 } from '../../../../utils';
 import { simulatePipeline, useAppDispatch } from '../../../../store';
 import { getCore } from '../../../../services';
-import { MapField } from '../input_fields';
+import { MapArrayField } from '../input_fields';
 
 interface InputTransformModalProps {
   uiConfig: WorkflowConfig;
@@ -50,6 +53,10 @@ interface InputTransformModalProps {
   onFormChange: () => void;
 }
 
+// TODO: InputTransformModal and OutputTransformModal are very similar, and can
+// likely be refactored and have more reusable components. Leave as-is until the
+// UI is more finalized.
+
 /**
  * A modal to configure advanced JSON-to-JSON transforms into a model's expected input
  */
@@ -59,10 +66,19 @@ export function InputTransformModal(props: InputTransformModalProps) {
 
   // source input / transformed output state
   const [sourceInput, setSourceInput] = useState<string>('[]');
-  const [transformedOutput, setTransformedOutput] = useState<string>('[]');
+  const [transformedOutput, setTransformedOutput] = useState<string>('{}');
 
   // get the current input map
-  const map = getIn(values, `ingest.enrich.${props.config.id}.inputMap`);
+  const map = getIn(values, props.inputMapFieldPath) as MapArrayFormValue;
+
+  // selected output state
+  const outputOptions = map.map((_, idx) => ({
+    value: idx,
+    text: `Prediction ${idx + 1}`,
+  })) as EuiSelectOption[];
+  const [selectedOutputOption, setSelectedOutputOption] = useState<
+    number | undefined
+  >((outputOptions[0]?.value as number) ?? undefined);
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -149,34 +165,62 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
               </EuiText>
               <EuiSpacer size="s" />
-              <MapField
+              <MapArrayField
                 field={props.inputMapField}
                 fieldPath={props.inputMapFieldPath}
-                label="Input map"
+                label="Input Map"
                 helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
                 helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="Model input field"
                 valuePlaceholder="Document field"
                 onFormChange={props.onFormChange}
+                // If the map we are adding is the first one, populate the selected option to index 0
+                onMapAdd={(curArray) => {
+                  if (isEmpty(curArray)) {
+                    setSelectedOutputOption(0);
+                  }
+                }}
+                // If the map we are deleting is the one we last used to test, reset the state and
+                // default to the first map in the list.
+                onMapDelete={(idxToDelete) => {
+                  if (selectedOutputOption === idxToDelete) {
+                    setSelectedOutputOption(0);
+                    setTransformedOutput('{}');
+                  }
+                }}
               />
             </>
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiText>Expected output</EuiText>
+              <EuiSelect
+                prepend={<EuiText>Expected output for</EuiText>}
+                compressed={true}
+                options={outputOptions}
+                value={selectedOutputOption}
+                onChange={(e) => {
+                  setSelectedOutputOption(Number(e.target.value));
+                  setTransformedOutput('{}');
+                }}
+              />
+              <EuiSpacer size="s" />
               <EuiButton
                 style={{ width: '100px' }}
                 disabled={isEmpty(map) || isEmpty(JSON.parse(sourceInput))}
                 onClick={async () => {
                   switch (props.context) {
                     case PROCESSOR_CONTEXT.INGEST: {
-                      if (!isEmpty(map) && !isEmpty(JSON.parse(sourceInput))) {
+                      if (
+                        !isEmpty(map) &&
+                        !isEmpty(JSON.parse(sourceInput)) &&
+                        selectedOutputOption !== undefined
+                      ) {
                         let sampleSourceInput = {};
                         try {
                           sampleSourceInput = JSON.parse(sourceInput)[0];
                           const output = generateTransform(
                             sampleSourceInput,
-                            map
+                            map[selectedOutputOption]
                           );
                           setTransformedOutput(
                             JSON.stringify(output, undefined, 2)
