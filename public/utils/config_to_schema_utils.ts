@@ -127,12 +127,30 @@ function getFieldSchema(fieldType: ConfigFieldType): Schema {
           try {
             // @ts-ignore
             return Array.isArray(JSON.parse(value));
-            return true;
           } catch (error) {
             return false;
           }
         });
 
+      break;
+    }
+    case 'mapArray': {
+      baseSchema = yup.array().of(
+        yup.array().of(
+          yup.object().shape({
+            key: yup
+              .string()
+              .min(1, 'Too short')
+              .max(70, 'Too long')
+              .required(),
+            value: yup
+              .string()
+              .min(1, 'Too short')
+              .max(70, 'Too long')
+              .required(),
+          })
+        )
+      );
       break;
     }
   }

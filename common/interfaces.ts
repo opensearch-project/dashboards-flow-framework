@@ -23,7 +23,8 @@ export type ConfigFieldType =
   | 'jsonArray'
   | 'select'
   | 'model'
-  | 'map';
+  | 'map'
+  | 'mapArray';
 export type ConfigFieldValue = string | {};
 export interface IConfigField {
   type: ConfigFieldType;
@@ -80,6 +81,8 @@ export type MapEntry = {
 };
 
 export type MapFormValue = MapEntry[];
+
+export type MapArrayFormValue = MapFormValue[];
 
 export type WorkflowFormValues = {
   ingest: FormikValues;
