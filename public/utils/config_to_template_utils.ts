@@ -139,10 +139,8 @@ export function processorConfigsToTemplateProcessors(
   const processorsList = [] as (IngestProcessor | SearchProcessor)[];
 
   processorConfigs.forEach((processorConfig) => {
-    // TODO: support more processor types
     switch (processorConfig.type) {
-      case PROCESSOR_TYPE.ML:
-      default: {
+      case PROCESSOR_TYPE.ML: {
         const { model, inputMap, outputMap } = processorConfigToFormik(
           processorConfig
         ) as {
@@ -167,8 +165,23 @@ export function processorConfigsToTemplateProcessors(
             mergeMapIntoSingleObj(mapFormValue)
           );
         }
-
         processorsList.push(processor);
+        break;
+      }
+      case PROCESSOR_TYPE.SPLIT: {
+        const { field, separator } = processorConfigToFormik(
+          processorConfig
+        ) as { field: string; separator: string };
+        processorsList.push({
+          split: {
+            field,
+            separator,
+          },
+        });
+        break;
+      }
+      default: {
+        break;
       }
     }
   });

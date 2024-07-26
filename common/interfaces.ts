@@ -29,6 +29,7 @@ export type ConfigFieldValue = string | {};
 export interface IConfigField {
   type: ConfigFieldType;
   id: string;
+  label?: string;
   value?: ConfigFieldValue;
 }
 export interface IConfig {
@@ -195,20 +196,6 @@ export type MLInferenceProcessor = IngestProcessor & {
     model_id: string;
     input_map?: {};
     output_map?: {};
-  };
-};
-
-export type TextEmbeddingProcessor = IngestProcessor & {
-  text_embedding: {
-    model_id: string;
-    field_map: {};
-  };
-};
-
-export type SparseEncodingProcessor = IngestProcessor & {
-  sparse_encoding: {
-    model_id: string;
-    field_map: {};
   };
 };
 

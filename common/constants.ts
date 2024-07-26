@@ -99,10 +99,7 @@ export enum COMPONENT_CLASS {
   TRANSFORMER = 'transformer',
   JSON_TO_JSON_TRANSFORMER = 'json_to_json_transformer',
   ML_TRANSFORMER = 'ml_transformer',
-  TEXT_EMBEDDING_TRANSFORMER = 'text_embedding_transformer',
-  SPARSE_ENCODER_TRANSFORMER = 'sparse_encoder_transformer',
   RESULTS_TRANSFORMER = 'results_transformer',
-  NORMALIZATION_TRANSFORMER = 'normalization_transformer',
   // Query-related classes
   QUERY = 'query',
   MATCH_QUERY = 'match_query',

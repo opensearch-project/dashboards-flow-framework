@@ -198,37 +198,27 @@ export function ProcessorsList(props: ProcessorsListProps) {
                 {
                   id: PANEL_ID,
                   title: 'Processors',
-                  // TODO: add more processor types
-                  items: [
-                    {
-                      name: 'ML Inference Processor',
-                      onClick: () => {
-                        closePopover();
-                        const processorToAdd =
-                          props.context === PROCESSOR_CONTEXT.INGEST
-                            ? new MLIngestProcessor()
-                            : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                            ? new MLSearchRequestProcessor()
-                            : new MLSearchResponseProcessor();
-                        addProcessor(processorToAdd.toObj());
-                      },
-                    },
-                    // TODO: need to refactor, since lists will be different depending
-                    // on ingest / search req / search resp
-                    {
-                      name: 'Split Processor',
-                      onClick: () => {
-                        closePopover();
-                        const processorToAdd =
-                          props.context === PROCESSOR_CONTEXT.INGEST
-                            ? new SplitIngestProcessor()
-                            : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                            ? new MLSearchRequestProcessor()
-                            : new MLSearchResponseProcessor();
-                        addProcessor(processorToAdd.toObj());
-                      },
-                    },
-                  ],
+                  items:
+                    props.context === PROCESSOR_CONTEXT.INGEST
+                      ? [
+                          {
+                            name: 'ML Inference Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(new MLIngestProcessor().toObj());
+                            },
+                          },
+                          {
+                            name: 'Split Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(new SplitIngestProcessor().toObj());
+                            },
+                          },
+                        ]
+                      : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                      ? []
+                      : [],
                 },
               ]}
             />

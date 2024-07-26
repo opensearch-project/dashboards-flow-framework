@@ -12,6 +12,7 @@ import {
   WorkflowConfig,
 } from '../../../../../common';
 import { MLProcessorInputs } from './ml_processor_inputs';
+import { ConfigFieldList } from '../config_field_list';
 
 /**
  * Base component for rendering processor form inputs based on the processor type
@@ -45,6 +46,18 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                   context={props.context}
                 />
                 <EuiSpacer size={PROCESSOR_INPUTS_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
+          default: {
+            el = (
+              <EuiFlexItem>
+                <ConfigFieldList
+                  config={props.config}
+                  baseConfigPath={props.baseConfigPath}
+                  onFormChange={props.onFormChange}
+                />
               </EuiFlexItem>
             );
             break;

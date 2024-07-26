@@ -13,15 +13,18 @@ import { Processor } from './processor';
 export abstract class SplitProcessor extends Processor {
   constructor() {
     super();
-    (this.type = PROCESSOR_TYPE.SPLIT), (this.name = 'Split Processor');
+    this.type = PROCESSOR_TYPE.SPLIT;
+    this.name = 'Split Processor';
     this.fields = [
       {
         id: 'field',
         type: 'string',
+        label: 'Field',
       },
       {
         id: 'separator',
         type: 'string',
+        label: 'Separator',
       },
     ];
   }
