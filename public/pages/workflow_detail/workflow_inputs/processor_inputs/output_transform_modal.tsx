@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { useFormikContext, getIn } from 'formik';
-import { cloneDeep, isEmpty, set, get } from 'lodash';
+import { cloneDeep, isEmpty, set } from 'lodash';
 import {
   EuiButton,
   EuiCodeEditor,
@@ -65,10 +65,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
   const [transformedOutput, setTransformedOutput] = useState<string>('{}');
 
   // get the current output map
-  const map = getIn(
-    values,
-    `ingest.enrich.${props.config.id}.outputMap`
-  ) as MapArrayFormValue;
+  const map = getIn(values, props.outputMapFieldPath) as MapArrayFormValue;
 
   // selected output state
   const outputOptions = map.map((_, idx) => ({
@@ -77,11 +74,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
   })) as EuiSelectOption[];
   const [selectedOutputOption, setSelectedOutputOption] = useState<
     number | undefined
-  >(
-    get(outputOptions, '0.value') !== undefined
-      ? (outputOptions[0].value as number)
-      : undefined
-  );
+  >((outputOptions[0]?.value as number) ?? undefined);
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
