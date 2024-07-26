@@ -64,6 +64,7 @@ export enum WORKFLOW_TYPE {
 
 export enum PROCESSOR_TYPE {
   ML = 'ml_processor',
+  SPLIT = 'split_processor',
 }
 
 export enum MODEL_TYPE {

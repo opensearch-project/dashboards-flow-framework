@@ -28,6 +28,7 @@ import {
   MLIngestProcessor,
   MLSearchRequestProcessor,
   MLSearchResponseProcessor,
+  SplitIngestProcessor,
 } from '../../../configs';
 import { ProcessorInputs } from './processor_inputs';
 
@@ -206,6 +207,21 @@ export function ProcessorsList(props: ProcessorsListProps) {
                         const processorToAdd =
                           props.context === PROCESSOR_CONTEXT.INGEST
                             ? new MLIngestProcessor()
+                            : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                            ? new MLSearchRequestProcessor()
+                            : new MLSearchResponseProcessor();
+                        addProcessor(processorToAdd.toObj());
+                      },
+                    },
+                    // TODO: need to refactor, since lists will be different depending
+                    // on ingest / search req / search resp
+                    {
+                      name: 'Split Processor',
+                      onClick: () => {
+                        closePopover();
+                        const processorToAdd =
+                          props.context === PROCESSOR_CONTEXT.INGEST
+                            ? new SplitIngestProcessor()
                             : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                             ? new MLSearchRequestProcessor()
                             : new MLSearchResponseProcessor();

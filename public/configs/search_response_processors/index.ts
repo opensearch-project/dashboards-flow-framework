@@ -4,3 +4,4 @@
  */
 
 export * from './ml_search_response_processor';
+export * from './split_search_response_processor';
