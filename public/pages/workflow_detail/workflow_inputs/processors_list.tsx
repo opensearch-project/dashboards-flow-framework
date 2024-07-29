@@ -27,7 +27,9 @@ import { formikToUiConfig } from '../../../utils';
 import {
   MLIngestProcessor,
   SortIngestProcessor,
+  SortSearchResponseProcessor,
   SplitIngestProcessor,
+  SplitSearchResponseProcessor,
 } from '../../../configs';
 import { ProcessorInputs } from './processor_inputs';
 
@@ -222,10 +224,30 @@ export function ProcessorsList(props: ProcessorsListProps) {
                             },
                           },
                         ]
-                      : // TODO: populate search req / search resp processors
+                      : // TODO: populate more search req / search resp processors.
+                      // Ref: https://github.com/opensearch-project/dashboards-flow-framework/issues/219
                       props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                       ? []
-                      : [],
+                      : [
+                          {
+                            name: 'Split Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(
+                                new SplitSearchResponseProcessor().toObj()
+                              );
+                            },
+                          },
+                          {
+                            name: 'Sort Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(
+                                new SortSearchResponseProcessor().toObj()
+                              );
+                            },
+                          },
+                        ],
                 },
               ]}
             />
