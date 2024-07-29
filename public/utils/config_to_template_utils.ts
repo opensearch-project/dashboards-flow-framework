@@ -133,6 +133,8 @@ function searchConfigToTemplateNodes(
 
 // General fn to process all processor configs and convert them
 // into a final list of template-formatted IngestProcessor/SearchProcessors.
+// TODO: improve the type safety of the returned form values. Have defined interfaces
+// for each processor type, including the handling of any configured optional fields
 export function processorConfigsToTemplateProcessors(
   processorConfigs: IProcessorConfig[]
 ): (IngestProcessor | SearchProcessor)[] {
@@ -176,6 +178,19 @@ export function processorConfigsToTemplateProcessors(
           split: {
             field,
             separator,
+          },
+        });
+        break;
+      }
+      case PROCESSOR_TYPE.SORT: {
+        const { field, order } = processorConfigToFormik(processorConfig) as {
+          field: string;
+          order: string;
+        };
+        processorsList.push({
+          sort: {
+            field,
+            order,
           },
         });
         break;

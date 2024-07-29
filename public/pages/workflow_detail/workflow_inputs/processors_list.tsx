@@ -26,8 +26,7 @@ import {
 import { formikToUiConfig } from '../../../utils';
 import {
   MLIngestProcessor,
-  MLSearchRequestProcessor,
-  MLSearchResponseProcessor,
+  SortIngestProcessor,
   SplitIngestProcessor,
 } from '../../../configs';
 import { ProcessorInputs } from './processor_inputs';
@@ -215,8 +214,16 @@ export function ProcessorsList(props: ProcessorsListProps) {
                               addProcessor(new SplitIngestProcessor().toObj());
                             },
                           },
+                          {
+                            name: 'Sort Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(new SortIngestProcessor().toObj());
+                            },
+                          },
                         ]
-                      : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                      : // TODO: populate search req / search resp processors
+                      props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                       ? []
                       : [],
                 },

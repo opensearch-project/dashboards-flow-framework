@@ -25,13 +25,18 @@ export type ConfigFieldType =
   | 'model'
   | 'map'
   | 'mapArray';
+
 export type ConfigFieldValue = string | {};
+
 export interface IConfigField {
   type: ConfigFieldType;
   id: string;
+  optional?: boolean;
   label?: string;
   value?: ConfigFieldValue;
+  selectOptions?: ConfigFieldValue[];
 }
+
 export interface IConfig {
   id: string;
   name: string;

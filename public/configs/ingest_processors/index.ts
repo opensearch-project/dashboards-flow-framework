@@ -4,4 +4,5 @@
  */
 
 export * from './ml_ingest_processor';
-export * from './split_processor';
+export * from './split_ingest_processor';
+export * from './sort_ingest_processor';

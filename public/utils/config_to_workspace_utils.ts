@@ -302,7 +302,15 @@ function processorsConfigToWorkspaceFlow(
       case PROCESSOR_TYPE.SPLIT: {
         transformer = new BaseTransformer(
           processorConfig.name,
-          'A text splitting processor'
+          'A processor to split a string field into an array of substrings'
+        );
+        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
+        break;
+      }
+      case PROCESSOR_TYPE.SORT: {
+        transformer = new BaseTransformer(
+          processorConfig.name,
+          'A processor to sort an array of items in either ascending or descending order'
         );
         transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
         break;
