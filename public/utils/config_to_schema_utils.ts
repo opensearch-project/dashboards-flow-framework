@@ -13,7 +13,7 @@ import {
   ProcessorsConfig,
   WorkflowSchemaObj,
   IndexConfig,
-  ConfigFieldType,
+  IConfigField,
 } from '../../common';
 
 /*
@@ -32,7 +32,9 @@ function ingestConfigToSchema(
 ): ObjectSchema<any> {
   const ingestSchemaObj = {} as { [key: string]: Schema };
   if (ingestConfig) {
-    ingestSchemaObj['docs'] = getFieldSchema('jsonArray');
+    ingestSchemaObj['docs'] = getFieldSchema({
+      type: 'jsonArray',
+    } as IConfigField);
     ingestSchemaObj['enrich'] = processorsConfigToSchema(ingestConfig.enrich);
     ingestSchemaObj['index'] = indexConfigToSchema(ingestConfig.index);
   }
@@ -41,9 +43,9 @@ function ingestConfigToSchema(
 
 function indexConfigToSchema(indexConfig: IndexConfig): Schema {
   const indexSchemaObj = {} as { [key: string]: Schema };
-  indexSchemaObj['name'] = getFieldSchema(indexConfig.name.type);
-  indexSchemaObj['mappings'] = getFieldSchema(indexConfig.mappings.type);
-  indexSchemaObj['settings'] = getFieldSchema(indexConfig.settings.type);
+  indexSchemaObj['name'] = getFieldSchema(indexConfig.name);
+  indexSchemaObj['mappings'] = getFieldSchema(indexConfig.mappings);
+  indexSchemaObj['settings'] = getFieldSchema(indexConfig.settings);
   return yup.object(indexSchemaObj);
 }
 
@@ -52,7 +54,9 @@ function searchConfigToSchema(
 ): ObjectSchema<any> {
   const searchSchemaObj = {} as { [key: string]: Schema };
   if (searchConfig) {
-    searchSchemaObj['request'] = getFieldSchema('json');
+    searchSchemaObj['request'] = getFieldSchema({
+      type: 'json',
+    } as IConfigField);
     searchSchemaObj['enrichRequest'] = processorsConfigToSchema(
       searchConfig.enrichRequest
     );
@@ -68,7 +72,7 @@ function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
   processorsConfig.processors.forEach((processorConfig) => {
     const processorSchemaObj = {} as { [key: string]: Schema };
     processorConfig.fields.forEach((field) => {
-      processorSchemaObj[field.id] = getFieldSchema(field.type);
+      processorSchemaObj[field.id] = getFieldSchema(field);
     });
     processorsSchemaObj[processorConfig.id] = yup.object(processorSchemaObj);
   });
@@ -80,9 +84,9 @@ function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
  **************** Yup (validation) utils **********************
  */
 
-function getFieldSchema(fieldType: ConfigFieldType): Schema {
+function getFieldSchema(field: IConfigField): Schema {
   let baseSchema: Schema;
-  switch (fieldType) {
+  switch (field.type) {
     case 'string':
     case 'select': {
       baseSchema = yup.string().min(1, 'Too short').max(70, 'Too long');
@@ -155,10 +159,7 @@ function getFieldSchema(fieldType: ConfigFieldType): Schema {
     }
   }
 
-  // TODO: make optional schema if we support optional fields in the future
-  // return field.optional
-  //   ? baseSchema.optional()
-  //   : baseSchema.required('Required');
-
-  return baseSchema.required('Required');
+  return field.optional
+    ? baseSchema.optional()
+    : baseSchema.required('Required');
 }

@@ -26,8 +26,10 @@ import {
 import { formikToUiConfig } from '../../../utils';
 import {
   MLIngestProcessor,
-  MLSearchRequestProcessor,
-  MLSearchResponseProcessor,
+  SortIngestProcessor,
+  SortSearchResponseProcessor,
+  SplitIngestProcessor,
+  SplitSearchResponseProcessor,
 } from '../../../configs';
 import { ProcessorInputs } from './processor_inputs';
 
@@ -197,22 +199,55 @@ export function ProcessorsList(props: ProcessorsListProps) {
                 {
                   id: PANEL_ID,
                   title: 'Processors',
-                  // TODO: add more processor types
-                  items: [
-                    {
-                      name: 'ML Inference Processor',
-                      onClick: () => {
-                        closePopover();
-                        const processorToAdd =
-                          props.context === PROCESSOR_CONTEXT.INGEST
-                            ? new MLIngestProcessor()
-                            : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                            ? new MLSearchRequestProcessor()
-                            : new MLSearchResponseProcessor();
-                        addProcessor(processorToAdd.toObj());
-                      },
-                    },
-                  ],
+                  items:
+                    props.context === PROCESSOR_CONTEXT.INGEST
+                      ? [
+                          {
+                            name: 'ML Inference Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(new MLIngestProcessor().toObj());
+                            },
+                          },
+                          {
+                            name: 'Split Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(new SplitIngestProcessor().toObj());
+                            },
+                          },
+                          {
+                            name: 'Sort Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(new SortIngestProcessor().toObj());
+                            },
+                          },
+                        ]
+                      : // TODO: populate more search req / search resp processors.
+                      // Ref: https://github.com/opensearch-project/dashboards-flow-framework/issues/219
+                      props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                      ? []
+                      : [
+                          {
+                            name: 'Split Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(
+                                new SplitSearchResponseProcessor().toObj()
+                              );
+                            },
+                          },
+                          {
+                            name: 'Sort Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(
+                                new SortSearchResponseProcessor().toObj()
+                              );
+                            },
+                          },
+                        ],
                 },
               ]}
             />

@@ -12,6 +12,8 @@ export abstract class BaseConfig implements IConfig {
   id: string;
   name: string;
   fields: IConfigField[];
+  // TODO: have a dedicated optional fields list to display more fields & have more
+  // flexibility for the users to customize
 
   // No-op constructor. If there are general / defaults for field values, add in here.
   constructor() {
