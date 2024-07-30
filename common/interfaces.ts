@@ -368,6 +368,7 @@ export type Model = {
   algorithm: MODEL_ALGORITHM;
   state: MODEL_STATE;
   modelConfig?: ModelConfig;
+  interface?: {};
 };
 
 export type ModelDict = {

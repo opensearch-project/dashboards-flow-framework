@@ -56,6 +56,7 @@ export function ModelField(props: ModelFieldProps) {
             id: modelId,
             name: models[modelId].name,
             algorithm: models[modelId].algorithm,
+            interface: models[modelId].interface,
           } as ModelItem);
         }
       });

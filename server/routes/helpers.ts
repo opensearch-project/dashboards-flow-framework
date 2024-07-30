@@ -90,6 +90,20 @@ export function getModelsFromResponses(modelHits: any[]): ModelDict {
     // search model API returns hits for each deployed model chunk. ignore these hits
     if (modelHit._source.chunk_number === undefined) {
       const modelId = modelHit._id;
+
+      // the persisted model interface (if available) is a mix of an obj and string.
+      // We parse the string values for input/output to have a complete
+      // end-to-end JSONSchema obj
+      let modelInterface = modelHit._source.interface as
+        | { input: string; output: string }
+        | undefined;
+      if (modelInterface !== undefined) {
+        modelInterface = {
+          input: JSON.parse(modelInterface.input),
+          output: JSON.parse(modelInterface.output),
+        };
+      }
+
       // in case of schema changes from ML plugin, this may crash. That is ok, as the error
       // produced will help expose the root cause
       modelDict[modelId] = {
@@ -104,6 +118,7 @@ export function getModelsFromResponses(modelHits: any[]): ModelDict {
           embeddingDimension:
             modelHit._source?.model_config?.embedding_dimension,
         },
+        interface: modelInterface,
       } as Model;
     }
   });
