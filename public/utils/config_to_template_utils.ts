@@ -133,16 +133,16 @@ function searchConfigToTemplateNodes(
 
 // General fn to process all processor configs and convert them
 // into a final list of template-formatted IngestProcessor/SearchProcessors.
+// TODO: improve the type safety of the returned form values. Have defined interfaces
+// for each processor type, including the handling of any configured optional fields
 export function processorConfigsToTemplateProcessors(
   processorConfigs: IProcessorConfig[]
 ): (IngestProcessor | SearchProcessor)[] {
   const processorsList = [] as (IngestProcessor | SearchProcessor)[];
 
   processorConfigs.forEach((processorConfig) => {
-    // TODO: support more processor types
     switch (processorConfig.type) {
-      case PROCESSOR_TYPE.ML:
-      default: {
+      case PROCESSOR_TYPE.ML: {
         const { model, inputMap, outputMap } = processorConfigToFormik(
           processorConfig
         ) as {
@@ -167,8 +167,36 @@ export function processorConfigsToTemplateProcessors(
             mergeMapIntoSingleObj(mapFormValue)
           );
         }
-
         processorsList.push(processor);
+        break;
+      }
+      case PROCESSOR_TYPE.SPLIT: {
+        const { field, separator } = processorConfigToFormik(
+          processorConfig
+        ) as { field: string; separator: string };
+        processorsList.push({
+          split: {
+            field,
+            separator,
+          },
+        });
+        break;
+      }
+      case PROCESSOR_TYPE.SORT: {
+        const { field, order } = processorConfigToFormik(processorConfig) as {
+          field: string;
+          order: string;
+        };
+        processorsList.push({
+          sort: {
+            field,
+            order,
+          },
+        });
+        break;
+      }
+      default: {
+        break;
       }
     }
   });

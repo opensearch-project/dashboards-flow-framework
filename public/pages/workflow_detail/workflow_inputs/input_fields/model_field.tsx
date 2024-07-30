@@ -18,6 +18,7 @@ import {
   WorkspaceFormValues,
   ModelFormValue,
   IConfigField,
+  ML_CHOOSE_MODEL_LINK,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 
@@ -70,12 +71,7 @@ export function ModelField(props: ModelFieldProps) {
             label={'Model'}
             labelAppend={
               <EuiText size="xs">
-                <EuiLink
-                  href={
-                    'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model'
-                  }
-                  target="_blank"
-                >
+                <EuiLink href={ML_CHOOSE_MODEL_LINK} target="_blank">
                   Learn more
                 </EuiLink>
               </EuiText>

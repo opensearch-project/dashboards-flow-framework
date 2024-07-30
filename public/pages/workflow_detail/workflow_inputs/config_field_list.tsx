@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { EuiFlexItem, EuiSpacer } from '@elastic/eui';
-import { TextField, ModelField, MapField } from './input_fields';
+import { TextField, ModelField, SelectField } from './input_fields';
 import { IConfig } from '../../../../common';
 
 /**
@@ -29,19 +29,33 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
       {configFields.map((field, idx) => {
         let el;
         switch (field.type) {
-          // case 'string': {
-          //   el = (
-          //     <EuiFlexItem key={idx}>
-          //       <TextField
-          //         field={field}
-          //         fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
-          //         onFormChange={props.onFormChange}
-          //       />
-          //       <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
-          //     </EuiFlexItem>
-          //   );
-          //   break;
-          // }
+          case 'string': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <TextField
+                  // Default to ID if no optional formatted / prettified label provided
+                  label={field.label || field.id}
+                  fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
+                  onFormChange={props.onFormChange}
+                />
+                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
+          case 'select': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <SelectField
+                  field={field}
+                  fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
+                  onFormChange={props.onFormChange}
+                />
+                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
           case 'model': {
             el = (
               <EuiFlexItem key={idx}>
