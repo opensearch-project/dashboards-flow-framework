@@ -362,13 +362,34 @@ export type ModelConfig = {
   embeddingDimension?: number;
 };
 
+// Based off of JSONSchema. For more info, see https://json-schema.org/understanding-json-schema/reference/type
+// TODO: look into if we can use JSONSchema dependency for handling types & type safety
+export type ModelInput = {
+  type: string;
+  description?: string;
+};
+
+export type ModelOutput = ModelInput;
+
+// For rendering options, we extract the name (the key in the input/output obj) and combine into a single obj
+export type ModelInputFormField = ModelInput & {
+  label: string;
+};
+
+export type ModelOutputFormField = ModelInputFormField;
+
+export type ModelInterface = {
+  input: { [key: string]: ModelInput };
+  output: { [key: string]: ModelOutput };
+};
+
 export type Model = {
   id: string;
   name: string;
   algorithm: MODEL_ALGORITHM;
   state: MODEL_STATE;
   modelConfig?: ModelConfig;
-  interface?: {};
+  interface?: ModelInterface;
 };
 
 export type ModelDict = {
