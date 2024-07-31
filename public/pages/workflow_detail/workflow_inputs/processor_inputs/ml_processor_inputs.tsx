@@ -23,15 +23,14 @@ import {
   JSONPATH_ROOT_SELECTOR,
   ModelInputFormField,
   ModelOutputFormField,
+  ML_INFERENCE_DOCS_LINK,
 } from '../../../../../common';
-import { ModelField } from '../input_fields';
+import { MapArrayField, ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
 import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
-import { InputMap } from './input_map';
 import { AppState } from '../../../../store';
 import { parseModelInputs, parseModelOutputs } from '../../../../utils';
-import { OutputMap } from './output_map';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
@@ -42,8 +41,10 @@ interface MLProcessorInputsProps {
 }
 
 /**
- * Component to render ML processor inputs. Offers simple and advanced flows for configuring data transforms
- * before and after executing an ML inference request
+ * Component to render ML processor inputs, including the model selection, and the
+ * optional configurations of input maps and output maps. We persist any model interface
+ * state here as well, to propagate expected model inputs / outputs to to the input map /
+ * output map configuration forms, respectively.
  */
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const models = useSelector((state: AppState) => state.models.models);
@@ -67,7 +68,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   ) as IConfigField;
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
   const outputMapValue = getIn(values, outputMapFieldPath);
-  const processorFieldPath = `${props.baseConfigPath}.${props.config.id}`;
 
   // advanced transformations modal state
   const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
@@ -121,24 +121,24 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     <>
       {isInputTransformModalOpen && (
         <InputTransformModal
-          // TODO: update input modal to take in inputs/outputs if applicable
           uiConfig={props.uiConfig}
           config={props.config}
           context={props.context}
           inputMapField={inputMapField}
           inputMapFieldPath={inputMapFieldPath}
+          inputFields={inputFields}
           onFormChange={props.onFormChange}
           onClose={() => setIsInputTransformModalOpen(false)}
         />
       )}
       {isOutputTransformModalOpen && (
-        // TODO: update input modal to take in inputs/outputs if applicable
         <OutputTransformModal
           uiConfig={props.uiConfig}
           config={props.config}
           context={props.context}
           outputMapField={outputMapField}
           outputMapFieldPath={outputMapFieldPath}
+          outputFields={outputFields}
           onFormChange={props.onFormChange}
           onClose={() => setIsOutputTransformModalOpen(false)}
         />
@@ -178,11 +178,16 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
           </EuiText>
           <EuiSpacer size="s" />
-          <InputMap
-            inputMapField={inputMapField}
-            inputMapFieldPath={inputMapFieldPath}
-            inputFields={inputFields}
+          <MapArrayField
+            field={inputMapField}
+            fieldPath={inputMapFieldPath}
+            label="Input Map"
+            helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
+            helpLink={ML_INFERENCE_DOCS_LINK}
+            keyPlaceholder="Model input field"
+            valuePlaceholder="Document field"
             onFormChange={props.onFormChange}
+            keyOptions={inputFields}
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row">
@@ -205,11 +210,16 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
-          <OutputMap
-            outputMapField={outputMapField}
-            outputMapFieldPath={outputMapFieldPath}
-            outputFields={outputFields}
+          <MapArrayField
+            field={outputMapField}
+            fieldPath={outputMapFieldPath}
+            label="Output Map"
+            helpText={`An array specifying how to map the model’s output to new document fields.`}
+            helpLink={ML_INFERENCE_DOCS_LINK}
+            keyPlaceholder="New document field"
+            valuePlaceholder="Model output field"
             onFormChange={props.onFormChange}
+            valueOptions={outputFields}
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&

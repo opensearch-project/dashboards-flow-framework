@@ -37,7 +37,9 @@ interface MapFieldProps {
 }
 
 /**
- * Input component for configuring field mappings
+ * Input component for configuring field mappings. Input forms are defaulted to text fields. If
+ * keyOptions or valueOptions are set, set the respective input form as a select field, with those options.
+ * Allow custom options as a backup/default to ensure flexibility.
  */
 export function MapField(props: MapFieldProps) {
   const { setFieldValue, setFieldTouched, errors, touched } = useFormikContext<

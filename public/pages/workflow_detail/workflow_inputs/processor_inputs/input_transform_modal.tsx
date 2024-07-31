@@ -49,6 +49,7 @@ interface InputTransformModalProps {
   context: PROCESSOR_CONTEXT;
   inputMapField: IConfigField;
   inputMapFieldPath: string;
+  inputFields: any[];
   onClose: () => void;
   onFormChange: () => void;
 }
@@ -173,6 +174,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="Model input field"
                 valuePlaceholder="Document field"
+                keyOptions={props.inputFields}
                 onFormChange={props.onFormChange}
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {
