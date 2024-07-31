@@ -5,10 +5,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useFormikContext, getIn } from 'formik';
+import { useFormikContext } from 'formik';
 import {
   EuiButton,
-  EuiCodeBlock,
   EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
@@ -25,12 +24,18 @@ import {
 } from '@elastic/eui';
 import { WorkspaceFormValues } from '../../../../../common';
 import { JsonField } from '../input_fields';
-import { AppState, catIndices, useAppDispatch } from '../../../../store';
 import { useLocation } from 'react-router-dom';
 import { getDataSourceFromURL } from '../../../../utils/helpers';
+import {
+  AppState,
+  catIndices,
+  searchIndex,
+  useAppDispatch,
+} from '../../../../store';
 
 interface ConfigureSearchRequestProps {
   setQuery: (query: string) => void;
+  setQueryResponse: (queryResponse: string) => void;
   onFormChange: () => void;
 }
 
@@ -147,9 +152,42 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           </EuiButton>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiCodeBlock language="json" fontSize="m" isCopyable={false}>
-            {getIn(values, 'search.request')}
-          </EuiCodeBlock>
+          <JsonField
+            label="Query"
+            fieldPath={'search.request'}
+            onFormChange={props.onFormChange}
+            editorHeight="25vh"
+            readOnly={true}
+          />
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiButton
+            fill={false}
+            style={{ width: '100px' }}
+            size="s"
+            onClick={() => {
+              // for this test query, we don't want to involve any configured search pipelines, if any exist
+              // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
+              dispatch(
+                searchIndex({
+                  index: indexName,
+                  body: values.search.request,
+                  searchPipeline: '_none',
+                })
+              )
+                .unwrap()
+                .then(async (resp) => {
+                  const hits = resp.hits.hits;
+                  props.setQueryResponse(JSON.stringify(hits, undefined, 2));
+                })
+                .catch((error: any) => {
+                  props.setQueryResponse('');
+                  console.error('Error running query: ', error);
+                });
+            }}
+          >
+            Test
+          </EuiButton>
         </EuiFlexItem>
       </EuiFlexGroup>
     </>

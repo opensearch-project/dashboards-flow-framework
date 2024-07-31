@@ -4,10 +4,9 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useFormikContext, getIn } from 'formik';
+import { useFormikContext } from 'formik';
 import {
   EuiButton,
-  EuiCodeBlock,
   EuiFilePicker,
   EuiFlexGroup,
   EuiFlexItem,
@@ -122,9 +121,15 @@ export function SourceData(props: SourceDataProps) {
           </EuiButton>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiCodeBlock language="json" fontSize="m" isCopyable={false}>
-            {getIn(values, 'ingest.docs')}
-          </EuiCodeBlock>
+          <JsonField
+            fieldPath={'ingest.docs'}
+            helpText="Documents should be formatted as a valid JSON array."
+            // when ingest doc values change, don't update the form
+            // since we initially only support running ingest once per configuration
+            onFormChange={() => {}}
+            editorHeight="25vh"
+            readOnly={true}
+          />
         </EuiFlexItem>
       </EuiFlexGroup>
     </>

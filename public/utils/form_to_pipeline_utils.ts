@@ -25,12 +25,14 @@ import { processorConfigsToTemplateProcessors } from './config_to_template_utils
 export function formikToIngestPipeline(
   values: WorkflowFormValues,
   existingConfig: WorkflowConfig,
-  curProcessorId: string
+  curProcessorId: string,
+  includeCurProcessor: boolean
 ): IngestPipelineConfig | SearchPipelineConfig | undefined {
   const uiConfig = formikToUiConfig(values, existingConfig);
   const precedingProcessors = getPrecedingProcessors(
     uiConfig.ingest.enrich.processors,
-    curProcessorId
+    curProcessorId,
+    includeCurProcessor
   );
   if (!isEmpty(precedingProcessors)) {
     return {
@@ -42,11 +44,15 @@ export function formikToIngestPipeline(
 
 function getPrecedingProcessors(
   allProcessors: IProcessorConfig[],
-  curProcessorId: string
+  curProcessorId: string,
+  includeCurProcessor: boolean
 ): IProcessorConfig[] {
   const precedingProcessors = [] as IProcessorConfig[];
   allProcessors.some((processor) => {
     if (processor.id === curProcessorId) {
+      if (includeCurProcessor) {
+        precedingProcessors.push(processor);
+      }
       return true;
     } else {
       precedingProcessors.push(processor);

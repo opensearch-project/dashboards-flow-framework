@@ -17,7 +17,7 @@ import {
   IndexConfig,
   IProcessorConfig,
   MLInferenceProcessor,
-  MapFormValue,
+  MapArrayFormValue,
   IngestProcessor,
   Workflow,
   WorkflowTemplate,
@@ -25,6 +25,8 @@ import {
   SearchProcessor,
   IngestConfig,
   SearchConfig,
+  MapFormValue,
+  MapEntry,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
 import { generateId } from './utils';
@@ -131,22 +133,22 @@ function searchConfigToTemplateNodes(
 
 // General fn to process all processor configs and convert them
 // into a final list of template-formatted IngestProcessor/SearchProcessors.
+// TODO: improve the type safety of the returned form values. Have defined interfaces
+// for each processor type, including the handling of any configured optional fields
 export function processorConfigsToTemplateProcessors(
   processorConfigs: IProcessorConfig[]
 ): (IngestProcessor | SearchProcessor)[] {
   const processorsList = [] as (IngestProcessor | SearchProcessor)[];
 
   processorConfigs.forEach((processorConfig) => {
-    // TODO: support more processor types
     switch (processorConfig.type) {
-      case PROCESSOR_TYPE.ML:
-      default: {
+      case PROCESSOR_TYPE.ML: {
         const { model, inputMap, outputMap } = processorConfigToFormik(
           processorConfig
         ) as {
           model: ModelFormValue;
-          inputMap: MapFormValue;
-          outputMap: MapFormValue;
+          inputMap: MapArrayFormValue;
+          outputMap: MapArrayFormValue;
         };
 
         let processor = {
@@ -155,17 +157,46 @@ export function processorConfigsToTemplateProcessors(
           },
         } as MLInferenceProcessor;
         if (inputMap?.length > 0) {
-          processor.ml_inference.input_map = inputMap.map((mapEntry) => ({
-            [mapEntry.key]: mapEntry.value,
-          }));
-        }
-        if (outputMap?.length > 0) {
-          processor.ml_inference.output_map = outputMap.map((mapEntry) => ({
-            [mapEntry.key]: mapEntry.value,
-          }));
+          processor.ml_inference.input_map = inputMap.map((mapFormValue) =>
+            mergeMapIntoSingleObj(mapFormValue)
+          );
         }
 
+        if (outputMap?.length > 0) {
+          processor.ml_inference.output_map = outputMap.map((mapFormValue) =>
+            mergeMapIntoSingleObj(mapFormValue)
+          );
+        }
         processorsList.push(processor);
+        break;
+      }
+      case PROCESSOR_TYPE.SPLIT: {
+        const { field, separator } = processorConfigToFormik(
+          processorConfig
+        ) as { field: string; separator: string };
+        processorsList.push({
+          split: {
+            field,
+            separator,
+          },
+        });
+        break;
+      }
+      case PROCESSOR_TYPE.SORT: {
+        const { field, order } = processorConfigToFormik(processorConfig) as {
+          field: string;
+          order: string;
+        };
+        processorsList.push({
+          sort: {
+            field,
+            order,
+          },
+        });
+        break;
+      }
+      default: {
+        break;
       }
     }
   });
@@ -248,4 +279,18 @@ export function reduceToTemplate(workflow: Workflow): WorkflowTemplate {
     ...workflowTemplate
   } = workflow;
   return workflowTemplate;
+}
+
+// Helper fn to merge the form map (an arr of objs) into a single obj, such that each key
+// is an obj property, and each value is a property value. Used to format into the
+// expected inputs for input_maps and output_maps of the ML inference processors.
+function mergeMapIntoSingleObj(mapFormValue: MapFormValue): {} {
+  let curMap = {} as MapEntry;
+  mapFormValue.forEach((mapEntry) => {
+    curMap = {
+      ...curMap,
+      [mapEntry.key]: mapEntry.value,
+    };
+  });
+  return curMap;
 }

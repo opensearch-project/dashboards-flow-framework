@@ -28,13 +28,20 @@ export type Index = {
   | 'jsonArray'
   | 'select'
   | 'model'
-  | 'map';
+  | 'map'
+  | 'mapArray';
+
 export type ConfigFieldValue = string | {};
+
 export interface IConfigField {
   type: ConfigFieldType;
   id: string;
+  optional?: boolean;
+  label?: string;
   value?: ConfigFieldValue;
+  selectOptions?: ConfigFieldValue[];
 }
+
 export interface IConfig {
   id: string;
   name: string;
@@ -85,6 +92,8 @@ export type MapEntry = {
 };
 
 export type MapFormValue = MapEntry[];
+
+export type MapArrayFormValue = MapFormValue[];
 
 export type WorkflowFormValues = {
   ingest: FormikValues;
@@ -197,20 +206,6 @@ export type MLInferenceProcessor = IngestProcessor & {
     model_id: string;
     input_map?: {};
     output_map?: {};
-  };
-};
-
-export type TextEmbeddingProcessor = IngestProcessor & {
-  text_embedding: {
-    model_id: string;
-    field_map: {};
-  };
-};
-
-export type SparseEncodingProcessor = IngestProcessor & {
-  sparse_encoding: {
-    model_id: string;
-    field_map: {};
   };
 };
 

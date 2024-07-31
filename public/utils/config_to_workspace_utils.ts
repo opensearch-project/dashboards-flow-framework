@@ -9,7 +9,6 @@ import {
   IngestConfig,
   SearchConfig,
   ProcessorsConfig,
-  IProcessorConfig,
   WorkspaceFlowState,
   ReactFlowEdge,
   ReactFlowComponent,
@@ -24,6 +23,7 @@ import {
   Document,
   KnnIndexer,
   MLTransformer,
+  BaseTransformer,
   Query,
   Results,
 } from '../component_types';
@@ -280,7 +280,6 @@ function searchConfigToWorkspaceFlow(
 
 // Helper fn to generate a dynamic list of processor nodes
 // based on the list of processors in a config
-// TODO: support non-model-type processors
 function processorsConfigToWorkspaceFlow(
   processorsConfig: ProcessorsConfig,
   parentNodeId: string,
@@ -291,18 +290,34 @@ function processorsConfigToWorkspaceFlow(
 
   let prevNodeId = undefined as string | undefined;
 
-  const mlProcessorConfigs = processorsConfig.processors.filter(
-    (processorConfig) => processorConfig.type === PROCESSOR_TYPE.ML
-  ) as IProcessorConfig[];
-
-  mlProcessorConfigs.forEach((mlProcessorConfig) => {
-    let transformer = {} as MLTransformer;
+  processorsConfig.processors.forEach((processorConfig) => {
+    let transformer = {} as BaseTransformer;
     let transformerNodeId = '';
-    switch (mlProcessorConfig.type) {
-      case PROCESSOR_TYPE.ML:
-      default: {
+    switch (processorConfig.type) {
+      case PROCESSOR_TYPE.ML: {
         transformer = new MLTransformer();
         transformerNodeId = generateId(COMPONENT_CLASS.ML_TRANSFORMER);
+        break;
+      }
+      case PROCESSOR_TYPE.SPLIT: {
+        transformer = new BaseTransformer(
+          processorConfig.name,
+          'A processor to split a string field into an array of substrings'
+        );
+        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
+        break;
+      }
+      case PROCESSOR_TYPE.SORT: {
+        transformer = new BaseTransformer(
+          processorConfig.name,
+          'A processor to sort an array of items in either ascending or descending order'
+        );
+        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
+        break;
+      }
+      default: {
+        transformer = new BaseTransformer(processorConfig.name, '');
+        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
         break;
       }
     }

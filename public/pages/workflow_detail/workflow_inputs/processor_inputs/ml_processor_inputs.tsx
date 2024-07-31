@@ -6,9 +6,10 @@
 import React, { useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import {
-  EuiButton,
-  EuiFilterButton,
-  EuiFilterGroup,
+  EuiButtonEmpty,
+  EuiCallOut,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiSpacer,
   EuiText,
 } from '@elastic/eui';
@@ -21,7 +22,7 @@ import {
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
 } from '../../../../../common';
-import { MapField, ModelField } from '../input_fields';
+import { MapArrayField, ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
 import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
@@ -51,10 +52,12 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     (field) => field.id === 'inputMap'
   ) as IConfigField;
   const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${inputMapField.id}`;
+  const inputMapValue = getIn(values, inputMapFieldPath);
   const outputMapField = props.config.fields.find(
     (field) => field.id === 'outputMap'
   ) as IConfigField;
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
+  const outputMapValue = getIn(values, outputMapFieldPath);
 
   // advanced transformations modal state
   const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
@@ -63,11 +66,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const [isOutputTransformModalOpen, setIsOutputTransformModalOpen] = useState<
     boolean
   >(false);
-
-  // advanced / simple transform state
-  const [isSimpleTransformSelected, setIsSimpleTransformSelected] = useState<
-    boolean
-  >(true);
 
   return (
     <>
@@ -84,11 +82,13 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       )}
       {isOutputTransformModalOpen && (
         <OutputTransformModal
+          uiConfig={props.uiConfig}
+          config={props.config}
+          context={props.context}
+          outputMapField={outputMapField}
+          outputMapFieldPath={outputMapFieldPath}
+          onFormChange={props.onFormChange}
           onClose={() => setIsOutputTransformModalOpen(false)}
-          onConfirm={() => {
-            console.log('saving transform output configuration...');
-            setIsOutputTransformModalOpen(false);
-          }}
         />
       )}
       <ModelField
@@ -99,79 +99,83 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
         <>
           <EuiSpacer size="s" />
-          <EuiText size="s">{`Configure data transformations (optional)`}</EuiText>
+          <EuiFlexGroup direction="row">
+            <EuiFlexItem grow={false}>
+              <EuiText
+                size="m"
+                style={{ marginTop: '4px' }}
+              >{`Configure input transformations (optional)`}</EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButtonEmpty
+                style={{ width: '100px' }}
+                size="s"
+                onClick={() => {
+                  setIsInputTransformModalOpen(true);
+                }}
+              >
+                Preview
+              </EuiButtonEmpty>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+          <EuiSpacer size="s" />
           <EuiText size="s" color="subdued">
             {`Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
           </EuiText>
           <EuiSpacer size="s" />
-          <EuiFilterGroup>
-            <EuiFilterButton
-              grow={false}
-              hasActiveFilters={isSimpleTransformSelected}
-              onClick={() => setIsSimpleTransformSelected(true)}
-            >
-              Simple
-            </EuiFilterButton>
-            <EuiFilterButton
-              grow={false}
-              hasActiveFilters={!isSimpleTransformSelected}
-              onClick={() => setIsSimpleTransformSelected(false)}
-            >
-              Advanced
-            </EuiFilterButton>
-          </EuiFilterGroup>
-          <EuiSpacer size="s" />
-          {isSimpleTransformSelected ? (
-            <>
-              <MapField
-                field={inputMapField}
-                fieldPath={inputMapFieldPath}
-                label="Input map"
-                helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
-                helpLink={ML_INFERENCE_DOCS_LINK}
-                keyPlaceholder="Model input field"
-                valuePlaceholder="Document field"
-                onFormChange={props.onFormChange}
-              />
-              <EuiSpacer size="l" />
-              <MapField
-                field={outputMapField}
-                fieldPath={outputMapFieldPath}
-                label="Output map"
-                helpText={`An array specifying how to map the model’s output to new fields.`}
-                helpLink={ML_INFERENCE_DOCS_LINK}
-                keyPlaceholder="New document field"
-                valuePlaceholder="Model output field"
-                onFormChange={props.onFormChange}
-              />
-            </>
-          ) : (
-            <>
-              <EuiButton
-                style={{ width: '200px' }}
-                fill={false}
-                onClick={() => {
-                  setIsInputTransformModalOpen(true);
-                }}
-              >
-                Configure input
-              </EuiButton>
-              <EuiSpacer size="s" />
-
-              <EuiButton
-                style={{ width: '200px' }}
-                fill={false}
+          <MapArrayField
+            field={inputMapField}
+            fieldPath={inputMapFieldPath}
+            label="Input Map"
+            helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
+            helpLink={ML_INFERENCE_DOCS_LINK}
+            keyPlaceholder="Model input field"
+            valuePlaceholder="Document field"
+            onFormChange={props.onFormChange}
+          />
+          <EuiSpacer size="l" />
+          <EuiFlexGroup direction="row">
+            <EuiFlexItem grow={false}>
+              <EuiText
+                size="m"
+                style={{ marginTop: '4px' }}
+              >{`Configure output transformations (optional)`}</EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButtonEmpty
+                style={{ width: '100px' }}
+                size="s"
                 onClick={() => {
                   setIsOutputTransformModalOpen(true);
                 }}
               >
-                Configure output
-              </EuiButton>
-            </>
-          )}
-
+                Preview
+              </EuiButtonEmpty>
+            </EuiFlexItem>
+          </EuiFlexGroup>
           <EuiSpacer size="s" />
+          <MapArrayField
+            field={outputMapField}
+            fieldPath={outputMapFieldPath}
+            label="Output Map"
+            helpText={`An array specifying how to map the model’s output to new fields.`}
+            helpLink={ML_INFERENCE_DOCS_LINK}
+            keyPlaceholder="New document field"
+            valuePlaceholder="Model output field"
+            onFormChange={props.onFormChange}
+          />
+          <EuiSpacer size="s" />
+          {inputMapValue.length !== outputMapValue.length &&
+            inputMapValue.length > 0 &&
+            outputMapValue.length > 0 && (
+              <EuiCallOut
+                size="s"
+                title="Input and output maps must have equal length if both are defined"
+                iconType={'alert'}
+                color="danger"
+              />
+            )}
         </>
       )}
     </>

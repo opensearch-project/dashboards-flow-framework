@@ -9,11 +9,12 @@ import { BaseComponent } from '../base_component';
 /**
  * A base transformer UI component
  */
-export abstract class BaseTransformer extends BaseComponent {
-  constructor() {
+export class BaseTransformer extends BaseComponent {
+  constructor(label: string, description: string) {
     super();
     this.type = COMPONENT_CLASS.TRANSFORMER;
-    this.label = 'Transformer';
+    this.label = label;
+    this.description = description;
     this.inputs = [
       {
         id: 'input',
