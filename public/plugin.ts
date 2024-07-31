@@ -14,16 +14,31 @@ import {
   FlowFrameworkDashboardsPluginStart,
 } from './types';
 import { PLUGIN_ID } from '../common';
-import { setCore, setRouteService } from './services';
+import { 
+  setCore, 
+  setRouteService,
+  setSavedObjectsClient,
+  setDataSourceManagementPlugin,
+  setDataSourceEnabled,
+  setNotifications,
+ } from './services';
 import { configureRoutes } from './route_service';
+import { DataSourceManagementPluginSetup } from '../../../src/plugins/data_source_management/public';
+import { DataSourcePluginSetup } from '../../../src/plugins/data_source/public';
+
+export interface FlowFrameworkDashboardsSetupDeps {
+  dataSourceManagement: DataSourceManagementPluginSetup;
+  dataSource: DataSourcePluginSetup;
+  flowFrameworkDashboards: FlowFrameworkDashboardsPluginSetup;
+}
 
 export class FlowFrameworkDashboardsPlugin
   implements
     Plugin<
-      FlowFrameworkDashboardsPluginSetup,
+      FlowFrameworkDashboardsSetupDeps,
       FlowFrameworkDashboardsPluginStart
     > {
-  public setup(core: CoreSetup): FlowFrameworkDashboardsPluginSetup {
+  public setup(core: CoreSetup, plugins: any) {
     // Register the plugin in the side navigation
     core.application.register({
       id: PLUGIN_ID,
@@ -45,10 +60,15 @@ export class FlowFrameworkDashboardsPlugin
         return renderApp(coreStart, params);
       },
     });
+    setDataSourceManagementPlugin(plugins.dataSourceManagement);
+    const enabled = !!plugins.dataSource;
+    setDataSourceEnabled({ enabled });
     return {};
   }
 
   public start(core: CoreStart): FlowFrameworkDashboardsPluginStart {
+    setNotifications(core.notifications);
+    setSavedObjectsClient(core.savedObjects.client);
     return {};
   }
 

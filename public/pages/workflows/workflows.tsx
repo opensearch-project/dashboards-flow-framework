@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { RouteComponentProps, useLocation } from 'react-router-dom';
 import {
   EuiPageHeader,
@@ -18,7 +18,7 @@ import {
 } from '@elastic/eui';
 import queryString from 'query-string';
 import { useSelector } from 'react-redux';
-import { BREADCRUMBS } from '../../utils';
+import { BREADCRUMBS, MDS_BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
@@ -26,10 +26,29 @@ import { AppState, searchWorkflows, useAppDispatch } from '../../store';
 import { EmptyListMessage } from './empty_list_message';
 import { FETCH_ALL_QUERY_BODY } from '../../../common';
 import { ImportWorkflowModal } from './import_workflow';
+import { MountPoint } from '../../../../../src/core/public';
+import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_source_management/public';
+
+import {
+  getDataSourceFromURL,
+} from '../../utils/helpers';
+
+import {
+  getDataSourceManagementPlugin,
+  getDataSourceEnabled,
+  getNotifications,
+  getSavedObjectsClient,
+} from '../../services';
+
+import { MDSStates } from '../../../common/interfaces';
+import { prettifyErrorMessage } from '../../../server/utils/helpers';
 
 export interface WorkflowsRouterProps {}
 
-interface WorkflowsProps extends RouteComponentProps<WorkflowsRouterProps> {}
+interface WorkflowsProps extends RouteComponentProps<WorkflowsRouterProps> {
+  setActionMenu: (menuMount: MountPoint | undefined) => void;
+  landingDataSourceId: string | undefined;  
+}
 
 export enum WORKFLOWS_TAB {
   MANAGE = 'manage',
@@ -54,6 +73,15 @@ function replaceActiveTab(activeTab: string, props: WorkflowsProps) {
  */
 export function Workflows(props: WorkflowsProps) {
   const dispatch = useAppDispatch();
+  const location = useLocation();
+  const queryParams = getDataSourceFromURL(location);
+  const dataSourceEnabled = getDataSourceEnabled().enabled;
+  const [MDSOverviewState, setMDSOverviewState] = useState<MDSStates>({
+    queryParams,
+    selectedDataSourceId: queryParams.dataSourceId === undefined 
+      ? undefined 
+      : queryParams.dataSourceId,
+  });
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
@@ -81,22 +109,81 @@ export function Workflows(props: WorkflowsProps) {
   // If the user navigates back to the manage tab, re-fetch workflows
   useEffect(() => {
     if (selectedTabId === WORKFLOWS_TAB.MANAGE) {
-      dispatch(searchWorkflows(FETCH_ALL_QUERY_BODY));
+      dispatch(searchWorkflows({body:FETCH_ALL_QUERY_BODY, dataSourceId:MDSOverviewState.selectedDataSourceId}));
     }
   }, [selectedTabId]);
 
   useEffect(() => {
-    getCore().chrome.setBreadcrumbs([
-      BREADCRUMBS.FLOW_FRAMEWORK,
-      BREADCRUMBS.WORKFLOWS,
-    ]);
+    if (dataSourceEnabled) {
+      getCore().chrome.setBreadcrumbs([
+        MDS_BREADCRUMBS.FLOW_FRAMEWORK,
+        MDS_BREADCRUMBS.WORKFLOWS(MDSOverviewState.selectedDataSourceId),
+      ]);
+    } else {
+      getCore().chrome.setBreadcrumbs([
+        BREADCRUMBS.FLOW_FRAMEWORK,
+        BREADCRUMBS.WORKFLOWS,
+      ]);
+
+    }
+    
   });
 
-  // On initial render: fetch all workflows
   useEffect(() => {
-    dispatch(searchWorkflows(FETCH_ALL_QUERY_BODY));
-  }, []);
+    const { history, location } = props;
+    if (dataSourceEnabled) {
+      const updatedParams = {
+        dataSourceId: MDSOverviewState.selectedDataSourceId,
+      };
 
+      history.replace({
+        ...location,
+        search: queryString.stringify(updatedParams),
+      });
+    } 
+    dispatch(searchWorkflows({body:FETCH_ALL_QUERY_BODY, dataSourceId:MDSOverviewState.selectedDataSourceId}));
+  }, [MDSOverviewState]);
+
+  const handleDataSourceChange = ([event]) => {
+    const dataSourceId = event?.id;
+
+    if (dataSourceEnabled && dataSourceId === undefined) {
+      getNotifications().toasts.addDanger(
+        prettifyErrorMessage('Unable to set data source.')
+      );
+    } else {
+      setMDSOverviewState({
+        queryParams: dataSourceId,
+        selectedDataSourceId: dataSourceId,
+      });
+    }
+  };
+
+  let renderDataSourceComponent = null;
+  if (dataSourceEnabled) {
+    const DataSourceMenu =
+      getDataSourceManagementPlugin()?.ui.getDataSourceMenu<DataSourceSelectableConfig>();
+    renderDataSourceComponent = useMemo(() => {
+      return (
+        <DataSourceMenu
+          setMenuMountPoint={props.setActionMenu}
+          componentType={'DataSourceSelectable'}
+          componentConfig={{
+            fullWidth: false,
+            activeOption: props.landingDataSourceId === undefined 
+              || MDSOverviewState.selectedDataSourceId === undefined
+                ? undefined
+                : [{ id: MDSOverviewState.selectedDataSourceId }],
+            savedObjects: getSavedObjectsClient(),
+            notifications: getNotifications(),
+            onSelectedDataSources: (dataSources) =>
+              handleDataSourceChange(dataSources),
+          }}
+        />
+      );
+    }, [getSavedObjectsClient, getNotifications(), props.setActionMenu]);
+  }
+  
   return (
     <>
       {isImportModalOpen && (
@@ -106,6 +193,7 @@ export function Workflows(props: WorkflowsProps) {
           setSelectedTabId={setSelectedTabId}
         />
       )}
+      {dataSourceEnabled && renderDataSourceComponent}
       <EuiPage>
         <EuiPageBody>
           <EuiPageHeader

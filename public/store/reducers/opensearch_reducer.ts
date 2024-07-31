@@ -27,11 +27,12 @@ const SIMULATE_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/simulatePipeline`;
 
 export const catIndices = createAsyncThunk(
   CAT_INDICES_ACTION,
-  async (pattern: string, { rejectWithValue }) => {
+  async ({pattern,dataSourceId }:{pattern: string,dataSourceId:string|undefined}, { rejectWithValue }) => {
     // defaulting to fetch everything except system indices (starting with '.')
     const patternString = pattern || '*,-.*';
     const response: any | HttpFetchError = await getRouteService().catIndices(
-      patternString
+      patternString,
+      dataSourceId,
     );
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
@@ -46,13 +47,14 @@ export const catIndices = createAsyncThunk(
 export const searchIndex = createAsyncThunk(
   SEARCH_INDEX_ACTION,
   async (
-    searchIndexInfo: { index: string; body: {}; searchPipeline?: string },
+    {searchIndexInfo,dataSourceId }:{searchIndexInfo: { index: string; body: {}; searchPipeline?: string },dataSourceId:string|undefined} ,
     { rejectWithValue }
   ) => {
     const { index, body, searchPipeline } = searchIndexInfo;
     const response: any | HttpFetchError = await getRouteService().searchIndex(
       index,
       body,
+      dataSourceId,
       searchPipeline
     );
     if (response instanceof HttpFetchError) {
@@ -65,11 +67,12 @@ export const searchIndex = createAsyncThunk(
 
 export const ingest = createAsyncThunk(
   INGEST_ACTION,
-  async (ingestInfo: { index: string; doc: {} }, { rejectWithValue }) => {
+  async ({ingestInfo,dataSourceId}:{ingestInfo: { index: string; doc: {} },dataSourceId:string|undefined}, { rejectWithValue }) => {
     const { index, doc } = ingestInfo;
     const response: any | HttpFetchError = await getRouteService().ingest(
       index,
-      doc
+      doc,
+      dataSourceId
     );
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
@@ -84,12 +87,13 @@ export const ingest = createAsyncThunk(
 export const bulk = createAsyncThunk(
   BULK_ACTION,
   async (
-    bulkInfo: { body: {}; ingestPipeline?: string },
+    {bulkInfo, dataSourceId}:{bulkInfo: { body: {}; ingestPipeline?: string },dataSourceId:string|undefined},
     { rejectWithValue }
   ) => {
     const { body, ingestPipeline } = bulkInfo;
     const response: any | HttpFetchError = await getRouteService().bulk(
       body,
+      dataSourceId,
       ingestPipeline
     );
     if (response instanceof HttpFetchError) {
@@ -103,12 +107,12 @@ export const bulk = createAsyncThunk(
 export const simulatePipeline = createAsyncThunk(
   SIMULATE_PIPELINE_ACTION,
   async (
-    body: { pipeline: IngestPipelineConfig; docs: SimulateIngestPipelineDoc[] },
+    {body,dataSourceId}:{body: { pipeline: IngestPipelineConfig; docs: SimulateIngestPipelineDoc[] },dataSourceId:string|undefined},
     { rejectWithValue }
   ) => {
     const response:
       | any
-      | HttpFetchError = await getRouteService().simulatePipeline(body);
+      | HttpFetchError = await getRouteService().simulatePipeline(body, dataSourceId);
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
         'Error simulating ingest pipeline: ' + response.body.message

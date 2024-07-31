@@ -18,13 +18,21 @@ import {
   WorkflowDetailRouterProps,
   WorkflowsRouterProps,
 } from './pages';
+import { MountPoint } from '../../../src/core/public';
+import queryString from 'query-string';
+import { constructHrefWithDataSourceId } from './utils/helpers';
 
 // styling
 import './global-styles.scss';
 
-interface Props extends RouteComponentProps {}
+interface Props extends RouteComponentProps {
+  setHeaderActionMenu: (menuMount: MountPoint | undefined) => void;
+}
 
 export const FlowFrameworkDashboardsApp = (props: Props) => {
+  const { setHeaderActionMenu } = props;
+  const queryParams = queryString.parse(location.search) as { [key: string]: string };
+  const dataSourceId = queryParams.dataSourceId === undefined ? undefined : queryParams.dataSourceId;
   const sidebar = (
     <EuiPageSideBar style={{ minWidth: 190 }} hidden={false} paddingSize="l">
       <EuiSideNav
@@ -37,7 +45,11 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
               {
                 name: Navigation.Workflows,
                 id: 1,
-                href: `#${APP_PATH.WORKFLOWS}`,
+                href: constructHrefWithDataSourceId(
+                  APP_PATH.WORKFLOWS,
+                  dataSourceId,
+                  true
+                ),
                 isSelected: props.location.pathname === APP_PATH.WORKFLOWS,
               },
             ],
@@ -59,14 +71,21 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
         <Switch>
           <Route
             path={APP_PATH.WORKFLOW_DETAIL}
-            render={(
-              routeProps: RouteComponentProps<WorkflowDetailRouterProps>
-            ) => <WorkflowDetail {...routeProps} />}
+            render={(routeProps: RouteComponentProps<WorkflowDetailRouterProps>) => ( 
+              <WorkflowDetail 
+              setActionMenu={setHeaderActionMenu}
+              landingDataSourceId={dataSourceId}
+              {...routeProps} 
+            />
+            )}
           />
           <Route
             path={APP_PATH.WORKFLOWS}
             render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => (
-              <Workflows {...routeProps} />
+              <Workflows
+              setActionMenu={setHeaderActionMenu}
+              landingDataSourceId={dataSourceId}
+              {...routeProps} />
             )}
           />
           {/*
@@ -82,7 +101,10 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
                   pathname: APP_PATH.WORKFLOWS,
                 });
               }
-              return <Workflows {...routeProps} />;
+              return <Workflows
+              setActionMenu={setHeaderActionMenu}
+              landingDataSourceId={dataSourceId} 
+              {...routeProps} />;
             }}
           />
         </Switch>

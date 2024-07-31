@@ -26,6 +26,8 @@ import {
 import { WorkspaceFormValues } from '../../../../../common';
 import { JsonField } from '../input_fields';
 import { AppState, catIndices, useAppDispatch } from '../../../../store';
+import { useLocation } from 'react-router-dom';
+import { getDataSourceFromURL } from '../../../../utils/helpers';
 
 interface ConfigureSearchRequestProps {
   setQuery: (query: string) => void;
@@ -37,6 +39,9 @@ interface ConfigureSearchRequestProps {
  */
 export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   const dispatch = useAppDispatch();
+  const location = useLocation();
+  const MDSQueryParams = getDataSourceFromURL(location);
+  const dataSourceId = MDSQueryParams.dataSourceId;
 
   // Form state
   const { values } = useFormikContext<WorkspaceFormValues>();
@@ -66,7 +71,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   useEffect(() => {
     if (!ingestEnabled) {
       // Fetch all indices besides system indices
-      dispatch(catIndices('*,-.*'));
+      dispatch(catIndices({pattern:'*,-.*',dataSourceId: dataSourceId}));
     }
   }, []);
 

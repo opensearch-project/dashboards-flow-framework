@@ -11,8 +11,9 @@ import {
   OpenSearchDashboardsRequest,
   OpenSearchDashboardsResponseFactory,
 } from '../../../../src/core/server';
-import { SEARCH_MODELS_NODE_API_PATH } from '../../common';
+import { SEARCH_MODELS_NODE_API_PATH,   BASE_NODE_API_PATH, } from '../../common';
 import { generateCustomError, getModelsFromResponses } from './helpers';
+import { getClientBasedOnDataSource } from '../utils/helpers';
 
 /**
  * Server-side routes to process ml-plugin-related node API calls and execute the
@@ -31,13 +32,24 @@ export function registerMLRoutes(
     },
     mlRoutesService.searchModels
   );
+  router.post(
+    {
+      path: `${BASE_NODE_API_PATH}/{dataSourceId}/model/search`,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    mlRoutesService.searchModels
+  );
 }
 
 export class MLRoutesService {
   private client: any;
+  dataSourceEnabled: boolean;
 
-  constructor(client: any) {
+  constructor(client: any, dataSourceEnabled: boolean) {
     this.client = client;
+    this.dataSourceEnabled = dataSourceEnabled;
   }
 
   searchModels = async (
@@ -47,10 +59,17 @@ export class MLRoutesService {
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const body = req.body;
     try {
-      const modelsResponse = await this.client
-        .asScoped(req)
-        .callAsCurrentUser('mlClient.searchModels', { body });
-      const modelHits = modelsResponse.hits.hits as any[];
+      const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+      const callWithRequest = getClientBasedOnDataSource(
+        context,
+        this.dataSourceEnabled,
+        req,
+        dataSourceId,
+        this.client
+      );
+      const modelsResponse = callWithRequest(
+        'mlClient.searchModels', { body });      
+      const modelHits = (modelsResponse.hits ? modelsResponse.hits.hits : []) as any[];
       const modelDict = getModelsFromResponses(modelHits);
 
       return res.ok({ body: { models: modelDict } });

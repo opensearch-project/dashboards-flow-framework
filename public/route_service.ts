@@ -23,6 +23,7 @@ import {
   IngestPipelineConfig,
   SimulateIngestPipelineDoc,
   BULK_NODE_API_PATH,
+  BASE_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -33,53 +34,59 @@ import {
  * Used in redux by wrapping them in async thunk functions which mutate redux state when executed.
  */
 export interface RouteService {
-  getWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
-  searchWorkflows: (body: {}) => Promise<any | HttpFetchError>;
-  getWorkflowState: (workflowId: string) => Promise<any | HttpFetchError>;
-  createWorkflow: (body: {}) => Promise<any | HttpFetchError>;
+  getWorkflow: (workflowId: string, dataSourceId: string|undefined) => Promise<any | HttpFetchError>;
+  searchWorkflows: (body: {}, dataSourceId: string|undefined) => Promise<any | HttpFetchError>;
+  getWorkflowState: (workflowId: string, dataSourceId: string|undefined) => Promise<any | HttpFetchError>;
+  createWorkflow: (body: {}, dataSourceId: string|undefined) => Promise<any | HttpFetchError>;
   updateWorkflow: (
     workflowId: string,
     workflowTemplate: WorkflowTemplate,
-    updateFields: boolean
+    updateFields: boolean,
+    dataSourceId: string|undefined
   ) => Promise<any | HttpFetchError>;
-  provisionWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
+  provisionWorkflow: (workflowId: string, dataSourceId: string|undefined) => Promise<any | HttpFetchError>;
   deprovisionWorkflow: (
     workflowId: string,
-    resourceIds?: string
+    dataSourceId: string|undefined,
+    resourceIds?: string,
   ) => Promise<any | HttpFetchError>;
-  deleteWorkflow: (workflowId: string) => Promise<any | HttpFetchError>;
-  getWorkflowPresets: () => Promise<any | HttpFetchError>;
-  catIndices: (pattern: string) => Promise<any | HttpFetchError>;
+  deleteWorkflow: (workflowId: string, dataSourceId: string|undefined) => Promise<any | HttpFetchError>;
+  getWorkflowPresets: (dataSourceId: string|undefined) => Promise<any | HttpFetchError>;
+  catIndices: (pattern: string, dataSourceId: string|undefined) => Promise<any | HttpFetchError>;
   searchIndex: (
     index: string,
     body: {},
-    searchPipeline?: string
+    dataSourceId: string|undefined,
+    searchPipeline?: string,
   ) => Promise<any | HttpFetchError>;
-  ingest: (index: string, doc: {}) => Promise<any | HttpFetchError>;
-  bulk: (body: {}, ingestPipeline?: string) => Promise<any | HttpFetchError>;
-  searchModels: (body: {}) => Promise<any | HttpFetchError>;
+  ingest: (index: string, doc: {}, dataSourceId: string|undefined) => Promise<any | HttpFetchError>;
+  bulk: (body: {}, dataSourceId: string|undefined, ingestPipeline?: string) => Promise<any | HttpFetchError>;
+  searchModels: (body: {}, dataSourceId: string|undefined) => Promise<any | HttpFetchError>;
   simulatePipeline: (body: {
     pipeline: IngestPipelineConfig;
     docs: SimulateIngestPipelineDoc[];
-  }) => Promise<any | HttpFetchError>;
+  },
+  dataSourceId: string|undefined) => Promise<any | HttpFetchError>;
 }
 
 export function configureRoutes(core: CoreStart): RouteService {
   return {
-    getWorkflow: async (workflowId: string) => {
+    getWorkflow: async (workflowId: string, dataSourceId: string|undefined) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow` : GET_WORKFLOW_NODE_API_PATH;
         const response = await core.http.get<{ respString: string }>(
-          `${GET_WORKFLOW_NODE_API_PATH}/${workflowId}`
+          `${url}/${workflowId}`
         );
         return response;
       } catch (e: any) {
         return e as HttpFetchError;
       }
     },
-    searchWorkflows: async (body: {}) => {
+    searchWorkflows: async (body: {}, dataSourceId: string|undefined) => {  
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/search` : SEARCH_WORKFLOWS_NODE_API_PATH;
         const response = await core.http.post<{ respString: string }>(
-          SEARCH_WORKFLOWS_NODE_API_PATH,
+          url,
           {
             body: JSON.stringify(body),
           }
@@ -89,20 +96,22 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    getWorkflowState: async (workflowId: string) => {
+    getWorkflowState: async (workflowId: string, dataSourceId: string|undefined) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/state` : GET_WORKFLOW_STATE_NODE_API_PATH;
         const response = await core.http.get<{ respString: string }>(
-          `${GET_WORKFLOW_STATE_NODE_API_PATH}/${workflowId}`
+          `${url}/${workflowId}`
         );
         return response;
       } catch (e: any) {
         return e as HttpFetchError;
       }
     },
-    createWorkflow: async (body: {}) => {
+    createWorkflow: async (body: {}, dataSourceId: string|undefined) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/create` : CREATE_WORKFLOW_NODE_API_PATH;
         const response = await core.http.post<{ respString: string }>(
-          CREATE_WORKFLOW_NODE_API_PATH,
+          url,
           {
             body: JSON.stringify(body),
           }
@@ -115,11 +124,13 @@ export function configureRoutes(core: CoreStart): RouteService {
     updateWorkflow: async (
       workflowId: string,
       workflowTemplate: WorkflowTemplate,
-      updateFields: boolean
+      updateFields: boolean,
+      dataSourceId: string|undefined
     ) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/update` : UPDATE_WORKFLOW_NODE_API_PATH;
         const response = await core.http.put<{ respString: string }>(
-          `${UPDATE_WORKFLOW_NODE_API_PATH}/${workflowId}/${updateFields}`,
+          `${url}/${workflowId}/${updateFields}`,
           {
             body: JSON.stringify(workflowTemplate),
           }
@@ -129,60 +140,66 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    provisionWorkflow: async (workflowId: string) => {
+    provisionWorkflow: async (workflowId: string, dataSourceId: string|undefined) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/provision` : PROVISION_WORKFLOW_NODE_API_PATH;
         const response = await core.http.post<{ respString: string }>(
-          `${PROVISION_WORKFLOW_NODE_API_PATH}/${workflowId}`
+          `${url}/${workflowId}`
         );
         return response;
       } catch (e: any) {
         return e as HttpFetchError;
       }
     },
-    deprovisionWorkflow: async (workflowId: string, resourceIds?: string) => {
+    deprovisionWorkflow: async (workflowId: string, dataSourceId: string|undefined, resourceIds?: string) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/deprovision` : DEPROVISION_WORKFLOW_NODE_API_PATH;
         const path = resourceIds
-          ? `${DEPROVISION_WORKFLOW_NODE_API_PATH}/${workflowId}/${resourceIds}`
-          : `${DEPROVISION_WORKFLOW_NODE_API_PATH}/${workflowId}`;
+          ? `${url}/${workflowId}/${resourceIds}`
+          : `${url}/${workflowId}`;
         const response = await core.http.post<{ respString: string }>(path);
         return response;
       } catch (e: any) {
         return e as HttpFetchError;
       }
     },
-    deleteWorkflow: async (workflowId: string) => {
+    deleteWorkflow: async (workflowId: string, dataSourceId: string|undefined) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/delete` : DELETE_WORKFLOW_NODE_API_PATH;
         const response = await core.http.delete<{ respString: string }>(
-          `${DELETE_WORKFLOW_NODE_API_PATH}/${workflowId}`
+          `${url}/${workflowId}`
         );
         return response;
       } catch (e: any) {
         return e as HttpFetchError;
       }
     },
-    getWorkflowPresets: async () => {
+    getWorkflowPresets: async (dataSourceId: string|undefined) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/presets` : GET_PRESET_WORKFLOWS_NODE_API_PATH;
         const response = await core.http.get<{ respString: string }>(
-          GET_PRESET_WORKFLOWS_NODE_API_PATH
+          url
         );
         return response;
       } catch (e: any) {
         return e as HttpFetchError;
       }
     },
-    catIndices: async (pattern: string) => {
+    catIndices: async (pattern: string, dataSourceId: string|undefined) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/catIndices` : CAT_INDICES_NODE_API_PATH;
         const response = await core.http.get<{ respString: string }>(
-          `${CAT_INDICES_NODE_API_PATH}/${pattern}`
+          `${url}/${pattern}`
         );
         return response;
       } catch (e: any) {
         return e as HttpFetchError;
       }
     },
-    searchIndex: async (index: string, body: {}, searchPipeline?: string) => {
+    searchIndex: async (index: string, body: {}, dataSourceId: string|undefined, searchPipeline?: string) => {
       try {
-        const basePath = `${SEARCH_INDEX_NODE_API_PATH}/${index}`;
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/search` : SEARCH_INDEX_NODE_API_PATH;
+        const basePath = `${url}/${index}`;
         const path = searchPipeline
           ? `${basePath}/${searchPipeline}`
           : basePath;
@@ -194,10 +211,11 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    ingest: async (index: string, doc: {}) => {
+    ingest: async (index: string, doc: {}, dataSourceId: string|undefined) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/ingest` : INGEST_NODE_API_PATH;
         const response = await core.http.put<{ respString: string }>(
-          `${INGEST_NODE_API_PATH}/${index}`,
+          `${url}/${index}`,
           {
             body: JSON.stringify(doc),
           }
@@ -207,11 +225,12 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    bulk: async (body: {}, ingestPipeline?: string) => {
+    bulk: async (body: {}, dataSourceId: string|undefined, ingestPipeline?: string) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/bulk` : BULK_NODE_API_PATH;
         const path = ingestPipeline
-          ? `${BULK_NODE_API_PATH}/${ingestPipeline}`
-          : BULK_NODE_API_PATH;
+          ? `${url}/${ingestPipeline}`
+          : url;
         const response = await core.http.post<{ respString: string }>(path, {
           body: JSON.stringify(body),
         });
@@ -220,10 +239,11 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    searchModels: async (body: {}) => {
+    searchModels: async (body: {}, dataSourceId: string|undefined) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/model/search` : SEARCH_MODELS_NODE_API_PATH;
         const response = await core.http.post<{ respString: string }>(
-          SEARCH_MODELS_NODE_API_PATH,
+          url,
           {
             body: JSON.stringify(body),
           }
@@ -236,10 +256,12 @@ export function configureRoutes(core: CoreStart): RouteService {
     simulatePipeline: async (body: {
       pipeline: IngestPipelineConfig;
       docs: SimulateIngestPipelineDoc[];
-    }) => {
+    },
+    dataSourceId: string|undefined) => {
       try {
+        const url = dataSourceId ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/simulatePipeline` : SIMULATE_PIPELINE_NODE_API_PATH;
         const response = await core.http.post<{ respString: string }>(
-          SIMULATE_PIPELINE_NODE_API_PATH,
+          url,
           {
             body: JSON.stringify(body),
           }

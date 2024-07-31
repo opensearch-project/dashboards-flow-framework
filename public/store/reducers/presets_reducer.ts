@@ -19,10 +19,10 @@ const GET_WORKFLOW_PRESETS_ACTION = `${PRESET_ACTION_PREFIX}/getPresets`;
 
 export const getWorkflowPresets = createAsyncThunk(
   GET_WORKFLOW_PRESETS_ACTION,
-  async (_, { rejectWithValue }) => {
+  async ({dataSourceId}:{dataSourceId:string|undefined}, { rejectWithValue }) => {
     const response:
       | any
-      | HttpFetchError = await getRouteService().getWorkflowPresets();
+      | HttpFetchError = await getRouteService().getWorkflowPresets(dataSourceId);
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
         'Error getting workflow presets: ' + response.body.message

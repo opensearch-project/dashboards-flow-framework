@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import React, { useEffect, ReactElement } from 'react';
+import { RouteComponentProps, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { EuiPage, EuiPageBody } from '@elastic/eui';
-import { BREADCRUMBS } from '../../utils';
+import { BREADCRUMBS, MDS_BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
 import {
@@ -26,13 +26,29 @@ import {
 // styling
 import './workflow-detail-styles.scss';
 import '../../global-styles.scss';
+import { MountPoint } from '../../../../../src/core/public';
+
+import {
+  getDataSourceFromURL,
+} from '../../utils/helpers';
+
+import {
+  getDataSourceManagementPlugin,
+  getDataSourceEnabled,
+  getNotifications,
+  getSavedObjectsClient,
+} from '../../services';
+import { DataSourceViewConfig } from '../../../../../src/plugins/data_source_management/public';
 
 export interface WorkflowDetailRouterProps {
   workflowId: string;
 }
 
 interface WorkflowDetailProps
-  extends RouteComponentProps<WorkflowDetailRouterProps> {}
+  extends RouteComponentProps<WorkflowDetailRouterProps> {
+    setActionMenu: (menuMount: MountPoint | undefined) => void;
+    landingDataSourceId: string | undefined;  
+  }
 
 /**
  * The workflow details page. This is where users will configure, create, and
@@ -42,6 +58,10 @@ interface WorkflowDetailProps
 
 export function WorkflowDetail(props: WorkflowDetailProps) {
   const dispatch = useAppDispatch();
+  const location = useLocation();
+  const MDSQueryParams = getDataSourceFromURL(location);
+  const dataSourceEnabled = getDataSourceEnabled().enabled;
+  const dataSourceId = MDSQueryParams.dataSourceId;
   const { workflows } = useSelector((state: AppState) => state.workflows);
 
   // selected workflow state
@@ -50,23 +70,50 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   const workflowName = workflow ? workflow.name : DEFAULT_NEW_WORKFLOW_NAME;
 
   useEffect(() => {
-    getCore().chrome.setBreadcrumbs([
-      BREADCRUMBS.FLOW_FRAMEWORK,
-      BREADCRUMBS.WORKFLOWS,
-      { text: workflowName },
-    ]);
-  });
+    if (dataSourceEnabled) {
+      getCore().chrome.setBreadcrumbs([
+        MDS_BREADCRUMBS.FLOW_FRAMEWORK,
+        MDS_BREADCRUMBS.WORKFLOWS(dataSourceId),
+        { text: workflowName },
+      ]);
+    } else {
+      getCore().chrome.setBreadcrumbs([
+        BREADCRUMBS.FLOW_FRAMEWORK,
+        BREADCRUMBS.WORKFLOWS,
+        { text: workflowName },
+      ]);
+    }
+  }, []);
 
   // On initial load:
   // - fetch workflow
   // - fetch available models as their IDs may be used when building flows
   useEffect(() => {
-    dispatch(getWorkflow(workflowId));
-    dispatch(searchModels(FETCH_ALL_QUERY_BODY));
+    dispatch(getWorkflow({workflowId, dataSourceId} ));
+    dispatch(searchModels({body:FETCH_ALL_QUERY_BODY, dataSourceId}));
   }, []);
+
+  let renderDataSourceComponent: ReactElement | null = null;
+  if (dataSourceEnabled) {
+    const DataSourceMenu =
+      getDataSourceManagementPlugin()?.ui.getDataSourceMenu<DataSourceViewConfig>();
+    renderDataSourceComponent = (
+      <DataSourceMenu
+        setMenuMountPoint={props.setActionMenu}
+        componentType={'DataSourceView'}
+        componentConfig={{
+          activeOption: [{ id: dataSourceId }],
+          fullWidth: false,
+          savedObjects: getSavedObjectsClient(),
+          notifications: getNotifications(),
+        }}
+      />
+    );
+  }
 
   return (
     <ReactFlowProvider>
+      {dataSourceEnabled && renderDataSourceComponent}
       <EuiPage>
         <EuiPageBody className="workflow-detail stretch-relative">
           <WorkflowDetailHeader workflow={workflow} />

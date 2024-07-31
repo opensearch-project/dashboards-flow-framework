@@ -16,18 +16,20 @@ import './global-styles.scss';
 
 export const renderApp = (
   coreStart: CoreStart,
-  { appBasePath, element }: AppMountParameters
+  params: AppMountParameters
 ) => {
   // This is so our base element stretches to fit the entire webpage
-  element.className = 'stretch-absolute';
+  params.element.className = 'stretch-absolute';
   ReactDOM.render(
     <Provider store={store}>
-      <Router basename={appBasePath + '#/'}>
-        <Route render={(props) => <FlowFrameworkDashboardsApp {...props} />} />
+      <Router basename={params.appBasePath + '#/'}>
+        <Route render={(props) => <FlowFrameworkDashboardsApp 
+        setHeaderActionMenu={params.setHeaderActionMenu}
+        {...props} />} />
       </Router>
     </Provider>,
-    element
+    params.element
   );
 
-  return () => ReactDOM.unmountComponentAtNode(element);
+  return () => ReactDOM.unmountComponentAtNode(params.element);
 };

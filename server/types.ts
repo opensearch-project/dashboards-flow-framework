@@ -5,3 +5,6 @@
 
 export interface FlowFrameworkDashboardsPluginSetup {}
 export interface FlowFrameworkDashboardsPluginStart {}
+export type MDSQueryParams = {
+    dataSourceId: string;
+};

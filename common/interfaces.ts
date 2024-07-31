@@ -7,6 +7,7 @@ import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
 import { COMPONENT_CLASS, PROCESSOR_TYPE, WORKFLOW_TYPE } from './constants';
+import { MDSQueryParams } from '../server/types';
 
 export type Index = {
   name: string;
@@ -17,7 +18,11 @@ export type Index = {
  ********** WORKFLOW TYPES/INTERFACES **********
  */
 
-export type ConfigFieldType =
+ export interface MDSStates {
+  queryParams: MDSQueryParams;
+  selectedDataSourceId: string | undefined;
+}
+ export type ConfigFieldType =
   | 'string'
   | 'json'
   | 'jsonArray'

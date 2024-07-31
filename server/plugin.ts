@@ -24,8 +24,15 @@ import {
   registerMLRoutes,
   MLRoutesService,
 } from './routes';
+import { DataSourcePluginSetup } from '../../../src/plugins/data_source/server/types';
+import { DataSourceManagementPlugin } from '../../../src/plugins/data_source_management/public';
 
 import { ILegacyClusterClient } from '../../../src/core/server/';
+
+export interface FFPluginSetupDependencies {
+  dataSourceManagement?: ReturnType<DataSourceManagementPlugin['setup']>;
+  dataSource?: DataSourcePluginSetup;
+}
 
 export class FlowFrameworkDashboardsPlugin
   implements
@@ -41,7 +48,10 @@ export class FlowFrameworkDashboardsPlugin
     this.globalConfig$ = initializerContext.config.legacy.globalConfig$;
   }
 
-  public async setup(core: CoreSetup) {
+  public async setup(
+    core: CoreSetup,
+    { dataSource }: FFPluginSetupDependencies
+    ) {
     this.logger.debug('flow-framework-dashboards: Setup');
     const router = core.http.createRouter();
 
@@ -57,9 +67,14 @@ export class FlowFrameworkDashboardsPlugin
       }
     );
 
-    const opensearchRoutesService = new OpenSearchRoutesService(client);
-    const flowFrameworkRoutesService = new FlowFrameworkRoutesService(client);
-    const mlRoutesService = new MLRoutesService(client);
+    const dataSourceEnabled = !!dataSource;
+    if (dataSourceEnabled) {
+      dataSource.registerCustomApiSchema(flowFrameworkPlugin);
+      dataSource.registerCustomApiSchema(mlPlugin);
+    }
+    const opensearchRoutesService = new OpenSearchRoutesService(client, dataSourceEnabled);
+    const flowFrameworkRoutesService = new FlowFrameworkRoutesService(client, dataSourceEnabled);
+    const mlRoutesService = new MLRoutesService(client, dataSourceEnabled);
 
     // Register server side APIs with the corresponding service functions
     registerOpenSearchRoutes(router, opensearchRoutesService);

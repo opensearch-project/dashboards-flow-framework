@@ -36,6 +36,8 @@ import { formikToIngestPipeline, generateId } from '../../../../utils';
 import { simulatePipeline, useAppDispatch } from '../../../../store';
 import { getCore } from '../../../../services';
 import { MapField } from '../input_fields';
+import { useLocation } from 'react-router-dom';
+import { getDataSourceFromURL } from '../../../../utils/helpers';
 
 interface InputTransformModalProps {
   uiConfig: WorkflowConfig;
@@ -52,6 +54,9 @@ interface InputTransformModalProps {
  */
 export function InputTransformModal(props: InputTransformModalProps) {
   const dispatch = useAppDispatch();
+  const location = useLocation();
+  const MDSQueryParams = getDataSourceFromURL(location);
+  const dataSourceId = MDSQueryParams.dataSourceId;
   const { values } = useFormikContext<WorkflowFormValues>();
 
   // source input / transformed output state
@@ -92,10 +97,10 @@ export function InputTransformModal(props: InputTransformModalProps) {
                           values.ingest.index.name
                         );
                         await dispatch(
-                          simulatePipeline({
+                          simulatePipeline({body:{
                             pipeline: curIngestPipeline as IngestPipelineConfig,
                             docs: curDocs,
-                          })
+                          }, dataSourceId: dataSourceId})
                         )
                           .unwrap()
                           .then((resp: SimulateIngestPipelineResponse) => {
