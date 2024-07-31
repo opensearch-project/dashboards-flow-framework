@@ -34,7 +34,7 @@ import {
   WorkflowFormValues,
 } from '../../../../../common';
 import {
-  formikToIngestPipeline,
+  formikToPipeline,
   generateTransform,
   prepareDocsForSimulate,
   unwrapTransformedDocs,
@@ -99,11 +99,12 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   switch (props.context) {
                     case PROCESSOR_CONTEXT.INGEST: {
                       // get the current ingest pipeline up to, but not including, this processor
-                      const curIngestPipeline = formikToIngestPipeline(
+                      const curIngestPipeline = formikToPipeline(
                         values,
                         props.uiConfig,
                         props.config.id,
-                        false
+                        false,
+                        PROCESSOR_CONTEXT.INGEST
                       );
                       // if there are preceding processors, we need to generate the ingest pipeline
                       // up to this point and simulate, in order to get the latest transformed

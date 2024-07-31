@@ -7,6 +7,7 @@ import { isEmpty } from 'lodash';
 import {
   IProcessorConfig,
   IngestPipelineConfig,
+  PROCESSOR_CONTEXT,
   SearchPipelineConfig,
   WorkflowConfig,
   WorkflowFormValues,
@@ -22,15 +23,22 @@ import { processorConfigsToTemplateProcessors } from './config_to_template_utils
    the input schema at a certain stage of a pipeline.
    */
 
-export function formikToIngestPipeline(
+export function formikToPipeline(
   values: WorkflowFormValues,
   existingConfig: WorkflowConfig,
   curProcessorId: string,
-  includeCurProcessor: boolean
-): IngestPipelineConfig | SearchPipelineConfig | undefined {
+  includeCurProcessor: boolean,
+  context: PROCESSOR_CONTEXT
+): IngestPipelineConfig | undefined {
   const uiConfig = formikToUiConfig(values, existingConfig);
+  const processors =
+    context === PROCESSOR_CONTEXT.INGEST
+      ? uiConfig.ingest.enrich.processors
+      : context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+      ? uiConfig.search.enrichRequest.processors
+      : uiConfig.search.enrichResponse.processors;
   const precedingProcessors = getPrecedingProcessors(
-    uiConfig.ingest.enrich.processors,
+    processors,
     curProcessorId,
     includeCurProcessor
   );
