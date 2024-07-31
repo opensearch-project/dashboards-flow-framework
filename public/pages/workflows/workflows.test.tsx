@@ -20,6 +20,9 @@ jest.mock('../../services', () => {
   const { mockCoreServices } = require('../../../test');
   return {
     ...jest.requireActual('../../services'),
+    getDataSourceEnabled: () => ({
+      enabled: false  
+    }),
     ...mockCoreServices,
   };
 });
@@ -30,7 +33,10 @@ const renderWithRouter = () => ({
       <Router>
         <Switch>
           <Route
-            render={(props: RouteComponentProps) => <Workflows {...props} />}
+            render={(props: RouteComponentProps) => <Workflows 
+              setActionMenu={jest.fn()}
+              landingDataSourceId={undefined} 
+              {...props} />}
           />
         </Switch>
       </Router>
