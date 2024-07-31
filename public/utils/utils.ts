@@ -9,6 +9,11 @@ import { get } from 'lodash';
 import {
   JSONPATH_ROOT_SELECTOR,
   MapFormValue,
+  ModelInput,
+  ModelInputFormField,
+  ModelInterface,
+  ModelOutput,
+  ModelOutputFormField,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
   WORKFLOW_RESOURCE_TYPE,
@@ -186,4 +191,40 @@ export function generateTransform(input: {}, map: MapFormValue): {} {
     }
   });
   return output;
+}
+
+// Derive the collection of model inputs from the model interface JSONSchema into a form-ready list
+export function parseModelInputs(
+  modelInterface: ModelInterface
+): ModelInputFormField[] {
+  const modelInputsObj = get(
+    modelInterface,
+    // model interface input values will always be nested under a base "parameters" obj.
+    // we iterate through the obj properties to extract the individual inputs
+    'input.properties.parameters.properties',
+    {}
+  ) as { [key: string]: ModelInput };
+  return Object.keys(modelInputsObj).map(
+    (inputName: string) =>
+      ({
+        label: inputName,
+        ...modelInputsObj[inputName],
+      } as ModelInputFormField)
+  );
+}
+
+// Derive the collection of model outputs from the model interface JSONSchema into a form-ready list
+export function parseModelOutputs(
+  modelInterface: ModelInterface
+): ModelOutputFormField[] {
+  const modelOutputsObj = get(modelInterface, 'output.properties', {}) as {
+    [key: string]: ModelOutput;
+  };
+  return Object.keys(modelOutputsObj).map(
+    (outputName: string) =>
+      ({
+        label: outputName,
+        ...modelOutputsObj[outputName],
+      } as ModelOutputFormField)
+  );
 }

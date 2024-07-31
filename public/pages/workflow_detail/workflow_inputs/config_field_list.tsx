@@ -36,6 +36,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   // Default to ID if no optional formatted / prettified label provided
                   label={field.label || field.id}
                   fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
+                  showError={true}
                   onFormChange={props.onFormChange}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
@@ -47,19 +48,6 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
             el = (
               <EuiFlexItem key={idx}>
                 <SelectField
-                  field={field}
-                  fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
-                  onFormChange={props.onFormChange}
-                />
-                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
-              </EuiFlexItem>
-            );
-            break;
-          }
-          case 'model': {
-            el = (
-              <EuiFlexItem key={idx}>
-                <ModelField
                   field={field}
                   fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
                   onFormChange={props.onFormChange}

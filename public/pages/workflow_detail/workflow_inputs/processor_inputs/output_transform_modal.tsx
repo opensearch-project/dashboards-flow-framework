@@ -49,6 +49,7 @@ interface OutputTransformModalProps {
   context: PROCESSOR_CONTEXT;
   outputMapField: IConfigField;
   outputMapFieldPath: string;
+  outputFields: any[];
   onClose: () => void;
   onFormChange: () => void;
 }
@@ -170,6 +171,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="New document field"
                 valuePlaceholder="Model output field"
+                valueOptions={props.outputFields}
                 onFormChange={props.onFormChange}
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {

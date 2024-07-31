@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getIn, useFormikContext } from 'formik';
+import { useSelector } from 'react-redux';
 import {
   EuiButtonEmpty,
   EuiCallOut,
@@ -20,12 +21,16 @@ import {
   PROCESSOR_CONTEXT,
   WorkflowConfig,
   JSONPATH_ROOT_SELECTOR,
+  ModelInputFormField,
+  ModelOutputFormField,
   ML_INFERENCE_DOCS_LINK,
 } from '../../../../../common';
 import { MapArrayField, ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
 import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
+import { AppState } from '../../../../store';
+import { parseModelInputs, parseModelOutputs } from '../../../../utils';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
@@ -36,11 +41,16 @@ interface MLProcessorInputsProps {
 }
 
 /**
- * Component to render ML processor inputs. Offers simple and advanced flows for configuring data transforms
- * before and after executing an ML inference request
+ * Component to render ML processor inputs, including the model selection, and the
+ * optional configurations of input maps and output maps. We persist any model interface
+ * state here as well, to propagate expected model inputs / outputs to to the input map /
+ * output map configuration forms, respectively.
  */
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
-  const { values } = useFormikContext<WorkspaceFormValues>();
+  const models = useSelector((state: AppState) => state.models.models);
+  const { values, setFieldValue, setFieldTouched } = useFormikContext<
+    WorkspaceFormValues
+  >();
 
   // extracting field info from the ML processor config
   // TODO: have a better mechanism for guaranteeing the expected fields/config instead of hardcoding them here
@@ -67,6 +77,46 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     boolean
   >(false);
 
+  // model interface state
+  const [hasModelInterface, setHasModelInterface] = useState<boolean>(true);
+  const [inputFields, setInputFields] = useState<ModelInputFormField[]>([]);
+  const [outputFields, setOutputFields] = useState<ModelOutputFormField[]>([]);
+
+  // Hook to listen when the selected model has changed. We do a few checks here:
+  // 1: update model interface states
+  // 2. clear out any persisted inputMap/outputMap form values, as those would now be invalid
+  function onModelChange(modelId: string) {
+    updateModelInterfaceStates(modelId);
+    setFieldValue(inputMapFieldPath, []);
+    setFieldValue(outputMapFieldPath, []);
+    setFieldTouched(inputMapFieldPath, false);
+    setFieldTouched(outputMapFieldPath, false);
+  }
+
+  // on initial load of the models, update model interface states
+  useEffect(() => {
+    if (!isEmpty(models)) {
+      const modelId = getIn(values, `${modelFieldPath}.id`);
+      if (modelId) {
+        updateModelInterfaceStates(modelId);
+      }
+    }
+  }, [models]);
+
+  // reusable function to update interface states based on the model ID
+  function updateModelInterfaceStates(modelId: string) {
+    const newSelectedModel = models[modelId];
+    if (newSelectedModel?.interface !== undefined) {
+      setInputFields(parseModelInputs(newSelectedModel.interface));
+      setOutputFields(parseModelOutputs(newSelectedModel.interface));
+      setHasModelInterface(true);
+    } else {
+      setInputFields([]);
+      setOutputFields([]);
+      setHasModelInterface(false);
+    }
+  }
+
   return (
     <>
       {isInputTransformModalOpen && (
@@ -76,6 +126,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           context={props.context}
           inputMapField={inputMapField}
           inputMapFieldPath={inputMapFieldPath}
+          inputFields={inputFields}
           onFormChange={props.onFormChange}
           onClose={() => setIsInputTransformModalOpen(false)}
         />
@@ -87,6 +138,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           context={props.context}
           outputMapField={outputMapField}
           outputMapFieldPath={outputMapFieldPath}
+          outputFields={outputFields}
           onFormChange={props.onFormChange}
           onClose={() => setIsOutputTransformModalOpen(false)}
         />
@@ -94,6 +146,8 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       <ModelField
         field={modelField}
         fieldPath={modelFieldPath}
+        hasModelInterface={hasModelInterface}
+        onModelChange={onModelChange}
         onFormChange={props.onFormChange}
       />
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
@@ -133,6 +187,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             keyPlaceholder="Model input field"
             valuePlaceholder="Document field"
             onFormChange={props.onFormChange}
+            keyOptions={inputFields}
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row">
@@ -159,11 +214,12 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             field={outputMapField}
             fieldPath={outputMapFieldPath}
             label="Output Map"
-            helpText={`An array specifying how to map the model’s output to new fields.`}
+            helpText={`An array specifying how to map the model’s output to new document fields.`}
             helpLink={ML_INFERENCE_DOCS_LINK}
             keyPlaceholder="New document field"
             valuePlaceholder="Model output field"
             onFormChange={props.onFormChange}
+            valueOptions={outputFields}
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&

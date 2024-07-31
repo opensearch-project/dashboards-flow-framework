@@ -7,8 +7,10 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
+  EuiCallOut,
   EuiFormRow,
   EuiLink,
+  EuiSpacer,
   EuiSuperSelect,
   EuiSuperSelectOption,
   EuiText,
@@ -25,11 +27,14 @@ import { AppState } from '../../../../store';
 interface ModelFieldProps {
   field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
+  hasModelInterface: boolean;
+  onModelChange: (modelId: string) => void;
   onFormChange: () => void;
 }
 
 type ModelItem = ModelFormValue & {
   name: string;
+  interface?: {};
 };
 
 /**
@@ -56,6 +61,7 @@ export function ModelField(props: ModelFieldProps) {
             id: modelId,
             name: models[modelId].name,
             algorithm: models[modelId].algorithm,
+            interface: models[modelId].interface,
           } as ModelItem);
         }
       });
@@ -64,61 +70,75 @@ export function ModelField(props: ModelFieldProps) {
   }, [models]);
 
   return (
-    <Field name={props.fieldPath}>
-      {({ field, form }: FieldProps) => {
-        return (
-          <EuiFormRow
-            label={'Model'}
-            labelAppend={
-              <EuiText size="xs">
-                <EuiLink href={ML_CHOOSE_MODEL_LINK} target="_blank">
-                  Learn more
-                </EuiLink>
-              </EuiText>
-            }
-            helpText={'The model ID.'}
-          >
-            <EuiSuperSelect
-              options={deployedModels.map(
-                (option) =>
-                  ({
-                    value: option.id,
-                    inputDisplay: (
-                      <>
-                        <EuiText size="s">{option.name}</EuiText>
-                      </>
-                    ),
-                    dropdownDisplay: (
-                      <>
-                        <EuiText size="s">{option.name}</EuiText>
-                        <EuiText size="xs" color="subdued">
-                          Deployed
-                        </EuiText>
-                        <EuiText size="xs" color="subdued">
-                          {option.algorithm}
-                        </EuiText>
-                      </>
-                    ),
-                    disabled: false,
-                  } as EuiSuperSelectOption<string>)
-              )}
-              valueOfSelected={field.value?.id || ''}
-              onChange={(option: string) => {
-                form.setFieldTouched(props.fieldPath, true);
-                form.setFieldValue(props.fieldPath, {
-                  id: option,
-                } as ModelFormValue);
-                props.onFormChange();
-              }}
-              isInvalid={
-                getIn(errors, field.name) && getIn(touched, field.name)
-                  ? true
-                  : undefined
+    <>
+      {!props.hasModelInterface && (
+        <>
+          <EuiCallOut
+            size="s"
+            title="The selected model does not have a model interface. Cannot automatically determine model inputs and outputs."
+            iconType={'alert'}
+            color="warning"
+          />
+          <EuiSpacer size="s" />
+        </>
+      )}
+      <Field name={props.fieldPath}>
+        {({ field, form }: FieldProps) => {
+          return (
+            <EuiFormRow
+              label={'Model'}
+              labelAppend={
+                <EuiText size="xs">
+                  <EuiLink href={ML_CHOOSE_MODEL_LINK} target="_blank">
+                    Learn more
+                  </EuiLink>
+                </EuiText>
               }
-            />
-          </EuiFormRow>
-        );
-      }}
-    </Field>
+              helpText={'The model ID.'}
+            >
+              <EuiSuperSelect
+                options={deployedModels.map(
+                  (option) =>
+                    ({
+                      value: option.id,
+                      inputDisplay: (
+                        <>
+                          <EuiText size="s">{option.name}</EuiText>
+                        </>
+                      ),
+                      dropdownDisplay: (
+                        <>
+                          <EuiText size="s">{option.name}</EuiText>
+                          <EuiText size="xs" color="subdued">
+                            Deployed
+                          </EuiText>
+                          <EuiText size="xs" color="subdued">
+                            {option.algorithm}
+                          </EuiText>
+                        </>
+                      ),
+                      disabled: false,
+                    } as EuiSuperSelectOption<string>)
+                )}
+                valueOfSelected={field.value?.id || ''}
+                onChange={(option: string) => {
+                  form.setFieldTouched(props.fieldPath, true);
+                  form.setFieldValue(props.fieldPath, {
+                    id: option,
+                  } as ModelFormValue);
+                  props.onFormChange();
+                  props.onModelChange(option);
+                }}
+                isInvalid={
+                  getIn(errors, field.name) && getIn(touched, field.name)
+                    ? true
+                    : undefined
+                }
+              />
+            </EuiFormRow>
+          );
+        }}
+      </Field>
+    </>
   );
 }
