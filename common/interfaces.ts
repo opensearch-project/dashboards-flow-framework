@@ -363,7 +363,6 @@ export type ModelConfig = {
 };
 
 // Based off of JSONSchema. For more info, see https://json-schema.org/understanding-json-schema/reference/type
-// TODO: look into if we can use JSONSchema dependency for handling types & type safety
 export type ModelInput = {
   type: string;
   description?: string;
