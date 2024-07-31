@@ -21,17 +21,17 @@ import {
   PROCESSOR_CONTEXT,
   WorkflowConfig,
   JSONPATH_ROOT_SELECTOR,
-  ML_INFERENCE_DOCS_LINK,
   ModelInputFormField,
   ModelOutputFormField,
 } from '../../../../../common';
-import { MapArrayField, ModelField } from '../input_fields';
+import { ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
 import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
 import { InputMap } from './input_map';
 import { AppState } from '../../../../store';
 import { parseModelInputs, parseModelOutputs } from '../../../../utils';
+import { OutputMap } from './output_map';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
@@ -181,8 +181,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           <InputMap
             inputMapField={inputMapField}
             inputMapFieldPath={inputMapFieldPath}
-            modelFieldPath={modelFieldPath}
-            processorFieldPath={processorFieldPath}
             inputFields={inputFields}
             onFormChange={props.onFormChange}
           />
@@ -207,17 +205,10 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
-          {/**
-           * TODO: add an OutputMap component
-           */}
-          <MapArrayField
-            field={outputMapField}
-            fieldPath={outputMapFieldPath}
-            label="Output Map"
-            helpText={`An array specifying how to map the model’s output to new fields.`}
-            helpLink={ML_INFERENCE_DOCS_LINK}
-            keyPlaceholder="New document field"
-            valuePlaceholder="Model output field"
+          <OutputMap
+            outputMapField={outputMapField}
+            outputMapFieldPath={outputMapFieldPath}
+            outputFields={outputFields}
             onFormChange={props.onFormChange}
           />
           <EuiSpacer size="s" />

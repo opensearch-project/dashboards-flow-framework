@@ -204,26 +204,27 @@ export function parseModelInputs(
     'input.properties.parameters.properties',
     {}
   ) as { [key: string]: ModelInput };
-  return Object.keys(modelInputsObj).map((inputName: string) => {
-    return {
-      label: inputName,
-      ...modelInputsObj[inputName],
-    } as ModelInputFormField;
-  });
+  return Object.keys(modelInputsObj).map(
+    (inputName: string) =>
+      ({
+        label: inputName,
+        ...modelInputsObj[inputName],
+      } as ModelInputFormField)
+  );
 }
 
 // Derive the collection of model outputs from the model interface JSONSchema into a form-ready list
 export function parseModelOutputs(
   modelInterface: ModelInterface
 ): ModelOutputFormField[] {
-  console.log('model interface: ', modelInterface);
   const modelOutputsObj = get(modelInterface, 'output.properties', {}) as {
     [key: string]: ModelOutput;
   };
-  return Object.keys(modelOutputsObj).map((outputName: string) => {
-    return {
-      label: outputName,
-      ...modelOutputsObj[outputName],
-    } as ModelOutputFormField;
-  });
+  return Object.keys(modelOutputsObj).map(
+    (outputName: string) =>
+      ({
+        label: outputName,
+        ...modelOutputsObj[outputName],
+      } as ModelOutputFormField)
+  );
 }

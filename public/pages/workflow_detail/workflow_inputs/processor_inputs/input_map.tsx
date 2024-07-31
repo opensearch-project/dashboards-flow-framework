@@ -17,9 +17,7 @@ import { MapArrayField } from '../input_fields';
 
 interface InputMapProps {
   inputMapField: IConfigField;
-  inputMapFieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
-  processorFieldPath: string;
-  modelFieldPath: string;
+  inputMapFieldPath: string;
   inputFields: ModelInputFormField[];
   onFormChange: () => void;
 }

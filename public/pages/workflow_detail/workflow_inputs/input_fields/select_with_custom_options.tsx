@@ -27,39 +27,40 @@ export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
   // selected option state
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
 
-  const [options, setOptions] = useState<any[]>(props.options);
-
-  // update the selected option when the form is updated
+  // update the selected option when the form is updated. set to empty if the form value is undefined
+  // or an empty string ('')
   useEffect(() => {
-    if (getIn(values, props.fieldPath) !== undefined) {
+    const formValue = getIn(values, props.fieldPath);
+    if (!isEmpty(formValue)) {
       setSelectedOption([{ label: getIn(values, props.fieldPath) }]);
+    } else {
+      setSelectedOption([]);
     }
   }, [getIn(values, props.fieldPath)]);
 
+  // custom handler when users create a custom option
+  // only update the form value if non-empty
   function onCreateOption(searchValue: any): void {
     const normalizedSearchValue = searchValue.trim()?.toLowerCase();
     if (!normalizedSearchValue) {
       return;
     }
-    const newOption = {
-      label: searchValue,
-    };
     setFieldTouched(props.fieldPath, true);
     setFieldValue(props.fieldPath, searchValue);
     props.onFormChange();
-    //setSelectedOption([newOption]);
   }
 
+  // custom render fn.
   function renderOption(option: any, searchValue: string) {
     return (
-      <EuiFlexGroup direction="row" alignItems="flexStart">
+      <EuiFlexGroup direction="row" alignItems="flexStart" gutterSize="s">
         <EuiFlexItem grow={false}>
-          <EuiText>{option.label}</EuiText>
+          <EuiText size="s">{option.label}</EuiText>
         </EuiFlexItem>
-        <EuiFlexItem grow={false} style={{ marginTop: '14px' }}>
-          <EuiText size="s" color="subdued">
-            {option.type || 'Unknown type'}
-          </EuiText>{' '}
+        <EuiFlexItem grow={false}>
+          <EuiText size="xs" color="subdued" style={{ marginTop: '2px' }}>
+            {`(${option.type || 'unknown type'})`}
+          </EuiText>
         </EuiFlexItem>
       </EuiFlexGroup>
     );
@@ -71,14 +72,13 @@ export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
       compressed={false}
       placeholder={props.placeholder}
       singleSelection={{ asPlainText: true }}
-      isClearable={true}
-      options={options}
+      isClearable={false}
+      options={props.options}
       selectedOptions={selectedOption}
       renderOption={renderOption}
       onChange={(options) => {
-        const updatedOptions = isEmpty(options) ? [{ label: '' }] : options;
         setFieldTouched(props.fieldPath, true);
-        setFieldValue(props.fieldPath, get(updatedOptions, '0.label'));
+        setFieldValue(props.fieldPath, get(options, '0.label'));
         props.onFormChange();
       }}
       onCreateOption={onCreateOption}

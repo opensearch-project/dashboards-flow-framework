@@ -120,7 +120,10 @@ export function MapField(props: MapFieldProps) {
                               )}
                             </>
                           </EuiFlexItem>
-                          <EuiFlexItem grow={false}>
+                          <EuiFlexItem
+                            grow={false}
+                            style={{ marginTop: '14px' }}
+                          >
                             <EuiIcon type="sortRight" />
                           </EuiFlexItem>
                           <EuiFlexItem>
