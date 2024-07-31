@@ -116,6 +116,7 @@ export function MapField(props: MapFieldProps) {
                               ) : (
                                 <TextField
                                   fieldPath={`${props.fieldPath}.${idx}.key`}
+                                  placeholder={props.keyPlaceholder || 'Input'}
                                   showError={false}
                                   onFormChange={props.onFormChange}
                                 />
@@ -142,6 +143,9 @@ export function MapField(props: MapFieldProps) {
                               ) : (
                                 <TextField
                                   fieldPath={`${props.fieldPath}.${idx}.value`}
+                                  placeholder={
+                                    props.valuePlaceholder || 'Output'
+                                  }
                                   showError={false}
                                   onFormChange={props.onFormChange}
                                 />
