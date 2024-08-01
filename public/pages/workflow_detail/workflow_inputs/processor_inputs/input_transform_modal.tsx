@@ -29,6 +29,7 @@ import {
   ML_INFERENCE_DOCS_LINK,
   MapArrayFormValue,
   PROCESSOR_CONTEXT,
+  SearchHit,
   SimulateIngestPipelineResponse,
   WorkflowConfig,
   WorkflowFormValues,
@@ -166,20 +167,25 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       );
                       // Execute search. If there are preceding processors, augment the existing query with
                       // the partial search pipeline (inline) to get the latest transformed version of the response.
-                      const augmentedRequest = JSON.stringify({
-                        ...JSON.parse(values.search.request as string),
-                        search_pipeline: curSearchPipeline,
-                      });
                       dispatch(
                         searchIndex({
                           index: values.ingest.index.name,
-                          body: augmentedRequest,
+                          body: JSON.stringify({
+                            ...JSON.parse(values.search.request as string),
+                            search_pipeline: curSearchPipeline,
+                          }),
                         })
                       )
                         .unwrap()
                         .then(async (resp) => {
                           setSourceInput(
-                            JSON.stringify(resp.hits.hits, undefined, 2)
+                            JSON.stringify(
+                              resp.hits.hits.map(
+                                (hit: SearchHit) => hit._source
+                              ),
+                              undefined,
+                              2
+                            )
                           );
                         })
                         .catch((error: any) => {
@@ -265,28 +271,28 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 style={{ width: '100px' }}
                 disabled={isEmpty(map) || isEmpty(JSON.parse(sourceInput))}
                 onClick={async () => {
-                  switch (props.context) {
-                    case PROCESSOR_CONTEXT.INGEST: {
-                      if (
-                        !isEmpty(map) &&
-                        !isEmpty(JSON.parse(sourceInput)) &&
-                        selectedOutputOption !== undefined
-                      ) {
-                        let sampleSourceInput = {};
-                        try {
-                          sampleSourceInput = JSON.parse(sourceInput)[0];
-                          const output = generateTransform(
-                            sampleSourceInput,
-                            map[selectedOutputOption]
-                          );
-                          setTransformedOutput(
-                            JSON.stringify(output, undefined, 2)
-                          );
-                        } catch {}
-                      }
-                      break;
-                    }
-                    // TODO: complete for search request / search response contexts
+                  if (
+                    !isEmpty(map) &&
+                    !isEmpty(JSON.parse(sourceInput)) &&
+                    selectedOutputOption !== undefined
+                  ) {
+                    let sampleSourceInput = {};
+                    try {
+                      // In the context of ingest or search resp, this input will be an array (list of docs)
+                      // In the context of request, it will be a single JSON
+                      sampleSourceInput =
+                        props.context === PROCESSOR_CONTEXT.INGEST ||
+                        props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                          ? JSON.parse(sourceInput)[0]
+                          : JSON.parse(sourceInput);
+                      const output = generateTransform(
+                        sampleSourceInput,
+                        map[selectedOutputOption]
+                      );
+                      setTransformedOutput(
+                        JSON.stringify(output, undefined, 2)
+                      );
+                    } catch {}
                   }
                 }}
               >

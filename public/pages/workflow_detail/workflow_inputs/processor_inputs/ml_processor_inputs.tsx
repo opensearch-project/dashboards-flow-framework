@@ -45,11 +45,6 @@ interface MLProcessorInputsProps {
   context: PROCESSOR_CONTEXT;
 }
 
-enum PREVIEW_TOOLTIP_TEXT {
-  ENABLED = 'Preview inputs and transformed outputs',
-  DISABLED = 'Preview is unavailable for multiple search request processors',
-}
-
 /**
  * Component to render ML processor inputs, including the model selection, and the
  * optional configurations of input maps and output maps. We persist any model interface
@@ -79,11 +74,17 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
   const outputMapValue = getIn(values, outputMapFieldPath);
 
-  // preview availability state
-  // if there are preceding request processors, we cannot fetch and display the interim transformed query.
-  // in that case, we block preview
-  // ref: https://github.com/opensearch-project/OpenSearch/issues/14745
-  const [isPreviewAvailable, setIsPreviewAvailable] = useState<boolean>(true);
+  // preview availability states
+  // if there are preceding search request processors, we cannot fetch and display the interim transformed query.
+  // additionally, cannot preview output transforms for search request processors because output_maps need to be defined
+  // (internally, we remove any output map to get the raw transforms from input_map, but this is not possible here)
+  // in these cases, we block preview
+  // ref tracking issue: https://github.com/opensearch-project/OpenSearch/issues/14745
+  const [isInputPreviewAvailable, setIsInputPreviewAvailable] = useState<
+    boolean
+  >(true);
+  const isOutputPreviewAvailable =
+    props.context !== PROCESSOR_CONTEXT.SEARCH_REQUEST;
   useEffect(() => {
     if (props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST) {
       const curSearchPipeline = formikToPartialPipeline(
@@ -93,7 +94,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
         false,
         PROCESSOR_CONTEXT.SEARCH_REQUEST
       );
-      setIsPreviewAvailable(curSearchPipeline === undefined);
+      setIsInputPreviewAvailable(curSearchPipeline === undefined);
     }
   }, [props.uiConfig.search.enrichRequest.processors]);
 
@@ -191,13 +192,13 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             <EuiFlexItem grow={false}>
               <EuiToolTip
                 content={
-                  isPreviewAvailable
-                    ? PREVIEW_TOOLTIP_TEXT.ENABLED
-                    : PREVIEW_TOOLTIP_TEXT.DISABLED
+                  isInputPreviewAvailable
+                    ? 'Preview transformations to model inputs'
+                    : 'Preview is unavailable for multiple search request processors'
                 }
               >
                 <EuiButtonEmpty
-                  disabled={!isPreviewAvailable}
+                  disabled={!isInputPreviewAvailable}
                   style={{ width: '100px' }}
                   size="s"
                   onClick={() => {
@@ -237,13 +238,13 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             <EuiFlexItem grow={false}>
               <EuiToolTip
                 content={
-                  isPreviewAvailable
-                    ? PREVIEW_TOOLTIP_TEXT.ENABLED
-                    : PREVIEW_TOOLTIP_TEXT.DISABLED
+                  isOutputPreviewAvailable
+                    ? 'Preview transformations of model outputs'
+                    : 'Preview of model outputs is unavailable for search request processors'
                 }
               >
                 <EuiButtonEmpty
-                  disabled={!isPreviewAvailable}
+                  disabled={!isOutputPreviewAvailable}
                   style={{ width: '100px' }}
                   size="s"
                   onClick={() => {

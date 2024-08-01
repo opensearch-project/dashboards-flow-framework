@@ -451,7 +451,7 @@ export type WorkflowDict = {
 export type SimulateIngestPipelineDoc = {
   _index: string;
   _id: string;
-  _source: {};
+  _source: any;
 };
 
 // from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#example-specify-a-pipeline-in-the-path
@@ -470,3 +470,5 @@ export type SimulateIngestPipelineDocResponse = {
 export type SimulateIngestPipelineResponse = {
   docs: SimulateIngestPipelineDocResponse[];
 };
+
+export type SearchHit = SimulateIngestPipelineDoc;
