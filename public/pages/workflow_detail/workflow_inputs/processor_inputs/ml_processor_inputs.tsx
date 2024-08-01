@@ -13,9 +13,9 @@ import {
   EuiFlexItem,
   EuiSpacer,
   EuiText,
+  EuiToolTip,
 } from '@elastic/eui';
 import {
-  WorkspaceFormValues,
   IProcessorConfig,
   IConfigField,
   PROCESSOR_CONTEXT,
@@ -24,13 +24,18 @@ import {
   ModelInputFormField,
   ModelOutputFormField,
   ML_INFERENCE_DOCS_LINK,
+  WorkflowFormValues,
 } from '../../../../../common';
 import { MapArrayField, ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
 import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
 import { AppState } from '../../../../store';
-import { parseModelInputs, parseModelOutputs } from '../../../../utils';
+import {
+  formikToPartialPipeline,
+  parseModelInputs,
+  parseModelOutputs,
+} from '../../../../utils';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
@@ -38,6 +43,11 @@ interface MLProcessorInputsProps {
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
   onFormChange: () => void;
   context: PROCESSOR_CONTEXT;
+}
+
+enum PREVIEW_TOOLTIP_TEXT {
+  ENABLED = 'Preview inputs and transformed outputs',
+  DISABLED = 'Preview is unavailable for multiple search request processors',
 }
 
 /**
@@ -49,7 +59,7 @@ interface MLProcessorInputsProps {
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const models = useSelector((state: AppState) => state.models.models);
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkspaceFormValues
+    WorkflowFormValues
   >();
 
   // extracting field info from the ML processor config
@@ -68,6 +78,24 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   ) as IConfigField;
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
   const outputMapValue = getIn(values, outputMapFieldPath);
+
+  // preview availability state
+  // if there are preceding request processors, we cannot fetch and display the interim transformed query.
+  // in that case, we block preview
+  // ref: https://github.com/opensearch-project/OpenSearch/issues/14745
+  const [isPreviewAvailable, setIsPreviewAvailable] = useState<boolean>(true);
+  useEffect(() => {
+    if (props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST) {
+      const curSearchPipeline = formikToPartialPipeline(
+        values,
+        props.uiConfig,
+        props.config.id,
+        false,
+        PROCESSOR_CONTEXT.SEARCH_REQUEST
+      );
+      setIsPreviewAvailable(curSearchPipeline === undefined);
+    }
+  }, [props.uiConfig.search.enrichRequest.processors]);
 
   // advanced transformations modal state
   const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
@@ -161,15 +189,24 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               >{`Configure input transformations (optional)`}</EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButtonEmpty
-                style={{ width: '100px' }}
-                size="s"
-                onClick={() => {
-                  setIsInputTransformModalOpen(true);
-                }}
+              <EuiToolTip
+                content={
+                  isPreviewAvailable
+                    ? PREVIEW_TOOLTIP_TEXT.ENABLED
+                    : PREVIEW_TOOLTIP_TEXT.DISABLED
+                }
               >
-                Preview
-              </EuiButtonEmpty>
+                <EuiButtonEmpty
+                  disabled={!isPreviewAvailable}
+                  style={{ width: '100px' }}
+                  size="s"
+                  onClick={() => {
+                    setIsInputTransformModalOpen(true);
+                  }}
+                >
+                  Preview
+                </EuiButtonEmpty>
+              </EuiToolTip>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
@@ -198,15 +235,24 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               >{`Configure output transformations (optional)`}</EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButtonEmpty
-                style={{ width: '100px' }}
-                size="s"
-                onClick={() => {
-                  setIsOutputTransformModalOpen(true);
-                }}
+              <EuiToolTip
+                content={
+                  isPreviewAvailable
+                    ? PREVIEW_TOOLTIP_TEXT.ENABLED
+                    : PREVIEW_TOOLTIP_TEXT.DISABLED
+                }
               >
-                Preview
-              </EuiButtonEmpty>
+                <EuiButtonEmpty
+                  disabled={!isPreviewAvailable}
+                  style={{ width: '100px' }}
+                  size="s"
+                  onClick={() => {
+                    setIsOutputTransformModalOpen(true);
+                  }}
+                >
+                  Preview
+                </EuiButtonEmpty>
+              </EuiToolTip>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />

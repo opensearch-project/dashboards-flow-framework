@@ -34,7 +34,7 @@ import {
   WorkflowFormValues,
 } from '../../../../../common';
 import {
-  formikToPipeline,
+  formikToPartialPipeline,
   generateTransform,
   prepareDocsForSimulate,
   unwrapTransformedDocs,
@@ -103,7 +103,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                         `ingest.enrich.${props.config.id}.outputMap`,
                         []
                       );
-                      const curIngestPipeline = formikToPipeline(
+                      const curIngestPipeline = formikToPartialPipeline(
                         valuesWithoutOutputMapConfig,
                         props.uiConfig,
                         props.config.id,

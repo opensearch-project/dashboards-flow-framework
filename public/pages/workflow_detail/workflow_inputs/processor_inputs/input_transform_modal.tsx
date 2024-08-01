@@ -34,12 +34,16 @@ import {
   WorkflowFormValues,
 } from '../../../../../common';
 import {
-  formikToPipeline,
+  formikToPartialPipeline,
   generateTransform,
   prepareDocsForSimulate,
   unwrapTransformedDocs,
 } from '../../../../utils';
-import { simulatePipeline, useAppDispatch } from '../../../../store';
+import {
+  searchIndex,
+  simulatePipeline,
+  useAppDispatch,
+} from '../../../../store';
 import { getCore } from '../../../../services';
 import { MapArrayField } from '../input_fields';
 
@@ -99,16 +103,15 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   switch (props.context) {
                     case PROCESSOR_CONTEXT.INGEST: {
                       // get the current ingest pipeline up to, but not including, this processor
-                      const curIngestPipeline = formikToPipeline(
+                      const curIngestPipeline = formikToPartialPipeline(
                         values,
                         props.uiConfig,
                         props.config.id,
                         false,
                         PROCESSOR_CONTEXT.INGEST
                       );
-                      // if there are preceding processors, we need to generate the ingest pipeline
-                      // up to this point and simulate, in order to get the latest transformed
-                      // version of the docs
+                      // if there are preceding processors, we need to simulate the partial ingest pipeline,
+                      // in order to get the latest transformed version of the docs
                       if (curIngestPipeline !== undefined) {
                         const curDocs = prepareDocsForSimulate(
                           values.ingest.docs,
@@ -134,7 +137,58 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       }
                       break;
                     }
-                    // TODO: complete for search request / search response contexts
+                    case PROCESSOR_CONTEXT.SEARCH_REQUEST: {
+                      // get the current search pipeline up to, but not including, this processor
+                      const curSearchPipeline = formikToPartialPipeline(
+                        values,
+                        props.uiConfig,
+                        props.config.id,
+                        false,
+                        PROCESSOR_CONTEXT.SEARCH_REQUEST
+                      );
+                      // if there are preceding processors, we cannot generate. The button to render
+                      // this modal should be disabled if the search pipeline would be enabled. We add
+                      // this if check as an extra layer of checking, and if mechanism for gating
+                      // this is changed in the future.
+                      if (curSearchPipeline === undefined) {
+                        setSourceInput(values.search.request);
+                      }
+                      break;
+                    }
+                    case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
+                      // get the current search pipeline up to, but not including, this processor
+                      const curSearchPipeline = formikToPartialPipeline(
+                        values,
+                        props.uiConfig,
+                        props.config.id,
+                        false,
+                        PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                      );
+                      // Execute search. If there are preceding processors, augment the existing query with
+                      // the partial search pipeline (inline) to get the latest transformed version of the response.
+                      const augmentedRequest = JSON.stringify({
+                        ...JSON.parse(values.search.request as string),
+                        search_pipeline: curSearchPipeline,
+                      });
+                      dispatch(
+                        searchIndex({
+                          index: values.ingest.index.name,
+                          body: augmentedRequest,
+                        })
+                      )
+                        .unwrap()
+                        .then(async (resp) => {
+                          setSourceInput(
+                            JSON.stringify(resp.hits.hits, undefined, 2)
+                          );
+                        })
+                        .catch((error: any) => {
+                          getCore().notifications.toasts.addDanger(
+                            `Failed to fetch input data`
+                          );
+                        });
+                      break;
+                    }
                   }
                 }}
               >
