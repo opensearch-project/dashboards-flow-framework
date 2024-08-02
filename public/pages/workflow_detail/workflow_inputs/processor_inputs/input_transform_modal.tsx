@@ -174,11 +174,14 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       // the partial search pipeline (inline) to get the latest transformed version of the response.
                       dispatch(
                         searchIndex({
-                          index: values.ingest.index.name,
-                          body: JSON.stringify({
-                            ...JSON.parse(values.search.request as string),
-                            search_pipeline: curSearchPipeline,
-                          }),
+                          apiBody: {
+                            index: values.ingest.index.name,
+                            body: JSON.stringify({
+                              ...JSON.parse(values.search.request as string),
+                              search_pipeline: curSearchPipeline,
+                            }),
+                          },
+                          dataSourceId,
                         })
                       )
                         .unwrap()

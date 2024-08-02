@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { EuiFlexItem, EuiSpacer } from '@elastic/eui';
-import { TextField, ModelField, SelectField } from './input_fields';
+import { TextField, SelectField } from './input_fields';
 import { IConfig } from '../../../../common';
 
 /**

@@ -125,11 +125,13 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                         values.ingest.index.name
                       );
                       await dispatch(
-                        simulatePipeline({apiBody:{
-                          pipeline: curIngestPipeline,
-                          docs: curDocs,
-                        },
-                      dataSourceId})
+                        simulatePipeline({
+                          apiBody: {
+                            pipeline: curIngestPipeline,
+                            docs: curDocs,
+                          },
+                          dataSourceId,
+                        })
                       )
                         .unwrap()
                         .then((resp: SimulateIngestPipelineResponse) => {
@@ -165,11 +167,14 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                       // version of the request.
                       dispatch(
                         searchIndex({
-                          index: values.ingest.index.name,
-                          body: JSON.stringify({
-                            ...JSON.parse(values.search.request as string),
-                            search_pipeline: curSearchPipeline,
-                          }),
+                          apiBody: {
+                            index: values.ingest.index.name,
+                            body: JSON.stringify({
+                              ...JSON.parse(values.search.request as string),
+                              search_pipeline: curSearchPipeline,
+                            }),
+                          },
+                          dataSourceId,
                         })
                       )
                         .unwrap()
