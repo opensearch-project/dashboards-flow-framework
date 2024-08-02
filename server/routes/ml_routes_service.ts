@@ -11,7 +11,7 @@ import {
   OpenSearchDashboardsRequest,
   OpenSearchDashboardsResponseFactory,
 } from '../../../../src/core/server';
-import { SEARCH_MODELS_NODE_API_PATH, BASE_NODE_API_PATH } from '../../common';
+import { SEARCH_MODELS_NODE_API_PATH, BASE_NODE_API_PATH, SearchHit } from '../../common';
 import { generateCustomError, getModelsFromResponses } from './helpers';
 import { getClientBasedOnDataSource } from '../utils/helpers';
 
@@ -74,9 +74,7 @@ export class MLRoutesService {
         body,
       });
 
-      const modelHits = (modelsResponse.hits
-        ? modelsResponse.hits.hits
-        : []) as any[];
+      const modelHits = modelsResponse.hits.hits as SearchHit[];
       const modelDict = getModelsFromResponses(modelHits);
 
       return res.ok({ body: { models: modelDict } });

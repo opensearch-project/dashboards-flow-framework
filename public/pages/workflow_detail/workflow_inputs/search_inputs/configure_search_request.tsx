@@ -22,7 +22,7 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { WorkspaceFormValues } from '../../../../../common';
+import { SearchHit, WorkspaceFormValues } from '../../../../../common';
 import { JsonField } from '../input_fields';
 import {
   AppState,
@@ -174,8 +174,13 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
               )
                 .unwrap()
                 .then(async (resp) => {
-                  const hits = resp.hits.hits;
-                  props.setQueryResponse(JSON.stringify(hits, undefined, 2));
+                  props.setQueryResponse(
+                    JSON.stringify(
+                      resp.hits.hits.map((hit: SearchHit) => hit._source),
+                      undefined,
+                      2
+                    )
+                  );
                 })
                 .catch((error: any) => {
                   props.setQueryResponse('');
