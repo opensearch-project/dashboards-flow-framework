@@ -28,6 +28,7 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 import {
+  SearchHit,
   Workflow,
   WorkflowConfig,
   WorkflowFormValues,
@@ -335,8 +336,13 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           dispatch(searchIndex({ index: indexName, body: props.query }))
             .unwrap()
             .then(async (resp) => {
-              const hits = resp.hits.hits;
-              props.setQueryResponse(JSON.stringify(hits, undefined, 2));
+              props.setQueryResponse(
+                JSON.stringify(
+                  resp.hits.hits.map((hit: SearchHit) => hit._source),
+                  undefined,
+                  2
+                )
+              );
               dispatch(removeDirty());
             })
             .catch((error: any) => {
@@ -532,6 +538,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
                     setQuery={props.setQuery}
+                    setQueryResponse={props.setQueryResponse}
                     onFormChange={props.onFormChange}
                   />
                 ) : (

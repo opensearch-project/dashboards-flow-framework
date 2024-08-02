@@ -64,6 +64,8 @@ export enum WORKFLOW_TYPE {
 
 export enum PROCESSOR_TYPE {
   ML = 'ml_processor',
+  SPLIT = 'split_processor',
+  SORT = 'sort_processor',
 }
 
 export enum MODEL_TYPE {
@@ -98,10 +100,7 @@ export enum COMPONENT_CLASS {
   TRANSFORMER = 'transformer',
   JSON_TO_JSON_TRANSFORMER = 'json_to_json_transformer',
   ML_TRANSFORMER = 'ml_transformer',
-  TEXT_EMBEDDING_TRANSFORMER = 'text_embedding_transformer',
-  SPARSE_ENCODER_TRANSFORMER = 'sparse_encoder_transformer',
   RESULTS_TRANSFORMER = 'results_transformer',
-  NORMALIZATION_TRANSFORMER = 'normalization_transformer',
   // Query-related classes
   QUERY = 'query',
   MATCH_QUERY = 'match_query',
@@ -112,6 +111,13 @@ export enum COMPONENT_CLASS {
   RESULTS = 'results',
 }
 
+/**
+ * LINKS
+ */
+export const ML_INFERENCE_DOCS_LINK =
+  'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters';
+export const ML_CHOOSE_MODEL_LINK =
+  'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model';
 /**
  * MISCELLANEOUS
  */
@@ -130,6 +136,10 @@ export const FETCH_ALL_QUERY_BODY = {
 };
 export const INDEX_NOT_FOUND_EXCEPTION = 'index_not_found_exception';
 export const JSONPATH_ROOT_SELECTOR = '$.';
+export enum SORT_ORDER {
+  ASC = 'asc',
+  DESC = 'desc',
+}
 
 export enum PROCESSOR_CONTEXT {
   INGEST = 'ingest',

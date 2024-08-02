@@ -12,10 +12,11 @@ import { getInitialValue } from '../../../../utils';
 interface TextFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onFormChange: () => void;
-  label: string;
+  label?: string;
   helpLink?: string;
   helpText?: string;
   placeholder?: string;
+  showError?: boolean;
 }
 
 /**
@@ -41,7 +42,7 @@ export function TextField(props: TextFieldProps) {
               ) : undefined
             }
             helpText={props.helpText || undefined}
-            error={getIn(errors, field.name)}
+            error={props.showError && getIn(errors, field.name)}
             isInvalid={getIn(errors, field.name) && getIn(touched, field.name)}
           >
             <EuiFieldText

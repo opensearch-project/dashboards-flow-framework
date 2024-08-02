@@ -3,27 +3,39 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getIn, useFormikContext } from 'formik';
+import { useSelector } from 'react-redux';
 import {
-  EuiButton,
-  EuiFilterButton,
-  EuiFilterGroup,
+  EuiButtonEmpty,
+  EuiCallOut,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiSpacer,
   EuiText,
+  EuiToolTip,
 } from '@elastic/eui';
 import {
-  WorkspaceFormValues,
   IProcessorConfig,
   IConfigField,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
   JSONPATH_ROOT_SELECTOR,
+  ModelInputFormField,
+  ModelOutputFormField,
+  ML_INFERENCE_DOCS_LINK,
+  WorkflowFormValues,
 } from '../../../../../common';
-import { MapField, ModelField } from '../input_fields';
+import { MapArrayField, ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
 import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
+import { AppState } from '../../../../store';
+import {
+  formikToPartialPipeline,
+  parseModelInputs,
+  parseModelOutputs,
+} from '../../../../utils';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
@@ -34,11 +46,16 @@ interface MLProcessorInputsProps {
 }
 
 /**
- * Component to render ML processor inputs. Offers simple and advanced flows for configuring data transforms
- * before and after executing an ML inference request
+ * Component to render ML processor inputs, including the model selection, and the
+ * optional configurations of input maps and output maps. We persist any model interface
+ * state here as well, to propagate expected model inputs / outputs to to the input map /
+ * output map configuration forms, respectively.
  */
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
-  const { values } = useFormikContext<WorkspaceFormValues>();
+  const models = useSelector((state: AppState) => state.models.models);
+  const { values, setFieldValue, setFieldTouched } = useFormikContext<
+    WorkflowFormValues
+  >();
 
   // extracting field info from the ML processor config
   // TODO: have a better mechanism for guaranteeing the expected fields/config instead of hardcoding them here
@@ -50,10 +67,36 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     (field) => field.id === 'inputMap'
   ) as IConfigField;
   const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${inputMapField.id}`;
+  const inputMapValue = getIn(values, inputMapFieldPath);
   const outputMapField = props.config.fields.find(
     (field) => field.id === 'outputMap'
   ) as IConfigField;
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
+  const outputMapValue = getIn(values, outputMapFieldPath);
+
+  // preview availability states
+  // if there are preceding search request processors, we cannot fetch and display the interim transformed query.
+  // additionally, cannot preview output transforms for search request processors because output_maps need to be defined
+  // (internally, we remove any output map to get the raw transforms from input_map, but this is not possible here)
+  // in these cases, we block preview
+  // ref tracking issue: https://github.com/opensearch-project/OpenSearch/issues/14745
+  const [isInputPreviewAvailable, setIsInputPreviewAvailable] = useState<
+    boolean
+  >(true);
+  const isOutputPreviewAvailable =
+    props.context !== PROCESSOR_CONTEXT.SEARCH_REQUEST;
+  useEffect(() => {
+    if (props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST) {
+      const curSearchPipeline = formikToPartialPipeline(
+        values,
+        props.uiConfig,
+        props.config.id,
+        false,
+        PROCESSOR_CONTEXT.SEARCH_REQUEST
+      );
+      setIsInputPreviewAvailable(curSearchPipeline === undefined);
+    }
+  }, [props.uiConfig.search.enrichRequest.processors]);
 
   // advanced transformations modal state
   const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
@@ -63,10 +106,45 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     boolean
   >(false);
 
-  // advanced / simple transform state
-  const [isSimpleTransformSelected, setIsSimpleTransformSelected] = useState<
-    boolean
-  >(true);
+  // model interface state
+  const [hasModelInterface, setHasModelInterface] = useState<boolean>(true);
+  const [inputFields, setInputFields] = useState<ModelInputFormField[]>([]);
+  const [outputFields, setOutputFields] = useState<ModelOutputFormField[]>([]);
+
+  // Hook to listen when the selected model has changed. We do a few checks here:
+  // 1: update model interface states
+  // 2. clear out any persisted inputMap/outputMap form values, as those would now be invalid
+  function onModelChange(modelId: string) {
+    updateModelInterfaceStates(modelId);
+    setFieldValue(inputMapFieldPath, []);
+    setFieldValue(outputMapFieldPath, []);
+    setFieldTouched(inputMapFieldPath, false);
+    setFieldTouched(outputMapFieldPath, false);
+  }
+
+  // on initial load of the models, update model interface states
+  useEffect(() => {
+    if (!isEmpty(models)) {
+      const modelId = getIn(values, `${modelFieldPath}.id`);
+      if (modelId) {
+        updateModelInterfaceStates(modelId);
+      }
+    }
+  }, [models]);
+
+  // reusable function to update interface states based on the model ID
+  function updateModelInterfaceStates(modelId: string) {
+    const newSelectedModel = models[modelId];
+    if (newSelectedModel?.interface !== undefined) {
+      setInputFields(parseModelInputs(newSelectedModel.interface));
+      setOutputFields(parseModelOutputs(newSelectedModel.interface));
+      setHasModelInterface(true);
+    } else {
+      setInputFields([]);
+      setOutputFields([]);
+      setHasModelInterface(false);
+    }
+  }
 
   return (
     <>
@@ -77,104 +155,147 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           context={props.context}
           inputMapField={inputMapField}
           inputMapFieldPath={inputMapFieldPath}
+          inputFields={inputFields}
           onFormChange={props.onFormChange}
           onClose={() => setIsInputTransformModalOpen(false)}
         />
       )}
       {isOutputTransformModalOpen && (
         <OutputTransformModal
+          uiConfig={props.uiConfig}
+          config={props.config}
+          context={props.context}
+          outputMapField={outputMapField}
+          outputMapFieldPath={outputMapFieldPath}
+          outputFields={outputFields}
+          onFormChange={props.onFormChange}
           onClose={() => setIsOutputTransformModalOpen(false)}
-          onConfirm={() => {
-            console.log('saving transform output configuration...');
-            setIsOutputTransformModalOpen(false);
-          }}
         />
       )}
       <ModelField
         field={modelField}
         fieldPath={modelFieldPath}
+        hasModelInterface={hasModelInterface}
+        onModelChange={onModelChange}
         onFormChange={props.onFormChange}
       />
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
         <>
           <EuiSpacer size="s" />
-          <EuiText size="s">{`Configure data transformations (optional)`}</EuiText>
+          <EuiFlexGroup direction="row">
+            <EuiFlexItem grow={false}>
+              <EuiText
+                size="m"
+                style={{ marginTop: '4px' }}
+              >{`Configure input transformations (${
+                props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                  ? 'Required'
+                  : 'Optional'
+              })`}</EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiToolTip
+                content={
+                  isInputPreviewAvailable
+                    ? 'Preview transformations to model inputs'
+                    : 'Preview is unavailable for multiple search request processors'
+                }
+              >
+                <EuiButtonEmpty
+                  disabled={!isInputPreviewAvailable}
+                  style={{ width: '100px' }}
+                  size="s"
+                  onClick={() => {
+                    setIsInputTransformModalOpen(true);
+                  }}
+                >
+                  Preview
+                </EuiButtonEmpty>
+              </EuiToolTip>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+          <EuiSpacer size="s" />
           <EuiText size="s" color="subdued">
             {`Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
           </EuiText>
           <EuiSpacer size="s" />
-          <EuiFilterGroup>
-            <EuiFilterButton
-              grow={false}
-              hasActiveFilters={isSimpleTransformSelected}
-              onClick={() => setIsSimpleTransformSelected(true)}
-            >
-              Simple
-            </EuiFilterButton>
-            <EuiFilterButton
-              grow={false}
-              hasActiveFilters={!isSimpleTransformSelected}
-              onClick={() => setIsSimpleTransformSelected(false)}
-            >
-              Advanced
-            </EuiFilterButton>
-          </EuiFilterGroup>
-          <EuiSpacer size="s" />
-          {isSimpleTransformSelected ? (
-            <>
-              <MapField
-                field={inputMapField}
-                fieldPath={inputMapFieldPath}
-                label="Input map"
-                helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
-                helpLink={
-                  'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
+          <MapArrayField
+            field={inputMapField}
+            fieldPath={inputMapFieldPath}
+            label="Input Map"
+            helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
+            helpLink={ML_INFERENCE_DOCS_LINK}
+            keyPlaceholder="Model input field"
+            valuePlaceholder="Document field"
+            onFormChange={props.onFormChange}
+            keyOptions={inputFields}
+          />
+          <EuiSpacer size="l" />
+          <EuiFlexGroup direction="row">
+            <EuiFlexItem grow={false}>
+              <EuiText
+                size="m"
+                style={{ marginTop: '4px' }}
+              >{`Configure output transformations (${
+                props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                  ? 'Required'
+                  : 'Optional'
+              })`}</EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiToolTip
+                content={
+                  isOutputPreviewAvailable
+                    ? 'Preview transformations of model outputs'
+                    : 'Preview of model outputs is unavailable for search request processors'
                 }
-                keyPlaceholder="Model input field"
-                valuePlaceholder="Document field"
-                onFormChange={props.onFormChange}
-              />
-              <EuiSpacer size="l" />
-              <MapField
-                field={outputMapField}
-                fieldPath={outputMapFieldPath}
-                label="Output map"
-                helpText={`An array specifying how to map the model’s output to new fields.`}
-                helpLink={
-                  'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters'
-                }
-                keyPlaceholder="New document field"
-                valuePlaceholder="Model output field"
-                onFormChange={props.onFormChange}
-              />
-            </>
-          ) : (
-            <>
-              <EuiButton
-                style={{ width: '200px' }}
-                fill={false}
-                onClick={() => {
-                  setIsInputTransformModalOpen(true);
-                }}
               >
-                Configure input
-              </EuiButton>
-              <EuiSpacer size="s" />
-
-              <EuiButton
-                style={{ width: '200px' }}
-                fill={false}
-                onClick={() => {
-                  setIsOutputTransformModalOpen(true);
-                }}
-              >
-                Configure output
-              </EuiButton>
-            </>
-          )}
-
+                <EuiButtonEmpty
+                  disabled={!isOutputPreviewAvailable}
+                  style={{ width: '100px' }}
+                  size="s"
+                  onClick={() => {
+                    setIsOutputTransformModalOpen(true);
+                  }}
+                >
+                  Preview
+                </EuiButtonEmpty>
+              </EuiToolTip>
+            </EuiFlexItem>
+          </EuiFlexGroup>
           <EuiSpacer size="s" />
+          <MapArrayField
+            field={outputMapField}
+            fieldPath={outputMapFieldPath}
+            label="Output Map"
+            helpText={`An array specifying how to map the model’s output to new document fields.`}
+            helpLink={ML_INFERENCE_DOCS_LINK}
+            keyPlaceholder="New document field"
+            valuePlaceholder="Model output field"
+            onFormChange={props.onFormChange}
+            valueOptions={outputFields}
+          />
+          <EuiSpacer size="s" />
+          {inputMapValue.length !== outputMapValue.length &&
+            inputMapValue.length > 0 &&
+            outputMapValue.length > 0 && (
+              <EuiCallOut
+                size="s"
+                title="Input and output maps must have equal length if both are defined"
+                iconType={'alert'}
+                color="danger"
+              />
+            )}
+          {props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST &&
+            (inputMapValue.length === 0 || outputMapValue.length === 0) && (
+              <EuiCallOut
+                size="s"
+                title="Input and output maps are required for ML inference search request processors"
+                iconType={'alert'}
+                color="danger"
+              />
+            )}
         </>
       )}
     </>

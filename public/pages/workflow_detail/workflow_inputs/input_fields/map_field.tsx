@@ -9,32 +9,37 @@ import {
   EuiButtonIcon,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiFormControlLayoutDelimited,
   EuiFormRow,
+  EuiIcon,
   EuiLink,
   EuiText,
 } from '@elastic/eui';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import {
-  IConfigField,
   MapEntry,
   MapFormValue,
   WorkflowFormValues,
 } from '../../../../../common';
+import { SelectWithCustomOptions } from './select_with_custom_options';
+import { TextField } from './text_field';
 
 interface MapFieldProps {
-  field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
-  label: string;
+  label?: string;
   helpLink?: string;
   helpText?: string;
   keyPlaceholder?: string;
   valuePlaceholder?: string;
   onFormChange: () => void;
+  keyOptions?: any[];
+  valueOptions?: any[];
 }
 
 /**
- * Input component for configuring field mappings
+ * Input component for configuring field mappings. Input forms are defaulted to text fields. If
+ * keyOptions or valueOptions are set, set the respective input form as a select field, with those options.
+ * Allow custom options as a backup/default to ensure flexibility.
  */
 export function MapField(props: MapFieldProps) {
   const { setFieldValue, setFieldTouched, errors, touched } = useFormikContext<
@@ -62,10 +67,11 @@ export function MapField(props: MapFieldProps) {
   }
 
   return (
-    <Field name={props.fieldPath}>
+    <Field name={props.fieldPath} key={props.fieldPath}>
       {({ field, form }: FieldProps) => {
         return (
           <EuiFormRow
+            fullWidth={true}
             key={props.fieldPath}
             label={props.label}
             labelAppend={
@@ -95,48 +101,58 @@ export function MapField(props: MapFieldProps) {
               {field.value?.map((mapping: MapEntry, idx: number) => {
                 return (
                   <EuiFlexItem key={idx}>
-                    <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                      <EuiFlexItem grow={false}>
-                        <EuiFormControlLayoutDelimited
-                          startControl={
-                            <input
-                              type="string"
-                              placeholder={props.keyPlaceholder || 'Input'}
-                              className="euiFieldText"
-                              value={mapping.key}
-                              onChange={(e) => {
-                                form.setFieldTouched(
-                                  `${props.fieldPath}.${idx}.key`,
-                                  true
-                                );
-                                form.setFieldValue(
-                                  `${props.fieldPath}.${idx}.key`,
-                                  e.target.value
-                                );
-                                props.onFormChange();
-                              }}
-                            />
-                          }
-                          endControl={
-                            <input
-                              type="string"
-                              placeholder={props.valuePlaceholder || 'Output'}
-                              className="euiFieldText"
-                              value={mapping.value}
-                              onChange={(e) => {
-                                form.setFieldTouched(
-                                  `${props.fieldPath}.${idx}.value`,
-                                  true
-                                );
-                                form.setFieldValue(
-                                  `${props.fieldPath}.${idx}.value`,
-                                  e.target.value
-                                );
-                                props.onFormChange();
-                              }}
-                            />
-                          }
-                        />
+                    <EuiFlexGroup direction="row">
+                      <EuiFlexItem grow={true}>
+                        <EuiFlexGroup direction="row" gutterSize="xs">
+                          <EuiFlexItem>
+                            <>
+                              {!isEmpty(props.keyOptions) ? (
+                                <SelectWithCustomOptions
+                                  fieldPath={`${props.fieldPath}.${idx}.key`}
+                                  options={props.keyOptions as any[]}
+                                  placeholder={props.keyPlaceholder || 'Input'}
+                                  onFormChange={props.onFormChange}
+                                />
+                              ) : (
+                                <TextField
+                                  fieldPath={`${props.fieldPath}.${idx}.key`}
+                                  placeholder={props.keyPlaceholder || 'Input'}
+                                  showError={false}
+                                  onFormChange={props.onFormChange}
+                                />
+                              )}
+                            </>
+                          </EuiFlexItem>
+                          <EuiFlexItem
+                            grow={false}
+                            style={{ marginTop: '14px' }}
+                          >
+                            <EuiIcon type="sortRight" />
+                          </EuiFlexItem>
+                          <EuiFlexItem>
+                            <>
+                              {!isEmpty(props.valueOptions) ? (
+                                <SelectWithCustomOptions
+                                  fieldPath={`${props.fieldPath}.${idx}.value`}
+                                  options={props.valueOptions || []}
+                                  placeholder={
+                                    props.valuePlaceholder || 'Output'
+                                  }
+                                  onFormChange={props.onFormChange}
+                                />
+                              ) : (
+                                <TextField
+                                  fieldPath={`${props.fieldPath}.${idx}.value`}
+                                  placeholder={
+                                    props.valuePlaceholder || 'Output'
+                                  }
+                                  showError={false}
+                                  onFormChange={props.onFormChange}
+                                />
+                              )}
+                            </>
+                          </EuiFlexItem>
+                        </EuiFlexGroup>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiButtonIcon

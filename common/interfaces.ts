@@ -23,20 +23,20 @@ export type ConfigFieldType =
   | 'jsonArray'
   | 'select'
   | 'model'
-  | 'map';
+  | 'map'
+  | 'mapArray';
+
 export type ConfigFieldValue = string | {};
+
 export interface IConfigField {
   type: ConfigFieldType;
   id: string;
-  value?: ConfigFieldValue;
-  // TODO: remove below fields out of this interface and directly into the necessary components.
-  // This is to minimize what we persist here, which is added into ui_metadata and indexed.
-  // Once the config for ML inference processors is finalized, we can migrate these out.
+  optional?: boolean;
   label?: string;
-  placeholder?: string;
-  helpText?: string;
-  helpLink?: string;
+  value?: ConfigFieldValue;
+  selectOptions?: ConfigFieldValue[];
 }
+
 export interface IConfig {
   id: string;
   name: string;
@@ -50,12 +50,6 @@ export interface IProcessorConfig extends IConfig {
 export type ProcessorsConfig = {
   processors: IProcessorConfig[];
 };
-
-export type IngestPipelineConfig = ProcessorsConfig & {
-  description?: string;
-};
-
-export type SearchPipelineConfig = ProcessorsConfig;
 
 export type IndexConfig = {
   name: IConfigField;
@@ -71,7 +65,7 @@ export type IngestConfig = {
 };
 
 export type SearchConfig = {
-  request: {};
+  request: IConfigField;
   enrichRequest: ProcessorsConfig;
   enrichResponse: ProcessorsConfig;
 };
@@ -87,6 +81,8 @@ export type MapEntry = {
 };
 
 export type MapFormValue = MapEntry[];
+
+export type MapArrayFormValue = MapFormValue[];
 
 export type WorkflowFormValues = {
   ingest: FormikValues;
@@ -194,25 +190,23 @@ export type SearchRequestProcessor = SearchProcessor & {};
 export type SearchResponseProcessor = SearchProcessor & {};
 export type SearchPhaseResultsProcessor = SearchProcessor & {};
 
+export type IngestPipelineConfig = {
+  description?: string;
+  processors: IngestProcessor[];
+};
+
+export type SearchPipelineConfig = {
+  description?: string;
+  request_processors?: SearchRequestProcessor[];
+  response_processors?: SearchResponseProcessor[];
+  phase_results_processors?: SearchPhaseResultsProcessor[];
+};
+
 export type MLInferenceProcessor = IngestProcessor & {
   ml_inference: {
     model_id: string;
     input_map?: {};
     output_map?: {};
-  };
-};
-
-export type TextEmbeddingProcessor = IngestProcessor & {
-  text_embedding: {
-    model_id: string;
-    field_map: {};
-  };
-};
-
-export type SparseEncodingProcessor = IngestProcessor & {
-  sparse_encoding: {
-    model_id: string;
-    field_map: {};
   };
 };
 
@@ -250,22 +244,14 @@ export type CreateIngestPipelineNode = TemplateNode & {
     model_id?: string;
     input_field?: string;
     output_field?: string;
-    configurations: {
-      description?: string;
-      processors: IngestProcessor[];
-    };
+    configurations: IngestPipelineConfig;
   };
 };
 
 export type CreateSearchPipelineNode = TemplateNode & {
   user_inputs: {
     pipeline_id: string;
-    configurations: {
-      description?: string;
-      request_processors?: SearchRequestProcessor[];
-      response_processors?: SearchResponseProcessor[];
-      phase_results_processors?: SearchPhaseResultsProcessor[];
-    };
+    configurations: SearchPipelineConfig;
   };
 };
 
@@ -374,12 +360,33 @@ export type ModelConfig = {
   embeddingDimension?: number;
 };
 
+// Based off of JSONSchema. For more info, see https://json-schema.org/understanding-json-schema/reference/type
+export type ModelInput = {
+  type: string;
+  description?: string;
+};
+
+export type ModelOutput = ModelInput;
+
+// For rendering options, we extract the name (the key in the input/output obj) and combine into a single obj
+export type ModelInputFormField = ModelInput & {
+  label: string;
+};
+
+export type ModelOutputFormField = ModelInputFormField;
+
+export type ModelInterface = {
+  input: { [key: string]: ModelInput };
+  output: { [key: string]: ModelOutput };
+};
+
 export type Model = {
   id: string;
   name: string;
   algorithm: MODEL_ALGORITHM;
   state: MODEL_STATE;
   modelConfig?: ModelConfig;
+  interface?: ModelInterface;
 };
 
 export type ModelDict = {
@@ -444,7 +451,7 @@ export type WorkflowDict = {
 export type SimulateIngestPipelineDoc = {
   _index: string;
   _id: string;
-  _source: {};
+  _source: any;
 };
 
 // from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#example-specify-a-pipeline-in-the-path
@@ -463,3 +470,5 @@ export type SimulateIngestPipelineDocResponse = {
 export type SimulateIngestPipelineResponse = {
   docs: SimulateIngestPipelineDocResponse[];
 };
+
+export type SearchHit = SimulateIngestPipelineDoc;
