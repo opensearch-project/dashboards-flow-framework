@@ -29,9 +29,7 @@ import { ImportWorkflowModal } from './import_workflow';
 import { MountPoint } from '../../../../../src/core/public';
 import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_source_management/public';
 
-import {
-  getDataSourceFromURL,
-} from '../../utils/helpers';
+import { getDataSourceFromURL } from '../../utils/utils';
 
 import {
   getDataSourceManagementPlugin,
@@ -41,13 +39,13 @@ import {
 } from '../../services';
 
 import { MDSStates } from '../../../common/interfaces';
-import { prettifyErrorMessage } from '../../../server/utils/helpers';
+import { prettifyErrorMessage } from '../../../common/utils';
 
 export interface WorkflowsRouterProps {}
 
 interface WorkflowsProps extends RouteComponentProps<WorkflowsRouterProps> {
   setActionMenu: (menuMount: MountPoint | undefined) => void;
-  landingDataSourceId: string | undefined;  
+  landingDataSourceId?: string;
 }
 
 export enum WORKFLOWS_TAB {
@@ -57,11 +55,16 @@ export enum WORKFLOWS_TAB {
 
 const ACTIVE_TAB_PARAM = 'tab';
 
-function replaceActiveTab(activeTab: string, props: WorkflowsProps) {
+function replaceActiveTab(
+  activeTab: string,
+  props: WorkflowsProps,
+  dataSourceId?: string
+) {
   props.history.replace({
     ...history,
     search: queryString.stringify({
       [ACTIVE_TAB_PARAM]: activeTab,
+      dataSourceId,
     }),
   });
 }
@@ -78,9 +81,7 @@ export function Workflows(props: WorkflowsProps) {
   const dataSourceEnabled = getDataSourceEnabled().enabled;
   const [MDSOverviewState, setMDSOverviewState] = useState<MDSStates>({
     queryParams,
-    selectedDataSourceId: queryParams.dataSourceId === undefined 
-      ? undefined 
-      : queryParams.dataSourceId,
+    selectedDataSourceId: queryParams.dataSourceId,
   });
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
@@ -102,14 +103,23 @@ export function Workflows(props: WorkflowsProps) {
       !Object.values(WORKFLOWS_TAB).includes(selectedTabId)
     ) {
       setSelectedTabId(WORKFLOWS_TAB.MANAGE);
-      replaceActiveTab(WORKFLOWS_TAB.MANAGE, props);
+      replaceActiveTab(
+        WORKFLOWS_TAB.MANAGE,
+        props,
+        MDSOverviewState.selectedDataSourceId
+      );
     }
   }, [selectedTabId, workflows]);
 
   // If the user navigates back to the manage tab, re-fetch workflows
   useEffect(() => {
     if (selectedTabId === WORKFLOWS_TAB.MANAGE) {
-      dispatch(searchWorkflows({body:FETCH_ALL_QUERY_BODY, dataSourceId:MDSOverviewState.selectedDataSourceId}));
+      dispatch(
+        searchWorkflows({
+          apiBody: FETCH_ALL_QUERY_BODY,
+          dataSourceId: MDSOverviewState.selectedDataSourceId,
+        })
+      );
     }
   }, [selectedTabId]);
 
@@ -124,10 +134,18 @@ export function Workflows(props: WorkflowsProps) {
         BREADCRUMBS.FLOW_FRAMEWORK,
         BREADCRUMBS.WORKFLOWS,
       ]);
-
     }
-    
   });
+
+  // On initial render: fetch all workflows
+  useEffect(() => {
+    dispatch(
+      searchWorkflows({
+        apiBody: FETCH_ALL_QUERY_BODY,
+        dataSourceId: MDSOverviewState.selectedDataSourceId,
+      })
+    );
+  }, []);
 
   useEffect(() => {
     const { history, location } = props;
@@ -140,29 +158,36 @@ export function Workflows(props: WorkflowsProps) {
         ...location,
         search: queryString.stringify(updatedParams),
       });
-    } 
-    dispatch(searchWorkflows({body:FETCH_ALL_QUERY_BODY, dataSourceId:MDSOverviewState.selectedDataSourceId}));
+    }
+    dispatch(
+      searchWorkflows({
+        apiBody: FETCH_ALL_QUERY_BODY,
+        dataSourceId: MDSOverviewState.selectedDataSourceId,
+      })
+    );
   }, [MDSOverviewState]);
 
   const handleDataSourceChange = ([event]) => {
     const dataSourceId = event?.id;
-
-    if (dataSourceEnabled && dataSourceId === undefined) {
-      getNotifications().toasts.addDanger(
-        prettifyErrorMessage('Unable to set data source.')
-      );
-    } else {
-      setMDSOverviewState({
-        queryParams: dataSourceId,
-        selectedDataSourceId: dataSourceId,
-      });
+    if (dataSourceEnabled) {
+      if (dataSourceId === undefined) {
+        getNotifications().toasts.addDanger(
+          prettifyErrorMessage('Unable to set data source.')
+        );
+      } else {
+        setMDSOverviewState({
+          queryParams: dataSourceId,
+          selectedDataSourceId: dataSourceId,
+        });
+      }
     }
   };
 
   let renderDataSourceComponent = null;
   if (dataSourceEnabled) {
-    const DataSourceMenu =
-      getDataSourceManagementPlugin()?.ui.getDataSourceMenu<DataSourceSelectableConfig>();
+    const DataSourceMenu = getDataSourceManagementPlugin()?.ui.getDataSourceMenu<
+      DataSourceSelectableConfig
+    >();
     renderDataSourceComponent = useMemo(() => {
       return (
         <DataSourceMenu
@@ -170,8 +195,9 @@ export function Workflows(props: WorkflowsProps) {
           componentType={'DataSourceSelectable'}
           componentConfig={{
             fullWidth: false,
-            activeOption: props.landingDataSourceId === undefined 
-              || MDSOverviewState.selectedDataSourceId === undefined
+            activeOption:
+              props.landingDataSourceId === undefined ||
+              MDSOverviewState.selectedDataSourceId === undefined
                 ? undefined
                 : [{ id: MDSOverviewState.selectedDataSourceId }],
             savedObjects: getSavedObjectsClient(),
@@ -183,7 +209,7 @@ export function Workflows(props: WorkflowsProps) {
       );
     }, [getSavedObjectsClient, getNotifications(), props.setActionMenu]);
   }
-  
+
   return (
     <>
       {isImportModalOpen && (
@@ -215,7 +241,11 @@ export function Workflows(props: WorkflowsProps) {
                 isSelected: selectedTabId === WORKFLOWS_TAB.MANAGE,
                 onClick: () => {
                   setSelectedTabId(WORKFLOWS_TAB.MANAGE);
-                  replaceActiveTab(WORKFLOWS_TAB.MANAGE, props);
+                  replaceActiveTab(
+                    WORKFLOWS_TAB.MANAGE,
+                    props,
+                    MDSOverviewState.selectedDataSourceId
+                  );
                 },
               },
               {
@@ -224,7 +254,11 @@ export function Workflows(props: WorkflowsProps) {
                 isSelected: selectedTabId === WORKFLOWS_TAB.CREATE,
                 onClick: () => {
                   setSelectedTabId(WORKFLOWS_TAB.CREATE);
-                  replaceActiveTab(WORKFLOWS_TAB.CREATE, props);
+                  replaceActiveTab(
+                    WORKFLOWS_TAB.CREATE,
+                    props,
+                    MDSOverviewState.selectedDataSourceId
+                  );
                 },
               },
             ]}
@@ -291,7 +325,11 @@ export function Workflows(props: WorkflowsProps) {
                 <EmptyListMessage
                   onClickNewWorkflow={() => {
                     setSelectedTabId(WORKFLOWS_TAB.CREATE);
-                    replaceActiveTab(WORKFLOWS_TAB.CREATE, props);
+                    replaceActiveTab(
+                      WORKFLOWS_TAB.CREATE,
+                      props,
+                      MDSOverviewState.selectedDataSourceId
+                    );
                   }}
                 />
               )}

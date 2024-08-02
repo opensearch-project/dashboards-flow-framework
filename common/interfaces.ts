@@ -7,7 +7,6 @@ import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
 import { COMPONENT_CLASS, PROCESSOR_TYPE, WORKFLOW_TYPE } from './constants';
-import { MDSQueryParams } from '../server/types';
 
 export type Index = {
   name: string;
@@ -17,12 +16,16 @@ export type Index = {
 /**
  ********** WORKFLOW TYPES/INTERFACES **********
  */
+export type MDSQueryParams = {
+  dataSourceId: string;
+};
 
- export interface MDSStates {
+export interface MDSStates {
   queryParams: MDSQueryParams;
-  selectedDataSourceId: string | undefined;
+  selectedDataSourceId?: string;
 }
- export type ConfigFieldType =
+
+export type ConfigFieldType =
   | 'string'
   | 'json'
   | 'jsonArray'
@@ -367,12 +370,33 @@ export type ModelConfig = {
   embeddingDimension?: number;
 };
 
+// Based off of JSONSchema. For more info, see https://json-schema.org/understanding-json-schema/reference/type
+export type ModelInput = {
+  type: string;
+  description?: string;
+};
+
+export type ModelOutput = ModelInput;
+
+// For rendering options, we extract the name (the key in the input/output obj) and combine into a single obj
+export type ModelInputFormField = ModelInput & {
+  label: string;
+};
+
+export type ModelOutputFormField = ModelInputFormField;
+
+export type ModelInterface = {
+  input: { [key: string]: ModelInput };
+  output: { [key: string]: ModelOutput };
+};
+
 export type Model = {
   id: string;
   name: string;
   algorithm: MODEL_ALGORITHM;
   state: MODEL_STATE;
   modelConfig?: ModelConfig;
+  interface?: ModelInterface;
 };
 
 export type ModelDict = {

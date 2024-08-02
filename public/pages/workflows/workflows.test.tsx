@@ -20,9 +20,6 @@ jest.mock('../../services', () => {
   const { mockCoreServices } = require('../../../test');
   return {
     ...jest.requireActual('../../services'),
-    getDataSourceEnabled: () => ({
-      enabled: false  
-    }),
     ...mockCoreServices,
   };
 });

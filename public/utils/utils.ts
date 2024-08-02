@@ -9,13 +9,21 @@ import { get } from 'lodash';
 import {
   JSONPATH_ROOT_SELECTOR,
   MapFormValue,
+  ModelInput,
+  ModelInputFormField,
+  ModelInterface,
+  ModelOutput,
+  ModelOutputFormField,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STEP_TYPE,
   Workflow,
 } from '../../common';
-import { getCore } from '../services';
+import { getCore, getDataSourceEnabled } from '../services';
+import { MDSQueryParams } from '../../common/interfaces';
+import queryString from 'query-string';
+import { useLocation } from 'react-router-dom';
 
 // Append 16 random characters
 export function generateId(prefix?: string): string {
@@ -84,7 +92,7 @@ export function getResourcesToBeForceDeleted(
 }
 
 export function getObjFromJsonOrYamlString(
-  fileContents: string | undefined
+  fileContents?: string
 ): object | undefined {
   try {
     const jsonObj = JSON.parse(fileContents);
@@ -187,3 +195,72 @@ export function generateTransform(input: {}, map: MapFormValue): {} {
   });
   return output;
 }
+
+// Derive the collection of model inputs from the model interface JSONSchema into a form-ready list
+export function parseModelInputs(
+  modelInterface: ModelInterface
+): ModelInputFormField[] {
+  const modelInputsObj = get(
+    modelInterface,
+    // model interface input values will always be nested under a base "parameters" obj.
+    // we iterate through the obj properties to extract the individual inputs
+    'input.properties.parameters.properties',
+    {}
+  ) as { [key: string]: ModelInput };
+  return Object.keys(modelInputsObj).map(
+    (inputName: string) =>
+      ({
+        label: inputName,
+        ...modelInputsObj[inputName],
+      } as ModelInputFormField)
+  );
+}
+
+// Derive the collection of model outputs from the model interface JSONSchema into a form-ready list
+export function parseModelOutputs(
+  modelInterface: ModelInterface
+): ModelOutputFormField[] {
+  const modelOutputsObj = get(modelInterface, 'output.properties', {}) as {
+    [key: string]: ModelOutput;
+  };
+  return Object.keys(modelOutputsObj).map(
+    (outputName: string) =>
+      ({
+        label: outputName,
+        ...modelOutputsObj[outputName],
+      } as ModelOutputFormField)
+  );
+}
+
+export const getDataSourceFromURL = (location: {
+  search: string;
+}): MDSQueryParams => {
+  const queryParams = queryString.parse(location.search);
+  const dataSourceId = queryParams.dataSourceId;
+  return { dataSourceId: typeof dataSourceId === 'string' ? dataSourceId : '' };
+};
+
+export const constructHrefWithDataSourceId = (
+  basePath: string,
+  dataSourceId: string = '',
+  withHash: boolean
+): string => {
+  const dataSourceEnabled = getDataSourceEnabled().enabled;
+  const url = new URLSearchParams();
+  if (dataSourceEnabled && dataSourceId !== undefined) {
+    url.set('dataSourceId', dataSourceId);
+  }
+  // we share this helper function to construct the href with dataSourceId
+  // some places we need to return the url with hash, some places we don't need to
+  // so adding this flag to indicate if we want to return the url with hash
+  if (withHash) {
+    return `#${basePath}?${url.toString()}`;
+  }
+  return `${basePath}?${url.toString()}`;
+};
+
+export const getDataSourceId = () => {
+  const location = useLocation();
+  const mdsQueryParams = getDataSourceFromURL(location);
+  return mdsQueryParams.dataSourceId;
+};

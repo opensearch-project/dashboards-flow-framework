@@ -5,7 +5,6 @@
 
 import { NavigationPublicPluginStart } from '../../../src/plugins/navigation/public';
 
-export interface FlowFrameworkDashboardsPluginSetup {}
 export interface FlowFrameworkDashboardsPluginStart {}
 
 export interface AppPluginStartDependencies {

@@ -19,10 +19,13 @@ const SEARCH_MODELS_ACTION = `${MODELS_ACTION_PREFIX}/searchModels`;
 
 export const searchModels = createAsyncThunk(
   SEARCH_MODELS_ACTION,
-  async ({body, dataSourceId}:{body: {}, dataSourceId:string}, { rejectWithValue }) => {
+  async (
+    { apiBody, dataSourceId }: { apiBody: {}, dataSourceId: string },
+    { rejectWithValue }
+  ) => {
     const response: any | HttpFetchError = await getRouteService().searchModels(
-      body,
-      dataSourceId,
+      apiBody,
+      dataSourceId
     );
     if (response instanceof HttpFetchError) {
       return rejectWithValue(

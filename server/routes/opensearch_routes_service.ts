@@ -47,11 +47,11 @@ export function registerOpenSearchRoutes(
   );
   router.get(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/opensearch/catIndices/{pattern}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/catIndices/{pattern}`,
       validate: {
         params: schema.object({
           pattern: schema.string(),
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
       },
     },
@@ -71,11 +71,11 @@ export function registerOpenSearchRoutes(
   );
   router.post(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/opensearch/search/{index}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/search/{index}`,
       validate: {
         params: schema.object({
           index: schema.string(),
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
         body: schema.any(),
       },
@@ -97,12 +97,12 @@ export function registerOpenSearchRoutes(
   );
   router.post(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/opensearch/search/{index}/{search_pipeline}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/search/{index}/{search_pipeline}`,
       validate: {
         params: schema.object({
           index: schema.string(),
           search_pipeline: schema.string(),
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
         body: schema.any(),
       },
@@ -123,11 +123,11 @@ export function registerOpenSearchRoutes(
   );
   router.put(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/opensearch/ingest/{index}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/ingest/{index}`,
       validate: {
         params: schema.object({
           index: schema.string(),
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
         body: schema.any(),
       },
@@ -148,11 +148,11 @@ export function registerOpenSearchRoutes(
   );
   router.post(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/opensearch/bulk/{pipeline}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/bulk/{pipeline}`,
       validate: {
         params: schema.object({
           pipeline: schema.string(),
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
         body: schema.any(),
       },
@@ -170,10 +170,10 @@ export function registerOpenSearchRoutes(
   );
   router.post(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/opensearch/bulk`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/bulk`,
       validate: {
         params: schema.object({
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
         body: schema.any(),
       },
@@ -194,10 +194,10 @@ export function registerOpenSearchRoutes(
   );
   router.post(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/opensearch/simulatePipeline`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/simulatePipeline`,
       validate: {
         params: schema.object({
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
         body: schema.object({
           pipeline: schema.any(),
@@ -215,7 +215,7 @@ export class OpenSearchRoutesService {
 
   constructor(client: any, dataSourceEnabled: boolean) {
     this.client = client;
-    this.dataSourceEnabled =dataSourceEnabled;
+    this.dataSourceEnabled = dataSourceEnabled;
   }
 
   catIndices = async (
@@ -224,13 +224,13 @@ export class OpenSearchRoutesService {
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const { pattern } = req.params as { pattern: string };
-    const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+    const { data_source_id = '' } = req.params as { data_source_id?: string };
     try {
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
 
@@ -261,14 +261,14 @@ export class OpenSearchRoutesService {
       index: string;
       search_pipeline: string | undefined;
     };
-    const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+    const { data_source_id = '' } = req.params as { data_source_id?: string };
     const body = req.body;
     try {
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
 
@@ -289,7 +289,7 @@ export class OpenSearchRoutesService {
     req: OpenSearchDashboardsRequest,
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
-    const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+    const { data_source_id = '' } = req.params as { data_source_id?: string };
     const { index } = req.params as { index: string };
     const doc = req.body;
     try {
@@ -297,15 +297,14 @@ export class OpenSearchRoutesService {
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
 
-      const response = await callWithRequest(
-        'index', {
-          index,
-          body: doc,
-        });
+      const response = await callWithRequest('index', {
+        index,
+        body: doc,
+      });
 
       return res.ok({ body: response });
     } catch (err: any) {
@@ -318,7 +317,7 @@ export class OpenSearchRoutesService {
     req: OpenSearchDashboardsRequest,
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
-    const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+    const { data_source_id = '' } = req.params as { data_source_id?: string };
     const { pipeline } = req.params as {
       pipeline: string | undefined;
     };
@@ -329,15 +328,14 @@ export class OpenSearchRoutesService {
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
 
-      const response = await callWithRequest(
-        'bulk', {
-          body,
-          pipeline,
-        });
+      const response = await callWithRequest('bulk', {
+        body,
+        pipeline,
+      });
 
       return res.ok({ body: response });
     } catch (err: any) {
@@ -350,7 +348,7 @@ export class OpenSearchRoutesService {
     req: OpenSearchDashboardsRequest,
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
-    const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+    const { data_source_id = '' } = req.params as { data_source_id?: string };
     const { pipeline, docs } = req.body as {
       pipeline: IngestPipelineConfig;
       docs: SimulateIngestPipelineDoc[];
@@ -360,14 +358,13 @@ export class OpenSearchRoutesService {
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
 
-      const response = await callWithRequest(
-        'ingest.simulate', {
-          body: { pipeline, docs }
-        });
+      const response = await callWithRequest('ingest.simulate', {
+        body: { pipeline, docs },
+      });
 
       return res.ok({
         body: { docs: response.docs } as SimulateIngestPipelineResponse,

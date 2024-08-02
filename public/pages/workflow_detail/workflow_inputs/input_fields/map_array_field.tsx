@@ -35,6 +35,8 @@ interface MapArrayFieldProps {
   onFormChange: () => void;
   onMapAdd?: (curArray: MapArrayFormValue) => void;
   onMapDelete?: (idxToDelete: number) => void;
+  keyOptions?: any[];
+  valueOptions?: any[];
 }
 
 /**
@@ -122,6 +124,8 @@ export function MapArrayField(props: MapArrayFieldProps) {
                           keyPlaceholder={props.keyPlaceholder}
                           valuePlaceholder={props.valuePlaceholder}
                           onFormChange={props.onFormChange}
+                          keyOptions={props.keyOptions}
+                          valueOptions={props.valueOptions}
                         />
                       </EuiPanel>
                     </EuiAccordion>

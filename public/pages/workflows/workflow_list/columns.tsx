@@ -7,22 +7,14 @@ import React from 'react';
 import { EuiLink } from '@elastic/eui';
 import {
   EMPTY_FIELD_STRING,
-  PLUGIN_ID,
   Workflow,
   toFormattedDate,
 } from '../../../../common';
-import { useLocation } from 'react-router-dom';
-import { getDataSourceFromURL } from '../../../utils/helpers';
-import { constructHrefWithDataSourceId } from '../../../utils/helpers';
+import { constructHrefWithDataSourceId, getDataSourceId } from '../../../utils/utils';
 
-const useDataSourceId = () => {
-  const location = useLocation();
-  const MDSQueryParams = getDataSourceFromURL(location);
-  return MDSQueryParams.dataSourceId;
-};
 
 export const columns = (actions: any[]) => {
-  const dataSourceId = useDataSourceId();  
+  const dataSourceId = getDataSourceId();
 
   return [
     {
@@ -31,7 +23,7 @@ export const columns = (actions: any[]) => {
       width: '33%',
       sortable: true,
       render: (name: string, workflow: Workflow) => (
-        <EuiLink 
+        <EuiLink
           href={constructHrefWithDataSourceId(
             `/workflows/${workflow.id}`,
             dataSourceId,

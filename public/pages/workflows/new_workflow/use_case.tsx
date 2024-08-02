@@ -26,8 +26,7 @@ import { Workflow } from '../../../../common';
 import { APP_PATH } from '../../../utils';
 import { processWorkflowName } from './utils';
 import { createWorkflow, useAppDispatch } from '../../../store';
-import { useLocation } from 'react-router-dom';
-import { getDataSourceFromURL } from '../../../utils/helpers';
+import { getDataSourceId } from '../../../utils/utils';
 
 interface UseCaseProps {
   workflow: Workflow;
@@ -35,9 +34,7 @@ interface UseCaseProps {
 
 export function UseCase(props: UseCaseProps) {
   const dispatch = useAppDispatch();
-  const location = useLocation();
-  const MDSQueryParams = getDataSourceFromURL(location);
-  const dataSourceId = MDSQueryParams.dataSourceId;
+  const dataSourceId = getDataSourceId();
   const history = useHistory();
 
   // name modal state
@@ -84,11 +81,20 @@ export function UseCase(props: UseCaseProps) {
                   ...props.workflow,
                   name: workflowName,
                 };
-                dispatch(createWorkflow({workflowBody:workflowToCreate, dataSourceId:dataSourceId}))
+                dispatch(
+                  createWorkflow({
+                    apiBody: workflowToCreate,
+                    dataSourceId,
+                  })
+                )
                   .unwrap()
                   .then((result) => {
                     const { workflow } = result;
-                    history.replace((dataSourceId ? `${APP_PATH.WORKFLOWS}/${workflow.id}?dataSourceId=${dataSourceId}` : `${APP_PATH.WORKFLOWS}/${workflow.id}`));
+                    history.replace(
+                      dataSourceId
+                        ? `${APP_PATH.WORKFLOWS}/${workflow.id}?dataSourceId=${dataSourceId}`
+                        : `${APP_PATH.WORKFLOWS}/${workflow.id}`
+                    );
                     history.go(0);
                   })
                   .catch((err: any) => {

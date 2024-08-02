@@ -62,11 +62,11 @@ export function registerFlowFrameworkRoutes(
 
   router.get(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/workflow/{workflow_id}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/{workflow_id}`,
       validate: {
         params: schema.object({
           workflow_id: schema.string(),
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
       },
     },
@@ -85,10 +85,10 @@ export function registerFlowFrameworkRoutes(
 
   router.post(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/workflow/search`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/search`,
       validate: {
         params: schema.object({
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
         body: schema.any(),
       },
@@ -110,11 +110,11 @@ export function registerFlowFrameworkRoutes(
 
   router.get(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/workflow/state/{workflow_id}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/state/{workflow_id}`,
       validate: {
         params: schema.object({
           workflow_id: schema.string(),
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
       },
     },
@@ -133,10 +133,10 @@ export function registerFlowFrameworkRoutes(
 
   router.post(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/workflow/create`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/create`,
       validate: {
         params: schema.object({
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
         body: schema.any(),
       },
@@ -160,10 +160,10 @@ export function registerFlowFrameworkRoutes(
 
   router.put(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/workflow/update/{workflow_id}/{update_fields}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/update/{workflow_id}/{update_fields}`,
       validate: {
         params: schema.object({
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
           workflow_id: schema.string(),
           update_fields: schema.boolean(),
         }),
@@ -187,11 +187,11 @@ export function registerFlowFrameworkRoutes(
 
   router.post(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/workflow/provision/{workflow_id}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/provision/{workflow_id}`,
       validate: {
         params: schema.object({
           workflow_id: schema.string(),
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
       },
     },
@@ -212,17 +212,16 @@ export function registerFlowFrameworkRoutes(
 
   router.post(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/workflow/deprovision/{workflow_id}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/deprovision/{workflow_id}`,
       validate: {
         params: schema.object({
           workflow_id: schema.string(),
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
       },
     },
     flowFrameworkRoutesService.deprovisionWorkflow
   );
-
 
   router.post(
     {
@@ -239,12 +238,12 @@ export function registerFlowFrameworkRoutes(
 
   router.post(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/workflow/deprovision/{workflow_id}/{resource_ids}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/deprovision/{workflow_id}/{resource_ids}`,
       validate: {
         params: schema.object({
           workflow_id: schema.string(),
           resource_ids: schema.string(),
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
       },
     },
@@ -265,11 +264,11 @@ export function registerFlowFrameworkRoutes(
 
   router.delete(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/workflow/delete/{workflow_id}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/delete/{workflow_id}`,
       validate: {
         params: schema.object({
           workflow_id: schema.string(),
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
       },
     },
@@ -286,10 +285,10 @@ export function registerFlowFrameworkRoutes(
 
   router.get(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/workflow/presets`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/presets`,
       validate: {
         params: schema.object({
-          dataSourceId: schema.string(),
+          data_source_id: schema.string(),
         }),
       },
     },
@@ -299,7 +298,7 @@ export function registerFlowFrameworkRoutes(
 
 export class FlowFrameworkRoutesService {
   dataSourceEnabled: boolean;
-  private client: any; 
+  private client: any;
 
   constructor(client: any, dataSourceEnabled: boolean) {
     this.client = client;
@@ -316,12 +315,12 @@ export class FlowFrameworkRoutesService {
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const { workflow_id } = req.params as { workflow_id: string };
     try {
-      const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
       const response = await callWithRequest('flowFramework.getWorkflow', {
@@ -329,9 +328,12 @@ export class FlowFrameworkRoutesService {
       });
       const workflow = toWorkflowObj(response, workflow_id);
 
-      const stateResponse = await callWithRequest('flowFramework.getWorkflowState', {
-        workflow_id,
-      });
+      const stateResponse = await callWithRequest(
+        'flowFramework.getWorkflowState',
+        {
+          workflow_id,
+        }
+      );
       const state = getWorkflowStateFromResponse(
         stateResponse.state as typeof WORKFLOW_STATE
       );
@@ -360,24 +362,30 @@ export class FlowFrameworkRoutesService {
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const body = req.body;
     try {
-      const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
 
-      const workflowsResponse = await callWithRequest('flowFramework.searchWorkflows', {
-        body,
-      });
-      const workflowHits = workflowsResponse.hits?.hits as any[] | []
+      const workflowsResponse = await callWithRequest(
+        'flowFramework.searchWorkflows',
+        {
+          body,
+        }
+      );
+      const workflowHits = workflowsResponse.hits?.hits as any[] | [];
 
-      const workflowStatesResponse = await callWithRequest('flowFramework.searchWorkflowState', {
-        body,
-      });
-      const workflowStateHits = workflowStatesResponse.hits?.hits as any[] | []
+      const workflowStatesResponse = await callWithRequest(
+        'flowFramework.searchWorkflowState',
+        {
+          body,
+        }
+      );
+      const workflowStateHits = workflowStatesResponse.hits?.hits as any[] | [];
 
       const workflowDict = getWorkflowsFromResponses(
         workflowHits,
@@ -399,12 +407,12 @@ export class FlowFrameworkRoutesService {
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const { workflow_id } = req.params as { workflow_id: string };
     try {
-      const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
       const response = await callWithRequest('flowFramework.getWorkflowState', {
@@ -435,12 +443,12 @@ export class FlowFrameworkRoutesService {
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const body = req.body as Workflow;
     try {
-      const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
       const response = await callWithRequest('flowFramework.createWorkflow', {
@@ -467,12 +475,12 @@ export class FlowFrameworkRoutesService {
     };
     const workflowTemplate = req.body as WorkflowTemplate;
     try {
-      const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
       await callWithRequest('flowFramework.updateWorkflow', {
@@ -495,12 +503,12 @@ export class FlowFrameworkRoutesService {
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const { workflow_id } = req.params as { workflow_id: string };
     try {
-      const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
       await callWithRequest('flowFramework.provisionWorkflow', {
@@ -522,12 +530,12 @@ export class FlowFrameworkRoutesService {
       resource_ids?: string;
     };
     try {
-      const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
       if (resource_ids !== undefined) {
@@ -553,12 +561,12 @@ export class FlowFrameworkRoutesService {
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const { workflow_id } = req.params as { workflow_id: string };
     try {
-      const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
 

@@ -11,7 +11,7 @@ import {
   OpenSearchDashboardsRequest,
   OpenSearchDashboardsResponseFactory,
 } from '../../../../src/core/server';
-import { SEARCH_MODELS_NODE_API_PATH,   BASE_NODE_API_PATH, } from '../../common';
+import { SEARCH_MODELS_NODE_API_PATH, BASE_NODE_API_PATH } from '../../common';
 import { generateCustomError, getModelsFromResponses } from './helpers';
 import { getClientBasedOnDataSource } from '../utils/helpers';
 
@@ -34,9 +34,12 @@ export function registerMLRoutes(
   );
   router.post(
     {
-      path: `${BASE_NODE_API_PATH}/{dataSourceId}/model/search`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/model/search`,
       validate: {
         body: schema.any(),
+        params: schema.object({
+          data_source_id: schema.string(),
+        }),
       },
     },
     mlRoutesService.searchModels
@@ -59,17 +62,21 @@ export class MLRoutesService {
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
     const body = req.body;
     try {
-      const { dataSourceId = '' } = req.params as { dataSourceId?: string };
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
         req,
-        dataSourceId,
+        data_source_id,
         this.client
       );
-      const modelsResponse = callWithRequest(
-        'mlClient.searchModels', { body });      
-      const modelHits = (modelsResponse.hits ? modelsResponse.hits.hits : []) as any[];
+      const modelsResponse = await callWithRequest('mlClient.searchModels', {
+        body,
+      });
+
+      const modelHits = (modelsResponse.hits
+        ? modelsResponse.hits.hits
+        : []) as any[];
       const modelDict = getModelsFromResponses(modelHits);
 
       return res.ok({ body: { models: modelDict } });

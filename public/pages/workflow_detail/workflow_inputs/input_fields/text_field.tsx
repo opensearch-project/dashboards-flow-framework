@@ -16,6 +16,7 @@ interface TextFieldProps {
   helpLink?: string;
   helpText?: string;
   placeholder?: string;
+  showError?: boolean;
 }
 
 /**
@@ -41,7 +42,7 @@ export function TextField(props: TextFieldProps) {
               ) : undefined
             }
             helpText={props.helpText || undefined}
-            error={getIn(errors, field.name)}
+            error={props.showError && getIn(errors, field.name)}
             isInvalid={getIn(errors, field.name) && getIn(touched, field.name)}
           >
             <EuiFieldText

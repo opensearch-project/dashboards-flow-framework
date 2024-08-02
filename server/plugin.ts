@@ -29,7 +29,7 @@ import { DataSourceManagementPlugin } from '../../../src/plugins/data_source_man
 
 import { ILegacyClusterClient } from '../../../src/core/server/';
 
-export interface FFPluginSetupDependencies {
+export interface FlowFrameworkPluginSetupDependencies {
   dataSourceManagement?: ReturnType<DataSourceManagementPlugin['setup']>;
   dataSource?: DataSourcePluginSetup;
 }
@@ -50,8 +50,8 @@ export class FlowFrameworkDashboardsPlugin
 
   public async setup(
     core: CoreSetup,
-    { dataSource }: FFPluginSetupDependencies
-    ) {
+    { dataSource }: FlowFrameworkPluginSetupDependencies
+  ) {
     this.logger.debug('flow-framework-dashboards: Setup');
     const router = core.http.createRouter();
 
@@ -72,8 +72,14 @@ export class FlowFrameworkDashboardsPlugin
       dataSource.registerCustomApiSchema(flowFrameworkPlugin);
       dataSource.registerCustomApiSchema(mlPlugin);
     }
-    const opensearchRoutesService = new OpenSearchRoutesService(client, dataSourceEnabled);
-    const flowFrameworkRoutesService = new FlowFrameworkRoutesService(client, dataSourceEnabled);
+    const opensearchRoutesService = new OpenSearchRoutesService(
+      client,
+      dataSourceEnabled
+    );
+    const flowFrameworkRoutesService = new FlowFrameworkRoutesService(
+      client,
+      dataSourceEnabled
+    );
     const mlRoutesService = new MLRoutesService(client, dataSourceEnabled);
 
     // Register server side APIs with the corresponding service functions

@@ -30,8 +30,7 @@ import {
 } from '../../../general_components';
 import { WORKFLOWS_TAB } from '../workflows';
 import { getCore } from '../../../services';
-import { useLocation } from 'react-router-dom';
-import { getDataSourceFromURL } from '../../../utils/helpers';
+import { getDataSourceId } from '../../../utils/utils';
 
 interface WorkflowListProps {
   setSelectedTabId: (tabId: WORKFLOWS_TAB) => void;
@@ -67,9 +66,7 @@ const filterOptions = [
  */
 export function WorkflowList(props: WorkflowListProps) {
   const dispatch = useAppDispatch();
-  const location = useLocation();
-  const MDSQueryParams = getDataSourceFromURL(location);
-  const dataSourceId = MDSQueryParams.dataSourceId;
+  const dataSourceId = getDataSourceId();
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
@@ -149,7 +146,12 @@ export function WorkflowList(props: WorkflowListProps) {
           }}
           onConfirm={async () => {
             clearDeleteState();
-            await dispatch(deleteWorkflow({workflowId:selectedWorkflow.id as string, dataSourceId:dataSourceId} ))
+            await dispatch(
+              deleteWorkflow({
+                workflowId: selectedWorkflow.id as string,
+                dataSourceId,
+              })
+            )
               .unwrap()
               .then((result) => {
                 getCore().notifications.toasts.addSuccess(

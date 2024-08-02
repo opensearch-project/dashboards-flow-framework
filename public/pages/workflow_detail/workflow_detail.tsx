@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, ReactElement } from 'react';
-import { RouteComponentProps, useLocation } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { EuiPage, EuiPageBody } from '@elastic/eui';
@@ -22,15 +22,13 @@ import {
   DEFAULT_NEW_WORKFLOW_NAME,
   FETCH_ALL_QUERY_BODY,
 } from '../../../common';
+import { MountPoint } from '../../../../../src/core/public';
 
 // styling
 import './workflow-detail-styles.scss';
 import '../../global-styles.scss';
-import { MountPoint } from '../../../../../src/core/public';
 
-import {
-  getDataSourceFromURL,
-} from '../../utils/helpers';
+import { getDataSourceId } from '../../utils/utils';
 
 import {
   getDataSourceManagementPlugin,
@@ -46,9 +44,9 @@ export interface WorkflowDetailRouterProps {
 
 interface WorkflowDetailProps
   extends RouteComponentProps<WorkflowDetailRouterProps> {
-    setActionMenu: (menuMount: MountPoint | undefined) => void;
-    landingDataSourceId: string | undefined;  
-  }
+  setActionMenu: (menuMount?: MountPoint) => void;
+  landingDataSourceId?: string;
+}
 
 /**
  * The workflow details page. This is where users will configure, create, and
@@ -58,10 +56,8 @@ interface WorkflowDetailProps
 
 export function WorkflowDetail(props: WorkflowDetailProps) {
   const dispatch = useAppDispatch();
-  const location = useLocation();
-  const MDSQueryParams = getDataSourceFromURL(location);
   const dataSourceEnabled = getDataSourceEnabled().enabled;
-  const dataSourceId = MDSQueryParams.dataSourceId;
+  const dataSourceId = getDataSourceId();
   const { workflows } = useSelector((state: AppState) => state.workflows);
 
   // selected workflow state
@@ -89,14 +85,15 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   // - fetch workflow
   // - fetch available models as their IDs may be used when building flows
   useEffect(() => {
-    dispatch(getWorkflow({workflowId, dataSourceId} ));
-    dispatch(searchModels({body:FETCH_ALL_QUERY_BODY, dataSourceId}));
+    dispatch(getWorkflow({ workflowId, dataSourceId }));
+    dispatch(searchModels({ apiBody: FETCH_ALL_QUERY_BODY, dataSourceId }));
   }, []);
 
   let renderDataSourceComponent: ReactElement | null = null;
   if (dataSourceEnabled) {
-    const DataSourceMenu =
-      getDataSourceManagementPlugin()?.ui.getDataSourceMenu<DataSourceViewConfig>();
+    const DataSourceMenu = getDataSourceManagementPlugin()?.ui.getDataSourceMenu<
+      DataSourceViewConfig
+    >();
     renderDataSourceComponent = (
       <DataSourceMenu
         setMenuMountPoint={props.setActionMenu}

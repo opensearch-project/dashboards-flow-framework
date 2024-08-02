@@ -14,18 +14,20 @@ import { store } from './store';
 // styling
 import './global-styles.scss';
 
-export const renderApp = (
-  coreStart: CoreStart,
-  params: AppMountParameters
-) => {
+export const renderApp = (coreStart: CoreStart, params: AppMountParameters) => {
   // This is so our base element stretches to fit the entire webpage
   params.element.className = 'stretch-absolute';
   ReactDOM.render(
     <Provider store={store}>
       <Router basename={params.appBasePath + '#/'}>
-        <Route render={(props) => <FlowFrameworkDashboardsApp 
-        setHeaderActionMenu={params.setHeaderActionMenu}
-        {...props} />} />
+        <Route
+          render={(props) => (
+            <FlowFrameworkDashboardsApp
+              setHeaderActionMenu={params.setHeaderActionMenu}
+              {...props}
+            />
+          )}
+        />
       </Router>
     </Provider>,
     params.element

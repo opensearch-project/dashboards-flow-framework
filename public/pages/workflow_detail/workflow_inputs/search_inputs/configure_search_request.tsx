@@ -24,14 +24,13 @@ import {
 } from '@elastic/eui';
 import { WorkspaceFormValues } from '../../../../../common';
 import { JsonField } from '../input_fields';
-import { useLocation } from 'react-router-dom';
-import { getDataSourceFromURL } from '../../../../utils/helpers';
 import {
   AppState,
   catIndices,
   searchIndex,
   useAppDispatch,
 } from '../../../../store';
+import { getDataSourceId } from '../../../../utils/utils';
 
 interface ConfigureSearchRequestProps {
   setQuery: (query: string) => void;
@@ -44,9 +43,7 @@ interface ConfigureSearchRequestProps {
  */
 export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   const dispatch = useAppDispatch();
-  const location = useLocation();
-  const MDSQueryParams = getDataSourceFromURL(location);
-  const dataSourceId = MDSQueryParams.dataSourceId;
+  const dataSourceId = getDataSourceId();
 
   // Form state
   const { values } = useFormikContext<WorkspaceFormValues>();
@@ -76,7 +73,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   useEffect(() => {
     if (!ingestEnabled) {
       // Fetch all indices besides system indices
-      dispatch(catIndices({pattern:'*,-.*',dataSourceId: dataSourceId}));
+      dispatch(catIndices({ pattern: '*,-.*',dataSourceId }));
     }
   }, []);
 
@@ -169,11 +166,11 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
               // for this test query, we don't want to involve any configured search pipelines, if any exist
               // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
               dispatch(
-                searchIndex({
+                searchIndex({apiBody:{
                   index: indexName,
                   body: values.search.request,
                   searchPipeline: '_none',
-                })
+                }, dataSourceId})
               )
                 .unwrap()
                 .then(async (resp) => {
