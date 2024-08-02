@@ -187,7 +187,11 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <EuiText
                 size="m"
                 style={{ marginTop: '4px' }}
-              >{`Configure input transformations (optional)`}</EuiText>
+              >{`Configure input transformations (${
+                props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                  ? 'Required'
+                  : 'Optional'
+              })`}</EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiToolTip
@@ -233,7 +237,11 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <EuiText
                 size="m"
                 style={{ marginTop: '4px' }}
-              >{`Configure output transformations (optional)`}</EuiText>
+              >{`Configure output transformations (${
+                props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                  ? 'Required'
+                  : 'Optional'
+              })`}</EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiToolTip
@@ -275,6 +283,15 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <EuiCallOut
                 size="s"
                 title="Input and output maps must have equal length if both are defined"
+                iconType={'alert'}
+                color="danger"
+              />
+            )}
+          {props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST &&
+            (inputMapValue.length === 0 || outputMapValue.length === 0) && (
+              <EuiCallOut
+                size="s"
+                title="Input and output maps are required for ML inference search request processors"
                 iconType={'alert'}
                 color="danger"
               />
