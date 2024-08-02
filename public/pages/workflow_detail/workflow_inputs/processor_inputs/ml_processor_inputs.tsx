@@ -31,7 +31,6 @@ import { isEmpty } from 'lodash';
 import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
 import { AppState } from '../../../../store';
-import { parseModelInputs, parseModelOutputs } from '../../../../utils';
 import {
   formikToPartialPipeline,
   parseModelInputs,
