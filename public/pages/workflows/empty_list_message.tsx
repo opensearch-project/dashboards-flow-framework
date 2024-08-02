@@ -5,7 +5,7 @@
 
 import React from 'react';
 import {
-  EuiButton,
+  EuiSmallButton,
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
@@ -34,9 +34,9 @@ export function EmptyListMessage(props: EmptyListMessageProps) {
         </EuiText>
       </EuiFlexItem>
       <EuiFlexItem>
-        <EuiButton fill={false} onClick={props.onClickNewWorkflow}>
+        <EuiSmallButton fill={false} onClick={props.onClickNewWorkflow}>
           New workflow
-        </EuiButton>
+        </EuiSmallButton>
       </EuiFlexItem>
     </EuiFlexGroup>
   );

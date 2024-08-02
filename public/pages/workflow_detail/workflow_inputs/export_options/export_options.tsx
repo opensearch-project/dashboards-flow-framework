@@ -9,7 +9,7 @@ import {
   EuiCodeBlock,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiRadioGroup,
+  EuiCompressedRadioGroup,
 } from '@elastic/eui';
 import { Workflow } from '../../../../../common';
 import { reduceToTemplate } from '../../../../utils';
@@ -59,7 +59,7 @@ export function ExportOptions(props: SearchInputsProps) {
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
-        <EuiRadioGroup
+        <EuiCompressedRadioGroup
           options={exportOptions}
           idSelected={selectedOption}
           onChange={(option) => {
