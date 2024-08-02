@@ -13,9 +13,9 @@ import {
   EuiFlexItem,
   EuiSpacer,
   EuiText,
+  EuiToolTip,
 } from '@elastic/eui';
 import {
-  WorkspaceFormValues,
   IProcessorConfig,
   IConfigField,
   PROCESSOR_CONTEXT,
@@ -24,13 +24,18 @@ import {
   ModelInputFormField,
   ModelOutputFormField,
   ML_INFERENCE_DOCS_LINK,
+  WorkflowFormValues,
 } from '../../../../../common';
 import { MapArrayField, ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
 import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
 import { AppState } from '../../../../store';
-import { parseModelInputs, parseModelOutputs } from '../../../../utils';
+import {
+  formikToPartialPipeline,
+  parseModelInputs,
+  parseModelOutputs,
+} from '../../../../utils';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
@@ -49,7 +54,7 @@ interface MLProcessorInputsProps {
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const models = useSelector((state: AppState) => state.models.models);
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkspaceFormValues
+    WorkflowFormValues
   >();
 
   // extracting field info from the ML processor config
@@ -68,6 +73,30 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   ) as IConfigField;
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
   const outputMapValue = getIn(values, outputMapFieldPath);
+
+  // preview availability states
+  // if there are preceding search request processors, we cannot fetch and display the interim transformed query.
+  // additionally, cannot preview output transforms for search request processors because output_maps need to be defined
+  // (internally, we remove any output map to get the raw transforms from input_map, but this is not possible here)
+  // in these cases, we block preview
+  // ref tracking issue: https://github.com/opensearch-project/OpenSearch/issues/14745
+  const [isInputPreviewAvailable, setIsInputPreviewAvailable] = useState<
+    boolean
+  >(true);
+  const isOutputPreviewAvailable =
+    props.context !== PROCESSOR_CONTEXT.SEARCH_REQUEST;
+  useEffect(() => {
+    if (props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST) {
+      const curSearchPipeline = formikToPartialPipeline(
+        values,
+        props.uiConfig,
+        props.config.id,
+        false,
+        PROCESSOR_CONTEXT.SEARCH_REQUEST
+      );
+      setIsInputPreviewAvailable(curSearchPipeline === undefined);
+    }
+  }, [props.uiConfig.search.enrichRequest.processors]);
 
   // advanced transformations modal state
   const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
@@ -158,18 +187,31 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <EuiText
                 size="m"
                 style={{ marginTop: '4px' }}
-              >{`Configure input transformations (optional)`}</EuiText>
+              >{`Configure input transformations (${
+                props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                  ? 'Required'
+                  : 'Optional'
+              })`}</EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButtonEmpty
-                style={{ width: '100px' }}
-                size="s"
-                onClick={() => {
-                  setIsInputTransformModalOpen(true);
-                }}
+              <EuiToolTip
+                content={
+                  isInputPreviewAvailable
+                    ? 'Preview transformations to model inputs'
+                    : 'Preview is unavailable for multiple search request processors'
+                }
               >
-                Preview
-              </EuiButtonEmpty>
+                <EuiButtonEmpty
+                  disabled={!isInputPreviewAvailable}
+                  style={{ width: '100px' }}
+                  size="s"
+                  onClick={() => {
+                    setIsInputTransformModalOpen(true);
+                  }}
+                >
+                  Preview
+                </EuiButtonEmpty>
+              </EuiToolTip>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
@@ -195,18 +237,31 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <EuiText
                 size="m"
                 style={{ marginTop: '4px' }}
-              >{`Configure output transformations (optional)`}</EuiText>
+              >{`Configure output transformations (${
+                props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                  ? 'Required'
+                  : 'Optional'
+              })`}</EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButtonEmpty
-                style={{ width: '100px' }}
-                size="s"
-                onClick={() => {
-                  setIsOutputTransformModalOpen(true);
-                }}
+              <EuiToolTip
+                content={
+                  isOutputPreviewAvailable
+                    ? 'Preview transformations of model outputs'
+                    : 'Preview of model outputs is unavailable for search request processors'
+                }
               >
-                Preview
-              </EuiButtonEmpty>
+                <EuiButtonEmpty
+                  disabled={!isOutputPreviewAvailable}
+                  style={{ width: '100px' }}
+                  size="s"
+                  onClick={() => {
+                    setIsOutputTransformModalOpen(true);
+                  }}
+                >
+                  Preview
+                </EuiButtonEmpty>
+              </EuiToolTip>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
@@ -228,6 +283,15 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <EuiCallOut
                 size="s"
                 title="Input and output maps must have equal length if both are defined"
+                iconType={'alert'}
+                color="danger"
+              />
+            )}
+          {props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST &&
+            (inputMapValue.length === 0 || outputMapValue.length === 0) && (
+              <EuiCallOut
+                size="s"
+                title="Input and output maps are required for ML inference search request processors"
                 iconType={'alert'}
                 color="danger"
               />

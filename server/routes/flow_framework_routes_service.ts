@@ -22,6 +22,7 @@ import {
   GET_WORKFLOW_STATE_NODE_API_PATH,
   PROVISION_WORKFLOW_NODE_API_PATH,
   SEARCH_WORKFLOWS_NODE_API_PATH,
+  SearchHit,
   UPDATE_WORKFLOW_NODE_API_PATH,
   WORKFLOW_STATE,
   Workflow,
@@ -218,12 +219,12 @@ export class FlowFrameworkRoutesService {
       const workflowsResponse = await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.searchWorkflows', { body });
-      const workflowHits = workflowsResponse.hits.hits as any[];
+      const workflowHits = workflowsResponse.hits.hits as SearchHit[];
 
       const workflowStatesResponse = await this.client
         .asScoped(req)
         .callAsCurrentUser('flowFramework.searchWorkflowState', { body });
-      const workflowStateHits = workflowStatesResponse.hits.hits as any[];
+      const workflowStateHits = workflowStatesResponse.hits.hits as SearchHit[];
 
       const workflowDict = getWorkflowsFromResponses(
         workflowHits,
