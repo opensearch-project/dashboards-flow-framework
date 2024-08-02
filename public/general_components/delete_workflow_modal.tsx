@@ -5,8 +5,8 @@
 
 import React from 'react';
 import {
-  EuiButton,
-  EuiButtonEmpty,
+  EuiSmallButton,
+  EuiSmallButtonEmpty,
   EuiModal,
   EuiModalBody,
   EuiModalFooter,
@@ -40,10 +40,10 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
         </EuiText>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiButtonEmpty onClick={props.onClose}> Cancel</EuiButtonEmpty>
-        <EuiButton onClick={props.onConfirm} fill={true} color="danger">
+        <EuiSmallButtonEmpty onClick={props.onClose}> Cancel</EuiSmallButtonEmpty>
+        <EuiSmallButton onClick={props.onConfirm} fill={true} color="danger">
           Delete
-        </EuiButton>
+        </EuiSmallButton>
       </EuiModalFooter>
     </EuiModal>
   );
