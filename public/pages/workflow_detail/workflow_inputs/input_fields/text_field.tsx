@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
-import { EuiFieldText, EuiFormRow, EuiLink, EuiText } from '@elastic/eui';
+import { EuiFieldText, EuiCompressedFormRow, EuiLink, EuiText } from '@elastic/eui';
 import { WorkspaceFormValues } from '../../../../../common';
 import { getInitialValue } from '../../../../utils';
 
@@ -29,7 +29,7 @@ export function TextField(props: TextFieldProps) {
     <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
         return (
-          <EuiFormRow
+          <EuiCompressedFormRow
             key={props.fieldPath}
             label={props.label}
             labelAppend={
@@ -55,7 +55,7 @@ export function TextField(props: TextFieldProps) {
                 props.onFormChange();
               }}
             />
-          </EuiFormRow>
+          </EuiCompressedFormRow>
         );
       }}
     </Field>

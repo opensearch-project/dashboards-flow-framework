@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
-import { EuiCodeEditor, EuiFormRow, EuiLink, EuiText } from '@elastic/eui';
+import { EuiCodeEditor, EuiCompressedFormRow, EuiLink, EuiText } from '@elastic/eui';
 import { WorkspaceFormValues } from '../../../../../common';
 
 interface JsonFieldProps {
@@ -42,7 +42,7 @@ export function JsonField(props: JsonFieldProps) {
     <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
         return (
-          <EuiFormRow
+          <EuiCompressedFormRow
             key={props.fieldPath}
             label={props.label}
             labelAppend={
@@ -87,7 +87,7 @@ export function JsonField(props: JsonFieldProps) {
               aria-label="Code Editor"
               tabSize={2}
             />
-          </EuiFormRow>
+          </EuiCompressedFormRow>
         );
       }}
     </Field>

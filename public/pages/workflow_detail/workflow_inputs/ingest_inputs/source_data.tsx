@@ -7,7 +7,8 @@ import React, { useEffect, useState } from 'react';
 import { useFormikContext } from 'formik';
 import {
   EuiButton,
-  EuiFilePicker,
+  EuiSmallButton,
+  EuiCompressedFilePicker,
   EuiFlexGroup,
   EuiFlexItem,
   EuiModal,
@@ -70,7 +71,7 @@ export function SourceData(props: SourceDataProps) {
                 Upload a JSON file or enter manually.
               </EuiText>{' '}
               <EuiSpacer size="s" />
-              <EuiFilePicker
+              <EuiCompressedFilePicker
                 accept="application/json"
                 multiple={false}
                 initialPromptText="Upload file"
@@ -94,13 +95,13 @@ export function SourceData(props: SourceDataProps) {
             </>
           </EuiModalBody>
           <EuiModalFooter>
-            <EuiButton
+            <EuiSmallButton
               onClick={() => setIsEditModalOpen(false)}
               fill={false}
               color="primary"
             >
               Close
-            </EuiButton>
+            </EuiSmallButton>
           </EuiModalFooter>
         </EuiModal>
       )}
