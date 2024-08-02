@@ -386,7 +386,7 @@ export class FlowFrameworkRoutesService {
           body,
         }
       );
-      const workflowStateHits = workflowStatesResponse.hits.hits as as SearchHit[];
+      const workflowStateHits = workflowStatesResponse.hits.hits as SearchHit[];
 
       const workflowDict = getWorkflowsFromResponses(
         workflowHits,
