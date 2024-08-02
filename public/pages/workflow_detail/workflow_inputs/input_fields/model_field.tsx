@@ -85,7 +85,7 @@ export function ModelField(props: ModelFieldProps) {
       <Field name={props.fieldPath}>
         {({ field, form }: FieldProps) => {
           return (
-            <EuiompressedFormRow
+            <EuiCompressedFormRow
               label={'Model'}
               labelAppend={
                 <EuiText size="xs">
@@ -96,7 +96,7 @@ export function ModelField(props: ModelFieldProps) {
               }
               helpText={'The model ID.'}
             >
-              <EuiompressedSuperSelect
+              <EuiCompressedSuperSelect
                 options={deployedModels.map(
                   (option) =>
                     ({
@@ -135,7 +135,7 @@ export function ModelField(props: ModelFieldProps) {
                     : undefined
                 }
               />
-            </EuiompressedFormRow>
+            </EuiCompressedFormRow>
           );
         }}
       </Field>
