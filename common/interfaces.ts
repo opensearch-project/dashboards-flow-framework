@@ -51,12 +51,6 @@ export type ProcessorsConfig = {
   processors: IProcessorConfig[];
 };
 
-export type IngestPipelineConfig = ProcessorsConfig & {
-  description?: string;
-};
-
-export type SearchPipelineConfig = ProcessorsConfig;
-
 export type IndexConfig = {
   name: IConfigField;
   mappings: IConfigField;
@@ -196,6 +190,18 @@ export type SearchRequestProcessor = SearchProcessor & {};
 export type SearchResponseProcessor = SearchProcessor & {};
 export type SearchPhaseResultsProcessor = SearchProcessor & {};
 
+export type IngestPipelineConfig = {
+  description?: string;
+  processors: IngestProcessor[];
+};
+
+export type SearchPipelineConfig = {
+  description?: string;
+  request_processors?: SearchRequestProcessor[];
+  response_processors?: SearchResponseProcessor[];
+  phase_results_processors?: SearchPhaseResultsProcessor[];
+};
+
 export type MLInferenceProcessor = IngestProcessor & {
   ml_inference: {
     model_id: string;
@@ -238,22 +244,14 @@ export type CreateIngestPipelineNode = TemplateNode & {
     model_id?: string;
     input_field?: string;
     output_field?: string;
-    configurations: {
-      description?: string;
-      processors: IngestProcessor[];
-    };
+    configurations: IngestPipelineConfig;
   };
 };
 
 export type CreateSearchPipelineNode = TemplateNode & {
   user_inputs: {
     pipeline_id: string;
-    configurations: {
-      description?: string;
-      request_processors?: SearchRequestProcessor[];
-      response_processors?: SearchResponseProcessor[];
-      phase_results_processors?: SearchPhaseResultsProcessor[];
-    };
+    configurations: SearchPipelineConfig;
   };
 };
 
@@ -453,7 +451,7 @@ export type WorkflowDict = {
 export type SimulateIngestPipelineDoc = {
   _index: string;
   _id: string;
-  _source: {};
+  _source: any;
 };
 
 // from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#example-specify-a-pipeline-in-the-path
@@ -472,3 +470,5 @@ export type SimulateIngestPipelineDocResponse = {
 export type SimulateIngestPipelineResponse = {
   docs: SimulateIngestPipelineDocResponse[];
 };
+
+export type SearchHit = SimulateIngestPipelineDoc;

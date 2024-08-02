@@ -29,17 +29,23 @@ import {
   ML_INFERENCE_DOCS_LINK,
   MapArrayFormValue,
   PROCESSOR_CONTEXT,
+  SearchHit,
+  SearchPipelineConfig,
   SimulateIngestPipelineResponse,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
 import {
-  formikToIngestPipeline,
+  formikToPartialPipeline,
   generateTransform,
   prepareDocsForSimulate,
   unwrapTransformedDocs,
 } from '../../../../utils';
-import { simulatePipeline, useAppDispatch } from '../../../../store';
+import {
+  searchIndex,
+  simulatePipeline,
+  useAppDispatch,
+} from '../../../../store';
 import { getCore } from '../../../../services';
 import { MapArrayField } from '../input_fields';
 
@@ -93,6 +99,8 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 style={{ width: '100px' }}
                 onClick={async () => {
                   switch (props.context) {
+                    // note we skip search request processor context. that is because empty output maps are not supported.
+                    // for more details, see comment in ml_processor_inputs.tsx
                     case PROCESSOR_CONTEXT.INGEST: {
                       // get the current ingest pipeline up to, and including this processor.
                       // remove any currently-configured output map since we only want the transformation
@@ -103,11 +111,12 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                         `ingest.enrich.${props.config.id}.outputMap`,
                         []
                       );
-                      const curIngestPipeline = formikToIngestPipeline(
+                      const curIngestPipeline = formikToPartialPipeline(
                         valuesWithoutOutputMapConfig,
                         props.uiConfig,
                         props.config.id,
-                        true
+                        true,
+                        PROCESSOR_CONTEXT.INGEST
                       ) as IngestPipelineConfig;
                       const curDocs = prepareDocsForSimulate(
                         values.ingest.docs,
@@ -130,7 +139,55 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                         });
                       break;
                     }
-                    // TODO: complete for search request / search response contexts
+                    case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
+                      // get the current search pipeline up to, and including this processor.
+                      // remove any currently-configured output map since we only want the transformation
+                      // up to, and including, the input map transformations
+                      const valuesWithoutOutputMapConfig = cloneDeep(values);
+                      set(
+                        valuesWithoutOutputMapConfig,
+                        `search.enrichResponse.${props.config.id}.outputMap`,
+                        []
+                      );
+                      const curSearchPipeline = formikToPartialPipeline(
+                        valuesWithoutOutputMapConfig,
+                        props.uiConfig,
+                        props.config.id,
+                        true,
+                        PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                      ) as SearchPipelineConfig;
+
+                      // Execute search. Augment the existing query with
+                      // the partial search pipeline (inline) to get the latest transformed
+                      // version of the request.
+                      dispatch(
+                        searchIndex({
+                          index: values.ingest.index.name,
+                          body: JSON.stringify({
+                            ...JSON.parse(values.search.request as string),
+                            search_pipeline: curSearchPipeline,
+                          }),
+                        })
+                      )
+                        .unwrap()
+                        .then(async (resp) => {
+                          setSourceInput(
+                            JSON.stringify(
+                              resp.hits.hits.map(
+                                (hit: SearchHit) => hit._source
+                              ),
+                              undefined,
+                              2
+                            )
+                          );
+                        })
+                        .catch((error: any) => {
+                          getCore().notifications.toasts.addDanger(
+                            `Failed to fetch input data`
+                          );
+                        });
+                      break;
+                    }
                   }
                 }}
               >
@@ -207,28 +264,28 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 style={{ width: '100px' }}
                 disabled={isEmpty(map) || isEmpty(JSON.parse(sourceInput))}
                 onClick={async () => {
-                  switch (props.context) {
-                    case PROCESSOR_CONTEXT.INGEST: {
-                      if (
-                        !isEmpty(map) &&
-                        !isEmpty(JSON.parse(sourceInput)) &&
-                        selectedOutputOption !== undefined
-                      ) {
-                        let sampleSourceInput = {};
-                        try {
-                          sampleSourceInput = JSON.parse(sourceInput)[0];
-                          const output = generateTransform(
-                            sampleSourceInput,
-                            map[selectedOutputOption]
-                          );
-                          setTransformedOutput(
-                            JSON.stringify(output, undefined, 2)
-                          );
-                        } catch {}
-                      }
-                      break;
-                    }
-                    // TODO: complete for search request / search response contexts
+                  if (
+                    !isEmpty(map) &&
+                    !isEmpty(JSON.parse(sourceInput)) &&
+                    selectedOutputOption !== undefined
+                  ) {
+                    let sampleSourceInput = {};
+                    try {
+                      // In the context of ingest or search resp, this input will be an array (list of docs)
+                      // In the context of request, it will be a single JSON
+                      sampleSourceInput =
+                        props.context === PROCESSOR_CONTEXT.INGEST ||
+                        props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                          ? JSON.parse(sourceInput)[0]
+                          : JSON.parse(sourceInput);
+                      const output = generateTransform(
+                        sampleSourceInput,
+                        map[selectedOutputOption]
+                      );
+                      setTransformedOutput(
+                        JSON.stringify(output, undefined, 2)
+                      );
+                    } catch {}
                   }
                 }}
               >
