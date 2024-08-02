@@ -11,6 +11,7 @@ import {
   Model,
   ModelDict,
   ModelInterface,
+  SearchHit,
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STATE,
   Workflow,
@@ -57,11 +58,11 @@ export function toWorkflowObj(hitSource: any, id: string): Workflow {
 // Current implementation combines 2 search responses to create a single set of workflows with
 // static information + state information
 export function getWorkflowsFromResponses(
-  workflowHits: any[],
-  workflowStateHits: any[]
+  workflowHits: SearchHit[],
+  workflowStateHits: SearchHit[]
 ): WorkflowDict {
   const workflowDict = {} as WorkflowDict;
-  workflowHits.forEach((workflowHit: any) => {
+  workflowHits.forEach((workflowHit: SearchHit) => {
     const hitSource = workflowHit._source;
     workflowDict[workflowHit._id] = toWorkflowObj(hitSource, workflowHit._id);
     const workflowStateHit = workflowStateHits.find(
@@ -85,9 +86,9 @@ export function getWorkflowsFromResponses(
   return workflowDict;
 }
 
-export function getModelsFromResponses(modelHits: any[]): ModelDict {
+export function getModelsFromResponses(modelHits: SearchHit[]): ModelDict {
   const modelDict = {} as ModelDict;
-  modelHits.forEach((modelHit: any) => {
+  modelHits.forEach((modelHit: SearchHit) => {
     // search model API returns hits for each deployed model chunk. ignore these hits
     if (modelHit._source.chunk_number === undefined) {
       const modelId = modelHit._id;

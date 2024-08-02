@@ -4,7 +4,7 @@
  */
 
 import { FormikValues } from 'formik';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import {
   WorkflowConfig,
   WorkflowFormValues,
@@ -13,6 +13,7 @@ import {
   ProcessorsConfig,
   IndexConfig,
 } from '../../common';
+import { getInitialValue } from './config_to_form_utils';
 
 /*
  **************** Formik -> config utils **********************
@@ -94,7 +95,11 @@ function formikToProcessorsUiConfig(
   existingConfig.processors.forEach((processorConfig) => {
     const processorFormValues = formValues[processorConfig.id];
     processorConfig.fields.forEach((processorField) => {
-      processorField.value = processorFormValues[processorField.id];
+      processorField.value = get(
+        processorFormValues,
+        processorField.id,
+        getInitialValue(processorField.type)
+      );
     });
   });
   return existingConfig;
