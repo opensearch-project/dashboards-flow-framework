@@ -132,5 +132,8 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
     case 'boolean': {
       return false;
     }
+    case 'number': {
+      return 0;
+    }
   }
 }

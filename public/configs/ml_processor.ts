@@ -29,5 +29,39 @@ export abstract class MLProcessor extends Processor {
         type: 'mapArray',
       },
     ];
+    this.optionalFields = [
+      {
+        id: 'description',
+        type: 'string',
+      },
+      {
+        id: 'model_config',
+        type: 'json',
+      },
+      {
+        id: 'full_response_path',
+        type: 'boolean',
+        value: false,
+      },
+      {
+        id: 'ignore_missing',
+        type: 'boolean',
+        value: false,
+      },
+      {
+        id: 'ignore_failure',
+        type: 'boolean',
+        value: false,
+      },
+      {
+        id: 'max_prediction_tasks',
+        type: 'number',
+        value: 10,
+      },
+      {
+        id: 'tag',
+        type: 'string',
+      },
+    ];
   }
 }

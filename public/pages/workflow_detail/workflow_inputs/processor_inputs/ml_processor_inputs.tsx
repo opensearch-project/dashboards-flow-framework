@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import { useSelector } from 'react-redux';
 import {
+  EuiAccordion,
   EuiButtonEmpty,
   EuiCallOut,
   EuiFlexGroup,
@@ -36,6 +37,7 @@ import {
   parseModelInputs,
   parseModelOutputs,
 } from '../../../../utils';
+import { ConfigFieldList } from '../config_field_list';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
@@ -296,6 +298,20 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 color="danger"
               />
             )}
+          <EuiSpacer size="s" />
+          <EuiAccordion
+            id={`advancedSettings${props.config.id}`}
+            buttonContent="Advanced settings"
+            paddingSize="none"
+          >
+            <EuiSpacer size="s" />
+            <ConfigFieldList
+              configId={props.config.id}
+              configFields={props.config.optionalFields || []}
+              baseConfigPath={props.baseConfigPath}
+              onFormChange={props.onFormChange}
+            />
+          </EuiAccordion>
         </>
       )}
     </>

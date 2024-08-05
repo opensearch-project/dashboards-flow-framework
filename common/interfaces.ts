@@ -25,7 +25,8 @@ export type ConfigFieldType =
   | 'model'
   | 'map'
   | 'mapArray'
-  | 'boolean';
+  | 'boolean'
+  | 'number';
 
 export type ConfigFieldValue = string | {};
 

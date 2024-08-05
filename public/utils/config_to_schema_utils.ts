@@ -170,6 +170,9 @@ function getFieldSchema(
       baseSchema = yup.boolean();
       break;
     }
+    case 'number': {
+      baseSchema = yup.number();
+    }
   }
 
   return optional ? baseSchema.optional() : baseSchema.required('Required');
