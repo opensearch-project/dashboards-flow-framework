@@ -67,6 +67,10 @@ export function processorConfigToFormik(
   processorConfig.fields.forEach((field) => {
     fieldValues[field.id] = field.value || getInitialValue(field.type);
   });
+  processorConfig.optionalFields?.forEach((optionalField) => {
+    fieldValues[optionalField.id] =
+      optionalField.value || getInitialValue(optionalField.type);
+  });
   return fieldValues;
 }
 

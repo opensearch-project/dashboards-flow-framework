@@ -228,3 +228,10 @@ export function parseModelOutputs(
       } as ModelOutputFormField)
   );
 }
+
+// converts camelCase to a space-delimited string with the first word capitalized.
+// useful for converting config IDs (in camelcase) to a formatted form title
+export function camelCaseToTitleString(camelCaseString: string): string {
+  const result = camelCaseString.replace(/([A-Z])/g, ' $1');
+  return result.charAt(0).toUpperCase() + result.slice(1);
+}

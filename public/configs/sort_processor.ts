@@ -19,15 +19,26 @@ export abstract class SortProcessor extends Processor {
       {
         id: 'field',
         type: 'string',
-        label: 'Field',
       },
+    ];
+    this.optionalFields = [
       {
         id: 'order',
         type: 'select',
-        label: 'Order',
-        optional: true,
         selectOptions: [SORT_ORDER.ASC, SORT_ORDER.DESC],
         value: SORT_ORDER.ASC,
+      },
+      {
+        id: 'targetField',
+        type: 'string',
+      },
+      {
+        id: 'description',
+        type: 'string',
+      },
+      {
+        id: 'tag',
+        type: 'string',
       },
     ];
   }

@@ -19,12 +19,10 @@ export abstract class SplitProcessor extends Processor {
       {
         id: 'field',
         type: 'string',
-        label: 'Field',
       },
       {
         id: 'separator',
         type: 'string',
-        label: 'Separator',
       },
     ];
   }

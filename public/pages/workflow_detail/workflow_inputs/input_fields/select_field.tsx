@@ -12,6 +12,7 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { WorkspaceFormValues, IConfigField } from '../../../../../common';
+import { camelCaseToTitleString } from '../../../../utils';
 
 interface SelectFieldProps {
   field: IConfigField;
@@ -29,7 +30,7 @@ export function SelectField(props: SelectFieldProps) {
     <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
         return (
-          <EuiFormRow label={props.field.label}>
+          <EuiFormRow label={camelCaseToTitleString(props.field.id)}>
             <EuiSuperSelect
               options={
                 props.field.selectOptions

@@ -5,8 +5,9 @@
 
 import React from 'react';
 import { EuiFlexItem, EuiSpacer } from '@elastic/eui';
-import { TextField, ModelField, SelectField } from './input_fields';
-import { IConfig } from '../../../../common';
+import { TextField, SelectField } from './input_fields';
+import { IConfigField } from '../../../../common';
+import { camelCaseToTitleString } from '../../../utils';
 
 /**
  * A helper component to format all of the input fields for a component. Dynamically
@@ -14,7 +15,8 @@ import { IConfig } from '../../../../common';
  */
 
 interface ConfigFieldListProps {
-  config: IConfig;
+  configId: string;
+  configFields: IConfigField[];
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
   onFormChange: () => void;
 }
@@ -22,20 +24,17 @@ interface ConfigFieldListProps {
 const CONFIG_FIELD_SPACER_SIZE = 'm';
 
 export function ConfigFieldList(props: ConfigFieldListProps) {
-  const configFields = props.config.fields || [];
-  const configId = props.config.id;
   return (
     <EuiFlexItem grow={false}>
-      {configFields.map((field, idx) => {
+      {props.configFields.map((field, idx) => {
         let el;
         switch (field.type) {
           case 'string': {
             el = (
               <EuiFlexItem key={idx}>
                 <TextField
-                  // Default to ID if no optional formatted / prettified label provided
-                  label={field.label || field.id}
-                  fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
+                  label={camelCaseToTitleString(field.id)}
+                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
                   showError={true}
                   onFormChange={props.onFormChange}
                 />
@@ -49,7 +48,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
               <EuiFlexItem key={idx}>
                 <SelectField
                   field={field}
-                  fieldPath={`${props.baseConfigPath}.${configId}.${field.id}`}
+                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
                   onFormChange={props.onFormChange}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
