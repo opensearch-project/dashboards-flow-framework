@@ -62,10 +62,12 @@ export enum WORKFLOW_TYPE {
   UNKNOWN = 'Unknown',
 }
 
+// the names should be consistent with the underlying implementation. used when generating the
+// final ingest/search pipeline configurations.
 export enum PROCESSOR_TYPE {
-  ML = 'ml_processor',
-  SPLIT = 'split_processor',
-  SORT = 'sort_processor',
+  ML = 'ml_inference',
+  SPLIT = 'split',
+  SORT = 'sort',
 }
 
 export enum MODEL_TYPE {

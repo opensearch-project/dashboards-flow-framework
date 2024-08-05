@@ -129,5 +129,8 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
     case 'mapArray': {
       return [];
     }
+    case 'boolean': {
+      return false;
+    }
   }
 }

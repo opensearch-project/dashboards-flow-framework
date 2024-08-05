@@ -21,11 +21,11 @@ export abstract class MLProcessor extends Processor {
         type: 'model',
       },
       {
-        id: 'inputMap',
+        id: 'input_map',
         type: 'mapArray',
       },
       {
-        id: 'outputMap',
+        id: 'output_map',
         type: 'mapArray',
       },
     ];

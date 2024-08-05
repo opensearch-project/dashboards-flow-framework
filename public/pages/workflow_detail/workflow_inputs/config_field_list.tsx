@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { EuiFlexItem, EuiSpacer } from '@elastic/eui';
-import { TextField, SelectField } from './input_fields';
+import { TextField, SelectField, BooleanField } from './input_fields';
 import { IConfigField } from '../../../../common';
 import { camelCaseToTitleString } from '../../../utils';
 
@@ -50,6 +50,28 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   field={field}
                   fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
                   onFormChange={props.onFormChange}
+                />
+                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
+          case 'boolean': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <BooleanField
+                  label={camelCaseToTitleString(field.id)}
+                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
+                  onFormChange={props.onFormChange}
+                  enabledOption={{
+                    id: 'true',
+                    label: 'True',
+                  }}
+                  disabledOption={{
+                    id: 'false',
+                    label: 'False',
+                  }}
+                  showLabel={true}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>

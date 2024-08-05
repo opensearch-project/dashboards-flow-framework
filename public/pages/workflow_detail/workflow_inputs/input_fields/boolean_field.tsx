@@ -5,13 +5,24 @@
 
 import React from 'react';
 import { Field, FieldProps } from 'formik';
-import { EuiCompressedRadioGroup, EuiRadioGroupOption } from '@elastic/eui';
+import {
+  EuiCompressedFormRow,
+  EuiCompressedRadioGroup,
+  EuiLink,
+  EuiRadioGroupOption,
+  EuiText,
+} from '@elastic/eui';
+import { camelCaseToTitleString } from '../../../../utils';
 
 interface BooleanFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onFormChange: () => void;
   enabledOption: EuiRadioGroupOption;
   disabledOption: EuiRadioGroupOption;
+  label?: string;
+  helpLink?: string;
+  helpText?: string;
+  showLabel?: boolean;
 }
 
 /**
@@ -22,18 +33,37 @@ export function BooleanField(props: BooleanFieldProps) {
     <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
         return (
-          <EuiCompressedRadioGroup
-            options={[props.enabledOption, props.disabledOption]}
-            idSelected={
-              field.value === undefined || field.value === true
-                ? props.enabledOption.id
-                : props.disabledOption.id
+          <EuiCompressedFormRow
+            key={props.fieldPath}
+            label={
+              props.showLabel &&
+              (props.label || camelCaseToTitleString(field.name))
             }
-            onChange={(id) => {
-              form.setFieldValue(field.name, !field.value);
-              props.onFormChange();
-            }}
-          />
+            labelAppend={
+              props.helpLink ? (
+                <EuiText size="xs">
+                  <EuiLink href={props.helpLink} target="_blank">
+                    Learn more
+                  </EuiLink>
+                </EuiText>
+              ) : undefined
+            }
+            helpText={props.helpText || undefined}
+            isInvalid={false}
+          >
+            <EuiCompressedRadioGroup
+              options={[props.enabledOption, props.disabledOption]}
+              idSelected={
+                field.value === undefined || field.value === true
+                  ? props.enabledOption.id
+                  : props.disabledOption.id
+              }
+              onChange={(id) => {
+                form.setFieldValue(field.name, !field.value);
+                props.onFormChange();
+              }}
+            />
+          </EuiCompressedFormRow>
         );
       }}
     </Field>

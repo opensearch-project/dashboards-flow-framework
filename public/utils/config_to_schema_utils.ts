@@ -166,6 +166,10 @@ function getFieldSchema(
       );
       break;
     }
+    case 'boolean': {
+      baseSchema = yup.boolean();
+      break;
+    }
   }
 
   return optional ? baseSchema.optional() : baseSchema.required('Required');

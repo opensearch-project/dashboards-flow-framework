@@ -64,12 +64,12 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   ) as IConfigField;
   const modelFieldPath = `${props.baseConfigPath}.${props.config.id}.${modelField.id}`;
   const inputMapField = props.config.fields.find(
-    (field) => field.id === 'inputMap'
+    (field) => field.id === 'input_map'
   ) as IConfigField;
   const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${inputMapField.id}`;
   const inputMapValue = getIn(values, inputMapFieldPath);
   const outputMapField = props.config.fields.find(
-    (field) => field.id === 'outputMap'
+    (field) => field.id === 'output_map'
   ) as IConfigField;
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
   const outputMapValue = getIn(values, outputMapFieldPath);
@@ -113,7 +113,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
 
   // Hook to listen when the selected model has changed. We do a few checks here:
   // 1: update model interface states
-  // 2. clear out any persisted inputMap/outputMap form values, as those would now be invalid
+  // 2. clear out any persisted input_map/output_map form values, as those would now be invalid
   function onModelChange(modelId: string) {
     updateModelInterfaceStates(modelId);
     setFieldValue(inputMapFieldPath, []);

@@ -25,5 +25,26 @@ export abstract class SplitProcessor extends Processor {
         type: 'string',
       },
     ];
+    this.optionalFields = [
+      // TODO: although listed in docs, this field doesn't seem to exist. Fails
+      // at regular API level.
+      // {
+      //   id: 'preserve_field',
+      //   type: 'boolean',
+      //   value: false,
+      // },
+      {
+        id: 'target_field',
+        type: 'string',
+      },
+      {
+        id: 'description',
+        type: 'string',
+      },
+      {
+        id: 'tag',
+        type: 'string',
+      },
+    ];
   }
 }

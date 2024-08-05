@@ -29,7 +29,7 @@ export abstract class SortProcessor extends Processor {
         value: SORT_ORDER.ASC,
       },
       {
-        id: 'targetField',
+        id: 'target_field',
         type: 'string',
       },
       {

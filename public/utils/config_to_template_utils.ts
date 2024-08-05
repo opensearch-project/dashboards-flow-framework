@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { FormikValues } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   TemplateFlows,
   TemplateNode,
@@ -133,8 +135,6 @@ function searchConfigToTemplateNodes(
 
 // General fn to process all processor configs and convert them
 // into a final list of template-formatted IngestProcessor/SearchProcessors.
-// TODO: improve the type safety of the returned form values. Have defined interfaces
-// for each processor type, including the handling of any configured optional fields
 export function processorConfigsToTemplateProcessors(
   processorConfigs: IProcessorConfig[]
 ): (IngestProcessor | SearchProcessor)[] {
@@ -143,12 +143,12 @@ export function processorConfigsToTemplateProcessors(
   processorConfigs.forEach((processorConfig) => {
     switch (processorConfig.type) {
       case PROCESSOR_TYPE.ML: {
-        const { model, inputMap, outputMap } = processorConfigToFormik(
+        const { model, input_map, output_map } = processorConfigToFormik(
           processorConfig
         ) as {
           model: ModelFormValue;
-          inputMap: MapArrayFormValue;
-          outputMap: MapArrayFormValue;
+          input_map: MapArrayFormValue;
+          output_map: MapArrayFormValue;
         };
 
         let processor = {
@@ -156,46 +156,37 @@ export function processorConfigsToTemplateProcessors(
             model_id: model.id,
           },
         } as MLInferenceProcessor;
-        if (inputMap?.length > 0) {
-          processor.ml_inference.input_map = inputMap.map((mapFormValue) =>
+        if (input_map?.length > 0) {
+          processor.ml_inference.input_map = input_map.map((mapFormValue) =>
             mergeMapIntoSingleObj(mapFormValue)
           );
         }
 
-        if (outputMap?.length > 0) {
-          processor.ml_inference.output_map = outputMap.map((mapFormValue) =>
+        if (output_map?.length > 0) {
+          processor.ml_inference.output_map = output_map.map((mapFormValue) =>
             mergeMapIntoSingleObj(mapFormValue)
           );
         }
         processorsList.push(processor);
         break;
       }
-      case PROCESSOR_TYPE.SPLIT: {
-        const { field, separator } = processorConfigToFormik(
-          processorConfig
-        ) as { field: string; separator: string };
-        processorsList.push({
-          split: {
-            field,
-            separator,
-          },
-        });
-        break;
-      }
-      case PROCESSOR_TYPE.SORT: {
-        const { field, order } = processorConfigToFormik(processorConfig) as {
-          field: string;
-          order: string;
-        };
-        processorsList.push({
-          sort: {
-            field,
-            order,
-          },
-        });
-        break;
-      }
+      case PROCESSOR_TYPE.SPLIT:
+      case PROCESSOR_TYPE.SORT:
       default: {
+        const formValues = processorConfigToFormik(processorConfig);
+        const finalFormValues = {} as FormikValues;
+        // iterate through the form values, ignoring any empty
+        // field (empty fields can be possible if the field is optional)
+        Object.keys(formValues).forEach((formKey: string) => {
+          const formValue = formValues[formKey];
+          if (!isEmpty(formValue) || typeof formValue === 'boolean') {
+            finalFormValues[formKey] =
+              typeof formValue === 'boolean' ? formValue : formValue;
+          }
+        });
+        processorsList.push({
+          [processorConfig.type]: finalFormValues,
+        });
         break;
       }
     }
