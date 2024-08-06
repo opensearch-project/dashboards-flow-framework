@@ -12,7 +12,7 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { WorkspaceFormValues } from '../../../../../common';
-import { camelCaseToTitleString, getInitialValue } from '../../../../utils';
+import { getInitialValue } from '../../../../utils';
 
 interface TextFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
@@ -36,7 +36,7 @@ export function TextField(props: TextFieldProps) {
         return (
           <EuiCompressedFormRow
             key={props.fieldPath}
-            label={props.label || camelCaseToTitleString(field.name)}
+            label={props.label}
             labelAppend={
               props.helpLink ? (
                 <EuiText size="xs">

@@ -68,6 +68,7 @@ export enum PROCESSOR_TYPE {
   ML = 'ml_inference',
   SPLIT = 'split',
   SORT = 'sort',
+  TEXT_CHUNKING = 'text_chunking',
 }
 
 export enum MODEL_TYPE {
@@ -120,6 +121,24 @@ export const ML_INFERENCE_DOCS_LINK =
   'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters';
 export const ML_CHOOSE_MODEL_LINK =
   'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model';
+export const TEXT_CHUNKING_PROCESSOR_LINK =
+  'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-chunking/';
+
+/**
+ * Text chunking algorithm constants
+ */
+export enum TEXT_CHUNKING_ALGORITHM {
+  FIXED_TOKEN_LENGTH = 'fixed_token_length',
+  DELIMITER = 'delimiter',
+}
+export const FIXED_TOKEN_LENGTH_OPTIONAL_FIELDS = [
+  'token_limit',
+  'tokenizer',
+  'overlap_rate',
+];
+export const DELIMITER_OPTIONAL_FIELDS = ['delimiter'];
+export const SHARED_OPTIONAL_FIELDS = ['max_chunk_limit', 'description', 'tag'];
+
 /**
  * MISCELLANEOUS
  */

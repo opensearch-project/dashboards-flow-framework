@@ -29,6 +29,10 @@ import {
   SearchConfig,
   MapFormValue,
   MapEntry,
+  TEXT_CHUNKING_ALGORITHM,
+  SHARED_OPTIONAL_FIELDS,
+  FIXED_TOKEN_LENGTH_OPTIONAL_FIELDS,
+  DELIMITER_OPTIONAL_FIELDS,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
 import { generateId } from './utils';
@@ -170,19 +174,66 @@ export function processorConfigsToTemplateProcessors(
         processorsList.push(processor);
         break;
       }
+      // only include the optional field form values that are relevant
+      // to the selected algorithm. always add any common/shared form values.
+      case PROCESSOR_TYPE.TEXT_CHUNKING: {
+        const formValues = processorConfigToFormik(processorConfig);
+        let finalFormValues = {} as FormikValues;
+        const algorithm = formValues['algorithm'] as TEXT_CHUNKING_ALGORITHM;
+        Object.keys(formValues).forEach((formKey: string) => {
+          const formValue = formValues[formKey];
+          if (SHARED_OPTIONAL_FIELDS.includes(formKey)) {
+            finalFormValues = optionallyAddToFinalForm(
+              finalFormValues,
+              formKey,
+              formValue
+            );
+          } else {
+            if (algorithm === TEXT_CHUNKING_ALGORITHM.FIXED_TOKEN_LENGTH) {
+              if (FIXED_TOKEN_LENGTH_OPTIONAL_FIELDS.includes(formKey)) {
+                finalFormValues = optionallyAddToFinalForm(
+                  finalFormValues,
+                  formKey,
+                  formValue
+                );
+              }
+            } else {
+              if (DELIMITER_OPTIONAL_FIELDS.includes(formKey)) {
+                finalFormValues = optionallyAddToFinalForm(
+                  finalFormValues,
+                  formKey,
+                  formValue
+                );
+              }
+            }
+          }
+        });
+        // add the field map config obj
+        finalFormValues = {
+          ...finalFormValues,
+          field_map: mergeMapIntoSingleObj(
+            formValues['field_map'] as MapFormValue
+          ),
+        };
+        processorsList.push({
+          [processorConfig.type]: finalFormValues,
+        });
+        break;
+      }
       case PROCESSOR_TYPE.SPLIT:
       case PROCESSOR_TYPE.SORT:
       default: {
         const formValues = processorConfigToFormik(processorConfig);
-        const finalFormValues = {} as FormikValues;
+        let finalFormValues = {} as FormikValues;
         // iterate through the form values, ignoring any empty
         // field (empty fields can be possible if the field is optional)
         Object.keys(formValues).forEach((formKey: string) => {
           const formValue = formValues[formKey];
-          if (!isEmpty(formValue) || typeof formValue === 'boolean') {
-            finalFormValues[formKey] =
-              typeof formValue === 'boolean' ? formValue : formValue;
-          }
+          finalFormValues = optionallyAddToFinalForm(
+            finalFormValues,
+            formKey,
+            formValue
+          );
         });
         processorsList.push({
           [processorConfig.type]: finalFormValues,
@@ -284,4 +335,18 @@ function mergeMapIntoSingleObj(mapFormValue: MapFormValue): {} {
     };
   });
   return curMap;
+}
+
+// utility fn used to build the final set of processor config fields, filtering
+// by only adding if the field is valid
+function optionallyAddToFinalForm(
+  finalFormValues: FormikValues,
+  formKey: string,
+  formValue: any
+): FormikValues {
+  if (!isEmpty(formValue) || typeof formValue === 'boolean') {
+    finalFormValues[formKey] =
+      typeof formValue === 'boolean' ? formValue : formValue;
+  }
+  return finalFormValues;
 }

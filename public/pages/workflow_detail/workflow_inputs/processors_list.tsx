@@ -32,6 +32,7 @@ import {
   SortSearchResponseProcessor,
   SplitIngestProcessor,
   SplitSearchResponseProcessor,
+  TextChunkingIngestProcessor,
 } from '../../../configs';
 import { ProcessorInputs } from './processor_inputs';
 
@@ -223,6 +224,15 @@ export function ProcessorsList(props: ProcessorsListProps) {
                             onClick: () => {
                               closePopover();
                               addProcessor(new SortIngestProcessor().toObj());
+                            },
+                          },
+                          {
+                            name: 'Text Chunking Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(
+                                new TextChunkingIngestProcessor().toObj()
+                              );
                             },
                           },
                         ]
