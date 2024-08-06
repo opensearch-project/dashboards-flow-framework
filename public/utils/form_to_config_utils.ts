@@ -101,6 +101,13 @@ function formikToProcessorsUiConfig(
         getInitialValue(processorField.type)
       );
     });
+    processorConfig.optionalFields?.forEach((processorField) => {
+      processorField.value = get(
+        processorFormValues,
+        processorField.id,
+        undefined
+      );
+    });
   });
   return existingConfig;
 }
