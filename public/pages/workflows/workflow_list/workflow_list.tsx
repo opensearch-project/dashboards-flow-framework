@@ -12,7 +12,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiFilterSelectItem,
-  EuiFieldSearch,
+  EuiCompressedFieldSearch,
   EuiLoadingSpinner,
   EuiFlyout,
   EuiFlyoutHeader,
@@ -193,7 +193,7 @@ export function WorkflowList(props: WorkflowListProps) {
         <EuiFlexItem>
           <EuiFlexGroup direction="row" gutterSize="m">
             <EuiFlexItem grow={true}>
-              <EuiFieldSearch
+              <EuiCompressedFieldSearch
                 fullWidth={true}
                 placeholder="Search"
                 onChange={(e) => debounceSearchQuery(e.target.value)}

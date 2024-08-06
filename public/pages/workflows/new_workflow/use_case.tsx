@@ -12,15 +12,15 @@ import {
   EuiTitle,
   EuiCard,
   EuiHorizontalRule,
-  EuiButton,
+  EuiSmallButton,
   EuiModal,
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiModalBody,
   EuiModalFooter,
-  EuiButtonEmpty,
-  EuiFieldText,
-  EuiFormRow,
+  EuiSmallButtonEmpty,
+  EuiCompressedFieldText,
+  EuiCompressedFormRow,
 } from '@elastic/eui';
 import { Workflow } from '../../../../common';
 import { APP_PATH } from '../../../utils';
@@ -55,26 +55,25 @@ export function UseCase(props: UseCaseProps) {
             </EuiModalHeaderTitle>
           </EuiModalHeader>
           <EuiModalBody>
-            <EuiFormRow
+            <EuiCompressedFormRow
               label={'Name'}
               error={'Name cannot be empty'}
               isInvalid={workflowName === ''}
             >
-              <EuiFieldText
+              <EuiCompressedFieldText
                 placeholder={processWorkflowName(props.workflow.name)}
-                compressed={false}
                 value={workflowName}
                 onChange={(e) => {
                   setWorkflowName(e.target.value);
                 }}
               />
-            </EuiFormRow>
+            </EuiCompressedFormRow>
           </EuiModalBody>
           <EuiModalFooter>
-            <EuiButtonEmpty onClick={() => setIsNameModalOpen(false)}>
+            <EuiSmallButtonEmpty onClick={() => setIsNameModalOpen(false)}>
               Cancel
-            </EuiButtonEmpty>
-            <EuiButton
+            </EuiSmallButtonEmpty>
+            <EuiSmallButton
               disabled={workflowName === ''}
               onClick={() => {
                 const workflowToCreate = {
@@ -103,7 +102,7 @@ export function UseCase(props: UseCaseProps) {
               color="primary"
             >
               Create
-            </EuiButton>
+            </EuiSmallButton>
           </EuiModalFooter>
         </EuiModal>
       )}
@@ -124,7 +123,7 @@ export function UseCase(props: UseCaseProps) {
           </EuiFlexItem>
           <EuiFlexGroup direction="column" alignItems="center">
             <EuiFlexItem grow={false}>
-              <EuiButton
+              <EuiSmallButton
                 disabled={false}
                 isLoading={false}
                 onClick={() => {
@@ -132,7 +131,7 @@ export function UseCase(props: UseCaseProps) {
                 }}
               >
                 Go
-              </EuiButton>
+              </EuiSmallButton>
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexGroup>

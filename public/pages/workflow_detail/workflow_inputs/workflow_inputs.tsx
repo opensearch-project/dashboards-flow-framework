@@ -521,6 +521,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       </EuiFlexGroup>
                     ),
                   }}
+                  showLabel={false}
                 />
               </>
             )}

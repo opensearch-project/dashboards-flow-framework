@@ -8,7 +8,7 @@ import {
   EuiFilterSelectItem,
   EuiFilterGroup,
   EuiPopover,
-  EuiFilterButton,
+  EuiSmallFilterButton,
   EuiFlexItem,
 } from '@elastic/eui';
 
@@ -57,7 +57,7 @@ export function MultiSelectFilter(props: MultiSelectFilterProps) {
       <EuiFilterGroup>
         <EuiPopover
           button={
-            <EuiFilterButton
+            <EuiSmallFilterButton
               iconType="arrowDown"
               onClick={onButtonClick}
               isSelected={isPopoverOpen}
@@ -72,7 +72,7 @@ export function MultiSelectFilter(props: MultiSelectFilterProps) {
               }
             >
               {props.title}
-            </EuiFilterButton>
+            </EuiSmallFilterButton>
           }
           isOpen={isPopoverOpen}
           closePopover={onPopoverClose}

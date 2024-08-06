@@ -12,11 +12,13 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { WorkspaceFormValues, IConfigField } from '../../../../../common';
+import { camelCaseToTitleString } from '../../../../utils';
 
 interface SelectFieldProps {
   field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onFormChange: () => void;
+  onSelectChange?: (option: string) => void;
 }
 
 /**
@@ -29,7 +31,7 @@ export function SelectField(props: SelectFieldProps) {
     <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
         return (
-          <EuiFormRow label={props.field.label}>
+          <EuiFormRow label={camelCaseToTitleString(props.field.id)}>
             <EuiSuperSelect
               options={
                 props.field.selectOptions
@@ -53,6 +55,9 @@ export function SelectField(props: SelectFieldProps) {
                 form.setFieldTouched(props.fieldPath, true);
                 form.setFieldValue(props.fieldPath, option);
                 props.onFormChange();
+                if (props.onSelectChange) {
+                  props.onSelectChange(option);
+                }
               }}
               isInvalid={
                 getIn(errors, field.name) && getIn(touched, field.name)
