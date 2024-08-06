@@ -234,7 +234,11 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
                 helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="Model input field"
-                valuePlaceholder="Document field"
+                valuePlaceholder={
+                  props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                    ? 'Query field'
+                    : 'Document field'
+                }
                 keyOptions={props.inputFields}
                 onFormChange={props.onFormChange}
                 // If the map we are adding is the first one, populate the selected option to index 0

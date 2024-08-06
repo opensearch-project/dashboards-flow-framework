@@ -226,7 +226,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 label="Output Map"
                 helpText={`An array specifying how to map the model’s output to new fields.`}
                 helpLink={ML_INFERENCE_DOCS_LINK}
-                keyPlaceholder="New document field"
+                keyPlaceholder="Document field"
                 valuePlaceholder="Model output field"
                 valueOptions={props.outputFields}
                 onFormChange={props.onFormChange}
