@@ -66,9 +66,9 @@ export type SearchIndexConfig = {
 };
 
 export type IngestConfig = {
-  enabled: boolean;
+  enabled: IConfigField;
   source: {};
-  pipelineName: string;
+  pipelineName: IConfigField;
   enrich: ProcessorsConfig;
   index: IndexConfig;
 };
@@ -76,7 +76,7 @@ export type IngestConfig = {
 export type SearchConfig = {
   request: IConfigField;
   index: SearchIndexConfig;
-  pipelineName: string;
+  pipelineName: IConfigField;
   enrichRequest: ProcessorsConfig;
   enrichResponse: ProcessorsConfig;
 };

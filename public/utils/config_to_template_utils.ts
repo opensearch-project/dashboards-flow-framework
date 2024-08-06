@@ -64,7 +64,7 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
     (node) => node.type === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
   ) as CreateSearchPipelineNode;
 
-  if (config.ingest.enabled) {
+  if (config.ingest.enabled.value) {
     nodes.push(
       indexConfigToTemplateNode(
         config.ingest.index,
@@ -83,13 +83,14 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
 function ingestConfigToTemplateNodes(
   ingestConfig: IngestConfig
 ): TemplateNode[] {
-  const ingestPipelineName = ingestConfig.pipelineName;
+  const ingestPipelineName = ingestConfig.pipelineName.value;
+  const ingestEnabled = ingestConfig.enabled.value;
   const ingestProcessors = processorConfigsToTemplateProcessors(
     ingestConfig.enrich.processors
   );
   const hasProcessors = ingestProcessors.length > 0;
 
-  return hasProcessors && ingestConfig.enabled
+  return hasProcessors && ingestEnabled
     ? [
         {
           id: ingestPipelineName,
@@ -109,7 +110,7 @@ function ingestConfigToTemplateNodes(
 function searchConfigToTemplateNodes(
   searchConfig: SearchConfig
 ): TemplateNode[] {
-  const searchPipelineName = searchConfig.pipelineName;
+  const searchPipelineName = searchConfig.pipelineName.value;
   const searchRequestProcessors = processorConfigsToTemplateProcessors(
     searchConfig.enrichRequest.processors
   );

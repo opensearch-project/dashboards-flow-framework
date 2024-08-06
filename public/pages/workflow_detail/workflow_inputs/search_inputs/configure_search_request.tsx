@@ -177,7 +177,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
               // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
               dispatch(
                 searchIndex({
-                  index: selectedIndex as string,
+                  index: values.search.index.name,
                   body: values.search.request,
                   searchPipeline: '_none',
                 })

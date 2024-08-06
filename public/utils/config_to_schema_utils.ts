@@ -36,9 +36,7 @@ function ingestConfigToSchema(
     ingestSchemaObj['docs'] = getFieldSchema({
       type: 'jsonArray',
     } as IConfigField);
-    ingestSchemaObj['pipelineName'] = getFieldSchema({
-      type: 'string',
-    } as IConfigField);
+    ingestSchemaObj['pipelineName'] = getFieldSchema(ingestConfig.pipelineName);
     ingestSchemaObj['enrich'] = processorsConfigToSchema(ingestConfig.enrich);
     ingestSchemaObj['index'] = indexConfigToSchema(ingestConfig.index);
   }
@@ -61,9 +59,7 @@ function searchConfigToSchema(
     searchSchemaObj['request'] = getFieldSchema({
       type: 'json',
     } as IConfigField);
-    searchSchemaObj['pipelineName'] = getFieldSchema({
-      type: 'string',
-    } as IConfigField);
+    searchSchemaObj['pipelineName'] = getFieldSchema(searchConfig.pipelineName);
     searchSchemaObj['index'] = searchIndexToSchema(searchConfig.index);
     searchSchemaObj['enrichRequest'] = processorsConfigToSchema(
       searchConfig.enrichRequest

@@ -41,8 +41,11 @@ function ingestConfigToFormik(
 ): FormikValues {
   let ingestFormikValues = {} as FormikValues;
   if (ingestConfig) {
-    ingestFormikValues['enabled'] = ingestConfig.enabled;
-    ingestFormikValues['pipelineName'] = ingestConfig.pipelineName;
+    ingestFormikValues['enabled'] =
+      ingestConfig.enabled.value || getInitialValue(ingestConfig.enabled.type);
+    ingestFormikValues['pipelineName'] =
+      ingestConfig.pipelineName.value ||
+      getInitialValue(ingestConfig.pipelineName.type);
     ingestFormikValues['docs'] = ingestDocs || getInitialValue('jsonArray');
     ingestFormikValues['enrich'] = processorsConfigToFormik(
       ingestConfig.enrich
@@ -95,7 +98,8 @@ function searchConfigToFormik(
     searchFormikValues['request'] =
       searchConfig.request.value || getInitialValue('json');
     searchFormikValues['pipelineName'] =
-      searchConfig.pipelineName || getInitialValue('string');
+      searchConfig.pipelineName.value ||
+      getInitialValue(searchConfig.pipelineName.type);
     searchFormikValues['index'] = searchIndexConfigToFormik(searchConfig.index);
     searchFormikValues['enrichRequest'] = processorsConfigToFormik(
       searchConfig.enrichRequest

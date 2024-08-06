@@ -46,8 +46,14 @@ function formikToIngestUiConfig(
 ): IngestConfig {
   return {
     ...existingConfig,
-    enabled: ingestFormValues['enabled'],
-    pipelineName: ingestFormValues['pipelineName'],
+    enabled: {
+      ...existingConfig.enabled,
+      value: ingestFormValues['enabled'],
+    },
+    pipelineName: {
+      ...existingConfig.pipelineName,
+      value: ingestFormValues['pipelineName'],
+    },
     enrich: formikToProcessorsUiConfig(
       ingestFormValues['enrich'],
       existingConfig.enrich
@@ -79,7 +85,10 @@ function formikToSearchUiConfig(
       ...existingConfig.request,
       value: searchFormValues['request'],
     },
-    pipelineName: searchFormValues['pipelineName'],
+    pipelineName: {
+      ...existingConfig.pipelineName,
+      value: searchFormValues['pipelineName'],
+    },
     index: formikToSearchIndexUiConfig(
       searchFormValues['index'],
       existingConfig.index

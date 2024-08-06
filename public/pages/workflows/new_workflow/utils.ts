@@ -45,9 +45,17 @@ function fetchEmptyMetadata(): UIState {
     type: WORKFLOW_TYPE.CUSTOM,
     config: {
       ingest: {
-        enabled: true,
+        enabled: {
+          id: 'enabled',
+          type: 'boolean',
+          value: true,
+        },
         source: {},
-        pipelineName: generateId('ingest_pipeline'),
+        pipelineName: {
+          id: 'pipelineName',
+          type: 'string',
+          value: generateId('ingest_pipeline'),
+        },
         enrich: {
           processors: [],
         },
@@ -72,7 +80,11 @@ function fetchEmptyMetadata(): UIState {
           type: 'json',
           value: JSON.stringify(FETCH_ALL_QUERY_BODY, undefined, 2),
         },
-        pipelineName: generateId('search_pipeline'),
+        pipelineName: {
+          id: 'pipelineName',
+          type: 'string',
+          value: generateId('search_pipeline'),
+        },
         index: {
           name: {
             id: 'indexName',
