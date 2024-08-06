@@ -5,8 +5,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
-import { EuiCodeEditor, EuiCompressedFormRow, EuiLink, EuiText } from '@elastic/eui';
+import {
+  EuiCodeEditor,
+  EuiCompressedFormRow,
+  EuiLink,
+  EuiText,
+} from '@elastic/eui';
 import { WorkspaceFormValues } from '../../../../../common';
+import { camelCaseToTitleString } from '../../../../utils';
 
 interface JsonFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
@@ -44,7 +50,7 @@ export function JsonField(props: JsonFieldProps) {
         return (
           <EuiCompressedFormRow
             key={props.fieldPath}
-            label={props.label}
+            label={props.label || camelCaseToTitleString(field.name)}
             labelAppend={
               props.helpLink ? (
                 <EuiText size="xs">

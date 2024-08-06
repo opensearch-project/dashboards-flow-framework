@@ -12,14 +12,14 @@ export abstract class BaseConfig implements IConfig {
   id: string;
   name: string;
   fields: IConfigField[];
-  // TODO: have a dedicated optional fields list to display more fields & have more
-  // flexibility for the users to customize
+  optionalFields?: IConfigField[];
 
   // No-op constructor. If there are general / defaults for field values, add in here.
   constructor() {
     this.id = '';
     this.name = '';
     this.fields = [];
+    this.optionalFields = [];
   }
 
   // Persist a standard toObj() fn that all component classes can use. This is necessary
@@ -29,6 +29,7 @@ export abstract class BaseConfig implements IConfig {
       id: this.id,
       name: this.name,
       fields: this.fields,
+      optionalFields: this.optionalFields,
     } as IConfig;
   }
 }

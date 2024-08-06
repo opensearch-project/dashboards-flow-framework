@@ -74,6 +74,12 @@ function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
     processorConfig.fields.forEach((field) => {
       processorSchemaObj[field.id] = getFieldSchema(field);
     });
+    processorConfig.optionalFields?.forEach((optionalField) => {
+      processorSchemaObj[optionalField.id] = getFieldSchema(
+        optionalField,
+        true
+      );
+    });
     processorsSchemaObj[processorConfig.id] = yup.object(processorSchemaObj);
   });
 
@@ -84,7 +90,10 @@ function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
  **************** Yup (validation) utils **********************
  */
 
-function getFieldSchema(field: IConfigField): Schema {
+function getFieldSchema(
+  field: IConfigField,
+  optional: boolean = false
+): Schema {
   let baseSchema: Schema;
   switch (field.type) {
     case 'string':
@@ -157,9 +166,14 @@ function getFieldSchema(field: IConfigField): Schema {
       );
       break;
     }
+    case 'boolean': {
+      baseSchema = yup.boolean();
+      break;
+    }
+    case 'number': {
+      baseSchema = yup.number();
+    }
   }
 
-  return field.optional
-    ? baseSchema.optional()
-    : baseSchema.required('Required');
+  return optional ? baseSchema.optional() : baseSchema.required('Required');
 }
