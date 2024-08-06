@@ -88,7 +88,7 @@ export function TextChunkingProcessorInputs(
         onFormChange={props.onFormChange}
       />
       <EuiSpacer size="s" />
-      {fieldMapValue.length === 0 && (
+      {fieldMapValue?.length === 0 && (
         <>
           <EuiCallOut
             size="s"
