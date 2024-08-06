@@ -108,7 +108,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                       const valuesWithoutOutputMapConfig = cloneDeep(values);
                       set(
                         valuesWithoutOutputMapConfig,
-                        `ingest.enrich.${props.config.id}.outputMap`,
+                        `ingest.enrich.${props.config.id}.output_map`,
                         []
                       );
                       const curIngestPipeline = formikToPartialPipeline(
@@ -146,7 +146,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                       const valuesWithoutOutputMapConfig = cloneDeep(values);
                       set(
                         valuesWithoutOutputMapConfig,
-                        `search.enrichResponse.${props.config.id}.outputMap`,
+                        `search.enrichResponse.${props.config.id}.output_map`,
                         []
                       );
                       const curSearchPipeline = formikToPartialPipeline(
