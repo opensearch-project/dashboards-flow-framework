@@ -69,7 +69,7 @@ export interface RouteService {
     workflowId: string,
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
-  getWorkflowPresets: (dataSourceId?: string) => Promise<any | HttpFetchError>;
+  getWorkflowPresets: () => Promise<any | HttpFetchError>;
   catIndices: (
     pattern: string,
     dataSourceId?: string
@@ -222,12 +222,11 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    getWorkflowPresets: async (dataSourceId?: string) => {
+    getWorkflowPresets: async () => {
       try {
-        const url = dataSourceId
-          ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/presets`
-          : GET_PRESET_WORKFLOWS_NODE_API_PATH;
-        const response = await core.http.get<{ respString: string }>(url);
+        const response = await core.http.get<{ respString: string }>(
+          GET_PRESET_WORKFLOWS_NODE_API_PATH
+        );
         return response;
       } catch (e: any) {
         return e as HttpFetchError;

@@ -283,18 +283,6 @@ export function registerFlowFrameworkRoutes(
     },
     flowFrameworkRoutesService.getPresetWorkflows
   );
-
-  router.get(
-    {
-      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/presets`,
-      validate: {
-        params: schema.object({
-          data_source_id: schema.string(),
-        }),
-      },
-    },
-    flowFrameworkRoutesService.getPresetWorkflows
-  );
 }
 
 export class FlowFrameworkRoutesService {

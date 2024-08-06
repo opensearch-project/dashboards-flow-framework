@@ -17,7 +17,6 @@ import { UseCase } from './use_case';
 import { Workflow, WorkflowTemplate } from '../../../../common';
 import { AppState, useAppDispatch, getWorkflowPresets } from '../../../store';
 import { enrichPresetWorkflowWithUiMetadata } from './utils';
-import { getDataSourceId } from '../../../utils/utils';
 
 interface NewWorkflowProps {}
 
@@ -28,7 +27,6 @@ interface NewWorkflowProps {}
  */
 export function NewWorkflow(props: NewWorkflowProps) {
   const dispatch = useAppDispatch();
-  const dataSourceId = getDataSourceId();
 
   // workflows state
   const { presetWorkflows, loading } = useSelector(
@@ -47,7 +45,7 @@ export function NewWorkflow(props: NewWorkflowProps) {
 
   // initial state
   useEffect(() => {
-    dispatch(getWorkflowPresets({ dataSourceId }));
+    dispatch(getWorkflowPresets());
   }, []);
 
   // initial hook to populate all workflows

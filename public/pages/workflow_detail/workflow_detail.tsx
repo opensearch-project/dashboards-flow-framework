@@ -90,8 +90,8 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   }, []);
 
   let renderDataSourceComponent: ReactElement | null = null;
-  if (dataSourceEnabled) {
-    const DataSourceMenu = getDataSourceManagementPlugin()?.ui.getDataSourceMenu<
+  if (dataSourceEnabled && getDataSourceManagementPlugin()) {
+    const DataSourceMenu = getDataSourceManagementPlugin().ui.getDataSourceMenu<
       DataSourceViewConfig
     >();
     renderDataSourceComponent = (

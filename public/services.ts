@@ -37,7 +37,3 @@ export const [getDataSourceEnabled, setDataSourceEnabled] = createGetterSetter<
 export const [getNotifications, setNotifications] = createGetterSetter<
   NotificationsStart
 >('Notifications');
-
-export default {
-  getSavedObjectsClient,
-};

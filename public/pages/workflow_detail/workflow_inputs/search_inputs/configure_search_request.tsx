@@ -73,7 +73,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   useEffect(() => {
     if (!ingestEnabled) {
       // Fetch all indices besides system indices
-      dispatch(catIndices({ pattern: '*,-.*',dataSourceId }));
+      dispatch(catIndices({ pattern: '*,-.*', dataSourceId }));
     }
   }, []);
 
@@ -166,11 +166,14 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
               // for this test query, we don't want to involve any configured search pipelines, if any exist
               // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
               dispatch(
-                searchIndex({apiBody:{
-                  index: indexName,
-                  body: values.search.request,
-                  searchPipeline: '_none',
-                }, dataSourceId})
+                searchIndex({
+                  apiBody: {
+                    index: indexName,
+                    body: values.search.request,
+                    searchPipeline: '_none',
+                  },
+                  dataSourceId,
+                })
               )
                 .unwrap()
                 .then(async (resp) => {

@@ -184,8 +184,8 @@ export function Workflows(props: WorkflowsProps) {
   };
 
   let renderDataSourceComponent = null;
-  if (dataSourceEnabled) {
-    const DataSourceMenu = getDataSourceManagementPlugin()?.ui.getDataSourceMenu<
+  if (dataSourceEnabled && getDataSourceManagementPlugin()) {
+    const DataSourceMenu = getDataSourceManagementPlugin().ui.getDataSourceMenu<
       DataSourceSelectableConfig
     >();
     renderDataSourceComponent = useMemo(() => {

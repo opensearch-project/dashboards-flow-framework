@@ -460,7 +460,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         .then(async (result) => {
                           setFieldValue('ingest.enabled', false);
                           // @ts-ignore
-                          await dispatch(getWorkflow({workflowId:props.workflow.id, dataSourceId}));
+                          await dispatch(
+                            getWorkflow({
+                              workflowId: props.workflow.id,
+                              dataSourceId,
+                            })
+                          );
                         })
                         .catch((error: any) => {})
                         .finally(() => {
