@@ -4,6 +4,13 @@
  */
 
 import { NavigationPublicPluginStart } from '../../../src/plugins/navigation/public';
+import { DataSourceManagementPluginSetup } from '../../../src/plugins/data_source_management/public';
+import { DataSourcePluginSetup } from '../../../src/plugins/data_source/public';
+
+export interface FlowFrameworkDashboardsPluginSetup {
+  dataSourceManagement: DataSourceManagementPluginSetup;
+  dataSource: DataSourcePluginSetup;
+}
 
 export interface FlowFrameworkDashboardsPluginStart {}
 

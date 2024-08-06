@@ -182,11 +182,11 @@ export const deprovisionWorkflow = createAsyncThunk(
     const { workflowId, resourceIds } = apiBody;
     const response:
       | any
-      | HttpFetchError = await getRouteService().deprovisionWorkflow(
+      | HttpFetchError = await getRouteService().deprovisionWorkflow({
       workflowId,
       resourceIds,
-      dataSourceId
-    );
+      dataSourceId,
+    });
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
         'Error deprovisioning workflow: ' + response.body.message

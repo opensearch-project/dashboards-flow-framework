@@ -8,7 +8,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { EuiPage, EuiPageBody } from '@elastic/eui';
-import { BREADCRUMBS, MDS_BREADCRUMBS } from '../../utils';
+import { BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
 import {
@@ -68,14 +68,14 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   useEffect(() => {
     if (dataSourceEnabled) {
       getCore().chrome.setBreadcrumbs([
-        MDS_BREADCRUMBS.FLOW_FRAMEWORK,
-        MDS_BREADCRUMBS.WORKFLOWS(dataSourceId),
+        BREADCRUMBS.FLOW_FRAMEWORK,
+        BREADCRUMBS.WORKFLOWS(dataSourceId),
         { text: workflowName },
       ]);
     } else {
       getCore().chrome.setBreadcrumbs([
         BREADCRUMBS.FLOW_FRAMEWORK,
-        BREADCRUMBS.WORKFLOWS,
+        BREADCRUMBS.WORKFLOWS(),
         { text: workflowName },
       ]);
     }

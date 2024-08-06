@@ -60,11 +60,15 @@ export interface RouteService {
     workflowId: string,
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
-  deprovisionWorkflow: (
-    workflowId: string,
-    dataSourceId?: string,
-    resourceIds?: string
-  ) => Promise<any | HttpFetchError>;
+  deprovisionWorkflow: ({
+    workflowId,
+    dataSourceId,
+    resourceIds,
+  }: {
+    workflowId: string;
+    dataSourceId?: string;
+    resourceIds?: string;
+  }) => Promise<any | HttpFetchError>;
   deleteWorkflow: (
     workflowId: string,
     dataSourceId?: string
@@ -74,22 +78,31 @@ export interface RouteService {
     pattern: string,
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
-  searchIndex: (
-    index: string,
-    body: {},
-    dataSourceId?: string,
-    searchPipeline?: string
-  ) => Promise<any | HttpFetchError>;
+  searchIndex: ({
+    index,
+    body,
+    dataSourceId,
+    searchPipeline,
+  }: {
+    index: string;
+    body: {};
+    dataSourceId?: string;
+    searchPipeline?: string;
+  }) => Promise<any | HttpFetchError>;
   ingest: (
     index: string,
     doc: {},
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
-  bulk: (
-    body: {},
-    dataSourceId?: string,
-    ingestPipeline?: string
-  ) => Promise<any | HttpFetchError>;
+  bulk: ({
+    body,
+    dataSourceId,
+    ingestPipeline,
+  }: {
+    body: {};
+    dataSourceId?: string;
+    ingestPipeline?: string;
+  }) => Promise<any | HttpFetchError>;
   searchModels: (
     body: {},
     dataSourceId?: string
@@ -191,11 +204,15 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    deprovisionWorkflow: async (
-      workflowId: string,
-      dataSourceId?: string,
-      resourceIds?: string
-    ) => {
+    deprovisionWorkflow: async ({
+      workflowId,
+      dataSourceId,
+      resourceIds,
+    }: {
+      workflowId: string;
+      dataSourceId?: string;
+      resourceIds?: string;
+    }) => {
       try {
         const url = dataSourceId
           ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/deprovision`
@@ -245,12 +262,17 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    searchIndex: async (
-      index: string,
-      body: {},
-      dataSourceId?: string,
-      searchPipeline?: string
-    ) => {
+    searchIndex: async ({
+      index,
+      body,
+      dataSourceId,
+      searchPipeline,
+    }: {
+      index: string;
+      body: {};
+      dataSourceId?: string;
+      searchPipeline?: string;
+    }) => {
       try {
         const url = dataSourceId
           ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/search`
@@ -283,7 +305,15 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    bulk: async (body: {}, dataSourceId?: string, ingestPipeline?: string) => {
+    bulk: async ({
+      body,
+      dataSourceId,
+      ingestPipeline,
+    }: {
+      body: {};
+      dataSourceId?: string;
+      ingestPipeline?: string;
+    }) => {
       try {
         const url = dataSourceId
           ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/bulk`

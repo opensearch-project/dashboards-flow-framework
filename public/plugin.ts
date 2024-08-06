@@ -9,7 +9,10 @@ import {
   CoreStart,
   Plugin,
 } from '../../../src/core/public';
-import { FlowFrameworkDashboardsPluginStart } from './types';
+import {
+  FlowFrameworkDashboardsPluginStart,
+  FlowFrameworkDashboardsPluginSetup,
+} from './types';
 import { PLUGIN_ID } from '../common';
 import {
   setCore,
@@ -20,24 +23,17 @@ import {
   setNotifications,
 } from './services';
 import { configureRoutes } from './route_service';
-import { DataSourceManagementPluginSetup } from '../../../src/plugins/data_source_management/public';
-import { DataSourcePluginSetup } from '../../../src/plugins/data_source/public';
-
-export interface FlowFrameworkDashboardsSetupDeps {
-  dataSourceManagement: DataSourceManagementPluginSetup;
-  dataSource: DataSourcePluginSetup;
-}
 
 export class FlowFrameworkDashboardsPlugin
   implements
     Plugin<
-      FlowFrameworkDashboardsSetupDeps,
+      FlowFrameworkDashboardsPluginSetup,
       FlowFrameworkDashboardsPluginStart
     > {
   public setup(
     core: CoreSetup,
     plugins: any
-  ): FlowFrameworkDashboardsSetupDeps {
+  ): FlowFrameworkDashboardsPluginSetup {
     // Register the plugin in the side navigation
     core.application.register({
       id: PLUGIN_ID,

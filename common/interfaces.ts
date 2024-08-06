@@ -20,11 +20,6 @@ export type MDSQueryParams = {
   dataSourceId: string;
 };
 
-export interface MDSStates {
-  queryParams: MDSQueryParams;
-  selectedDataSourceId?: string;
-}
-
 export type ConfigFieldType =
   | 'string'
   | 'json'

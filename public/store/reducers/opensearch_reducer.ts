@@ -35,7 +35,7 @@ export const catIndices = createAsyncThunk(
     const patternString = pattern || '*,-.*';
     const response: any | HttpFetchError = await getRouteService().catIndices(
       patternString,
-      dataSourceId,
+      dataSourceId
     );
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
@@ -55,17 +55,17 @@ export const searchIndex = createAsyncThunk(
       dataSourceId,
     }: {
       apiBody: { index: string; body: {}; searchPipeline?: string };
-      dataSourceId?: string
+      dataSourceId?: string;
     },
     { rejectWithValue }
   ) => {
     const { index, body, searchPipeline } = apiBody;
-    const response: any | HttpFetchError = await getRouteService().searchIndex(
+    const response: any | HttpFetchError = await getRouteService().searchIndex({
       index,
       body,
       dataSourceId,
-      searchPipeline
-    );
+      searchPipeline,
+    });
     if (response instanceof HttpFetchError) {
       return rejectWithValue('Error searching index: ' + response.body.message);
     } else {
@@ -115,11 +115,11 @@ export const bulk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     const { body, ingestPipeline } = apiBody;
-    const response: any | HttpFetchError = await getRouteService().bulk(
+    const response: any | HttpFetchError = await getRouteService().bulk({
       body,
       dataSourceId,
-      ingestPipeline
-    );
+      ingestPipeline,
+    });
     if (response instanceof HttpFetchError) {
       return rejectWithValue('Error performing bulk: ' + response.body.message);
     } else {
