@@ -160,6 +160,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             workflowId: props.workflow?.id as string,
             workflowTemplate: updatedTemplate,
             updateFields: true,
+            reprovision: false,
           })
         )
           .unwrap()
@@ -188,64 +189,95 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     setSearchProvisioned(hasProvisionedSearchResources(props.workflow));
   }, [props.workflow]);
 
-  // Utility fn to update the workflow, including any updated/new resources
-  // Eventually, should be able to use fine-grained provisioning to do a single API call
-  // instead of the currently-implemented deprovision -> update -> provision.
-  // To simplify and minimize errors, we set various sleep calls in between the actions
-  // to allow time for full deprovisioning / provisioning to occur, such as index deletion
-  // & index re-creation.
-  // TODO: update to fine-grained provisioning when available.
+  // Utility fn to update the workflow, including any updated/new resources.
+  // The reprovision param is used to determine whether we are doing full
+  // deprovision/update/provision, vs. update w/ reprovision (fine-grained provisioning).
+  // Details on the reprovision API is here: https://github.com/opensearch-project/flow-framework/pull/804
   async function updateWorkflowAndResources(
-    updatedWorkflow: Workflow
+    updatedWorkflow: Workflow,
+    reprovision: boolean
   ): Promise<boolean> {
     let success = false;
-    await dispatch(
-      deprovisionWorkflow({
-        workflowId: updatedWorkflow.id as string,
-        resourceIds: getResourcesToBeForceDeleted(props.workflow),
-      })
-    )
-      .unwrap()
-      .then(async (result) => {
-        await dispatch(
-          updateWorkflow({
-            workflowId: updatedWorkflow.id as string,
-            workflowTemplate: reduceToTemplate(updatedWorkflow),
-          })
-        )
-          .unwrap()
-          .then(async (result) => {
-            await sleep(1000);
-            await dispatch(provisionWorkflow(updatedWorkflow.id as string))
-              .unwrap()
-              .then(async (result) => {
-                await sleep(1000);
-                success = true;
-                // Kicking off an async task to re-fetch the workflow details
-                // after some amount of time. Provisioning will finish in an indeterminate
-                // amount of time and may be long and expensive; we add this single
-                // auto-fetching to cover the majority of provisioning updates which
-                // are inexpensive and will finish within milliseconds.
-                new Promise((f) => setTimeout(f, 1000)).then(async () => {
-                  dispatch(getWorkflow(updatedWorkflow.id as string));
-                });
-              })
-              .catch((error: any) => {
-                console.error('Error provisioning updated workflow: ', error);
-              });
-          })
-          .catch((error: any) => {
-            console.error('Error updating workflow: ', error);
+    if (reprovision) {
+      await dispatch(
+        updateWorkflow({
+          workflowId: updatedWorkflow.id as string,
+          workflowTemplate: reduceToTemplate(updatedWorkflow),
+          reprovision: true,
+        })
+      )
+        .unwrap()
+        .then(async (result) => {
+          await sleep(1000);
+          success = true;
+          // Kicking off an async task to re-fetch the workflow details
+          // after some amount of time. Provisioning will finish in an indeterminate
+          // amount of time and may be long and expensive; we add this single
+          // auto-fetching to cover the majority of provisioning updates which
+          // are inexpensive and will finish within milliseconds.
+          new Promise((f) => setTimeout(f, 1000)).then(async () => {
+            dispatch(getWorkflow(updatedWorkflow.id as string));
           });
-      })
-      .catch((error: any) => {
-        console.error('Error deprovisioning workflow: ', error);
-      });
+        })
+        .catch((error: any) => {
+          console.error('Error reprovisioning workflow: ', error);
+        });
+    } else {
+      await dispatch(
+        deprovisionWorkflow({
+          workflowId: updatedWorkflow.id as string,
+          resourceIds: getResourcesToBeForceDeleted(props.workflow),
+        })
+      )
+        .unwrap()
+        .then(async (result) => {
+          await dispatch(
+            updateWorkflow({
+              workflowId: updatedWorkflow.id as string,
+              workflowTemplate: reduceToTemplate(updatedWorkflow),
+              reprovision: false,
+            })
+          )
+            .unwrap()
+            .then(async (result) => {
+              await sleep(1000);
+              await dispatch(provisionWorkflow(updatedWorkflow.id as string))
+                .unwrap()
+                .then(async (result) => {
+                  await sleep(1000);
+                  success = true;
+                  // Kicking off an async task to re-fetch the workflow details
+                  // after some amount of time. Provisioning will finish in an indeterminate
+                  // amount of time and may be long and expensive; we add this single
+                  // auto-fetching to cover the majority of provisioning updates which
+                  // are inexpensive and will finish within milliseconds.
+                  new Promise((f) => setTimeout(f, 1000)).then(async () => {
+                    dispatch(getWorkflow(updatedWorkflow.id as string));
+                  });
+                })
+                .catch((error: any) => {
+                  console.error('Error provisioning updated workflow: ', error);
+                });
+            })
+            .catch((error: any) => {
+              console.error('Error updating workflow: ', error);
+            });
+        })
+        .catch((error: any) => {
+          console.error('Error deprovisioning workflow: ', error);
+        });
+    }
     return success;
   }
 
   // Utility fn to validate the form and update the workflow if valid
-  async function validateAndUpdateWorkflow(): Promise<boolean> {
+  // Support fine-grained validation if we only need to validate a subset
+  // of the entire form.
+  async function validateAndUpdateWorkflow(
+    reprovision: boolean,
+    includeIngest: boolean = true,
+    includeSearch: boolean = true
+  ): Promise<boolean> {
     let success = false;
     // Submit the form to bubble up any errors.
     // Ideally we handle Promise accept/rejects with submitForm(), but there is
@@ -253,8 +285,15 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     // The workaround is to additionally execute validateForm() which will return any errors found.
     submitForm();
     await validateForm()
-      .then(async (validationResults: {}) => {
-        if (Object.keys(validationResults).length > 0) {
+      .then(async (validationResults: { ingest?: {}; search?: {} }) => {
+        let relevantValidationResults = {} as { ingest?: {}; search?: {} };
+        if (includeIngest && validationResults.ingest !== undefined) {
+          relevantValidationResults.ingest = validationResults.ingest;
+        }
+        if (includeSearch && validationResults.search !== undefined) {
+          relevantValidationResults.search = validationResults.search;
+        }
+        if (Object.keys(relevantValidationResults).length > 0) {
           // TODO: may want to persist more fine-grained form validation (ingest vs. search)
           // For example, running an ingest should be possible, even with some
           // invalid query or search processor config. And vice versa.
@@ -272,7 +311,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             },
             workflows: configToTemplateFlows(updatedConfig),
           } as Workflow;
-          success = await updateWorkflowAndResources(updatedWorkflow);
+          success = await updateWorkflowAndResources(
+            updatedWorkflow,
+            reprovision
+          );
         }
       })
       .catch((error) => {
@@ -282,6 +324,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     return success;
   }
 
+  // Updating ingest. In this case, do full deprovision/update/provision, since we want
+  // to clean up any created resources and not have leftover / stale data in some index.
+  // This is propagated by passing `reprovision=false` to validateAndUpdateWorkflow()
   async function validateAndRunIngestion(): Promise<boolean> {
     let success = false;
     try {
@@ -290,7 +335,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         ingestDocsObjs = JSON.parse(props.ingestDocs);
       } catch (e) {}
       if (ingestDocsObjs.length > 0 && !isEmpty(ingestDocsObjs[0])) {
-        success = await validateAndUpdateWorkflow();
+        success = await validateAndUpdateWorkflow(false, true, false);
         if (success) {
           const bulkBody = prepareBulkBody(
             values.ingest.index.name,
@@ -318,6 +363,13 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     return success;
   }
 
+  // Updating search. If existing ingest resources, run fine-grained provisioning to persist that
+  // created index and any indexed data, and only update/re-create the search
+  // pipeline, as well as adding that pipeline as the default pipeline for the existing index.
+  // If no ingest resources (using user's existing index), run full
+  // deprovision/update/provision, since we're just re-creating the search pipeline.
+  // This logic is propagated by passing `reprovision=true/false` in the
+  // validateAndUpdateWorkflow() fn calls below.
   async function validateAndRunQuery(): Promise<boolean> {
     let success = false;
     try {
@@ -326,13 +378,14 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         queryObj = JSON.parse(props.query);
       } catch (e) {}
       if (!isEmpty(queryObj)) {
-        // TODO: currently this will execute deprovision in child fns.
-        // In the future, we must omit deprovisioning the index, as it contains
-        // the data we are executing the query against. Tracking issue:
-        // https://github.com/opensearch-project/flow-framework/issues/717
-        success = await validateAndUpdateWorkflow();
+        if (hasProvisionedIngestResources(props.workflow)) {
+          success = await validateAndUpdateWorkflow(true, false, true);
+        } else {
+          success = await validateAndUpdateWorkflow(false, false, true);
+        }
+
         if (success) {
-          const indexName = values.ingest.index.name;
+          const indexName = values.search.index.name;
           dispatch(searchIndex({ index: indexName, body: props.query }))
             .unwrap()
             .then(async (resp) => {

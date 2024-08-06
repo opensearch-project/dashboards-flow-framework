@@ -35,7 +35,6 @@ import {
   DELIMITER_OPTIONAL_FIELDS,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
-import { generateId } from './utils';
 
 /*
  **************** Config -> template utils **********************
@@ -84,7 +83,7 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
 function ingestConfigToTemplateNodes(
   ingestConfig: IngestConfig
 ): TemplateNode[] {
-  const ingestPipelineName = generateId('ingest_pipeline');
+  const ingestPipelineName = ingestConfig.pipelineName;
   const ingestProcessors = processorConfigsToTemplateProcessors(
     ingestConfig.enrich.processors
   );
@@ -110,7 +109,7 @@ function ingestConfigToTemplateNodes(
 function searchConfigToTemplateNodes(
   searchConfig: SearchConfig
 ): TemplateNode[] {
-  const searchPipelineName = generateId('search_pipeline');
+  const searchPipelineName = searchConfig.pipelineName;
   const searchRequestProcessors = processorConfigsToTemplateProcessors(
     searchConfig.enrichRequest.processors
   );
@@ -295,7 +294,7 @@ function indexConfigToTemplateNode(
   updateFinalInputsAndSettings(searchPipelineNode);
 
   return {
-    id: 'create_index',
+    id: indexConfig.name.value as string,
     type: WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE,
     previous_node_inputs: finalPreviousNodeInputs,
     user_inputs: {

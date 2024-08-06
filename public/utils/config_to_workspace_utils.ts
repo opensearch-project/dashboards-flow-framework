@@ -88,7 +88,7 @@ function ingestConfigToWorkspaceFlow(
 
   // Parent ingest node
   const parentNode = {
-    id: generateId(COMPONENT_CATEGORY.INGEST),
+    id: ingestConfig.pipelineName,
     position: { x: 400, y: 400 },
     type: NODE_CATEGORY.INGEST_GROUP,
     data: { label: COMPONENT_CATEGORY.INGEST },
@@ -186,7 +186,7 @@ function searchConfigToWorkspaceFlow(
 
   // Parent search node
   const parentNode = {
-    id: generateId(COMPONENT_CATEGORY.SEARCH),
+    id: searchConfig.pipelineName,
     position: { x: 400, y: 800 },
     type: NODE_CATEGORY.SEARCH_GROUP,
     data: { label: COMPONENT_CATEGORY.SEARCH },
