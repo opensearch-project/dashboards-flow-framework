@@ -6,3 +6,4 @@
 export * from './ml_ingest_processor';
 export * from './split_ingest_processor';
 export * from './sort_ingest_processor';
+export * from './text_chunking_ingest_processor';

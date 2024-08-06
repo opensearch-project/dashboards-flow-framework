@@ -6,15 +6,15 @@
 import React from 'react';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
-  EuiFieldText,
   EuiCompressedFormRow,
   EuiLink,
   EuiText,
+  EuiFieldNumber,
 } from '@elastic/eui';
 import { WorkspaceFormValues } from '../../../../../common';
-import { getInitialValue } from '../../../../utils';
+import { camelCaseToTitleString, getInitialValue } from '../../../../utils';
 
-interface TextFieldProps {
+interface NumberFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onFormChange: () => void;
   label?: string;
@@ -25,9 +25,9 @@ interface TextFieldProps {
 }
 
 /**
- * An input field for a component where users input plaintext
+ * An input field for a component where users input numbers
  */
-export function TextField(props: TextFieldProps) {
+export function NumberField(props: NumberFieldProps) {
   const { errors, touched } = useFormikContext<WorkspaceFormValues>();
 
   return (
@@ -36,7 +36,7 @@ export function TextField(props: TextFieldProps) {
         return (
           <EuiCompressedFormRow
             key={props.fieldPath}
-            label={props.label}
+            label={props.label || camelCaseToTitleString(field.name)}
             labelAppend={
               props.helpLink ? (
                 <EuiText size="xs">
@@ -50,11 +50,11 @@ export function TextField(props: TextFieldProps) {
             error={props.showError && getIn(errors, field.name)}
             isInvalid={getIn(errors, field.name) && getIn(touched, field.name)}
           >
-            <EuiFieldText
+            <EuiFieldNumber
               {...field}
               placeholder={props.placeholder || ''}
               compressed={false}
-              value={field.value || getInitialValue('string')}
+              value={field.value || getInitialValue('number')}
               onChange={(e) => {
                 form.setFieldValue(props.fieldPath, e.target.value);
                 props.onFormChange();

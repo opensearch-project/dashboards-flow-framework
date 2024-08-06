@@ -228,3 +228,13 @@ export function parseModelOutputs(
       } as ModelOutputFormField)
   );
 }
+
+// converts camelCase to a space-delimited string with the first word capitalized.
+// useful for converting config IDs (in snake_case) to a formatted form title
+export function camelCaseToTitleString(snakeCaseString: string): string {
+  return snakeCaseString
+    .split('_')
+    .filter((word) => word.length > 0)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}

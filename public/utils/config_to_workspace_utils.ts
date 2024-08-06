@@ -315,6 +315,13 @@ function processorsConfigToWorkspaceFlow(
         transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
         break;
       }
+      case PROCESSOR_TYPE.TEXT_CHUNKING: {
+        transformer = new BaseTransformer(
+          processorConfig.name,
+          'A processor to split long documents into shorter passages'
+        );
+        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
+      }
       default: {
         transformer = new BaseTransformer(processorConfig.name, '');
         transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
