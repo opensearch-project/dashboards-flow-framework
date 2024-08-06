@@ -5,7 +5,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useFormikContext } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import { debounce, isEmpty } from 'lodash';
 import {
   EuiButton,
@@ -124,6 +124,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const onIngestAndProvisioned = onIngest && ingestProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
+  const isProposingNoSearchResources =
+    isEmpty(getIn(values, 'search.enrichRequest')) &&
+    isEmpty(getIn(values, 'search.enrichResponse'));
 
   // Auto-save the UI metadata when users update form values.
   // Only update the underlying workflow template (deprovision/provision) when
@@ -657,7 +660,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiButton
-                          disabled={searchProvisioned && !isDirty}
+                          disabled={
+                            (searchProvisioned && !isDirty) ||
+                            isProposingNoSearchResources
+                          }
                           fill={false}
                           onClick={() => {
                             validateAndRunQuery();
