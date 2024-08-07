@@ -16,7 +16,7 @@ export class MLSearchRequestProcessor extends MLProcessor {
     this.optionalFields = [
       {
         id: 'query_template',
-        type: 'json',
+        type: 'jsonString',
       },
       ...(this.optionalFields || []),
     ];

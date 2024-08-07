@@ -157,6 +157,10 @@ function getFieldSchema(
 
       break;
     }
+    case 'jsonString': {
+      baseSchema = yup.string().min(1, 'Too short');
+      break;
+    }
     case 'mapArray': {
       baseSchema = yup.array().of(
         yup.array().of(

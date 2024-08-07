@@ -111,6 +111,20 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
             );
             break;
           }
+          case 'jsonString': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <JsonField
+                  validate={false}
+                  label={camelCaseToTitleString(field.id)}
+                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
+                  onFormChange={props.onFormChange}
+                />
+                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
         }
         return el;
       })}

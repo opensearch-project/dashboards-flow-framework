@@ -21,6 +21,7 @@ export type ConfigFieldType =
   | 'string'
   | 'json'
   | 'jsonArray'
+  | 'jsonString'
   | 'select'
   | 'model'
   | 'map'
@@ -218,6 +219,7 @@ export type MLInferenceProcessor = IngestProcessor & {
     model_id: string;
     input_map?: {};
     output_map?: {};
+    [key: string]: any;
   };
 };
 
