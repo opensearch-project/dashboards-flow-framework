@@ -4,7 +4,7 @@
     "version": {
         "template": "1.0.0",
         "compatibility": [
-            "2.13.0",
+            "2.16.0",
             "3.0.0"
         ]
     },
