@@ -214,13 +214,13 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     if (reprovision) {
       await dispatch(
         updateWorkflow({
-            apiBody: {
-              workflowId: updatedWorkflow.id as string,
-              workflowTemplate: reduceToTemplate(updatedWorkflow),
-              reprovision: true,
-            },
-            dataSourceId,
-          })
+          apiBody: {
+            workflowId: updatedWorkflow.id as string,
+            workflowTemplate: reduceToTemplate(updatedWorkflow),
+            reprovision: true,
+          },
+          dataSourceId,
+        })
       )
         .unwrap()
         .then(async (result) => {
@@ -232,10 +232,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           // auto-fetching to cover the majority of provisioning updates which
           // are inexpensive and will finish within milliseconds.
           setTimeout(async () => {
-            dispatch(getWorkflow({
-                      workflowId: updatedWorkflow.id as string,
-                      dataSourceId,
-                    }));
+            dispatch(
+              getWorkflow({
+                workflowId: updatedWorkflow.id as string,
+                dataSourceId,
+              })
+            );
           }, 1000);
         })
         .catch((error: any) => {
@@ -244,29 +246,34 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     } else {
       await dispatch(
         deprovisionWorkflow({
-        apiBody: {
-          workflowId: updatedWorkflow.id as string,
-          resourceIds: getResourcesToBeForceDeleted(props.workflow),
-        },
-        dataSourceId,
-      })
+          apiBody: {
+            workflowId: updatedWorkflow.id as string,
+            resourceIds: getResourcesToBeForceDeleted(props.workflow),
+          },
+          dataSourceId,
+        })
       )
         .unwrap()
         .then(async (result) => {
           await dispatch(
             updateWorkflow({
-            apiBody: {
-              workflowId: updatedWorkflow.id as string,
-              workflowTemplate: reduceToTemplate(updatedWorkflow),
-              reprovision: false,
-            },
-            dataSourceId,
-          })
+              apiBody: {
+                workflowId: updatedWorkflow.id as string,
+                workflowTemplate: reduceToTemplate(updatedWorkflow),
+                reprovision: false,
+              },
+              dataSourceId,
+            })
           )
             .unwrap()
             .then(async (result) => {
               await sleep(1000);
-              await dispatch(provisionWorkflow(updatedWorkflow.id as string, dataSourceId))
+              await dispatch(
+                provisionWorkflow({
+                  workflowId: updatedWorkflow.id as string,
+                  dataSourceId,
+                })
+              )
                 .unwrap()
                 .then(async (result) => {
                   await sleep(1000);
@@ -277,7 +284,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   // auto-fetching to cover the majority of provisioning updates which
                   // are inexpensive and will finish within milliseconds.
                   setTimeout(async () => {
-                    dispatch(getWorkflow(updatedWorkflow.id as string, dataSourceId));
+                    dispatch(
+                      getWorkflow({
+                        workflowId: updatedWorkflow.id as string,
+                        dataSourceId,
+                      })
+                    );
                   }, 1000);
                 })
                 .catch((error: any) => {

@@ -479,7 +479,7 @@ export class FlowFrameworkRoutesService {
         workflow_id,
         // default update_fields to false if not explicitly set otherwise
         update_fields: update_fields,
-        reprovision: boolean,
+        reprovision: reprovision,
         body: workflowTemplate,
       });
 

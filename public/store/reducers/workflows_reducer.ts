@@ -127,7 +127,7 @@ export const updateWorkflow = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    const { workflowId, workflowTemplate, updateFields,reprovision, } = apiBody;
+    const { workflowId, workflowTemplate, updateFields, reprovision } = apiBody;
     const response:
       | any
       | HttpFetchError = await getRouteService().updateWorkflow(

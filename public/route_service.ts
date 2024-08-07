@@ -54,7 +54,7 @@ export interface RouteService {
     workflowId: string,
     workflowTemplate: WorkflowTemplate,
     updateFields: boolean,
-    reprovision: boolean
+    reprovision: boolean,
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
   provisionWorkflow: (
