@@ -147,30 +147,61 @@ export function processorConfigsToTemplateProcessors(
   processorConfigs.forEach((processorConfig) => {
     switch (processorConfig.type) {
       case PROCESSOR_TYPE.ML: {
-        const { model, input_map, output_map } = processorConfigToFormik(
-          processorConfig
-        ) as {
-          model: ModelFormValue;
-          input_map: MapArrayFormValue;
-          output_map: MapArrayFormValue;
-        };
+        const {
+          model,
+          input_map,
+          output_map,
+          model_config,
+          ...formValues
+        } = processorConfigToFormik(processorConfig);
 
         let processor = {
           ml_inference: {
             model_id: model.id,
           },
         } as MLInferenceProcessor;
+
+        // process input/output maps
         if (input_map?.length > 0) {
-          processor.ml_inference.input_map = input_map.map((mapFormValue) =>
-            mergeMapIntoSingleObj(mapFormValue)
+          processor.ml_inference.input_map = input_map.map(
+            (mapFormValue: MapFormValue) => mergeMapIntoSingleObj(mapFormValue)
           );
         }
 
         if (output_map?.length > 0) {
-          processor.ml_inference.output_map = output_map.map((mapFormValue) =>
-            mergeMapIntoSingleObj(mapFormValue)
+          processor.ml_inference.output_map = output_map.map(
+            (mapFormValue: MapFormValue) => mergeMapIntoSingleObj(mapFormValue)
           );
         }
+
+        // process optional fields
+        let additionalFormValues = {} as FormikValues;
+        Object.keys(formValues).forEach((formKey: string) => {
+          const formValue = formValues[formKey];
+          additionalFormValues = optionallyAddToFinalForm(
+            additionalFormValues,
+            formKey,
+            formValue
+          );
+        });
+
+        // process model config.
+        // TODO: this special handling, plus the special handling on index settings/mappings
+        // could be improved if the 'json' obj returned {} during the conversion instead
+        // of "{}". We may have future JSON fields which right now are going to require
+        // this manual parsing before adding to the template.
+        let finalModelConfig = {};
+        try {
+          // @ts-ignore
+          finalModelConfig = JSON.parse(model_config);
+        } catch (e) {}
+
+        processor.ml_inference = {
+          ...processor.ml_inference,
+          ...additionalFormValues,
+          model_config: finalModelConfig,
+        };
+
         processorsList.push(processor);
         break;
       }
