@@ -139,7 +139,8 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
     case 'map': {
       return [];
     }
-    case 'json': {
+    case 'json':
+    case 'jsonString': {
       return '{}';
     }
     case 'jsonArray': {
