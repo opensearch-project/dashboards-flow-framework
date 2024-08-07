@@ -10,6 +10,7 @@ import {
   SelectField,
   BooleanField,
   NumberField,
+  JsonField,
 } from './input_fields';
 import { IConfigField } from '../../../../common';
 import { camelCaseToTitleString } from '../../../utils';
@@ -90,6 +91,33 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
                   showError={true}
+                  onFormChange={props.onFormChange}
+                />
+                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
+          case 'json': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <JsonField
+                  label={camelCaseToTitleString(field.id)}
+                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
+                  onFormChange={props.onFormChange}
+                />
+                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
+          case 'jsonString': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <JsonField
+                  validate={false}
+                  label={camelCaseToTitleString(field.id)}
+                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
                   onFormChange={props.onFormChange}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />

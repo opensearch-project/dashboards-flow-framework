@@ -17,6 +17,7 @@ import { camelCaseToTitleString } from '../../../../utils';
 interface JsonFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onFormChange: () => void;
+  validate?: boolean;
   label?: string;
   helpLink?: string;
   helpText?: string;
@@ -29,6 +30,8 @@ interface JsonFieldProps {
  * in some custom JSON
  */
 export function JsonField(props: JsonFieldProps) {
+  const validate = props.validate !== undefined ? props.validate : true;
+
   const { errors, touched, values } = useFormikContext<WorkspaceFormValues>();
 
   // temp input state. only format when users click out of the code editor
@@ -61,8 +64,12 @@ export function JsonField(props: JsonFieldProps) {
               ) : undefined
             }
             helpText={props.helpText || undefined}
-            error={getIn(errors, field.name)}
-            isInvalid={getIn(errors, field.name) && getIn(touched, field.name)}
+            error={validate ? getIn(errors, field.name) : undefined}
+            isInvalid={
+              validate
+                ? getIn(errors, field.name) && getIn(touched, field.name)
+                : false
+            }
           >
             <EuiCodeEditor
               mode="json"
@@ -89,6 +96,7 @@ export function JsonField(props: JsonFieldProps) {
               readOnly={props.readOnly || false}
               setOptions={{
                 fontSize: '14px',
+                useWorker: validate,
               }}
               aria-label="Code Editor"
               tabSize={2}
