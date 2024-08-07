@@ -314,6 +314,9 @@ export class FlowFrameworkRoutesService {
 
       return res.ok({ body: { workflowId: workflow_id, workflowTemplate } });
     } catch (err: any) {
+      if (isIgnorableError(err)) {
+        return res.ok({ body: { workflowId: workflow_id, workflowTemplate } });
+      }
       return generateCustomError(res, err);
     }
   };
