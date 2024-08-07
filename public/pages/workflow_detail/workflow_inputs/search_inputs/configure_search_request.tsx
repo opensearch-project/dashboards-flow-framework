@@ -22,7 +22,7 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { SearchHit, WorkspaceFormValues } from '../../../../../common';
+import { SearchHit, WorkflowFormValues } from '../../../../../common';
 import { JsonField } from '../input_fields';
 import {
   AppState,
@@ -46,17 +46,26 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   const dataSourceId = getDataSourceId();
 
   // Form state
-  const { values } = useFormikContext<WorkspaceFormValues>();
-  const indexName = values.ingest.index.name;
+  const { values, setFieldValue, setFieldTouched } = useFormikContext<
+    WorkflowFormValues
+  >();
   const ingestEnabled = values.ingest.enabled;
+  const searchIndexNameFormPath = 'search.index.name';
 
   // All indices state
   const indices = useSelector((state: AppState) => state.opensearch.indices);
 
   // Selected index state
   const [selectedIndex, setSelectedIndex] = useState<string | undefined>(
-    undefined
+    values.search.index.name
   );
+
+  // initial load: set the search index value, if not already set
+  useEffect(() => {
+    if (values.ingest.enabled) {
+      setFieldValue(searchIndexNameFormPath, values.ingest.index.name);
+    }
+  }, []);
 
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
@@ -118,7 +127,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
         <EuiFlexItem grow={false}>
           <EuiFormRow label="Retrieval index">
             {ingestEnabled ? (
-              <EuiFieldText value={indexName} readOnly={true} />
+              <EuiFieldText value={values.ingest.index.name} readOnly={true} />
             ) : (
               <EuiSuperSelect
                 options={Object.values(indices).map(
@@ -132,6 +141,9 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                 valueOfSelected={selectedIndex}
                 onChange={(option) => {
                   setSelectedIndex(option);
+                  setFieldValue(searchIndexNameFormPath, option);
+                  setFieldTouched(searchIndexNameFormPath, true);
+                  props.onFormChange();
                 }}
                 isInvalid={selectedIndex === undefined}
               />

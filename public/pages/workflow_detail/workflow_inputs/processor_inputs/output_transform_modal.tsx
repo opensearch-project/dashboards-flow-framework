@@ -110,7 +110,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                       const valuesWithoutOutputMapConfig = cloneDeep(values);
                       set(
                         valuesWithoutOutputMapConfig,
-                        `ingest.enrich.${props.config.id}.outputMap`,
+                        `ingest.enrich.${props.config.id}.output_map`,
                         []
                       );
                       const curIngestPipeline = formikToPartialPipeline(
@@ -151,7 +151,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                       const valuesWithoutOutputMapConfig = cloneDeep(values);
                       set(
                         valuesWithoutOutputMapConfig,
-                        `search.enrichResponse.${props.config.id}.outputMap`,
+                        `search.enrichResponse.${props.config.id}.output_map`,
                         []
                       );
                       const curSearchPipeline = formikToPartialPipeline(
@@ -234,7 +234,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 label="Output Map"
                 helpText={`An array specifying how to map the model’s output to new fields.`}
                 helpLink={ML_INFERENCE_DOCS_LINK}
-                keyPlaceholder="New document field"
+                keyPlaceholder="Document field"
                 valuePlaceholder="Model output field"
                 valueOptions={props.outputFields}
                 onFormChange={props.onFormChange}

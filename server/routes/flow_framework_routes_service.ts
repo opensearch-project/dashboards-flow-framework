@@ -147,11 +147,12 @@ export function registerFlowFrameworkRoutes(
 
   router.put(
     {
-      path: `${UPDATE_WORKFLOW_NODE_API_PATH}/{workflow_id}/{update_fields}`,
+      path: `${UPDATE_WORKFLOW_NODE_API_PATH}/{workflow_id}/{update_fields}/{reprovision}`,
       validate: {
         params: schema.object({
           workflow_id: schema.string(),
           update_fields: schema.boolean(),
+          reprovision: schema.boolean(),
         }),
         body: schema.any(),
       },
@@ -161,12 +162,13 @@ export function registerFlowFrameworkRoutes(
 
   router.put(
     {
-      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/update/{workflow_id}/{update_fields}`,
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/workflow/update/{workflow_id}/{update_fields}/{reprovision}`,
       validate: {
         params: schema.object({
           data_source_id: schema.string(),
           workflow_id: schema.string(),
           update_fields: schema.boolean(),
+          reprovision: schema.boolean(),
         }),
         body: schema.any(),
       },
@@ -458,9 +460,10 @@ export class FlowFrameworkRoutesService {
     req: OpenSearchDashboardsRequest,
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
-    const { workflow_id, update_fields } = req.params as {
+    const { workflow_id, update_fields, reprovision } = req.params as {
       workflow_id: string;
       update_fields: boolean;
+      reprovision: boolean;
     };
     const workflowTemplate = req.body as WorkflowTemplate;
     try {
@@ -476,6 +479,7 @@ export class FlowFrameworkRoutesService {
         workflow_id,
         // default update_fields to false if not explicitly set otherwise
         update_fields: update_fields,
+        reprovision: boolean,
         body: workflowTemplate,
       });
 

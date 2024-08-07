@@ -54,6 +54,7 @@ export interface RouteService {
     workflowId: string,
     workflowTemplate: WorkflowTemplate,
     updateFields: boolean,
+    reprovision: boolean
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
   provisionWorkflow: (
@@ -174,6 +175,7 @@ export function configureRoutes(core: CoreStart): RouteService {
       workflowId: string,
       workflowTemplate: WorkflowTemplate,
       updateFields: boolean,
+      reprovision: boolean,
       dataSourceId?: string
     ) => {
       try {
@@ -181,7 +183,7 @@ export function configureRoutes(core: CoreStart): RouteService {
           ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/update`
           : UPDATE_WORKFLOW_NODE_API_PATH;
         const response = await core.http.put<{ respString: string }>(
-          `${url}/${workflowId}/${updateFields}`,
+          `${url}/${workflowId}/${updateFields}/${reprovision}`,
           {
             body: JSON.stringify(workflowTemplate),
           }
