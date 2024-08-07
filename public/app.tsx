@@ -22,11 +22,18 @@ import {
 // styling
 import './global-styles.scss';
 
-interface Props extends RouteComponentProps {}
+interface Props extends RouteComponentProps {
+  hideInAppSideNavBar: boolean;
+}
 
 export const FlowFrameworkDashboardsApp = (props: Props) => {
+  const { hideInAppSideNavBar } = props;
   const sidebar = (
-    <EuiPageSideBar style={{ minWidth: 190 }} hidden={false} paddingSize="l">
+    <EuiPageSideBar
+      style={{ minWidth: 190 }}
+      hidden={hideInAppSideNavBar}
+      paddingSize="l"
+    >
       <EuiSideNav
         style={{ width: 190 }}
         items={[
