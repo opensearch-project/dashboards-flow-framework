@@ -218,9 +218,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           // amount of time and may be long and expensive; we add this single
           // auto-fetching to cover the majority of provisioning updates which
           // are inexpensive and will finish within milliseconds.
-          new Promise((f) => setTimeout(f, 1000)).then(async () => {
+          setTimeout(async () => {
             dispatch(getWorkflow(updatedWorkflow.id as string));
-          });
+          }, 1000);
         })
         .catch((error: any) => {
           console.error('Error reprovisioning workflow: ', error);
@@ -254,9 +254,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   // amount of time and may be long and expensive; we add this single
                   // auto-fetching to cover the majority of provisioning updates which
                   // are inexpensive and will finish within milliseconds.
-                  new Promise((f) => setTimeout(f, 1000)).then(async () => {
+                  setTimeout(async () => {
                     dispatch(getWorkflow(updatedWorkflow.id as string));
-                  });
+                  }, 1000);
                 })
                 .catch((error: any) => {
                   console.error('Error provisioning updated workflow: ', error);
@@ -289,13 +289,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     submitForm();
     await validateForm()
       .then(async (validationResults: { ingest?: {}; search?: {} }) => {
-        let relevantValidationResults = {} as { ingest?: {}; search?: {} };
-        if (includeIngest && validationResults.ingest !== undefined) {
-          relevantValidationResults.ingest = validationResults.ingest;
-        }
-        if (includeSearch && validationResults.search !== undefined) {
-          relevantValidationResults.search = validationResults.search;
-        }
+        const { ingest, search } = validationResults;
+        const relevantValidationResults = {
+          ...(includeIngest && ingest !== undefined ? { ingest } : {}),
+          ...(includeSearch && search !== undefined ? { search } : {}),
+        };
         if (Object.keys(relevantValidationResults).length > 0) {
           // TODO: may want to persist more fine-grained form validation (ingest vs. search)
           // For example, running an ingest should be possible, even with some
