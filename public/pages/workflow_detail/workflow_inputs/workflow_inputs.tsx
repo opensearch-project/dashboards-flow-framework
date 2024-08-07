@@ -142,7 +142,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const debounceAutosave = useCallback(
     debounce(async () => {
       triggerAutosave();
-    }, 10000),
+    }, 1000),
     [autosave]
   );
 
@@ -168,10 +168,14 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         )
           .unwrap()
           .then(async (result) => {
+            // TODO: figure out clean way to update the "last updated"
+            // section. The problem with re-fetching this every time, is it
+            // triggers lots of component rebuilds due to the base workflow prop
+            // changing.
             // get any updates after autosave
-            new Promise((f) => setTimeout(f, 1000)).then(async () => {
-              dispatch(getWorkflow(props.workflow?.id as string));
-            });
+            // new Promise((f) => setTimeout(f, 1000)).then(async () => {
+            //   dispatch(getWorkflow(props.workflow?.id as string));
+            // });
           })
           .catch((error: any) => {
             console.error('Error autosaving workflow: ', error);
@@ -629,6 +633,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             validateAndRunIngestion();
                           }}
+                          // TODO: only enable if ingest is dirty
                           disabled={ingestProvisioned && !isDirty}
                         >
                           Run ingestion
@@ -640,6 +645,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             setSelectedStep(STEP.SEARCH);
                           }}
+                          // TODO: only disable if ingest is dirty
                           disabled={!ingestProvisioned || isDirty}
                         >
                           {`Search pipeline >`}
@@ -650,7 +656,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
-                          disabled={isDirty}
+                          disabled={false}
                           onClick={() => setSelectedStep(STEP.INGEST)}
                         >
                           Back
@@ -658,10 +664,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiButton
-                          disabled={
-                            (searchProvisioned && !isDirty) ||
-                            isProposingNoSearchResources
-                          }
+                          disabled={isProposingNoSearchResources}
                           fill={false}
                           onClick={() => {
                             validateAndRunQuery();
