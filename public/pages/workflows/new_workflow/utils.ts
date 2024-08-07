@@ -12,6 +12,7 @@ import {
   WORKFLOW_TYPE,
   FETCH_ALL_QUERY_BODY,
 } from '../../../../common';
+import { generateId } from '../../../utils';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
 export function enrichPresetWorkflowWithUiMetadata(
@@ -44,8 +45,17 @@ function fetchEmptyMetadata(): UIState {
     type: WORKFLOW_TYPE.CUSTOM,
     config: {
       ingest: {
-        enabled: true,
+        enabled: {
+          id: 'enabled',
+          type: 'boolean',
+          value: true,
+        },
         source: {},
+        pipelineName: {
+          id: 'pipelineName',
+          type: 'string',
+          value: generateId('ingest_pipeline'),
+        },
         enrich: {
           processors: [],
         },
@@ -69,6 +79,17 @@ function fetchEmptyMetadata(): UIState {
           id: 'request',
           type: 'json',
           value: JSON.stringify(FETCH_ALL_QUERY_BODY, undefined, 2),
+        },
+        pipelineName: {
+          id: 'pipelineName',
+          type: 'string',
+          value: generateId('search_pipeline'),
+        },
+        index: {
+          name: {
+            id: 'indexName',
+            type: 'string',
+          },
         },
         enrichRequest: {
           processors: [],
