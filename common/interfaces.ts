@@ -58,15 +58,25 @@ export type IndexConfig = {
   settings: IConfigField;
 };
 
+// TODO: may expand to just IndexConfig (including mappings/settings info)
+// if we want to persist this for users using some existing index,
+// and want to pass that index config around.
+export type SearchIndexConfig = {
+  name: IConfigField;
+};
+
 export type IngestConfig = {
-  enabled: boolean;
+  enabled: IConfigField;
   source: {};
+  pipelineName: IConfigField;
   enrich: ProcessorsConfig;
   index: IndexConfig;
 };
 
 export type SearchConfig = {
   request: IConfigField;
+  index: SearchIndexConfig;
+  pipelineName: IConfigField;
   enrichRequest: ProcessorsConfig;
   enrichResponse: ProcessorsConfig;
 };

@@ -95,16 +95,23 @@ export const updateWorkflow = createAsyncThunk(
       workflowId: string;
       workflowTemplate: WorkflowTemplate;
       updateFields?: boolean;
+      reprovision?: boolean;
     },
     { rejectWithValue }
   ) => {
-    const { workflowId, workflowTemplate, updateFields } = workflowInfo;
+    const {
+      workflowId,
+      workflowTemplate,
+      updateFields,
+      reprovision,
+    } = workflowInfo;
     const response:
       | any
       | HttpFetchError = await getRouteService().updateWorkflow(
       workflowId,
       workflowTemplate,
-      updateFields || false
+      updateFields || false,
+      reprovision || false
     );
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
