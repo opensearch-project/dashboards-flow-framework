@@ -35,7 +35,6 @@ import {
   DELIMITER_OPTIONAL_FIELDS,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
-import { generateId } from './utils';
 
 /*
  **************** Config -> template utils **********************
@@ -65,7 +64,7 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
     (node) => node.type === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
   ) as CreateSearchPipelineNode;
 
-  if (config.ingest.enabled) {
+  if (config.ingest.enabled.value) {
     nodes.push(
       indexConfigToTemplateNode(
         config.ingest.index,
@@ -84,13 +83,14 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
 function ingestConfigToTemplateNodes(
   ingestConfig: IngestConfig
 ): TemplateNode[] {
-  const ingestPipelineName = generateId('ingest_pipeline');
+  const ingestPipelineName = ingestConfig.pipelineName.value;
+  const ingestEnabled = ingestConfig.enabled.value;
   const ingestProcessors = processorConfigsToTemplateProcessors(
     ingestConfig.enrich.processors
   );
   const hasProcessors = ingestProcessors.length > 0;
 
-  return hasProcessors && ingestConfig.enabled
+  return hasProcessors && ingestEnabled
     ? [
         {
           id: ingestPipelineName,
@@ -110,7 +110,7 @@ function ingestConfigToTemplateNodes(
 function searchConfigToTemplateNodes(
   searchConfig: SearchConfig
 ): TemplateNode[] {
-  const searchPipelineName = generateId('search_pipeline');
+  const searchPipelineName = searchConfig.pipelineName.value;
   const searchRequestProcessors = processorConfigsToTemplateProcessors(
     searchConfig.enrichRequest.processors
   );
@@ -295,7 +295,7 @@ function indexConfigToTemplateNode(
   updateFinalInputsAndSettings(searchPipelineNode);
 
   return {
-    id: 'create_index',
+    id: indexConfig.name.value as string,
     type: WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE,
     previous_node_inputs: finalPreviousNodeInputs,
     user_inputs: {

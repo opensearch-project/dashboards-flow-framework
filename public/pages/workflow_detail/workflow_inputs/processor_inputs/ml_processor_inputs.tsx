@@ -229,7 +229,11 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
             helpLink={ML_INFERENCE_DOCS_LINK}
             keyPlaceholder="Model input field"
-            valuePlaceholder="Document field"
+            valuePlaceholder={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Query field'
+                : 'Document field'
+            }
             onFormChange={props.onFormChange}
             keyOptions={inputFields}
           />
@@ -273,7 +277,11 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             label="Output Map"
             helpText={`An array specifying how to map the model’s output to new document fields.`}
             helpLink={ML_INFERENCE_DOCS_LINK}
-            keyPlaceholder="New document field"
+            keyPlaceholder={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Query field'
+                : 'Document field'
+            }
             valuePlaceholder="Model output field"
             onFormChange={props.onFormChange}
             valueOptions={outputFields}

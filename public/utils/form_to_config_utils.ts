@@ -12,6 +12,7 @@ import {
   SearchConfig,
   ProcessorsConfig,
   IndexConfig,
+  SearchIndexConfig,
 } from '../../common';
 import { getInitialValue } from './config_to_form_utils';
 
@@ -45,7 +46,14 @@ function formikToIngestUiConfig(
 ): IngestConfig {
   return {
     ...existingConfig,
-    enabled: ingestFormValues['enabled'],
+    enabled: {
+      ...existingConfig.enabled,
+      value: ingestFormValues['enabled'],
+    },
+    pipelineName: {
+      ...existingConfig.pipelineName,
+      value: ingestFormValues['pipelineName'],
+    },
     enrich: formikToProcessorsUiConfig(
       ingestFormValues['enrich'],
       existingConfig.enrich
@@ -77,6 +85,14 @@ function formikToSearchUiConfig(
       ...existingConfig.request,
       value: searchFormValues['request'],
     },
+    pipelineName: {
+      ...existingConfig.pipelineName,
+      value: searchFormValues['pipelineName'],
+    },
+    index: formikToSearchIndexUiConfig(
+      searchFormValues['index'],
+      existingConfig.index
+    ),
     enrichRequest: formikToProcessorsUiConfig(
       searchFormValues['enrichRequest'],
       existingConfig.enrichRequest
@@ -86,6 +102,14 @@ function formikToSearchUiConfig(
       existingConfig.enrichResponse
     ),
   };
+}
+
+function formikToSearchIndexUiConfig(
+  searchIndexFormValues: FormikValues,
+  existingConfig: SearchIndexConfig
+): SearchIndexConfig {
+  existingConfig['name'].value = searchIndexFormValues['name'];
+  return existingConfig;
 }
 
 function formikToProcessorsUiConfig(
