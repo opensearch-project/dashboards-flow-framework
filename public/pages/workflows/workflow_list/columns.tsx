@@ -10,8 +10,10 @@ import {
   Workflow,
   toFormattedDate,
 } from '../../../../common';
-import { constructHrefWithDataSourceId, getDataSourceId } from '../../../utils/utils';
-
+import {
+  constructHrefWithDataSourceId,
+  getDataSourceId,
+} from '../../../utils/utils';
 
 export const columns = (actions: any[]) => {
   const dataSourceId = getDataSourceId();
@@ -26,8 +28,7 @@ export const columns = (actions: any[]) => {
         <EuiLink
           href={constructHrefWithDataSourceId(
             `/workflows/${workflow.id}`,
-            dataSourceId,
-            true
+            dataSourceId
           )}
         >
           {name}

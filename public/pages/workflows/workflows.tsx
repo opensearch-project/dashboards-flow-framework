@@ -44,7 +44,6 @@ export interface WorkflowsRouterProps {}
 
 interface WorkflowsProps extends RouteComponentProps<WorkflowsRouterProps> {
   setActionMenu: (menuMount: MountPoint | undefined) => void;
-  landingDataSourceId?: string;
 }
 
 export enum WORKFLOWS_TAB {
@@ -187,10 +186,7 @@ export function Workflows(props: WorkflowsProps) {
           componentConfig={{
             fullWidth: false,
             activeOption:
-              props.landingDataSourceId === undefined ||
-              dataSourceId === undefined
-                ? undefined
-                : [{ id: dataSourceId }],
+              dataSourceId === undefined ? undefined : [{ id: dataSourceId }],
             savedObjects: getSavedObjectsClient(),
             notifications: getNotifications(),
             onSelectedDataSources: (dataSources) =>

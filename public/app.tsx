@@ -4,7 +4,12 @@
  */
 
 import React from 'react';
-import { Route, RouteComponentProps, Switch } from 'react-router-dom';
+import {
+  Route,
+  RouteComponentProps,
+  Switch,
+  useLocation,
+} from 'react-router-dom';
 import {
   EuiPageSideBar,
   EuiSideNav,
@@ -19,8 +24,10 @@ import {
   WorkflowsRouterProps,
 } from './pages';
 import { MountPoint } from '../../../src/core/public';
-import queryString from 'query-string';
-import { constructHrefWithDataSourceId } from './utils/utils';
+import {
+  constructHrefWithDataSourceId,
+  getDataSourceFromURL,
+} from './utils/utils';
 
 // styling
 import './global-styles.scss';
@@ -31,9 +38,8 @@ interface Props extends RouteComponentProps {
 
 export const FlowFrameworkDashboardsApp = (props: Props) => {
   const { setHeaderActionMenu } = props;
-  const queryParams = queryString.parse(location.search) as {
-    [key: string]: string;
-  };
+  const location = useLocation();
+  const queryParams = getDataSourceFromURL(location);
   const dataSourceId = queryParams.dataSourceId;
   const sidebar = (
     <EuiPageSideBar style={{ minWidth: 190 }} hidden={false} paddingSize="l">
@@ -49,8 +55,7 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
                 id: 1,
                 href: constructHrefWithDataSourceId(
                   APP_PATH.WORKFLOWS,
-                  dataSourceId,
-                  true
+                  dataSourceId
                 ),
                 isSelected: props.location.pathname === APP_PATH.WORKFLOWS,
               },
@@ -78,7 +83,6 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
             ) => (
               <WorkflowDetail
                 setActionMenu={setHeaderActionMenu}
-                landingDataSourceId={dataSourceId}
                 {...routeProps}
               />
             )}
@@ -86,11 +90,7 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
           <Route
             path={APP_PATH.WORKFLOWS}
             render={(routeProps: RouteComponentProps<WorkflowsRouterProps>) => (
-              <Workflows
-                setActionMenu={setHeaderActionMenu}
-                landingDataSourceId={dataSourceId}
-                {...routeProps}
-              />
+              <Workflows setActionMenu={setHeaderActionMenu} {...routeProps} />
             )}
           />
           {/*
@@ -109,7 +109,6 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
               return (
                 <Workflows
                   setActionMenu={setHeaderActionMenu}
-                  landingDataSourceId={dataSourceId}
                   {...routeProps}
                 />
               );

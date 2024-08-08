@@ -45,7 +45,6 @@ export interface WorkflowDetailRouterProps {
 interface WorkflowDetailProps
   extends RouteComponentProps<WorkflowDetailRouterProps> {
   setActionMenu: (menuMount?: MountPoint) => void;
-  landingDataSourceId?: string;
 }
 
 /**

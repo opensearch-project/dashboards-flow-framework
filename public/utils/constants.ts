@@ -20,6 +20,6 @@ export const BREADCRUMBS = Object.freeze({
   FLOW_FRAMEWORK: { text: 'Flow Framework' },
   WORKFLOWS: (dataSourceId?: string) => ({
     text: 'Workflows',
-    href: constructHrefWithDataSourceId(APP_PATH.WORKFLOWS, dataSourceId, true),
+    href: constructHrefWithDataSourceId(APP_PATH.WORKFLOWS, dataSourceId),
   }),
 });
