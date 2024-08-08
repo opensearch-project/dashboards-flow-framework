@@ -30,6 +30,7 @@ import {
 } from '../../../general_components';
 import { WORKFLOWS_TAB } from '../workflows';
 import { getCore } from '../../../services';
+import { getDataSourceId } from '../../../utils/utils';
 
 interface WorkflowListProps {
   setSelectedTabId: (tabId: WORKFLOWS_TAB) => void;
@@ -65,6 +66,7 @@ const filterOptions = [
  */
 export function WorkflowList(props: WorkflowListProps) {
   const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
@@ -144,7 +146,12 @@ export function WorkflowList(props: WorkflowListProps) {
           }}
           onConfirm={async () => {
             clearDeleteState();
-            await dispatch(deleteWorkflow(selectedWorkflow.id as string))
+            await dispatch(
+              deleteWorkflow({
+                workflowId: selectedWorkflow.id as string,
+                dataSourceId,
+              })
+            )
               .unwrap()
               .then((result) => {
                 getCore().notifications.toasts.addSuccess(

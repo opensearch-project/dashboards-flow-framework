@@ -19,4 +19,9 @@ export const mockCoreServices = {
       },
     };
   },
+  getDataSourceEnabled: () => {
+    return {
+      enabled: false,
+    };
+  },
 };

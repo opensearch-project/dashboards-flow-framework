@@ -60,6 +60,7 @@ import {
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import { ExportOptions } from './export_options';
+import { getDataSourceId } from '../../../utils/utils';
 
 // styling
 import '../workspace/workspace-styles.scss';
@@ -102,6 +103,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     touched,
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
 
   // Overall workspace state
   const { isDirty } = useSelector((state: AppState) => state.form);
@@ -160,17 +162,25 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         } as WorkflowTemplate;
         await dispatch(
           updateWorkflow({
-            workflowId: props.workflow?.id as string,
-            workflowTemplate: updatedTemplate,
-            updateFields: true,
-            reprovision: false,
+            apiBody: {
+              workflowId: props.workflow?.id as string,
+              workflowTemplate: updatedTemplate,
+              updateFields: true,
+              reprovision: false,
+            },
+            dataSourceId,
           })
         )
           .unwrap()
           .then(async (result) => {
             // get any updates after autosave
             new Promise((f) => setTimeout(f, 1000)).then(async () => {
-              dispatch(getWorkflow(props.workflow?.id as string));
+              dispatch(
+                getWorkflow({
+                  workflowId: props.workflow?.id as string,
+                  dataSourceId,
+                })
+              );
             });
           })
           .catch((error: any) => {
@@ -204,9 +214,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     if (reprovision) {
       await dispatch(
         updateWorkflow({
-          workflowId: updatedWorkflow.id as string,
-          workflowTemplate: reduceToTemplate(updatedWorkflow),
-          reprovision: true,
+          apiBody: {
+            workflowId: updatedWorkflow.id as string,
+            workflowTemplate: reduceToTemplate(updatedWorkflow),
+            reprovision: true,
+          },
+          dataSourceId,
         })
       )
         .unwrap()
@@ -219,7 +232,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           // auto-fetching to cover the majority of provisioning updates which
           // are inexpensive and will finish within milliseconds.
           setTimeout(async () => {
-            dispatch(getWorkflow(updatedWorkflow.id as string));
+            dispatch(
+              getWorkflow({
+                workflowId: updatedWorkflow.id as string,
+                dataSourceId,
+              })
+            );
           }, 1000);
         })
         .catch((error: any) => {
@@ -228,23 +246,34 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     } else {
       await dispatch(
         deprovisionWorkflow({
-          workflowId: updatedWorkflow.id as string,
-          resourceIds: getResourcesToBeForceDeleted(props.workflow),
+          apiBody: {
+            workflowId: updatedWorkflow.id as string,
+            resourceIds: getResourcesToBeForceDeleted(props.workflow),
+          },
+          dataSourceId,
         })
       )
         .unwrap()
         .then(async (result) => {
           await dispatch(
             updateWorkflow({
-              workflowId: updatedWorkflow.id as string,
-              workflowTemplate: reduceToTemplate(updatedWorkflow),
-              reprovision: false,
+              apiBody: {
+                workflowId: updatedWorkflow.id as string,
+                workflowTemplate: reduceToTemplate(updatedWorkflow),
+                reprovision: false,
+              },
+              dataSourceId,
             })
           )
             .unwrap()
             .then(async (result) => {
               await sleep(1000);
-              await dispatch(provisionWorkflow(updatedWorkflow.id as string))
+              await dispatch(
+                provisionWorkflow({
+                  workflowId: updatedWorkflow.id as string,
+                  dataSourceId,
+                })
+              )
                 .unwrap()
                 .then(async (result) => {
                   await sleep(1000);
@@ -255,7 +284,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   // auto-fetching to cover the majority of provisioning updates which
                   // are inexpensive and will finish within milliseconds.
                   setTimeout(async () => {
-                    dispatch(getWorkflow(updatedWorkflow.id as string));
+                    dispatch(
+                      getWorkflow({
+                        workflowId: updatedWorkflow.id as string,
+                        dataSourceId,
+                      })
+                    );
                   }, 1000);
                 })
                 .catch((error: any) => {
@@ -342,7 +376,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             values.ingest.index.name,
             ingestDocsObjs
           );
-          dispatch(bulk({ body: bulkBody }))
+          dispatch(bulk({ apiBody: { body: bulkBody }, dataSourceId }))
             .unwrap()
             .then(async (resp) => {
               props.setIngestResponse(JSON.stringify(resp, undefined, 2));
@@ -387,7 +421,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
         if (success) {
           const indexName = values.search.index.name;
-          dispatch(searchIndex({ index: indexName, body: props.query }))
+          dispatch(
+            searchIndex({
+              apiBody: { index: indexName, body: props.query },
+              dataSourceId,
+            })
+          )
             .unwrap()
             .then(async (resp) => {
               props.setQueryResponse(
@@ -470,17 +509,25 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     onClick={async () => {
                       await dispatch(
                         deprovisionWorkflow({
-                          workflowId: props.workflow?.id as string,
-                          resourceIds: getResourcesToBeForceDeleted(
-                            props.workflow
-                          ),
+                          apiBody: {
+                            workflowId: props.workflow?.id as string,
+                            resourceIds: getResourcesToBeForceDeleted(
+                              props.workflow
+                            ),
+                          },
+                          dataSourceId,
                         })
                       )
                         .unwrap()
                         .then(async (result) => {
                           setFieldValue('ingest.enabled', false);
                           // @ts-ignore
-                          await dispatch(getWorkflow(props.workflow.id));
+                          await dispatch(
+                            getWorkflow({
+                              workflowId: props.workflow.id,
+                              dataSourceId,
+                            })
+                          );
                         })
                         .catch((error: any) => {})
                         .finally(() => {
