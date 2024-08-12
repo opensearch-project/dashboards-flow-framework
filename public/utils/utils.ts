@@ -237,7 +237,9 @@ export const getDataSourceFromURL = (location: {
 }): MDSQueryParams => {
   const queryParams = queryString.parse(location.search);
   const dataSourceId = queryParams.dataSourceId;
-  return { dataSourceId: typeof dataSourceId === 'string' ? dataSourceId : '' };
+  return {
+    dataSourceId: typeof dataSourceId === 'string' ? dataSourceId : undefined,
+  };
 };
 
 export const constructHrefWithDataSourceId = (
