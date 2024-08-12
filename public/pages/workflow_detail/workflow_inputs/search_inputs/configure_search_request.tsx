@@ -180,7 +180,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
               dispatch(
                 searchIndex({
                   apiBody: {
-                    index: indexName,
+                    index: values.search.index.name,
                     body: values.search.request,
                     searchPipeline: '_none',
                   },
