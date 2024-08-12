@@ -30,6 +30,7 @@ import {
   searchIndex,
   useAppDispatch,
 } from '../../../../store';
+import { getDataSourceId } from '../../../../utils/utils';
 
 interface ConfigureSearchRequestProps {
   setQuery: (query: string) => void;
@@ -42,6 +43,7 @@ interface ConfigureSearchRequestProps {
  */
 export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
 
   // Form state
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
@@ -80,7 +82,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   useEffect(() => {
     if (!ingestEnabled) {
       // Fetch all indices besides system indices
-      dispatch(catIndices('*,-.*'));
+      dispatch(catIndices({ pattern: '*,-.*', dataSourceId }));
     }
   }, []);
 
@@ -177,9 +179,12 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
               // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
               dispatch(
                 searchIndex({
-                  index: values.search.index.name,
-                  body: values.search.request,
-                  searchPipeline: '_none',
+                  apiBody: {
+                    index: values.search.index.name,
+                    body: values.search.request,
+                    searchPipeline: '_none',
+                  },
+                  dataSourceId,
                 })
               )
                 .unwrap()

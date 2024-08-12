@@ -30,7 +30,9 @@ const renderWithRouter = () => ({
       <Router>
         <Switch>
           <Route
-            render={(props: RouteComponentProps) => <Workflows {...props} />}
+            render={(props: RouteComponentProps) => (
+              <Workflows setActionMenu={jest.fn()} {...props} />
+            )}
           />
         </Switch>
       </Router>
