@@ -13,5 +13,12 @@ export class MLSearchRequestProcessor extends MLProcessor {
   constructor() {
     super();
     this.id = generateId('ml_processor_search_request');
+    this.optionalFields = [
+      {
+        id: 'query_template',
+        type: 'jsonString',
+      },
+      ...(this.optionalFields || []),
+    ];
   }
 }

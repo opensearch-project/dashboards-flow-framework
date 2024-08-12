@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { FormikValues } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   TemplateFlows,
   TemplateNode,
@@ -27,9 +29,12 @@ import {
   SearchConfig,
   MapFormValue,
   MapEntry,
+  TEXT_CHUNKING_ALGORITHM,
+  SHARED_OPTIONAL_FIELDS,
+  FIXED_TOKEN_LENGTH_OPTIONAL_FIELDS,
+  DELIMITER_OPTIONAL_FIELDS,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
-import { generateId } from './utils';
 
 /*
  **************** Config -> template utils **********************
@@ -59,7 +64,7 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
     (node) => node.type === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
   ) as CreateSearchPipelineNode;
 
-  if (config.ingest.enabled) {
+  if (config.ingest.enabled.value) {
     nodes.push(
       indexConfigToTemplateNode(
         config.ingest.index,
@@ -78,13 +83,14 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
 function ingestConfigToTemplateNodes(
   ingestConfig: IngestConfig
 ): TemplateNode[] {
-  const ingestPipelineName = generateId('ingest_pipeline');
+  const ingestPipelineName = ingestConfig.pipelineName.value;
+  const ingestEnabled = ingestConfig.enabled.value;
   const ingestProcessors = processorConfigsToTemplateProcessors(
     ingestConfig.enrich.processors
   );
   const hasProcessors = ingestProcessors.length > 0;
 
-  return hasProcessors && ingestConfig.enabled
+  return hasProcessors && ingestEnabled
     ? [
         {
           id: ingestPipelineName,
@@ -104,7 +110,7 @@ function ingestConfigToTemplateNodes(
 function searchConfigToTemplateNodes(
   searchConfig: SearchConfig
 ): TemplateNode[] {
-  const searchPipelineName = generateId('search_pipeline');
+  const searchPipelineName = searchConfig.pipelineName.value;
   const searchRequestProcessors = processorConfigsToTemplateProcessors(
     searchConfig.enrichRequest.processors
   );
@@ -133,8 +139,6 @@ function searchConfigToTemplateNodes(
 
 // General fn to process all processor configs and convert them
 // into a final list of template-formatted IngestProcessor/SearchProcessors.
-// TODO: improve the type safety of the returned form values. Have defined interfaces
-// for each processor type, including the handling of any configured optional fields
 export function processorConfigsToTemplateProcessors(
   processorConfigs: IProcessorConfig[]
 ): (IngestProcessor | SearchProcessor)[] {
@@ -143,59 +147,128 @@ export function processorConfigsToTemplateProcessors(
   processorConfigs.forEach((processorConfig) => {
     switch (processorConfig.type) {
       case PROCESSOR_TYPE.ML: {
-        const { model, inputMap, outputMap } = processorConfigToFormik(
-          processorConfig
-        ) as {
-          model: ModelFormValue;
-          inputMap: MapArrayFormValue;
-          outputMap: MapArrayFormValue;
-        };
+        const {
+          model,
+          input_map,
+          output_map,
+          model_config,
+          ...formValues
+        } = processorConfigToFormik(processorConfig);
 
         let processor = {
           ml_inference: {
             model_id: model.id,
           },
         } as MLInferenceProcessor;
-        if (inputMap?.length > 0) {
-          processor.ml_inference.input_map = inputMap.map((mapFormValue) =>
-            mergeMapIntoSingleObj(mapFormValue)
+
+        // process input/output maps
+        if (input_map?.length > 0) {
+          processor.ml_inference.input_map = input_map.map(
+            (mapFormValue: MapFormValue) => mergeMapIntoSingleObj(mapFormValue)
           );
         }
 
-        if (outputMap?.length > 0) {
-          processor.ml_inference.output_map = outputMap.map((mapFormValue) =>
-            mergeMapIntoSingleObj(mapFormValue)
+        if (output_map?.length > 0) {
+          processor.ml_inference.output_map = output_map.map(
+            (mapFormValue: MapFormValue) => mergeMapIntoSingleObj(mapFormValue)
           );
         }
+
+        // process optional fields
+        let additionalFormValues = {} as FormikValues;
+        Object.keys(formValues).forEach((formKey: string) => {
+          const formValue = formValues[formKey];
+          additionalFormValues = optionallyAddToFinalForm(
+            additionalFormValues,
+            formKey,
+            formValue
+          );
+        });
+
+        // process model config.
+        // TODO: this special handling, plus the special handling on index settings/mappings
+        // could be improved if the 'json' obj returned {} during the conversion instead
+        // of "{}". We may have future JSON fields which right now are going to require
+        // this manual parsing before adding to the template.
+        let finalModelConfig = {};
+        try {
+          // @ts-ignore
+          finalModelConfig = JSON.parse(model_config);
+        } catch (e) {}
+
+        processor.ml_inference = {
+          ...processor.ml_inference,
+          ...additionalFormValues,
+          model_config: finalModelConfig,
+        };
+
         processorsList.push(processor);
         break;
       }
-      case PROCESSOR_TYPE.SPLIT: {
-        const { field, separator } = processorConfigToFormik(
-          processorConfig
-        ) as { field: string; separator: string };
-        processorsList.push({
-          split: {
-            field,
-            separator,
-          },
+      // only include the optional field form values that are relevant
+      // to the selected algorithm. always add any common/shared form values.
+      case PROCESSOR_TYPE.TEXT_CHUNKING: {
+        const formValues = processorConfigToFormik(processorConfig);
+        let finalFormValues = {} as FormikValues;
+        const algorithm = formValues['algorithm'] as TEXT_CHUNKING_ALGORITHM;
+        Object.keys(formValues).forEach((formKey: string) => {
+          const formValue = formValues[formKey];
+          if (SHARED_OPTIONAL_FIELDS.includes(formKey)) {
+            finalFormValues = optionallyAddToFinalForm(
+              finalFormValues,
+              formKey,
+              formValue
+            );
+          } else {
+            if (algorithm === TEXT_CHUNKING_ALGORITHM.FIXED_TOKEN_LENGTH) {
+              if (FIXED_TOKEN_LENGTH_OPTIONAL_FIELDS.includes(formKey)) {
+                finalFormValues = optionallyAddToFinalForm(
+                  finalFormValues,
+                  formKey,
+                  formValue
+                );
+              }
+            } else {
+              if (DELIMITER_OPTIONAL_FIELDS.includes(formKey)) {
+                finalFormValues = optionallyAddToFinalForm(
+                  finalFormValues,
+                  formKey,
+                  formValue
+                );
+              }
+            }
+          }
         });
-        break;
-      }
-      case PROCESSOR_TYPE.SORT: {
-        const { field, order } = processorConfigToFormik(processorConfig) as {
-          field: string;
-          order: string;
+        // add the field map config obj
+        finalFormValues = {
+          ...finalFormValues,
+          field_map: mergeMapIntoSingleObj(
+            formValues['field_map'] as MapFormValue
+          ),
         };
         processorsList.push({
-          sort: {
-            field,
-            order,
-          },
+          [processorConfig.type]: finalFormValues,
         });
         break;
       }
+      case PROCESSOR_TYPE.SPLIT:
+      case PROCESSOR_TYPE.SORT:
       default: {
+        const formValues = processorConfigToFormik(processorConfig);
+        let finalFormValues = {} as FormikValues;
+        // iterate through the form values, ignoring any empty
+        // field (empty fields can be possible if the field is optional)
+        Object.keys(formValues).forEach((formKey: string) => {
+          const formValue = formValues[formKey];
+          finalFormValues = optionallyAddToFinalForm(
+            finalFormValues,
+            formKey,
+            formValue
+          );
+        });
+        processorsList.push({
+          [processorConfig.type]: finalFormValues,
+        });
         break;
       }
     }
@@ -253,7 +326,7 @@ function indexConfigToTemplateNode(
   updateFinalInputsAndSettings(searchPipelineNode);
 
   return {
-    id: 'create_index',
+    id: indexConfig.name.value as string,
     type: WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE,
     previous_node_inputs: finalPreviousNodeInputs,
     user_inputs: {
@@ -293,4 +366,18 @@ function mergeMapIntoSingleObj(mapFormValue: MapFormValue): {} {
     };
   });
   return curMap;
+}
+
+// utility fn used to build the final set of processor config fields, filtering
+// by only adding if the field is valid
+function optionallyAddToFinalForm(
+  finalFormValues: FormikValues,
+  formKey: string,
+  formValue: any
+): FormikValues {
+  if (!isEmpty(formValue) || typeof formValue === 'boolean') {
+    finalFormValues[formKey] =
+      typeof formValue === 'boolean' ? formValue : formValue;
+  }
+  return finalFormValues;
 }

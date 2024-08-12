@@ -16,23 +16,27 @@ export type Index = {
 /**
  ********** WORKFLOW TYPES/INTERFACES **********
  */
+export type MDSQueryParams = {
+  dataSourceId?: string;
+};
 
 export type ConfigFieldType =
   | 'string'
   | 'json'
   | 'jsonArray'
+  | 'jsonString'
   | 'select'
   | 'model'
   | 'map'
-  | 'mapArray';
+  | 'mapArray'
+  | 'boolean'
+  | 'number';
 
 export type ConfigFieldValue = string | {};
 
 export interface IConfigField {
   type: ConfigFieldType;
   id: string;
-  optional?: boolean;
-  label?: string;
   value?: ConfigFieldValue;
   selectOptions?: ConfigFieldValue[];
 }
@@ -41,6 +45,7 @@ export interface IConfig {
   id: string;
   name: string;
   fields: IConfigField[];
+  optionalFields?: IConfigField[];
 }
 
 export interface IProcessorConfig extends IConfig {
@@ -57,15 +62,25 @@ export type IndexConfig = {
   settings: IConfigField;
 };
 
+// TODO: may expand to just IndexConfig (including mappings/settings info)
+// if we want to persist this for users using some existing index,
+// and want to pass that index config around.
+export type SearchIndexConfig = {
+  name: IConfigField;
+};
+
 export type IngestConfig = {
-  enabled: boolean;
+  enabled: IConfigField;
   source: {};
+  pipelineName: IConfigField;
   enrich: ProcessorsConfig;
   index: IndexConfig;
 };
 
 export type SearchConfig = {
   request: IConfigField;
+  index: SearchIndexConfig;
+  pipelineName: IConfigField;
   enrichRequest: ProcessorsConfig;
   enrichResponse: ProcessorsConfig;
 };
@@ -207,6 +222,7 @@ export type MLInferenceProcessor = IngestProcessor & {
     model_id: string;
     input_map?: {};
     output_map?: {};
+    [key: string]: any;
   };
 };
 

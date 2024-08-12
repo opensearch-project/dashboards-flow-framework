@@ -15,6 +15,7 @@ import {
   ConfigFieldType,
   ConfigFieldValue,
   ModelFormValue,
+  SearchIndexConfig,
 } from '../../common';
 
 /*
@@ -40,7 +41,11 @@ function ingestConfigToFormik(
 ): FormikValues {
   let ingestFormikValues = {} as FormikValues;
   if (ingestConfig) {
-    ingestFormikValues['enabled'] = ingestConfig.enabled;
+    ingestFormikValues['enabled'] =
+      ingestConfig.enabled.value || getInitialValue(ingestConfig.enabled.type);
+    ingestFormikValues['pipelineName'] =
+      ingestConfig.pipelineName.value ||
+      getInitialValue(ingestConfig.pipelineName.type);
     ingestFormikValues['docs'] = ingestDocs || getInitialValue('jsonArray');
     ingestFormikValues['enrich'] = processorsConfigToFormik(
       ingestConfig.enrich
@@ -67,6 +72,10 @@ export function processorConfigToFormik(
   processorConfig.fields.forEach((field) => {
     fieldValues[field.id] = field.value || getInitialValue(field.type);
   });
+  processorConfig.optionalFields?.forEach((optionalField) => {
+    fieldValues[optionalField.id] =
+      optionalField.value || getInitialValue(optionalField.type);
+  });
   return fieldValues;
 }
 
@@ -88,6 +97,10 @@ function searchConfigToFormik(
   if (searchConfig) {
     searchFormikValues['request'] =
       searchConfig.request.value || getInitialValue('json');
+    searchFormikValues['pipelineName'] =
+      searchConfig.pipelineName.value ||
+      getInitialValue(searchConfig.pipelineName.type);
+    searchFormikValues['index'] = searchIndexConfigToFormik(searchConfig.index);
     searchFormikValues['enrichRequest'] = processorsConfigToFormik(
       searchConfig.enrichRequest
     );
@@ -96,6 +109,16 @@ function searchConfigToFormik(
     );
   }
   return searchFormikValues;
+}
+
+function searchIndexConfigToFormik(
+  searchIndexConfig: SearchIndexConfig
+): FormikValues {
+  let formValues = {} as FormikValues;
+  formValues['name'] =
+    searchIndexConfig.name.value ||
+    getInitialValue(searchIndexConfig.name.type);
+  return formValues;
 }
 
 // Helper fn to get an initial value based on the field type
@@ -116,7 +139,8 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
     case 'map': {
       return [];
     }
-    case 'json': {
+    case 'json':
+    case 'jsonString': {
       return '{}';
     }
     case 'jsonArray': {
@@ -124,6 +148,12 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
     }
     case 'mapArray': {
       return [];
+    }
+    case 'boolean': {
+      return false;
+    }
+    case 'number': {
+      return 0;
     }
   }
 }

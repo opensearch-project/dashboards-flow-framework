@@ -46,6 +46,7 @@ import {
   useAppDispatch,
 } from '../../../../store';
 import { getCore } from '../../../../services';
+import { getDataSourceId } from '../../../../utils/utils';
 import { MapArrayField } from '../input_fields';
 
 interface InputTransformModalProps {
@@ -68,6 +69,7 @@ interface InputTransformModalProps {
  */
 export function InputTransformModal(props: InputTransformModalProps) {
   const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
 
   // source input / transformed output state
@@ -120,8 +122,11 @@ export function InputTransformModal(props: InputTransformModalProps) {
                         );
                         await dispatch(
                           simulatePipeline({
-                            pipeline: curIngestPipeline as IngestPipelineConfig,
-                            docs: curDocs,
+                            apiBody: {
+                              pipeline: curIngestPipeline as IngestPipelineConfig,
+                              docs: curDocs,
+                            },
+                            dataSourceId,
                           })
                         )
                           .unwrap()
@@ -169,11 +174,14 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       // the partial search pipeline (inline) to get the latest transformed version of the response.
                       dispatch(
                         searchIndex({
-                          index: values.ingest.index.name,
-                          body: JSON.stringify({
-                            ...JSON.parse(values.search.request as string),
-                            search_pipeline: curSearchPipeline,
-                          }),
+                          apiBody: {
+                            index: values.ingest.index.name,
+                            body: JSON.stringify({
+                              ...JSON.parse(values.search.request as string),
+                              search_pipeline: curSearchPipeline,
+                            }),
+                          },
+                          dataSourceId,
                         })
                       )
                         .unwrap()
@@ -234,7 +242,11 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
                 helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="Model input field"
-                valuePlaceholder="Document field"
+                valuePlaceholder={
+                  props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                    ? 'Query field'
+                    : 'Document field'
+                }
                 keyOptions={props.inputFields}
                 onFormChange={props.onFormChange}
                 // If the map we are adding is the first one, populate the selected option to index 0

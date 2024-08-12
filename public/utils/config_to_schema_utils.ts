@@ -14,6 +14,7 @@ import {
   WorkflowSchemaObj,
   IndexConfig,
   IConfigField,
+  SearchIndexConfig,
 } from '../../common';
 
 /*
@@ -31,10 +32,11 @@ function ingestConfigToSchema(
   ingestConfig: IngestConfig | undefined
 ): ObjectSchema<any> {
   const ingestSchemaObj = {} as { [key: string]: Schema };
-  if (ingestConfig) {
+  if (ingestConfig?.enabled) {
     ingestSchemaObj['docs'] = getFieldSchema({
       type: 'jsonArray',
     } as IConfigField);
+    ingestSchemaObj['pipelineName'] = getFieldSchema(ingestConfig.pipelineName);
     ingestSchemaObj['enrich'] = processorsConfigToSchema(ingestConfig.enrich);
     ingestSchemaObj['index'] = indexConfigToSchema(ingestConfig.index);
   }
@@ -57,6 +59,8 @@ function searchConfigToSchema(
     searchSchemaObj['request'] = getFieldSchema({
       type: 'json',
     } as IConfigField);
+    searchSchemaObj['pipelineName'] = getFieldSchema(searchConfig.pipelineName);
+    searchSchemaObj['index'] = searchIndexToSchema(searchConfig.index);
     searchSchemaObj['enrichRequest'] = processorsConfigToSchema(
       searchConfig.enrichRequest
     );
@@ -67,12 +71,24 @@ function searchConfigToSchema(
   return yup.object(searchSchemaObj);
 }
 
+function searchIndexToSchema(searchIndexConfig: SearchIndexConfig): Schema {
+  const searchIndexSchemaObj = {} as { [key: string]: Schema };
+  searchIndexSchemaObj['name'] = getFieldSchema(searchIndexConfig.name);
+  return yup.object(searchIndexSchemaObj);
+}
+
 function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
   const processorsSchemaObj = {} as { [key: string]: Schema };
   processorsConfig.processors.forEach((processorConfig) => {
     const processorSchemaObj = {} as { [key: string]: Schema };
     processorConfig.fields.forEach((field) => {
       processorSchemaObj[field.id] = getFieldSchema(field);
+    });
+    processorConfig.optionalFields?.forEach((optionalField) => {
+      processorSchemaObj[optionalField.id] = getFieldSchema(
+        optionalField,
+        true
+      );
     });
     processorsSchemaObj[processorConfig.id] = yup.object(processorSchemaObj);
   });
@@ -84,7 +100,10 @@ function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
  **************** Yup (validation) utils **********************
  */
 
-function getFieldSchema(field: IConfigField): Schema {
+function getFieldSchema(
+  field: IConfigField,
+  optional: boolean = false
+): Schema {
   let baseSchema: Schema;
   switch (field.type) {
     case 'string':
@@ -138,6 +157,10 @@ function getFieldSchema(field: IConfigField): Schema {
 
       break;
     }
+    case 'jsonString': {
+      baseSchema = yup.string().min(1, 'Too short');
+      break;
+    }
     case 'mapArray': {
       baseSchema = yup.array().of(
         yup.array().of(
@@ -157,9 +180,14 @@ function getFieldSchema(field: IConfigField): Schema {
       );
       break;
     }
+    case 'boolean': {
+      baseSchema = yup.boolean();
+      break;
+    }
+    case 'number': {
+      baseSchema = yup.number();
+    }
   }
 
-  return field.optional
-    ? baseSchema.optional()
-    : baseSchema.required('Required');
+  return optional ? baseSchema.optional() : baseSchema.required('Required');
 }
