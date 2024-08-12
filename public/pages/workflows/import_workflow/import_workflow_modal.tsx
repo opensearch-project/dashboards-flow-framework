@@ -32,6 +32,7 @@ import {
 } from '../../../store';
 import { FETCH_ALL_QUERY_BODY, Workflow } from '../../../../common';
 import { WORKFLOWS_TAB } from '../workflows';
+import {  getDataSourceId } from '../../../utils/utils';
 
 interface ImportWorkflowModalProps {
   isImportModalOpen: boolean;
@@ -48,6 +49,7 @@ interface ImportWorkflowModalProps {
  */
 export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
   const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
 
   // file contents & file obj state
   const [fileContents, setFileContents] = useState<string | undefined>(
@@ -133,11 +135,21 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
         <EuiButton
           disabled={!isValidWorkflow(fileObj)}
           onClick={() => {
-            dispatch(createWorkflow(fileObj as Workflow))
+            dispatch(
+              createWorkflow({
+                apiBody: fileObj as Workflow,
+                dataSourceId,
+              })
+            )
               .unwrap()
               .then((result) => {
                 const { workflow } = result;
-                dispatch(searchWorkflows(FETCH_ALL_QUERY_BODY));
+                dispatch(
+                  searchWorkflows({
+                    apiBody: FETCH_ALL_QUERY_BODY,
+                    dataSourceId,
+                  })
+                );
                 props.setSelectedTabId(WORKFLOWS_TAB.MANAGE);
                 getCore().notifications.toasts.addSuccess(
                   `Successfully imported ${workflow.name}`

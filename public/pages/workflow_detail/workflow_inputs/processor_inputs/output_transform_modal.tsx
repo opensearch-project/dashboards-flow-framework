@@ -48,6 +48,7 @@ import {
 } from '../../../../store';
 import { getCore } from '../../../../services';
 import { MapArrayField } from '../input_fields';
+import { getDataSourceId } from '../../../../utils/utils';
 
 interface OutputTransformModalProps {
   uiConfig: WorkflowConfig;
@@ -65,6 +66,7 @@ interface OutputTransformModalProps {
  */
 export function OutputTransformModal(props: OutputTransformModalProps) {
   const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
 
   // source input / transformed output state
@@ -124,8 +126,11 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                       );
                       await dispatch(
                         simulatePipeline({
-                          pipeline: curIngestPipeline,
-                          docs: curDocs,
+                          apiBody: {
+                            pipeline: curIngestPipeline,
+                            docs: curDocs,
+                          },
+                          dataSourceId,
                         })
                       )
                         .unwrap()
@@ -162,11 +167,14 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                       // version of the request.
                       dispatch(
                         searchIndex({
-                          index: values.ingest.index.name,
-                          body: JSON.stringify({
-                            ...JSON.parse(values.search.request as string),
-                            search_pipeline: curSearchPipeline,
-                          }),
+                          apiBody: {
+                            index: values.ingest.index.name,
+                            body: JSON.stringify({
+                              ...JSON.parse(values.search.request as string),
+                              search_pipeline: curSearchPipeline,
+                            }),
+                          },
+                          dataSourceId,
                         })
                       )
                         .unwrap()
