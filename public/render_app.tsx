@@ -14,7 +14,11 @@ import { store } from './store';
 // styling
 import './global-styles.scss';
 
-export const renderApp = (coreStart: CoreStart, params: AppMountParameters, hideInAppSideNavBar: boolean) => {
+export const renderApp = (
+  coreStart: CoreStart,
+  params: AppMountParameters,
+  hideInAppSideNavBar: boolean
+) => {
   // This is so our base element stretches to fit the entire webpage
   params.element.className = 'stretch-absolute';
   ReactDOM.render(
