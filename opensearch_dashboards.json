@@ -9,5 +9,8 @@
     "navigation",
     "opensearchDashboardsUtils"
   ],
-  "optionalPlugins": ["dataSource","dataSourceManagement"]
+  "optionalPlugins": [
+    "dataSource",
+    "dataSourceManagement"
+  ]
 }
