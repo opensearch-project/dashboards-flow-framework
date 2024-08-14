@@ -1,0 +1,12 @@
+{
+    "name": "Custom",
+    "description": "A blank workflow with no preset configurations",
+    "use_case": "CUSTOM",
+    "version": {
+        "template": "1.0.0",
+        "compatibility": [
+            "2.17.0",
+            "3.0.0"
+        ]
+    }
+}
