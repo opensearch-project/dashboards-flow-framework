@@ -11,6 +11,7 @@ import {
   Model,
   ModelDict,
   ModelInterface,
+  NO_MODIFICATIONS_FOUND_TEXT,
   SearchHit,
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STATE,
@@ -35,7 +36,10 @@ export function generateCustomError(res: any, err: any) {
 
 // Helper fn to filter out backend errors that we don't want to propagate on the frontend.
 export function isIgnorableError(error: any): boolean {
-  return error.body?.error?.type === INDEX_NOT_FOUND_EXCEPTION;
+  return (
+    error.body?.error?.type === INDEX_NOT_FOUND_EXCEPTION ||
+    error.body?.error === NO_MODIFICATIONS_FOUND_TEXT
+  );
 }
 
 // Convert backend workflow into frontend workflow obj
