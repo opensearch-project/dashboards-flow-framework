@@ -21,7 +21,7 @@ import {
 } from '../../common';
 import {
   Document,
-  KnnIndexer,
+  BaseIndexer,
   MLTransformer,
   BaseTransformer,
   Query,
@@ -118,7 +118,7 @@ function ingestConfigToWorkspaceFlow(
       x: parentNode.style.width - (NODE_WIDTH + NODE_SPACING),
       y: NODE_HEIGHT_Y,
     },
-    data: initComponentData(new KnnIndexer().toObj(), indexNodeId),
+    data: initComponentData(new BaseIndexer().toObj(), indexNodeId),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
@@ -233,7 +233,7 @@ function searchConfigToWorkspaceFlow(
           (enrichResponseWorkspaceFlow.nodes.length + 2),
       y: NODE_HEIGHT_Y,
     },
-    data: initComponentData(new KnnIndexer().toObj(), indexNodeId),
+    data: initComponentData(new BaseIndexer().toObj(), indexNodeId),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',

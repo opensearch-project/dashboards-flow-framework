@@ -260,14 +260,14 @@ export type CreateIngestPipelineNode = TemplateNode & {
     model_id?: string;
     input_field?: string;
     output_field?: string;
-    configurations: IngestPipelineConfig;
+    configurations: string;
   };
 };
 
 export type CreateSearchPipelineNode = TemplateNode & {
   user_inputs: {
     pipeline_id: string;
-    configurations: SearchPipelineConfig;
+    configurations: string;
   };
 };
 
@@ -277,10 +277,7 @@ export type CreateIndexNode = TemplateNode & {
   };
   user_inputs: {
     index_name: string;
-    configurations: {
-      settings: {};
-      mappings: {};
-    };
+    configurations: string;
   };
 };
 
@@ -292,6 +289,7 @@ export type TemplateEdge = {
 export type TemplateFlow = {
   nodes: TemplateNode[];
   edges?: TemplateEdge[];
+  user_params?: {};
 };
 
 export type TemplateFlows = {

@@ -12,14 +12,12 @@ import {
   CreateIndexNode,
   TemplateFlow,
   TemplateEdge,
-  ModelFormValue,
   WORKFLOW_STEP_TYPE,
   WorkflowConfig,
   PROCESSOR_TYPE,
   IndexConfig,
   IProcessorConfig,
   MLInferenceProcessor,
-  MapArrayFormValue,
   IngestProcessor,
   Workflow,
   WorkflowTemplate,
@@ -33,6 +31,8 @@ import {
   SHARED_OPTIONAL_FIELDS,
   FIXED_TOKEN_LENGTH_OPTIONAL_FIELDS,
   DELIMITER_OPTIONAL_FIELDS,
+  IngestPipelineConfig,
+  SearchPipelineConfig,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
 
@@ -77,6 +77,7 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
   return {
     nodes,
     edges,
+    user_params: {},
   };
 }
 
@@ -95,12 +96,13 @@ function ingestConfigToTemplateNodes(
         {
           id: ingestPipelineName,
           type: WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE,
+          previous_node_inputs: {},
           user_inputs: {
             pipeline_id: ingestPipelineName,
-            configurations: {
+            configurations: JSON.stringify({
               description: 'An ingest pipeline',
               processors: ingestProcessors,
-            },
+            } as IngestPipelineConfig),
           },
         } as CreateIngestPipelineNode,
       ]
@@ -125,12 +127,13 @@ function searchConfigToTemplateNodes(
         {
           id: searchPipelineName,
           type: WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE,
+          previous_node_inputs: {},
           user_inputs: {
             pipeline_id: searchPipelineName,
-            configurations: {
+            configurations: JSON.stringify({
               request_processors: searchRequestProcessors,
               response_processors: searchResponseProcessors,
-            },
+            } as SearchPipelineConfig),
           },
         } as CreateSearchPipelineNode,
       ]
@@ -331,10 +334,10 @@ function indexConfigToTemplateNode(
     previous_node_inputs: finalPreviousNodeInputs,
     user_inputs: {
       index_name: indexConfig.name.value as string,
-      configurations: {
+      configurations: JSON.stringify({
         settings: finalSettings,
         mappings: finalMappings,
-      },
+      }),
     },
   };
 }
