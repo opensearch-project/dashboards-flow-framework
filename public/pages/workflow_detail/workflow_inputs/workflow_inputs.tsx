@@ -29,6 +29,7 @@ import {
 } from '@elastic/eui';
 import {
   SearchHit,
+  WORKFLOW_STEP_TYPE,
   Workflow,
   WorkflowConfig,
   WorkflowFormValues,
@@ -126,20 +127,52 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     isEmpty(getIn(values, 'search.enrichRequest')) &&
     isEmpty(getIn(values, 'search.enrichResponse'));
 
-  // determine if any form values would produce a different final template.
-  // used to enable/disable buttons and show helpful state on UI.
-  const valuesChangedSinceLastSaved =
+  // maintaining any fine-grained differences between the generated templates produced by the form,
+  // and the one persisted in the workflow itself. We enable/disable buttons
+  // based on any discrepancies found.
+  const persistedTemplateNodes =
+    props.workflow?.workflows?.provision?.nodes || [];
+  const formGeneratedTemplateNodes =
     (values?.ingest &&
       values?.search &&
       props.uiConfig &&
       props.workflow &&
-      !isEqual(
-        configToTemplateFlows(
-          formikToUiConfig(values, props.uiConfig as WorkflowConfig)
-        ).provision.nodes,
-        props.workflow?.workflows?.provision.nodes
-      )) ||
+      configToTemplateFlows(
+        formikToUiConfig(values, props.uiConfig as WorkflowConfig)
+      ).provision.nodes) ||
+    [];
+  const persistedIngestTemplateNodes = persistedTemplateNodes.filter(
+    (templateNode) =>
+      templateNode.type !== WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+  );
+  const persistedSearchTemplateNodes = persistedTemplateNodes.filter(
+    (templateNode) =>
+      templateNode.type === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+  );
+  const formGeneratedIngestTemplateNodes = formGeneratedTemplateNodes.filter(
+    (templateNode) =>
+      templateNode.type !== WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+  );
+  const formGeneratedSearchTemplateNodes = formGeneratedTemplateNodes.filter(
+    (templateNode) =>
+      templateNode.type === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+  );
+
+  const generatedIngestTemplateIsDifferent =
+    !isEqual(persistedIngestTemplateNodes, formGeneratedIngestTemplateNodes) ||
     false;
+  const generatedSearchTemplateIsDifferent =
+    !isEqual(persistedSearchTemplateNodes, formGeneratedSearchTemplateNodes) ||
+    false;
+  // hook to default to the search page if there are unsaved search changes
+  useEffect(() => {
+    if (
+      generatedSearchTemplateIsDifferent &&
+      !generatedIngestTemplateIsDifferent
+    ) {
+      setSelectedStep(STEP.SEARCH);
+    }
+  }, [values, props.uiConfig, props.workflow]);
 
   // Auto-save the UI metadata when users update form values.
   // Only update the underlying workflow template (deprovision/provision) when
@@ -675,7 +708,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             validateAndRunIngestion();
                           }}
-                          disabled={!valuesChangedSinceLastSaved}
+                          disabled={!generatedIngestTemplateIsDifferent}
                         >
                           Run ingestion
                         </EuiButton>
@@ -686,7 +719,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             setSelectedStep(STEP.SEARCH);
                           }}
-                          disabled={valuesChangedSinceLastSaved}
+                          disabled={generatedIngestTemplateIsDifferent}
                         >
                           {`Search pipeline >`}
                         </EuiButton>
@@ -696,7 +729,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
-                          disabled={valuesChangedSinceLastSaved}
+                          disabled={
+                            isProposingNoSearchResources
+                              ? false
+                              : generatedSearchTemplateIsDifferent
+                          }
                           onClick={() => setSelectedStep(STEP.INGEST)}
                         >
                           Back
