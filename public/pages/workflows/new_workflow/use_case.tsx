@@ -92,7 +92,6 @@ export function UseCase(props: UseCaseProps) {
                     history.replace(
                       `${APP_PATH.WORKFLOWS}/${workflow.id}?dataSourceId=${dataSourceId}`
                     );
-                    history.go(0);
                   })
                   .catch((err: any) => {
                     console.error(err);
