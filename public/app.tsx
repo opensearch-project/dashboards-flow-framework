@@ -34,15 +34,20 @@ import './global-styles.scss';
 
 interface Props extends RouteComponentProps {
   setHeaderActionMenu: (menuMount?: MountPoint) => void;
+  hideInAppSideNavBar: boolean;
 }
 
 export const FlowFrameworkDashboardsApp = (props: Props) => {
-  const { setHeaderActionMenu } = props;
+  const { setHeaderActionMenu, hideInAppSideNavBar } = props;
   const location = useLocation();
   const queryParams = getDataSourceFromURL(location);
   const dataSourceId = queryParams.dataSourceId;
   const sidebar = (
-    <EuiPageSideBar style={{ minWidth: 190 }} hidden={false} paddingSize="l">
+    <EuiPageSideBar
+      style={{ minWidth: 190 }}
+      hidden={hideInAppSideNavBar}
+      paddingSize="l"
+    >
       <EuiSideNav
         style={{ width: 190 }}
         items={[
