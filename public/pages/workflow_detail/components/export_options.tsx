@@ -10,11 +10,13 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiCompressedRadioGroup,
+  EuiText,
+  EuiLink,
 } from '@elastic/eui';
-import { Workflow } from '../../../../../common';
-import { reduceToTemplate } from '../../../../utils';
+import { CREATE_WORKFLOW_LINK, Workflow } from '../../../../common';
+import { reduceToTemplate } from '../../../utils';
 
-interface SearchInputsProps {
+interface ExportOptionsProps {
   workflow?: Workflow;
 }
 
@@ -37,7 +39,7 @@ const exportOptions = [
 /**
  * The base component containing all of the export options
  */
-export function ExportOptions(props: SearchInputsProps) {
+export function ExportOptions(props: ExportOptionsProps) {
   // format type state
   const [selectedOption, setSelectedOption] = useState<EXPORT_OPTION>(
     EXPORT_OPTION.JSON
@@ -58,6 +60,14 @@ export function ExportOptions(props: SearchInputsProps) {
 
   return (
     <EuiFlexGroup direction="column">
+      <EuiFlexItem grow={false}>
+        <EuiText>
+          Copy the below workflow templates to use in other clusters.
+        </EuiText>
+        <EuiLink href={CREATE_WORKFLOW_LINK} target="_blank">
+          Learn more
+        </EuiLink>
+      </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiCompressedRadioGroup
           options={exportOptions}

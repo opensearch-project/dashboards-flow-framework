@@ -59,7 +59,6 @@ import {
   getResourcesToBeForceDeleted,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
-import { ExportOptions } from './export_options';
 import { getDataSourceId } from '../../../utils/utils';
 
 // styling
@@ -81,7 +80,6 @@ interface WorkflowInputsProps {
 enum STEP {
   INGEST = 'Ingestion pipeline',
   SEARCH = 'Search pipeline',
-  EXPORT = 'Export',
 }
 
 enum INGEST_OPTION {
@@ -113,7 +111,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // provisioned resources states
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
-  const [searchProvisioned, setSearchProvisioned] = useState<boolean>(false);
 
   // confirm modal state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -121,7 +118,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // maintain global states
   const onIngest = selectedStep === STEP.INGEST;
   const onSearch = selectedStep === STEP.SEARCH;
-  const onExport = selectedStep === STEP.EXPORT;
   const ingestEnabled = values?.ingest?.enabled || false;
   const onIngestAndProvisioned = onIngest && ingestProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
@@ -198,7 +194,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   useEffect(() => {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
-    setSearchProvisioned(hasProvisionedSearchResources(props.workflow));
   }, [props.workflow]);
 
   // Utility fn to update the workflow, including any updated/new resources.
@@ -468,20 +463,14 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               steps={[
                 {
                   title: STEP.INGEST,
-                  isComplete: onSearch || onExport,
+                  isComplete: onSearch,
                   isSelected: onIngest,
                   onClick: () => {},
                 },
                 {
                   title: STEP.SEARCH,
-                  isComplete: onExport,
-                  isSelected: onSearch,
-                  onClick: () => {},
-                },
-                {
-                  title: STEP.EXPORT,
                   isComplete: false,
-                  isSelected: onExport,
+                  isSelected: onSearch,
                   onClick: () => {},
                 },
               ]}
@@ -612,10 +601,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           </EuiButtonEmpty>
                         </EuiFlexItem>
                       </EuiFlexGroup>
-                    ) : onSearch ? (
-                      'Define search pipeline'
                     ) : (
-                      'Export project as'
+                      'Define search pipeline'
                     )}
                   </h2>
                 </EuiTitle>
@@ -634,7 +621,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
                   />
-                ) : onSearch ? (
+                ) : (
                   <SearchInputs
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
@@ -642,8 +629,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     setQueryResponse={props.setQueryResponse}
                     onFormChange={props.onFormChange}
                   />
-                ) : (
-                  <ExportOptions workflow={props.workflow} />
                 )}
               </EuiFlexItem>
             </>
@@ -715,17 +700,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           Run query
                         </EuiButton>
                       </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiButton
-                          disabled={!searchProvisioned || isDirty}
-                          fill={false}
-                          onClick={() => {
-                            setSelectedStep(STEP.EXPORT);
-                          }}
-                        >
-                          {`Export >`}
-                        </EuiButton>
-                      </EuiFlexItem>
                     </>
                   ) : (
                     <>
@@ -735,17 +709,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         >
                           Back
                         </EuiButtonEmpty>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiButton
-                          disabled={false}
-                          fill={true}
-                          onClick={() => {
-                            // TODO: final UX for export flow is TBD.
-                          }}
-                        >
-                          Export
-                        </EuiButton>
                       </EuiFlexItem>
                     </>
                   )}
