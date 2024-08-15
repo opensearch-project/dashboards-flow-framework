@@ -29,6 +29,7 @@ import {
 } from '@elastic/eui';
 import {
   SearchHit,
+  TemplateNode,
   WORKFLOW_STEP_TYPE,
   Workflow,
   WorkflowConfig,
@@ -130,49 +131,108 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // maintaining any fine-grained differences between the generated templates produced by the form,
   // and the one persisted in the workflow itself. We enable/disable buttons
   // based on any discrepancies found.
-  const persistedTemplateNodes =
-    props.workflow?.workflows?.provision?.nodes || [];
-  const formGeneratedTemplateNodes =
-    (values?.ingest &&
-      values?.search &&
-      props.uiConfig &&
-      props.workflow &&
-      configToTemplateFlows(
-        formikToUiConfig(values, props.uiConfig as WorkflowConfig)
-      ).provision.nodes) ||
-    [];
-  const persistedIngestTemplateNodes = persistedTemplateNodes.filter(
-    (templateNode) =>
-      templateNode.type !== WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
-  );
-  const persistedSearchTemplateNodes = persistedTemplateNodes.filter(
-    (templateNode) =>
-      templateNode.type === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
-  );
-  const formGeneratedIngestTemplateNodes = formGeneratedTemplateNodes.filter(
-    (templateNode) =>
-      templateNode.type !== WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
-  );
-  const formGeneratedSearchTemplateNodes = formGeneratedTemplateNodes.filter(
-    (templateNode) =>
-      templateNode.type === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
-  );
+  const [persistedTemplateNodes, setPersistedTemplateNodes] = useState<
+    TemplateNode[]
+  >([]);
+  const [
+    persistedIngestTemplateNodes,
+    setPersistedIngestTemplateNodes,
+  ] = useState<TemplateNode[]>([]);
+  const [
+    persistedSearchTemplateNodes,
+    setPersistedSearchTemplateNodes,
+  ] = useState<TemplateNode[]>([]);
+  const [formGeneratedTemplateNodes, setFormGeneratedTemplateNodes] = useState<
+    TemplateNode[]
+  >([]);
+  const [
+    formGeneratedIngestTemplateNodes,
+    setFormGeneratedIngestTemplateNodes,
+  ] = useState<TemplateNode[]>([]);
+  const [
+    formGeneratedSearchTemplateNodes,
+    setFormGeneratedSearchTemplateNodes,
+  ] = useState<TemplateNode[]>([]);
+  const [ingestTemplatesDifferent, setIngestTemplatesDifferent] = useState<
+    boolean
+  >(false);
+  const [searchTemplatesDifferent, setSearchTemplatesDifferent] = useState<
+    boolean
+  >(false);
 
-  const generatedIngestTemplateIsDifferent =
-    !isEqual(persistedIngestTemplateNodes, formGeneratedIngestTemplateNodes) ||
-    false;
-  const generatedSearchTemplateIsDifferent =
-    !isEqual(persistedSearchTemplateNodes, formGeneratedSearchTemplateNodes) ||
-    false;
-  // hook to default to the search page if there are unsaved search changes
+  // fetch the total template nodes
   useEffect(() => {
-    if (
-      generatedSearchTemplateIsDifferent &&
-      !generatedIngestTemplateIsDifferent
-    ) {
-      setSelectedStep(STEP.SEARCH);
-    }
+    setPersistedTemplateNodes(
+      props.workflow?.workflows?.provision?.nodes || []
+    );
+    setFormGeneratedTemplateNodes(
+      (values?.ingest &&
+        values?.search &&
+        props.uiConfig &&
+        props.workflow &&
+        configToTemplateFlows(
+          formikToUiConfig(values, props.uiConfig as WorkflowConfig)
+        ).provision.nodes) ||
+        []
+    );
   }, [values, props.uiConfig, props.workflow]);
+
+  // fetch the persisted template nodes for ingest & search
+  useEffect(() => {
+    const tmpIngestNodes = [] as TemplateNode[];
+    const tmpSearchNodes = [] as TemplateNode[];
+    persistedTemplateNodes.forEach((templateNode) => {
+      if (
+        templateNode.type ===
+        WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+      ) {
+        tmpSearchNodes.push(templateNode);
+      } else {
+        tmpIngestNodes.push(templateNode);
+      }
+    });
+    setPersistedIngestTemplateNodes(tmpIngestNodes);
+    setPersistedSearchTemplateNodes(tmpSearchNodes);
+  }, [persistedTemplateNodes]);
+
+  // fetch the form-generated template nodes for ingest & search
+  useEffect(() => {
+    const tmpIngestNodes = [] as TemplateNode[];
+    const tmpSearchNodes = [] as TemplateNode[];
+    formGeneratedTemplateNodes.forEach((templateNode) => {
+      if (
+        templateNode.type ===
+        WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+      ) {
+        tmpSearchNodes.push(templateNode);
+      } else {
+        tmpIngestNodes.push(templateNode);
+      }
+    });
+    setFormGeneratedIngestTemplateNodes(tmpIngestNodes);
+    setFormGeneratedSearchTemplateNodes(tmpSearchNodes);
+  }, [formGeneratedTemplateNodes]);
+
+  // determine any discrepancies between the form-generated and persisted templates
+  useEffect(() => {
+    setIngestTemplatesDifferent(
+      !isEqual(
+        persistedIngestTemplateNodes,
+        formGeneratedIngestTemplateNodes
+      ) || false
+    );
+    setSearchTemplatesDifferent(
+      !isEqual(
+        persistedSearchTemplateNodes,
+        formGeneratedSearchTemplateNodes
+      ) || false
+    );
+  }, [
+    persistedIngestTemplateNodes,
+    persistedSearchTemplateNodes,
+    formGeneratedIngestTemplateNodes,
+    formGeneratedSearchTemplateNodes,
+  ]);
 
   // Auto-save the UI metadata when users update form values.
   // Only update the underlying workflow template (deprovision/provision) when
@@ -708,7 +768,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             validateAndRunIngestion();
                           }}
-                          disabled={!generatedIngestTemplateIsDifferent}
+                          disabled={!ingestTemplatesDifferent}
                         >
                           Run ingestion
                         </EuiButton>
@@ -719,7 +779,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             setSelectedStep(STEP.SEARCH);
                           }}
-                          disabled={generatedIngestTemplateIsDifferent}
+                          disabled={ingestTemplatesDifferent}
                         >
                           {`Search pipeline >`}
                         </EuiButton>
@@ -732,7 +792,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           disabled={
                             isProposingNoSearchResources
                               ? false
-                              : generatedSearchTemplateIsDifferent
+                              : searchTemplatesDifferent
                           }
                           onClick={() => setSelectedStep(STEP.INGEST)}
                         >
