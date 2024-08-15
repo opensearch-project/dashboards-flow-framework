@@ -83,7 +83,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           <EuiSmallButtonEmpty
             style={{ marginTop: '8px' }}
             onClick={() => {
-              // TODO: add lightweight save here when available
               history.replace(APP_PATH.WORKFLOWS);
             }}
           >
