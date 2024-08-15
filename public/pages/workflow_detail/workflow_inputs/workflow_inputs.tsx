@@ -6,7 +6,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
-import { debounce, isEmpty } from 'lodash';
+import { debounce, isEmpty, isEqual } from 'lodash';
 import {
   EuiButton,
   EuiButtonEmpty,
@@ -125,6 +125,21 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const isProposingNoSearchResources =
     isEmpty(getIn(values, 'search.enrichRequest')) &&
     isEmpty(getIn(values, 'search.enrichResponse'));
+
+  // determine if any form values would produce a different final template.
+  // used to enable/disable buttons and show helpful state on UI.
+  const valuesChangedSinceLastSaved =
+    (values?.ingest &&
+      values?.search &&
+      props.uiConfig &&
+      props.workflow &&
+      !isEqual(
+        configToTemplateFlows(
+          formikToUiConfig(values, props.uiConfig as WorkflowConfig)
+        ).provision.nodes,
+        props.workflow?.workflows?.provision.nodes
+      )) ||
+    false;
 
   // Auto-save the UI metadata when users update form values.
   // Only update the underlying workflow template (deprovision/provision) when
@@ -512,7 +527,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           // @ts-ignore
                           await dispatch(
                             getWorkflow({
-                              workflowId: props.workflow.id,
+                              workflowId: props.workflow?.id as string,
                               dataSourceId,
                             })
                           );
@@ -660,8 +675,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             validateAndRunIngestion();
                           }}
-                          // TODO: only enable if ingest is dirty
-                          disabled={ingestProvisioned && !isDirty}
+                          disabled={!valuesChangedSinceLastSaved}
                         >
                           Run ingestion
                         </EuiButton>
@@ -672,18 +686,17 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             setSelectedStep(STEP.SEARCH);
                           }}
-                          // TODO: only disable if ingest is dirty
-                          disabled={!ingestProvisioned || isDirty}
+                          disabled={valuesChangedSinceLastSaved}
                         >
                           {`Search pipeline >`}
                         </EuiButton>
                       </EuiFlexItem>
                     </>
-                  ) : onSearch ? (
+                  ) : (
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
-                          disabled={false}
+                          disabled={valuesChangedSinceLastSaved}
                           onClick={() => setSelectedStep(STEP.INGEST)}
                         >
                           Back
@@ -699,16 +712,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         >
                           Run query
                         </EuiButton>
-                      </EuiFlexItem>
-                    </>
-                  ) : (
-                    <>
-                      <EuiFlexItem grow={false}>
-                        <EuiButtonEmpty
-                          onClick={() => setSelectedStep(STEP.SEARCH)}
-                        >
-                          Back
-                        </EuiButtonEmpty>
                       </EuiFlexItem>
                     </>
                   )}
