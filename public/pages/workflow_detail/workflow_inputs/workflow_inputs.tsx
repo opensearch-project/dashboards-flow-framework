@@ -105,8 +105,13 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
 
-  // Overall workspace state
+  // Overall form state
   const { isDirty } = useSelector((state: AppState) => state.form);
+
+  // running ingest/search state
+  const [isRunningIngest, setIsRunningIngest] = useState<boolean>(false);
+  const [isRunningSearch, setIsRunningSearch] = useState<boolean>(false);
+  const [isRunningDelete, setIsRunningDelete] = useState<boolean>(false);
 
   // selected step state
   const [selectedStep, setSelectedStep] = useState<STEP>(STEP.INGEST);
@@ -465,6 +470,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // to clean up any created resources and not have leftover / stale data in some index.
   // This is propagated by passing `reprovision=false` to validateAndUpdateWorkflow()
   async function validateAndRunIngestion(): Promise<boolean> {
+    setIsRunningIngest(true);
     let success = false;
     try {
       let ingestDocsObjs = [] as {}[];
@@ -497,6 +503,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     } catch (error) {
       console.error('Error ingesting documents: ', error);
     }
+    setIsRunningIngest(false);
     return success;
   }
 
@@ -508,6 +515,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // This logic is propagated by passing `reprovision=true/false` in the
   // validateAndUpdateWorkflow() fn calls below.
   async function validateAndRunQuery(): Promise<boolean> {
+    setIsRunningSearch(true);
     let success = false;
     try {
       let queryObj = {};
@@ -551,6 +559,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     } catch (error) {
       console.error('Error running query: ', error);
     }
+    setIsRunningSearch(false);
     return success;
   }
 
@@ -602,7 +611,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     Cancel
                   </EuiButtonEmpty>
                   <EuiButton
+                    isLoading={isRunningDelete}
+                    disabled={isRunningDelete}
                     onClick={async () => {
+                      setIsRunningDelete(true);
                       await dispatch(
                         deprovisionWorkflow({
                           apiBody: {
@@ -617,6 +629,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         .unwrap()
                         .then(async (result) => {
                           setFieldValue('ingest.enabled', false);
+                          await validateAndUpdateWorkflow(false);
                           // @ts-ignore
                           await dispatch(
                             getWorkflow({
@@ -628,6 +641,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         .catch((error: any) => {})
                         .finally(() => {
                           setIsModalOpen(false);
+                          setIsRunningDelete(false);
                         });
                     }}
                     fill={true}
@@ -752,6 +766,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     <EuiFlexItem grow={false}>
                       <EuiButton
                         fill={true}
+                        disabled={false}
                         onClick={() => {
                           setSelectedStep(STEP.SEARCH);
                           dispatch(removeDirty());
@@ -769,6 +784,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                             validateAndRunIngestion();
                           }}
                           disabled={!ingestTemplatesDifferent}
+                          isLoading={isRunningIngest}
                         >
                           Run ingestion
                         </EuiButton>
@@ -779,7 +795,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             setSelectedStep(STEP.SEARCH);
                           }}
-                          disabled={ingestTemplatesDifferent}
+                          disabled={ingestTemplatesDifferent || isRunningIngest}
                         >
                           {`Search pipeline >`}
                         </EuiButton>
@@ -790,9 +806,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
                           disabled={
-                            isProposingNoSearchResources
+                            isRunningSearch ||
+                            (isProposingNoSearchResources
                               ? false
-                              : searchTemplatesDifferent
+                              : searchTemplatesDifferent)
                           }
                           onClick={() => setSelectedStep(STEP.INGEST)}
                         >
@@ -801,7 +818,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiButton
-                          disabled={isProposingNoSearchResources}
+                          disabled={
+                            isRunningSearch || isProposingNoSearchResources
+                          }
+                          isLoading={isRunningSearch}
                           fill={false}
                           onClick={() => {
                             validateAndRunQuery();
