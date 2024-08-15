@@ -6,6 +6,8 @@
 import {
   AppMountParameters,
   CoreSetup,
+  DEFAULT_NAV_GROUPS,
+  DEFAULT_APP_CATEGORIES,
   CoreStart,
   Plugin,
 } from '../../../src/core/public';
@@ -34,6 +36,7 @@ export class FlowFrameworkDashboardsPlugin
     core: CoreSetup,
     plugins: any
   ): FlowFrameworkDashboardsPluginSetup {
+    const hideInAppSideNavBar = core.chrome.navGroup.getNavGroupEnabled();
     // Register the plugin in the side navigation
     core.application.register({
       id: PLUGIN_ID,
@@ -52,9 +55,17 @@ export class FlowFrameworkDashboardsPlugin
         const routeServices = configureRoutes(coreStart);
         setCore(coreStart);
         setRouteService(routeServices);
-        return renderApp(coreStart, params);
+        return renderApp(coreStart, params, hideInAppSideNavBar);
       },
     });
+    core.chrome.navGroup.addNavLinksToGroup(DEFAULT_NAV_GROUPS.search, [
+      {
+        id: PLUGIN_ID,
+        title: 'Search Studio',
+        category: DEFAULT_APP_CATEGORIES.configure,
+        showInAllNavGroup: true,
+      },
+    ]);
     setDataSourceManagementPlugin(plugins.dataSourceManagement);
     const enabled = !!plugins.dataSource;
     setDataSourceEnabled({ enabled });
