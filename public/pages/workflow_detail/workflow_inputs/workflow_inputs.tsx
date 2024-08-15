@@ -6,7 +6,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
-import { debounce, isEmpty } from 'lodash';
+import { debounce, isEmpty, isEqual } from 'lodash';
 import {
   EuiButton,
   EuiButtonEmpty,
@@ -29,6 +29,8 @@ import {
 } from '@elastic/eui';
 import {
   SearchHit,
+  TemplateNode,
+  WORKFLOW_STEP_TYPE,
   Workflow,
   WorkflowConfig,
   WorkflowFormValues,
@@ -59,7 +61,6 @@ import {
   getResourcesToBeForceDeleted,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
-import { ExportOptions } from './export_options';
 import { getDataSourceId } from '../../../utils/utils';
 
 // styling
@@ -81,7 +82,6 @@ interface WorkflowInputsProps {
 enum STEP {
   INGEST = 'Ingestion pipeline',
   SEARCH = 'Search pipeline',
-  EXPORT = 'Export',
 }
 
 enum INGEST_OPTION {
@@ -113,7 +113,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // provisioned resources states
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
-  const [searchProvisioned, setSearchProvisioned] = useState<boolean>(false);
 
   // confirm modal state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -121,7 +120,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // maintain global states
   const onIngest = selectedStep === STEP.INGEST;
   const onSearch = selectedStep === STEP.SEARCH;
-  const onExport = selectedStep === STEP.EXPORT;
   const ingestEnabled = values?.ingest?.enabled || false;
   const onIngestAndProvisioned = onIngest && ingestProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
@@ -129,6 +127,112 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const isProposingNoSearchResources =
     isEmpty(getIn(values, 'search.enrichRequest')) &&
     isEmpty(getIn(values, 'search.enrichResponse'));
+
+  // maintaining any fine-grained differences between the generated templates produced by the form,
+  // and the one persisted in the workflow itself. We enable/disable buttons
+  // based on any discrepancies found.
+  const [persistedTemplateNodes, setPersistedTemplateNodes] = useState<
+    TemplateNode[]
+  >([]);
+  const [
+    persistedIngestTemplateNodes,
+    setPersistedIngestTemplateNodes,
+  ] = useState<TemplateNode[]>([]);
+  const [
+    persistedSearchTemplateNodes,
+    setPersistedSearchTemplateNodes,
+  ] = useState<TemplateNode[]>([]);
+  const [formGeneratedTemplateNodes, setFormGeneratedTemplateNodes] = useState<
+    TemplateNode[]
+  >([]);
+  const [
+    formGeneratedIngestTemplateNodes,
+    setFormGeneratedIngestTemplateNodes,
+  ] = useState<TemplateNode[]>([]);
+  const [
+    formGeneratedSearchTemplateNodes,
+    setFormGeneratedSearchTemplateNodes,
+  ] = useState<TemplateNode[]>([]);
+  const [ingestTemplatesDifferent, setIngestTemplatesDifferent] = useState<
+    boolean
+  >(false);
+  const [searchTemplatesDifferent, setSearchTemplatesDifferent] = useState<
+    boolean
+  >(false);
+
+  // fetch the total template nodes
+  useEffect(() => {
+    setPersistedTemplateNodes(
+      props.workflow?.workflows?.provision?.nodes || []
+    );
+    setFormGeneratedTemplateNodes(
+      (values?.ingest &&
+        values?.search &&
+        props.uiConfig &&
+        props.workflow &&
+        configToTemplateFlows(
+          formikToUiConfig(values, props.uiConfig as WorkflowConfig)
+        ).provision.nodes) ||
+        []
+    );
+  }, [values, props.uiConfig, props.workflow]);
+
+  // fetch the persisted template nodes for ingest & search
+  useEffect(() => {
+    const tmpIngestNodes = [] as TemplateNode[];
+    const tmpSearchNodes = [] as TemplateNode[];
+    persistedTemplateNodes.forEach((templateNode) => {
+      if (
+        templateNode.type ===
+        WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+      ) {
+        tmpSearchNodes.push(templateNode);
+      } else {
+        tmpIngestNodes.push(templateNode);
+      }
+    });
+    setPersistedIngestTemplateNodes(tmpIngestNodes);
+    setPersistedSearchTemplateNodes(tmpSearchNodes);
+  }, [persistedTemplateNodes]);
+
+  // fetch the form-generated template nodes for ingest & search
+  useEffect(() => {
+    const tmpIngestNodes = [] as TemplateNode[];
+    const tmpSearchNodes = [] as TemplateNode[];
+    formGeneratedTemplateNodes.forEach((templateNode) => {
+      if (
+        templateNode.type ===
+        WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+      ) {
+        tmpSearchNodes.push(templateNode);
+      } else {
+        tmpIngestNodes.push(templateNode);
+      }
+    });
+    setFormGeneratedIngestTemplateNodes(tmpIngestNodes);
+    setFormGeneratedSearchTemplateNodes(tmpSearchNodes);
+  }, [formGeneratedTemplateNodes]);
+
+  // determine any discrepancies between the form-generated and persisted templates
+  useEffect(() => {
+    setIngestTemplatesDifferent(
+      !isEqual(
+        persistedIngestTemplateNodes,
+        formGeneratedIngestTemplateNodes
+      ) || false
+    );
+    setSearchTemplatesDifferent(
+      !isEqual(
+        persistedSearchTemplateNodes,
+        formGeneratedSearchTemplateNodes
+      ) || false
+    );
+  }, [
+    persistedIngestTemplateNodes,
+    persistedSearchTemplateNodes,
+    formGeneratedIngestTemplateNodes,
+    formGeneratedSearchTemplateNodes,
+  ]);
 
   // Auto-save the UI metadata when users update form values.
   // Only update the underlying workflow template (deprovision/provision) when
@@ -198,7 +302,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   useEffect(() => {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
-    setSearchProvisioned(hasProvisionedSearchResources(props.workflow));
   }, [props.workflow]);
 
   // Utility fn to update the workflow, including any updated/new resources.
@@ -468,20 +571,14 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               steps={[
                 {
                   title: STEP.INGEST,
-                  isComplete: onSearch || onExport,
+                  isComplete: onSearch,
                   isSelected: onIngest,
                   onClick: () => {},
                 },
                 {
                   title: STEP.SEARCH,
-                  isComplete: onExport,
-                  isSelected: onSearch,
-                  onClick: () => {},
-                },
-                {
-                  title: STEP.EXPORT,
                   isComplete: false,
-                  isSelected: onExport,
+                  isSelected: onSearch,
                   onClick: () => {},
                 },
               ]}
@@ -523,7 +620,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           // @ts-ignore
                           await dispatch(
                             getWorkflow({
-                              workflowId: props.workflow.id,
+                              workflowId: props.workflow?.id as string,
                               dataSourceId,
                             })
                           );
@@ -612,10 +709,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           </EuiButtonEmpty>
                         </EuiFlexItem>
                       </EuiFlexGroup>
-                    ) : onSearch ? (
-                      'Define search pipeline'
                     ) : (
-                      'Export project as'
+                      'Define search pipeline'
                     )}
                   </h2>
                 </EuiTitle>
@@ -634,7 +729,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
                   />
-                ) : onSearch ? (
+                ) : (
                   <SearchInputs
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
@@ -642,8 +737,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     setQueryResponse={props.setQueryResponse}
                     onFormChange={props.onFormChange}
                   />
-                ) : (
-                  <ExportOptions workflow={props.workflow} />
                 )}
               </EuiFlexItem>
             </>
@@ -675,8 +768,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             validateAndRunIngestion();
                           }}
-                          // TODO: only enable if ingest is dirty
-                          disabled={ingestProvisioned && !isDirty}
+                          disabled={!ingestTemplatesDifferent}
                         >
                           Run ingestion
                         </EuiButton>
@@ -687,18 +779,21 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             setSelectedStep(STEP.SEARCH);
                           }}
-                          // TODO: only disable if ingest is dirty
-                          disabled={!ingestProvisioned || isDirty}
+                          disabled={ingestTemplatesDifferent}
                         >
                           {`Search pipeline >`}
                         </EuiButton>
                       </EuiFlexItem>
                     </>
-                  ) : onSearch ? (
+                  ) : (
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiButtonEmpty
-                          disabled={false}
+                          disabled={
+                            isProposingNoSearchResources
+                              ? false
+                              : searchTemplatesDifferent
+                          }
                           onClick={() => setSelectedStep(STEP.INGEST)}
                         >
                           Back
@@ -713,38 +808,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           }}
                         >
                           Run query
-                        </EuiButton>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiButton
-                          disabled={!searchProvisioned || isDirty}
-                          fill={false}
-                          onClick={() => {
-                            setSelectedStep(STEP.EXPORT);
-                          }}
-                        >
-                          {`Export >`}
-                        </EuiButton>
-                      </EuiFlexItem>
-                    </>
-                  ) : (
-                    <>
-                      <EuiFlexItem grow={false}>
-                        <EuiButtonEmpty
-                          onClick={() => setSelectedStep(STEP.SEARCH)}
-                        >
-                          Back
-                        </EuiButtonEmpty>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiButton
-                          disabled={false}
-                          fill={true}
-                          onClick={() => {
-                            // TODO: final UX for export flow is TBD.
-                          }}
-                        >
-                          Export
                         </EuiButton>
                       </EuiFlexItem>
                     </>

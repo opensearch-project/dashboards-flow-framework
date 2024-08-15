@@ -123,6 +123,8 @@ export const ML_CHOOSE_MODEL_LINK =
   'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model';
 export const TEXT_CHUNKING_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-chunking/';
+export const CREATE_WORKFLOW_LINK =
+  'https://opensearch.org/docs/latest/automating-configurations/api/create-workflow/';
 
 /**
  * Text chunking algorithm constants

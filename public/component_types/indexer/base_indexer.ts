@@ -9,12 +9,12 @@ import { BaseComponent } from '../base_component';
 /**
  * A base indexer UI component
  */
-export abstract class BaseIndexer extends BaseComponent {
+export class BaseIndexer extends BaseComponent {
   constructor() {
     super();
     this.type = COMPONENT_CLASS.INDEXER;
-    this.label = 'Indexer';
-    this.description = 'A general indexer';
+    this.label = 'Index';
+    this.description = 'An OpenSearch index';
     this.inputs = [
       {
         id: 'input',
