@@ -49,7 +49,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
-  const ingestEnabled = values.ingest.enabled;
+  const ingestEnabled = values?.ingest?.enabled || true;
   const searchIndexNameFormPath = 'search.index.name';
 
   // All indices state
@@ -57,13 +57,13 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
 
   // Selected index state
   const [selectedIndex, setSelectedIndex] = useState<string | undefined>(
-    values.search.index.name
+    values?.search?.index?.name
   );
 
   // initial load: set the search index value, if not already set
   useEffect(() => {
-    if (values.ingest.enabled) {
-      setFieldValue(searchIndexNameFormPath, values.ingest.index.name);
+    if (values?.ingest?.enabled) {
+      setFieldValue(searchIndexNameFormPath, values?.ingest?.index?.name);
     }
   }, []);
 
@@ -127,7 +127,10 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
         <EuiFlexItem grow={false}>
           <EuiFormRow label="Retrieval index">
             {ingestEnabled ? (
-              <EuiFieldText value={values.ingest.index.name} readOnly={true} />
+              <EuiFieldText
+                value={values?.ingest?.index?.name}
+                readOnly={true}
+              />
             ) : (
               <EuiSuperSelect
                 options={Object.values(indices).map(
