@@ -12,11 +12,6 @@ import {
   EuiText,
   EuiSmallButtonEmpty,
   EuiSmallButton,
-  EuiModal,
-  EuiModalHeader,
-  EuiModalHeaderTitle,
-  EuiModalBody,
-  EuiModalFooter,
 } from '@elastic/eui';
 import {
   DEFAULT_NEW_WORKFLOW_STATE,
@@ -25,7 +20,7 @@ import {
   toFormattedDate,
 } from '../../../../common';
 import { APP_PATH } from '../../../utils';
-import { ExportOptions } from './export_options';
+import { ExportModal } from './export_modal';
 
 interface WorkflowDetailHeaderProps {
   workflow?: Workflow;
@@ -60,21 +55,10 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
   return (
     <>
       {isExportModalOpen && (
-        <EuiModal onClose={() => setIsExportModalOpen(false)}>
-          <EuiModalHeader>
-            <EuiModalHeaderTitle>
-              <p>{`Export ${props.workflow?.name}`}</p>
-            </EuiModalHeaderTitle>
-          </EuiModalHeader>
-          <EuiModalBody>
-            <ExportOptions workflow={props.workflow} />
-          </EuiModalBody>
-          <EuiModalFooter>
-            <EuiSmallButtonEmpty onClick={() => setIsExportModalOpen(false)}>
-              Close
-            </EuiSmallButtonEmpty>
-          </EuiModalFooter>
-        </EuiModal>
+        <ExportModal
+          workflow={props.workflow}
+          setIsExportModalOpen={setIsExportModalOpen}
+        />
       )}
       <EuiPageHeader
         style={{ marginTop: '-8px' }}
