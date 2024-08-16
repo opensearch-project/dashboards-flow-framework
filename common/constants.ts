@@ -165,6 +165,11 @@ export enum SORT_ORDER {
   ASC = 'asc',
   DESC = 'desc',
 }
+export const MAX_DOCS = 1000;
+export const MAX_STRING_LENGTH = 100;
+export const MAX_JSON_STRING_LENGTH = 10000;
+export const MAX_WORKFLOW_NAME_TO_DISPLAY = 40;
+export const WORKFLOW_NAME_REGEXP = RegExp('^[a-zA-Z0-9_-]*$');
 
 export enum PROCESSOR_CONTEXT {
   INGEST = 'ingest',

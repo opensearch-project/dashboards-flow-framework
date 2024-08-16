@@ -7,7 +7,9 @@ import React from 'react';
 import { EuiLink } from '@elastic/eui';
 import {
   EMPTY_FIELD_STRING,
+  MAX_WORKFLOW_NAME_TO_DISPLAY,
   Workflow,
+  getCharacterLimitedString,
   toFormattedDate,
 } from '../../../../common';
 import {
@@ -31,7 +33,7 @@ export const columns = (actions: any[]) => {
             dataSourceId
           )}
         >
-          {name}
+          {getCharacterLimitedString(name, MAX_WORKFLOW_NAME_TO_DISPLAY)}
         </EuiLink>
       ),
     },

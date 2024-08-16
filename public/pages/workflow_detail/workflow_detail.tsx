@@ -19,8 +19,9 @@ import {
 } from '../../store';
 import { ResizableWorkspace } from './resizable_workspace';
 import {
-  DEFAULT_NEW_WORKFLOW_NAME,
   FETCH_ALL_QUERY_BODY,
+  MAX_WORKFLOW_NAME_TO_DISPLAY,
+  getCharacterLimitedString,
 } from '../../../common';
 import { MountPoint } from '../../../../../src/core/public';
 
@@ -62,7 +63,10 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   // selected workflow state
   const workflowId = props.match?.params?.workflowId;
   const workflow = workflows[workflowId];
-  const workflowName = workflow ? workflow.name : DEFAULT_NEW_WORKFLOW_NAME;
+  const workflowName = getCharacterLimitedString(
+    workflow?.name || '',
+    MAX_WORKFLOW_NAME_TO_DISPLAY
+  );
 
   useEffect(() => {
     if (dataSourceEnabled) {
@@ -78,7 +82,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
         { text: workflowName },
       ]);
     }
-  }, []);
+  }, [workflowName]);
 
   // On initial load:
   // - fetch workflow

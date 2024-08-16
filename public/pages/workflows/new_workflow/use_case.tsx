@@ -22,7 +22,7 @@ import {
   EuiCompressedFieldText,
   EuiCompressedFormRow,
 } from '@elastic/eui';
-import { Workflow } from '../../../../common';
+import { WORKFLOW_NAME_REGEXP, Workflow } from '../../../../common';
 import { APP_PATH } from '../../../utils';
 import { processWorkflowName } from './utils';
 import { createWorkflow, useAppDispatch } from '../../../store';
@@ -45,6 +45,15 @@ export function UseCase(props: UseCaseProps) {
     processWorkflowName(props.workflow.name)
   );
 
+  // custom sanitization on workflow name
+  function isInvalid(name: string): boolean {
+    return (
+      name === '' ||
+      name.length > 100 ||
+      WORKFLOW_NAME_REGEXP.test(name) === false
+    );
+  }
+
   return (
     <>
       {isNameModalOpen && (
@@ -57,8 +66,8 @@ export function UseCase(props: UseCaseProps) {
           <EuiModalBody>
             <EuiCompressedFormRow
               label={'Name'}
-              error={'Name cannot be empty'}
-              isInvalid={workflowName === ''}
+              error={'Invalid name'}
+              isInvalid={isInvalid(workflowName)}
             >
               <EuiCompressedFieldText
                 placeholder={processWorkflowName(props.workflow.name)}
@@ -74,7 +83,7 @@ export function UseCase(props: UseCaseProps) {
               Cancel
             </EuiSmallButtonEmpty>
             <EuiSmallButton
-              disabled={workflowName === ''}
+              disabled={isInvalid(workflowName)}
               onClick={() => {
                 const workflowToCreate = {
                   ...props.workflow,

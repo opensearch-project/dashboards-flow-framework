@@ -21,7 +21,13 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { AppState } from '../../../store';
-import { UIState, WORKFLOW_TYPE, Workflow } from '../../../../common';
+import {
+  MAX_WORKFLOW_NAME_TO_DISPLAY,
+  UIState,
+  WORKFLOW_TYPE,
+  Workflow,
+  getCharacterLimitedString,
+} from '../../../../common';
 import { columns } from './columns';
 import { MultiSelectFilter, ResourceList } from '../../../general_components';
 import { WORKFLOWS_TAB } from '../workflows';
@@ -144,7 +150,10 @@ export function WorkflowList(props: WorkflowListProps) {
         >
           <EuiFlyoutHeader hasBorder={true}>
             <EuiTitle size="m">
-              <h2>{`Active resources with ${selectedWorkflow.name}`}</h2>
+              <h2>{`Active resources with ${getCharacterLimitedString(
+                selectedWorkflow.name,
+                MAX_WORKFLOW_NAME_TO_DISPLAY
+              )}`}</h2>
             </EuiTitle>
           </EuiFlyoutHeader>
           <EuiFlyoutBody>

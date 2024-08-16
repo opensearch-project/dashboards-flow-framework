@@ -17,7 +17,11 @@ import {
   EuiFlexItem,
   EuiCheckbox,
 } from '@elastic/eui';
-import { Workflow } from '../../../../common';
+import {
+  MAX_WORKFLOW_NAME_TO_DISPLAY,
+  Workflow,
+  getCharacterLimitedString,
+} from '../../../../common';
 import {
   deleteWorkflow,
   deprovisionWorkflow,
@@ -70,7 +74,10 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
     <EuiModal onClose={() => props.clearDeleteState()}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <p>{`Delete ${props.workflow.name}?`}</p>
+          <p>{`Delete ${getCharacterLimitedString(
+            props.workflow.name,
+            MAX_WORKFLOW_NAME_TO_DISPLAY
+          )}?`}</p>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
