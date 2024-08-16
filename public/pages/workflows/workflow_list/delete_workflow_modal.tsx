@@ -14,7 +14,7 @@ import {
   EuiModalHeaderTitle,
   EuiText,
 } from '@elastic/eui';
-import { Workflow } from '../../common';
+import { Workflow } from '../../../../common';
 
 interface DeleteWorkflowModalProps {
   workflow: Workflow;
@@ -40,7 +40,10 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
         </EuiText>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiSmallButtonEmpty onClick={props.onClose}> Cancel</EuiSmallButtonEmpty>
+        <EuiSmallButtonEmpty onClick={props.onClose}>
+          {' '}
+          Cancel
+        </EuiSmallButtonEmpty>
         <EuiSmallButton onClick={props.onConfirm} fill={true} color="danger">
           Delete
         </EuiSmallButton>

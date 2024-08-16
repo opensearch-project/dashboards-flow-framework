@@ -23,14 +23,11 @@ import {
 import { AppState, deleteWorkflow, useAppDispatch } from '../../../store';
 import { UIState, WORKFLOW_TYPE, Workflow } from '../../../../common';
 import { columns } from './columns';
-import {
-  DeleteWorkflowModal,
-  MultiSelectFilter,
-  ResourceList,
-} from '../../../general_components';
+import { MultiSelectFilter, ResourceList } from '../../../general_components';
 import { WORKFLOWS_TAB } from '../workflows';
 import { getCore } from '../../../services';
 import { getDataSourceId } from '../../../utils/utils';
+import { DeleteWorkflowModal } from './delete_workflow_modal';
 
 interface WorkflowListProps {
   setSelectedTabId: (tabId: WORKFLOWS_TAB) => void;
