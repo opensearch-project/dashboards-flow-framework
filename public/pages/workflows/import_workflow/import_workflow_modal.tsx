@@ -32,7 +32,7 @@ import {
 } from '../../../store';
 import { FETCH_ALL_QUERY_BODY, Workflow } from '../../../../common';
 import { WORKFLOWS_TAB } from '../workflows';
-import {  getDataSourceId } from '../../../utils/utils';
+import { getDataSourceId } from '../../../utils/utils';
 
 interface ImportWorkflowModalProps {
   isImportModalOpen: boolean;
@@ -50,6 +50,9 @@ interface ImportWorkflowModalProps {
 export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+
+  // transient importing state for button state
+  const [isImporting, setIsImporting] = useState<boolean>(false);
 
   // file contents & file obj state
   const [fileContents, setFileContents] = useState<string | undefined>(
@@ -133,8 +136,10 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
       <EuiModalFooter>
         <EuiButtonEmpty onClick={() => onModalClose()}>Cancel</EuiButtonEmpty>
         <EuiButton
-          disabled={!isValidWorkflow(fileObj)}
+          disabled={!isValidWorkflow(fileObj) || isImporting}
+          isLoading={isImporting}
           onClick={() => {
+            setIsImporting(true);
             dispatch(
               createWorkflow({
                 apiBody: fileObj as Workflow,
@@ -159,6 +164,7 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
                 getCore().notifications.toasts.addDanger(error);
               })
               .finally(() => {
+                setIsImporting(false);
                 onModalClose();
               });
           }}
