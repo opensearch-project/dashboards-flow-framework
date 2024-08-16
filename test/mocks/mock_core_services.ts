@@ -31,4 +31,14 @@ export const mockCoreServices = {
       }
     }),
   }),
+  getNavigationUI: () => ({
+    TopNavMenu: jest.fn(),
+    HeaderControl: jest.fn(),
+  }),
+
+  getApplication: () => ({
+    setAppRightControls: jest.fn(),
+  }),
+
+  getHeaderActionMenu: () => jest.fn(),
 };
