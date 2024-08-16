@@ -7,8 +7,16 @@ import React, { useEffect, ReactElement } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
-import { EuiPage, EuiPageBody } from '@elastic/eui';
-import { BREADCRUMBS } from '../../utils';
+import { escape } from 'lodash';
+import {
+  EuiButton,
+  EuiEmptyPrompt,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiPage,
+  EuiPageBody,
+} from '@elastic/eui';
+import { APP_PATH, BREADCRUMBS } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
 import {
@@ -19,6 +27,7 @@ import {
 } from '../../store';
 import { ResizableWorkspace } from './resizable_workspace';
 import {
+  ERROR_GETTING_WORKFLOW_MSG,
   FETCH_ALL_QUERY_BODY,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
   getCharacterLimitedString,
@@ -29,7 +38,10 @@ import { MountPoint } from '../../../../../src/core/public';
 import './workflow-detail-styles.scss';
 import '../../global-styles.scss';
 
-import { getDataSourceId } from '../../utils/utils';
+import {
+  constructHrefWithDataSourceId,
+  getDataSourceId,
+} from '../../utils/utils';
 
 import {
   getDataSourceManagementPlugin,
@@ -58,10 +70,12 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   const dispatch = useAppDispatch();
   const dataSourceEnabled = getDataSourceEnabled().enabled;
   const dataSourceId = getDataSourceId();
-  const { workflows } = useSelector((state: AppState) => state.workflows);
+  const { workflows, errorMessage } = useSelector(
+    (state: AppState) => state.workflows
+  );
 
   // selected workflow state
-  const workflowId = props.match?.params?.workflowId;
+  const workflowId = escape(props.match?.params?.workflowId);
   const workflow = workflows[workflowId];
   const workflowName = getCharacterLimitedString(
     workflow?.name || '',
@@ -111,7 +125,26 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     );
   }
 
-  return (
+  return errorMessage.includes(ERROR_GETTING_WORKFLOW_MSG) ? (
+    <EuiFlexGroup direction="column" alignItems="center">
+      <EuiFlexItem grow={3}>
+        <EuiEmptyPrompt
+          iconType={'cross'}
+          title={<h2>Oops! We couldn't find that workflow</h2>}
+          titleSize="s"
+        />
+      </EuiFlexItem>
+      <EuiFlexItem grow={7}>
+        <EuiButton
+          style={{ width: '200px' }}
+          fill={false}
+          href={constructHrefWithDataSourceId(APP_PATH.WORKFLOWS, dataSourceId)}
+        >
+          Return to home
+        </EuiButton>
+      </EuiFlexItem>
+    </EuiFlexGroup>
+  ) : (
     <ReactFlowProvider>
       {dataSourceEnabled && renderDataSourceComponent}
       <EuiPage>
