@@ -52,6 +52,7 @@ export function JsonField(props: JsonFieldProps) {
       {({ field, form }: FieldProps) => {
         return (
           <EuiCompressedFormRow
+            fullWidth={true}
             key={props.fieldPath}
             label={props.label || camelCaseToTitleString(field.name)}
             labelAppend={
@@ -97,6 +98,9 @@ export function JsonField(props: JsonFieldProps) {
               setOptions={{
                 fontSize: '14px',
                 useWorker: validate,
+                highlightActiveLine: !props.readOnly,
+                highlightSelectedWord: !props.readOnly,
+                highlightGutterLine: !props.readOnly,
               }}
               aria-label="Code Editor"
               tabSize={2}

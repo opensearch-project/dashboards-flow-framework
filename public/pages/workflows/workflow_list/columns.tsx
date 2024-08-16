@@ -7,7 +7,9 @@ import React from 'react';
 import { EuiLink } from '@elastic/eui';
 import {
   EMPTY_FIELD_STRING,
+  MAX_WORKFLOW_NAME_TO_DISPLAY,
   Workflow,
+  getCharacterLimitedString,
   toFormattedDate,
 } from '../../../../common';
 import {
@@ -22,7 +24,7 @@ export const columns = (actions: any[]) => {
     {
       field: 'name',
       name: 'Name',
-      width: '33%',
+      width: '35%',
       sortable: true,
       render: (name: string, workflow: Workflow) => (
         <EuiLink
@@ -31,20 +33,20 @@ export const columns = (actions: any[]) => {
             dataSourceId
           )}
         >
-          {name}
+          {getCharacterLimitedString(name, MAX_WORKFLOW_NAME_TO_DISPLAY)}
         </EuiLink>
       ),
     },
     {
       field: 'ui_metadata.type',
       name: 'Type',
-      width: '33%',
+      width: '20%',
       sortable: true,
     },
     {
       field: 'lastUpdated',
       name: 'Last saved',
-      width: '33%',
+      width: '35%',
       sortable: true,
       render: (lastUpdated: number) =>
         lastUpdated !== undefined
@@ -53,6 +55,7 @@ export const columns = (actions: any[]) => {
     },
     {
       name: 'Actions',
+      width: '10%',
       actions,
     },
   ];

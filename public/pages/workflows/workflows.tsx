@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { RouteComponentProps, useLocation } from 'react-router-dom';
+import { escape } from 'lodash';
 import {
   EuiPageHeader,
   EuiTitle,
@@ -91,7 +92,9 @@ export function Workflows(props: WorkflowsProps) {
   const tabFromUrl = queryString.parse(useLocation().search)[
     ACTIVE_TAB_PARAM
   ] as WORKFLOWS_TAB;
-  const [selectedTabId, setSelectedTabId] = useState<WORKFLOWS_TAB>(tabFromUrl);
+  const [selectedTabId, setSelectedTabId] = useState<WORKFLOWS_TAB>(
+    escape(tabFromUrl) as WORKFLOWS_TAB
+  );
 
   // If there is no selected tab or invalid tab, default to manage tab
   useEffect(() => {
