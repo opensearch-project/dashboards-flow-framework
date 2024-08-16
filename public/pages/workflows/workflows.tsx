@@ -216,15 +216,6 @@ export function Workflows(props: WorkflowsProps) {
         {
           description:
             'Design, experiment, and prototype your solutions with Search Studio. Build your search and last mile ingestion flows with a visual interface. Experiment different configurations with prototyping tools and launch them into your environment.',
-          links: [
-            {
-              label: 'Learn more',
-              iconType: 'popout',
-              iconSide: 'right',
-              href: '#',
-              controlType: 'link',
-            } as TopNavControlLinkData,
-          ],
         },
       ]}
       setMountPoint={setAppBottomControls}
