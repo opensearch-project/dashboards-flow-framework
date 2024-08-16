@@ -22,4 +22,12 @@ export const BREADCRUMBS = Object.freeze({
     text: 'Workflows',
     href: constructHrefWithDataSourceId(APP_PATH.WORKFLOWS, dataSourceId),
   }),
+  TITLE: { text: 'Search Studio' },
+  TITLE_WITH_REF: (dataSourceId?: string) => ({
+    text: 'Search Studio',
+    href: constructHrefWithDataSourceId(APP_PATH.WORKFLOWS, dataSourceId),
+  }),
+  WORKFLOW_NAME: (workflowName: string) => ({
+    text: workflowName,
+  }),
 });

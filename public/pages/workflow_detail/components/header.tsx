@@ -15,12 +15,29 @@ import {
 } from '@elastic/eui';
 import {
   DEFAULT_NEW_WORKFLOW_STATE,
+  PLUGIN_ID,
   WORKFLOW_STATE,
   Workflow,
   toFormattedDate,
 } from '../../../../common';
-import { APP_PATH } from '../../../utils';
+import { APP_PATH, getDataSourceId } from '../../../utils';
 import { ExportModal } from './export_modal';
+import {
+  getApplication,
+  getCore,
+  getDataSourceEnabled,
+  getHeaderActionMenu,
+  getNavigationUI,
+  getNotifications,
+  getSavedObjectsClient,
+  getUISettings,
+} from '../../../services';
+import { HeaderVariant } from '../../../../../../src/core/public';
+import {
+  TopNavControlTextData,
+  TopNavMenuData,
+  TopNavMenuIconData,
+} from '../../../../../../src/plugins/navigation/public';
 
 interface WorkflowDetailHeaderProps {
   workflow?: Workflow;
@@ -52,7 +69,99 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
     }
   }, [props.workflow]);
 
-  return (
+  const { TopNavMenu, HeaderControl } = getNavigationUI();
+  const { setAppRightControls } = getApplication();
+  const {
+    chrome: { setHeaderVariant },
+  } = getCore();
+  const uiSettings = getUISettings();
+  const showActionsInHeader = uiSettings.get('home:useNewHomePage');
+
+  useEffect(() => {
+    if (showActionsInHeader) {
+      setHeaderVariant?.(HeaderVariant.APPLICATION);
+    }
+
+    return () => {
+      setHeaderVariant?.();
+    };
+  }, [setHeaderVariant, showActionsInHeader]);
+
+  const onExportButtonClick = () => {
+    setIsExportModalOpen(true);
+  };
+
+  const onExitButtonClick = () => {
+    history.replace(APP_PATH.WORKFLOWS);
+  };
+
+  const topNavConfig: TopNavMenuData[] = [
+    {
+      iconType: 'exportAction',
+      tooltip: 'Export',
+      ariaLabel: 'Export',
+      run: onExportButtonClick,
+      controlType: 'icon',
+    } as TopNavMenuIconData,
+    {
+      iconType: 'exit',
+      tooltip: 'Return to projects',
+      ariaLabel: 'Exit',
+      run: onExitButtonClick,
+      controlType: 'icon',
+    } as TopNavMenuIconData,
+  ];
+
+  const dataSourceEnabled = getDataSourceEnabled().enabled;
+  const dataSourceId = getDataSourceId();
+
+  return showActionsInHeader ? (
+    <>
+      {isExportModalOpen && (
+        <ExportModal
+          workflow={props.workflow}
+          setIsExportModalOpen={setIsExportModalOpen}
+        />
+      )}
+      <TopNavMenu
+        appName={PLUGIN_ID}
+        config={topNavConfig}
+        screenTitle={workflowName}
+        showDataSourceMenu={true}
+        dataSourceMenuConfig={
+          dataSourceEnabled
+            ? {
+                componentType: 'DataSourceView',
+                componentConfig: {
+                  activeOption: [{ id: dataSourceId }],
+                  fullWidth: false,
+                  savedObjects: getSavedObjectsClient(),
+                  notifications: getNotifications(),
+                },
+              }
+            : undefined
+        }
+        showSearchBar={false}
+        showQueryBar={false}
+        showQueryInput={false}
+        showDatePicker={false}
+        showFilterBar={false}
+        useDefaultBehaviors={true}
+        setMenuMountPoint={getHeaderActionMenu()}
+        groupActions={showActionsInHeader}
+      />
+      <HeaderControl
+        setMountPoint={setAppRightControls}
+        controls={[
+          {
+            text: `Last updated: ${workflowLastUpdated}`,
+            color: 'subdued',
+            className: 'workflow-detail-last-updated',
+          } as TopNavControlTextData,
+        ]}
+      />
+    </>
+  ) : (
     <>
       {isExportModalOpen && (
         <ExportModal
