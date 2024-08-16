@@ -93,7 +93,10 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     <ReactFlowProvider>
       <EuiPage>
         <EuiPageBody className="workflow-detail stretch-relative">
-          <WorkflowDetailHeader workflow={workflow} />
+          <WorkflowDetailHeader
+            workflow={workflow}
+            setActionMenu={props.setActionMenu}
+          />
           <ReactFlowProvider>
             <ResizableWorkspace workflow={workflow} />
           </ReactFlowProvider>

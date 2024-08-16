@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ReactElement } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
   EuiPageHeader,
@@ -31,16 +31,20 @@ import {
   getNotifications,
   getSavedObjectsClient,
   getUISettings,
+  getDataSourceManagementPlugin,
 } from '../../../services';
+import { DataSourceViewConfig } from '../../../../../../src/plugins/data_source_management/public';
 import { HeaderVariant } from '../../../../../../src/core/public';
 import {
   TopNavControlTextData,
   TopNavMenuData,
   TopNavMenuIconData,
 } from '../../../../../../src/plugins/navigation/public';
+import { MountPoint } from '../../../../../../src/core/public';
 
 interface WorkflowDetailHeaderProps {
   workflow?: Workflow;
+  setActionMenu: (menuMount?: MountPoint) => void;
 }
 
 export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
@@ -92,7 +96,11 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
   };
 
   const onExitButtonClick = () => {
-    history.replace(APP_PATH.WORKFLOWS);
+    history.replace(
+      `${APP_PATH.WORKFLOWS}${
+        dataSourceId !== undefined ? `?dataSourceId=${dataSourceId}` : ''
+      }`
+    );
   };
 
   const topNavConfig: TopNavMenuData[] = [
@@ -114,6 +122,25 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
 
   const dataSourceEnabled = getDataSourceEnabled().enabled;
   const dataSourceId = getDataSourceId();
+
+  let renderDataSourceComponent: ReactElement | null = null;
+  if (dataSourceEnabled && getDataSourceManagementPlugin()) {
+    const DataSourceMenu = getDataSourceManagementPlugin().ui.getDataSourceMenu<
+      DataSourceViewConfig
+    >();
+    renderDataSourceComponent = (
+      <DataSourceMenu
+        setMenuMountPoint={props.setActionMenu}
+        componentType={'DataSourceView'}
+        componentConfig={{
+          activeOption: [{ id: dataSourceId }],
+          fullWidth: false,
+          savedObjects: getSavedObjectsClient(),
+          notifications: getNotifications(),
+        }}
+      />
+    );
+  }
 
   return showActionsInHeader ? (
     <>
@@ -169,6 +196,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           setIsExportModalOpen={setIsExportModalOpen}
         />
       )}
+      {dataSourceEnabled && renderDataSourceComponent}
       <EuiPageHeader
         style={{ marginTop: '-8px' }}
         pageTitle={
@@ -192,7 +220,13 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           <EuiSmallButtonEmpty
             style={{ marginTop: '8px' }}
             onClick={() => {
-              history.replace(APP_PATH.WORKFLOWS);
+              history.replace(
+                `${APP_PATH.WORKFLOWS}${
+                  dataSourceId !== undefined
+                    ? `?dataSourceId=${dataSourceId}`
+                    : ''
+                }`
+              );
             }}
           >
             Close

@@ -90,7 +90,11 @@ export function UseCase(props: UseCaseProps) {
                   .then((result) => {
                     const { workflow } = result;
                     history.replace(
-                      `${APP_PATH.WORKFLOWS}/${workflow.id}?dataSourceId=${dataSourceId}`
+                      `${APP_PATH.WORKFLOWS}/${workflow.id}${
+                        dataSourceId !== undefined
+                          ? `?dataSourceId=${dataSourceId}`
+                          : ''
+                      }`
                     );
                     history.go(0);
                   })
