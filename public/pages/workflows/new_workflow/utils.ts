@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { snakeCase } from 'lodash';
 import { MLIngestProcessor } from '../../../configs';
 import {
   WorkflowTemplate,
@@ -117,13 +118,5 @@ function fetchSemanticSearchMetadata(): UIState {
 export function processWorkflowName(workflowName: string): string {
   return workflowName === START_FROM_SCRATCH_WORKFLOW_NAME
     ? DEFAULT_NEW_WORKFLOW_NAME
-    : toSnakeCase(workflowName);
-}
-
-function toSnakeCase(text: string): string {
-  return text
-    .replace(/\W+/g, ' ')
-    .split(/ |\B(?=[A-Z])/)
-    .map((word) => word.toLowerCase())
-    .join('_');
+    : snakeCase(workflowName);
 }

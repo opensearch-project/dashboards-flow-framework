@@ -19,7 +19,11 @@ import {
   EuiModalFooter,
   EuiSmallButtonEmpty,
 } from '@elastic/eui';
-import { CREATE_WORKFLOW_LINK, Workflow } from '../../../../common';
+import {
+  CREATE_WORKFLOW_LINK,
+  Workflow,
+  getCharacterLimitedString,
+} from '../../../../common';
 import { reduceToTemplate } from '../../../utils';
 
 interface ExportModalProps {
@@ -69,7 +73,10 @@ export function ExportModal(props: ExportModalProps) {
     <EuiModal onClose={() => props.setIsExportModalOpen(false)}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <p>{`Export ${props.workflow?.name}`}</p>
+          <p>{`Export ${getCharacterLimitedString(
+            props.workflow?.name || '',
+            25
+          )}`}</p>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>

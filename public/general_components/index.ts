@@ -4,6 +4,5 @@
  */
 
 export { MultiSelectFilter } from './multi_select_filter';
-export { DeleteWorkflowModal } from './delete_workflow_modal';
 export { ProcessorsTitle } from './processors_title';
 export { ResourceList } from './resource_list';

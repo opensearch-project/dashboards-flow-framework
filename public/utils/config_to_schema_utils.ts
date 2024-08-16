@@ -15,6 +15,9 @@ import {
   IndexConfig,
   IConfigField,
   SearchIndexConfig,
+  MAX_DOCS,
+  MAX_STRING_LENGTH,
+  MAX_JSON_STRING_LENGTH,
 } from '../../common';
 
 /*
@@ -105,27 +108,29 @@ function getFieldSchema(
   optional: boolean = false
 ): Schema {
   let baseSchema: Schema;
+  const defaultStringSchema = yup
+    .string()
+    .trim()
+    .min(1, 'Too short')
+    .max(MAX_STRING_LENGTH, 'Too long');
+
   switch (field.type) {
     case 'string':
     case 'select': {
-      baseSchema = yup.string().min(1, 'Too short').max(70, 'Too long');
+      baseSchema = defaultStringSchema;
       break;
     }
     case 'model': {
       baseSchema = yup.object().shape({
-        id: yup.string().min(1, 'Too short').max(70, 'Too long').required(),
+        id: defaultStringSchema.required(),
       });
       break;
     }
     case 'map': {
       baseSchema = yup.array().of(
         yup.object().shape({
-          key: yup.string().min(1, 'Too short').max(70, 'Too long').required(),
-          value: yup
-            .string()
-            .min(1, 'Too short')
-            .max(70, 'Too long')
-            .required(),
+          key: defaultStringSchema.required(),
+          value: defaultStringSchema.required(),
         })
       );
       break;
@@ -153,28 +158,35 @@ function getFieldSchema(
           } catch (error) {
             return false;
           }
-        });
+        })
+        .test(
+          'jsonArray',
+          `Array length cannot exceed ${MAX_DOCS}`,
+          (value) => {
+            try {
+              // @ts-ignore
+              return JSON.parse(value).length <= MAX_DOCS;
+            } catch (error) {
+              return false;
+            }
+          }
+        );
 
       break;
     }
     case 'jsonString': {
-      baseSchema = yup.string().min(1, 'Too short');
+      baseSchema = yup
+        .string()
+        .min(1, 'Too short')
+        .max(MAX_JSON_STRING_LENGTH, 'Too long');
       break;
     }
     case 'mapArray': {
       baseSchema = yup.array().of(
         yup.array().of(
           yup.object().shape({
-            key: yup
-              .string()
-              .min(1, 'Too short')
-              .max(70, 'Too long')
-              .required(),
-            value: yup
-              .string()
-              .min(1, 'Too short')
-              .max(70, 'Too long')
-              .required(),
+            key: defaultStringSchema.required(),
+            value: defaultStringSchema.required(),
           })
         )
       );

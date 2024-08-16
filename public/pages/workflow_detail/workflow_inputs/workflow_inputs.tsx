@@ -28,6 +28,7 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 import {
+  MAX_WORKFLOW_NAME_TO_DISPLAY,
   SearchHit,
   TemplateNode,
   WORKFLOW_STEP_TYPE,
@@ -35,6 +36,7 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
   WorkflowTemplate,
+  getCharacterLimitedString,
 } from '../../../../common';
 import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
@@ -596,7 +598,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <EuiModal onClose={() => setIsModalOpen(false)}>
                 <EuiModalHeader>
                   <EuiModalHeaderTitle>
-                    <p>{`Delete resources for workflow ${props.workflow?.name}?`}</p>
+                    <p>{`Delete resources for workflow ${getCharacterLimitedString(
+                      props.workflow?.name || '',
+                      MAX_WORKFLOW_NAME_TO_DISPLAY
+                    )}?`}</p>
                   </EuiModalHeaderTitle>
                 </EuiModalHeader>
                 <EuiModalBody>
