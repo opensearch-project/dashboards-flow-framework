@@ -127,7 +127,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
         appName={PLUGIN_ID}
         config={topNavConfig}
         screenTitle={workflowName}
-        showDataSourceMenu={true}
+        showDataSourceMenu={dataSourceEnabled ? true : false}
         dataSourceMenuConfig={
           dataSourceEnabled
             ? {

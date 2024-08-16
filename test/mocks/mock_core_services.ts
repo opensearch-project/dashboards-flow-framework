@@ -24,4 +24,11 @@ export const mockCoreServices = {
       enabled: false,
     };
   },
+  getUISettings: () => ({
+    get: jest.fn((key) => {
+      if (key === 'home:useNewHomePage') {
+        return false;
+      }
+    }),
+  }),
 };
