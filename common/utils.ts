@@ -26,8 +26,12 @@ export const prettifyErrorMessage = (rawErrorMessage: string) => {
 };
 
 export function getCharacterLimitedString(
-  input: string,
+  input: string | undefined,
   limit: number
 ): string {
-  return input.length > limit ? input.substring(0, limit - 3) + '...' : input;
+  return input !== undefined
+    ? input.length > limit
+      ? input.substring(0, limit - 3) + '...'
+      : input
+    : '';
 }
