@@ -15,8 +15,10 @@ import {
 } from '@elastic/eui';
 import {
   DEFAULT_NEW_WORKFLOW_STATE,
+  MAX_WORKFLOW_NAME_TO_DISPLAY,
   WORKFLOW_STATE,
   Workflow,
+  getCharacterLimitedString,
   toFormattedDate,
 } from '../../../../common';
 import { APP_PATH } from '../../../utils';
@@ -38,7 +40,12 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
 
   useEffect(() => {
     if (props.workflow) {
-      setWorkflowName(props.workflow.name);
+      setWorkflowName(
+        getCharacterLimitedString(
+          props.workflow.name,
+          MAX_WORKFLOW_NAME_TO_DISPLAY
+        )
+      );
       setWorkflowState(props.workflow.state || DEFAULT_NEW_WORKFLOW_STATE);
       try {
         const formattedDate = toFormattedDate(

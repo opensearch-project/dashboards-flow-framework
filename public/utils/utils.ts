@@ -5,7 +5,7 @@
 
 import yaml from 'js-yaml';
 import jsonpath from 'jsonpath';
-import { get } from 'lodash';
+import { escape, get } from 'lodash';
 import {
   JSONPATH_ROOT_SELECTOR,
   MapFormValue,
@@ -238,7 +238,8 @@ export const getDataSourceFromURL = (location: {
   const queryParams = queryString.parse(location.search);
   const dataSourceId = queryParams.dataSourceId;
   return {
-    dataSourceId: typeof dataSourceId === 'string' ? dataSourceId : undefined,
+    dataSourceId:
+      typeof dataSourceId === 'string' ? escape(dataSourceId) : undefined,
   };
 };
 

@@ -84,6 +84,7 @@ export function SourceData(props: SourceDataProps) {
               />
               <EuiSpacer size="s" />
               <JsonField
+                label="Documents"
                 fieldPath={'ingest.docs'}
                 helpText="Documents should be formatted as a valid JSON array."
                 // when ingest doc values change, don't update the form
@@ -123,6 +124,7 @@ export function SourceData(props: SourceDataProps) {
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <JsonField
+            label="Documents"
             fieldPath={'ingest.docs'}
             helpText="Documents should be formatted as a valid JSON array."
             // when ingest doc values change, don't update the form
