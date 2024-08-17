@@ -159,6 +159,7 @@ export const FETCH_ALL_QUERY_BODY = {
   size: 1000,
 };
 export const INDEX_NOT_FOUND_EXCEPTION = 'index_not_found_exception';
+export const ERROR_GETTING_WORKFLOW_MSG = 'Failed to retrieve template';
 export const NO_MODIFICATIONS_FOUND_TEXT =
   'Template does not contain any modifications';
 export const JSONPATH_ROOT_SELECTOR = '$.';
@@ -166,6 +167,11 @@ export enum SORT_ORDER {
   ASC = 'asc',
   DESC = 'desc',
 }
+export const MAX_DOCS = 1000;
+export const MAX_STRING_LENGTH = 100;
+export const MAX_JSON_STRING_LENGTH = 10000;
+export const MAX_WORKFLOW_NAME_TO_DISPLAY = 40;
+export const WORKFLOW_NAME_REGEXP = RegExp('^[a-zA-Z0-9_-]*$');
 
 export enum PROCESSOR_CONTEXT {
   INGEST = 'ingest',

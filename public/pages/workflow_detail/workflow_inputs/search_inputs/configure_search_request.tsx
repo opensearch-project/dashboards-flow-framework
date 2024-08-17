@@ -49,7 +49,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
-  const ingestEnabled = values?.ingest?.enabled || true;
+  const ingestEnabled = values?.ingest?.enabled;
   const searchIndexNameFormPath = 'search.index.name';
 
   // All indices state

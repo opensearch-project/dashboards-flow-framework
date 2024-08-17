@@ -24,3 +24,14 @@ export const prettifyErrorMessage = (rawErrorMessage: string) => {
     return `User ${match[2]} has no permissions to [${match[1]}].`;
   }
 };
+
+export function getCharacterLimitedString(
+  input: string | undefined,
+  limit: number
+): string {
+  return input !== undefined
+    ? input.length > limit
+      ? input.substring(0, limit - 3) + '...'
+      : input
+    : '';
+}

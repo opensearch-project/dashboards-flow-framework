@@ -20,17 +20,18 @@ import {
   EuiFlyoutBody,
   EuiText,
 } from '@elastic/eui';
-import { AppState, deleteWorkflow, useAppDispatch } from '../../../store';
-import { UIState, WORKFLOW_TYPE, Workflow } from '../../../../common';
-import { columns } from './columns';
+import { AppState } from '../../../store';
 import {
-  DeleteWorkflowModal,
-  MultiSelectFilter,
-  ResourceList,
-} from '../../../general_components';
+  MAX_WORKFLOW_NAME_TO_DISPLAY,
+  UIState,
+  WORKFLOW_TYPE,
+  Workflow,
+  getCharacterLimitedString,
+} from '../../../../common';
+import { columns } from './columns';
+import { MultiSelectFilter, ResourceList } from '../../../general_components';
 import { WORKFLOWS_TAB } from '../workflows';
-import { getCore } from '../../../services';
-import { getDataSourceId } from '../../../utils/utils';
+import { DeleteWorkflowModal } from './delete_workflow_modal';
 
 interface WorkflowListProps {
   setSelectedTabId: (tabId: WORKFLOWS_TAB) => void;
@@ -65,8 +66,6 @@ const filterOptions = [
  * The searchable list of created workflows.
  */
 export function WorkflowList(props: WorkflowListProps) {
-  const dispatch = useAppDispatch();
-  const dataSourceId = getDataSourceId();
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
@@ -141,32 +140,7 @@ export function WorkflowList(props: WorkflowListProps) {
       {isDeleteModalOpen && selectedWorkflow?.id !== undefined && (
         <DeleteWorkflowModal
           workflow={selectedWorkflow}
-          onClose={() => {
-            clearDeleteState();
-          }}
-          onConfirm={async () => {
-            clearDeleteState();
-            await dispatch(
-              deleteWorkflow({
-                workflowId: selectedWorkflow.id as string,
-                dataSourceId,
-              })
-            )
-              .unwrap()
-              .then((result) => {
-                getCore().notifications.toasts.addSuccess(
-                  `Successfully deleted ${selectedWorkflow.name}`
-                );
-              })
-              .catch((err: any) => {
-                getCore().notifications.toasts.addDanger(
-                  `Failed to delete ${selectedWorkflow.name}`
-                );
-                console.error(
-                  `Failed to delete ${selectedWorkflow.name}: ${err}`
-                );
-              });
-          }}
+          clearDeleteState={clearDeleteState}
         />
       )}
       {isResourcesFlyoutOpen && selectedWorkflow && (
@@ -176,7 +150,10 @@ export function WorkflowList(props: WorkflowListProps) {
         >
           <EuiFlyoutHeader hasBorder={true}>
             <EuiTitle size="m">
-              <h2>{`Active resources with ${selectedWorkflow.name}`}</h2>
+              <h2>{`Active resources with ${getCharacterLimitedString(
+                selectedWorkflow.name,
+                MAX_WORKFLOW_NAME_TO_DISPLAY
+              )}`}</h2>
             </EuiTitle>
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
