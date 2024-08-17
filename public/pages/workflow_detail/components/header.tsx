@@ -23,6 +23,7 @@ import {
 import {
   APP_PATH,
   SHOW_ACTIONS_IN_HEADER,
+  constructUrlWithParams,
   getDataSourceId,
 } from '../../../utils';
 import { ExportModal } from './export_modal';
@@ -100,9 +101,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
 
   const onExitButtonClick = () => {
     history.replace(
-      `${APP_PATH.WORKFLOWS}${
-        dataSourceId !== undefined ? `?dataSourceId=${dataSourceId}` : ''
-      }`
+      constructUrlWithParams(APP_PATH.WORKFLOWS, undefined, dataSourceId)
     );
   };
 
@@ -217,11 +216,11 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 style={{ marginTop: '8px' }}
                 onClick={() => {
                   history.replace(
-                    `${APP_PATH.WORKFLOWS}${
-                      dataSourceId !== undefined
-                        ? `?dataSourceId=${dataSourceId}`
-                        : ''
-                    }`
+                    constructUrlWithParams(
+                      APP_PATH.WORKFLOWS,
+                      undefined,
+                      dataSourceId
+                    )
                   );
                 }}
               >

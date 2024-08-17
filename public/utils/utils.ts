@@ -251,10 +251,18 @@ export const constructHrefWithDataSourceId = (
   if (dataSourceEnabled && dataSourceId !== undefined) {
     url.set('dataSourceId', dataSourceId);
   }
-  // we share this helper function to construct the href with dataSourceId
-  // some places we need to return the url with hash, some places we don't need to
-  // so adding this flag to indicate if we want to return the url with hash
   return `#${basePath}?${url.toString()}`;
+};
+
+export const constructUrlWithParams = (
+  basePath: string,
+  workflowId?: string,
+  dataSourceId?: string
+): string => {
+  const path = workflowId ? `${basePath}/${workflowId}` : basePath;
+  return `${path}${
+    dataSourceId !== undefined ? `?dataSourceId=${dataSourceId}` : ''
+  }`;
 };
 
 export const getDataSourceId = () => {

@@ -26,7 +26,7 @@ import { Workflow } from '../../../../common';
 import { APP_PATH } from '../../../utils';
 import { processWorkflowName } from './utils';
 import { createWorkflow, useAppDispatch } from '../../../store';
-import { getDataSourceId } from '../../../utils/utils';
+import { constructUrlWithParams, getDataSourceId } from '../../../utils/utils';
 
 interface UseCaseProps {
   workflow: Workflow;
@@ -90,11 +90,12 @@ export function UseCase(props: UseCaseProps) {
                   .then((result) => {
                     const { workflow } = result;
                     history.replace(
-                      `${APP_PATH.WORKFLOWS}/${workflow.id}${
-                        dataSourceId !== undefined
-                          ? `?dataSourceId=${dataSourceId}`
-                          : ''
-                      }`
+                      constructUrlWithParams(
+                        APP_PATH.WORKFLOWS,
+
+                        workflow.id,
+                        dataSourceId
+                      )
                     );
                     history.go(0);
                   })
