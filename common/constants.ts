@@ -4,9 +4,9 @@
  */
 
 import { WORKFLOW_STATE } from './interfaces';
-import { getUISettings } from '../public/services';
 
 export const PLUGIN_ID = 'flow-framework';
+export const SEARCH_STUDIO = 'Search Studio';
 
 /**
  * BACKEND FLOW FRAMEWORK APIs
@@ -158,7 +158,6 @@ export const FETCH_ALL_QUERY_BODY = {
   },
   size: 1000,
 };
-export const showActionsInHeader = getUISettings().get('home:useNewHomePage');
 export const INDEX_NOT_FOUND_EXCEPTION = 'index_not_found_exception';
 export const NO_MODIFICATIONS_FOUND_TEXT =
   'Template does not contain any modifications';

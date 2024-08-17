@@ -18,10 +18,13 @@ import {
   PLUGIN_ID,
   WORKFLOW_STATE,
   Workflow,
-  showActionsInHeader,
   toFormattedDate,
 } from '../../../../common';
-import { APP_PATH, getDataSourceId } from '../../../utils';
+import {
+  APP_PATH,
+  SHOW_ACTIONS_IN_HEADER,
+  getDataSourceId,
+} from '../../../utils';
 import { ExportModal } from './export_modal';
 import {
   getApplication,
@@ -83,13 +86,13 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
 
   // When NewHomePage is enabled, use 'application' HeaderVariant; otherwise, use 'page' HeaderVariant (default).
   useEffect(() => {
-    if (showActionsInHeader) {
+    if (SHOW_ACTIONS_IN_HEADER) {
       setHeaderVariant?.(HeaderVariant.APPLICATION);
     }
     return () => {
       setHeaderVariant?.();
     };
-  }, [setHeaderVariant, showActionsInHeader]);
+  }, [setHeaderVariant, SHOW_ACTIONS_IN_HEADER]);
 
   const onExportButtonClick = () => {
     setIsExportModalOpen(true);
@@ -147,91 +150,91 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           setIsExportModalOpen={setIsExportModalOpen}
         />
       )}
-      showActionsInHeader ? (
-      <>
-        <TopNavMenu
-          appName={PLUGIN_ID}
-          config={topNavConfig}
-          screenTitle={workflowName}
-          showDataSourceMenu={dataSourceEnabled ? true : false}
-          dataSourceMenuConfig={
-            dataSourceEnabled
-              ? {
-                  componentType: 'DataSourceView',
-                  componentConfig: {
-                    activeOption: [{ id: dataSourceId }],
-                    fullWidth: false,
-                    savedObjects: getSavedObjectsClient(),
-                    notifications: getNotifications(),
-                  },
-                }
-              : undefined
-          }
-          showSearchBar={false}
-          showQueryBar={false}
-          showQueryInput={false}
-          showDatePicker={false}
-          showFilterBar={false}
-          useDefaultBehaviors={true}
-          setMenuMountPoint={getHeaderActionMenu()}
-          groupActions={showActionsInHeader}
-        />
-        <HeaderControl
-          setMountPoint={setAppRightControls}
-          controls={[
-            {
-              text: `Last updated: ${workflowLastUpdated}`,
-              color: 'subdued',
-              className: 'workflow-detail-last-updated',
-            } as TopNavControlTextData,
-          ]}
-        />
-      </>
+      {SHOW_ACTIONS_IN_HEADER ? (
+        <>
+          <TopNavMenu
+            appName={PLUGIN_ID}
+            config={topNavConfig}
+            screenTitle={workflowName}
+            showDataSourceMenu={dataSourceEnabled ? true : false}
+            dataSourceMenuConfig={
+              dataSourceEnabled
+                ? {
+                    componentType: 'DataSourceView',
+                    componentConfig: {
+                      activeOption: [{ id: dataSourceId }],
+                      fullWidth: false,
+                      savedObjects: getSavedObjectsClient(),
+                      notifications: getNotifications(),
+                    },
+                  }
+                : undefined
+            }
+            showSearchBar={false}
+            showQueryBar={false}
+            showQueryInput={false}
+            showDatePicker={false}
+            showFilterBar={false}
+            useDefaultBehaviors={true}
+            setMenuMountPoint={getHeaderActionMenu()}
+            groupActions={SHOW_ACTIONS_IN_HEADER}
+          />
+          <HeaderControl
+            setMountPoint={setAppRightControls}
+            controls={[
+              {
+                text: `Last updated: ${workflowLastUpdated}`,
+                color: 'subdued',
+                className: 'workflow-detail-last-updated',
+              } as TopNavControlTextData,
+            ]}
+          />
+        </>
       ) : (
-      <>
-        {dataSourceEnabled && renderDataSourceComponent}
-        <EuiPageHeader
-          style={{ marginTop: '-8px' }}
-          pageTitle={
-            <EuiFlexGroup direction="row" alignItems="flexEnd" gutterSize="m">
-              <EuiFlexItem grow={false}>{workflowName}</EuiFlexItem>
-              <EuiFlexItem grow={false} style={{ marginBottom: '10px' }}>
-                <EuiText size="m">{workflowState}</EuiText>
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          }
-          rightSideItems={[
-            <EuiSmallButton
-              style={{ marginTop: '8px' }}
-              fill={true}
-              onClick={() => {
-                setIsExportModalOpen(true);
-              }}
-            >
-              Export
-            </EuiSmallButton>,
-            <EuiSmallButtonEmpty
-              style={{ marginTop: '8px' }}
-              onClick={() => {
-                history.replace(
-                  `${APP_PATH.WORKFLOWS}${
-                    dataSourceId !== undefined
-                      ? `?dataSourceId=${dataSourceId}`
-                      : ''
-                  }`
-                );
-              }}
-            >
-              Close
-            </EuiSmallButtonEmpty>,
-            <EuiText style={{ marginTop: '16px' }} color="subdued" size="s">
-              {`Last updated: ${workflowLastUpdated}`}
-            </EuiText>,
-          ]}
-          bottomBorder={false}
-        />
-      </>
-      );
+        <>
+          {dataSourceEnabled && renderDataSourceComponent}
+          <EuiPageHeader
+            style={{ marginTop: '-8px' }}
+            pageTitle={
+              <EuiFlexGroup direction="row" alignItems="flexEnd" gutterSize="m">
+                <EuiFlexItem grow={false}>{workflowName}</EuiFlexItem>
+                <EuiFlexItem grow={false} style={{ marginBottom: '10px' }}>
+                  <EuiText size="m">{workflowState}</EuiText>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            }
+            rightSideItems={[
+              <EuiSmallButton
+                style={{ marginTop: '8px' }}
+                fill={true}
+                onClick={() => {
+                  setIsExportModalOpen(true);
+                }}
+              >
+                Export
+              </EuiSmallButton>,
+              <EuiSmallButtonEmpty
+                style={{ marginTop: '8px' }}
+                onClick={() => {
+                  history.replace(
+                    `${APP_PATH.WORKFLOWS}${
+                      dataSourceId !== undefined
+                        ? `?dataSourceId=${dataSourceId}`
+                        : ''
+                    }`
+                  );
+                }}
+              >
+                Close
+              </EuiSmallButtonEmpty>,
+              <EuiText style={{ marginTop: '16px' }} color="subdued" size="s">
+                {`Last updated: ${workflowLastUpdated}`}
+              </EuiText>,
+            ]}
+            bottomBorder={false}
+          />
+        </>
+      )}
     </>
   );
 }

@@ -4,6 +4,8 @@
  */
 
 import { constructHrefWithDataSourceId } from './utils';
+import { getUISettings } from '../../public/services';
+import { SEARCH_STUDIO } from '../../common/constants';
 
 export enum Navigation {
   FlowFramework = 'Flow Framework',
@@ -15,8 +17,6 @@ export enum APP_PATH {
   WORKFLOWS = '/workflows',
   WORKFLOW_DETAIL = '/workflows/:workflowId',
 }
-
-export const SEARCH_STUDIO = 'Search Studio';
 
 export const BREADCRUMBS = Object.freeze({
   FLOW_FRAMEWORK: { text: 'Flow Framework' },
@@ -33,3 +33,7 @@ export const BREADCRUMBS = Object.freeze({
     text: workflowName,
   }),
 });
+
+export const SHOW_ACTIONS_IN_HEADER = getUISettings().get(
+  'home:useNewHomePage'
+);

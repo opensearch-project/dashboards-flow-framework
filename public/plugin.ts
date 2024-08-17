@@ -16,7 +16,7 @@ import {
   FlowFrameworkDashboardsPluginSetup,
   AppPluginStartDependencies,
 } from './types';
-import { PLUGIN_ID } from '../common';
+import { PLUGIN_ID, SEARCH_STUDIO } from '../common';
 import {
   setCore,
   setRouteService,
@@ -30,7 +30,6 @@ import {
   setHeaderActionMenu,
 } from './services';
 import { configureRoutes } from './route_service';
-import { SEARCH_STUDIO } from './utils/constants';
 
 export class FlowFrameworkDashboardsPlugin
   implements

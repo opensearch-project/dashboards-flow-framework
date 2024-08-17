@@ -8,7 +8,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { EuiPage, EuiPageBody } from '@elastic/eui';
-import { BREADCRUMBS } from '../../utils';
+import { BREADCRUMBS, SHOW_ACTIONS_IN_HEADER } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
 import {
@@ -21,7 +21,6 @@ import { ResizableWorkspace } from './resizable_workspace';
 import {
   DEFAULT_NEW_WORKFLOW_NAME,
   FETCH_ALL_QUERY_BODY,
-  showActionsInHeader,
 } from '../../../common';
 import { MountPoint } from '../../../../../src/core/public';
 
@@ -64,7 +63,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   } = getCore();
   useEffect(() => {
     setBreadcrumbs(
-      showActionsInHeader
+      SHOW_ACTIONS_IN_HEADER
         ? [
             BREADCRUMBS.TITLE_WITH_REF(
               dataSourceEnabled ? dataSourceId : undefined
@@ -78,7 +77,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
             { text: workflowName },
           ]
     );
-  }, [showActionsInHeader, dataSourceEnabled, dataSourceId, workflowName]);
+  }, [SHOW_ACTIONS_IN_HEADER, dataSourceEnabled, dataSourceId, workflowName]);
 
   // On initial load:
   // - fetch workflow

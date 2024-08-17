@@ -18,13 +18,13 @@ import {
 } from '@elastic/eui';
 import queryString from 'query-string';
 import { useSelector } from 'react-redux';
-import { BREADCRUMBS, SEARCH_STUDIO } from '../../utils/constants';
+import { BREADCRUMBS, SHOW_ACTIONS_IN_HEADER } from '../../utils/constants';
 import { getApplication, getCore, getNavigationUI } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
 import { AppState, searchWorkflows, useAppDispatch } from '../../store';
 import { EmptyListMessage } from './empty_list_message';
-import { FETCH_ALL_QUERY_BODY, showActionsInHeader } from '../../../common';
+import { FETCH_ALL_QUERY_BODY, SEARCH_STUDIO } from '../../../common';
 import { ImportWorkflowModal } from './import_workflow';
 import { MountPoint } from '../../../../../src/core/public';
 import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_source_management/public';
@@ -125,7 +125,7 @@ export function Workflows(props: WorkflowsProps) {
 
   useEffect(() => {
     setBreadcrumbs(
-      showActionsInHeader
+      SHOW_ACTIONS_IN_HEADER
         ? [BREADCRUMBS.TITLE]
         : [
             BREADCRUMBS.FLOW_FRAMEWORK,
@@ -202,7 +202,7 @@ export function Workflows(props: WorkflowsProps) {
   }
   const description =
     'Design, experiment, and prototype your solutions with workflows. Build your search and last mile ingestion flows.';
-  const pageTitleAndDescription = showActionsInHeader ? (
+  const pageTitleAndDescription = SHOW_ACTIONS_IN_HEADER ? (
     <HeaderControl
       controls={[
         {
