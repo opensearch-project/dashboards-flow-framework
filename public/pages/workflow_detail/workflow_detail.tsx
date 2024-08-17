@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { EuiPage, EuiPageBody } from '@elastic/eui';
 import { BREADCRUMBS } from '../../utils';
-import { getCore, getUISettings } from '../../services';
+import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
 import {
   AppState,
@@ -21,6 +21,7 @@ import { ResizableWorkspace } from './resizable_workspace';
 import {
   DEFAULT_NEW_WORKFLOW_NAME,
   FETCH_ALL_QUERY_BODY,
+  showActionsInHeader,
 } from '../../../common';
 import { MountPoint } from '../../../../../src/core/public';
 
@@ -61,24 +62,22 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   const {
     chrome: { setBreadcrumbs },
   } = getCore();
-  const uiSettings = getUISettings();
-  const showActionsInHeader = uiSettings.get('home:useNewHomePage');
   useEffect(() => {
-    if (showActionsInHeader) {
-      setBreadcrumbs([
-        BREADCRUMBS.TITLE_WITH_REF(
-          dataSourceEnabled ? dataSourceId : undefined
-        ),
-        BREADCRUMBS.WORKFLOW_NAME(workflowName),
-        { text: '' },
-      ]);
-    } else {
-      setBreadcrumbs([
-        BREADCRUMBS.FLOW_FRAMEWORK,
-        BREADCRUMBS.WORKFLOWS(dataSourceEnabled ? dataSourceId : undefined),
-        { text: workflowName },
-      ]);
-    }
+    setBreadcrumbs(
+      showActionsInHeader
+        ? [
+            BREADCRUMBS.TITLE_WITH_REF(
+              dataSourceEnabled ? dataSourceId : undefined
+            ),
+            BREADCRUMBS.WORKFLOW_NAME(workflowName),
+            { text: '' },
+          ]
+        : [
+            BREADCRUMBS.FLOW_FRAMEWORK,
+            BREADCRUMBS.WORKFLOWS(dataSourceEnabled ? dataSourceId : undefined),
+            { text: workflowName },
+          ]
+    );
   }, [showActionsInHeader, dataSourceEnabled, dataSourceId, workflowName]);
 
   // On initial load:

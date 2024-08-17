@@ -18,6 +18,7 @@ import {
   PLUGIN_ID,
   WORKFLOW_STATE,
   Workflow,
+  showActionsInHeader,
   toFormattedDate,
 } from '../../../../common';
 import { APP_PATH, getDataSourceId } from '../../../utils';
@@ -30,7 +31,6 @@ import {
   getNavigationUI,
   getNotifications,
   getSavedObjectsClient,
-  getUISettings,
   getDataSourceManagementPlugin,
 } from '../../../services';
 import { DataSourceViewConfig } from '../../../../../../src/plugins/data_source_management/public';
@@ -57,6 +57,14 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
   // export modal state
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
 
+  const dataSourceEnabled = getDataSourceEnabled().enabled;
+  const dataSourceId = getDataSourceId();
+  const { TopNavMenu, HeaderControl } = getNavigationUI();
+  const { setAppRightControls } = getApplication();
+  const {
+    chrome: { setHeaderVariant },
+  } = getCore();
+
   useEffect(() => {
     if (props.workflow) {
       setWorkflowName(props.workflow.name);
@@ -73,19 +81,11 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
     }
   }, [props.workflow]);
 
-  const { TopNavMenu, HeaderControl } = getNavigationUI();
-  const { setAppRightControls } = getApplication();
-  const {
-    chrome: { setHeaderVariant },
-  } = getCore();
-  const uiSettings = getUISettings();
-  const showActionsInHeader = uiSettings.get('home:useNewHomePage');
-
+  // When NewHomePage is enabled, use 'application' HeaderVariant; otherwise, use 'page' HeaderVariant (default).
   useEffect(() => {
     if (showActionsInHeader) {
       setHeaderVariant?.(HeaderVariant.APPLICATION);
     }
-
     return () => {
       setHeaderVariant?.();
     };
@@ -120,9 +120,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
     } as TopNavMenuIconData,
   ];
 
-  const dataSourceEnabled = getDataSourceEnabled().enabled;
-  const dataSourceId = getDataSourceId();
-
   let renderDataSourceComponent: ReactElement | null = null;
   if (dataSourceEnabled && getDataSourceManagementPlugin()) {
     const DataSourceMenu = getDataSourceManagementPlugin().ui.getDataSourceMenu<
@@ -142,7 +139,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
     );
   }
 
-  return showActionsInHeader ? (
+  return (
     <>
       {isExportModalOpen && (
         <ExportModal
@@ -150,93 +147,91 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           setIsExportModalOpen={setIsExportModalOpen}
         />
       )}
-      <TopNavMenu
-        appName={PLUGIN_ID}
-        config={topNavConfig}
-        screenTitle={workflowName}
-        showDataSourceMenu={dataSourceEnabled ? true : false}
-        dataSourceMenuConfig={
-          dataSourceEnabled
-            ? {
-                componentType: 'DataSourceView',
-                componentConfig: {
-                  activeOption: [{ id: dataSourceId }],
-                  fullWidth: false,
-                  savedObjects: getSavedObjectsClient(),
-                  notifications: getNotifications(),
-                },
-              }
-            : undefined
-        }
-        showSearchBar={false}
-        showQueryBar={false}
-        showQueryInput={false}
-        showDatePicker={false}
-        showFilterBar={false}
-        useDefaultBehaviors={true}
-        setMenuMountPoint={getHeaderActionMenu()}
-        groupActions={showActionsInHeader}
-      />
-      <HeaderControl
-        setMountPoint={setAppRightControls}
-        controls={[
-          {
-            text: `Last updated: ${workflowLastUpdated}`,
-            color: 'subdued',
-            className: 'workflow-detail-last-updated',
-          } as TopNavControlTextData,
-        ]}
-      />
-    </>
-  ) : (
-    <>
-      {isExportModalOpen && (
-        <ExportModal
-          workflow={props.workflow}
-          setIsExportModalOpen={setIsExportModalOpen}
+      showActionsInHeader ? (
+      <>
+        <TopNavMenu
+          appName={PLUGIN_ID}
+          config={topNavConfig}
+          screenTitle={workflowName}
+          showDataSourceMenu={dataSourceEnabled ? true : false}
+          dataSourceMenuConfig={
+            dataSourceEnabled
+              ? {
+                  componentType: 'DataSourceView',
+                  componentConfig: {
+                    activeOption: [{ id: dataSourceId }],
+                    fullWidth: false,
+                    savedObjects: getSavedObjectsClient(),
+                    notifications: getNotifications(),
+                  },
+                }
+              : undefined
+          }
+          showSearchBar={false}
+          showQueryBar={false}
+          showQueryInput={false}
+          showDatePicker={false}
+          showFilterBar={false}
+          useDefaultBehaviors={true}
+          setMenuMountPoint={getHeaderActionMenu()}
+          groupActions={showActionsInHeader}
         />
-      )}
-      {dataSourceEnabled && renderDataSourceComponent}
-      <EuiPageHeader
-        style={{ marginTop: '-8px' }}
-        pageTitle={
-          <EuiFlexGroup direction="row" alignItems="flexEnd" gutterSize="m">
-            <EuiFlexItem grow={false}>{workflowName}</EuiFlexItem>
-            <EuiFlexItem grow={false} style={{ marginBottom: '10px' }}>
-              <EuiText size="m">{workflowState}</EuiText>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        }
-        rightSideItems={[
-          <EuiSmallButton
-            style={{ marginTop: '8px' }}
-            fill={true}
-            onClick={() => {
-              setIsExportModalOpen(true);
-            }}
-          >
-            Export
-          </EuiSmallButton>,
-          <EuiSmallButtonEmpty
-            style={{ marginTop: '8px' }}
-            onClick={() => {
-              history.replace(
-                `${APP_PATH.WORKFLOWS}${
-                  dataSourceId !== undefined
-                    ? `?dataSourceId=${dataSourceId}`
-                    : ''
-                }`
-              );
-            }}
-          >
-            Close
-          </EuiSmallButtonEmpty>,
-          <EuiText style={{ marginTop: '16px' }} color="subdued" size="s">
-            {`Last updated: ${workflowLastUpdated}`}
-          </EuiText>,
-        ]}
-        bottomBorder={false}
-      />
+        <HeaderControl
+          setMountPoint={setAppRightControls}
+          controls={[
+            {
+              text: `Last updated: ${workflowLastUpdated}`,
+              color: 'subdued',
+              className: 'workflow-detail-last-updated',
+            } as TopNavControlTextData,
+          ]}
+        />
+      </>
+      ) : (
+      <>
+        {dataSourceEnabled && renderDataSourceComponent}
+        <EuiPageHeader
+          style={{ marginTop: '-8px' }}
+          pageTitle={
+            <EuiFlexGroup direction="row" alignItems="flexEnd" gutterSize="m">
+              <EuiFlexItem grow={false}>{workflowName}</EuiFlexItem>
+              <EuiFlexItem grow={false} style={{ marginBottom: '10px' }}>
+                <EuiText size="m">{workflowState}</EuiText>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          }
+          rightSideItems={[
+            <EuiSmallButton
+              style={{ marginTop: '8px' }}
+              fill={true}
+              onClick={() => {
+                setIsExportModalOpen(true);
+              }}
+            >
+              Export
+            </EuiSmallButton>,
+            <EuiSmallButtonEmpty
+              style={{ marginTop: '8px' }}
+              onClick={() => {
+                history.replace(
+                  `${APP_PATH.WORKFLOWS}${
+                    dataSourceId !== undefined
+                      ? `?dataSourceId=${dataSourceId}`
+                      : ''
+                  }`
+                );
+              }}
+            >
+              Close
+            </EuiSmallButtonEmpty>,
+            <EuiText style={{ marginTop: '16px' }} color="subdued" size="s">
+              {`Last updated: ${workflowLastUpdated}`}
+            </EuiText>,
+          ]}
+          bottomBorder={false}
+        />
+      </>
+      );
     </>
   );
 }

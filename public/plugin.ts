@@ -30,6 +30,7 @@ import {
   setHeaderActionMenu,
 } from './services';
 import { configureRoutes } from './route_service';
+import { SEARCH_STUDIO } from './utils/constants';
 
 export class FlowFrameworkDashboardsPlugin
   implements
@@ -67,7 +68,7 @@ export class FlowFrameworkDashboardsPlugin
     core.chrome.navGroup.addNavLinksToGroup(DEFAULT_NAV_GROUPS.search, [
       {
         id: PLUGIN_ID,
-        title: 'Search Studio',
+        title: SEARCH_STUDIO,
         category: DEFAULT_APP_CATEGORIES.configure,
         showInAllNavGroup: true,
       },

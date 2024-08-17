@@ -18,18 +18,13 @@ import {
 } from '@elastic/eui';
 import queryString from 'query-string';
 import { useSelector } from 'react-redux';
-import { BREADCRUMBS } from '../../utils';
-import {
-  getApplication,
-  getCore,
-  getNavigationUI,
-  getUISettings,
-} from '../../services';
+import { BREADCRUMBS, SEARCH_STUDIO } from '../../utils/constants';
+import { getApplication, getCore, getNavigationUI } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
 import { AppState, searchWorkflows, useAppDispatch } from '../../store';
 import { EmptyListMessage } from './empty_list_message';
-import { FETCH_ALL_QUERY_BODY } from '../../../common';
+import { FETCH_ALL_QUERY_BODY, showActionsInHeader } from '../../../common';
 import { ImportWorkflowModal } from './import_workflow';
 import { MountPoint } from '../../../../../src/core/public';
 import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_source_management/public';
@@ -45,7 +40,6 @@ import {
 
 import { prettifyErrorMessage } from '../../../common/utils';
 import { DataSourceOption } from '../../../../../src/plugins/data_source_management/public/components/data_source_menu/types';
-import { TopNavControlLinkData } from '../../../../../src/plugins/navigation/public';
 
 export interface WorkflowsRouterProps {}
 
@@ -94,8 +88,6 @@ export function Workflows(props: WorkflowsProps) {
   const {
     chrome: { setBreadcrumbs },
   } = getCore();
-  const uiSettings = getUISettings();
-  const showActionsInHeader = uiSettings.get('home:useNewHomePage');
   const { HeaderControl } = getNavigationUI();
   const { setAppBottomControls } = getApplication();
 
@@ -132,14 +124,14 @@ export function Workflows(props: WorkflowsProps) {
   }, [selectedTabId]);
 
   useEffect(() => {
-    if (showActionsInHeader) {
-      setBreadcrumbs([BREADCRUMBS.TITLE]);
-    } else {
-      setBreadcrumbs([
-        BREADCRUMBS.FLOW_FRAMEWORK,
-        BREADCRUMBS.WORKFLOWS(dataSourceEnabled ? dataSourceId : undefined),
-      ]);
-    }
+    setBreadcrumbs(
+      showActionsInHeader
+        ? [BREADCRUMBS.TITLE]
+        : [
+            BREADCRUMBS.FLOW_FRAMEWORK,
+            BREADCRUMBS.WORKFLOWS(dataSourceEnabled ? dataSourceId : undefined),
+          ]
+    );
   });
 
   // On initial render: fetch all workflows
@@ -223,7 +215,7 @@ export function Workflows(props: WorkflowsProps) {
   ) : (
     <EuiFlexGroup direction="column" style={{ margin: '0px' }}>
       <EuiTitle size="l">
-        <h1>Search Studio</h1>
+        <h1>{SEARCH_STUDIO}</h1>
       </EuiTitle>
       <EuiText color="subdued">{description}</EuiText>
     </EuiFlexGroup>
