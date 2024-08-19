@@ -6,13 +6,14 @@
 import React from 'react';
 import {
   EuiAccordion,
-  EuiButton,
   EuiButtonIcon,
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
   EuiLink,
   EuiPanel,
+  EuiSmallButton,
+  EuiSmallButtonEmpty,
   EuiText,
 } from '@elastic/eui';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
@@ -48,7 +49,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
 
   // Adding a map to the end of the existing arr
   function addMap(curMapArray: MapArrayFormValue): void {
-    setFieldValue(props.fieldPath, [...curMapArray, []]);
+    setFieldValue(props.fieldPath, [...curMapArray, [{ key: '', value: '' }]]);
     setFieldTouched(props.fieldPath, true);
     if (props.onMapAdd) {
       props.onMapAdd(curMapArray);
@@ -94,7 +95,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
               getIn(touched, field.name).length > 0
             }
           >
-            <EuiFlexGroup direction="column">
+            <EuiFlexGroup direction="column" gutterSize="none">
               {field.value?.map((mapping: MapEntry, idx: number) => {
                 return (
                   <EuiFlexItem key={idx}>
@@ -114,6 +115,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
                           }}
                         />
                       }
+                      initialIsOpen={true}
                     >
                       <EuiPanel grow={true}>
                         <MapField
@@ -130,14 +132,24 @@ export function MapArrayField(props: MapArrayFieldProps) {
               })}
               <EuiFlexItem grow={false}>
                 <div>
-                  <EuiButton
-                    size="s"
-                    onClick={() => {
-                      addMap(field.value);
-                    }}
-                  >
-                    {field.value?.length > 0 ? 'Add another map' : 'Add map'}
-                  </EuiButton>
+                  <>
+                    {field.value?.length === 0 ? (
+                      <EuiSmallButton
+                        onClick={() => {
+                          addMap(field.value);
+                        }}
+                      >
+                        {'Configure'}
+                      </EuiSmallButton>
+                    ) : (
+                      <EuiSmallButtonEmpty
+                        style={{ marginLeft: '-8px', marginTop: '-4px' }}
+                        onClick={() => {
+                          addMap(field.value);
+                        }}
+                      >{`(Advanced) Configure multiple`}</EuiSmallButtonEmpty>
+                    )}
+                  </>
                 </div>
               </EuiFlexItem>
             </EuiFlexGroup>
