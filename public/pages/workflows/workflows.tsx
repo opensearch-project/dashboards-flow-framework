@@ -19,13 +19,13 @@ import {
 } from '@elastic/eui';
 import queryString from 'query-string';
 import { useSelector } from 'react-redux';
-import { BREADCRUMBS } from '../../utils';
-import { getCore } from '../../services';
+import { BREADCRUMBS, SHOW_ACTIONS_IN_HEADER } from '../../utils/constants';
+import { getApplication, getCore, getNavigationUI } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
 import { AppState, searchWorkflows, useAppDispatch } from '../../store';
 import { EmptyListMessage } from './empty_list_message';
-import { FETCH_ALL_QUERY_BODY } from '../../../common';
+import { FETCH_ALL_QUERY_BODY, SEARCH_STUDIO } from '../../../common';
 import { ImportWorkflowModal } from './import_workflow';
 import { MountPoint } from '../../../../../src/core/public';
 import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_source_management/public';
@@ -40,6 +40,7 @@ import {
 } from '../../services';
 
 import { prettifyErrorMessage } from '../../../common/utils';
+import { DataSourceOption } from '../../../../../src/plugins/data_source_management/public/components/data_source_menu/types';
 
 export interface WorkflowsRouterProps {}
 
@@ -78,12 +79,18 @@ export function Workflows(props: WorkflowsProps) {
   const location = useLocation();
   const queryParams = getDataSourceFromURL(location);
   const dataSourceEnabled = getDataSourceEnabled().enabled;
-  const [dataSourceId, setDataSourceId] = useState<string>(
+  const [dataSourceId, setDataSourceId] = useState<string | undefined>(
     queryParams.dataSourceId
   );
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
+
+  const {
+    chrome: { setBreadcrumbs },
+  } = getCore();
+  const { HeaderControl } = getNavigationUI();
+  const { setAppBottomControls } = getApplication();
 
   // import modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
@@ -120,17 +127,14 @@ export function Workflows(props: WorkflowsProps) {
   }, [selectedTabId]);
 
   useEffect(() => {
-    if (dataSourceEnabled) {
-      getCore().chrome.setBreadcrumbs([
-        BREADCRUMBS.FLOW_FRAMEWORK,
-        BREADCRUMBS.WORKFLOWS(dataSourceId),
-      ]);
-    } else {
-      getCore().chrome.setBreadcrumbs([
-        BREADCRUMBS.FLOW_FRAMEWORK,
-        BREADCRUMBS.WORKFLOWS(),
-      ]);
-    }
+    setBreadcrumbs(
+      SHOW_ACTIONS_IN_HEADER
+        ? [BREADCRUMBS.TITLE]
+        : [
+            BREADCRUMBS.FLOW_FRAMEWORK,
+            BREADCRUMBS.WORKFLOWS(dataSourceEnabled ? dataSourceId : undefined),
+          ]
+    );
   });
 
   // On initial render: fetch all workflows
@@ -163,7 +167,7 @@ export function Workflows(props: WorkflowsProps) {
     );
   }, [dataSourceId, setDataSourceId]);
 
-  const handleDataSourceChange = ([event]) => {
+  const handleDataSourceChange = ([event]: DataSourceOption[]) => {
     const dataSourceEventId = event?.id;
     if (dataSourceEnabled) {
       if (dataSourceEventId === undefined) {
@@ -199,6 +203,26 @@ export function Workflows(props: WorkflowsProps) {
       );
     }, [getSavedObjectsClient, getNotifications(), props.setActionMenu]);
   }
+  const description =
+    'Design, experiment, and prototype your solutions with workflows. Build your search and last mile ingestion flows.';
+  const pageTitleAndDescription = SHOW_ACTIONS_IN_HEADER ? (
+    <HeaderControl
+      controls={[
+        {
+          description:
+            'Design, experiment, and prototype your solutions with Search Studio. Build your search and last mile ingestion flows with a visual interface. Experiment different configurations with prototyping tools and launch them into your environment.',
+        },
+      ]}
+      setMountPoint={setAppBottomControls}
+    />
+  ) : (
+    <EuiFlexGroup direction="column" style={{ margin: '0px' }}>
+      <EuiTitle size="l">
+        <h1>{SEARCH_STUDIO}</h1>
+      </EuiTitle>
+      <EuiText color="subdued">{description}</EuiText>
+    </EuiFlexGroup>
+  );
 
   return (
     <>
@@ -213,17 +237,7 @@ export function Workflows(props: WorkflowsProps) {
       <EuiPage>
         <EuiPageBody>
           <EuiPageHeader
-            pageTitle={
-              <EuiFlexGroup direction="column" style={{ margin: '0px' }}>
-                <EuiTitle size="l">
-                  <h1>Search Studio</h1>
-                </EuiTitle>
-                <EuiText color="subdued">
-                  Design, experiment, and prototype your solutions with
-                  workflows. Build your search and last mile ingestion flows.
-                </EuiText>
-              </EuiFlexGroup>
-            }
+            pageTitle={pageTitleAndDescription}
             tabs={[
               {
                 id: WORKFLOWS_TAB.MANAGE,
