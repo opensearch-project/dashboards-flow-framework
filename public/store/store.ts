@@ -11,11 +11,9 @@ import {
   workflowsReducer,
   presetsReducer,
   modelsReducer,
-  formReducer,
 } from './reducers';
 
 const rootReducer = combineReducers({
-  form: formReducer,
   workflows: workflowsReducer,
   presets: presetsReducer,
   models: modelsReducer,

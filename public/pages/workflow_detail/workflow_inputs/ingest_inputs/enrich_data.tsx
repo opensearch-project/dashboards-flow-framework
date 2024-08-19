@@ -10,7 +10,6 @@ import { PROCESSOR_CONTEXT, WorkflowConfig } from '../../../../../common';
 import { ProcessorsTitle } from '../../../../general_components';
 
 interface EnrichDataProps {
-  onFormChange: () => void;
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
 }
@@ -27,7 +26,6 @@ export function EnrichData(props: EnrichDataProps) {
       />
       <EuiFlexItem>
         <ProcessorsList
-          onFormChange={props.onFormChange}
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
           context={PROCESSOR_CONTEXT.INGEST}

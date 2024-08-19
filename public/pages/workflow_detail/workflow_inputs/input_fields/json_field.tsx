@@ -11,12 +11,11 @@ import {
   EuiLink,
   EuiText,
 } from '@elastic/eui';
-import { WorkspaceFormValues } from '../../../../../common';
+import { WorkspaceFormValues, customStringify } from '../../../../../common';
 import { camelCaseToTitleString } from '../../../../utils';
 
 interface JsonFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
-  onFormChange: () => void;
   validate?: boolean;
   label?: string;
   helpLink?: string;
@@ -85,13 +84,12 @@ export function JsonField(props: JsonFieldProps) {
                 try {
                   form.setFieldValue(
                     field.name,
-                    JSON.stringify(JSON.parse(jsonStr), undefined, 2)
+                    customStringify(JSON.parse(jsonStr))
                   );
                 } catch (error) {
                   form.setFieldValue(field.name, jsonStr);
                 } finally {
                   form.setFieldTouched(field.name);
-                  props.onFormChange();
                 }
               }}
               readOnly={props.readOnly || false}

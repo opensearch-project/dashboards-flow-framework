@@ -12,7 +12,6 @@ import { ProcessorsList } from '../processors_list';
 interface EnrichSearchResponseProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
-  onFormChange: () => void;
 }
 
 /**
@@ -29,7 +28,6 @@ export function EnrichSearchResponse(props: EnrichSearchResponseProps) {
       />
       <EuiFlexItem>
         <ProcessorsList
-          onFormChange={props.onFormChange}
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
           context={PROCESSOR_CONTEXT.SEARCH_RESPONSE}

@@ -29,7 +29,6 @@ interface ModelFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   hasModelInterface: boolean;
   onModelChange: (modelId: string) => void;
-  onFormChange: () => void;
 }
 
 type ModelItem = ModelFormValue & {
@@ -126,7 +125,6 @@ export function ModelField(props: ModelFieldProps) {
                   form.setFieldValue(props.fieldPath, {
                     id: option,
                   } as ModelFormValue);
-                  props.onFormChange();
                   props.onModelChange(option);
                 }}
                 isInvalid={

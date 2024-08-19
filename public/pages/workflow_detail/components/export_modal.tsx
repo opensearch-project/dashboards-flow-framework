@@ -22,6 +22,7 @@ import {
 import {
   CREATE_WORKFLOW_LINK,
   Workflow,
+  customStringify,
   getCharacterLimitedString,
 } from '../../../../common';
 import { reduceToTemplate } from '../../../utils';
@@ -62,7 +63,7 @@ export function ExportModal(props: ExportModalProps) {
     if (props.workflow) {
       const workflowTemplate = reduceToTemplate(props.workflow);
       if (selectedOption === EXPORT_OPTION.JSON) {
-        setFormattedConfig(JSON.stringify(workflowTemplate, undefined, 2));
+        setFormattedConfig(customStringify(workflowTemplate));
       } else if (selectedOption === EXPORT_OPTION.YAML) {
         setFormattedConfig(yaml.dump(workflowTemplate));
       }

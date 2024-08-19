@@ -16,7 +16,6 @@ import { camelCaseToTitleString } from '../../../../utils';
 
 interface BooleanFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
-  onFormChange: () => void;
   enabledOption: EuiRadioGroupOption;
   disabledOption: EuiRadioGroupOption;
   label?: string;
@@ -60,7 +59,6 @@ export function BooleanField(props: BooleanFieldProps) {
               }
               onChange={(id) => {
                 form.setFieldValue(field.name, !field.value);
-                props.onFormChange();
               }}
             />
           </EuiCompressedFormRow>

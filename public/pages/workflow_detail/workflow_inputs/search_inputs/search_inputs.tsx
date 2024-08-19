@@ -15,7 +15,6 @@ interface SearchInputsProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setQuery: (query: string) => void;
   setQueryResponse: (queryResponse: string) => void;
-  onFormChange: () => void;
 }
 
 /**
@@ -28,7 +27,6 @@ export function SearchInputs(props: SearchInputsProps) {
         <ConfigureSearchRequest
           setQuery={props.setQuery}
           setQueryResponse={props.setQueryResponse}
-          onFormChange={props.onFormChange}
         />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
@@ -38,7 +36,6 @@ export function SearchInputs(props: SearchInputsProps) {
         <EnrichSearchRequest
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
-          onFormChange={props.onFormChange}
         />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
@@ -48,7 +45,6 @@ export function SearchInputs(props: SearchInputsProps) {
         <EnrichSearchResponse
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
-          onFormChange={props.onFormChange}
         />
       </EuiFlexItem>
     </EuiFlexGroup>

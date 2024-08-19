@@ -8,9 +8,7 @@ import { EuiFlexGroup, EuiFlexItem, EuiTitle } from '@elastic/eui';
 import { TextField } from '../input_fields';
 import { AdvancedSettings } from './advanced_settings';
 
-interface IngestDataProps {
-  onFormChange: () => void;
-}
+interface IngestDataProps {}
 
 /**
  * Input component for configuring the data ingest (the OpenSearch index)
@@ -24,14 +22,10 @@ export function IngestData(props: IngestDataProps) {
         </EuiTitle>
       </EuiFlexItem>
       <EuiFlexItem>
-        <TextField
-          label="Index name"
-          fieldPath={'ingest.index.name'}
-          onFormChange={props.onFormChange}
-        />
+        <TextField label="Index name" fieldPath={'ingest.index.name'} />
       </EuiFlexItem>
       <EuiFlexItem>
-        <AdvancedSettings onFormChange={props.onFormChange} />
+        <AdvancedSettings />
       </EuiFlexItem>
     </EuiFlexGroup>
   );

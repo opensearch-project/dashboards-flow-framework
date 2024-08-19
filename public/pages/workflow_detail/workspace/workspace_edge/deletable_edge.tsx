@@ -13,7 +13,6 @@ import {
   getBezierPath,
   useReactFlow,
 } from 'reactflow';
-import { setDirty, useAppDispatch } from '../../../../store';
 
 // styling
 import './deletable-edge-styles.scss';
@@ -26,8 +25,6 @@ type DeletableEdgeProps = EdgeProps;
  * see https://reactflow.dev/docs/examples/edges/edge-types/
  */
 export function DeletableEdge(props: DeletableEdgeProps) {
-  const dispatch = useAppDispatch();
-
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX: props.sourceX,
     sourceY: props.sourceY,
@@ -43,7 +40,6 @@ export function DeletableEdge(props: DeletableEdgeProps) {
     reactFlowInstance.setEdges(
       reactFlowInstance.getEdges().filter((edge: Edge) => edge.id !== edgeId)
     );
-    dispatch(setDirty());
   };
 
   const onEdgeClick = (event: any, edgeId: string) => {

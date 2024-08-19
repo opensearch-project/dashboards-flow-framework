@@ -33,6 +33,7 @@ import {
   SimulateIngestPipelineResponse,
   WorkflowConfig,
   WorkflowFormValues,
+  customStringify,
 } from '../../../../../common';
 import {
   formikToPartialPipeline,
@@ -57,7 +58,6 @@ interface InputTransformModalProps {
   inputMapFieldPath: string;
   inputFields: any[];
   onClose: () => void;
-  onFormChange: () => void;
 }
 
 // TODO: InputTransformModal and OutputTransformModal are very similar, and can
@@ -175,7 +175,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       dispatch(
                         searchIndex({
                           apiBody: {
-                            index: values.ingest.index.name,
+                            index: values.search.index.name,
                             body: JSON.stringify({
                               ...JSON.parse(values.search.request as string),
                               search_pipeline: curSearchPipeline,
@@ -248,7 +248,6 @@ export function InputTransformModal(props: InputTransformModalProps) {
                     : 'Document field'
                 }
                 keyOptions={props.inputFields}
-                onFormChange={props.onFormChange}
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {
                   if (isEmpty(curArray)) {
@@ -301,9 +300,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                         sampleSourceInput,
                         map[selectedOutputOption]
                       );
-                      setTransformedOutput(
-                        JSON.stringify(output, undefined, 2)
-                      );
+                      setTransformedOutput(customStringify(output));
                     } catch {}
                   }
                 }}
