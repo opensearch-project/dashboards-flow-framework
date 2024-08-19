@@ -24,7 +24,6 @@ interface ProcessorInputsProps {
   uiConfig: WorkflowConfig;
   config: IProcessorConfig;
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
-  onFormChange: () => void;
   context: PROCESSOR_CONTEXT;
 }
 
@@ -49,7 +48,6 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                   uiConfig={props.uiConfig}
                   config={props.config}
                   baseConfigPath={props.baseConfigPath}
-                  onFormChange={props.onFormChange}
                   context={props.context}
                 />
                 <EuiSpacer size={PROCESSOR_INPUTS_SPACER_SIZE} />
@@ -64,7 +62,6 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                   uiConfig={props.uiConfig}
                   config={props.config}
                   baseConfigPath={props.baseConfigPath}
-                  onFormChange={props.onFormChange}
                   context={props.context}
                 />
                 <EuiSpacer size={PROCESSOR_INPUTS_SPACER_SIZE} />
@@ -80,7 +77,6 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                     configId={props.config.id}
                     configFields={props.config.fields}
                     baseConfigPath={props.baseConfigPath}
-                    onFormChange={props.onFormChange}
                   />
                   {!isEmpty(props.config.optionalFields) && (
                     <EuiAccordion
@@ -93,7 +89,6 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                         configId={props.config.id}
                         configFields={props.config.optionalFields || []}
                         baseConfigPath={props.baseConfigPath}
-                        onFormChange={props.onFormChange}
                       />
                     </EuiAccordion>
                   )}

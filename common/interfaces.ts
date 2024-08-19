@@ -71,7 +71,6 @@ export type SearchIndexConfig = {
 
 export type IngestConfig = {
   enabled: IConfigField;
-  source: {};
   pipelineName: IConfigField;
   enrich: ProcessorsConfig;
   index: IndexConfig;

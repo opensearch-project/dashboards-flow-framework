@@ -26,7 +26,6 @@ interface TextChunkingProcessorInputsProps {
   uiConfig: WorkflowConfig;
   config: IProcessorConfig;
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
-  onFormChange: () => void;
   context: PROCESSOR_CONTEXT;
 }
 
@@ -76,7 +75,6 @@ export function TextChunkingProcessorInputs(
       <SelectField
         field={algorithmField}
         fieldPath={algorithmFieldPath}
-        onFormChange={props.onFormChange}
         onSelectChange={onAlgorithmChange}
       />
       <MapField
@@ -85,7 +83,6 @@ export function TextChunkingProcessorInputs(
         fieldPath={fieldMapFieldPath}
         keyPlaceholder={'Input field'}
         valuePlaceholder={'Output field'}
-        onFormChange={props.onFormChange}
       />
       <EuiSpacer size="s" />
       {fieldMapValue?.length === 0 && (
@@ -119,7 +116,6 @@ export function TextChunkingProcessorInputs(
             ) || []),
           ]}
           baseConfigPath={props.baseConfigPath}
-          onFormChange={props.onFormChange}
         />
       </EuiAccordion>
     </>

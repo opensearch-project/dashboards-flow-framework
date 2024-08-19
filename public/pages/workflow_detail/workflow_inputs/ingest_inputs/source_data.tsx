@@ -25,7 +25,6 @@ import { WorkspaceFormValues } from '../../../../../common';
 
 interface SourceDataProps {
   setIngestDocs: (docs: string) => void;
-  onFormChange: () => void;
 }
 
 /**
@@ -87,9 +86,6 @@ export function SourceData(props: SourceDataProps) {
                 label="Documents"
                 fieldPath={'ingest.docs'}
                 helpText="Documents should be formatted as a valid JSON array."
-                // when ingest doc values change, don't update the form
-                // since we initially only support running ingest once per configuration
-                onFormChange={() => {}}
                 editorHeight="25vh"
                 readOnly={false}
               />
@@ -127,9 +123,6 @@ export function SourceData(props: SourceDataProps) {
             label="Documents"
             fieldPath={'ingest.docs'}
             helpText="Documents should be formatted as a valid JSON array."
-            // when ingest doc values change, don't update the form
-            // since we initially only support running ingest once per configuration
-            onFormChange={() => {}}
             editorHeight="25vh"
             readOnly={true}
           />

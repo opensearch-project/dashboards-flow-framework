@@ -24,7 +24,6 @@ interface ConfigFieldListProps {
   configId: string;
   configFields: IConfigField[];
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
-  onFormChange: () => void;
 }
 
 const CONFIG_FIELD_SPACER_SIZE = 'm';
@@ -42,7 +41,6 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
                   showError={true}
-                  onFormChange={props.onFormChange}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -55,7 +53,6 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                 <SelectField
                   field={field}
                   fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
-                  onFormChange={props.onFormChange}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -68,7 +65,6 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                 <BooleanField
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
-                  onFormChange={props.onFormChange}
                   enabledOption={{
                     id: 'true',
                     label: 'True',
@@ -91,7 +87,6 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
                   showError={true}
-                  onFormChange={props.onFormChange}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -104,7 +99,6 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                 <JsonField
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
-                  onFormChange={props.onFormChange}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -118,7 +112,6 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   validate={false}
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
-                  onFormChange={props.onFormChange}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>

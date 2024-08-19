@@ -19,6 +19,7 @@ import {
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STEP_TYPE,
   Workflow,
+  customStringify,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
 import { MDSQueryParams } from '../../common/interfaces';
@@ -161,7 +162,7 @@ export function unwrapTransformedDocs(
       `Failed to simulate ingest on all documents: ${errorDuringSimulate}`
     );
   }
-  return JSON.stringify(transformedDocsSources, undefined, 2);
+  return customStringify(transformedDocsSources);
 }
 
 // ML inference processors will use standard dot notation or JSONPath depending on the input.

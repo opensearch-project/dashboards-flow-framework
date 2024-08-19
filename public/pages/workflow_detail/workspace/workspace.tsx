@@ -21,7 +21,6 @@ import {
   EuiFilterButton,
   EuiCodeEditor,
 } from '@elastic/eui';
-import { setDirty, useAppDispatch } from '../../../store';
 import { IComponentData, Workflow, WorkflowConfig } from '../../../../common';
 import {
   IngestGroupComponent,
@@ -50,8 +49,6 @@ const nodeTypes = {
 const edgeTypes = { customEdge: DeletableEdge };
 
 export function Workspace(props: WorkspaceProps) {
-  const dispatch = useAppDispatch();
-
   // Visual/JSON toggle states
   const [visualSelected, setVisualSelected] = useState<boolean>(true);
   function toggleSelection(): void {
@@ -92,7 +89,6 @@ export function Workspace(props: WorkspaceProps) {
           eds
         )
       );
-      dispatch(setDirty());
     },
     [setEdges]
   );

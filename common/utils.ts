@@ -35,3 +35,7 @@ export function getCharacterLimitedString(
       : input
     : '';
 }
+
+export function customStringify(jsonObj: {}): string {
+  return JSON.stringify(jsonObj, undefined, 2);
+}

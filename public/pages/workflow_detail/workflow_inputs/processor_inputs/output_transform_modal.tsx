@@ -34,6 +34,7 @@ import {
   SimulateIngestPipelineResponse,
   WorkflowConfig,
   WorkflowFormValues,
+  customStringify,
 } from '../../../../../common';
 import {
   formikToPartialPipeline,
@@ -58,7 +59,6 @@ interface OutputTransformModalProps {
   outputMapFieldPath: string;
   outputFields: any[];
   onClose: () => void;
-  onFormChange: () => void;
 }
 
 /**
@@ -237,7 +237,6 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 keyPlaceholder="Document field"
                 valuePlaceholder="Model output field"
                 valueOptions={props.outputFields}
-                onFormChange={props.onFormChange}
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {
                   if (isEmpty(curArray)) {
@@ -290,9 +289,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                         sampleSourceInput,
                         map[selectedOutputOption]
                       );
-                      setTransformedOutput(
-                        JSON.stringify(output, undefined, 2)
-                      );
+                      setTransformedOutput(customStringify(output));
                     } catch {}
                   }
                 }}
