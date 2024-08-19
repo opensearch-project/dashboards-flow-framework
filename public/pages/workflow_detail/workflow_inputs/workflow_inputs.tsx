@@ -36,17 +36,16 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
   WorkflowTemplate,
+  customStringify,
   getCharacterLimitedString,
 } from '../../../../common';
 import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
 import {
-  AppState,
   bulk,
   deprovisionWorkflow,
   getWorkflow,
   provisionWorkflow,
-  removeDirty,
   searchIndex,
   updateWorkflow,
   useAppDispatch,
@@ -70,7 +69,6 @@ import '../workspace/workspace-styles.scss';
 
 interface WorkflowInputsProps {
   workflow: Workflow | undefined;
-  onFormChange: () => void;
   uiConfig: WorkflowConfig | undefined;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setIngestResponse: (ingestResponse: string) => void;
@@ -103,12 +101,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     setFieldValue,
     values,
     touched,
+    dirty,
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-
-  // Overall form state
-  const { isDirty } = useSelector((state: AppState) => state.form);
 
   // running ingest/search state
   const [isRunningIngest, setIsRunningIngest] = useState<boolean>(false);
@@ -489,8 +485,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           dispatch(bulk({ apiBody: { body: bulkBody }, dataSourceId }))
             .unwrap()
             .then(async (resp) => {
-              props.setIngestResponse(JSON.stringify(resp, undefined, 2));
-              dispatch(removeDirty());
+              props.setIngestResponse(customStringify(resp));
             })
             .catch((error: any) => {
               props.setIngestResponse('');
@@ -548,7 +543,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   2
                 )
               );
-              dispatch(removeDirty());
             })
             .catch((error: any) => {
               props.setQueryResponse('');
@@ -658,7 +652,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               </EuiModal>
             )}
             {onIngest &&
-              isDirty &&
+              dirty &&
               hasProvisionedSearchResources(props.workflow) && (
                 <EuiCallOut
                   title="Making changes to ingest may affect your configured search flow"
@@ -671,7 +665,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 <EuiSpacer size="m" />
                 <BooleanField
                   fieldPath="ingest.enabled"
-                  onFormChange={props.onFormChange}
                   enabledOption={{
                     id: INGEST_OPTION.CREATE,
                     label: (
@@ -743,7 +736,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               >
                 {onIngest ? (
                   <IngestInputs
-                    onFormChange={props.onFormChange}
                     setIngestDocs={props.setIngestDocs}
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
@@ -754,7 +746,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     setUiConfig={props.setUiConfig}
                     setQuery={props.setQuery}
                     setQueryResponse={props.setQueryResponse}
-                    onFormChange={props.onFormChange}
                   />
                 )}
               </EuiFlexItem>
@@ -774,7 +765,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         disabled={false}
                         onClick={() => {
                           setSelectedStep(STEP.SEARCH);
-                          dispatch(removeDirty());
                         }}
                       >
                         {`Search pipeline >`}

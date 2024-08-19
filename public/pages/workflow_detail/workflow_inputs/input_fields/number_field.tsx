@@ -16,7 +16,6 @@ import { camelCaseToTitleString, getInitialValue } from '../../../../utils';
 
 interface NumberFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
-  onFormChange: () => void;
   label?: string;
   helpLink?: string;
   helpText?: string;
@@ -57,7 +56,6 @@ export function NumberField(props: NumberFieldProps) {
               value={field.value || getInitialValue('number')}
               onChange={(e) => {
                 form.setFieldValue(props.fieldPath, e.target.value);
-                props.onFormChange();
               }}
             />
           </EuiCompressedFormRow>

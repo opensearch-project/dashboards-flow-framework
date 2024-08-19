@@ -43,7 +43,6 @@ interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
   config: IProcessorConfig;
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
-  onFormChange: () => void;
   context: PROCESSOR_CONTEXT;
 }
 
@@ -158,7 +157,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           inputMapField={inputMapField}
           inputMapFieldPath={inputMapFieldPath}
           inputFields={inputFields}
-          onFormChange={props.onFormChange}
           onClose={() => setIsInputTransformModalOpen(false)}
         />
       )}
@@ -170,7 +168,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           outputMapField={outputMapField}
           outputMapFieldPath={outputMapFieldPath}
           outputFields={outputFields}
-          onFormChange={props.onFormChange}
           onClose={() => setIsOutputTransformModalOpen(false)}
         />
       )}
@@ -179,7 +176,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
         fieldPath={modelFieldPath}
         hasModelInterface={hasModelInterface}
         onModelChange={onModelChange}
-        onFormChange={props.onFormChange}
       />
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
         <>
@@ -234,7 +230,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 ? 'Query field'
                 : 'Document field'
             }
-            onFormChange={props.onFormChange}
             keyOptions={inputFields}
           />
           <EuiSpacer size="l" />
@@ -283,7 +278,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 : 'Document field'
             }
             valuePlaceholder="Model output field"
-            onFormChange={props.onFormChange}
             valueOptions={outputFields}
           />
           <EuiSpacer size="s" />
@@ -317,7 +311,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               configId={props.config.id}
               configFields={props.config.optionalFields || []}
               baseConfigPath={props.baseConfigPath}
-              onFormChange={props.onFormChange}
             />
           </EuiAccordion>
         </>

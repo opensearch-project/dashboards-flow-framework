@@ -28,7 +28,6 @@ import {
   uiConfigToFormik,
   uiConfigToSchema,
 } from '../../utils';
-import { AppState, setDirty, useAppDispatch } from '../../store';
 import { WorkflowInputs } from './workflow_inputs';
 import { Workspace } from './workspace';
 import { Tools } from './tools';
@@ -49,11 +48,6 @@ const TOOLS_PANEL_ID = 'tools_panel_id';
  * panels - the ReactFlow workspace panel and the selected component details panel.
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
-  const dispatch = useAppDispatch();
-
-  // Overall workspace state
-  const { isDirty } = useSelector((state: AppState) => state.form);
-
   // Workflow state
   const [workflow, setWorkflow] = useState<Workflow | undefined>(
     props.workflow
@@ -135,16 +129,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }, [uiConfig]);
 
-  /**
-   * Function to pass down to the Formik <Form> components as a listener to propagate
-   * form changes to this parent component to re-enable save button, etc.
-   */
-  function onFormChange() {
-    if (!isDirty) {
-      dispatch(setDirty());
-    }
-  }
-
   return isValidWorkflow ? (
     <Formik
       enableReinitialize={true}
@@ -185,7 +169,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   >
                     <WorkflowInputs
                       workflow={props.workflow}
-                      onFormChange={onFormChange}
                       uiConfig={uiConfig}
                       setUiConfig={setUiConfig}
                       setIngestResponse={setIngestResponse}

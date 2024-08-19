@@ -12,9 +12,7 @@ import {
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 
-interface AdvancedSettingsProps {
-  onFormChange: () => void;
-}
+interface AdvancedSettingsProps {}
 
 /**
  * Input component for configuring ingest-side advanced settings
@@ -30,14 +28,12 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
               <JsonField
                 label="Index mappings"
                 fieldPath={'ingest.index.mappings'}
-                onFormChange={props.onFormChange}
               />
             </EuiFlexItem>
             <EuiFlexItem>
               <JsonField
                 label="Index settings"
                 fieldPath={'ingest.index.settings'}
-                onFormChange={props.onFormChange}
               />
             </EuiFlexItem>
           </EuiFlexGroup>
