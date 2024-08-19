@@ -31,7 +31,6 @@ interface MapFieldProps {
   helpText?: string;
   keyPlaceholder?: string;
   valuePlaceholder?: string;
-  onFormChange: () => void;
   keyOptions?: any[];
   valueOptions?: any[];
 }
@@ -51,7 +50,6 @@ export function MapField(props: MapFieldProps) {
     const updatedEntries = [...curEntries, { key: '', value: '' } as MapEntry];
     setFieldValue(props.fieldPath, updatedEntries);
     setFieldTouched(props.fieldPath, true);
-    props.onFormChange();
   }
 
   // Deleting a map entry
@@ -63,7 +61,6 @@ export function MapField(props: MapFieldProps) {
     updatedEntries.splice(entryIndexToDelete, 1);
     setFieldValue(props.fieldPath, updatedEntries);
     setFieldTouched(props.fieldPath, true);
-    props.onFormChange();
   }
 
   return (
@@ -111,14 +108,12 @@ export function MapField(props: MapFieldProps) {
                                   fieldPath={`${props.fieldPath}.${idx}.key`}
                                   options={props.keyOptions as any[]}
                                   placeholder={props.keyPlaceholder || 'Input'}
-                                  onFormChange={props.onFormChange}
                                 />
                               ) : (
                                 <TextField
                                   fieldPath={`${props.fieldPath}.${idx}.key`}
                                   placeholder={props.keyPlaceholder || 'Input'}
                                   showError={false}
-                                  onFormChange={props.onFormChange}
                                 />
                               )}
                             </>
@@ -138,7 +133,6 @@ export function MapField(props: MapFieldProps) {
                                   placeholder={
                                     props.valuePlaceholder || 'Output'
                                   }
-                                  onFormChange={props.onFormChange}
                                 />
                               ) : (
                                 <TextField
@@ -147,7 +141,6 @@ export function MapField(props: MapFieldProps) {
                                     props.valuePlaceholder || 'Output'
                                   }
                                   showError={false}
-                                  onFormChange={props.onFormChange}
                                 />
                               )}
                             </>

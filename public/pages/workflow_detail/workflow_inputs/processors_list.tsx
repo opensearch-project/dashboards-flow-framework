@@ -37,7 +37,6 @@ import {
 import { ProcessorInputs } from './processor_inputs';
 
 interface ProcessorsListProps {
-  onFormChange: () => void;
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   context: PROCESSOR_CONTEXT;
@@ -101,7 +100,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
       }
     }
     props.setUiConfig(newConfig);
-    props.onFormChange();
   }
 
   // Deleting a processor from the config. Fetch the existing one
@@ -132,7 +130,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
     }
 
     props.setUiConfig(newConfig);
-    props.onFormChange();
   }
 
   return (
@@ -167,7 +164,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
                     ? 'search.enrichRequest'
                     : 'search.enrichResponse'
                 }
-                onFormChange={props.onFormChange}
                 context={props.context}
               />
             </EuiPanel>

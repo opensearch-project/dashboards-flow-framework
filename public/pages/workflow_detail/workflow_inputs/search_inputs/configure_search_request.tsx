@@ -35,7 +35,6 @@ import { getDataSourceId } from '../../../../utils/utils';
 interface ConfigureSearchRequestProps {
   setQuery: (query: string) => void;
   setQueryResponse: (queryResponse: string) => void;
-  onFormChange: () => void;
 }
 
 /**
@@ -102,7 +101,6 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
             <JsonField
               label="Query"
               fieldPath={'search.request'}
-              onFormChange={props.onFormChange}
               editorHeight="25vh"
               readOnly={false}
             />
@@ -146,7 +144,6 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                   setSelectedIndex(option);
                   setFieldValue(searchIndexNameFormPath, option);
                   setFieldTouched(searchIndexNameFormPath, true);
-                  props.onFormChange();
                 }}
                 isInvalid={selectedIndex === undefined}
               />
@@ -167,7 +164,6 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           <JsonField
             label="Query"
             fieldPath={'search.request'}
-            onFormChange={props.onFormChange}
             editorHeight="25vh"
             readOnly={true}
           />

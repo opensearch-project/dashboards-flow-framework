@@ -12,6 +12,7 @@ import {
   UIState,
   WORKFLOW_TYPE,
   FETCH_ALL_QUERY_BODY,
+  customStringify,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 
@@ -51,7 +52,6 @@ function fetchEmptyMetadata(): UIState {
           type: 'boolean',
           value: true,
         },
-        source: {},
         pipelineName: {
           id: 'pipelineName',
           type: 'string',
@@ -64,10 +64,14 @@ function fetchEmptyMetadata(): UIState {
           name: {
             id: 'indexName',
             type: 'string',
+            value: 'my-new-index',
           },
           mappings: {
             id: 'indexMappings',
             type: 'json',
+            value: customStringify({
+              properties: {},
+            }),
           },
           settings: {
             id: 'indexSettings',
@@ -79,7 +83,7 @@ function fetchEmptyMetadata(): UIState {
         request: {
           id: 'request',
           type: 'json',
-          value: JSON.stringify(FETCH_ALL_QUERY_BODY, undefined, 2),
+          value: customStringify(FETCH_ALL_QUERY_BODY),
         },
         pipelineName: {
           id: 'pipelineName',
@@ -109,6 +113,10 @@ function fetchSemanticSearchMetadata(): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.SEMANTIC_SEARCH;
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
+  baseState.config.ingest.index.name.value = 'my-knn-index';
+  baseState.config.ingest.index.settings.value = customStringify({
+    [`index.knn`]: true,
+  });
   return baseState;
 }
 

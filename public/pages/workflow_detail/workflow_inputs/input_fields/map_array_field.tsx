@@ -32,7 +32,6 @@ interface MapArrayFieldProps {
   helpText?: string;
   keyPlaceholder?: string;
   valuePlaceholder?: string;
-  onFormChange: () => void;
   onMapAdd?: (curArray: MapArrayFormValue) => void;
   onMapDelete?: (idxToDelete: number) => void;
   keyOptions?: any[];
@@ -51,7 +50,6 @@ export function MapArrayField(props: MapArrayFieldProps) {
   function addMap(curMapArray: MapArrayFormValue): void {
     setFieldValue(props.fieldPath, [...curMapArray, []]);
     setFieldTouched(props.fieldPath, true);
-    props.onFormChange();
     if (props.onMapAdd) {
       props.onMapAdd(curMapArray);
     }
@@ -66,7 +64,6 @@ export function MapArrayField(props: MapArrayFieldProps) {
     updatedMapArray.splice(entryIndexToDelete, 1);
     setFieldValue(props.fieldPath, updatedMapArray);
     setFieldTouched(props.fieldPath, true);
-    props.onFormChange();
     if (props.onMapDelete) {
       props.onMapDelete(entryIndexToDelete);
     }
@@ -123,7 +120,6 @@ export function MapArrayField(props: MapArrayFieldProps) {
                           fieldPath={`${props.fieldPath}.${idx}`}
                           keyPlaceholder={props.keyPlaceholder}
                           valuePlaceholder={props.valuePlaceholder}
-                          onFormChange={props.onFormChange}
                           keyOptions={props.keyOptions}
                           valueOptions={props.valueOptions}
                         />

@@ -13,7 +13,6 @@ interface SelectWithCustomOptionsProps {
   fieldPath: string;
   placeholder: string;
   options: any[];
-  onFormChange: () => void;
 }
 
 /**
@@ -47,7 +46,6 @@ export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
     }
     setFieldTouched(props.fieldPath, true);
     setFieldValue(props.fieldPath, searchValue);
-    props.onFormChange();
   }
 
   // custom render fn.
@@ -79,7 +77,6 @@ export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
       onChange={(options) => {
         setFieldTouched(props.fieldPath, true);
         setFieldValue(props.fieldPath, get(options, '0.label'));
-        props.onFormChange();
       }}
       onCreateOption={onCreateOption}
       customOptionText="Add {searchValue} as a custom option"
