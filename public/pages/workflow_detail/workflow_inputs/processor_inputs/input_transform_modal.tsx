@@ -175,7 +175,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       dispatch(
                         searchIndex({
                           apiBody: {
-                            index: values.ingest.index.name,
+                            index: values.search.index.name,
                             body: JSON.stringify({
                               ...JSON.parse(values.search.request as string),
                               search_pipeline: curSearchPipeline,
