@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
@@ -16,7 +16,7 @@ import {
   EuiPage,
   EuiPageBody,
 } from '@elastic/eui';
-import { APP_PATH, BREADCRUMBS } from '../../utils';
+import { APP_PATH, BREADCRUMBS, SHOW_ACTIONS_IN_HEADER} from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
 import {
@@ -43,13 +43,7 @@ import {
   getDataSourceId,
 } from '../../utils/utils';
 
-import {
-  getDataSourceManagementPlugin,
-  getDataSourceEnabled,
-  getNotifications,
-  getSavedObjectsClient,
-} from '../../services';
-import { DataSourceViewConfig } from '../../../../../src/plugins/data_source_management/public';
+import { getDataSourceEnabled } from '../../services';
 
 export interface WorkflowDetailRouterProps {
   workflowId: string;
@@ -82,21 +76,26 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     MAX_WORKFLOW_NAME_TO_DISPLAY
   );
 
+  const {
+    chrome: { setBreadcrumbs },
+  } = getCore();
   useEffect(() => {
-    if (dataSourceEnabled) {
-      getCore().chrome.setBreadcrumbs([
-        BREADCRUMBS.FLOW_FRAMEWORK,
-        BREADCRUMBS.WORKFLOWS(dataSourceId),
-        { text: workflowName },
-      ]);
-    } else {
-      getCore().chrome.setBreadcrumbs([
-        BREADCRUMBS.FLOW_FRAMEWORK,
-        BREADCRUMBS.WORKFLOWS(),
-        { text: workflowName },
-      ]);
-    }
-  }, [workflowName]);
+    setBreadcrumbs(
+      SHOW_ACTIONS_IN_HEADER
+        ? [
+            BREADCRUMBS.TITLE_WITH_REF(
+              dataSourceEnabled ? dataSourceId : undefined
+            ),
+            BREADCRUMBS.WORKFLOW_NAME(workflowName),
+            { text: '' },
+          ]
+        : [
+            BREADCRUMBS.FLOW_FRAMEWORK,
+            BREADCRUMBS.WORKFLOWS(dataSourceEnabled ? dataSourceId : undefined),
+            { text: workflowName },
+          ]
+    );
+  }, [SHOW_ACTIONS_IN_HEADER, dataSourceEnabled, dataSourceId, workflowName]);
 
   // On initial load:
   // - fetch workflow
@@ -105,25 +104,6 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     dispatch(getWorkflow({ workflowId, dataSourceId }));
     dispatch(searchModels({ apiBody: FETCH_ALL_QUERY_BODY, dataSourceId }));
   }, []);
-
-  let renderDataSourceComponent: ReactElement | null = null;
-  if (dataSourceEnabled && getDataSourceManagementPlugin()) {
-    const DataSourceMenu = getDataSourceManagementPlugin().ui.getDataSourceMenu<
-      DataSourceViewConfig
-    >();
-    renderDataSourceComponent = (
-      <DataSourceMenu
-        setMenuMountPoint={props.setActionMenu}
-        componentType={'DataSourceView'}
-        componentConfig={{
-          activeOption: [{ id: dataSourceId }],
-          fullWidth: false,
-          savedObjects: getSavedObjectsClient(),
-          notifications: getNotifications(),
-        }}
-      />
-    );
-  }
 
   return errorMessage.includes(ERROR_GETTING_WORKFLOW_MSG) ? (
     <EuiFlexGroup direction="column" alignItems="center">
@@ -146,10 +126,12 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     </EuiFlexGroup>
   ) : (
     <ReactFlowProvider>
-      {dataSourceEnabled && renderDataSourceComponent}
       <EuiPage>
         <EuiPageBody className="workflow-detail stretch-relative">
-          <WorkflowDetailHeader workflow={workflow} />
+          <WorkflowDetailHeader
+            workflow={workflow}
+            setActionMenu={props.setActionMenu}
+          />
           <ReactFlowProvider>
             <ResizableWorkspace workflow={workflow} />
           </ReactFlowProvider>

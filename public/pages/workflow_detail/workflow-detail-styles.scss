@@ -1,3 +1,10 @@
 .workflow-detail {
   overflow: hidden;
 }
+
+.workflow-detail-last-updated {
+  line-height: $euiFormControlCompressedHeight;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

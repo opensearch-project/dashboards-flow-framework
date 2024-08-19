@@ -6,6 +6,7 @@
 import { WORKFLOW_STATE } from './interfaces';
 
 export const PLUGIN_ID = 'flow-framework';
+export const SEARCH_STUDIO = 'Search Studio';
 
 /**
  * BACKEND FLOW FRAMEWORK APIs
