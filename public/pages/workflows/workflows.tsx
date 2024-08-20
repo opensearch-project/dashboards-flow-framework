@@ -25,7 +25,7 @@ import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
 import { AppState, searchWorkflows, useAppDispatch } from '../../store';
 import { EmptyListMessage } from './empty_list_message';
-import { FETCH_ALL_QUERY_BODY, SEARCH_STUDIO } from '../../../common';
+import { FETCH_ALL_QUERY, SEARCH_STUDIO } from '../../../common';
 import { ImportWorkflowModal } from './import_workflow';
 import { MountPoint } from '../../../../../src/core/public';
 import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_source_management/public';
@@ -119,7 +119,7 @@ export function Workflows(props: WorkflowsProps) {
     if (selectedTabId === WORKFLOWS_TAB.MANAGE) {
       dispatch(
         searchWorkflows({
-          apiBody: FETCH_ALL_QUERY_BODY,
+          apiBody: FETCH_ALL_QUERY,
           dataSourceId: dataSourceId,
         })
       );
@@ -141,7 +141,7 @@ export function Workflows(props: WorkflowsProps) {
   useEffect(() => {
     dispatch(
       searchWorkflows({
-        apiBody: FETCH_ALL_QUERY_BODY,
+        apiBody: FETCH_ALL_QUERY,
         dataSourceId: dataSourceId,
       })
     );
@@ -161,7 +161,7 @@ export function Workflows(props: WorkflowsProps) {
     }
     dispatch(
       searchWorkflows({
-        apiBody: FETCH_ALL_QUERY_BODY,
+        apiBody: FETCH_ALL_QUERY,
         dataSourceId: dataSourceId,
       })
     );

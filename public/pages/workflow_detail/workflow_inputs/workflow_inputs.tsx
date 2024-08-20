@@ -4,7 +4,6 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import { debounce, isEmpty, isEqual } from 'lodash';
 import {
@@ -814,7 +813,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       <EuiFlexItem grow={false}>
                         <EuiButton
                           disabled={
-                            isRunningSearch || isProposingNoSearchResources
+                            isRunningSearch ||
+                            (isProposingNoSearchResources &&
+                              hasProvisionedSearchResources(props.workflow))
                           }
                           isLoading={isRunningSearch}
                           fill={false}
