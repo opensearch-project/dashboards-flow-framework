@@ -16,7 +16,7 @@ import {
   EuiPage,
   EuiPageBody,
 } from '@elastic/eui';
-import { APP_PATH, BREADCRUMBS, SHOW_ACTIONS_IN_HEADER} from '../../utils';
+import { APP_PATH, BREADCRUMBS, SHOW_ACTIONS_IN_HEADER } from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
 import {
@@ -28,7 +28,7 @@ import {
 import { ResizableWorkspace } from './resizable_workspace';
 import {
   ERROR_GETTING_WORKFLOW_MSG,
-  FETCH_ALL_QUERY_BODY,
+  FETCH_ALL_QUERY,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
   getCharacterLimitedString,
 } from '../../../common';
@@ -102,7 +102,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   // - fetch available models as their IDs may be used when building flows
   useEffect(() => {
     dispatch(getWorkflow({ workflowId, dataSourceId }));
-    dispatch(searchModels({ apiBody: FETCH_ALL_QUERY_BODY, dataSourceId }));
+    dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
   }, []);
 
   return errorMessage.includes(ERROR_GETTING_WORKFLOW_MSG) ? (
