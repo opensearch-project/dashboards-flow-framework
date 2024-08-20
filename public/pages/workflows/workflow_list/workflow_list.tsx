@@ -52,6 +52,16 @@ const filterOptions = [
   } as EuiFilterSelectItem,
   // @ts-ignore
   {
+    name: WORKFLOW_TYPE.MULTIMODAL_SEARCH,
+    checked: 'on',
+  } as EuiFilterSelectItem,
+  // @ts-ignore
+  {
+    name: WORKFLOW_TYPE.HYBRID_SEARCH,
+    checked: 'on',
+  } as EuiFilterSelectItem,
+  // @ts-ignore
+  {
     name: WORKFLOW_TYPE.CUSTOM,
     checked: 'on',
   } as EuiFilterSelectItem,

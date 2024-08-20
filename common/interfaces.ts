@@ -456,6 +456,11 @@ export type WorkflowDict = {
   [workflowId: string]: Workflow;
 };
 
+export type QueryPreset = {
+  name: string;
+  query: string;
+};
+
 /**
  ********** OPENSEARCH TYPES/INTERFACES ************
  */

@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { WORKFLOW_STATE } from './interfaces';
+import { QueryPreset, WORKFLOW_STATE } from './interfaces';
+import { customStringify } from './utils';
 
 export const PLUGIN_ID = 'flow-framework';
 export const SEARCH_STUDIO = 'Search Studio';
@@ -59,6 +60,8 @@ export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
 // frontend-specific workflow types, derived from the available preset templates
 export enum WORKFLOW_TYPE {
   SEMANTIC_SEARCH = 'Semantic search',
+  MULTIMODAL_SEARCH = 'Multimodal search',
+  HYBRID_SEARCH = 'Hybrid search',
   CUSTOM = 'Custom',
   UNKNOWN = 'Unknown',
 }
@@ -143,6 +146,91 @@ export const DELIMITER_OPTIONAL_FIELDS = ['delimiter'];
 export const SHARED_OPTIONAL_FIELDS = ['max_chunk_limit', 'description', 'tag'];
 
 /**
+ * QUERIES
+ */
+export const FETCH_ALL_QUERY = {
+  query: {
+    match_all: {},
+  },
+  size: 1000,
+};
+export const SEMANTIC_SEARCH_QUERY = {
+  _source: {
+    excludes: [`{{vector_field}}`],
+  },
+  query: {
+    neural: {
+      [`{{vector_field}}`]: {
+        query_text: `{{query_text}}`,
+        model_id: `{{model_id}}`,
+        k: 100,
+      },
+    },
+  },
+};
+export const MULTIMODAL_SEARCH_QUERY = {
+  _source: {
+    excludes: [`{{vector_field}}`],
+  },
+  query: {
+    neural: {
+      [`{{vector_field}}`]: {
+        query_text: `{{query_text}}`,
+        query_image: `{{query_image}}`,
+        model_id: `{{model_id}}`,
+        k: 100,
+      },
+    },
+  },
+};
+export const HYBRID_SEARCH_QUERY = {
+  _source: {
+    excludes: [`{{vector_field}}`],
+  },
+  query: {
+    hybrid: {
+      queries: [
+        {
+          match: {
+            [`{{text_field}}`]: {
+              query: `{{query_text}}`,
+            },
+          },
+        },
+        {
+          neural: {
+            [`{{vector_field}}`]: {
+              query_text: `{{query_text}}`,
+              model_id: `{{model_id}}`,
+              k: 5,
+            },
+          },
+        },
+      ],
+    },
+  },
+};
+
+export const QUERY_PRESETS = [
+  {
+    name: 'Fetch all',
+    query: customStringify(FETCH_ALL_QUERY),
+  },
+  {
+    name: WORKFLOW_TYPE.SEMANTIC_SEARCH,
+    query: customStringify(SEMANTIC_SEARCH_QUERY),
+  },
+  {
+    name: WORKFLOW_TYPE.MULTIMODAL_SEARCH,
+    query: customStringify(MULTIMODAL_SEARCH_QUERY),
+  },
+  {
+    name: WORKFLOW_TYPE.HYBRID_SEARCH,
+    query: customStringify(HYBRID_SEARCH_QUERY),
+  },
+] as QueryPreset[];
+
+/**
  * MISCELLANEOUS
  */
 export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
@@ -152,12 +240,6 @@ export const DEFAULT_NEW_WORKFLOW_STATE = WORKFLOW_STATE.NOT_STARTED;
 export const DEFAULT_NEW_WORKFLOW_STATE_TYPE = ('NOT_STARTED' as any) as typeof WORKFLOW_STATE;
 export const DATE_FORMAT_PATTERN = 'MM/DD/YY hh:mm A';
 export const EMPTY_FIELD_STRING = '--';
-export const FETCH_ALL_QUERY_BODY = {
-  query: {
-    match_all: {},
-  },
-  size: 1000,
-};
 export const INDEX_NOT_FOUND_EXCEPTION = 'index_not_found_exception';
 export const ERROR_GETTING_WORKFLOW_MSG = 'Failed to retrieve template';
 export const NO_MODIFICATIONS_FOUND_TEXT =

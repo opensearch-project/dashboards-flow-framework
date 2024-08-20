@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { useFormikContext } from 'formik';
+import React, { useState, useEffect } from 'react';
+import { getIn, useFormikContext } from 'formik';
 import {
   EuiButton,
   EuiModal,
@@ -18,36 +18,15 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
-import { WorkflowFormValues, customStringify } from '../../../../../common';
+import {
+  QUERY_PRESETS,
+  QueryPreset,
+  WorkflowFormValues,
+} from '../../../../../common';
 
 interface EditQueryModalProps {
   setModalOpen(isOpen: boolean): void;
 }
-
-type QueryPreset = {
-  name: string;
-  query: string;
-};
-
-const QUERY_PRESETS = [
-  {
-    name: 'Semantic search',
-    query: customStringify({
-      _source: {
-        excludes: [`{{vector_field}}`],
-      },
-      query: {
-        neural: {
-          [`{{vector_field}}`]: {
-            query_text: `{{query_text}}`,
-            model_id: `{{model_id}}`,
-            k: 100,
-          },
-        },
-      },
-    }),
-  },
-] as QueryPreset[];
 
 /**
  * Specialized component to render the text chunking ingest processor. The list of optional
@@ -58,10 +37,21 @@ const QUERY_PRESETS = [
  */
 export function EditQueryModal(props: EditQueryModalProps) {
   // Form state
-  const { setFieldValue } = useFormikContext<WorkflowFormValues>();
+  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
 
   // selected preset state
   const [queryPreset, setQueryPreset] = useState<string | undefined>(undefined);
+
+  // if the current query matches some preset, display the preset name as the selected
+  // option in the dropdown. only execute when first rendering so it isn't triggered
+  // when users are updating the underlying value in the JSON editor.
+  useEffect(() => {
+    setQueryPreset(
+      QUERY_PRESETS.find(
+        (preset) => preset.query === getIn(values, 'search.request')
+      )?.name
+    );
+  }, []);
 
   return (
     <EuiModal

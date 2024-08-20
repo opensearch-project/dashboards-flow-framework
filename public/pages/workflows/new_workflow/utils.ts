@@ -11,8 +11,11 @@ import {
   DEFAULT_NEW_WORKFLOW_NAME,
   UIState,
   WORKFLOW_TYPE,
-  FETCH_ALL_QUERY_BODY,
+  FETCH_ALL_QUERY,
   customStringify,
+  SEMANTIC_SEARCH_QUERY,
+  MULTIMODAL_SEARCH_QUERY,
+  HYBRID_SEARCH_QUERY,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 
@@ -26,7 +29,14 @@ export function enrichPresetWorkflowWithUiMetadata(
       uiMetadata = fetchSemanticSearchMetadata();
       break;
     }
-    // TODO: add more presets
+    case WORKFLOW_TYPE.MULTIMODAL_SEARCH: {
+      uiMetadata = fetchMultimodalSearchMetadata();
+      break;
+    }
+    case WORKFLOW_TYPE.HYBRID_SEARCH: {
+      uiMetadata = fetchHybridSearchMetadata();
+      break;
+    }
     default: {
       uiMetadata = fetchEmptyMetadata();
       break;
@@ -83,7 +93,7 @@ function fetchEmptyMetadata(): UIState {
         request: {
           id: 'request',
           type: 'json',
-          value: customStringify(FETCH_ALL_QUERY_BODY),
+          value: customStringify(FETCH_ALL_QUERY),
         },
         pipelineName: {
           id: 'pipelineName',
@@ -117,6 +127,39 @@ function fetchSemanticSearchMetadata(): UIState {
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
+  baseState.config.search.request.value = customStringify(
+    SEMANTIC_SEARCH_QUERY
+  );
+  return baseState;
+}
+
+function fetchMultimodalSearchMetadata(): UIState {
+  // We can reuse the base state. Only need to override a few things,
+  // such as preset ingest processors.
+  let baseState = fetchEmptyMetadata();
+  baseState.type = WORKFLOW_TYPE.MULTIMODAL_SEARCH;
+  baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
+  baseState.config.ingest.index.name.value = 'my-knn-index';
+  baseState.config.ingest.index.settings.value = customStringify({
+    [`index.knn`]: true,
+  });
+  baseState.config.search.request.value = customStringify(
+    MULTIMODAL_SEARCH_QUERY
+  );
+  return baseState;
+}
+
+function fetchHybridSearchMetadata(): UIState {
+  // We can reuse the base state. Only need to override a few things,
+  // such as preset ingest processors.
+  let baseState = fetchEmptyMetadata();
+  baseState.type = WORKFLOW_TYPE.HYBRID_SEARCH;
+  baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
+  baseState.config.ingest.index.name.value = 'my-knn-index';
+  baseState.config.ingest.index.settings.value = customStringify({
+    [`index.knn`]: true,
+  });
+  baseState.config.search.request.value = customStringify(HYBRID_SEARCH_QUERY);
   return baseState;
 }
 
