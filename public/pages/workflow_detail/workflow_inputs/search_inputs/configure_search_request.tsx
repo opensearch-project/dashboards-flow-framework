@@ -12,11 +12,6 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
-  EuiModal,
-  EuiModalBody,
-  EuiModalFooter,
-  EuiModalHeader,
-  EuiModalHeaderTitle,
   EuiSuperSelect,
   EuiSuperSelectOption,
   EuiText,
@@ -31,6 +26,7 @@ import {
   useAppDispatch,
 } from '../../../../store';
 import { getDataSourceId } from '../../../../utils/utils';
+import { EditQueryModal } from './edit_query_modal';
 
 interface ConfigureSearchRequestProps {
   setQuery: (query: string) => void;
@@ -88,33 +84,10 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   return (
     <>
       {isEditModalOpen && (
-        <EuiModal
-          onClose={() => setIsEditModalOpen(false)}
-          style={{ width: '70vw' }}
-        >
-          <EuiModalHeader>
-            <EuiModalHeaderTitle>
-              <p>{`Edit query`}</p>
-            </EuiModalHeaderTitle>
-          </EuiModalHeader>
-          <EuiModalBody>
-            <JsonField
-              label="Query"
-              fieldPath={'search.request'}
-              editorHeight="25vh"
-              readOnly={false}
-            />
-          </EuiModalBody>
-          <EuiModalFooter>
-            <EuiButton
-              onClick={() => setIsEditModalOpen(false)}
-              fill={false}
-              color="primary"
-            >
-              Close
-            </EuiButton>
-          </EuiModalFooter>
-        </EuiModal>
+        <EditQueryModal
+          setModalOpen={setIsEditModalOpen}
+          queryFieldPath="search.request"
+        />
       )}
       <EuiFlexGroup direction="column">
         <EuiFlexItem grow={false}>
