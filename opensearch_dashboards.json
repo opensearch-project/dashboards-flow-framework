@@ -5,6 +5,12 @@
   "server": true,
   "ui": true,
   "requiredBundles": [],
-  "requiredPlugins": ["navigation", "opensearchDashboardsUtils"],
-  "optionalPlugins": ["dataSource", "dataSourceManagement"]
+  "requiredPlugins": [
+    "navigation",
+    "opensearchDashboardsUtils"
+  ],
+  "optionalPlugins": [
+    "dataSource",
+    "dataSourceManagement"
+  ]
 }
