@@ -83,7 +83,12 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
 
   return (
     <>
-      {isEditModalOpen && <EditQueryModal setModalOpen={setIsEditModalOpen} />}
+      {isEditModalOpen && (
+        <EditQueryModal
+          setModalOpen={setIsEditModalOpen}
+          queryFieldPath="search.request"
+        />
+      )}
       <EuiFlexGroup direction="column">
         <EuiFlexItem grow={false}>
           <EuiTitle size="s">

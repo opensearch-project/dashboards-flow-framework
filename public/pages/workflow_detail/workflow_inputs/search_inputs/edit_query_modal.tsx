@@ -25,15 +25,13 @@ import {
 } from '../../../../../common';
 
 interface EditQueryModalProps {
+  queryFieldPath: string;
   setModalOpen(isOpen: boolean): void;
 }
 
 /**
- * Specialized component to render the text chunking ingest processor. The list of optional
- * params we display is dependent on the source algorithm that is chosen. Internally, we persist
- * all of the params, but only choose the relevant ones when constructing the final ingest processor
- * template. This is to minimize the amount of ui config / form / schema updates we would need
- * to do if we only persisted the subset of optional params specific to the currently-chosen algorithm.
+ * Basic modal for configuring a query. Provides a dropdown to select from
+ * a set of pre-defined queries targeted for different use cases.
  */
 export function EditQueryModal(props: EditQueryModalProps) {
   // Form state
@@ -48,7 +46,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
   useEffect(() => {
     setQueryPreset(
       QUERY_PRESETS.find(
-        (preset) => preset.query === getIn(values, 'search.request')
+        (preset) => preset.query === getIn(values, props.queryFieldPath)
       )?.name
     );
   }, []);
@@ -86,7 +84,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
           onChange={(option: string) => {
             setQueryPreset(option);
             setFieldValue(
-              'search.request',
+              props.queryFieldPath,
               QUERY_PRESETS.find((preset) => preset.name === option)?.query
             );
           }}
@@ -95,7 +93,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
         <EuiSpacer size="s" />
         <JsonField
           label="Query"
-          fieldPath={'search.request'}
+          fieldPath={props.queryFieldPath}
           editorHeight="25vh"
           readOnly={false}
         />

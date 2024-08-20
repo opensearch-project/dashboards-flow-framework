@@ -118,8 +118,6 @@ function fetchEmptyMetadata(): UIState {
 }
 
 function fetchSemanticSearchMetadata(): UIState {
-  // We can reuse the base state. Only need to override a few things,
-  // such as preset ingest processors.
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.SEMANTIC_SEARCH;
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
@@ -134,8 +132,6 @@ function fetchSemanticSearchMetadata(): UIState {
 }
 
 function fetchMultimodalSearchMetadata(): UIState {
-  // We can reuse the base state. Only need to override a few things,
-  // such as preset ingest processors.
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.MULTIMODAL_SEARCH;
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
@@ -150,8 +146,6 @@ function fetchMultimodalSearchMetadata(): UIState {
 }
 
 function fetchHybridSearchMetadata(): UIState {
-  // We can reuse the base state. Only need to override a few things,
-  // such as preset ingest processors.
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.HYBRID_SEARCH;
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
