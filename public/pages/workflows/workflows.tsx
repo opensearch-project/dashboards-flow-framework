@@ -90,7 +90,7 @@ export function Workflows(props: WorkflowsProps) {
     chrome: { setBreadcrumbs },
   } = getCore();
   const { HeaderControl } = getNavigationUI();
-  const { setAppBottomControls } = getApplication();
+  const { setAppDescriptionControls } = getApplication();
 
   // import modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
@@ -213,7 +213,7 @@ export function Workflows(props: WorkflowsProps) {
             'Design, experiment, and prototype your solutions with Search Studio. Build your search and last mile ingestion flows with a visual interface. Experiment different configurations with prototyping tools and launch them into your environment.',
         },
       ]}
-      setMountPoint={setAppBottomControls}
+      setMountPoint={setAppDescriptionControls}
     />
   ) : (
     <EuiFlexGroup direction="column" style={{ margin: '0px' }}>
