@@ -5,7 +5,6 @@
 
 import React from 'react';
 import {
-  EuiButton,
   EuiSmallButtonIcon,
   EuiFlexGroup,
   EuiFlexItem,
@@ -13,6 +12,7 @@ import {
   EuiIcon,
   EuiLink,
   EuiText,
+  EuiSmallButton,
 } from '@elastic/eui';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
@@ -164,16 +164,13 @@ export function MapField(props: MapFieldProps) {
               })}
               <EuiFlexItem grow={false}>
                 <div>
-                  <EuiButton
-                    size="s"
+                  <EuiSmallButton
                     onClick={() => {
                       addMapEntry(field.value);
                     }}
                   >
-                    {field.value?.length > 0
-                      ? 'Add another field mapping'
-                      : 'Add field mapping'}
-                  </EuiButton>
+                    {field.value?.length > 0 ? 'Add more' : 'Add field mapping'}
+                  </EuiSmallButton>
                 </div>
               </EuiFlexItem>
             </EuiFlexGroup>
