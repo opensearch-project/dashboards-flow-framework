@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { QueryPreset, WORKFLOW_STATE } from './interfaces';
+import { MapEntry, QueryPreset, WORKFLOW_STATE } from './interfaces';
 import { customStringify } from './utils';
 
 export const PLUGIN_ID = 'flow-framework';
@@ -254,6 +254,7 @@ export const MAX_STRING_LENGTH = 100;
 export const MAX_JSON_STRING_LENGTH = 10000;
 export const MAX_WORKFLOW_NAME_TO_DISPLAY = 40;
 export const WORKFLOW_NAME_REGEXP = RegExp('^[a-zA-Z0-9_-]*$');
+export const EMPTY_MAP_ENTRY = { key: '', value: '' } as MapEntry;
 
 export enum PROCESSOR_CONTEXT {
   INGEST = 'ingest',
