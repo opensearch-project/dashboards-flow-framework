@@ -14,10 +14,12 @@ import {
   EuiPanel,
   EuiSmallButton,
   EuiSmallButtonEmpty,
+  EuiSpacer,
   EuiText,
 } from '@elastic/eui';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
+  EMPTY_MAP_ENTRY,
   IConfigField,
   MapArrayFormValue,
   MapEntry,
@@ -49,7 +51,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
 
   // Adding a map to the end of the existing arr
   function addMap(curMapArray: MapArrayFormValue): void {
-    setFieldValue(props.fieldPath, [...curMapArray, [{ key: '', value: '' }]]);
+    setFieldValue(props.fieldPath, [...curMapArray, [EMPTY_MAP_ENTRY]]);
     setFieldTouched(props.fieldPath, true);
     if (props.onMapAdd) {
       props.onMapAdd(curMapArray);
@@ -73,6 +75,17 @@ export function MapArrayField(props: MapArrayFieldProps) {
   return (
     <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
+        const isNoMaps = field.value?.length === 0;
+        const isMultipleMaps = field.value?.length > 1;
+        const isSingleEmptyMap =
+          field.value !== undefined &&
+          field.value.length === 1 &&
+          field.value[0].length === 0;
+        const isSinglePopulatedMap =
+          field.value !== undefined &&
+          field.value.length === 1 &&
+          field.value[0].length > 0;
+
         return (
           <EuiFormRow
             fullWidth={true}
@@ -96,47 +109,69 @@ export function MapArrayField(props: MapArrayFieldProps) {
             }
           >
             <EuiFlexGroup direction="column" gutterSize="none">
-              {field.value?.map((mapping: MapEntry, idx: number) => {
-                return (
-                  <EuiFlexItem key={idx}>
-                    <EuiAccordion
-                      key={idx}
-                      id={`accordion${idx}`}
-                      buttonContent={`Prediction ${idx + 1}`}
-                      paddingSize="m"
-                      extraAction={
-                        <EuiButtonIcon
-                          style={{ marginTop: '8px' }}
-                          iconType={'trash'}
-                          color="danger"
-                          aria-label="Delete"
-                          onClick={() => {
-                            deleteMap(field.value, idx);
-                          }}
-                        />
-                      }
-                      initialIsOpen={true}
-                    >
-                      <EuiPanel grow={true}>
-                        <MapField
-                          fieldPath={`${props.fieldPath}.${idx}`}
-                          keyPlaceholder={props.keyPlaceholder}
-                          valuePlaceholder={props.valuePlaceholder}
-                          keyOptions={props.keyOptions}
-                          valueOptions={props.valueOptions}
-                        />
-                      </EuiPanel>
-                    </EuiAccordion>
-                  </EuiFlexItem>
-                );
-              })}
+              {isMultipleMaps ? (
+                <>
+                  {field.value?.map((mapping: MapEntry, idx: number) => {
+                    return (
+                      <EuiFlexItem key={idx}>
+                        <EuiAccordion
+                          key={idx}
+                          id={`accordion${idx}`}
+                          buttonContent={`Prediction ${idx + 1}`}
+                          paddingSize="m"
+                          extraAction={
+                            <EuiButtonIcon
+                              style={{ marginTop: '8px' }}
+                              iconType={'trash'}
+                              color="danger"
+                              aria-label="Delete"
+                              onClick={() => {
+                                deleteMap(field.value, idx);
+                              }}
+                            />
+                          }
+                          initialIsOpen={true}
+                        >
+                          <EuiPanel grow={true}>
+                            <MapField
+                              fieldPath={`${props.fieldPath}.${idx}`}
+                              keyPlaceholder={props.keyPlaceholder}
+                              valuePlaceholder={props.valuePlaceholder}
+                              keyOptions={props.keyOptions}
+                              valueOptions={props.valueOptions}
+                            />
+                          </EuiPanel>
+                        </EuiAccordion>
+                      </EuiFlexItem>
+                    );
+                  })}
+                </>
+              ) : isSinglePopulatedMap ? (
+                <>
+                  <EuiPanel grow={true}>
+                    <MapField
+                      fieldPath={`${props.fieldPath}.0`}
+                      keyPlaceholder={props.keyPlaceholder}
+                      valuePlaceholder={props.valuePlaceholder}
+                      keyOptions={props.keyOptions}
+                      valueOptions={props.valueOptions}
+                    />
+                  </EuiPanel>
+                  <EuiSpacer size="s" />
+                </>
+              ) : undefined}
+
               <EuiFlexItem grow={false}>
                 <div>
                   <>
-                    {field.value?.length === 0 ? (
+                    {isNoMaps || isSingleEmptyMap ? (
                       <EuiSmallButton
                         onClick={() => {
-                          addMap(field.value);
+                          if (isNoMaps) {
+                            addMap(field.value);
+                          } else {
+                            setFieldValue(`${field.name}.0`, [EMPTY_MAP_ENTRY]);
+                          }
                         }}
                       >
                         {'Configure'}
@@ -147,7 +182,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
                         onClick={() => {
                           addMap(field.value);
                         }}
-                      >{`(Advanced) Configure multiple`}</EuiSmallButtonEmpty>
+                      >{`(Advanced) Add another prediction`}</EuiSmallButtonEmpty>
                     )}
                   </>
                 </div>
