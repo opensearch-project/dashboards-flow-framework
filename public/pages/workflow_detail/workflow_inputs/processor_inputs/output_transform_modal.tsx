@@ -7,7 +7,6 @@ import React, { useState } from 'react';
 import { useFormikContext, getIn } from 'formik';
 import { cloneDeep, isEmpty, set } from 'lodash';
 import {
-  EuiButton,
   EuiCodeEditor,
   EuiFlexGroup,
   EuiFlexItem,
@@ -18,6 +17,7 @@ import {
   EuiModalHeaderTitle,
   EuiSelect,
   EuiSelectOption,
+  EuiSmallButton,
   EuiSpacer,
   EuiText,
 } from '@elastic/eui';
@@ -97,7 +97,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
           <EuiFlexItem>
             <>
               <EuiText>Expected input</EuiText>
-              <EuiButton
+              <EuiSmallButton
                 style={{ width: '100px' }}
                 onClick={async () => {
                   switch (props.context) {
@@ -200,7 +200,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 }}
               >
                 Fetch
-              </EuiButton>
+              </EuiSmallButton>
               <EuiSpacer size="s" />
               <EuiCodeEditor
                 mode="json"
@@ -223,16 +223,13 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
           <EuiFlexItem>
             <>
               <EuiText>Define transform</EuiText>
-              <EuiText size="s" color="subdued">
-                {`Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
-                root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-              </EuiText>
               <EuiSpacer size="s" />
               <MapArrayField
                 field={props.outputMapField}
                 fieldPath={props.outputMapFieldPath}
                 label="Output Map"
-                helpText={`An array specifying how to map the model’s output to new fields.`}
+                helpText={`An array specifying how to map the model’s output to new fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
+                root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                 helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="Document field"
                 valuePlaceholder="Model output field"
@@ -267,7 +264,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 }}
               />
               <EuiSpacer size="s" />
-              <EuiButton
+              <EuiSmallButton
                 style={{ width: '100px' }}
                 disabled={isEmpty(map) || isEmpty(JSON.parse(sourceInput))}
                 onClick={async () => {
@@ -295,7 +292,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 }}
               >
                 Generate
-              </EuiButton>
+              </EuiSmallButton>
               <EuiSpacer size="s" />
               <EuiCodeEditor
                 mode="json"
@@ -318,9 +315,9 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
         </EuiFlexGroup>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiButton onClick={props.onClose} fill={false} color="primary">
+        <EuiSmallButton onClick={props.onClose} fill={false} color="primary">
           Close
-        </EuiButton>
+        </EuiSmallButton>
       </EuiModalFooter>
     </EuiModal>
   );

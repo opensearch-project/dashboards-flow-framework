@@ -213,16 +213,13 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
-          <EuiText size="s" color="subdued">
-            {`Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
-                root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-          </EuiText>
           <EuiSpacer size="s" />
           <MapArrayField
             field={inputMapField}
             fieldPath={inputMapFieldPath}
             label="Input Map"
-            helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
+            helpText={`An array specifying how to map fields from the ingested document to the model’s input. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
+            root object selector "${JSONPATH_ROOT_SELECTOR}"`}
             helpLink={ML_INFERENCE_DOCS_LINK}
             keyPlaceholder="Model input field"
             valuePlaceholder={
@@ -270,7 +267,8 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             field={outputMapField}
             fieldPath={outputMapFieldPath}
             label="Output Map"
-            helpText={`An array specifying how to map the model’s output to new document fields.`}
+            helpText={`An array specifying how to map the model’s output to new document fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
+            root object selector "${JSONPATH_ROOT_SELECTOR}"`}
             helpLink={ML_INFERENCE_DOCS_LINK}
             keyPlaceholder={
               props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
