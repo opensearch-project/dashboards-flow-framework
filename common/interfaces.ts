@@ -463,6 +463,9 @@ export type QueryPreset = {
 
 export type QuickConfigureFields = {
   embeddingModelId?: string;
+  vectorField?: string;
+  textField?: string;
+  embeddingLength?: number;
 };
 
 /**

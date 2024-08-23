@@ -11,6 +11,9 @@ import {
   EuiSpacer,
   EuiCompressedSuperSelect,
   EuiSuperSelectOption,
+  EuiAccordion,
+  EuiCompressedFieldText,
+  EuiCompressedFieldNumber,
 } from '@elastic/eui';
 import {
   MODEL_STATE,
@@ -52,68 +55,109 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
     props.setFields(fieldValues);
   }, [fieldValues]);
 
-  // reusable embedding model selector component
-  function EmbeddingModelSelector() {
-    return (
-      <EuiCompressedFormRow
-        label={'Embedding model'}
-        error={'Invalid'}
-        isInvalid={false}
-      >
-        <EuiCompressedSuperSelect
-          options={deployedModels.map(
-            (option) =>
-              ({
-                value: option.id,
-                inputDisplay: (
-                  <>
-                    <EuiText size="s">{option.name}</EuiText>
-                  </>
-                ),
-                dropdownDisplay: (
-                  <>
-                    <EuiText size="s">{option.name}</EuiText>
-                    <EuiText size="xs" color="subdued">
-                      Deployed
-                    </EuiText>
-                    <EuiText size="xs" color="subdued">
-                      {option.algorithm}
-                    </EuiText>
-                  </>
-                ),
-                disabled: false,
-              } as EuiSuperSelectOption<string>)
-          )}
-          valueOfSelected={fieldValues?.embeddingModelId || ''}
-          onChange={(option: string) => {
-            setFieldValues({
-              ...fieldValues,
-              embeddingModelId: option,
-            });
-          }}
-          isInvalid={false}
-        />
-      </EuiCompressedFormRow>
-    );
-  }
-
-  return (() => {
-    switch (props.workflowType) {
-      case WORKFLOW_TYPE.SEMANTIC_SEARCH:
-      case WORKFLOW_TYPE.MULTIMODAL_SEARCH:
-      case WORKFLOW_TYPE.HYBRID_SEARCH: {
-        return (
-          <>
-            <EmbeddingModelSelector />
+  return (
+    <>
+      {(props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
+        props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
+        props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH) && (
+        <>
+          <EuiSpacer size="m" />
+          <EuiAccordion
+            id="optionalConfiguration"
+            buttonContent="Optional configuration"
+            initialIsOpen={true}
+          >
+            <EuiSpacer size="m" />
+            <EuiCompressedFormRow
+              label={'Embedding model'}
+              isInvalid={false}
+              helpText="The model to generate embeddings"
+            >
+              <EuiCompressedSuperSelect
+                options={deployedModels.map(
+                  (option) =>
+                    ({
+                      value: option.id,
+                      inputDisplay: (
+                        <>
+                          <EuiText size="s">{option.name}</EuiText>
+                        </>
+                      ),
+                      dropdownDisplay: (
+                        <>
+                          <EuiText size="s">{option.name}</EuiText>
+                          <EuiText size="xs" color="subdued">
+                            Deployed
+                          </EuiText>
+                          <EuiText size="xs" color="subdued">
+                            {option.algorithm}
+                          </EuiText>
+                        </>
+                      ),
+                      disabled: false,
+                    } as EuiSuperSelectOption<string>)
+                )}
+                valueOfSelected={fieldValues?.embeddingModelId || ''}
+                onChange={(option: string) => {
+                  setFieldValues({
+                    ...fieldValues,
+                    embeddingModelId: option,
+                  });
+                }}
+                isInvalid={false}
+              />
+            </EuiCompressedFormRow>
             <EuiSpacer size="s" />
-          </>
-        );
-      }
-      case WORKFLOW_TYPE.CUSTOM:
-      case undefined:
-      default: {
-        return <></>;
-      }
-    }
-  })();
+            <EuiCompressedFormRow
+              label={'Text field'}
+              isInvalid={false}
+              helpText="The name of the document field containing plaintext"
+            >
+              <EuiCompressedFieldText
+                value={fieldValues?.textField || ''}
+                onChange={(e) => {
+                  setFieldValues({
+                    ...fieldValues,
+                    textField: e.target.value,
+                  });
+                }}
+              />
+            </EuiCompressedFormRow>
+            <EuiSpacer size="s" />
+            <EuiCompressedFormRow
+              label={'Vector field'}
+              isInvalid={false}
+              helpText="The name of the document vield containing the vector embedding"
+            >
+              <EuiCompressedFieldText
+                value={fieldValues?.vectorField || ''}
+                onChange={(e) => {
+                  setFieldValues({
+                    ...fieldValues,
+                    vectorField: e.target.value,
+                  });
+                }}
+              />
+            </EuiCompressedFormRow>
+            <EuiSpacer size="s" />
+            <EuiCompressedFormRow
+              label={'Embedding length'}
+              isInvalid={false}
+              helpText="The length of the generated vector embeddings"
+            >
+              <EuiCompressedFieldNumber
+                value={fieldValues?.embeddingLength || ''}
+                onChange={(e) => {
+                  setFieldValues({
+                    ...fieldValues,
+                    embeddingLength: Number(e.target.value),
+                  });
+                }}
+              />
+            </EuiCompressedFormRow>
+          </EuiAccordion>
+        </>
+      )}
+    </>
+  );
 }

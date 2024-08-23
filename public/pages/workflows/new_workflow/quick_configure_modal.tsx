@@ -18,10 +18,15 @@ import {
 } from '@elastic/eui';
 import {
   MODEL_ID_PATTERN,
+  MapArrayFormValue,
   QuickConfigureFields,
+  TEXT_FIELD_PATTERN,
+  VECTOR_FIELD_PATTERN,
   WORKFLOW_NAME_REGEXP,
   WORKFLOW_TYPE,
   Workflow,
+  WorkflowConfig,
+  customStringify,
 } from '../../../../common';
 import { APP_PATH } from '../../../utils';
 import { processWorkflowName } from './utils';
@@ -62,7 +67,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   }
 
   return (
-    <EuiModal onClose={() => props.onClose()}>
+    <EuiModal onClose={() => props.onClose()} style={{ width: '30vw' }}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
           <p>{`Quick configure`}</p>
@@ -150,18 +155,18 @@ function injectQuickConfigureFields(
       // Semantic search / hybrid search: set defaults in the ingest processor and preset query
       case WORKFLOW_TYPE.SEMANTIC_SEARCH:
       case WORKFLOW_TYPE.HYBRID_SEARCH: {
-        if (
-          !isEmpty(quickConfigureFields.embeddingModelId) &&
-          typeof quickConfigureFields.embeddingModelId === 'string'
-        ) {
-          console.log('entering injection');
-          workflow = updateIngestProcessorConfig(
-            workflow,
-            quickConfigureFields.embeddingModelId
+        if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
+          workflow.ui_metadata.config = updateIngestProcessorConfig(
+            workflow.ui_metadata.config,
+            quickConfigureFields
           );
-          workflow = updateSearchRequestConfig(
-            workflow,
-            quickConfigureFields.embeddingModelId
+          workflow.ui_metadata.config = updateIndexConfig(
+            workflow.ui_metadata.config,
+            quickConfigureFields
+          );
+          workflow.ui_metadata.config = updateSearchRequestConfig(
+            workflow.ui_metadata.config,
+            quickConfigureFields
           );
         }
       }
@@ -174,34 +179,93 @@ function injectQuickConfigureFields(
   return workflow;
 }
 
-// given a model ID, update the ML processor config
+// prefill ML ingest pipeline processor config, if applicable
 function updateIngestProcessorConfig(
-  workflow: Workflow,
-  modelId: string
-): Workflow {
-  if (workflow.ui_metadata?.config) {
-    workflow.ui_metadata.config.ingest.enrich.processors[0].fields.forEach(
-      (field) => {
-        if (field.id === 'model') {
-          field.value = { id: modelId };
-        }
-      }
-    );
-  }
-  return workflow;
+  config: WorkflowConfig,
+  fields: QuickConfigureFields
+): WorkflowConfig {
+  config.ingest.enrich.processors[0].fields.forEach((field) => {
+    if (field.id === 'model' && fields.embeddingModelId) {
+      field.value = { id: fields.embeddingModelId };
+    }
+    if (field.id === 'input_map' && fields.textField) {
+      field.value = [
+        [{ key: '', value: fields.textField }],
+      ] as MapArrayFormValue;
+    }
+    if (field.id === 'output_map' && fields.vectorField) {
+      field.value = [
+        [{ key: fields.vectorField, value: '' }],
+      ] as MapArrayFormValue;
+    }
+  });
+
+  return config;
 }
 
-// given a model ID, replace placeholders in the preset query
+// prefill index mappings/settings, if applicable
+function updateIndexConfig(
+  config: WorkflowConfig,
+  fields: QuickConfigureFields
+): WorkflowConfig {
+  if (fields.textField) {
+    const existingMappings = JSON.parse(
+      config.ingest.index.mappings.value as string
+    );
+    config.ingest.index.mappings.value = customStringify({
+      ...existingMappings,
+      properties: {
+        ...(existingMappings.properties || {}),
+        [fields.textField]: {
+          type: 'text',
+        },
+      },
+    });
+  }
+  if (fields.vectorField) {
+    const existingMappings = JSON.parse(
+      config.ingest.index.mappings.value as string
+    );
+    config.ingest.index.mappings.value = customStringify({
+      ...existingMappings,
+      properties: {
+        ...(existingMappings.properties || {}),
+        [fields.vectorField]: {
+          type: 'knn_vector',
+          dimension: fields.embeddingLength || '',
+        },
+      },
+    });
+  }
+  return config;
+}
+
+// pre-populate placeholders in the query, if applicable
 function updateSearchRequestConfig(
-  workflow: Workflow,
-  modelId: string
-): Workflow {
-  if (workflow.ui_metadata?.config) {
-    workflow.ui_metadata.config.search.request.value = ((workflow.ui_metadata
-      .config.search.request.value || '') as string).replace(
-      MODEL_ID_PATTERN,
-      modelId
+  config: WorkflowConfig,
+  fields: QuickConfigureFields
+): WorkflowConfig {
+  if (fields.embeddingModelId) {
+    config.search.request.value = ((config.search.request.value ||
+      '') as string).replace(
+      new RegExp(MODEL_ID_PATTERN, 'g'),
+      fields.embeddingModelId
     );
   }
-  return workflow;
+  if (fields.textField) {
+    config.search.request.value = ((config.search.request.value ||
+      '') as string).replace(
+      new RegExp(TEXT_FIELD_PATTERN, 'g'),
+      fields.textField
+    );
+  }
+  if (fields.vectorField) {
+    config.search.request.value = ((config.search.request.value ||
+      '') as string).replace(
+      new RegExp(VECTOR_FIELD_PATTERN, 'g'),
+      fields.vectorField
+    );
+  }
+
+  return config;
 }
