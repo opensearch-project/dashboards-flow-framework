@@ -40,6 +40,9 @@ interface QuickConfigureModalProps {
   onClose(): void;
 }
 
+// Modal to handle workflow creation. Includes a static field to set the workflow name, and
+// an optional set of quick-configure fields, that when populated, help pre-populate
+// some of the detailed workflow configuration.
 export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
@@ -152,7 +155,8 @@ function injectQuickConfigureFields(
 ): Workflow {
   if (workflow.ui_metadata?.type) {
     switch (workflow.ui_metadata?.type) {
-      // Semantic search / hybrid search: set defaults in the ingest processor and preset query
+      // Semantic search / hybrid search: set defaults in the ingest processor, the index mappings,
+      // and the preset query
       case WORKFLOW_TYPE.SEMANTIC_SEARCH:
       case WORKFLOW_TYPE.HYBRID_SEARCH: {
         if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
