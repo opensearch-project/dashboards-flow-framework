@@ -45,6 +45,9 @@ export function UseCase(props: UseCaseProps) {
     processWorkflowName(props.workflow.name)
   );
 
+  // is creating state
+  const [isCreating, setIsCreating] = useState<boolean>(false);
+
   // custom sanitization on workflow name
   function isInvalid(name: string): boolean {
     return (
@@ -83,8 +86,10 @@ export function UseCase(props: UseCaseProps) {
               Cancel
             </EuiSmallButtonEmpty>
             <EuiSmallButton
-              disabled={isInvalid(workflowName)}
+              disabled={isInvalid(workflowName) || isCreating}
+              isLoading={isCreating}
               onClick={() => {
+                setIsCreating(true);
                 const workflowToCreate = {
                   ...props.workflow,
                   name: workflowName,
@@ -97,6 +102,7 @@ export function UseCase(props: UseCaseProps) {
                 )
                   .unwrap()
                   .then((result) => {
+                    setIsCreating(false);
                     const { workflow } = result;
                     history.replace(
                       constructUrlWithParams(
@@ -108,6 +114,7 @@ export function UseCase(props: UseCaseProps) {
                     );
                   })
                   .catch((err: any) => {
+                    setIsCreating(false);
                     console.error(err);
                   });
               }}
