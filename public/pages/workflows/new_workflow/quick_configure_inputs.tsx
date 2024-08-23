@@ -127,7 +127,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             <EuiCompressedFormRow
               label={'Vector field'}
               isInvalid={false}
-              helpText="The name of the document vield containing the vector embedding"
+              helpText="The name of the document field containing the vector embedding"
             >
               <EuiCompressedFieldText
                 value={fieldValues?.vectorField || ''}
@@ -143,7 +143,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             <EuiCompressedFormRow
               label={'Embedding length'}
               isInvalid={false}
-              helpText="The length of the generated vector embeddings"
+              helpText="The length / dimension of the generated vector embeddings"
             >
               <EuiCompressedFieldNumber
                 value={fieldValues?.embeddingLength || ''}
