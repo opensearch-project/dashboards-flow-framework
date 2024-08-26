@@ -116,11 +116,26 @@ function searchConfigToTemplateNodes(
   const searchRequestProcessors = processorConfigsToTemplateProcessors(
     searchConfig.enrichRequest.processors
   );
+  // For the configured response processors, we don't maintain separate UI / config
+  // between response processors and phase results processors. So, we parse
+  // out those different processor types here when configuring the final search pipeline.
+  // Currently, the only special phase results processor supported is the normalization processor,
+  // so we filter & partition on that type.
+  const normalizationProcessor = searchConfig.enrichResponse.processors.find(
+    (processor) => processor.type === PROCESSOR_TYPE.NORMALIZATION
+  );
+  const phaseResultsProcessors = processorConfigsToTemplateProcessors(
+    normalizationProcessor ? [normalizationProcessor] : []
+  );
   const searchResponseProcessors = processorConfigsToTemplateProcessors(
-    searchConfig.enrichResponse.processors
+    searchConfig.enrichResponse.processors.filter(
+      (processor) => processor.type !== PROCESSOR_TYPE.NORMALIZATION
+    )
   );
   const hasProcessors =
-    searchRequestProcessors.length > 0 || searchResponseProcessors.length > 0;
+    searchRequestProcessors.length > 0 ||
+    searchResponseProcessors.length > 0 ||
+    phaseResultsProcessors.length > 0;
 
   return hasProcessors
     ? [
@@ -133,6 +148,7 @@ function searchConfigToTemplateNodes(
             configurations: JSON.stringify({
               request_processors: searchRequestProcessors,
               response_processors: searchResponseProcessors,
+              phase_results_processors: phaseResultsProcessors,
             } as SearchPipelineConfig),
           },
         } as CreateSearchPipelineNode,
@@ -251,6 +267,49 @@ export function processorConfigsToTemplateProcessors(
         };
         processorsList.push({
           [processorConfig.type]: finalFormValues,
+        });
+        break;
+      }
+      // optionally add any parameters specified, in the expected nested format
+      // for the normalization processor
+      case PROCESSOR_TYPE.NORMALIZATION: {
+        const {
+          normalization_technique,
+          combination_technique,
+          weights,
+        } = processorConfigToFormik(processorConfig);
+
+        let finalConfig = {} as any;
+        if (!isEmpty(normalization_technique)) {
+          finalConfig = {
+            ...finalConfig,
+            normalization: {
+              technique: normalization_technique,
+            },
+          };
+        }
+        if (!isEmpty(combination_technique)) {
+          finalConfig = {
+            ...finalConfig,
+            combination: {
+              ...(finalConfig?.combination || {}),
+              technique: combination_technique,
+            },
+          };
+        }
+        if (!isEmpty(weights) && weights.split(',').length > 0) {
+          finalConfig = {
+            ...finalConfig,
+            combination: {
+              ...(finalConfig?.combination || {}),
+              parameters: {
+                weights: weights.split(',').map(Number),
+              },
+            },
+          };
+        }
+        processorsList.push({
+          [processorConfig.type]: finalConfig,
         });
         break;
       }

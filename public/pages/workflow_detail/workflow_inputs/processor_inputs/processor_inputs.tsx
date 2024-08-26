@@ -15,6 +15,7 @@ import {
 import { MLProcessorInputs } from './ml_processor_inputs';
 import { ConfigFieldList } from '../config_field_list';
 import { TextChunkingProcessorInputs } from './text_chunking_processor_inputs';
+import { NormalizationProcessorInputs } from './normalization_processor_inputs';
 
 /**
  * Base component for rendering processor form inputs based on the processor type
@@ -59,6 +60,20 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
             el = (
               <EuiFlexItem>
                 <TextChunkingProcessorInputs
+                  uiConfig={props.uiConfig}
+                  config={props.config}
+                  baseConfigPath={props.baseConfigPath}
+                  context={props.context}
+                />
+                <EuiSpacer size={PROCESSOR_INPUTS_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
+          case PROCESSOR_TYPE.NORMALIZATION: {
+            el = (
+              <EuiFlexItem>
+                <NormalizationProcessorInputs
                   uiConfig={props.uiConfig}
                   config={props.config}
                   baseConfigPath={props.baseConfigPath}
