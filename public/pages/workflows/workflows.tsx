@@ -30,7 +30,7 @@ import { ImportWorkflowModal } from './import_workflow';
 import { MountPoint } from '../../../../../src/core/public';
 import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_source_management/public';
 
-import { getDataSourceFromURL } from '../../utils/utils';
+import { dataSourceFilterFn, getDataSourceFromURL } from '../../utils/utils';
 
 import {
   getDataSourceManagementPlugin,
@@ -198,6 +198,7 @@ export function Workflows(props: WorkflowsProps) {
             notifications: getNotifications(),
             onSelectedDataSources: (dataSources) =>
               handleDataSourceChange(dataSources),
+            dataSourceFilter: dataSourceFilterFn,
           }}
         />
       );

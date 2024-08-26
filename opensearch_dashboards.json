@@ -5,12 +5,8 @@
   "server": true,
   "ui": true,
   "requiredBundles": [],
-  "requiredPlugins": [
-    "navigation",
-    "opensearchDashboardsUtils"
-  ],
-  "optionalPlugins": [
-    "dataSource",
-    "dataSourceManagement"
-  ]
+  "requiredPlugins": ["navigation", "opensearchDashboardsUtils"],
+  "optionalPlugins": ["dataSource", "dataSourceManagement"],
+  "supportedOSDataSourceVersions": ">=2.17.0 <4.0.0",
+  "requiredOSDataSourcePlugins": ["opensearch-ml", "opensearch-flow-framework"]
 }

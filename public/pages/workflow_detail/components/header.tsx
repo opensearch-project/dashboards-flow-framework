@@ -27,6 +27,7 @@ import {
   SHOW_ACTIONS_IN_HEADER,
   constructUrlWithParams,
   getDataSourceId,
+  dataSourceFilterFn,
 } from '../../../utils';
 import { ExportModal } from './export_modal';
 import {
@@ -143,6 +144,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           fullWidth: false,
           savedObjects: getSavedObjectsClient(),
           notifications: getNotifications(),
+          dataSourceFilter: dataSourceFilterFn,
         }}
       />
     );

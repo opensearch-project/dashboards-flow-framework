@@ -25,6 +25,10 @@ import { getCore, getDataSourceEnabled } from '../services';
 import { MDSQueryParams } from '../../common/interfaces';
 import queryString from 'query-string';
 import { useLocation } from 'react-router-dom';
+import * as pluginManifest from '../../opensearch_dashboards.json';
+import { DataSourceAttributes } from '../../../../src/plugins/data_source/common/data_sources';
+import { SavedObject } from '../../../../src/core/public';
+import semver from 'semver';
 
 // Append 16 random characters
 export function generateId(prefix?: string): string {
@@ -282,3 +286,19 @@ export function camelCaseToTitleString(snakeCaseString: string): string {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
+
+export const dataSourceFilterFn = (
+  dataSource: SavedObject<DataSourceAttributes>
+) => {
+  const dataSourceVersion = dataSource?.attributes?.dataSourceVersion || '';
+  const installedPlugins = dataSource?.attributes?.installedPlugins || [];
+  return (
+    semver.satisfies(
+      dataSourceVersion,
+      pluginManifest.supportedOSDataSourceVersions
+    ) &&
+    pluginManifest.requiredOSDataSourcePlugins.every((plugin) =>
+      installedPlugins.includes(plugin)
+    )
+  );
+};
