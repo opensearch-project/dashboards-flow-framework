@@ -65,7 +65,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
           <EuiAccordion
             id="optionalConfiguration"
             buttonContent="Optional configuration"
-            initialIsOpen={true}
+            initialIsOpen={false}
           >
             <EuiSpacer size="m" />
             <EuiCompressedFormRow
