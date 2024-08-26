@@ -146,8 +146,14 @@ export const DELIMITER_OPTIONAL_FIELDS = ['delimiter'];
 export const SHARED_OPTIONAL_FIELDS = ['max_chunk_limit', 'description', 'tag'];
 
 /**
- * QUERIES
+ * QUERY PRESETS
  */
+export const VECTOR_FIELD_PATTERN = `{{vector_field}}`;
+export const TEXT_FIELD_PATTERN = `{{text_field}}`;
+export const QUERY_TEXT_PATTERN = `{{query_text}}`;
+export const QUERY_IMAGE_PATTERN = `{{query_image}}`;
+export const MODEL_ID_PATTERN = `{{model_id}}`;
+
 export const FETCH_ALL_QUERY = {
   query: {
     match_all: {},
@@ -156,13 +162,13 @@ export const FETCH_ALL_QUERY = {
 };
 export const SEMANTIC_SEARCH_QUERY = {
   _source: {
-    excludes: [`{{vector_field}}`],
+    excludes: [VECTOR_FIELD_PATTERN],
   },
   query: {
     neural: {
-      [`{{vector_field}}`]: {
-        query_text: `{{query_text}}`,
-        model_id: `{{model_id}}`,
+      [VECTOR_FIELD_PATTERN]: {
+        query_text: QUERY_TEXT_PATTERN,
+        model_id: MODEL_ID_PATTERN,
         k: 100,
       },
     },
@@ -170,14 +176,14 @@ export const SEMANTIC_SEARCH_QUERY = {
 };
 export const MULTIMODAL_SEARCH_QUERY = {
   _source: {
-    excludes: [`{{vector_field}}`],
+    excludes: [VECTOR_FIELD_PATTERN],
   },
   query: {
     neural: {
-      [`{{vector_field}}`]: {
-        query_text: `{{query_text}}`,
-        query_image: `{{query_image}}`,
-        model_id: `{{model_id}}`,
+      [VECTOR_FIELD_PATTERN]: {
+        query_text: QUERY_TEXT_PATTERN,
+        query_image: QUERY_IMAGE_PATTERN,
+        model_id: MODEL_ID_PATTERN,
         k: 100,
       },
     },
@@ -185,23 +191,23 @@ export const MULTIMODAL_SEARCH_QUERY = {
 };
 export const HYBRID_SEARCH_QUERY = {
   _source: {
-    excludes: [`{{vector_field}}`],
+    excludes: [VECTOR_FIELD_PATTERN],
   },
   query: {
     hybrid: {
       queries: [
         {
           match: {
-            [`{{text_field}}`]: {
-              query: `{{query_text}}`,
+            [TEXT_FIELD_PATTERN]: {
+              query: QUERY_TEXT_PATTERN,
             },
           },
         },
         {
           neural: {
-            [`{{vector_field}}`]: {
-              query_text: `{{query_text}}`,
-              model_id: `{{model_id}}`,
+            [VECTOR_FIELD_PATTERN]: {
+              query_text: QUERY_TEXT_PATTERN,
+              model_id: MODEL_ID_PATTERN,
               k: 5,
             },
           },

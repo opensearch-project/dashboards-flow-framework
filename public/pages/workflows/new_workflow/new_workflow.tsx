@@ -14,9 +14,19 @@ import {
 } from '@elastic/eui';
 import { useSelector } from 'react-redux';
 import { UseCase } from './use_case';
-import { Workflow, WorkflowTemplate } from '../../../../common';
-import { AppState, useAppDispatch, getWorkflowPresets } from '../../../store';
+import {
+  FETCH_ALL_QUERY,
+  Workflow,
+  WorkflowTemplate,
+} from '../../../../common';
+import {
+  AppState,
+  useAppDispatch,
+  getWorkflowPresets,
+  searchModels,
+} from '../../../store';
 import { enrichPresetWorkflowWithUiMetadata } from './utils';
+import { getDataSourceId } from '../../../utils';
 
 interface NewWorkflowProps {}
 
@@ -27,6 +37,7 @@ interface NewWorkflowProps {}
  */
 export function NewWorkflow(props: NewWorkflowProps) {
   const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
 
   // workflows state
   const { presetWorkflows, loading } = useSelector(
@@ -43,9 +54,13 @@ export function NewWorkflow(props: NewWorkflowProps) {
     setSearchQuery(query);
   }, 200);
 
-  // initial state
+  // on initial load:
+  // 1. fetch the workflow presets persisted on server-side
+  // 2. fetch the ML models. these may be used in quick-create views when selecting a preset,
+  //    so we optimize by fetching once at the top-level here.
   useEffect(() => {
     dispatch(getWorkflowPresets());
+    dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
   }, []);
 
   // initial hook to populate all workflows

@@ -461,6 +461,13 @@ export type QueryPreset = {
   query: string;
 };
 
+export type QuickConfigureFields = {
+  embeddingModelId?: string;
+  vectorField?: string;
+  textField?: string;
+  embeddingLength?: number;
+};
+
 /**
  ********** OPENSEARCH TYPES/INTERFACES ************
  */
