@@ -28,6 +28,7 @@ import {
   MLIngestProcessor,
   MLSearchRequestProcessor,
   MLSearchResponseProcessor,
+  NormalizationProcessor,
   SortIngestProcessor,
   SortSearchResponseProcessor,
   SplitIngestProcessor,
@@ -269,6 +270,15 @@ export function ProcessorsList(props: ProcessorsListProps) {
                               closePopover();
                               addProcessor(
                                 new SortSearchResponseProcessor().toObj()
+                              );
+                            },
+                          },
+                          {
+                            name: 'Normalization Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(
+                                new NormalizationProcessor().toObj()
                               );
                             },
                           },
