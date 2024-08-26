@@ -456,6 +456,18 @@ export type WorkflowDict = {
   [workflowId: string]: Workflow;
 };
 
+export type QueryPreset = {
+  name: string;
+  query: string;
+};
+
+export type QuickConfigureFields = {
+  embeddingModelId?: string;
+  vectorField?: string;
+  textField?: string;
+  embeddingLength?: number;
+};
+
 /**
  ********** OPENSEARCH TYPES/INTERFACES ************
  */

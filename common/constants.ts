@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { WORKFLOW_STATE } from './interfaces';
+import { MapEntry, QueryPreset, WORKFLOW_STATE } from './interfaces';
+import { customStringify } from './utils';
 
 export const PLUGIN_ID = 'flow-framework';
 export const SEARCH_STUDIO = 'Search Studio';
@@ -59,6 +60,8 @@ export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
 // frontend-specific workflow types, derived from the available preset templates
 export enum WORKFLOW_TYPE {
   SEMANTIC_SEARCH = 'Semantic search',
+  MULTIMODAL_SEARCH = 'Multimodal search',
+  HYBRID_SEARCH = 'Hybrid search',
   CUSTOM = 'Custom',
   UNKNOWN = 'Unknown',
 }
@@ -70,6 +73,7 @@ export enum PROCESSOR_TYPE {
   SPLIT = 'split',
   SORT = 'sort',
   TEXT_CHUNKING = 'text_chunking',
+  NORMALIZATION = 'normalization-processor',
 }
 
 export enum MODEL_TYPE {
@@ -126,6 +130,8 @@ export const TEXT_CHUNKING_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-chunking/';
 export const CREATE_WORKFLOW_LINK =
   'https://opensearch.org/docs/latest/automating-configurations/api/create-workflow/';
+export const NORMALIZATION_PROCESSOR_LINK =
+  'https://opensearch.org/docs/latest/search-plugins/search-pipelines/normalization-processor/';
 
 /**
  * Text chunking algorithm constants
@@ -143,6 +149,97 @@ export const DELIMITER_OPTIONAL_FIELDS = ['delimiter'];
 export const SHARED_OPTIONAL_FIELDS = ['max_chunk_limit', 'description', 'tag'];
 
 /**
+ * QUERY PRESETS
+ */
+export const VECTOR_FIELD_PATTERN = `{{vector_field}}`;
+export const TEXT_FIELD_PATTERN = `{{text_field}}`;
+export const QUERY_TEXT_PATTERN = `{{query_text}}`;
+export const QUERY_IMAGE_PATTERN = `{{query_image}}`;
+export const MODEL_ID_PATTERN = `{{model_id}}`;
+
+export const FETCH_ALL_QUERY = {
+  query: {
+    match_all: {},
+  },
+  size: 1000,
+};
+export const SEMANTIC_SEARCH_QUERY = {
+  _source: {
+    excludes: [VECTOR_FIELD_PATTERN],
+  },
+  query: {
+    neural: {
+      [VECTOR_FIELD_PATTERN]: {
+        query_text: QUERY_TEXT_PATTERN,
+        model_id: MODEL_ID_PATTERN,
+        k: 100,
+      },
+    },
+  },
+};
+export const MULTIMODAL_SEARCH_QUERY = {
+  _source: {
+    excludes: [VECTOR_FIELD_PATTERN],
+  },
+  query: {
+    neural: {
+      [VECTOR_FIELD_PATTERN]: {
+        query_text: QUERY_TEXT_PATTERN,
+        query_image: QUERY_IMAGE_PATTERN,
+        model_id: MODEL_ID_PATTERN,
+        k: 100,
+      },
+    },
+  },
+};
+export const HYBRID_SEARCH_QUERY = {
+  _source: {
+    excludes: [VECTOR_FIELD_PATTERN],
+  },
+  query: {
+    hybrid: {
+      queries: [
+        {
+          match: {
+            [TEXT_FIELD_PATTERN]: {
+              query: QUERY_TEXT_PATTERN,
+            },
+          },
+        },
+        {
+          neural: {
+            [VECTOR_FIELD_PATTERN]: {
+              query_text: QUERY_TEXT_PATTERN,
+              model_id: MODEL_ID_PATTERN,
+              k: 5,
+            },
+          },
+        },
+      ],
+    },
+  },
+};
+
+export const QUERY_PRESETS = [
+  {
+    name: 'Fetch all',
+    query: customStringify(FETCH_ALL_QUERY),
+  },
+  {
+    name: WORKFLOW_TYPE.SEMANTIC_SEARCH,
+    query: customStringify(SEMANTIC_SEARCH_QUERY),
+  },
+  {
+    name: WORKFLOW_TYPE.MULTIMODAL_SEARCH,
+    query: customStringify(MULTIMODAL_SEARCH_QUERY),
+  },
+  {
+    name: WORKFLOW_TYPE.HYBRID_SEARCH,
+    query: customStringify(HYBRID_SEARCH_QUERY),
+  },
+] as QueryPreset[];
+
+/**
  * MISCELLANEOUS
  */
 export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
@@ -152,12 +249,6 @@ export const DEFAULT_NEW_WORKFLOW_STATE = WORKFLOW_STATE.NOT_STARTED;
 export const DEFAULT_NEW_WORKFLOW_STATE_TYPE = ('NOT_STARTED' as any) as typeof WORKFLOW_STATE;
 export const DATE_FORMAT_PATTERN = 'MM/DD/YY hh:mm A';
 export const EMPTY_FIELD_STRING = '--';
-export const FETCH_ALL_QUERY_BODY = {
-  query: {
-    match_all: {},
-  },
-  size: 1000,
-};
 export const INDEX_NOT_FOUND_EXCEPTION = 'index_not_found_exception';
 export const ERROR_GETTING_WORKFLOW_MSG = 'Failed to retrieve template';
 export const NO_MODIFICATIONS_FOUND_TEXT =
@@ -172,6 +263,7 @@ export const MAX_STRING_LENGTH = 100;
 export const MAX_JSON_STRING_LENGTH = 10000;
 export const MAX_WORKFLOW_NAME_TO_DISPLAY = 40;
 export const WORKFLOW_NAME_REGEXP = RegExp('^[a-zA-Z0-9_-]*$');
+export const EMPTY_MAP_ENTRY = { key: '', value: '' } as MapEntry;
 
 export enum PROCESSOR_CONTEXT {
   INGEST = 'ingest',

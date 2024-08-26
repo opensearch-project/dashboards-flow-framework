@@ -7,7 +7,6 @@ import React, { useState } from 'react';
 import { useFormikContext, getIn } from 'formik';
 import { isEmpty } from 'lodash';
 import {
-  EuiButton,
   EuiCodeEditor,
   EuiFlexGroup,
   EuiFlexItem,
@@ -18,6 +17,7 @@ import {
   EuiModalHeaderTitle,
   EuiSelect,
   EuiSelectOption,
+  EuiSmallButton,
   EuiSpacer,
   EuiText,
 } from '@elastic/eui';
@@ -100,7 +100,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
           <EuiFlexItem>
             <>
               <EuiText>Expected input</EuiText>
-              <EuiButton
+              <EuiSmallButton
                 style={{ width: '100px' }}
                 onClick={async () => {
                   switch (props.context) {
@@ -207,7 +207,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 }}
               >
                 Fetch
-              </EuiButton>
+              </EuiSmallButton>
               <EuiSpacer size="s" />
               <EuiCodeEditor
                 mode="json"
@@ -230,16 +230,13 @@ export function InputTransformModal(props: InputTransformModalProps) {
           <EuiFlexItem>
             <>
               <EuiText>Define transform</EuiText>
-              <EuiText size="s" color="subdued">
-                {`Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
-                root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-              </EuiText>
               <EuiSpacer size="s" />
               <MapArrayField
                 field={props.inputMapField}
                 fieldPath={props.inputMapFieldPath}
                 label="Input Map"
-                helpText={`An array specifying how to map fields from the ingested document to the model’s input.`}
+                helpText={`An array specifying how to map fields from the ingested document to the model’s input. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
+                root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                 helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="Model input field"
                 valuePlaceholder={
@@ -278,7 +275,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 }}
               />
               <EuiSpacer size="s" />
-              <EuiButton
+              <EuiSmallButton
                 style={{ width: '100px' }}
                 disabled={isEmpty(map) || isEmpty(JSON.parse(sourceInput))}
                 onClick={async () => {
@@ -306,7 +303,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 }}
               >
                 Generate
-              </EuiButton>
+              </EuiSmallButton>
               <EuiSpacer size="s" />
               <EuiCodeEditor
                 mode="json"
@@ -329,9 +326,9 @@ export function InputTransformModal(props: InputTransformModalProps) {
         </EuiFlexGroup>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiButton onClick={props.onClose} fill={false} color="primary">
+        <EuiSmallButton onClick={props.onClose} fill={false} color="primary">
           Close
-        </EuiButton>
+        </EuiSmallButton>
       </EuiModalFooter>
     </EuiModal>
   );
