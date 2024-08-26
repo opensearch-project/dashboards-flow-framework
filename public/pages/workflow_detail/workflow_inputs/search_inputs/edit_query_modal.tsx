@@ -72,7 +72,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
                     setFieldValue(props.queryFieldPath, preset.query);
                     setPopoverOpen(false);
                   },
-                  size: 's',
+                  size: 'full',
                 })),
               },
             ]}
