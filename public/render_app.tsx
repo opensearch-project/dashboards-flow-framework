@@ -38,5 +38,20 @@ export const renderApp = (
     params.element
   );
 
-  return () => ReactDOM.unmountComponentAtNode(params.element);
+  const expectedBasePath = '/app/flow-framework#';
+
+  const unlistenParentHistory = params.history.listen(() => {
+    if (
+      hideInAppSideNavBar &&
+      window.location.pathname.endsWith('/app/flow-framework')
+    ) {
+      window.location.href = `${expectedBasePath}`;
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    }
+  });
+
+  return () => {
+    ReactDOM.unmountComponentAtNode(params.element);
+    unlistenParentHistory();
+  };
 };
