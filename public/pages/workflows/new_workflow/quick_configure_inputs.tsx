@@ -111,7 +111,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             <EuiCompressedFormRow
               label={'Text field'}
               isInvalid={false}
-              helpText="The name of the text document field to be vectorized"
+              helpText="The name of the text document field to be embedded"
             >
               <EuiCompressedFieldText
                 value={fieldValues?.textField || ''}
