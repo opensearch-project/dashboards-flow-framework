@@ -18,8 +18,10 @@ import {
 } from '@elastic/eui';
 import {
   EMPTY_MAP_ENTRY,
+  IMAGE_FIELD_PATTERN,
   MODEL_ID_PATTERN,
   MapArrayFormValue,
+  MapFormValue,
   QuickConfigureFields,
   TEXT_FIELD_PATTERN,
   VECTOR_FIELD_PATTERN,
@@ -159,7 +161,8 @@ function injectQuickConfigureFields(
       // Semantic search / hybrid search: set defaults in the ingest processor, the index mappings,
       // and the preset query
       case WORKFLOW_TYPE.SEMANTIC_SEARCH:
-      case WORKFLOW_TYPE.HYBRID_SEARCH: {
+      case WORKFLOW_TYPE.HYBRID_SEARCH:
+      case WORKFLOW_TYPE.MULTIMODAL_SEARCH: {
         if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
           workflow.ui_metadata.config = updateIngestProcessorConfig(
             workflow.ui_metadata.config,
@@ -178,6 +181,7 @@ function injectQuickConfigureFields(
             quickConfigureFields
           );
         }
+        break;
       }
       case WORKFLOW_TYPE.CUSTOM:
       case undefined:
@@ -197,10 +201,21 @@ function updateIngestProcessorConfig(
     if (field.id === 'model' && fields.embeddingModelId) {
       field.value = { id: fields.embeddingModelId };
     }
-    if (field.id === 'input_map' && fields.textField) {
-      field.value = [
-        [{ key: '', value: fields.textField }],
-      ] as MapArrayFormValue;
+    if (field.id === 'input_map' && (fields.textField || fields.imageField)) {
+      const inputMap = [] as MapFormValue;
+      if (fields.textField) {
+        inputMap.push({
+          key: '',
+          value: fields.textField,
+        });
+      }
+      if (fields.imageField) {
+        inputMap.push({
+          key: '',
+          value: fields.imageField,
+        });
+      }
+      field.value = [inputMap] as MapArrayFormValue;
     }
     if (field.id === 'output_map' && fields.vectorField) {
       field.value = [
@@ -248,6 +263,20 @@ function updateIndexConfig(
       },
     });
   }
+  if (fields.imageField) {
+    const existingMappings = JSON.parse(
+      config.ingest.index.mappings.value as string
+    );
+    config.ingest.index.mappings.value = customStringify({
+      ...existingMappings,
+      properties: {
+        ...(existingMappings.properties || {}),
+        [fields.imageField]: {
+          type: 'binary',
+        },
+      },
+    });
+  }
   if (fields.vectorField) {
     const existingMappings = JSON.parse(
       config.ingest.index.mappings.value as string
@@ -290,6 +319,13 @@ function updateSearchRequestConfig(
       '') as string).replace(
       new RegExp(VECTOR_FIELD_PATTERN, 'g'),
       fields.vectorField
+    );
+  }
+  if (fields.imageField) {
+    config.search.request.value = ((config.search.request.value ||
+      '') as string).replace(
+      new RegExp(IMAGE_FIELD_PATTERN, 'g'),
+      fields.imageField
     );
   }
 

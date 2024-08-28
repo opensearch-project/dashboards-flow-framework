@@ -146,6 +146,9 @@ function fetchMultimodalSearchMetadata(): UIState {
   baseState.config.search.request.value = customStringify(
     MULTIMODAL_SEARCH_QUERY_BOOL
   );
+  baseState.config.search.enrichRequest.processors = [
+    new MLSearchRequestProcessor().toObj(),
+  ];
   return baseState;
 }
 
