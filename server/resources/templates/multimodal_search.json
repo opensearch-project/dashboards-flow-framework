@@ -1,6 +1,6 @@
 {
     "name": "Multimodal Search",
-    "description": "A basic workflow containing the ingest pipeline and index configurations for performing multimodal search",
+    "description": "A basic workflow containing the ingest pipeline, search pipeline, and index configurations for performing multimodal search",
     "version": {
         "template": "1.0.0",
         "compatibility": [
