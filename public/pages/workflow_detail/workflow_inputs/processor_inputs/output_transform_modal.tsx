@@ -96,6 +96,10 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
+              <EuiText color="subdued">
+                Fetch some sample output data and how it is transformed.
+              </EuiText>
+              <EuiSpacer size="s" />
               <EuiText>Expected input</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
@@ -128,7 +132,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                         simulatePipeline({
                           apiBody: {
                             pipeline: curIngestPipeline,
-                            docs: curDocs,
+                            docs: [curDocs[0]],
                           },
                           dataSourceId,
                         })
