@@ -111,6 +111,7 @@ export function MapField(props: MapFieldProps) {
                                 />
                               ) : (
                                 <TextField
+                                  fullWidth={true}
                                   fieldPath={`${props.fieldPath}.${idx}.key`}
                                   placeholder={props.keyPlaceholder || 'Input'}
                                   showError={false}
@@ -136,6 +137,7 @@ export function MapField(props: MapFieldProps) {
                                 />
                               ) : (
                                 <TextField
+                                  fullWidth={true}
                                   fieldPath={`${props.fieldPath}.${idx}.value`}
                                   placeholder={
                                     props.valuePlaceholder || 'Output'
