@@ -4,7 +4,11 @@
  */
 
 import { snakeCase } from 'lodash';
-import { MLIngestProcessor } from '../../../configs';
+import {
+  MLIngestProcessor,
+  MLSearchRequestProcessor,
+  NormalizationProcessor,
+} from '../../../configs';
 import {
   WorkflowTemplate,
   START_FROM_SCRATCH_WORKFLOW_NAME,
@@ -13,9 +17,8 @@ import {
   WORKFLOW_TYPE,
   FETCH_ALL_QUERY,
   customStringify,
-  SEMANTIC_SEARCH_QUERY,
-  MULTIMODAL_SEARCH_QUERY,
-  HYBRID_SEARCH_QUERY,
+  TERM_QUERY,
+  MULTIMODAL_SEARCH_QUERY_BOOL,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 
@@ -125,9 +128,10 @@ function fetchSemanticSearchMetadata(): UIState {
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
-  baseState.config.search.request.value = customStringify(
-    SEMANTIC_SEARCH_QUERY
-  );
+  baseState.config.search.request.value = customStringify(TERM_QUERY);
+  baseState.config.search.enrichRequest.processors = [
+    new MLSearchRequestProcessor().toObj(),
+  ];
   return baseState;
 }
 
@@ -140,8 +144,11 @@ function fetchMultimodalSearchMetadata(): UIState {
     [`index.knn`]: true,
   });
   baseState.config.search.request.value = customStringify(
-    MULTIMODAL_SEARCH_QUERY
+    MULTIMODAL_SEARCH_QUERY_BOOL
   );
+  baseState.config.search.enrichRequest.processors = [
+    new MLSearchRequestProcessor().toObj(),
+  ];
   return baseState;
 }
 
@@ -153,7 +160,13 @@ function fetchHybridSearchMetadata(): UIState {
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
-  baseState.config.search.request.value = customStringify(HYBRID_SEARCH_QUERY);
+  baseState.config.search.request.value = customStringify(TERM_QUERY);
+  baseState.config.search.enrichResponse.processors = [
+    new NormalizationProcessor().toObj(),
+  ];
+  baseState.config.search.enrichRequest.processors = [
+    new MLSearchRequestProcessor().toObj(),
+  ];
   return baseState;
 }
 

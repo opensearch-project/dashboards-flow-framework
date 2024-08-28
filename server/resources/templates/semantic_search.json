@@ -1,6 +1,6 @@
 {
     "name": "Semantic Search",
-    "description": "A basic workflow containing the ingest pipeline and index configurations for performing semantic search",
+    "description": "A basic workflow containing the ingest pipeline, search pipeline, and index configurations for performing semantic search",
     "version": {
         "template": "1.0.0",
         "compatibility": [

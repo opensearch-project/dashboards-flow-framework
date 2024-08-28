@@ -465,6 +465,7 @@ export type QuickConfigureFields = {
   embeddingModelId?: string;
   vectorField?: string;
   textField?: string;
+  imageField?: string;
   embeddingLength?: number;
 };
 
