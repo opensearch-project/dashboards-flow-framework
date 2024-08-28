@@ -99,6 +99,10 @@ export function InputTransformModal(props: InputTransformModalProps) {
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
+              <EuiText color="subdued">
+                Fetch some sample input data and how it is transformed.
+              </EuiText>
+              <EuiSpacer size="s" />
               <EuiText>Expected input</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
@@ -124,7 +128,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                           simulatePipeline({
                             apiBody: {
                               pipeline: curIngestPipeline as IngestPipelineConfig,
-                              docs: curDocs,
+                              docs: [curDocs[0]],
                             },
                             dataSourceId,
                           })
@@ -139,7 +143,13 @@ export function InputTransformModal(props: InputTransformModalProps) {
                             );
                           });
                       } else {
-                        setSourceInput(values.ingest.docs);
+                        try {
+                          const docObjs = JSON.parse(
+                            values.ingest.docs
+                          ) as {}[];
+                          if (docObjs.length > 0)
+                            setSourceInput(customStringify([docObjs[0]]));
+                        } catch {}
                       }
                       break;
                     }
