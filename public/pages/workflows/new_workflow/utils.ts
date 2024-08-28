@@ -4,7 +4,11 @@
  */
 
 import { snakeCase } from 'lodash';
-import { MLIngestProcessor, NormalizationProcessor } from '../../../configs';
+import {
+  MLIngestProcessor,
+  MLSearchRequestProcessor,
+  NormalizationProcessor,
+} from '../../../configs';
 import {
   WorkflowTemplate,
   START_FROM_SCRATCH_WORKFLOW_NAME,
@@ -125,6 +129,9 @@ function fetchSemanticSearchMetadata(): UIState {
     [`index.knn`]: true,
   });
   baseState.config.search.request.value = customStringify(TERM_QUERY);
+  baseState.config.search.enrichRequest.processors = [
+    new MLSearchRequestProcessor().toObj(),
+  ];
   return baseState;
 }
 
@@ -153,6 +160,9 @@ function fetchHybridSearchMetadata(): UIState {
   baseState.config.search.request.value = customStringify(TERM_QUERY);
   baseState.config.search.enrichResponse.processors = [
     new NormalizationProcessor().toObj(),
+  ];
+  baseState.config.search.enrichRequest.processors = [
+    new MLSearchRequestProcessor().toObj(),
   ];
   return baseState;
 }

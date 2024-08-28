@@ -17,6 +17,7 @@ import {
   EuiCompressedFormRow,
 } from '@elastic/eui';
 import {
+  EMPTY_MAP_ENTRY,
   MODEL_ID_PATTERN,
   MapArrayFormValue,
   QuickConfigureFields,
@@ -172,6 +173,10 @@ function injectQuickConfigureFields(
             workflow.ui_metadata.config,
             quickConfigureFields
           );
+          workflow.ui_metadata.config = updateSearchRequestProcessorConfig(
+            workflow.ui_metadata.config,
+            quickConfigureFields
+          );
         }
       }
       case WORKFLOW_TYPE.CUSTOM:
@@ -183,7 +188,7 @@ function injectQuickConfigureFields(
   return workflow;
 }
 
-// prefill ML ingest pipeline processor config, if applicable
+// prefill ML ingest processor config, if applicable
 function updateIngestProcessorConfig(
   config: WorkflowConfig,
   fields: QuickConfigureFields
@@ -201,6 +206,23 @@ function updateIngestProcessorConfig(
       field.value = [
         [{ key: fields.vectorField, value: '' }],
       ] as MapArrayFormValue;
+    }
+  });
+
+  return config;
+}
+
+// prefill ML search request processor config, if applicable
+function updateSearchRequestProcessorConfig(
+  config: WorkflowConfig,
+  fields: QuickConfigureFields
+): WorkflowConfig {
+  config.search.enrichRequest.processors[0].fields.forEach((field) => {
+    if (field.id === 'model' && fields.embeddingModelId) {
+      field.value = { id: fields.embeddingModelId };
+    }
+    if (field.id === 'input_map' || field.id === 'output_map') {
+      field.value = [[EMPTY_MAP_ENTRY]] as MapArrayFormValue;
     }
   });
 
