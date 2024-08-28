@@ -153,6 +153,7 @@ export const SHARED_OPTIONAL_FIELDS = ['max_chunk_limit', 'description', 'tag'];
  */
 export const VECTOR_FIELD_PATTERN = `{{vector_field}}`;
 export const TEXT_FIELD_PATTERN = `{{text_field}}`;
+export const IMAGE_FIELD_PATTERN = `{{image_field}}`;
 export const QUERY_TEXT_PATTERN = `{{query_text}}`;
 export const QUERY_IMAGE_PATTERN = `{{query_image}}`;
 export const MODEL_ID_PATTERN = `{{model_id}}`;
@@ -163,7 +164,30 @@ export const FETCH_ALL_QUERY = {
   },
   size: 1000,
 };
-export const SEMANTIC_SEARCH_QUERY = {
+export const TERM_QUERY = {
+  query: {
+    term: {
+      [TEXT_FIELD_PATTERN]: {
+        value: QUERY_TEXT_PATTERN,
+      },
+    },
+  },
+};
+export const KNN_QUERY = {
+  _source: {
+    excludes: [VECTOR_FIELD_PATTERN],
+  },
+  query: {
+    knn: {
+      [VECTOR_FIELD_PATTERN]: {
+        vector: `{{vector}}`,
+      },
+      k: 10,
+      model_id: MODEL_ID_PATTERN,
+    },
+  },
+};
+export const SEMANTIC_SEARCH_QUERY_NEURAL = {
   _source: {
     excludes: [VECTOR_FIELD_PATTERN],
   },
@@ -177,7 +201,7 @@ export const SEMANTIC_SEARCH_QUERY = {
     },
   },
 };
-export const MULTIMODAL_SEARCH_QUERY = {
+export const MULTIMODAL_SEARCH_QUERY_NEURAL = {
   _source: {
     excludes: [VECTOR_FIELD_PATTERN],
   },
@@ -192,7 +216,25 @@ export const MULTIMODAL_SEARCH_QUERY = {
     },
   },
 };
-export const HYBRID_SEARCH_QUERY = {
+export const MULTIMODAL_SEARCH_QUERY_BOOL = {
+  query: {
+    bool: {
+      must: [
+        {
+          match: {
+            [TEXT_FIELD_PATTERN]: QUERY_TEXT_PATTERN,
+          },
+        },
+        {
+          match: {
+            [IMAGE_FIELD_PATTERN]: QUERY_IMAGE_PATTERN,
+          },
+        },
+      ],
+    },
+  },
+};
+export const HYBRID_SEARCH_QUERY_MATCH_NEURAL = {
   _source: {
     excludes: [VECTOR_FIELD_PATTERN],
   },
@@ -219,6 +261,31 @@ export const HYBRID_SEARCH_QUERY = {
     },
   },
 };
+export const HYBRID_SEARCH_QUERY_MATCH_TERM = {
+  _source: {
+    excludes: [VECTOR_FIELD_PATTERN],
+  },
+  query: {
+    hybrid: {
+      queries: [
+        {
+          match: {
+            [TEXT_FIELD_PATTERN]: {
+              query: QUERY_TEXT_PATTERN,
+            },
+          },
+        },
+        {
+          term: {
+            [TEXT_FIELD_PATTERN]: {
+              value: QUERY_TEXT_PATTERN,
+            },
+          },
+        },
+      ],
+    },
+  },
+};
 
 export const QUERY_PRESETS = [
   {
@@ -226,16 +293,32 @@ export const QUERY_PRESETS = [
     query: customStringify(FETCH_ALL_QUERY),
   },
   {
-    name: WORKFLOW_TYPE.SEMANTIC_SEARCH,
-    query: customStringify(SEMANTIC_SEARCH_QUERY),
+    name: 'Term',
+    query: customStringify(TERM_QUERY),
+  },
+  {
+    name: 'Basic k-NN',
+    query: customStringify(KNN_QUERY),
+  },
+  {
+    name: `${WORKFLOW_TYPE.SEMANTIC_SEARCH} (neural)`,
+    query: customStringify(SEMANTIC_SEARCH_QUERY_NEURAL),
   },
   {
     name: WORKFLOW_TYPE.MULTIMODAL_SEARCH,
-    query: customStringify(MULTIMODAL_SEARCH_QUERY),
+    query: customStringify(MULTIMODAL_SEARCH_QUERY_BOOL),
   },
   {
-    name: WORKFLOW_TYPE.HYBRID_SEARCH,
-    query: customStringify(HYBRID_SEARCH_QUERY),
+    name: `${WORKFLOW_TYPE.MULTIMODAL_SEARCH} (neural)`,
+    query: customStringify(MULTIMODAL_SEARCH_QUERY_NEURAL),
+  },
+  {
+    name: `Hybrid search (match & term queries)`,
+    query: customStringify(HYBRID_SEARCH_QUERY_MATCH_TERM),
+  },
+  {
+    name: `Hybrid search (match & neural queries)`,
+    query: customStringify(HYBRID_SEARCH_QUERY_MATCH_NEURAL),
   },
 ] as QueryPreset[];
 
