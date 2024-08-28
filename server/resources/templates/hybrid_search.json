@@ -1,6 +1,6 @@
 {
     "name": "Hybrid Search",
-    "description": "A basic workflow containing the ingest pipeline and index configurations for performing hybrid search",
+    "description": "A basic workflow containing the ingest pipeline, search pipeline, and index configurations for performing hybrid search",
     "version": {
         "template": "1.0.0",
         "compatibility": [

@@ -124,6 +124,26 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               />
             </EuiCompressedFormRow>
             <EuiSpacer size="s" />
+            {props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH && (
+              <>
+                <EuiCompressedFormRow
+                  label={'Image field'}
+                  isInvalid={false}
+                  helpText="The name of the document field containing the image binary"
+                >
+                  <EuiCompressedFieldText
+                    value={fieldValues?.imageField || ''}
+                    onChange={(e) => {
+                      setFieldValues({
+                        ...fieldValues,
+                        imageField: e.target.value,
+                      });
+                    }}
+                  />
+                </EuiCompressedFormRow>
+                <EuiSpacer size="s" />
+              </>
+            )}
             <EuiCompressedFormRow
               label={'Vector field'}
               isInvalid={false}
