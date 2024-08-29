@@ -159,6 +159,7 @@ export const QUERY_IMAGE_PATTERN = `{{query_image}}`;
 export const MODEL_ID_PATTERN = `{{model_id}}`;
 export const VECTOR = 'vector';
 export const VECTOR_PATTERN = `{{${VECTOR}}}`;
+export const VECTOR_TEMPLATE_PLACEHOLDER = `\$\{${VECTOR}\}`;
 export const DEFAULT_K = 10;
 
 export const FETCH_ALL_QUERY = {

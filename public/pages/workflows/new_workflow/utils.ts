@@ -19,8 +19,10 @@ import {
   customStringify,
   TERM_QUERY,
   MULTIMODAL_SEARCH_QUERY_BOOL,
-  KNN_QUERY,
   IProcessorConfig,
+  VECTOR_TEMPLATE_PLACEHOLDER,
+  VECTOR_PATTERN,
+  KNN_QUERY,
   HYBRID_SEARCH_QUERY_MATCH_KNN,
 } from '../../../../common';
 import { generateId } from '../../../utils';
@@ -191,7 +193,9 @@ export function processWorkflowName(workflowName: string): string {
     : snakeCase(workflowName);
 }
 
-// populate the `query_template` config value with a given query preset
+// populate the `query_template` config value with a given query template
+// by default, we replace any vector pattern ("{{vector}}") with the unquoted
+// vector template placeholder (${vector}) so it becomes a proper template
 function injectQueryTemplateInProcessor(
   processorConfig: IProcessorConfig,
   queryObj: {}
@@ -202,7 +206,10 @@ function injectQueryTemplateInProcessor(
       if (optionalField.id === 'query_template') {
         updatedField = {
           ...updatedField,
-          value: customStringify(queryObj),
+          value: customStringify(queryObj).replace(
+            new RegExp(`"${VECTOR_PATTERN}"`, 'g'),
+            VECTOR_TEMPLATE_PLACEHOLDER
+          ),
         };
       }
       return updatedField;
