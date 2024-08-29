@@ -117,6 +117,11 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               embeddingLength: dimensions,
             });
           }
+        } else {
+          setFieldValues({
+            ...fieldValues,
+            embeddingLength: undefined,
+          });
         }
       }
     }
