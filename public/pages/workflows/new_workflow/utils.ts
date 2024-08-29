@@ -173,7 +173,9 @@ function fetchHybridSearchMetadata(): UIState {
   });
   baseState.config.search.request.value = customStringify(TERM_QUERY);
   baseState.config.search.enrichResponse.processors = [
-    new NormalizationProcessor().toObj(),
+    injectDefaultWeightsInNormalizationProcessor(
+      new NormalizationProcessor().toObj()
+    ),
   ];
   baseState.config.search.enrichRequest.processors = [
     injectQueryTemplateInProcessor(
@@ -210,6 +212,28 @@ function injectQueryTemplateInProcessor(
             new RegExp(`"${VECTOR_PATTERN}"`, 'g'),
             VECTOR_TEMPLATE_PLACEHOLDER
           ),
+        };
+      }
+      return updatedField;
+    }
+  );
+  return processorConfig;
+}
+
+// set default weights for a normalization processor. assumes there is 2 queries, and equally
+// balances the weight. We don't hardcode in the configuration, since we want to set
+// invalid defaults for arbitrary use cases (e.g., more than 2 queries). In this case, we
+// are already setting 2 queries by default, so we can make this assumption.
+function injectDefaultWeightsInNormalizationProcessor(
+  processorConfig: IProcessorConfig
+): IProcessorConfig {
+  processorConfig.optionalFields = processorConfig.optionalFields?.map(
+    (optionalField) => {
+      let updatedField = optionalField;
+      if (optionalField.id === 'weights') {
+        updatedField = {
+          ...updatedField,
+          value: '0.5, 0.5',
         };
       }
       return updatedField;
