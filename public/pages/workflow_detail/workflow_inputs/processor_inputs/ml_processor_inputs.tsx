@@ -53,7 +53,7 @@ interface MLProcessorInputsProps {
  * output map configuration forms, respectively.
  */
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
-  const models = useSelector((state: AppState) => state.models.models);
+  const models = useSelector((state: AppState) => state.ml.models);
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();

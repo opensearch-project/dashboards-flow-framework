@@ -11,8 +11,17 @@ import {
   OpenSearchDashboardsRequest,
   OpenSearchDashboardsResponseFactory,
 } from '../../../../src/core/server';
-import { SEARCH_MODELS_NODE_API_PATH, BASE_NODE_API_PATH, SearchHit } from '../../common';
-import { generateCustomError, getModelsFromResponses } from './helpers';
+import {
+  SEARCH_MODELS_NODE_API_PATH,
+  BASE_NODE_API_PATH,
+  SearchHit,
+  SEARCH_CONNECTORS_NODE_API_PATH,
+} from '../../common';
+import {
+  generateCustomError,
+  getConnectorsFromResponses,
+  getModelsFromResponses,
+} from './helpers';
 import { getClientBasedOnDataSource } from '../utils/helpers';
 
 /**
@@ -43,6 +52,27 @@ export function registerMLRoutes(
       },
     },
     mlRoutesService.searchModels
+  );
+  router.post(
+    {
+      path: SEARCH_CONNECTORS_NODE_API_PATH,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    mlRoutesService.searchConnectors
+  );
+  router.post(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/connector/search`,
+      validate: {
+        body: schema.any(),
+        params: schema.object({
+          data_source_id: schema.string(),
+        }),
+      },
+    },
+    mlRoutesService.searchConnectors
   );
 }
 
@@ -78,6 +108,37 @@ export class MLRoutesService {
       const modelDict = getModelsFromResponses(modelHits);
 
       return res.ok({ body: { models: modelDict } });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  searchConnectors = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const body = req.body;
+    try {
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
+      const callWithRequest = getClientBasedOnDataSource(
+        context,
+        this.dataSourceEnabled,
+        req,
+        data_source_id,
+        this.client
+      );
+      const connectorsResponse = await callWithRequest(
+        'mlClient.searchConnectors',
+        {
+          body,
+        }
+      );
+
+      const connectorHits = connectorsResponse.hits.hits as SearchHit[];
+      const connectorDict = getConnectorsFromResponses(connectorHits);
+
+      return res.ok({ body: { connectors: connectorDict } });
     } catch (err: any) {
       return generateCustomError(res, err);
     }
