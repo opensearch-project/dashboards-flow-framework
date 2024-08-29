@@ -12,10 +12,12 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
+  EuiSmallButton,
   EuiSuperSelect,
   EuiSuperSelectOption,
   EuiText,
   EuiTitle,
+  EuiSpacer,
 } from '@elastic/eui';
 import { SearchHit, WorkflowFormValues } from '../../../../../common';
 import { JsonField } from '../input_fields';
@@ -142,41 +144,46 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiButton
-            fill={false}
-            style={{ width: '100px' }}
-            size="s"
-            onClick={() => {
-              // for this test query, we don't want to involve any configured search pipelines, if any exist
-              // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
-              dispatch(
-                searchIndex({
-                  apiBody: {
-                    index: values.search.index.name,
-                    body: values.search.request,
-                    searchPipeline: '_none',
-                  },
-                  dataSourceId,
-                })
-              )
-                .unwrap()
-                .then(async (resp) => {
-                  props.setQueryResponse(
-                    JSON.stringify(
-                      resp.hits.hits.map((hit: SearchHit) => hit._source),
-                      undefined,
-                      2
-                    )
-                  );
-                })
-                .catch((error: any) => {
-                  props.setQueryResponse('');
-                  console.error('Error running query: ', error);
-                });
-            }}
-          >
-            Test
-          </EuiButton>
+          <>
+            <EuiSmallButton
+              fill={false}
+              style={{ width: '100px' }}
+              onClick={() => {
+                // for this test query, we don't want to involve any configured search pipelines, if any exist
+                // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
+                dispatch(
+                  searchIndex({
+                    apiBody: {
+                      index: values.search.index.name,
+                      body: values.search.request,
+                      searchPipeline: '_none',
+                    },
+                    dataSourceId,
+                  })
+                )
+                  .unwrap()
+                  .then(async (resp) => {
+                    props.setQueryResponse(
+                      JSON.stringify(
+                        resp.hits.hits.map((hit: SearchHit) => hit._source),
+                        undefined,
+                        2
+                      )
+                    );
+                  })
+                  .catch((error: any) => {
+                    props.setQueryResponse('');
+                    console.error('Error running query: ', error);
+                  });
+              }}
+            >
+              Test
+            </EuiSmallButton>
+            <EuiSpacer size="s" />
+            <EuiText size="s" color="subdued">
+              Run query without any search pipeline configuration.
+            </EuiText>
+          </>
         </EuiFlexItem>
       </EuiFlexGroup>
     </>
