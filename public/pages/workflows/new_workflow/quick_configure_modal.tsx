@@ -24,6 +24,7 @@ import {
   MapFormValue,
   QuickConfigureFields,
   TEXT_FIELD_PATTERN,
+  VECTOR,
   VECTOR_FIELD_PATTERN,
   WORKFLOW_NAME_REGEXP,
   WORKFLOW_TYPE,
@@ -172,8 +173,8 @@ function injectQuickConfigureFields(
             workflow.ui_metadata.config,
             quickConfigureFields
           );
-          workflow.ui_metadata.config = updateSearchRequestConfig(
-            workflow.ui_metadata.config,
+          workflow.ui_metadata.config.search.request.value = injectPlaceholderValues(
+            (workflow.ui_metadata.config.search.request.value || '') as string,
             quickConfigureFields
           );
           workflow.ui_metadata.config = updateSearchRequestProcessorConfig(
@@ -228,6 +229,7 @@ function updateIngestProcessorConfig(
 }
 
 // prefill ML search request processor config, if applicable
+// including populating placeholders in any pre-configured query_template
 function updateSearchRequestProcessorConfig(
   config: WorkflowConfig,
   fields: QuickConfigureFields
@@ -236,10 +238,28 @@ function updateSearchRequestProcessorConfig(
     if (field.id === 'model' && fields.embeddingModelId) {
       field.value = { id: fields.embeddingModelId };
     }
-    if (field.id === 'input_map' || field.id === 'output_map') {
+    if (field.id === 'input_map') {
+      // TODO: pre-populate more if the query becomes standard
       field.value = [[EMPTY_MAP_ENTRY]] as MapArrayFormValue;
     }
+    if (field.id === 'output_map') {
+      // prepopulate 'vector' constant as the model output transformed field,
+      // so it is consistent and used in the downstream query_template, if configured.
+      field.value = [[{ key: VECTOR, value: '' }]] as MapArrayFormValue;
+    }
   });
+  config.search.enrichRequest.processors[0].optionalFields = config.search.enrichRequest.processors[0].optionalFields?.map(
+    (optionalField) => {
+      let updatedOptionalField = optionalField;
+      if (optionalField.id === 'query_template') {
+        optionalField.value = injectPlaceholderValues(
+          (optionalField.value || '') as string,
+          fields
+        );
+      }
+      return updatedOptionalField;
+    }
+  );
 
   return config;
 }
@@ -295,39 +315,36 @@ function updateIndexConfig(
   return config;
 }
 
-// pre-populate placeholders in the query, if applicable
-function updateSearchRequestConfig(
-  config: WorkflowConfig,
+// pre-populate placeholders for a query request string
+function injectPlaceholderValues(
+  requestString: string,
   fields: QuickConfigureFields
-): WorkflowConfig {
+): string {
+  let finalRequestString = requestString;
   if (fields.embeddingModelId) {
-    config.search.request.value = ((config.search.request.value ||
-      '') as string).replace(
+    finalRequestString = finalRequestString.replace(
       new RegExp(MODEL_ID_PATTERN, 'g'),
       fields.embeddingModelId
     );
   }
   if (fields.textField) {
-    config.search.request.value = ((config.search.request.value ||
-      '') as string).replace(
+    finalRequestString = finalRequestString.replace(
       new RegExp(TEXT_FIELD_PATTERN, 'g'),
       fields.textField
     );
   }
   if (fields.vectorField) {
-    config.search.request.value = ((config.search.request.value ||
-      '') as string).replace(
+    finalRequestString = finalRequestString.replace(
       new RegExp(VECTOR_FIELD_PATTERN, 'g'),
       fields.vectorField
     );
   }
   if (fields.imageField) {
-    config.search.request.value = ((config.search.request.value ||
-      '') as string).replace(
+    finalRequestString = finalRequestString.replace(
       new RegExp(IMAGE_FIELD_PATTERN, 'g'),
       fields.imageField
     );
   }
 
-  return config;
+  return finalRequestString;
 }

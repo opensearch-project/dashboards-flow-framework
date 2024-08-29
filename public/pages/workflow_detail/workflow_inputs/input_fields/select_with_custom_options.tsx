@@ -26,14 +26,18 @@ export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
   // selected option state
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
 
-  // update the selected option when the form is updated. set to empty if the form value is undefined
-  // or an empty string ('')
+  // update the selected option when the form is updated. if the form is empty,
+  // default to the top option. by default, this will re-trigger this hook with a populated
+  // value, to then finally update the displayed option.
   useEffect(() => {
     const formValue = getIn(values, props.fieldPath);
     if (!isEmpty(formValue)) {
       setSelectedOption([{ label: getIn(values, props.fieldPath) }]);
     } else {
-      setSelectedOption([]);
+      if (props.options.length > 0) {
+        setFieldTouched(props.fieldPath, true);
+        setFieldValue(props.fieldPath, props.options[0].label);
+      }
     }
   }, [getIn(values, props.fieldPath)]);
 
