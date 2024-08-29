@@ -98,6 +98,8 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
     if (selectedModel?.connectorId !== undefined) {
       const connector = connectors[selectedModel.connectorId];
       if (connector !== undefined) {
+        // some APIs allow specifically setting the dimensions at runtime,
+        // so we check for that first.
         if (connector.parameters?.dimensions !== undefined) {
           setFieldValues({
             ...fieldValues,
