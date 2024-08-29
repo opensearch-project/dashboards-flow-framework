@@ -129,7 +129,7 @@ function fetchSemanticSearchMetadata(): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.SEMANTIC_SEARCH;
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
-  baseState.config.ingest.index.name.value = 'my-knn-index';
+  baseState.config.ingest.index.name.value = generateId('knn_index', 6);
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
@@ -147,7 +147,7 @@ function fetchMultimodalSearchMetadata(): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.MULTIMODAL_SEARCH;
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
-  baseState.config.ingest.index.name.value = 'my-knn-index';
+  baseState.config.ingest.index.name.value = generateId('knn_index', 6);
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
@@ -167,7 +167,7 @@ function fetchHybridSearchMetadata(): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.HYBRID_SEARCH;
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
-  baseState.config.ingest.index.name.value = 'my-knn-index';
+  baseState.config.ingest.index.name.value = generateId('knn_index', 6);
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
