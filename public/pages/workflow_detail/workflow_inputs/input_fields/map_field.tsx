@@ -108,6 +108,9 @@ export function MapField(props: MapFieldProps) {
                                   fieldPath={`${props.fieldPath}.${idx}.key`}
                                   options={props.keyOptions as any[]}
                                   placeholder={props.keyPlaceholder || 'Input'}
+                                  autofill={
+                                    props.keyOptions?.length === 1 && idx === 0
+                                  }
                                 />
                               ) : (
                                 <TextField
@@ -133,6 +136,10 @@ export function MapField(props: MapFieldProps) {
                                   options={props.valueOptions || []}
                                   placeholder={
                                     props.valuePlaceholder || 'Output'
+                                  }
+                                  autofill={
+                                    props.valueOptions?.length === 1 &&
+                                    idx === 0
                                   }
                                 />
                               ) : (
