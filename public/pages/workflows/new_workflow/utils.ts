@@ -221,7 +221,7 @@ function injectQueryTemplateInProcessor(
 }
 
 // set default weights for a normalization processor. assumes there is 2 queries, and equally
-// balances the weight. We don't hardcode in the configuration, since we want to set
+// balances the weight. We don't hardcode in the configuration, since we don't want to set
 // invalid defaults for arbitrary use cases (e.g., more than 2 queries). In this case, we
 // are already setting 2 queries by default, so we can make this assumption.
 function injectDefaultWeightsInNormalizationProcessor(
