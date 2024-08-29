@@ -19,6 +19,9 @@ import {
   customStringify,
   TERM_QUERY,
   MULTIMODAL_SEARCH_QUERY_BOOL,
+  KNN_QUERY,
+  IProcessorConfig,
+  HYBRID_SEARCH_QUERY_MATCH_KNN,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 
@@ -130,7 +133,10 @@ function fetchSemanticSearchMetadata(): UIState {
   });
   baseState.config.search.request.value = customStringify(TERM_QUERY);
   baseState.config.search.enrichRequest.processors = [
-    new MLSearchRequestProcessor().toObj(),
+    injectQueryTemplateInProcessor(
+      new MLSearchRequestProcessor().toObj(),
+      KNN_QUERY
+    ),
   ];
   return baseState;
 }
@@ -147,7 +153,10 @@ function fetchMultimodalSearchMetadata(): UIState {
     MULTIMODAL_SEARCH_QUERY_BOOL
   );
   baseState.config.search.enrichRequest.processors = [
-    new MLSearchRequestProcessor().toObj(),
+    injectQueryTemplateInProcessor(
+      new MLSearchRequestProcessor().toObj(),
+      MULTIMODAL_SEARCH_QUERY_BOOL
+    ),
   ];
   return baseState;
 }
@@ -165,7 +174,10 @@ function fetchHybridSearchMetadata(): UIState {
     new NormalizationProcessor().toObj(),
   ];
   baseState.config.search.enrichRequest.processors = [
-    new MLSearchRequestProcessor().toObj(),
+    injectQueryTemplateInProcessor(
+      new MLSearchRequestProcessor().toObj(),
+      HYBRID_SEARCH_QUERY_MATCH_KNN
+    ),
   ];
   return baseState;
 }
@@ -177,4 +189,24 @@ export function processWorkflowName(workflowName: string): string {
   return workflowName === START_FROM_SCRATCH_WORKFLOW_NAME
     ? DEFAULT_NEW_WORKFLOW_NAME
     : snakeCase(workflowName);
+}
+
+// populate the `query_template` config value with a given query preset
+function injectQueryTemplateInProcessor(
+  processorConfig: IProcessorConfig,
+  queryObj: {}
+): IProcessorConfig {
+  processorConfig.optionalFields = processorConfig.optionalFields?.map(
+    (optionalField) => {
+      let updatedField = optionalField;
+      if (optionalField.id === 'query_template') {
+        updatedField = {
+          ...updatedField,
+          value: customStringify(queryObj),
+        };
+      }
+      return updatedField;
+    }
+  );
+  return processorConfig;
 }

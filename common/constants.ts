@@ -157,6 +157,9 @@ export const IMAGE_FIELD_PATTERN = `{{image_field}}`;
 export const QUERY_TEXT_PATTERN = `{{query_text}}`;
 export const QUERY_IMAGE_PATTERN = `{{query_image}}`;
 export const MODEL_ID_PATTERN = `{{model_id}}`;
+export const VECTOR = 'vector';
+export const VECTOR_PATTERN = `{{${VECTOR}}}`;
+export const DEFAULT_K = 10;
 
 export const FETCH_ALL_QUERY = {
   query: {
@@ -180,10 +183,9 @@ export const KNN_QUERY = {
   query: {
     knn: {
       [VECTOR_FIELD_PATTERN]: {
-        vector: `{{vector}}`,
+        vector: VECTOR_PATTERN,
+        k: DEFAULT_K,
       },
-      k: 10,
-      model_id: MODEL_ID_PATTERN,
     },
   },
 };
@@ -196,7 +198,7 @@ export const SEMANTIC_SEARCH_QUERY_NEURAL = {
       [VECTOR_FIELD_PATTERN]: {
         query_text: QUERY_TEXT_PATTERN,
         model_id: MODEL_ID_PATTERN,
-        k: 100,
+        k: DEFAULT_K,
       },
     },
   },
@@ -211,7 +213,7 @@ export const MULTIMODAL_SEARCH_QUERY_NEURAL = {
         query_text: QUERY_TEXT_PATTERN,
         query_image: QUERY_IMAGE_PATTERN,
         model_id: MODEL_ID_PATTERN,
-        k: 100,
+        k: DEFAULT_K,
       },
     },
   },
@@ -228,6 +230,32 @@ export const MULTIMODAL_SEARCH_QUERY_BOOL = {
         {
           match: {
             [IMAGE_FIELD_PATTERN]: QUERY_IMAGE_PATTERN,
+          },
+        },
+      ],
+    },
+  },
+};
+export const HYBRID_SEARCH_QUERY_MATCH_KNN = {
+  _source: {
+    excludes: [VECTOR_FIELD_PATTERN],
+  },
+  query: {
+    hybrid: {
+      queries: [
+        {
+          match: {
+            [TEXT_FIELD_PATTERN]: {
+              query: QUERY_TEXT_PATTERN,
+            },
+          },
+        },
+        {
+          knn: {
+            [VECTOR_FIELD_PATTERN]: {
+              vector: VECTOR_PATTERN,
+              k: DEFAULT_K,
+            },
           },
         },
       ],
@@ -253,7 +281,7 @@ export const HYBRID_SEARCH_QUERY_MATCH_NEURAL = {
             [VECTOR_FIELD_PATTERN]: {
               query_text: QUERY_TEXT_PATTERN,
               model_id: MODEL_ID_PATTERN,
-              k: 5,
+              k: DEFAULT_K,
             },
           },
         },
@@ -311,6 +339,10 @@ export const QUERY_PRESETS = [
   {
     name: `${WORKFLOW_TYPE.MULTIMODAL_SEARCH} (neural)`,
     query: customStringify(MULTIMODAL_SEARCH_QUERY_NEURAL),
+  },
+  {
+    name: `Hybrid search (match & k-NN queries)`,
+    query: customStringify(HYBRID_SEARCH_QUERY_MATCH_KNN),
   },
   {
     name: `Hybrid search (match & term queries)`,
