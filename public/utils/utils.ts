@@ -30,15 +30,15 @@ import { DataSourceAttributes } from '../../../../src/plugins/data_source/common
 import { SavedObject } from '../../../../src/core/public';
 import semver from 'semver';
 
-// Append 16 random characters
-export function generateId(prefix?: string): string {
+// Generate a random ID. Optionally add a prefix. Optionally
+// override the default # characters to generate.
+export function generateId(prefix?: string, numChars: number = 16): string {
   const uniqueChar = () => {
     // eslint-disable-next-line no-bitwise
     return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
   };
-  return `${
-    prefix || ''
-  }_${uniqueChar()}${uniqueChar()}${uniqueChar()}${uniqueChar()}`;
+  const uniqueId = `${uniqueChar()}${uniqueChar()}${uniqueChar()}${uniqueChar()}`;
+  return `${prefix || ''}_${uniqueId.substring(0, numChars)}`;
 }
 
 export function sleep(ms: number) {
