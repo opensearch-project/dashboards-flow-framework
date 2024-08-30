@@ -16,8 +16,10 @@ import {
   EuiCompressedFieldNumber,
 } from '@elastic/eui';
 import {
+  COHERE_DIMENSIONS,
   MODEL_STATE,
   Model,
+  OPENAI_DIMENSIONS,
   QuickConfigureFields,
   WORKFLOW_TYPE,
 } from '../../../../common';
@@ -35,7 +37,7 @@ const DEFAULT_IMAGE_FIELD = 'my_image';
 // Dynamic component to allow optional input configuration fields for different use cases.
 // Hooks back to the parent component with such field values
 export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
-  const models = useSelector((state: AppState) => state.models.models);
+  const { models, connectors } = useSelector((state: AppState) => state.ml);
 
   // Deployed models state
   const [deployedModels, setDeployedModels] = useState<Model[]>([]);
@@ -87,6 +89,45 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
   useEffect(() => {
     props.setFields(fieldValues);
   }, [fieldValues]);
+
+  // Try to pre-fill the dimensions based on the chosen model
+  useEffect(() => {
+    const selectedModel = deployedModels.find(
+      (model) => model.id === fieldValues.embeddingModelId
+    );
+    if (selectedModel?.connectorId !== undefined) {
+      const connector = connectors[selectedModel.connectorId];
+      if (connector !== undefined) {
+        // some APIs allow specifically setting the dimensions at runtime,
+        // so we check for that first.
+        if (connector.parameters?.dimensions !== undefined) {
+          setFieldValues({
+            ...fieldValues,
+            embeddingLength: connector.parameters?.dimensions,
+          });
+        } else if (connector.parameters?.model !== undefined) {
+          const dimensions =
+            // @ts-ignore
+            COHERE_DIMENSIONS[connector.parameters?.model] ||
+            // @ts-ignore
+            (OPENAI_DIMENSIONS[connector.parameters?.model] as
+              | number
+              | undefined);
+          if (dimensions !== undefined) {
+            setFieldValues({
+              ...fieldValues,
+              embeddingLength: dimensions,
+            });
+          }
+        } else {
+          setFieldValues({
+            ...fieldValues,
+            embeddingLength: undefined,
+          });
+        }
+      }
+    }
+  }, [fieldValues.embeddingModelId, deployedModels, connectors]);
 
   return (
     <>
@@ -196,7 +237,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             <EuiCompressedFormRow
               label={'Embedding length'}
               isInvalid={false}
-              helpText="The length / dimension of the generated vector embeddings"
+              helpText="The length / dimension of the generated vector embeddings. Autofilled values may be inaccurate."
             >
               <EuiCompressedFieldNumber
                 value={fieldValues?.embeddingLength || ''}
