@@ -43,7 +43,7 @@ export function ModelField(props: ModelFieldProps) {
   // Initial store is fetched when loading base <DetectorDetail /> page. We don't
   // re-fetch here as it could overload client-side if user clicks back and forth /
   // keeps re-rendering this component (and subsequently re-fetching data) as they're building flows
-  const models = useSelector((state: AppState) => state.models.models);
+  const models = useSelector((state: AppState) => state.ml.models);
 
   const { errors, touched } = useFormikContext<WorkspaceFormValues>();
 

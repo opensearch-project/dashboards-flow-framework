@@ -393,6 +393,11 @@ export type ModelInterface = {
   output: { [key: string]: ModelOutput };
 };
 
+export type ConnectorParameters = {
+  model?: string;
+  dimensions?: number;
+};
+
 export type Model = {
   id: string;
   name: string;
@@ -400,10 +405,21 @@ export type Model = {
   state: MODEL_STATE;
   modelConfig?: ModelConfig;
   interface?: ModelInterface;
+  connectorId?: string;
+};
+
+export type Connector = {
+  id: string;
+  name: string;
+  parameters?: ConnectorParameters;
 };
 
 export type ModelDict = {
   [modelId: string]: Model;
+};
+
+export type ConnectorDict = {
+  [connectorId: string]: Connector;
 };
 
 export type ModelFormValue = {

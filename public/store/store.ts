@@ -10,13 +10,13 @@ import {
   opensearchReducer,
   workflowsReducer,
   presetsReducer,
-  modelsReducer,
+  mlReducer,
 } from './reducers';
 
 const rootReducer = combineReducers({
   workflows: workflowsReducer,
   presets: presetsReducer,
-  models: modelsReducer,
+  ml: mlReducer,
   opensearch: opensearchReducer,
 });
 

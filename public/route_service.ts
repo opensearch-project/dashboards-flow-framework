@@ -24,6 +24,7 @@ import {
   SimulateIngestPipelineDoc,
   BULK_NODE_API_PATH,
   BASE_NODE_API_PATH,
+  SEARCH_CONNECTORS_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -108,6 +109,11 @@ export interface RouteService {
     body: {},
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
+  searchConnectors: (
+    body: {},
+    dataSourceId?: string
+  ) => Promise<any | HttpFetchError>;
+
   simulatePipeline: (
     body: {
       pipeline: IngestPipelineConfig;
@@ -334,6 +340,19 @@ export function configureRoutes(core: CoreStart): RouteService {
         const url = dataSourceId
           ? `${BASE_NODE_API_PATH}/${dataSourceId}/model/search`
           : SEARCH_MODELS_NODE_API_PATH;
+        const response = await core.http.post<{ respString: string }>(url, {
+          body: JSON.stringify(body),
+        });
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    searchConnectors: async (body: {}, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/connector/search`
+          : SEARCH_CONNECTORS_NODE_API_PATH;
         const response = await core.http.post<{ respString: string }>(url, {
           body: JSON.stringify(body),
         });
