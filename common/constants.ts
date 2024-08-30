@@ -130,6 +130,8 @@ export const TEXT_CHUNKING_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-chunking/';
 export const CREATE_WORKFLOW_LINK =
   'https://opensearch.org/docs/latest/automating-configurations/api/create-workflow/';
+export const WORKFLOW_TUTORIAL_LINK =
+  'https://opensearch.org/docs/latest/automating-configurations/workflow-tutorial/';
 export const NORMALIZATION_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/normalization-processor/';
 
