@@ -52,7 +52,7 @@ export const FlowFrameworkDashboardsApp = (props: Props) => {
         style={{ width: 190 }}
         items={[
           {
-            name: Navigation.FlowFramework,
+            name: Navigation.PluginName,
             id: 0,
             items: [
               {
