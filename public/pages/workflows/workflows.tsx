@@ -25,7 +25,7 @@ import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
 import { AppState, searchWorkflows, useAppDispatch } from '../../store';
 import { EmptyListMessage } from './empty_list_message';
-import { FETCH_ALL_QUERY, SEARCH_STUDIO } from '../../../common';
+import { FETCH_ALL_QUERY, PLUGIN_NAME } from '../../../common';
 import { ImportWorkflowModal } from './import_workflow';
 import { MountPoint } from '../../../../../src/core/public';
 import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_source_management/public';
@@ -131,7 +131,7 @@ export function Workflows(props: WorkflowsProps) {
       SHOW_ACTIONS_IN_HEADER
         ? [BREADCRUMBS.TITLE]
         : [
-            BREADCRUMBS.FLOW_FRAMEWORK,
+            BREADCRUMBS.PLUGIN_NAME,
             BREADCRUMBS.WORKFLOWS(dataSourceEnabled ? dataSourceId : undefined),
           ]
     );
@@ -204,14 +204,15 @@ export function Workflows(props: WorkflowsProps) {
       );
     }, [getSavedObjectsClient, getNotifications(), props.setActionMenu]);
   }
-  const description =
-    'Design, experiment, and prototype your solutions with workflows. Build your search and last mile ingestion flows.';
+  const DESCRIPTION = `Design, experiment, and prototype your solutions with ${PLUGIN_NAME}. Build your search and last mile 
+  ingestion flows with a visual interface. Experiment with different configurations with prototyping tools and launch them 
+  into your environment.`;
+
   const pageTitleAndDescription = SHOW_ACTIONS_IN_HEADER ? (
     <HeaderControl
       controls={[
         {
-          description:
-            'Design, experiment, and prototype your solutions with Search Studio. Build your search and last mile ingestion flows with a visual interface. Experiment different configurations with prototyping tools and launch them into your environment.',
+          description: DESCRIPTION,
         },
       ]}
       setMountPoint={setAppDescriptionControls}
@@ -219,9 +220,9 @@ export function Workflows(props: WorkflowsProps) {
   ) : (
     <EuiFlexGroup direction="column" style={{ margin: '0px' }}>
       <EuiTitle size="l">
-        <h1>{SEARCH_STUDIO}</h1>
+        <h1>{PLUGIN_NAME}</h1>
       </EuiTitle>
-      <EuiText color="subdued">{description}</EuiText>
+      <EuiText color="subdued">{DESCRIPTION}</EuiText>
     </EuiFlexGroup>
   );
 

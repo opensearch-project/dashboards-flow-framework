@@ -6,8 +6,8 @@
 import { MapEntry, QueryPreset, WORKFLOW_STATE } from './interfaces';
 import { customStringify } from './utils';
 
-export const PLUGIN_ID = 'flow-framework';
-export const SEARCH_STUDIO = 'Search Studio';
+export const PLUGIN_ID = 'search-studio';
+export const PLUGIN_NAME = 'Search Studio';
 
 /**
  * BACKEND FLOW FRAMEWORK APIs
