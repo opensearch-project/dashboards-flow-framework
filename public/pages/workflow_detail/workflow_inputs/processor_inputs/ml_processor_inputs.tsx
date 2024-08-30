@@ -201,7 +201,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               >
                 <EuiButtonEmpty
                   disabled={!isInputPreviewAvailable}
-                  style={{ width: '100px' }}
+                  style={{ width: '100px', paddingTop: '8px' }}
                   size="s"
                   onClick={() => {
                     setIsInputTransformModalOpen(true);
@@ -251,7 +251,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               >
                 <EuiButtonEmpty
                   disabled={!isOutputPreviewAvailable}
-                  style={{ width: '100px' }}
+                  style={{ width: '100px', paddingTop: '8px' }}
                   size="s"
                   onClick={() => {
                     setIsOutputTransformModalOpen(true);
