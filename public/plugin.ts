@@ -16,7 +16,7 @@ import {
   FlowFrameworkDashboardsPluginSetup,
   AppPluginStartDependencies,
 } from './types';
-import { PLUGIN_ID, SEARCH_STUDIO } from '../common';
+import { PLUGIN_ID, PLUGIN_NAME } from '../common';
 import {
   setCore,
   setRouteService,
@@ -45,7 +45,7 @@ export class FlowFrameworkDashboardsPlugin
     // Register the plugin in the side navigation
     core.application.register({
       id: PLUGIN_ID,
-      title: 'Flow Framework',
+      title: PLUGIN_NAME,
       category: {
         id: 'opensearch',
         label: 'OpenSearch plugins',
@@ -67,7 +67,7 @@ export class FlowFrameworkDashboardsPlugin
     core.chrome.navGroup.addNavLinksToGroup(DEFAULT_NAV_GROUPS.search, [
       {
         id: PLUGIN_ID,
-        title: SEARCH_STUDIO,
+        title: PLUGIN_NAME,
         category: DEFAULT_APP_CATEGORIES.configure,
         showInAllNavGroup: true,
       },
