@@ -10,6 +10,7 @@ import { Provider } from 'react-redux';
 import { AppMountParameters, CoreStart } from '../../../src/core/public';
 import { FlowFrameworkDashboardsApp } from './app';
 import { store } from './store';
+import { PLUGIN_ID } from '../common';
 
 // styling
 import './global-styles.scss';
@@ -38,14 +39,14 @@ export const renderApp = (
     params.element
   );
 
-  const expectedBasePath = '/app/flow-framework#';
+  const EXPECTED_BASE_PATH = `/app/${PLUGIN_ID}#`;
 
   const unlistenParentHistory = params.history.listen(() => {
     if (
       hideInAppSideNavBar &&
-      window.location.pathname.endsWith('/app/flow-framework')
+      window.location.pathname.endsWith(`/app/${PLUGIN_ID}`)
     ) {
-      window.location.href = `${expectedBasePath}`;
+      window.location.href = EXPECTED_BASE_PATH;
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     }
   });

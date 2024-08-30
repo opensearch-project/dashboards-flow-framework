@@ -5,10 +5,10 @@
 
 import { constructHrefWithDataSourceId } from './utils';
 import { getUISettings } from '../../public/services';
-import { SEARCH_STUDIO } from '../../common/constants';
+import { PLUGIN_NAME } from '../../common/constants';
 
 export enum Navigation {
-  FlowFramework = 'Flow Framework',
+  PluginName = PLUGIN_NAME,
   Workflows = 'Workflows',
 }
 
@@ -19,14 +19,14 @@ export enum APP_PATH {
 }
 
 export const BREADCRUMBS = Object.freeze({
-  FLOW_FRAMEWORK: { text: 'Flow Framework' },
+  PLUGIN_NAME: { text: PLUGIN_NAME },
   WORKFLOWS: (dataSourceId?: string) => ({
     text: 'Workflows',
     href: constructHrefWithDataSourceId(APP_PATH.WORKFLOWS, dataSourceId),
   }),
-  TITLE: { text: SEARCH_STUDIO },
+  TITLE: { text: PLUGIN_NAME },
   TITLE_WITH_REF: (dataSourceId?: string) => ({
-    text: SEARCH_STUDIO,
+    text: PLUGIN_NAME,
     href: constructHrefWithDataSourceId(APP_PATH.WORKFLOWS, dataSourceId),
   }),
   WORKFLOW_NAME: (workflowName: string) => ({
