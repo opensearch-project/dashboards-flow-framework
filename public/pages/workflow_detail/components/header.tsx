@@ -235,7 +235,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
               >
                 Close
               </EuiSmallButtonEmpty>,
-              <EuiText style={{ marginTop: '16px' }} color="subdued" size="s">
+              <EuiText style={{ marginTop: '14px' }} color="subdued" size="s">
                 {`Last updated: ${workflowLastUpdated}`}
               </EuiText>,
             ]}
