@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ML_SEARCH_MODELS_ROUTE } from '../../common';
+import {
+  ML_SEARCH_CONNECTORS_ROUTE,
+  ML_SEARCH_MODELS_ROUTE,
+} from '../../common';
 
 /**
  * Used during the plugin's setup() lifecycle phase to register various client actions
@@ -20,6 +23,14 @@ export function mlPlugin(Client: any, config: any, components: any) {
   mlClient.searchModels = ca({
     url: {
       fmt: ML_SEARCH_MODELS_ROUTE,
+    },
+    needBody: true,
+    method: 'POST',
+  });
+
+  mlClient.searchConnectors = ca({
+    url: {
+      fmt: ML_SEARCH_CONNECTORS_ROUTE,
     },
     needBody: true,
     method: 'POST',
