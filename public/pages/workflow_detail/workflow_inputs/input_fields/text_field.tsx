@@ -6,7 +6,7 @@
 import React from 'react';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
-  EuiFieldText,
+  EuiCompressedFieldText,
   EuiCompressedFormRow,
   EuiLink,
   EuiText,
@@ -50,11 +50,10 @@ export function TextField(props: TextFieldProps) {
             error={props.showError && getIn(errors, field.name)}
             isInvalid={getIn(errors, field.name) && getIn(touched, field.name)}
           >
-            <EuiFieldText
+            <EuiCompressedFieldText
               fullWidth={props.fullWidth}
               {...field}
               placeholder={props.placeholder || ''}
-              compressed={false}
               value={field.value || getInitialValue('string')}
               onChange={(e) => {
                 form.setFieldValue(props.fieldPath, e.target.value);

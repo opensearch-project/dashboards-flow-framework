@@ -7,7 +7,6 @@ import React, { useState } from 'react';
 import { useFormikContext } from 'formik';
 import {
   EuiSmallButton,
-  EuiButton,
   EuiContextMenu,
   EuiModal,
   EuiModalBody,
@@ -87,13 +86,13 @@ export function EditQueryModal(props: EditQueryModalProps) {
         />
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiButton
+        <EuiSmallButton
           onClick={() => props.setModalOpen(false)}
           fill={false}
           color="primary"
         >
           Close
-        </EuiButton>
+        </EuiSmallButton>
       </EuiModalFooter>
     </EuiModal>
   );
