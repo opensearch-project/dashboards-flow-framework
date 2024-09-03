@@ -122,7 +122,7 @@ export function Tools(props: ToolsProps) {
           </EuiTitle>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiTabs size="m" expand={false}>
+          <EuiTabs size="s" expand={false}>
             {inputTabs.map((tab, idx) => {
               return (
                 <EuiTab
