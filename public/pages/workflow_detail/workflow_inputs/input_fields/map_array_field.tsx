@@ -9,7 +9,7 @@ import {
   EuiButtonIcon,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiFormRow,
+  EuiCompressedFormRow,
   EuiLink,
   EuiPanel,
   EuiSmallButton,
@@ -87,7 +87,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
           field.value[0].length > 0;
 
         return (
-          <EuiFormRow
+          <EuiCompressedFormRow
             fullWidth={true}
             key={props.fieldPath}
             label={props.label}
@@ -188,7 +188,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
                 </div>
               </EuiFlexItem>
             </EuiFlexGroup>
-          </EuiFormRow>
+          </EuiCompressedFormRow>
         );
       }}
     </Field>

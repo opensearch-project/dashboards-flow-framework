@@ -7,12 +7,11 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useFormikContext } from 'formik';
 import {
-  EuiButton,
-  EuiFieldText,
+  EuiSmallButton,
+  EuiCompressedFieldText,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiFormRow,
-  EuiSmallButton,
+  EuiCompressedFormRow,
   EuiSuperSelect,
   EuiSuperSelectOption,
   EuiText,
@@ -98,9 +97,9 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           </EuiTitle>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiFormRow label="Retrieval index">
+          <EuiCompressedFormRow label="Retrieval index">
             {ingestEnabled ? (
-              <EuiFieldText
+              <EuiCompressedFieldText
                 value={values?.ingest?.index?.name}
                 readOnly={true}
               />
@@ -123,17 +122,16 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                 isInvalid={selectedIndex === undefined}
               />
             )}
-          </EuiFormRow>
+          </EuiCompressedFormRow>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiButton
+          <EuiSmallButton
             fill={false}
             style={{ width: '100px' }}
-            size="s"
             onClick={() => setIsEditModalOpen(true)}
           >
             Edit
-          </EuiButton>
+          </EuiSmallButton>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <JsonField
