@@ -274,15 +274,19 @@ export function InputTransformModal(props: InputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiCompressedSelect
-                prepend={<EuiText>Expected output for</EuiText>}
-                options={outputOptions}
-                value={selectedOutputOption}
-                onChange={(e) => {
-                  setSelectedOutputOption(Number(e.target.value));
-                  setTransformedOutput('{}');
-                }}
-              />
+              {outputOptions.length === 1 ? (
+                <EuiText>Expected output</EuiText>
+              ) : (
+                <EuiCompressedSelect
+                  prepend={<EuiText>Expected output for</EuiText>}
+                  options={outputOptions}
+                  value={selectedOutputOption}
+                  onChange={(e) => {
+                    setSelectedOutputOption(Number(e.target.value));
+                    setTransformedOutput('{}');
+                  }}
+                />
+              )}
               <EuiSpacer size="s" />
               <EuiSmallButton
                 style={{ width: '100px' }}

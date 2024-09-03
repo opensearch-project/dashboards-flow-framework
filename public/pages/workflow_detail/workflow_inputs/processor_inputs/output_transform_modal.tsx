@@ -79,7 +79,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
   // selected output state
   const outputOptions = map.map((_, idx) => ({
     value: idx,
-    text: `Prediction output ${idx + 1}`,
+    text: `Prediction ${idx + 1}`,
   })) as EuiSelectOption[];
   const [selectedOutputOption, setSelectedOutputOption] = useState<
     number | undefined
@@ -257,15 +257,19 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiCompressedSelect
-                prepend={<EuiText>Expected output for</EuiText>}
-                options={outputOptions}
-                value={selectedOutputOption}
-                onChange={(e) => {
-                  setSelectedOutputOption(Number(e.target.value));
-                  setTransformedOutput('{}');
-                }}
-              />
+              {outputOptions.length === 1 ? (
+                <EuiText>Expected output</EuiText>
+              ) : (
+                <EuiCompressedSelect
+                  prepend={<EuiText>Expected output for</EuiText>}
+                  options={outputOptions}
+                  value={selectedOutputOption}
+                  onChange={(e) => {
+                    setSelectedOutputOption(Number(e.target.value));
+                    setTransformedOutput('{}');
+                  }}
+                />
+              )}
               <EuiSpacer size="s" />
               <EuiSmallButton
                 style={{ width: '100px' }}

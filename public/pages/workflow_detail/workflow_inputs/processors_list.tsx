@@ -51,6 +51,10 @@ const PANEL_ID = 0;
 export function ProcessorsList(props: ProcessorsListProps) {
   const { values } = useFormikContext<WorkflowFormValues>();
 
+  // Processor added state. Used to automatically open accordion when a new
+  // processor is added, assuming users want to immediately configure it.
+  const [processorAdded, setProcessorAdded] = useState<boolean>(false);
+
   // Popover state when adding new processors
   const [isPopoverOpen, setPopover] = useState(false);
   const closePopover = () => {
@@ -75,6 +79,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
   // (getting any updated/interim values along the way) and add to
   // the list of processors
   function addProcessor(processor: IProcessorConfig): void {
+    setProcessorAdded(true);
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
     let newConfig = formikToUiConfig(values, existingConfig);
     switch (props.context) {
@@ -139,6 +144,9 @@ export function ProcessorsList(props: ProcessorsListProps) {
         return (
           <EuiFlexItem key={processorIndex}>
             <EuiAccordion
+              initialIsOpen={
+                processorAdded && processorIndex === processors.length - 1
+              }
               id={`accordion${processor.id}`}
               buttonContent={`${processor.name || 'Processor'}`}
               extraAction={
