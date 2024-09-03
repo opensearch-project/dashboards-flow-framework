@@ -10,10 +10,10 @@ import {
   EuiContextMenu,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiHorizontalRule,
   EuiPanel,
   EuiPopover,
-  EuiText,
+  EuiAccordion,
+  EuiSpacer,
 } from '@elastic/eui';
 import { cloneDeep } from 'lodash';
 import { useFormikContext } from 'formik';
@@ -138,36 +138,37 @@ export function ProcessorsList(props: ProcessorsListProps) {
       {processors.map((processor: IProcessorConfig, processorIndex) => {
         return (
           <EuiFlexItem key={processorIndex}>
-            <EuiPanel>
-              <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                <EuiFlexItem grow={false}>
-                  <EuiText>{processor.name || 'Processor'}</EuiText>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiSmallButtonIcon
-                    iconType={'trash'}
-                    color="danger"
-                    aria-label="Delete"
-                    onClick={() => {
-                      deleteProcessor(processor.id);
-                    }}
-                  />
-                </EuiFlexItem>
-              </EuiFlexGroup>
-              <EuiHorizontalRule size="full" margin="s" />
-              <ProcessorInputs
-                uiConfig={props.uiConfig}
-                config={processor}
-                baseConfigPath={
-                  props.context === PROCESSOR_CONTEXT.INGEST
-                    ? 'ingest.enrich'
-                    : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                    ? 'search.enrichRequest'
-                    : 'search.enrichResponse'
-                }
-                context={props.context}
-              />
-            </EuiPanel>
+            <EuiAccordion
+              id={`accordion${processor.id}`}
+              buttonContent={`${processor.name || 'Processor'}`}
+              extraAction={
+                <EuiSmallButtonIcon
+                  style={{ marginTop: '8px' }}
+                  iconType={'trash'}
+                  color="danger"
+                  aria-label="Delete"
+                  onClick={() => {
+                    deleteProcessor(processor.id);
+                  }}
+                />
+              }
+            >
+              <EuiSpacer size="s" />
+              <EuiPanel>
+                <ProcessorInputs
+                  uiConfig={props.uiConfig}
+                  config={processor}
+                  baseConfigPath={
+                    props.context === PROCESSOR_CONTEXT.INGEST
+                      ? 'ingest.enrich'
+                      : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                      ? 'search.enrichRequest'
+                      : 'search.enrichResponse'
+                  }
+                  context={props.context}
+                />
+              </EuiPanel>
+            </EuiAccordion>
           </EuiFlexItem>
         );
       })}
@@ -178,7 +179,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
               <EuiSmallButton
                 iconType="arrowDown"
                 iconSide="right"
-                size="s"
                 onClick={() => {
                   setPopover(!isPopoverOpen);
                 }}
