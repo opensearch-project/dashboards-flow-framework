@@ -28,6 +28,7 @@ import {
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
   MapArrayFormValue,
+  ModelInterface,
   PROCESSOR_CONTEXT,
   SearchHit,
   SearchPipelineConfig,
@@ -49,7 +50,7 @@ import {
 } from '../../../../store';
 import { getCore } from '../../../../services';
 import { MapArrayField } from '../input_fields';
-import { getDataSourceId } from '../../../../utils/utils';
+import { getDataSourceId, parseModelOutputs } from '../../../../utils/utils';
 
 interface OutputTransformModalProps {
   uiConfig: WorkflowConfig;
@@ -57,7 +58,7 @@ interface OutputTransformModalProps {
   context: PROCESSOR_CONTEXT;
   outputMapField: IConfigField;
   outputMapFieldPath: string;
-  outputFields: any[];
+  modelInterface: ModelInterface | undefined;
   onClose: () => void;
 }
 
@@ -237,7 +238,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="Document field"
                 valuePlaceholder="Model output field"
-                valueOptions={props.outputFields}
+                valueOptions={parseModelOutputs(props.modelInterface)}
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {
                   if (isEmpty(curArray)) {
