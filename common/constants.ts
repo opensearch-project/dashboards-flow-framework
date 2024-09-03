@@ -6,8 +6,8 @@
 import { MapEntry, QueryPreset, WORKFLOW_STATE } from './interfaces';
 import { customStringify } from './utils';
 
-export const PLUGIN_ID = 'flow-framework';
-export const SEARCH_STUDIO = 'Search Studio';
+export const PLUGIN_ID = 'search-studio';
+export const PLUGIN_NAME = 'Search Studio';
 
 /**
  * BACKEND FLOW FRAMEWORK APIs
@@ -22,7 +22,9 @@ export const FLOW_FRAMEWORK_SEARCH_WORKFLOW_STATE_ROUTE = `${FLOW_FRAMEWORK_WORK
  */
 export const ML_API_ROUTE_PREFIX = '/_plugins/_ml';
 export const ML_MODEL_ROUTE_PREFIX = `${ML_API_ROUTE_PREFIX}/models`;
+export const ML_CONNECTOR_ROUTE_PREFIX = `${ML_API_ROUTE_PREFIX}/connectors`;
 export const ML_SEARCH_MODELS_ROUTE = `${ML_MODEL_ROUTE_PREFIX}/_search`;
+export const ML_SEARCH_CONNECTORS_ROUTE = `${ML_CONNECTOR_ROUTE_PREFIX}/_search`;
 
 /**
  * NODE APIs
@@ -51,7 +53,32 @@ export const GET_PRESET_WORKFLOWS_NODE_API_PATH = `${BASE_WORKFLOW_NODE_API_PATH
 
 // ML Plugin node APIs
 export const BASE_MODEL_NODE_API_PATH = `${BASE_NODE_API_PATH}/model`;
+export const BASE_CONNECTOR_NODE_API_PATH = `${BASE_NODE_API_PATH}/connector`;
 export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
+export const SEARCH_CONNECTORS_NODE_API_PATH = `${BASE_CONNECTOR_NODE_API_PATH}/search`;
+
+/**
+ * Remote model dimensions. Used for attempting to pre-fill dimension size
+ * based on the specified remote model from a remote service, if found
+ */
+
+// Cohere
+export const COHERE_DIMENSIONS = {
+  [`embed-english-v3.0`]: 1024,
+  [`embed-english-light-v3.0`]: 384,
+  [`embed-multilingual-v3.0`]: 1024,
+  [`embed-multilingual-light-v3.0`]: 384,
+  [`embed-english-v2.0`]: 4096,
+  [`embed-english-light-v2.0`]: 1024,
+  [`embed-multilingual-v2.0`]: 768,
+};
+
+// OpenAI
+export const OPENAI_DIMENSIONS = {
+  [`text-embedding-3-small`]: 1536,
+  [`text-embedding-3-large`]: 3072,
+  [`text-embedding-ada-002`]: 1536,
+};
 
 /**
  * Various constants pertaining to Workflow configs
@@ -130,6 +157,8 @@ export const TEXT_CHUNKING_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-chunking/';
 export const CREATE_WORKFLOW_LINK =
   'https://opensearch.org/docs/latest/automating-configurations/api/create-workflow/';
+export const WORKFLOW_TUTORIAL_LINK =
+  'https://opensearch.org/docs/latest/automating-configurations/workflow-tutorial/';
 export const NORMALIZATION_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/normalization-processor/';
 

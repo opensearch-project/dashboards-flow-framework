@@ -20,8 +20,16 @@ import {
   EuiFilterGroup,
   EuiFilterButton,
   EuiCodeEditor,
+  EuiText,
+  EuiLink,
 } from '@elastic/eui';
-import { IComponentData, Workflow, WorkflowConfig } from '../../../../common';
+import {
+  IComponentData,
+  WORKFLOW_TUTORIAL_LINK,
+  Workflow,
+  WorkflowConfig,
+  customStringify,
+} from '../../../../common';
 import {
   IngestGroupComponent,
   SearchGroupComponent,
@@ -58,9 +66,9 @@ export function Workspace(props: WorkspaceProps) {
   // JSON state
   const [provisionTemplate, setProvisionTemplate] = useState<string>('');
   useEffect(() => {
-    if (props.workflow?.workflows.provision) {
+    if (props.workflow?.workflows?.provision) {
       const templateAsObj = props.workflow?.workflows.provision as {};
-      const templateAsStr = JSON.stringify(templateAsObj, undefined, 2);
+      const templateAsStr = customStringify(templateAsObj);
       setProvisionTemplate(templateAsStr);
     }
   }, [props.workflow]);
@@ -140,6 +148,20 @@ export function Workspace(props: WorkspaceProps) {
                   JSON
                 </EuiFilterButton>
               </EuiFilterGroup>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false} style={{ paddingTop: '8px' }}>
+              {visualSelected ? (
+                <EuiText>
+                  {`A basic visual view representing the configured ingest & search flows.`}
+                </EuiText>
+              ) : (
+                <EuiText>
+                  {`The Flow Framework provisioning template describing how to build out the configured resources. `}
+                  <EuiLink href={WORKFLOW_TUTORIAL_LINK} target="_blank">
+                    Learn more
+                  </EuiLink>
+                </EuiText>
+              )}
             </EuiFlexItem>
           </EuiFlexGroup>
         </div>

@@ -90,7 +90,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
             { text: '' },
           ]
         : [
-            BREADCRUMBS.FLOW_FRAMEWORK,
+            BREADCRUMBS.PLUGIN_NAME,
             BREADCRUMBS.WORKFLOWS(dataSourceEnabled ? dataSourceId : undefined),
             { text: workflowName },
           ]

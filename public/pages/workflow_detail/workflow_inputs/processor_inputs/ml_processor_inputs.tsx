@@ -53,7 +53,7 @@ interface MLProcessorInputsProps {
  * output map configuration forms, respectively.
  */
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
-  const models = useSelector((state: AppState) => state.models.models);
+  const models = useSelector((state: AppState) => state.ml.models);
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
@@ -201,7 +201,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               >
                 <EuiSmallButtonEmpty
                   disabled={!isInputPreviewAvailable}
-                  style={{ width: '100px' }}
+                  style={{ width: '100px', paddingTop: '8px' }}
                   onClick={() => {
                     setIsInputTransformModalOpen(true);
                   }}
@@ -250,7 +250,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               >
                 <EuiSmallButtonEmpty
                   disabled={!isOutputPreviewAvailable}
-                  style={{ width: '100px' }}
+                  style={{ width: '100px', paddingTop: '8px' }}
                   onClick={() => {
                     setIsOutputTransformModalOpen(true);
                   }}

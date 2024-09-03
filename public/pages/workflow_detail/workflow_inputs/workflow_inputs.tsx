@@ -9,7 +9,6 @@ import { debounce, isEmpty, isEqual } from 'lodash';
 import {
   EuiSmallButton,
   EuiSmallButtonEmpty,
-  EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
@@ -100,7 +99,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     setFieldValue,
     values,
     touched,
-    dirty,
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
@@ -650,15 +648,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 </EuiModalFooter>
               </EuiModal>
             )}
-            {onIngest &&
-              dirty &&
-              hasProvisionedSearchResources(props.workflow) && (
-                <EuiCallOut
-                  title="Making changes to ingest may affect your configured search flow"
-                  iconType={'alert'}
-                  color="warning"
-                />
-              )}
             {onIngestAndUnprovisioned && (
               <>
                 <EuiSpacer size="m" />
