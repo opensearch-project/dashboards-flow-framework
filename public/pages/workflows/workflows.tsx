@@ -14,7 +14,7 @@ import {
   EuiPageContent,
   EuiSpacer,
   EuiFlexGroup,
-  EuiButton,
+  EuiSmallButton,
   EuiText,
 } from '@elastic/eui';
 import queryString from 'query-string';
@@ -277,7 +277,7 @@ export function Workflows(props: WorkflowsProps) {
               rightSideItems={
                 selectedTabId === WORKFLOWS_TAB.MANAGE
                   ? [
-                      <EuiButton
+                      <EuiSmallButton
                         style={{ marginTop: '8px' }}
                         fill={true}
                         onClick={() => {
@@ -285,25 +285,25 @@ export function Workflows(props: WorkflowsProps) {
                         }}
                       >
                         Create workflow
-                      </EuiButton>,
-                      <EuiButton
+                      </EuiSmallButton>,
+                      <EuiSmallButton
                         style={{ marginTop: '8px' }}
                         onClick={() => {
                           setIsImportModalOpen(true);
                         }}
                       >
                         Import workflow
-                      </EuiButton>,
+                      </EuiSmallButton>,
                     ]
                   : [
-                      <EuiButton
+                      <EuiSmallButton
                         style={{ marginTop: '8px' }}
                         onClick={() => {
                           setIsImportModalOpen(true);
                         }}
                       >
                         Import workflow
-                      </EuiButton>,
+                      </EuiSmallButton>,
                     ]
               }
               bottomBorder={false}
@@ -312,7 +312,7 @@ export function Workflows(props: WorkflowsProps) {
               <WorkflowList setSelectedTabId={setSelectedTabId} />
             ) : (
               <>
-                <EuiSpacer size="m" />
+                <EuiSpacer size="s" />
                 <NewWorkflow />
               </>
             )}

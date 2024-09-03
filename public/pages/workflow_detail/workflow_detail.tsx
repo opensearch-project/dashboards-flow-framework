@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { escape } from 'lodash';
 import {
-  EuiButton,
+  EuiSmallButton,
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
@@ -115,13 +115,13 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
         />
       </EuiFlexItem>
       <EuiFlexItem grow={7}>
-        <EuiButton
+        <EuiSmallButton
           style={{ width: '200px' }}
           fill={false}
           href={constructHrefWithDataSourceId(APP_PATH.WORKFLOWS, dataSourceId)}
         >
           Return to home
-        </EuiButton>
+        </EuiSmallButton>
       </EuiFlexItem>
     </EuiFlexGroup>
   ) : (

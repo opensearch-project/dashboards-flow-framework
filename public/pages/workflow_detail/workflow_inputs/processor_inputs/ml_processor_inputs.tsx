@@ -8,7 +8,7 @@ import { getIn, useFormikContext } from 'formik';
 import { useSelector } from 'react-redux';
 import {
   EuiAccordion,
-  EuiButtonEmpty,
+  EuiSmallButtonEmpty,
   EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
@@ -199,16 +199,15 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                     : 'Preview is unavailable for multiple search request processors'
                 }
               >
-                <EuiButtonEmpty
+                <EuiSmallButtonEmpty
                   disabled={!isInputPreviewAvailable}
                   style={{ width: '100px' }}
-                  size="s"
                   onClick={() => {
                     setIsInputTransformModalOpen(true);
                   }}
                 >
                   Preview
-                </EuiButtonEmpty>
+                </EuiSmallButtonEmpty>
               </EuiToolTip>
             </EuiFlexItem>
           </EuiFlexGroup>
@@ -249,16 +248,15 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                     : 'Preview of model outputs is unavailable for search request processors'
                 }
               >
-                <EuiButtonEmpty
+                <EuiSmallButtonEmpty
                   disabled={!isOutputPreviewAvailable}
                   style={{ width: '100px' }}
-                  size="s"
                   onClick={() => {
                     setIsOutputTransformModalOpen(true);
                   }}
                 >
                   Preview
-                </EuiButtonEmpty>
+                </EuiSmallButtonEmpty>
               </EuiToolTip>
             </EuiFlexItem>
           </EuiFlexGroup>

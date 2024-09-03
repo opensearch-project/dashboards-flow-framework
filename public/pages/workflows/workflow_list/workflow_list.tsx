@@ -173,7 +173,10 @@ export function WorkflowList(props: WorkflowListProps) {
       )}
       <EuiFlexGroup direction="column">
         <EuiFlexItem>
-          <EuiFlexGroup direction="row" style={{ marginLeft: '0px' }}>
+          <EuiFlexGroup
+            direction="row"
+            style={{ marginLeft: '0px', paddingTop: '10px' }}
+          >
             <EuiText color="subdued">{`Manage existing workflows`}</EuiText>
           </EuiFlexGroup>
         </EuiFlexItem>

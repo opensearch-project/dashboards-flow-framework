@@ -15,7 +15,7 @@ import {
   EuiModalFooter,
   EuiModalHeader,
   EuiModalHeaderTitle,
-  EuiSelect,
+  EuiCompressedSelect,
   EuiSelectOption,
   EuiSmallButton,
   EuiSpacer,
@@ -274,9 +274,8 @@ export function InputTransformModal(props: InputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiSelect
+              <EuiCompressedSelect
                 prepend={<EuiText>Expected output for</EuiText>}
-                compressed={true}
                 options={outputOptions}
                 value={selectedOutputOption}
                 onChange={(e) => {
