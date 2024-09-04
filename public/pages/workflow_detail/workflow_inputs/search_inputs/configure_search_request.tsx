@@ -12,20 +12,19 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiCompressedFormRow,
-  EuiSuperSelect,
+  EuiCompressedSuperSelect,
   EuiSuperSelectOption,
   EuiText,
   EuiTitle,
   EuiSpacer,
 } from '@elastic/eui';
-import { SearchHit, WorkflowFormValues } from '../../../../../common';
-import { JsonField } from '../input_fields';
 import {
-  AppState,
-  catIndices,
-  searchIndex,
-  useAppDispatch,
-} from '../../../../store';
+  SearchHit,
+  WorkflowFormValues,
+  customStringify,
+} from '../../../../../common';
+import { JsonField } from '../input_fields';
+import { AppState, searchIndex, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils/utils';
 import { EditQueryModal } from './edit_query_modal';
 
@@ -74,14 +73,6 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
     }
   }, [values?.search?.request]);
 
-  // Initialization hook to fetch available indices (if applicable)
-  useEffect(() => {
-    if (!ingestEnabled) {
-      // Fetch all indices besides system indices
-      dispatch(catIndices({ pattern: '*,-.*', dataSourceId }));
-    }
-  }, []);
-
   return (
     <>
       {isEditModalOpen && (
@@ -104,7 +95,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                 readOnly={true}
               />
             ) : (
-              <EuiSuperSelect
+              <EuiCompressedSuperSelect
                 options={Object.values(indices).map(
                   (option) =>
                     ({
@@ -162,10 +153,8 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                   .unwrap()
                   .then(async (resp) => {
                     props.setQueryResponse(
-                      JSON.stringify(
-                        resp.hits.hits.map((hit: SearchHit) => hit._source),
-                        undefined,
-                        2
+                      customStringify(
+                        resp.hits.hits.map((hit: SearchHit) => hit._source)
                       )
                     );
                   })

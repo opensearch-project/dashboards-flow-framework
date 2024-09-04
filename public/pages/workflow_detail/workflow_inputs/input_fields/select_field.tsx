@@ -7,7 +7,7 @@ import React from 'react';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
   EuiCompressedFormRow,
-  EuiSuperSelect,
+  EuiCompressedSuperSelect,
   EuiSuperSelectOption,
   EuiText,
 } from '@elastic/eui';
@@ -31,7 +31,7 @@ export function SelectField(props: SelectFieldProps) {
       {({ field, form }: FieldProps) => {
         return (
           <EuiCompressedFormRow label={camelCaseToTitleString(props.field.id)}>
-            <EuiSuperSelect
+            <EuiCompressedSuperSelect
               options={
                 props.field.selectOptions
                   ? props.field.selectOptions.map(

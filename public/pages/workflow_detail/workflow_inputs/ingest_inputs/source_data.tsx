@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useFormikContext } from 'formik';
 import {
   EuiSmallButton,
@@ -18,19 +19,44 @@ import {
   EuiSpacer,
   EuiText,
   EuiTitle,
+  EuiFilterGroup,
+  EuiSmallFilterButton,
+  EuiSuperSelectOption,
+  EuiCompressedSuperSelect,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
-import { WorkspaceFormValues } from '../../../../../common';
+import {
+  FETCH_ALL_QUERY,
+  SearchHit,
+  WorkspaceFormValues,
+  customStringify,
+} from '../../../../../common';
+import { AppState, searchIndex, useAppDispatch } from '../../../../store';
+import { getDataSourceId } from '../../../../utils';
 
 interface SourceDataProps {
   setIngestDocs: (docs: string) => void;
+}
+
+enum SOURCE_OPTIONS {
+  MANUAL = 'manual',
+  UPLOAD = 'upload',
+  EXISTING_INDEX = 'existing_index',
 }
 
 /**
  * Input component for configuring the source data for ingest.
  */
 export function SourceData(props: SourceDataProps) {
+  const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
   const { values, setFieldValue } = useFormikContext<WorkspaceFormValues>();
+  const indices = useSelector((state: AppState) => state.opensearch.indices);
+
+  // selected option state
+  const [selectedOption, setSelectedOption] = useState<SOURCE_OPTIONS>(
+    SOURCE_OPTIONS.MANUAL
+  );
 
   // edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
@@ -43,8 +69,40 @@ export function SourceData(props: SourceDataProps) {
     }
   };
 
-  // Hook to listen when the docs form value changes.
-  // Try to set the ingestDocs if possible
+  // selected index state. when an index is selected, update the form value
+  const [selectedIndex, setSelectedIndex] = useState<string | undefined>(
+    undefined
+  );
+  useEffect(() => {
+    if (selectedIndex !== undefined) {
+      dispatch(
+        searchIndex({
+          apiBody: {
+            index: selectedIndex,
+            body: FETCH_ALL_QUERY,
+            searchPipeline: '_none',
+          },
+          dataSourceId,
+        })
+      )
+        .unwrap()
+        .then((resp) => {
+          const docObjs = resp.hits?.hits
+            ?.slice(0, 5)
+            ?.map((hit: SearchHit) => hit?._source);
+          setFieldValue('ingest.docs', customStringify(docObjs));
+        });
+    }
+  }, [selectedIndex]);
+
+  // hook to clear out the selected index when switching options
+  useEffect(() => {
+    if (selectedOption !== SOURCE_OPTIONS.EXISTING_INDEX) {
+      setSelectedIndex(undefined);
+    }
+  }, [selectedOption]);
+
+  // hook to listen when the docs form value changes.
   useEffect(() => {
     if (values?.ingest?.docs) {
       props.setIngestDocs(values.ingest.docs);
@@ -65,22 +123,74 @@ export function SourceData(props: SourceDataProps) {
           </EuiModalHeader>
           <EuiModalBody>
             <>
-              <EuiText color="subdued">
-                Upload a JSON file or enter manually.
-              </EuiText>{' '}
-              <EuiSpacer size="s" />
-              <EuiCompressedFilePicker
-                accept="application/json"
-                multiple={false}
-                initialPromptText="Upload file"
-                onChange={(files) => {
-                  if (files && files.length > 0) {
-                    fileReader.readAsText(files[0]);
+              <EuiFilterGroup>
+                <EuiSmallFilterButton
+                  id={SOURCE_OPTIONS.MANUAL}
+                  hasActiveFilters={selectedOption === SOURCE_OPTIONS.MANUAL}
+                  onClick={() => setSelectedOption(SOURCE_OPTIONS.MANUAL)}
+                >
+                  Manual
+                </EuiSmallFilterButton>
+                <EuiSmallFilterButton
+                  id={SOURCE_OPTIONS.UPLOAD}
+                  hasActiveFilters={selectedOption === SOURCE_OPTIONS.UPLOAD}
+                  onClick={() => setSelectedOption(SOURCE_OPTIONS.UPLOAD)}
+                >
+                  Upload
+                </EuiSmallFilterButton>
+                <EuiSmallFilterButton
+                  id={SOURCE_OPTIONS.EXISTING_INDEX}
+                  hasActiveFilters={
+                    selectedOption === SOURCE_OPTIONS.EXISTING_INDEX
                   }
-                }}
-                display="default"
-              />
-              <EuiSpacer size="s" />
+                  onClick={() =>
+                    setSelectedOption(SOURCE_OPTIONS.EXISTING_INDEX)
+                  }
+                >
+                  Existing index
+                </EuiSmallFilterButton>
+              </EuiFilterGroup>
+              <EuiSpacer size="m" />
+              {selectedOption === SOURCE_OPTIONS.UPLOAD && (
+                <>
+                  <EuiCompressedFilePicker
+                    accept="application/json"
+                    multiple={false}
+                    initialPromptText="Upload file"
+                    onChange={(files) => {
+                      if (files && files.length > 0) {
+                        fileReader.readAsText(files[0]);
+                      }
+                    }}
+                    display="default"
+                  />
+                  <EuiSpacer size="s" />
+                </>
+              )}
+              {selectedOption === SOURCE_OPTIONS.EXISTING_INDEX && (
+                <>
+                  <EuiCompressedSuperSelect
+                    options={Object.values(indices).map(
+                      (option) =>
+                        ({
+                          value: option.name,
+                          inputDisplay: <EuiText>{option.name}</EuiText>,
+                          disabled: false,
+                        } as EuiSuperSelectOption<string>)
+                    )}
+                    valueOfSelected={selectedIndex}
+                    onChange={(option) => {
+                      setSelectedIndex(option);
+                    }}
+                    isInvalid={false}
+                  />
+                  <EuiSpacer size="xs" />
+                  <EuiText color="subdued" size="s">
+                    Up to 5 sample documents will be automatically populated.
+                  </EuiText>
+                  <EuiSpacer size="s" />
+                </>
+              )}
               <JsonField
                 label="Documents"
                 fieldPath={'ingest.docs'}
