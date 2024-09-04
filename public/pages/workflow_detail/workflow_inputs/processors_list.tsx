@@ -10,10 +10,10 @@ import {
   EuiContextMenu,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiHorizontalRule,
   EuiPanel,
   EuiPopover,
-  EuiText,
+  EuiAccordion,
+  EuiSpacer,
 } from '@elastic/eui';
 import { cloneDeep } from 'lodash';
 import { useFormikContext } from 'formik';
@@ -51,6 +51,10 @@ const PANEL_ID = 0;
 export function ProcessorsList(props: ProcessorsListProps) {
   const { values } = useFormikContext<WorkflowFormValues>();
 
+  // Processor added state. Used to automatically open accordion when a new
+  // processor is added, assuming users want to immediately configure it.
+  const [processorAdded, setProcessorAdded] = useState<boolean>(false);
+
   // Popover state when adding new processors
   const [isPopoverOpen, setPopover] = useState(false);
   const closePopover = () => {
@@ -75,6 +79,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
   // (getting any updated/interim values along the way) and add to
   // the list of processors
   function addProcessor(processor: IProcessorConfig): void {
+    setProcessorAdded(true);
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
     let newConfig = formikToUiConfig(values, existingConfig);
     switch (props.context) {
@@ -138,36 +143,40 @@ export function ProcessorsList(props: ProcessorsListProps) {
       {processors.map((processor: IProcessorConfig, processorIndex) => {
         return (
           <EuiFlexItem key={processorIndex}>
-            <EuiPanel>
-              <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                <EuiFlexItem grow={false}>
-                  <EuiText>{processor.name || 'Processor'}</EuiText>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiSmallButtonIcon
-                    iconType={'trash'}
-                    color="danger"
-                    aria-label="Delete"
-                    onClick={() => {
-                      deleteProcessor(processor.id);
-                    }}
-                  />
-                </EuiFlexItem>
-              </EuiFlexGroup>
-              <EuiHorizontalRule size="full" margin="s" />
-              <ProcessorInputs
-                uiConfig={props.uiConfig}
-                config={processor}
-                baseConfigPath={
-                  props.context === PROCESSOR_CONTEXT.INGEST
-                    ? 'ingest.enrich'
-                    : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                    ? 'search.enrichRequest'
-                    : 'search.enrichResponse'
-                }
-                context={props.context}
-              />
-            </EuiPanel>
+            <EuiAccordion
+              initialIsOpen={
+                processorAdded && processorIndex === processors.length - 1
+              }
+              id={`accordion${processor.id}`}
+              buttonContent={`${processor.name || 'Processor'}`}
+              extraAction={
+                <EuiSmallButtonIcon
+                  style={{ marginTop: '8px' }}
+                  iconType={'trash'}
+                  color="danger"
+                  aria-label="Delete"
+                  onClick={() => {
+                    deleteProcessor(processor.id);
+                  }}
+                />
+              }
+            >
+              <EuiSpacer size="s" />
+              <EuiPanel>
+                <ProcessorInputs
+                  uiConfig={props.uiConfig}
+                  config={processor}
+                  baseConfigPath={
+                    props.context === PROCESSOR_CONTEXT.INGEST
+                      ? 'ingest.enrich'
+                      : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                      ? 'search.enrichRequest'
+                      : 'search.enrichResponse'
+                  }
+                  context={props.context}
+                />
+              </EuiPanel>
+            </EuiAccordion>
           </EuiFlexItem>
         );
       })}
@@ -178,7 +187,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
               <EuiSmallButton
                 iconType="arrowDown"
                 iconSide="right"
-                size="s"
                 onClick={() => {
                   setPopover(!isPopoverOpen);
                 }}
