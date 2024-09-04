@@ -28,6 +28,7 @@ import {
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
   MapArrayFormValue,
+  ModelInterface,
   PROCESSOR_CONTEXT,
   SearchHit,
   SimulateIngestPipelineResponse,
@@ -47,7 +48,7 @@ import {
   useAppDispatch,
 } from '../../../../store';
 import { getCore } from '../../../../services';
-import { getDataSourceId } from '../../../../utils/utils';
+import { getDataSourceId, parseModelInputs } from '../../../../utils/utils';
 import { MapArrayField } from '../input_fields';
 
 interface InputTransformModalProps {
@@ -56,7 +57,7 @@ interface InputTransformModalProps {
   context: PROCESSOR_CONTEXT;
   inputMapField: IConfigField;
   inputMapFieldPath: string;
-  inputFields: any[];
+  modelInterface: ModelInterface | undefined;
   onClose: () => void;
 }
 
@@ -87,6 +88,10 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const [selectedOutputOption, setSelectedOutputOption] = useState<
     number | undefined
   >((outputOptions[0]?.value as number) ?? undefined);
+
+  // TODO: integrated with Ajv to fetch any model interface and perform validation
+  // on the produced output on-the-fly. For examples, see
+  // https://www.npmjs.com/package/ajv
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -254,7 +259,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                     ? 'Query field'
                     : 'Document field'
                 }
-                keyOptions={props.inputFields}
+                keyOptions={parseModelInputs(props.modelInterface)}
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {
                   if (isEmpty(curArray)) {
@@ -274,15 +279,19 @@ export function InputTransformModal(props: InputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiCompressedSelect
-                prepend={<EuiText>Expected output for</EuiText>}
-                options={outputOptions}
-                value={selectedOutputOption}
-                onChange={(e) => {
-                  setSelectedOutputOption(Number(e.target.value));
-                  setTransformedOutput('{}');
-                }}
-              />
+              {outputOptions.length === 1 ? (
+                <EuiText>Expected output</EuiText>
+              ) : (
+                <EuiCompressedSelect
+                  prepend={<EuiText>Expected output for</EuiText>}
+                  options={outputOptions}
+                  value={selectedOutputOption}
+                  onChange={(e) => {
+                    setSelectedOutputOption(Number(e.target.value));
+                    setTransformedOutput('{}');
+                  }}
+                />
+              )}
               <EuiSpacer size="s" />
               <EuiSmallButton
                 style={{ width: '100px' }}

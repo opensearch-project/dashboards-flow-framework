@@ -30,6 +30,7 @@ import {
   ERROR_GETTING_WORKFLOW_MSG,
   FETCH_ALL_QUERY,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
+  NO_TEMPLATES_FOUND_MSG,
   getCharacterLimitedString,
 } from '../../../common';
 import { MountPoint } from '../../../../../src/core/public';
@@ -105,7 +106,8 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
   }, []);
 
-  return errorMessage.includes(ERROR_GETTING_WORKFLOW_MSG) ? (
+  return errorMessage.includes(ERROR_GETTING_WORKFLOW_MSG) ||
+    errorMessage.includes(NO_TEMPLATES_FOUND_MSG) ? (
     <EuiFlexGroup direction="column" alignItems="center">
       <EuiFlexItem grow={3}>
         <EuiEmptyPrompt
