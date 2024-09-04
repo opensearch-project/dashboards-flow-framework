@@ -108,9 +108,6 @@ export function MapField(props: MapFieldProps) {
                                   fieldPath={`${props.fieldPath}.${idx}.key`}
                                   options={props.keyOptions as any[]}
                                   placeholder={props.keyPlaceholder || 'Input'}
-                                  autofill={
-                                    props.keyOptions?.length === 1 && idx === 0
-                                  }
                                 />
                               ) : (
                                 <TextField
@@ -124,7 +121,7 @@ export function MapField(props: MapFieldProps) {
                           </EuiFlexItem>
                           <EuiFlexItem
                             grow={false}
-                            style={{ marginTop: '14px' }}
+                            style={{ marginTop: '10px' }}
                           >
                             <EuiIcon type="sortRight" />
                           </EuiFlexItem>
@@ -136,10 +133,6 @@ export function MapField(props: MapFieldProps) {
                                   options={props.valueOptions || []}
                                   placeholder={
                                     props.valuePlaceholder || 'Output'
-                                  }
-                                  autofill={
-                                    props.valueOptions?.length === 1 &&
-                                    idx === 0
                                   }
                                 />
                               ) : (
@@ -158,7 +151,6 @@ export function MapField(props: MapFieldProps) {
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiSmallButtonIcon
-                          style={{ marginTop: '8px' }}
                           iconType={'trash'}
                           color="danger"
                           aria-label="Delete"

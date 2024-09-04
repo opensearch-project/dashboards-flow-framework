@@ -22,10 +22,9 @@ import {
   PROCESSOR_CONTEXT,
   WorkflowConfig,
   JSONPATH_ROOT_SELECTOR,
-  ModelInputFormField,
-  ModelOutputFormField,
   ML_INFERENCE_DOCS_LINK,
   WorkflowFormValues,
+  ModelInterface,
 } from '../../../../../common';
 import { MapArrayField, ModelField } from '../input_fields';
 import { isEmpty } from 'lodash';
@@ -108,9 +107,9 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   >(false);
 
   // model interface state
-  const [hasModelInterface, setHasModelInterface] = useState<boolean>(true);
-  const [inputFields, setInputFields] = useState<ModelInputFormField[]>([]);
-  const [outputFields, setOutputFields] = useState<ModelOutputFormField[]>([]);
+  const [modelInterface, setModelInterface] = useState<
+    ModelInterface | undefined
+  >(undefined);
 
   // Hook to listen when the selected model has changed. We do a few checks here:
   // 1: update model interface states
@@ -136,15 +135,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   // reusable function to update interface states based on the model ID
   function updateModelInterfaceStates(modelId: string) {
     const newSelectedModel = models[modelId];
-    if (newSelectedModel?.interface !== undefined) {
-      setInputFields(parseModelInputs(newSelectedModel.interface));
-      setOutputFields(parseModelOutputs(newSelectedModel.interface));
-      setHasModelInterface(true);
-    } else {
-      setInputFields([]);
-      setOutputFields([]);
-      setHasModelInterface(false);
-    }
+    setModelInterface(newSelectedModel?.interface);
   }
 
   return (
@@ -156,7 +147,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           context={props.context}
           inputMapField={inputMapField}
           inputMapFieldPath={inputMapFieldPath}
-          inputFields={inputFields}
+          modelInterface={modelInterface}
           onClose={() => setIsInputTransformModalOpen(false)}
         />
       )}
@@ -167,14 +158,14 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           context={props.context}
           outputMapField={outputMapField}
           outputMapFieldPath={outputMapFieldPath}
-          outputFields={outputFields}
+          modelInterface={modelInterface}
           onClose={() => setIsOutputTransformModalOpen(false)}
         />
       )}
       <ModelField
         field={modelField}
         fieldPath={modelFieldPath}
-        hasModelInterface={hasModelInterface}
+        hasModelInterface={modelInterface !== undefined}
         onModelChange={onModelChange}
       />
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
@@ -226,7 +217,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 ? 'Query field'
                 : 'Document field'
             }
-            keyOptions={inputFields}
+            keyOptions={parseModelInputs(modelInterface)}
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row">
@@ -274,7 +265,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 : 'Document field'
             }
             valuePlaceholder="Model output field"
-            valueOptions={outputFields}
+            valueOptions={parseModelOutputs(modelInterface)}
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&

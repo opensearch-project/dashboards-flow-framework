@@ -203,7 +203,7 @@ export function generateTransform(input: {}, map: MapFormValue): {} {
 
 // Derive the collection of model inputs from the model interface JSONSchema into a form-ready list
 export function parseModelInputs(
-  modelInterface: ModelInterface
+  modelInterface: ModelInterface | undefined
 ): ModelInputFormField[] {
   const modelInputsObj = get(
     modelInterface,
@@ -223,7 +223,7 @@ export function parseModelInputs(
 
 // Derive the collection of model outputs from the model interface JSONSchema into a form-ready list
 export function parseModelOutputs(
-  modelInterface: ModelInterface
+  modelInterface: ModelInterface | undefined
 ): ModelOutputFormField[] {
   const modelOutputsObj = get(modelInterface, 'output.properties', {}) as {
     [key: string]: ModelOutput;

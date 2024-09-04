@@ -396,6 +396,7 @@ export const DATE_FORMAT_PATTERN = 'MM/DD/YY hh:mm A';
 export const EMPTY_FIELD_STRING = '--';
 export const INDEX_NOT_FOUND_EXCEPTION = 'index_not_found_exception';
 export const ERROR_GETTING_WORKFLOW_MSG = 'Failed to retrieve template';
+export const NO_TEMPLATES_FOUND_MSG = 'There are no templates';
 export const NO_MODIFICATIONS_FOUND_TEXT =
   'Template does not contain any modifications';
 export const JSONPATH_ROOT_SELECTOR = '$.';
