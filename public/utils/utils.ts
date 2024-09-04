@@ -22,7 +22,7 @@ import {
   customStringify,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
-import { MDSQueryParams } from '../../common/interfaces';
+import { MDSQueryParams, ModelInputMap } from '../../common/interfaces';
 import queryString from 'query-string';
 import { useLocation } from 'react-router-dom';
 import * as pluginManifest from '../../opensearch_dashboards.json';
@@ -205,13 +205,7 @@ export function generateTransform(input: {}, map: MapFormValue): {} {
 export function parseModelInputs(
   modelInterface: ModelInterface | undefined
 ): ModelInputFormField[] {
-  const modelInputsObj = get(
-    modelInterface,
-    // model interface input values will always be nested under a base "parameters" obj.
-    // we iterate through the obj properties to extract the individual inputs
-    'input.properties.parameters.properties',
-    {}
-  ) as { [key: string]: ModelInput };
+  const modelInputsObj = parseModelInputsObj(modelInterface);
   return Object.keys(modelInputsObj).map(
     (inputName: string) =>
       ({
@@ -219,6 +213,19 @@ export function parseModelInputs(
         ...modelInputsObj[inputName],
       } as ModelInputFormField)
   );
+}
+
+// Derive the collection of model inputs as an obj
+export function parseModelInputsObj(
+  modelInterface: ModelInterface | undefined
+): ModelInputMap {
+  return get(
+    modelInterface,
+    // model interface input values will always be nested under a base "parameters" obj.
+    // we iterate through the obj properties to extract the individual inputs
+    'input.properties.parameters.properties',
+    {}
+  ) as ModelInputMap;
 }
 
 // Derive the collection of model outputs from the model interface JSONSchema into a form-ready list
