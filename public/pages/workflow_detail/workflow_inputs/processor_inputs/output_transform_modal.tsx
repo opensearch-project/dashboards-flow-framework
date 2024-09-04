@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormikContext, getIn } from 'formik';
 import { cloneDeep, isEmpty, set } from 'lodash';
 import {
@@ -86,6 +86,31 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
     number | undefined
   >((outputOptions[0]?.value as number) ?? undefined);
 
+  // hook to re-generate the transform when any inputs to the transform are updated
+  useEffect(() => {
+    if (
+      !isEmpty(map) &&
+      !isEmpty(JSON.parse(sourceInput)) &&
+      selectedOutputOption !== undefined
+    ) {
+      let sampleSourceInput = {};
+      try {
+        // In the context of ingest or search resp, this input will be an array (list of docs)
+        // In the context of request, it will be a single JSON
+        sampleSourceInput =
+          props.context === PROCESSOR_CONTEXT.INGEST ||
+          props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
+            ? JSON.parse(sourceInput)[0]
+            : JSON.parse(sourceInput);
+        const output = generateTransform(
+          sampleSourceInput,
+          map[selectedOutputOption]
+        );
+        setTransformedOutput(customStringify(output));
+      } catch {}
+    }
+  }, [map, sourceInput, selectedOutputOption]);
+
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
       <EuiModalHeader>
@@ -98,7 +123,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
           <EuiFlexItem>
             <>
               <EuiText color="subdued">
-                Fetch some sample output data and how it is transformed.
+                Fetch some sample output data and see how it is transformed.
               </EuiText>
               <EuiSpacer size="s" />
               <EuiText>Expected input</EuiText>
@@ -267,40 +292,9 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                   value={selectedOutputOption}
                   onChange={(e) => {
                     setSelectedOutputOption(Number(e.target.value));
-                    setTransformedOutput('{}');
                   }}
                 />
               )}
-              <EuiSpacer size="s" />
-              <EuiSmallButton
-                style={{ width: '100px' }}
-                disabled={isEmpty(map) || isEmpty(JSON.parse(sourceInput))}
-                onClick={async () => {
-                  if (
-                    !isEmpty(map) &&
-                    !isEmpty(JSON.parse(sourceInput)) &&
-                    selectedOutputOption !== undefined
-                  ) {
-                    let sampleSourceInput = {};
-                    try {
-                      // In the context of ingest or search resp, this input will be an array (list of docs)
-                      // In the context of request, it will be a single JSON
-                      sampleSourceInput =
-                        props.context === PROCESSOR_CONTEXT.INGEST ||
-                        props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                          ? JSON.parse(sourceInput)[0]
-                          : JSON.parse(sourceInput);
-                      const output = generateTransform(
-                        sampleSourceInput,
-                        map[selectedOutputOption]
-                      );
-                      setTransformedOutput(customStringify(output));
-                    } catch {}
-                  }
-                }}
-              >
-                Generate
-              </EuiSmallButton>
               <EuiSpacer size="s" />
               <EuiCodeEditor
                 mode="json"
