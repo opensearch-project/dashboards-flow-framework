@@ -32,6 +32,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
   return (
     <EuiFlexItem grow={false}>
       {props.configFields.map((field, idx) => {
+        const fieldPath = `${props.baseConfigPath}.${props.configId}.${field.id}`;
         let el;
         switch (field.type) {
           case 'string': {
@@ -39,7 +40,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
               <EuiFlexItem key={idx}>
                 <TextField
                   label={camelCaseToTitleString(field.id)}
-                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
+                  fieldPath={fieldPath}
                   showError={true}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
@@ -50,10 +51,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
           case 'select': {
             el = (
               <EuiFlexItem key={idx}>
-                <SelectField
-                  field={field}
-                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
-                />
+                <SelectField field={field} fieldPath={fieldPath} />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
             );
@@ -64,13 +62,13 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
               <EuiFlexItem key={idx}>
                 <BooleanField
                   label={camelCaseToTitleString(field.id)}
-                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
+                  fieldPath={fieldPath}
                   enabledOption={{
-                    id: 'true',
+                    id: `${fieldPath}_true`,
                     label: 'True',
                   }}
                   disabledOption={{
-                    id: 'false',
+                    id: `${fieldPath}_false`,
                     label: 'False',
                   }}
                   showLabel={true}
@@ -85,7 +83,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
               <EuiFlexItem key={idx}>
                 <NumberField
                   label={camelCaseToTitleString(field.id)}
-                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
+                  fieldPath={fieldPath}
                   showError={true}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
@@ -98,7 +96,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
               <EuiFlexItem key={idx}>
                 <JsonField
                   label={camelCaseToTitleString(field.id)}
-                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
+                  fieldPath={fieldPath}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -111,7 +109,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                 <JsonField
                   validate={false}
                   label={camelCaseToTitleString(field.id)}
-                  fieldPath={`${props.baseConfigPath}.${props.configId}.${field.id}`}
+                  fieldPath={fieldPath}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>

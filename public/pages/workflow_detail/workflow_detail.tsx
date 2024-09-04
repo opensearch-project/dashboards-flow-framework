@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { escape } from 'lodash';
 import {
-  EuiButton,
+  EuiSmallButton,
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
@@ -30,6 +30,7 @@ import {
   ERROR_GETTING_WORKFLOW_MSG,
   FETCH_ALL_QUERY,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
+  NO_TEMPLATES_FOUND_MSG,
   getCharacterLimitedString,
 } from '../../../common';
 import { MountPoint } from '../../../../../src/core/public';
@@ -90,7 +91,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
             { text: '' },
           ]
         : [
-            BREADCRUMBS.FLOW_FRAMEWORK,
+            BREADCRUMBS.PLUGIN_NAME,
             BREADCRUMBS.WORKFLOWS(dataSourceEnabled ? dataSourceId : undefined),
             { text: workflowName },
           ]
@@ -105,7 +106,8 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
   }, []);
 
-  return errorMessage.includes(ERROR_GETTING_WORKFLOW_MSG) ? (
+  return errorMessage.includes(ERROR_GETTING_WORKFLOW_MSG) ||
+    errorMessage.includes(NO_TEMPLATES_FOUND_MSG) ? (
     <EuiFlexGroup direction="column" alignItems="center">
       <EuiFlexItem grow={3}>
         <EuiEmptyPrompt
@@ -115,13 +117,13 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
         />
       </EuiFlexItem>
       <EuiFlexItem grow={7}>
-        <EuiButton
+        <EuiSmallButton
           style={{ width: '200px' }}
           fill={false}
           href={constructHrefWithDataSourceId(APP_PATH.WORKFLOWS, dataSourceId)}
         >
           Return to home
-        </EuiButton>
+        </EuiSmallButton>
       </EuiFlexItem>
     </EuiFlexGroup>
   ) : (

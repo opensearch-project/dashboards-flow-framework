@@ -16,8 +16,10 @@ import {
   EuiCompressedFieldNumber,
 } from '@elastic/eui';
 import {
+  COHERE_DIMENSIONS,
   MODEL_STATE,
   Model,
+  OPENAI_DIMENSIONS,
   QuickConfigureFields,
   WORKFLOW_TYPE,
 } from '../../../../common';
@@ -28,10 +30,14 @@ interface QuickConfigureInputsProps {
   setFields(fields: QuickConfigureFields): void;
 }
 
+const DEFAULT_TEXT_FIELD = 'my_text';
+const DEFAULT_VECTOR_FIELD = 'my_embedding';
+const DEFAULT_IMAGE_FIELD = 'my_image';
+
 // Dynamic component to allow optional input configuration fields for different use cases.
 // Hooks back to the parent component with such field values
 export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
-  const models = useSelector((state: AppState) => state.models.models);
+  const { models, connectors } = useSelector((state: AppState) => state.ml);
 
   // Deployed models state
   const [deployedModels, setDeployedModels] = useState<Model[]>([]);
@@ -50,10 +56,78 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
   // Local field values state
   const [fieldValues, setFieldValues] = useState<QuickConfigureFields>({});
 
+  // on initial load, and when there are any deployed models found, set
+  // defaults for the field values for certain workflow types
+  useEffect(() => {
+    let defaultFieldValues = {} as QuickConfigureFields;
+    if (
+      props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
+      props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
+      props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH
+    ) {
+      defaultFieldValues = {
+        textField: DEFAULT_TEXT_FIELD,
+        vectorField: DEFAULT_VECTOR_FIELD,
+      };
+    }
+    if (props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH) {
+      defaultFieldValues = {
+        ...defaultFieldValues,
+        imageField: DEFAULT_IMAGE_FIELD,
+      };
+    }
+    if (deployedModels.length > 0) {
+      defaultFieldValues = {
+        ...defaultFieldValues,
+        embeddingModelId: deployedModels[0].id,
+      };
+    }
+    setFieldValues(defaultFieldValues);
+  }, [deployedModels]);
+
   // Hook to update the parent field values
   useEffect(() => {
     props.setFields(fieldValues);
   }, [fieldValues]);
+
+  // Try to pre-fill the dimensions based on the chosen model
+  useEffect(() => {
+    const selectedModel = deployedModels.find(
+      (model) => model.id === fieldValues.embeddingModelId
+    );
+    if (selectedModel?.connectorId !== undefined) {
+      const connector = connectors[selectedModel.connectorId];
+      if (connector !== undefined) {
+        // some APIs allow specifically setting the dimensions at runtime,
+        // so we check for that first.
+        if (connector.parameters?.dimensions !== undefined) {
+          setFieldValues({
+            ...fieldValues,
+            embeddingLength: connector.parameters?.dimensions,
+          });
+        } else if (connector.parameters?.model !== undefined) {
+          const dimensions =
+            // @ts-ignore
+            COHERE_DIMENSIONS[connector.parameters?.model] ||
+            // @ts-ignore
+            (OPENAI_DIMENSIONS[connector.parameters?.model] as
+              | number
+              | undefined);
+          if (dimensions !== undefined) {
+            setFieldValues({
+              ...fieldValues,
+              embeddingLength: dimensions,
+            });
+          }
+        } else {
+          setFieldValues({
+            ...fieldValues,
+            embeddingLength: undefined,
+          });
+        }
+      }
+    }
+  }, [fieldValues.embeddingModelId, deployedModels, connectors]);
 
   return (
     <>
@@ -111,7 +185,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             <EuiCompressedFormRow
               label={'Text field'}
               isInvalid={false}
-              helpText="The name of the document field containing plaintext"
+              helpText="The name of the text document field to be embedded"
             >
               <EuiCompressedFieldText
                 value={fieldValues?.textField || ''}
@@ -124,6 +198,26 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               />
             </EuiCompressedFormRow>
             <EuiSpacer size="s" />
+            {props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH && (
+              <>
+                <EuiCompressedFormRow
+                  label={'Image field'}
+                  isInvalid={false}
+                  helpText="The name of the document field containing the image binary"
+                >
+                  <EuiCompressedFieldText
+                    value={fieldValues?.imageField || ''}
+                    onChange={(e) => {
+                      setFieldValues({
+                        ...fieldValues,
+                        imageField: e.target.value,
+                      });
+                    }}
+                  />
+                </EuiCompressedFormRow>
+                <EuiSpacer size="s" />
+              </>
+            )}
             <EuiCompressedFormRow
               label={'Vector field'}
               isInvalid={false}
@@ -143,7 +237,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             <EuiCompressedFormRow
               label={'Embedding length'}
               isInvalid={false}
-              helpText="The length / dimension of the generated vector embeddings"
+              helpText="The length / dimension of the generated vector embeddings. Autofilled values may be inaccurate."
             >
               <EuiCompressedFieldNumber
                 value={fieldValues?.embeddingLength || ''}

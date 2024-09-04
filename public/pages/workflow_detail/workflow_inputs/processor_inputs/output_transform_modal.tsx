@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormikContext, getIn } from 'formik';
 import { cloneDeep, isEmpty, set } from 'lodash';
 import {
@@ -15,7 +15,7 @@ import {
   EuiModalFooter,
   EuiModalHeader,
   EuiModalHeaderTitle,
-  EuiSelect,
+  EuiCompressedSelect,
   EuiSelectOption,
   EuiSmallButton,
   EuiSpacer,
@@ -28,6 +28,7 @@ import {
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
   MapArrayFormValue,
+  ModelInterface,
   PROCESSOR_CONTEXT,
   SearchHit,
   SearchPipelineConfig,
@@ -49,7 +50,7 @@ import {
 } from '../../../../store';
 import { getCore } from '../../../../services';
 import { MapArrayField } from '../input_fields';
-import { getDataSourceId } from '../../../../utils/utils';
+import { getDataSourceId, parseModelOutputs } from '../../../../utils/utils';
 
 interface OutputTransformModalProps {
   uiConfig: WorkflowConfig;
@@ -57,7 +58,7 @@ interface OutputTransformModalProps {
   context: PROCESSOR_CONTEXT;
   outputMapField: IConfigField;
   outputMapFieldPath: string;
-  outputFields: any[];
+  modelInterface: ModelInterface | undefined;
   onClose: () => void;
 }
 
@@ -79,11 +80,36 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
   // selected output state
   const outputOptions = map.map((_, idx) => ({
     value: idx,
-    text: `Prediction output ${idx + 1}`,
+    text: `Prediction ${idx + 1}`,
   })) as EuiSelectOption[];
   const [selectedOutputOption, setSelectedOutputOption] = useState<
     number | undefined
   >((outputOptions[0]?.value as number) ?? undefined);
+
+  // hook to re-generate the transform when any inputs to the transform are updated
+  useEffect(() => {
+    if (
+      !isEmpty(map) &&
+      !isEmpty(JSON.parse(sourceInput)) &&
+      selectedOutputOption !== undefined
+    ) {
+      let sampleSourceInput = {};
+      try {
+        // In the context of ingest or search resp, this input will be an array (list of docs)
+        // In the context of request, it will be a single JSON
+        sampleSourceInput =
+          props.context === PROCESSOR_CONTEXT.INGEST ||
+          props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
+            ? JSON.parse(sourceInput)[0]
+            : JSON.parse(sourceInput);
+        const output = generateTransform(
+          sampleSourceInput,
+          map[selectedOutputOption]
+        );
+        setTransformedOutput(customStringify(output));
+      } catch {}
+    }
+  }, [map, sourceInput, selectedOutputOption]);
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -96,6 +122,10 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
+              <EuiText color="subdued">
+                Fetch some sample output data and see how it is transformed.
+              </EuiText>
+              <EuiSpacer size="s" />
               <EuiText>Expected input</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
@@ -128,7 +158,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                         simulatePipeline({
                           apiBody: {
                             pipeline: curIngestPipeline,
-                            docs: curDocs,
+                            docs: [curDocs[0]],
                           },
                           dataSourceId,
                         })
@@ -233,7 +263,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="Document field"
                 valuePlaceholder="Model output field"
-                valueOptions={props.outputFields}
+                valueOptions={parseModelOutputs(props.modelInterface)}
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {
                   if (isEmpty(curArray)) {
@@ -253,46 +283,18 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiSelect
-                prepend={<EuiText>Expected output for</EuiText>}
-                compressed={true}
-                options={outputOptions}
-                value={selectedOutputOption}
-                onChange={(e) => {
-                  setSelectedOutputOption(Number(e.target.value));
-                  setTransformedOutput('{}');
-                }}
-              />
-              <EuiSpacer size="s" />
-              <EuiSmallButton
-                style={{ width: '100px' }}
-                disabled={isEmpty(map) || isEmpty(JSON.parse(sourceInput))}
-                onClick={async () => {
-                  if (
-                    !isEmpty(map) &&
-                    !isEmpty(JSON.parse(sourceInput)) &&
-                    selectedOutputOption !== undefined
-                  ) {
-                    let sampleSourceInput = {};
-                    try {
-                      // In the context of ingest or search resp, this input will be an array (list of docs)
-                      // In the context of request, it will be a single JSON
-                      sampleSourceInput =
-                        props.context === PROCESSOR_CONTEXT.INGEST ||
-                        props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                          ? JSON.parse(sourceInput)[0]
-                          : JSON.parse(sourceInput);
-                      const output = generateTransform(
-                        sampleSourceInput,
-                        map[selectedOutputOption]
-                      );
-                      setTransformedOutput(customStringify(output));
-                    } catch {}
-                  }
-                }}
-              >
-                Generate
-              </EuiSmallButton>
+              {outputOptions.length === 1 ? (
+                <EuiText>Expected output</EuiText>
+              ) : (
+                <EuiCompressedSelect
+                  prepend={<EuiText>Expected output for</EuiText>}
+                  options={outputOptions}
+                  value={selectedOutputOption}
+                  onChange={(e) => {
+                    setSelectedOutputOption(Number(e.target.value));
+                  }}
+                />
+              )}
               <EuiSpacer size="s" />
               <EuiCodeEditor
                 mode="json"

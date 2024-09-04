@@ -4,6 +4,8 @@
  */
 
 import {
+  Connector,
+  ConnectorDict,
   DEFAULT_NEW_WORKFLOW_STATE_TYPE,
   INDEX_NOT_FOUND_EXCEPTION,
   MODEL_ALGORITHM,
@@ -126,10 +128,32 @@ export function getModelsFromResponses(modelHits: SearchHit[]): ModelDict {
             modelHit._source?.model_config?.embedding_dimension,
         },
         interface: modelInterface,
+        connectorId: modelHit._source?.connector_id,
       } as Model;
     }
   });
   return modelDict;
+}
+
+export function getConnectorsFromResponses(
+  modelHits: SearchHit[]
+): ConnectorDict {
+  const connectorDict = {} as ConnectorDict;
+  modelHits.forEach((connectorHit: SearchHit) => {
+    const connectorId = connectorHit._id;
+
+    // in case of schema changes from ML plugin, this may crash. That is ok, as the error
+    // produced will help expose the root cause
+    connectorDict[connectorId] = {
+      id: connectorId,
+      name: connectorHit._source?.name,
+      parameters: {
+        model: connectorHit._source?.parameters?.model,
+        dimensions: connectorHit._source?.parameters.dimensions,
+      },
+    } as Connector;
+  });
+  return connectorDict;
 }
 
 // Convert the workflow state into a readable/presentable state on frontend

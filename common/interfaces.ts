@@ -377,9 +377,14 @@ export type ModelConfig = {
 export type ModelInput = {
   type: string;
   description?: string;
+  items?: ModelInput;
+  properties?: ModelInputMap;
 };
 
 export type ModelOutput = ModelInput;
+
+export type ModelInputMap = { [key: string]: ModelInput };
+export type ModelOutputMap = { [key: string]: ModelOutput };
 
 // For rendering options, we extract the name (the key in the input/output obj) and combine into a single obj
 export type ModelInputFormField = ModelInput & {
@@ -389,8 +394,13 @@ export type ModelInputFormField = ModelInput & {
 export type ModelOutputFormField = ModelInputFormField;
 
 export type ModelInterface = {
-  input: { [key: string]: ModelInput };
-  output: { [key: string]: ModelOutput };
+  input: ModelInput;
+  output: ModelOutput;
+};
+
+export type ConnectorParameters = {
+  model?: string;
+  dimensions?: number;
 };
 
 export type Model = {
@@ -400,10 +410,21 @@ export type Model = {
   state: MODEL_STATE;
   modelConfig?: ModelConfig;
   interface?: ModelInterface;
+  connectorId?: string;
+};
+
+export type Connector = {
+  id: string;
+  name: string;
+  parameters?: ConnectorParameters;
 };
 
 export type ModelDict = {
   [modelId: string]: Model;
+};
+
+export type ConnectorDict = {
+  [connectorId: string]: Connector;
 };
 
 export type ModelFormValue = {
@@ -465,6 +486,7 @@ export type QuickConfigureFields = {
   embeddingModelId?: string;
   vectorField?: string;
   textField?: string;
+  imageField?: string;
   embeddingLength?: number;
 };
 

@@ -7,15 +7,16 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useFormikContext } from 'formik';
 import {
-  EuiButton,
-  EuiFieldText,
+  EuiSmallButton,
+  EuiCompressedFieldText,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiFormRow,
+  EuiCompressedFormRow,
   EuiSuperSelect,
   EuiSuperSelectOption,
   EuiText,
   EuiTitle,
+  EuiSpacer,
 } from '@elastic/eui';
 import { SearchHit, WorkflowFormValues } from '../../../../../common';
 import { JsonField } from '../input_fields';
@@ -96,9 +97,9 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           </EuiTitle>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiFormRow label="Retrieval index">
+          <EuiCompressedFormRow label="Retrieval index">
             {ingestEnabled ? (
-              <EuiFieldText
+              <EuiCompressedFieldText
                 value={values?.ingest?.index?.name}
                 readOnly={true}
               />
@@ -121,17 +122,16 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                 isInvalid={selectedIndex === undefined}
               />
             )}
-          </EuiFormRow>
+          </EuiCompressedFormRow>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiButton
+          <EuiSmallButton
             fill={false}
             style={{ width: '100px' }}
-            size="s"
             onClick={() => setIsEditModalOpen(true)}
           >
             Edit
-          </EuiButton>
+          </EuiSmallButton>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <JsonField
@@ -142,41 +142,46 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiButton
-            fill={false}
-            style={{ width: '100px' }}
-            size="s"
-            onClick={() => {
-              // for this test query, we don't want to involve any configured search pipelines, if any exist
-              // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
-              dispatch(
-                searchIndex({
-                  apiBody: {
-                    index: values.search.index.name,
-                    body: values.search.request,
-                    searchPipeline: '_none',
-                  },
-                  dataSourceId,
-                })
-              )
-                .unwrap()
-                .then(async (resp) => {
-                  props.setQueryResponse(
-                    JSON.stringify(
-                      resp.hits.hits.map((hit: SearchHit) => hit._source),
-                      undefined,
-                      2
-                    )
-                  );
-                })
-                .catch((error: any) => {
-                  props.setQueryResponse('');
-                  console.error('Error running query: ', error);
-                });
-            }}
-          >
-            Test
-          </EuiButton>
+          <>
+            <EuiSmallButton
+              fill={false}
+              style={{ width: '100px' }}
+              onClick={() => {
+                // for this test query, we don't want to involve any configured search pipelines, if any exist
+                // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
+                dispatch(
+                  searchIndex({
+                    apiBody: {
+                      index: values.search.index.name,
+                      body: values.search.request,
+                      searchPipeline: '_none',
+                    },
+                    dataSourceId,
+                  })
+                )
+                  .unwrap()
+                  .then(async (resp) => {
+                    props.setQueryResponse(
+                      JSON.stringify(
+                        resp.hits.hits.map((hit: SearchHit) => hit._source),
+                        undefined,
+                        2
+                      )
+                    );
+                  })
+                  .catch((error: any) => {
+                    props.setQueryResponse('');
+                    console.error('Error running query: ', error);
+                  });
+              }}
+            >
+              Test
+            </EuiSmallButton>
+            <EuiSpacer size="s" />
+            <EuiText size="s" color="subdued">
+              Run query without any search pipeline configuration.
+            </EuiText>
+          </>
         </EuiFlexItem>
       </EuiFlexGroup>
     </>

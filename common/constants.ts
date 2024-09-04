@@ -6,8 +6,8 @@
 import { MapEntry, QueryPreset, WORKFLOW_STATE } from './interfaces';
 import { customStringify } from './utils';
 
-export const PLUGIN_ID = 'flow-framework';
-export const SEARCH_STUDIO = 'Search Studio';
+export const PLUGIN_ID = 'search-studio';
+export const PLUGIN_NAME = 'Search Studio';
 
 /**
  * BACKEND FLOW FRAMEWORK APIs
@@ -22,7 +22,9 @@ export const FLOW_FRAMEWORK_SEARCH_WORKFLOW_STATE_ROUTE = `${FLOW_FRAMEWORK_WORK
  */
 export const ML_API_ROUTE_PREFIX = '/_plugins/_ml';
 export const ML_MODEL_ROUTE_PREFIX = `${ML_API_ROUTE_PREFIX}/models`;
+export const ML_CONNECTOR_ROUTE_PREFIX = `${ML_API_ROUTE_PREFIX}/connectors`;
 export const ML_SEARCH_MODELS_ROUTE = `${ML_MODEL_ROUTE_PREFIX}/_search`;
+export const ML_SEARCH_CONNECTORS_ROUTE = `${ML_CONNECTOR_ROUTE_PREFIX}/_search`;
 
 /**
  * NODE APIs
@@ -51,7 +53,32 @@ export const GET_PRESET_WORKFLOWS_NODE_API_PATH = `${BASE_WORKFLOW_NODE_API_PATH
 
 // ML Plugin node APIs
 export const BASE_MODEL_NODE_API_PATH = `${BASE_NODE_API_PATH}/model`;
+export const BASE_CONNECTOR_NODE_API_PATH = `${BASE_NODE_API_PATH}/connector`;
 export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
+export const SEARCH_CONNECTORS_NODE_API_PATH = `${BASE_CONNECTOR_NODE_API_PATH}/search`;
+
+/**
+ * Remote model dimensions. Used for attempting to pre-fill dimension size
+ * based on the specified remote model from a remote service, if found
+ */
+
+// Cohere
+export const COHERE_DIMENSIONS = {
+  [`embed-english-v3.0`]: 1024,
+  [`embed-english-light-v3.0`]: 384,
+  [`embed-multilingual-v3.0`]: 1024,
+  [`embed-multilingual-light-v3.0`]: 384,
+  [`embed-english-v2.0`]: 4096,
+  [`embed-english-light-v2.0`]: 1024,
+  [`embed-multilingual-v2.0`]: 768,
+};
+
+// OpenAI
+export const OPENAI_DIMENSIONS = {
+  [`text-embedding-3-small`]: 1536,
+  [`text-embedding-3-large`]: 3072,
+  [`text-embedding-ada-002`]: 1536,
+};
 
 /**
  * Various constants pertaining to Workflow configs
@@ -130,6 +157,8 @@ export const TEXT_CHUNKING_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-chunking/';
 export const CREATE_WORKFLOW_LINK =
   'https://opensearch.org/docs/latest/automating-configurations/api/create-workflow/';
+export const WORKFLOW_TUTORIAL_LINK =
+  'https://opensearch.org/docs/latest/automating-configurations/workflow-tutorial/';
 export const NORMALIZATION_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/normalization-processor/';
 
@@ -153,9 +182,14 @@ export const SHARED_OPTIONAL_FIELDS = ['max_chunk_limit', 'description', 'tag'];
  */
 export const VECTOR_FIELD_PATTERN = `{{vector_field}}`;
 export const TEXT_FIELD_PATTERN = `{{text_field}}`;
+export const IMAGE_FIELD_PATTERN = `{{image_field}}`;
 export const QUERY_TEXT_PATTERN = `{{query_text}}`;
 export const QUERY_IMAGE_PATTERN = `{{query_image}}`;
 export const MODEL_ID_PATTERN = `{{model_id}}`;
+export const VECTOR = 'vector';
+export const VECTOR_PATTERN = `{{${VECTOR}}}`;
+export const VECTOR_TEMPLATE_PLACEHOLDER = `\$\{${VECTOR}\}`;
+export const DEFAULT_K = 10;
 
 export const FETCH_ALL_QUERY = {
   query: {
@@ -163,7 +197,29 @@ export const FETCH_ALL_QUERY = {
   },
   size: 1000,
 };
-export const SEMANTIC_SEARCH_QUERY = {
+export const TERM_QUERY = {
+  query: {
+    term: {
+      [TEXT_FIELD_PATTERN]: {
+        value: QUERY_TEXT_PATTERN,
+      },
+    },
+  },
+};
+export const KNN_QUERY = {
+  _source: {
+    excludes: [VECTOR_FIELD_PATTERN],
+  },
+  query: {
+    knn: {
+      [VECTOR_FIELD_PATTERN]: {
+        vector: VECTOR_PATTERN,
+        k: DEFAULT_K,
+      },
+    },
+  },
+};
+export const SEMANTIC_SEARCH_QUERY_NEURAL = {
   _source: {
     excludes: [VECTOR_FIELD_PATTERN],
   },
@@ -172,12 +228,12 @@ export const SEMANTIC_SEARCH_QUERY = {
       [VECTOR_FIELD_PATTERN]: {
         query_text: QUERY_TEXT_PATTERN,
         model_id: MODEL_ID_PATTERN,
-        k: 100,
+        k: DEFAULT_K,
       },
     },
   },
 };
-export const MULTIMODAL_SEARCH_QUERY = {
+export const MULTIMODAL_SEARCH_QUERY_NEURAL = {
   _source: {
     excludes: [VECTOR_FIELD_PATTERN],
   },
@@ -187,12 +243,56 @@ export const MULTIMODAL_SEARCH_QUERY = {
         query_text: QUERY_TEXT_PATTERN,
         query_image: QUERY_IMAGE_PATTERN,
         model_id: MODEL_ID_PATTERN,
-        k: 100,
+        k: DEFAULT_K,
       },
     },
   },
 };
-export const HYBRID_SEARCH_QUERY = {
+export const MULTIMODAL_SEARCH_QUERY_BOOL = {
+  query: {
+    bool: {
+      must: [
+        {
+          match: {
+            [TEXT_FIELD_PATTERN]: QUERY_TEXT_PATTERN,
+          },
+        },
+        {
+          match: {
+            [IMAGE_FIELD_PATTERN]: QUERY_IMAGE_PATTERN,
+          },
+        },
+      ],
+    },
+  },
+};
+export const HYBRID_SEARCH_QUERY_MATCH_KNN = {
+  _source: {
+    excludes: [VECTOR_FIELD_PATTERN],
+  },
+  query: {
+    hybrid: {
+      queries: [
+        {
+          match: {
+            [TEXT_FIELD_PATTERN]: {
+              query: QUERY_TEXT_PATTERN,
+            },
+          },
+        },
+        {
+          knn: {
+            [VECTOR_FIELD_PATTERN]: {
+              vector: VECTOR_PATTERN,
+              k: DEFAULT_K,
+            },
+          },
+        },
+      ],
+    },
+  },
+};
+export const HYBRID_SEARCH_QUERY_MATCH_NEURAL = {
   _source: {
     excludes: [VECTOR_FIELD_PATTERN],
   },
@@ -211,7 +311,32 @@ export const HYBRID_SEARCH_QUERY = {
             [VECTOR_FIELD_PATTERN]: {
               query_text: QUERY_TEXT_PATTERN,
               model_id: MODEL_ID_PATTERN,
-              k: 5,
+              k: DEFAULT_K,
+            },
+          },
+        },
+      ],
+    },
+  },
+};
+export const HYBRID_SEARCH_QUERY_MATCH_TERM = {
+  _source: {
+    excludes: [VECTOR_FIELD_PATTERN],
+  },
+  query: {
+    hybrid: {
+      queries: [
+        {
+          match: {
+            [TEXT_FIELD_PATTERN]: {
+              query: QUERY_TEXT_PATTERN,
+            },
+          },
+        },
+        {
+          term: {
+            [TEXT_FIELD_PATTERN]: {
+              value: QUERY_TEXT_PATTERN,
             },
           },
         },
@@ -226,16 +351,36 @@ export const QUERY_PRESETS = [
     query: customStringify(FETCH_ALL_QUERY),
   },
   {
-    name: WORKFLOW_TYPE.SEMANTIC_SEARCH,
-    query: customStringify(SEMANTIC_SEARCH_QUERY),
+    name: 'Term',
+    query: customStringify(TERM_QUERY),
+  },
+  {
+    name: 'Basic k-NN',
+    query: customStringify(KNN_QUERY),
+  },
+  {
+    name: `${WORKFLOW_TYPE.SEMANTIC_SEARCH} (neural)`,
+    query: customStringify(SEMANTIC_SEARCH_QUERY_NEURAL),
   },
   {
     name: WORKFLOW_TYPE.MULTIMODAL_SEARCH,
-    query: customStringify(MULTIMODAL_SEARCH_QUERY),
+    query: customStringify(MULTIMODAL_SEARCH_QUERY_BOOL),
   },
   {
-    name: WORKFLOW_TYPE.HYBRID_SEARCH,
-    query: customStringify(HYBRID_SEARCH_QUERY),
+    name: `${WORKFLOW_TYPE.MULTIMODAL_SEARCH} (neural)`,
+    query: customStringify(MULTIMODAL_SEARCH_QUERY_NEURAL),
+  },
+  {
+    name: `Hybrid search (match & k-NN queries)`,
+    query: customStringify(HYBRID_SEARCH_QUERY_MATCH_KNN),
+  },
+  {
+    name: `Hybrid search (match & term queries)`,
+    query: customStringify(HYBRID_SEARCH_QUERY_MATCH_TERM),
+  },
+  {
+    name: `Hybrid search (match & neural queries)`,
+    query: customStringify(HYBRID_SEARCH_QUERY_MATCH_NEURAL),
   },
 ] as QueryPreset[];
 
@@ -251,6 +396,7 @@ export const DATE_FORMAT_PATTERN = 'MM/DD/YY hh:mm A';
 export const EMPTY_FIELD_STRING = '--';
 export const INDEX_NOT_FOUND_EXCEPTION = 'index_not_found_exception';
 export const ERROR_GETTING_WORKFLOW_MSG = 'Failed to retrieve template';
+export const NO_TEMPLATES_FOUND_MSG = 'There are no templates';
 export const NO_MODIFICATIONS_FOUND_TEXT =
   'Template does not contain any modifications';
 export const JSONPATH_ROOT_SELECTOR = '$.';

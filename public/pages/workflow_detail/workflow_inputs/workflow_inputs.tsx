@@ -7,9 +7,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import { debounce, isEmpty, isEqual } from 'lodash';
 import {
-  EuiButton,
-  EuiButtonEmpty,
-  EuiCallOut,
+  EuiSmallButton,
+  EuiSmallButtonEmpty,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
@@ -100,7 +99,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     setFieldValue,
     values,
     touched,
-    dirty,
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
@@ -604,11 +602,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   </EuiText>
                 </EuiModalBody>
                 <EuiModalFooter>
-                  <EuiButtonEmpty onClick={() => setIsModalOpen(false)}>
+                  <EuiSmallButtonEmpty onClick={() => setIsModalOpen(false)}>
                     {' '}
                     Cancel
-                  </EuiButtonEmpty>
-                  <EuiButton
+                  </EuiSmallButtonEmpty>
+                  <EuiSmallButton
                     isLoading={isRunningDelete}
                     disabled={isRunningDelete}
                     onClick={async () => {
@@ -646,19 +644,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     color="danger"
                   >
                     Delete resources
-                  </EuiButton>
+                  </EuiSmallButton>
                 </EuiModalFooter>
               </EuiModal>
             )}
-            {onIngest &&
-              dirty &&
-              hasProvisionedSearchResources(props.workflow) && (
-                <EuiCallOut
-                  title="Making changes to ingest may affect your configured search flow"
-                  iconType={'alert'}
-                  color="warning"
-                />
-              )}
             {onIngestAndUnprovisioned && (
               <>
                 <EuiSpacer size="m" />
@@ -711,13 +700,13 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           Edit ingest pipeline
                         </EuiFlexItem>
                         <EuiFlexItem grow={false}>
-                          <EuiButtonEmpty
+                          <EuiSmallButtonEmpty
                             color="danger"
                             onClick={() => setIsModalOpen(true)}
                           >
                             <EuiIcon type="trash" />
                             {`    `}Delete resources
-                          </EuiButtonEmpty>
+                          </EuiSmallButtonEmpty>
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     ) : (
@@ -759,7 +748,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 <EuiFlexGroup direction="row" justifyContent="flexEnd">
                   {onIngest && !ingestEnabled ? (
                     <EuiFlexItem grow={false}>
-                      <EuiButton
+                      <EuiSmallButton
                         fill={true}
                         disabled={false}
                         onClick={() => {
@@ -767,12 +756,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         }}
                       >
                         {`Search pipeline >`}
-                      </EuiButton>
+                      </EuiSmallButton>
                     </EuiFlexItem>
                   ) : onIngest ? (
                     <>
                       <EuiFlexItem grow={false}>
-                        <EuiButton
+                        <EuiSmallButton
                           fill={false}
                           onClick={() => {
                             validateAndRunIngestion();
@@ -781,10 +770,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           isLoading={isRunningIngest}
                         >
                           Run ingestion
-                        </EuiButton>
+                        </EuiSmallButton>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
-                        <EuiButton
+                        <EuiSmallButton
                           fill={true}
                           onClick={() => {
                             setSelectedStep(STEP.SEARCH);
@@ -792,13 +781,13 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           disabled={ingestTemplatesDifferent || isRunningIngest}
                         >
                           {`Search pipeline >`}
-                        </EuiButton>
+                        </EuiSmallButton>
                       </EuiFlexItem>
                     </>
                   ) : (
                     <>
                       <EuiFlexItem grow={false}>
-                        <EuiButtonEmpty
+                        <EuiSmallButtonEmpty
                           disabled={
                             isRunningSearch ||
                             (isProposingNoSearchResources
@@ -808,10 +797,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => setSelectedStep(STEP.INGEST)}
                         >
                           Back
-                        </EuiButtonEmpty>
+                        </EuiSmallButtonEmpty>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
-                        <EuiButton
+                        <EuiSmallButton
                           disabled={
                             isRunningSearch ||
                             (isProposingNoSearchResources &&
@@ -824,7 +813,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           }}
                         >
                           Run query
-                        </EuiButton>
+                        </EuiSmallButton>
                       </EuiFlexItem>
                     </>
                   )}

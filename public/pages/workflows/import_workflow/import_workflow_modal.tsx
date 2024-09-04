@@ -7,15 +7,15 @@ import React, { useEffect, useState } from 'react';
 import {
   EuiSpacer,
   EuiFlexGroup,
-  EuiButtonEmpty,
-  EuiButton,
+  EuiSmallButtonEmpty,
+  EuiSmallButton,
   EuiText,
   EuiModal,
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiModalBody,
   EuiModalFooter,
-  EuiFilePicker,
+  EuiCompressedFilePicker,
   EuiCallOut,
   EuiFlexItem,
 } from '@elastic/eui';
@@ -115,7 +115,7 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
             </>
           )}
           <EuiFlexItem grow={false}>
-            <EuiFilePicker
+            <EuiCompressedFilePicker
               multiple={false}
               initialPromptText="Select or drag and drop a file"
               onChange={(files) => {
@@ -134,8 +134,10 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
         </EuiFlexGroup>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiButtonEmpty onClick={() => onModalClose()}>Cancel</EuiButtonEmpty>
-        <EuiButton
+        <EuiSmallButtonEmpty onClick={() => onModalClose()}>
+          Cancel
+        </EuiSmallButtonEmpty>
+        <EuiSmallButton
           disabled={!isValidWorkflow(fileObj) || isImporting}
           isLoading={isImporting}
           onClick={() => {
@@ -174,7 +176,7 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
           {isValidWorkflow(fileObj) && !isValidUiWorkflow(fileObj)
             ? 'Import anyway'
             : 'Import'}
-        </EuiButton>
+        </EuiSmallButton>
       </EuiModalFooter>
     </EuiModal>
   );

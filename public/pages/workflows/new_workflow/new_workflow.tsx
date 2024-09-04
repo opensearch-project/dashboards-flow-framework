@@ -24,6 +24,7 @@ import {
   useAppDispatch,
   getWorkflowPresets,
   searchModels,
+  searchConnectors,
 } from '../../../store';
 import { enrichPresetWorkflowWithUiMetadata } from './utils';
 import { getDataSourceId } from '../../../utils';
@@ -56,11 +57,12 @@ export function NewWorkflow(props: NewWorkflowProps) {
 
   // on initial load:
   // 1. fetch the workflow presets persisted on server-side
-  // 2. fetch the ML models. these may be used in quick-create views when selecting a preset,
+  // 2. fetch the ML models and connectors. these may be used in quick-create views when selecting a preset,
   //    so we optimize by fetching once at the top-level here.
   useEffect(() => {
     dispatch(getWorkflowPresets());
     dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
+    dispatch(searchConnectors({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
   }, []);
 
   // initial hook to populate all workflows

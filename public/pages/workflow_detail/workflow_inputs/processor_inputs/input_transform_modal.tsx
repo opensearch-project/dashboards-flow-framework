@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormikContext, getIn } from 'formik';
 import { isEmpty } from 'lodash';
+import Ajv from 'ajv';
 import {
   EuiCodeEditor,
   EuiFlexGroup,
@@ -15,11 +16,16 @@ import {
   EuiModalFooter,
   EuiModalHeader,
   EuiModalHeaderTitle,
-  EuiSelect,
+  EuiCompressedSelect,
   EuiSelectOption,
   EuiSmallButton,
   EuiSpacer,
   EuiText,
+  EuiPopover,
+  EuiSmallButtonEmpty,
+  EuiCodeBlock,
+  EuiPopoverTitle,
+  EuiIconTip,
 } from '@elastic/eui';
 import {
   IConfigField,
@@ -28,6 +34,7 @@ import {
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
   MapArrayFormValue,
+  ModelInterface,
   PROCESSOR_CONTEXT,
   SearchHit,
   SimulateIngestPipelineResponse,
@@ -47,7 +54,11 @@ import {
   useAppDispatch,
 } from '../../../../store';
 import { getCore } from '../../../../services';
-import { getDataSourceId } from '../../../../utils/utils';
+import {
+  getDataSourceId,
+  parseModelInputs,
+  parseModelInputsObj,
+} from '../../../../utils/utils';
 import { MapArrayField } from '../input_fields';
 
 interface InputTransformModalProps {
@@ -56,7 +67,7 @@ interface InputTransformModalProps {
   context: PROCESSOR_CONTEXT;
   inputMapField: IConfigField;
   inputMapFieldPath: string;
-  inputFields: any[];
+  modelInterface: ModelInterface | undefined;
   onClose: () => void;
 }
 
@@ -88,6 +99,55 @@ export function InputTransformModal(props: InputTransformModalProps) {
     number | undefined
   >((outputOptions[0]?.value as number) ?? undefined);
 
+  // popover state containing the model interface details, if applicable
+  const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
+
+  // validation state utilizing the model interface, if applicable. undefined if
+  // there is no model interface and/or no source input
+  const [isValid, setIsValid] = useState<boolean | undefined>(undefined);
+
+  // hook to re-generate the transform when any inputs to the transform are updated
+  useEffect(() => {
+    if (
+      !isEmpty(map) &&
+      !isEmpty(JSON.parse(sourceInput)) &&
+      selectedOutputOption !== undefined
+    ) {
+      let sampleSourceInput = {};
+      try {
+        // In the context of ingest or search resp, this input will be an array (list of docs)
+        // In the context of request, it will be a single JSON
+        sampleSourceInput =
+          props.context === PROCESSOR_CONTEXT.INGEST ||
+          props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
+            ? JSON.parse(sourceInput)[0]
+            : JSON.parse(sourceInput);
+        const output = generateTransform(
+          sampleSourceInput,
+          map[selectedOutputOption]
+        );
+        setTransformedOutput(customStringify(output));
+      } catch {}
+    }
+  }, [map, sourceInput, selectedOutputOption]);
+
+  // hook to re-determine validity when the generated output changes
+  // utilize Ajv JSON schema validator library. For more info/examples, see
+  // https://www.npmjs.com/package/ajv
+  useEffect(() => {
+    if (
+      !isEmpty(JSON.parse(sourceInput)) &&
+      !isEmpty(props.modelInterface?.input?.properties?.parameters)
+    ) {
+      const validateFn = new Ajv().compile(
+        props.modelInterface?.input?.properties?.parameters || {}
+      );
+      setIsValid(validateFn(JSON.parse(transformedOutput)));
+    } else {
+      setIsValid(undefined);
+    }
+  }, [transformedOutput]);
+
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
       <EuiModalHeader>
@@ -99,6 +159,10 @@ export function InputTransformModal(props: InputTransformModalProps) {
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
+              <EuiText color="subdued">
+                Fetch some sample input data and see how it is transformed.
+              </EuiText>
+              <EuiSpacer size="s" />
               <EuiText>Expected input</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
@@ -124,7 +188,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                           simulatePipeline({
                             apiBody: {
                               pipeline: curIngestPipeline as IngestPipelineConfig,
-                              docs: curDocs,
+                              docs: [curDocs[0]],
                             },
                             dataSourceId,
                           })
@@ -139,7 +203,13 @@ export function InputTransformModal(props: InputTransformModalProps) {
                             );
                           });
                       } else {
-                        setSourceInput(values.ingest.docs);
+                        try {
+                          const docObjs = JSON.parse(
+                            values.ingest.docs
+                          ) as {}[];
+                          if (docObjs.length > 0)
+                            setSourceInput(customStringify([docObjs[0]]));
+                        } catch {}
                       }
                       break;
                     }
@@ -244,7 +314,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                     ? 'Query field'
                     : 'Document field'
                 }
-                keyOptions={props.inputFields}
+                keyOptions={parseModelInputs(props.modelInterface)}
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {
                   if (isEmpty(curArray)) {
@@ -264,46 +334,71 @@ export function InputTransformModal(props: InputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiSelect
-                prepend={<EuiText>Expected output for</EuiText>}
-                compressed={true}
-                options={outputOptions}
-                value={selectedOutputOption}
-                onChange={(e) => {
-                  setSelectedOutputOption(Number(e.target.value));
-                  setTransformedOutput('{}');
-                }}
-              />
-              <EuiSpacer size="s" />
-              <EuiSmallButton
-                style={{ width: '100px' }}
-                disabled={isEmpty(map) || isEmpty(JSON.parse(sourceInput))}
-                onClick={async () => {
-                  if (
-                    !isEmpty(map) &&
-                    !isEmpty(JSON.parse(sourceInput)) &&
-                    selectedOutputOption !== undefined
-                  ) {
-                    let sampleSourceInput = {};
-                    try {
-                      // In the context of ingest or search resp, this input will be an array (list of docs)
-                      // In the context of request, it will be a single JSON
-                      sampleSourceInput =
-                        props.context === PROCESSOR_CONTEXT.INGEST ||
-                        props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                          ? JSON.parse(sourceInput)[0]
-                          : JSON.parse(sourceInput);
-                      const output = generateTransform(
-                        sampleSourceInput,
-                        map[selectedOutputOption]
-                      );
-                      setTransformedOutput(customStringify(output));
-                    } catch {}
-                  }
-                }}
-              >
-                Generate
-              </EuiSmallButton>
+              <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                {isValid !== undefined && (
+                  <EuiFlexItem
+                    grow={false}
+                    style={{
+                      marginTop: '16px',
+                      marginLeft: '8px',
+                      marginRight: '-8px',
+                    }}
+                  >
+                    <EuiIconTip
+                      type={isValid ? 'check' : 'cross'}
+                      color={isValid ? 'success' : 'danger'}
+                      size="m"
+                      content={
+                        isValid
+                          ? 'Meets model interface requirements'
+                          : 'Does not meet model interface requirements'
+                      }
+                    />
+                  </EuiFlexItem>
+                )}
+                <EuiFlexItem grow={true}>
+                  {outputOptions.length === 1 ? (
+                    <EuiText>Expected output</EuiText>
+                  ) : (
+                    <EuiCompressedSelect
+                      prepend={<EuiText>Expected output for</EuiText>}
+                      options={outputOptions}
+                      value={selectedOutputOption}
+                      onChange={(e) => {
+                        setSelectedOutputOption(Number(e.target.value));
+                      }}
+                    />
+                  )}
+                </EuiFlexItem>
+                {!isEmpty(parseModelInputsObj(props.modelInterface)) && (
+                  <EuiFlexItem grow={false}>
+                    <EuiPopover
+                      isOpen={popoverOpen}
+                      closePopover={() => setPopoverOpen(false)}
+                      button={
+                        <EuiSmallButtonEmpty
+                          onClick={() => setPopoverOpen(!popoverOpen)}
+                        >
+                          View model inputs
+                        </EuiSmallButtonEmpty>
+                      }
+                    >
+                      <EuiPopoverTitle>
+                        The JSON Schema defining the model's expected input
+                      </EuiPopoverTitle>
+                      <EuiCodeBlock
+                        language="json"
+                        fontSize="m"
+                        isCopyable={false}
+                      >
+                        {customStringify(
+                          parseModelInputsObj(props.modelInterface)
+                        )}
+                      </EuiCodeBlock>
+                    </EuiPopover>
+                  </EuiFlexItem>
+                )}
+              </EuiFlexGroup>
               <EuiSpacer size="s" />
               <EuiCodeEditor
                 mode="json"

@@ -6,7 +6,6 @@
 import React, { useEffect, useState } from 'react';
 import { useFormikContext } from 'formik';
 import {
-  EuiButton,
   EuiSmallButton,
   EuiCompressedFilePicker,
   EuiFlexGroup,
@@ -109,14 +108,13 @@ export function SourceData(props: SourceDataProps) {
           </EuiTitle>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiButton
+          <EuiSmallButton
             fill={false}
             style={{ width: '100px' }}
-            size="s"
             onClick={() => setIsEditModalOpen(true)}
           >
             Edit
-          </EuiButton>
+          </EuiSmallButton>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <JsonField
