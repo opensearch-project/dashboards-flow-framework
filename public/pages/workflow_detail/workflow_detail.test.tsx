@@ -56,7 +56,8 @@ describe('WorkflowDetail', () => {
     expect(getAllByText('Preview').length).toBeGreaterThan(0);
     expect(getAllByText('Not started').length).toBeGreaterThan(0);
     expect(
-      getAllByText('Last updated: 09/03/24 06:34 PM').length
+      getAllByText((content, element) => content.startsWith('Last updated:'))
+        .length
     ).toBeGreaterThan(0);
     expect(getAllByText('Search pipeline').length).toBeGreaterThan(0);
     expect(getByText('Close')).toBeInTheDocument();

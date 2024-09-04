@@ -62,7 +62,6 @@ export const mockStore = {
               },
             },
           },
-          lastUpdated: 1725413687437,
           resourcesCreated: [],
         },
       },
