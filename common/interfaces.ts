@@ -377,9 +377,14 @@ export type ModelConfig = {
 export type ModelInput = {
   type: string;
   description?: string;
+  items?: ModelInput;
+  properties?: ModelInputMap;
 };
 
 export type ModelOutput = ModelInput;
+
+export type ModelInputMap = { [key: string]: ModelInput };
+export type ModelOutputMap = { [key: string]: ModelOutput };
 
 // For rendering options, we extract the name (the key in the input/output obj) and combine into a single obj
 export type ModelInputFormField = ModelInput & {
@@ -389,8 +394,8 @@ export type ModelInputFormField = ModelInput & {
 export type ModelOutputFormField = ModelInputFormField;
 
 export type ModelInterface = {
-  input: { [key: string]: ModelInput };
-  output: { [key: string]: ModelOutput };
+  input: ModelInput;
+  output: ModelOutput;
 };
 
 export type ConnectorParameters = {
