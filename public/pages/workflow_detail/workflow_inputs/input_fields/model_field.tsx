@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   EuiCallOut,
   EuiCompressedFormRow,
@@ -45,7 +46,7 @@ export function ModelField(props: ModelFieldProps) {
   // keeps re-rendering this component (and subsequently re-fetching data) as they're building flows
   const models = useSelector((state: AppState) => state.ml.models);
 
-  const { errors, touched } = useFormikContext<WorkspaceFormValues>();
+  const { errors, touched, values } = useFormikContext<WorkspaceFormValues>();
 
   // Deployed models state
   const [deployedModels, setDeployedModels] = useState<ModelItem[]>([]);
@@ -70,17 +71,18 @@ export function ModelField(props: ModelFieldProps) {
 
   return (
     <>
-      {!props.hasModelInterface && (
-        <>
-          <EuiCallOut
-            size="s"
-            title="The selected model does not have a model interface. Cannot automatically determine model inputs and outputs."
-            iconType={'alert'}
-            color="warning"
-          />
-          <EuiSpacer size="s" />
-        </>
-      )}
+      {!props.hasModelInterface &&
+        !isEmpty(getIn(values, props.fieldPath)?.id) && (
+          <>
+            <EuiCallOut
+              size="s"
+              title="The selected model does not have a model interface. Cannot automatically determine model inputs and outputs."
+              iconType={'alert'}
+              color="warning"
+            />
+            <EuiSpacer size="s" />
+          </>
+        )}
       <Field name={props.fieldPath}>
         {({ field, form }: FieldProps) => {
           return (
