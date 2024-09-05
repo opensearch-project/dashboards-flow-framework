@@ -15,7 +15,6 @@ function generateWorkflow(
   return {
     id: workflowId,
     name: workflowName,
-    description: 'A blank workflow with no preset configurations',
     version: { template: '1.0.0', compatibility: ['2.17.0', '3.0.0'] },
     ui_metadata: {
       type: workflowType,
@@ -24,13 +23,12 @@ function generateWorkflow(
           pipelineName: {
             id: 'pipelineName',
             type: 'string',
-            value: 'search_pipeline_248e2f68b43db682',
+            value: jest.fn(),
           },
           request: {
             id: 'request',
             type: 'json',
-            value:
-              '{\n  "query": {\n    "match_all": {}\n  },\n  "size": 1000\n}',
+            value: jest.fn(),
           },
           index: { name: { id: 'indexName', type: 'string' } },
           enrichRequest: getProcessor(includeProcessor),
@@ -40,7 +38,7 @@ function generateWorkflow(
           pipelineName: {
             id: 'pipelineName',
             type: 'string',
-            value: 'ingest_pipeline_7b139fd4eccac336',
+            value: jest.fn(),
           },
           enrich: getProcessor(includeProcessor),
           index: {
@@ -48,12 +46,12 @@ function generateWorkflow(
             mappings: {
               id: 'indexMappings',
               type: 'json',
-              value: '{\n  "properties": {}\n}',
+              value: jest.fn(),
             },
             name: {
               id: 'indexName',
               type: 'string',
-              value: 'my-new-index',
+              value: jest.fn(),
             },
           },
           enabled: { id: 'enabled', type: 'boolean', value: true },
@@ -76,7 +74,7 @@ function getProcessor(includeProcessor: boolean): ProcessorsConfig {
               id: 'model',
               type: 'model',
               value: {
-                id: 'dfMPE5EB8_-RPNi-S0gD',
+                id: jest.fn(),
               },
             },
             {
