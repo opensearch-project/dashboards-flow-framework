@@ -20,6 +20,7 @@ const initialState = {
 
 const OPENSEARCH_PREFIX = 'opensearch';
 const CAT_INDICES_ACTION = `${OPENSEARCH_PREFIX}/catIndices`;
+const GET_MAPPINGS_ACTION = `${OPENSEARCH_PREFIX}/mappings`;
 const SEARCH_INDEX_ACTION = `${OPENSEARCH_PREFIX}/search`;
 const INGEST_ACTION = `${OPENSEARCH_PREFIX}/ingest`;
 const BULK_ACTION = `${OPENSEARCH_PREFIX}/bulk`;
@@ -40,6 +41,26 @@ export const catIndices = createAsyncThunk(
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
         'Error running cat indices: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
+  }
+);
+
+export const getMappings = createAsyncThunk(
+  GET_MAPPINGS_ACTION,
+  async (
+    { index, dataSourceId }: { index: string; dataSourceId?: string },
+    { rejectWithValue }
+  ) => {
+    const response: any | HttpFetchError = await getRouteService().getMappings(
+      index,
+      dataSourceId
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error getting index mappings: ' + response.body.message
       );
     } else {
       return response;
@@ -169,6 +190,10 @@ const opensearchSlice = createSlice({
         state.loading = true;
         state.errorMessage = '';
       })
+      .addCase(getMappings.pending, (state, action) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
       .addCase(searchIndex.pending, (state, action) => {
         state.loading = true;
         state.errorMessage = '';
@@ -186,6 +211,10 @@ const opensearchSlice = createSlice({
         state.loading = false;
         state.errorMessage = '';
       })
+      .addCase(getMappings.fulfilled, (state, action) => {
+        state.loading = false;
+        state.errorMessage = '';
+      })
       .addCase(searchIndex.fulfilled, (state, action) => {
         state.loading = false;
         state.errorMessage = '';
@@ -195,6 +224,10 @@ const opensearchSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(catIndices.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(getMappings.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       })

@@ -238,12 +238,12 @@ export type NormalizationProcessor = SearchProcessor & {
 };
 
 export type IndexConfiguration = {
-  settings: {};
+  settings: { [key: string]: any };
   mappings: IndexMappings;
 };
 
 export type IndexMappings = {
-  properties: {};
+  properties: { [key: string]: any };
 };
 
 export type TemplateNode = {
