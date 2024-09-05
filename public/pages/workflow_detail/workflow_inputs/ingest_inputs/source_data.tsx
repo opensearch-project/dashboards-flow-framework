@@ -106,13 +106,10 @@ export function SourceData(props: SourceDataProps) {
           setFieldValue('ingest.docs', customStringify(docObjs));
         });
 
-      // 2. fetch and set index mappings
+      // 2. fetch index mappings, and try to set default key/values for the ML processor input/output maps, if applicable
       dispatch(getMappings({ index: selectedIndex, dataSourceId }))
         .unwrap()
         .then((resp: IndexMappings) => {
-          setFieldValue('ingest.index.mappings', customStringify(resp));
-
-          // 3. try to set default key/values for the ML processor input/output maps, if applicable
           const {
             processorId,
             inputMapEntry,
@@ -262,10 +259,6 @@ export function SourceData(props: SourceDataProps) {
                 <>
                   <EuiText color="subdued" size="s">
                     Up to 5 sample documents will be automatically populated.
-                  </EuiText>
-                  <EuiText color="subdued" size="s">
-                    The currently-configured index mappings will be overwritten
-                    to match any selected index.
                   </EuiText>
                   <EuiSpacer size="s" />
                   <EuiCompressedSuperSelect
