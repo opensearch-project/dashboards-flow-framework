@@ -86,7 +86,7 @@ export function SourceData(props: SourceDataProps) {
     undefined
   );
   useEffect(() => {
-    if (selectedIndex !== undefined && isVectorSearchUseCase(props.workflow)) {
+    if (selectedIndex !== undefined) {
       // 1. fetch and set sample docs
       dispatch(
         searchIndex({
@@ -107,28 +107,30 @@ export function SourceData(props: SourceDataProps) {
         });
 
       // 2. fetch index mappings, and try to set defaults for the ML processor configs, if applicable
-      dispatch(getMappings({ index: selectedIndex, dataSourceId }))
-        .unwrap()
-        .then((resp: IndexMappings) => {
-          const { processorId, inputMapEntry } = getProcessorInfo(
-            props.uiConfig,
-            values
-          );
-          if (processorId !== undefined && inputMapEntry !== undefined) {
-            // set/overwrite default text field for the input map. may be empty.
-            if (inputMapEntry !== undefined) {
-              const textFieldFormPath = `ingest.enrich.${processorId}.input_map.0.0.value`;
-              const curTextField = getIn(values, textFieldFormPath) as string;
-              if (!Object.keys(resp.properties).includes(curTextField)) {
-                const defaultTextField =
-                  Object.keys(resp.properties).find((fieldName) => {
-                    return resp.properties[fieldName]?.type === 'text';
-                  }) || '';
-                setFieldValue(textFieldFormPath, defaultTextField);
+      if (isVectorSearchUseCase(props.workflow)) {
+        dispatch(getMappings({ index: selectedIndex, dataSourceId }))
+          .unwrap()
+          .then((resp: IndexMappings) => {
+            const { processorId, inputMapEntry } = getProcessorInfo(
+              props.uiConfig,
+              values
+            );
+            if (processorId !== undefined && inputMapEntry !== undefined) {
+              // set/overwrite default text field for the input map. may be empty.
+              if (inputMapEntry !== undefined) {
+                const textFieldFormPath = `ingest.enrich.${processorId}.input_map.0.0.value`;
+                const curTextField = getIn(values, textFieldFormPath) as string;
+                if (!Object.keys(resp.properties).includes(curTextField)) {
+                  const defaultTextField =
+                    Object.keys(resp.properties).find((fieldName) => {
+                      return resp.properties[fieldName]?.type === 'text';
+                    }) || '';
+                  setFieldValue(textFieldFormPath, defaultTextField);
+                }
               }
             }
-          }
-        });
+          });
+      }
     }
   }, [selectedIndex]);
 
