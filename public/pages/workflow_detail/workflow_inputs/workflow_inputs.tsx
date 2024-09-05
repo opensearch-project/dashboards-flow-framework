@@ -725,6 +725,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     setIngestDocs={props.setIngestDocs}
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
+                    workflow={props.workflow}
                   />
                 ) : (
                   <SearchInputs

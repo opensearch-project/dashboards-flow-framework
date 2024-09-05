@@ -30,9 +30,11 @@ import {
   IndexMappings,
   MapEntry,
   SearchHit,
+  Workflow,
   WorkflowConfig,
   WorkspaceFormValues,
   customStringify,
+  isVectorSearchUseCase,
 } from '../../../../../common';
 import {
   AppState,
@@ -43,6 +45,7 @@ import {
 import { getDataSourceId } from '../../../../utils';
 
 interface SourceDataProps {
+  workflow: Workflow | undefined;
   uiConfig: WorkflowConfig;
   setIngestDocs: (docs: string) => void;
 }
@@ -78,12 +81,12 @@ export function SourceData(props: SourceDataProps) {
     }
   };
 
-  // selected index state. when an index is selected, update several form values
+  // selected index state. when an index is selected, update several form values (if vector search)
   const [selectedIndex, setSelectedIndex] = useState<string | undefined>(
     undefined
   );
   useEffect(() => {
-    if (selectedIndex !== undefined) {
+    if (selectedIndex !== undefined && isVectorSearchUseCase(props.workflow)) {
       // 1. fetch and set sample docs
       dispatch(
         searchIndex({
@@ -110,29 +113,18 @@ export function SourceData(props: SourceDataProps) {
           setFieldValue('ingest.index.mappings', customStringify(resp));
 
           // 3. try to set default key/values for the ML processor input/output maps, if applicable
-          const ingestProcessorId =
-            props.uiConfig.ingest.enrich.processors[0]?.id;
-          const ingestProcessorInputMapEntry =
-            (getIn(
-              values,
-              `ingest.enrich.${ingestProcessorId}.input_map.0.0`,
-              undefined
-            ) as MapEntry) || undefined;
-          const ingestProcessorOutputMapEntry =
-            (getIn(
-              values,
-              `ingest.enrich.${ingestProcessorId}.output_map.0.0`,
-              undefined
-            ) as MapEntry) || undefined;
-
+          const {
+            processorId,
+            inputMapEntry,
+            outputMapEntry,
+          } = getProcessorInfo(props.uiConfig, values);
           if (
-            ingestProcessorId !== undefined &&
-            (ingestProcessorInputMapEntry !== undefined ||
-              ingestProcessorOutputMapEntry !== undefined)
+            processorId !== undefined &&
+            (inputMapEntry !== undefined || outputMapEntry !== undefined)
           ) {
             // set/overwrite default text field for the input map. may be empty.
-            if (ingestProcessorInputMapEntry !== undefined) {
-              const textFieldFormPath = `ingest.enrich.${ingestProcessorId}.input_map.0.0.value`;
+            if (inputMapEntry !== undefined) {
+              const textFieldFormPath = `ingest.enrich.${processorId}.input_map.0.0.value`;
               const curTextField = getIn(values, textFieldFormPath) as string;
               if (!Object.keys(resp.properties).includes(curTextField)) {
                 const defaultTextField =
@@ -143,8 +135,8 @@ export function SourceData(props: SourceDataProps) {
               }
             }
             // set/overwrite default vector field for the output map. may be empty.
-            if (ingestProcessorOutputMapEntry !== undefined) {
-              const vectorFieldFormPath = `ingest.enrich.${ingestProcessorId}.output_map.0.0.key`;
+            if (outputMapEntry !== undefined) {
+              const vectorFieldFormPath = `ingest.enrich.${processorId}.output_map.0.0.key`;
               const curVectorField = getIn(
                 values,
                 vectorFieldFormPath
@@ -173,6 +165,38 @@ export function SourceData(props: SourceDataProps) {
   useEffect(() => {
     if (values?.ingest?.docs) {
       props.setIngestDocs(values.ingest.docs);
+    }
+
+    // try to clear out any default values for the ML ingest processor, if applicable
+    if (
+      isVectorSearchUseCase(props.workflow) &&
+      isEditModalOpen &&
+      selectedOption !== SOURCE_OPTIONS.EXISTING_INDEX
+    ) {
+      let sampleDoc = undefined as {} | undefined;
+      try {
+        sampleDoc = JSON.parse(values.ingest.docs)[0];
+      } catch (error) {}
+      if (sampleDoc !== undefined) {
+        const { processorId, inputMapEntry, outputMapEntry } = getProcessorInfo(
+          props.uiConfig,
+          values
+        );
+        if (
+          processorId !== undefined &&
+          (inputMapEntry !== undefined || outputMapEntry !== undefined)
+        ) {
+          // clear any default text field for the input map, if the sample doc
+          // doesn't contain the currently configured field
+          if (inputMapEntry !== undefined) {
+            const textFieldFormPath = `ingest.enrich.${processorId}.input_map.0.0.value`;
+            const curTextField = getIn(values, textFieldFormPath) as string;
+            if (!Object.keys(sampleDoc).includes(curTextField)) {
+              setFieldValue(textFieldFormPath, '');
+            }
+          }
+        }
+      }
     }
   }, [values?.ingest?.docs]);
 
@@ -309,4 +333,35 @@ export function SourceData(props: SourceDataProps) {
       </EuiFlexGroup>
     </>
   );
+}
+
+// helper fn to parse out some useful info from the ML ingest processor config, if applicable
+// takes on the assumption the first processor is an ML inference processor, and should
+// only be executed for workflows coming from preset vector search use cases.
+function getProcessorInfo(
+  uiConfig: WorkflowConfig,
+  values: WorkspaceFormValues
+): {
+  processorId: string | undefined;
+  inputMapEntry: MapEntry | undefined;
+  outputMapEntry: MapEntry | undefined;
+} {
+  const ingestProcessorId = uiConfig.ingest.enrich.processors[0]?.id as
+    | string
+    | undefined;
+  return {
+    processorId: ingestProcessorId,
+    inputMapEntry:
+      (getIn(
+        values,
+        `ingest.enrich.${ingestProcessorId}.input_map.0.0`,
+        undefined
+      ) as MapEntry) || undefined,
+    outputMapEntry:
+      (getIn(
+        values,
+        `ingest.enrich.${ingestProcessorId}.output_map.0.0`,
+        undefined
+      ) as MapEntry) || undefined,
+  };
 }
