@@ -106,19 +106,15 @@ export function SourceData(props: SourceDataProps) {
           setFieldValue('ingest.docs', customStringify(docObjs));
         });
 
-      // 2. fetch index mappings, and try to set default key/values for the ML processor input/output maps, if applicable
+      // 2. fetch index mappings, and try to set defaults for the ML processor configs, if applicable
       dispatch(getMappings({ index: selectedIndex, dataSourceId }))
         .unwrap()
         .then((resp: IndexMappings) => {
-          const {
-            processorId,
-            inputMapEntry,
-            outputMapEntry,
-          } = getProcessorInfo(props.uiConfig, values);
-          if (
-            processorId !== undefined &&
-            (inputMapEntry !== undefined || outputMapEntry !== undefined)
-          ) {
+          const { processorId, inputMapEntry } = getProcessorInfo(
+            props.uiConfig,
+            values
+          );
+          if (processorId !== undefined && inputMapEntry !== undefined) {
             // set/overwrite default text field for the input map. may be empty.
             if (inputMapEntry !== undefined) {
               const textFieldFormPath = `ingest.enrich.${processorId}.input_map.0.0.value`;
@@ -129,21 +125,6 @@ export function SourceData(props: SourceDataProps) {
                     return resp.properties[fieldName]?.type === 'text';
                   }) || '';
                 setFieldValue(textFieldFormPath, defaultTextField);
-              }
-            }
-            // set/overwrite default vector field for the output map. may be empty.
-            if (outputMapEntry !== undefined) {
-              const vectorFieldFormPath = `ingest.enrich.${processorId}.output_map.0.0.key`;
-              const curVectorField = getIn(
-                values,
-                vectorFieldFormPath
-              ) as string;
-              if (!Object.keys(resp.properties).includes(curVectorField)) {
-                const defaultVectorField =
-                  Object.keys(resp.properties).find((fieldName) => {
-                    return resp.properties[fieldName]?.type === 'knn_vector';
-                  }) || '';
-                setFieldValue(vectorFieldFormPath, defaultVectorField);
               }
             }
           }
@@ -175,16 +156,11 @@ export function SourceData(props: SourceDataProps) {
         sampleDoc = JSON.parse(values.ingest.docs)[0];
       } catch (error) {}
       if (sampleDoc !== undefined) {
-        const { processorId, inputMapEntry, outputMapEntry } = getProcessorInfo(
+        const { processorId, inputMapEntry } = getProcessorInfo(
           props.uiConfig,
           values
         );
-        if (
-          processorId !== undefined &&
-          (inputMapEntry !== undefined || outputMapEntry !== undefined)
-        ) {
-          // clear any default text field for the input map, if the sample doc
-          // doesn't contain the currently configured field
+        if (processorId !== undefined && inputMapEntry !== undefined) {
           if (inputMapEntry !== undefined) {
             const textFieldFormPath = `ingest.enrich.${processorId}.input_map.0.0.value`;
             const curTextField = getIn(values, textFieldFormPath) as string;
@@ -337,7 +313,6 @@ function getProcessorInfo(
 ): {
   processorId: string | undefined;
   inputMapEntry: MapEntry | undefined;
-  outputMapEntry: MapEntry | undefined;
 } {
   const ingestProcessorId = uiConfig.ingest.enrich.processors[0]?.id as
     | string
@@ -348,12 +323,6 @@ function getProcessorInfo(
       (getIn(
         values,
         `ingest.enrich.${ingestProcessorId}.input_map.0.0`,
-        undefined
-      ) as MapEntry) || undefined,
-    outputMapEntry:
-      (getIn(
-        values,
-        `ingest.enrich.${ingestProcessorId}.output_map.0.0`,
         undefined
       ) as MapEntry) || undefined,
   };
