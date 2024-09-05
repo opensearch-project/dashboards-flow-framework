@@ -34,18 +34,10 @@ window.ResizeObserver = resizeObserverMock;
 const renderWithRouter = (
   workflowId: string,
   workflowName: string,
-  workflowType: WORKFLOW_TYPE,
-  includeProcessor: boolean
+  workflowType: WORKFLOW_TYPE
 ) => ({
   ...render(
-    <Provider
-      store={mockStore(
-        workflowId,
-        workflowName,
-        workflowType,
-        includeProcessor
-      )}
-    >
+    <Provider store={mockStore(workflowId, workflowName, workflowType)}>
       <Router history={history}>
         <Switch>
           <Route
@@ -69,8 +61,7 @@ describe('WorkflowDetail', () => {
     const { getAllByText, getByText, getByRole } = renderWithRouter(
       workflowId,
       workflowName,
-      WORKFLOW_TYPE.CUSTOM,
-      false
+      WORKFLOW_TYPE.CUSTOM
     );
 
     expect(getAllByText(workflowName).length).toBeGreaterThan(0);
@@ -101,8 +92,7 @@ describe('WorkflowDetail', () => {
     const { getAllByText, getByText, getByRole } = renderWithRouter(
       workflowId,
       workflowName,
-      WORKFLOW_TYPE.SEMANTIC_SEARCH,
-      true
+      WORKFLOW_TYPE.SEMANTIC_SEARCH
     );
 
     expect(getAllByText(workflowName).length).toBeGreaterThan(0);
@@ -133,8 +123,7 @@ describe('WorkflowDetail', () => {
     const { getAllByText, getByText, getByRole } = renderWithRouter(
       workflowId,
       workflowName,
-      WORKFLOW_TYPE.HYBRID_SEARCH,
-      true
+      WORKFLOW_TYPE.HYBRID_SEARCH
     );
 
     expect(getAllByText(workflowName).length).toBeGreaterThan(0);
