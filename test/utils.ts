@@ -3,78 +3,184 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const mockStore = {
-  getState: () => ({
-    opensearch: {
-      errorMessage: '',
-    },
-    workflows: {
-      loading: false,
-      errorMessage: '',
-      workflows: {
-        '12345': {
-          id: '12345',
-          name: 'test_workflow',
-          use_case: 'CUSTOM',
-          description: 'A blank workflow with no preset configurations',
-          version: { template: '1.0.0', compatibility: ['2.17.0', '3.0.0'] },
-          workflows: {},
-          ui_metadata: {
-            type: 'Custom',
-            config: {
-              search: {
-                pipelineName: {
-                  id: 'pipelineName',
-                  type: 'string',
-                  value: 'search_pipeline_248e2f68b43db682',
-                },
-                request: {
-                  id: 'request',
-                  type: 'json',
-                  value:
-                    '{\n  "query": {\n    "match_all": {}\n  },\n  "size": 1000\n}',
-                },
-                index: { name: { id: 'indexName', type: 'string' } },
-                enrichRequest: { processors: [] },
-                enrichResponse: { processors: [] },
-              },
-              ingest: {
-                pipelineName: {
-                  id: 'pipelineName',
-                  type: 'string',
-                  value: 'ingest_pipeline_7b139fd4eccac336',
-                },
-                enrich: { processors: [] },
-                index: {
-                  settings: { id: 'indexSettings', type: 'json' },
-                  mappings: {
-                    id: 'indexMappings',
-                    type: 'json',
-                    value: '{\n  "properties": {}\n}',
-                  },
-                  name: {
-                    id: 'indexName',
-                    type: 'string',
-                    value: 'my-new-index',
-                  },
-                },
-                enabled: { id: 'enabled', type: 'boolean', value: true },
-              },
+import { PROCESSOR_TYPE, WORKFLOW_TYPE } from '../common/constants';
+import { ProcessorsConfig, Workflow } from '../common/interfaces';
+
+function generateWorkflow(
+  workflowId: string,
+  workflowName: string,
+  workflowType: WORKFLOW_TYPE,
+  includeProcessor: boolean = false
+): Workflow {
+  return {
+    id: workflowId,
+    name: workflowName,
+    description: 'A blank workflow with no preset configurations',
+    version: { template: '1.0.0', compatibility: ['2.17.0', '3.0.0'] },
+    ui_metadata: {
+      type: workflowType,
+      config: {
+        search: {
+          pipelineName: {
+            id: 'pipelineName',
+            type: 'string',
+            value: 'search_pipeline_248e2f68b43db682',
+          },
+          request: {
+            id: 'request',
+            type: 'json',
+            value:
+              '{\n  "query": {\n    "match_all": {}\n  },\n  "size": 1000\n}',
+          },
+          index: { name: { id: 'indexName', type: 'string' } },
+          enrichRequest: getProcessor(includeProcessor),
+          enrichResponse: getProcessor(includeProcessor),
+        },
+        ingest: {
+          pipelineName: {
+            id: 'pipelineName',
+            type: 'string',
+            value: 'ingest_pipeline_7b139fd4eccac336',
+          },
+          enrich: getProcessor(includeProcessor),
+          index: {
+            settings: { id: 'indexSettings', type: 'json' },
+            mappings: {
+              id: 'indexMappings',
+              type: 'json',
+              value: '{\n  "properties": {}\n}',
+            },
+            name: {
+              id: 'indexName',
+              type: 'string',
+              value: 'my-new-index',
             },
           },
-          resourcesCreated: [],
+          enabled: { id: 'enabled', type: 'boolean', value: true },
         },
       },
     },
-  }),
-  dispatch: jest.fn(),
-  subscribe: jest.fn(),
-  replaceReducer: jest.fn(),
-  [Symbol.observable]: jest.fn(),
-};
+  };
+}
 
-global.ResizeObserver = class {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-};
+// TODO: In the code below, only the ml_inference processor has been added. Other processors still need to be included.
+function getProcessor(includeProcessor: boolean): ProcessorsConfig {
+  if (includeProcessor) {
+    return {
+      processors: [
+        {
+          name: 'ML Inference Processor',
+          id: 'ml_processor_ingest_d6d16748b3888061',
+          fields: [
+            {
+              id: 'model',
+              type: 'model',
+              value: {
+                id: 'dfMPE5EB8_-RPNi-S0gD',
+              },
+            },
+            {
+              id: 'input_map',
+              type: 'mapArray',
+              value: [
+                [
+                  {
+                    value: 'my_text',
+                    key: '',
+                  },
+                ],
+              ],
+            },
+            {
+              id: 'output_map',
+              type: 'mapArray',
+              value: [
+                [
+                  {
+                    value: '',
+                    key: 'my_embedding',
+                  },
+                ],
+              ],
+            },
+          ],
+          type: PROCESSOR_TYPE.ML,
+          optionalFields: [
+            {
+              id: 'description',
+              type: 'string',
+            },
+            {
+              id: 'model_config',
+              type: 'json',
+            },
+            {
+              id: 'full_response_path',
+              type: 'boolean',
+              value: false,
+            },
+            {
+              id: 'ignore_missing',
+              type: 'boolean',
+              value: false,
+            },
+            {
+              id: 'ignore_failure',
+              type: 'boolean',
+              value: false,
+            },
+            {
+              id: 'max_prediction_tasks',
+              type: 'number',
+              value: 10,
+            },
+            {
+              id: 'tag',
+              type: 'string',
+            },
+          ],
+        },
+      ],
+    };
+  } else {
+    return { processors: [] };
+  }
+}
+
+export function mockStore(
+  workflowId: string,
+  workflowName: string,
+  workflowType: WORKFLOW_TYPE,
+  includeProcessor: boolean = false
+) {
+  return {
+    getState: () => ({
+      opensearch: {
+        errorMessage: '',
+      },
+      ml: {},
+      workflows: {
+        loading: false,
+        errorMessage: '',
+        workflows: {
+          [workflowId]: generateWorkflow(
+            workflowId,
+            workflowName,
+            workflowType,
+            includeProcessor
+          ),
+        },
+      },
+    }),
+    dispatch: jest.fn(),
+    subscribe: jest.fn(),
+    replaceReducer: jest.fn(),
+    [Symbol.observable]: jest.fn(),
+  };
+}
+
+export const resizeObserverMock = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}));
