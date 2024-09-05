@@ -34,18 +34,10 @@ window.ResizeObserver = resizeObserverMock;
 const renderWithRouter = (
   workflowId: string,
   workflowName: string,
-  workflowType: WORKFLOW_TYPE,
-  includeProcessor: boolean
+  workflowType: WORKFLOW_TYPE
 ) => ({
   ...render(
-    <Provider
-      store={mockStore(
-        workflowId,
-        workflowName,
-        workflowType,
-        includeProcessor
-      )}
-    >
+    <Provider store={mockStore(workflowId, workflowName, workflowType)}>
       <Router history={history}>
         <Switch>
           <Route
@@ -65,97 +57,41 @@ const workflowId = '12345';
 const workflowName = 'test_workflow';
 
 describe('WorkflowDetail', () => {
-  test('renders the page with Custom type', () => {
-    const { getAllByText, getByText, getByRole } = renderWithRouter(
-      workflowId,
-      workflowName,
-      WORKFLOW_TYPE.CUSTOM,
-      false
-    );
+  const workflowTypes = [
+    WORKFLOW_TYPE.CUSTOM,
+    WORKFLOW_TYPE.SEMANTIC_SEARCH,
+    WORKFLOW_TYPE.HYBRID_SEARCH,
+  ];
 
-    expect(getAllByText(workflowName).length).toBeGreaterThan(0);
-    expect(getAllByText('Create an ingest pipeline').length).toBeGreaterThan(0);
-    expect(getAllByText('Skip ingestion pipeline').length).toBeGreaterThan(0);
-    expect(getAllByText('Define ingest pipeline').length).toBeGreaterThan(0);
-    expect(getAllByText('Tools').length).toBeGreaterThan(0);
-    expect(getAllByText('Preview').length).toBeGreaterThan(0);
-    expect(getAllByText('Not started').length).toBeGreaterThan(0);
-    expect(
-      getAllByText((content, element) => content.startsWith('Last updated:'))
-        .length
-    ).toBeGreaterThan(0);
-    expect(getAllByText('Search pipeline').length).toBeGreaterThan(0);
-    expect(getByText('Close')).toBeInTheDocument();
-    expect(getByText('Export')).toBeInTheDocument();
-    expect(getByText('Visual')).toBeInTheDocument();
-    expect(getByText('JSON')).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Run ingestion' })).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Run queries' })).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
-  });
-});
+  workflowTypes.forEach((type) => {
+    test(`renders the page with ${type} type`, () => {
+      const { getAllByText, getByText, getByRole } = renderWithRouter(
+        workflowId,
+        workflowName,
+        type
+      );
 
-describe('WorkflowDetail', () => {
-  test('renders the page with Semantic Search type', () => {
-    const { getAllByText, getByText, getByRole } = renderWithRouter(
-      workflowId,
-      workflowName,
-      WORKFLOW_TYPE.SEMANTIC_SEARCH,
-      true
-    );
-
-    expect(getAllByText(workflowName).length).toBeGreaterThan(0);
-    expect(getAllByText('Create an ingest pipeline').length).toBeGreaterThan(0);
-    expect(getAllByText('Skip ingestion pipeline').length).toBeGreaterThan(0);
-    expect(getAllByText('Define ingest pipeline').length).toBeGreaterThan(0);
-    expect(getAllByText('Tools').length).toBeGreaterThan(0);
-    expect(getAllByText('Preview').length).toBeGreaterThan(0);
-    expect(getAllByText('Not started').length).toBeGreaterThan(0);
-    expect(
-      getAllByText((content, element) => content.startsWith('Last updated:'))
-        .length
-    ).toBeGreaterThan(0);
-    expect(getAllByText('Search pipeline').length).toBeGreaterThan(0);
-    expect(getByText('Close')).toBeInTheDocument();
-    expect(getByText('Export')).toBeInTheDocument();
-    expect(getByText('Visual')).toBeInTheDocument();
-    expect(getByText('JSON')).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Run ingestion' })).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Run queries' })).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
-  });
-});
-
-describe('WorkflowDetail', () => {
-  test('renders the page with Hybrid Search type', () => {
-    const { getAllByText, getByText, getByRole } = renderWithRouter(
-      workflowId,
-      workflowName,
-      WORKFLOW_TYPE.HYBRID_SEARCH,
-      true
-    );
-
-    expect(getAllByText(workflowName).length).toBeGreaterThan(0);
-    expect(getAllByText('Create an ingest pipeline').length).toBeGreaterThan(0);
-    expect(getAllByText('Skip ingestion pipeline').length).toBeGreaterThan(0);
-    expect(getAllByText('Define ingest pipeline').length).toBeGreaterThan(0);
-    expect(getAllByText('Tools').length).toBeGreaterThan(0);
-    expect(getAllByText('Preview').length).toBeGreaterThan(0);
-    expect(getAllByText('Not started').length).toBeGreaterThan(0);
-    expect(
-      getAllByText((content, element) => content.startsWith('Last updated:'))
-        .length
-    ).toBeGreaterThan(0);
-    expect(getAllByText('Search pipeline').length).toBeGreaterThan(0);
-    expect(getByText('Close')).toBeInTheDocument();
-    expect(getByText('Export')).toBeInTheDocument();
-    expect(getByText('Visual')).toBeInTheDocument();
-    expect(getByText('JSON')).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Run ingestion' })).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Run queries' })).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
-    expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
+      expect(getAllByText(workflowName).length).toBeGreaterThan(0);
+      expect(getAllByText('Create an ingest pipeline').length).toBeGreaterThan(
+        0
+      );
+      expect(getAllByText('Skip ingestion pipeline').length).toBeGreaterThan(0);
+      expect(getAllByText('Define ingest pipeline').length).toBeGreaterThan(0);
+      expect(getAllByText('Tools').length).toBeGreaterThan(0);
+      expect(getAllByText('Preview').length).toBeGreaterThan(0);
+      expect(getAllByText('Not started').length).toBeGreaterThan(0);
+      expect(
+        getAllByText((content) => content.startsWith('Last updated:')).length
+      ).toBeGreaterThan(0);
+      expect(getAllByText('Search pipeline').length).toBeGreaterThan(0);
+      expect(getByText('Close')).toBeInTheDocument();
+      expect(getByText('Export')).toBeInTheDocument();
+      expect(getByText('Visual')).toBeInTheDocument();
+      expect(getByText('JSON')).toBeInTheDocument();
+      expect(getByRole('tab', { name: 'Run ingestion' })).toBeInTheDocument();
+      expect(getByRole('tab', { name: 'Run queries' })).toBeInTheDocument();
+      expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
+      expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
+    });
   });
 });
