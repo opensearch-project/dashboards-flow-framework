@@ -23,7 +23,10 @@ export function IngestInputs(props: IngestInputsProps) {
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
-        <SourceData setIngestDocs={props.setIngestDocs} />
+        <SourceData
+          uiConfig={props.uiConfig}
+          setIngestDocs={props.setIngestDocs}
+        />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiHorizontalRule margin="none" />

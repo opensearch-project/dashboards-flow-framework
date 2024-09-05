@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useFormikContext } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import {
   EuiSmallButton,
   EuiCompressedFilePicker,
@@ -27,14 +27,23 @@ import {
 import { JsonField } from '../input_fields';
 import {
   FETCH_ALL_QUERY,
+  IndexMappings,
+  MapEntry,
   SearchHit,
+  WorkflowConfig,
   WorkspaceFormValues,
   customStringify,
 } from '../../../../../common';
-import { AppState, searchIndex, useAppDispatch } from '../../../../store';
+import {
+  AppState,
+  getMappings,
+  searchIndex,
+  useAppDispatch,
+} from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
 
 interface SourceDataProps {
+  uiConfig: WorkflowConfig;
   setIngestDocs: (docs: string) => void;
 }
 
@@ -69,12 +78,13 @@ export function SourceData(props: SourceDataProps) {
     }
   };
 
-  // selected index state. when an index is selected, update the form value
+  // selected index state. when an index is selected, update several form values
   const [selectedIndex, setSelectedIndex] = useState<string | undefined>(
     undefined
   );
   useEffect(() => {
     if (selectedIndex !== undefined) {
+      // 1. fetch and set sample docs
       dispatch(
         searchIndex({
           apiBody: {
@@ -91,6 +101,63 @@ export function SourceData(props: SourceDataProps) {
             ?.slice(0, 5)
             ?.map((hit: SearchHit) => hit?._source);
           setFieldValue('ingest.docs', customStringify(docObjs));
+        });
+
+      // 2. fetch and set index mappings
+      dispatch(getMappings({ index: selectedIndex, dataSourceId }))
+        .unwrap()
+        .then((resp: IndexMappings) => {
+          setFieldValue('ingest.index.mappings', customStringify(resp));
+
+          // 3. try to set default key/values for the ML processor input/output maps, if applicable
+          const ingestProcessorId =
+            props.uiConfig.ingest.enrich.processors[0]?.id;
+          const ingestProcessorInputMapEntry =
+            (getIn(
+              values,
+              `ingest.enrich.${ingestProcessorId}.input_map.0.0`,
+              undefined
+            ) as MapEntry) || undefined;
+          const ingestProcessorOutputMapEntry =
+            (getIn(
+              values,
+              `ingest.enrich.${ingestProcessorId}.output_map.0.0`,
+              undefined
+            ) as MapEntry) || undefined;
+
+          if (
+            ingestProcessorId !== undefined &&
+            (ingestProcessorInputMapEntry !== undefined ||
+              ingestProcessorOutputMapEntry !== undefined)
+          ) {
+            // set/overwrite default text field for the input map. may be empty.
+            if (ingestProcessorInputMapEntry !== undefined) {
+              const textFieldFormPath = `ingest.enrich.${ingestProcessorId}.input_map.0.0.value`;
+              const curTextField = getIn(values, textFieldFormPath) as string;
+              if (!Object.keys(resp.properties).includes(curTextField)) {
+                const defaultTextField =
+                  Object.keys(resp.properties).find((fieldName) => {
+                    return resp.properties[fieldName]?.type === 'text';
+                  }) || '';
+                setFieldValue(textFieldFormPath, defaultTextField);
+              }
+            }
+            // set/overwrite default vector field for the output map. may be empty.
+            if (ingestProcessorOutputMapEntry !== undefined) {
+              const vectorFieldFormPath = `ingest.enrich.${ingestProcessorId}.output_map.0.0.key`;
+              const curVectorField = getIn(
+                values,
+                vectorFieldFormPath
+              ) as string;
+              if (!Object.keys(resp.properties).includes(curVectorField)) {
+                const defaultVectorField =
+                  Object.keys(resp.properties).find((fieldName) => {
+                    return resp.properties[fieldName]?.type === 'knn_vector';
+                  }) || '';
+                setFieldValue(vectorFieldFormPath, defaultVectorField);
+              }
+            }
+          }
         });
     }
   }, [selectedIndex]);
@@ -169,6 +236,14 @@ export function SourceData(props: SourceDataProps) {
               )}
               {selectedOption === SOURCE_OPTIONS.EXISTING_INDEX && (
                 <>
+                  <EuiText color="subdued" size="s">
+                    Up to 5 sample documents will be automatically populated.
+                  </EuiText>
+                  <EuiText color="subdued" size="s">
+                    The currently-configured index mappings will be overwritten
+                    to match any selected index.
+                  </EuiText>
+                  <EuiSpacer size="s" />
                   <EuiCompressedSuperSelect
                     options={Object.values(indices).map(
                       (option) =>
@@ -185,10 +260,6 @@ export function SourceData(props: SourceDataProps) {
                     isInvalid={false}
                   />
                   <EuiSpacer size="xs" />
-                  <EuiText color="subdued" size="s">
-                    Up to 5 sample documents will be automatically populated.
-                  </EuiText>
-                  <EuiSpacer size="s" />
                 </>
               )}
               <JsonField

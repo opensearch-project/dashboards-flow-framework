@@ -25,6 +25,7 @@ import {
   BULK_NODE_API_PATH,
   BASE_NODE_API_PATH,
   SEARCH_CONNECTORS_NODE_API_PATH,
+  GET_MAPPINGS_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -78,6 +79,10 @@ export interface RouteService {
   getWorkflowPresets: () => Promise<any | HttpFetchError>;
   catIndices: (
     pattern: string,
+    dataSourceId?: string
+  ) => Promise<any | HttpFetchError>;
+  getMappings: (
+    index: string,
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
   searchIndex: ({
@@ -264,6 +269,19 @@ export function configureRoutes(core: CoreStart): RouteService {
           : CAT_INDICES_NODE_API_PATH;
         const response = await core.http.get<{ respString: string }>(
           `${url}/${pattern}`
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    getMappings: async (index: string, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/mappings`
+          : GET_MAPPINGS_NODE_API_PATH;
+        const response = await core.http.get<{ respString: string }>(
+          `${url}/${index}`
         );
         return response;
       } catch (e: any) {
