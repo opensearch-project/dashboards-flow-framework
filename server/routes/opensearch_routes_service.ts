@@ -15,8 +15,10 @@ import {
   BASE_NODE_API_PATH,
   BULK_NODE_API_PATH,
   CAT_INDICES_NODE_API_PATH,
+  GET_MAPPINGS_NODE_API_PATH,
   INGEST_NODE_API_PATH,
   Index,
+  IndexMappings,
   IngestPipelineConfig,
   SEARCH_INDEX_NODE_API_PATH,
   SIMULATE_PIPELINE_NODE_API_PATH,
@@ -56,6 +58,29 @@ export function registerOpenSearchRoutes(
       },
     },
     opensearchRoutesService.catIndices
+  );
+  router.get(
+    {
+      path: `${GET_MAPPINGS_NODE_API_PATH}/{index}`,
+      validate: {
+        params: schema.object({
+          index: schema.string(),
+        }),
+      },
+    },
+    opensearchRoutesService.getMappings
+  );
+  router.get(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/mappings/{index}`,
+      validate: {
+        params: schema.object({
+          index: schema.string(),
+          data_source_id: schema.string(),
+        }),
+      },
+    },
+    opensearchRoutesService.getMappings
   );
   router.post(
     {
@@ -247,6 +272,37 @@ export class OpenSearchRoutesService {
       })) as Index[];
 
       return res.ok({ body: cleanedIndices });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  getMappings = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { index } = req.params as { index: string };
+    const { data_source_id = '' } = req.params as { data_source_id?: string };
+    try {
+      const callWithRequest = getClientBasedOnDataSource(
+        context,
+        this.dataSourceEnabled,
+        req,
+        data_source_id,
+        this.client
+      );
+
+      const response = await callWithRequest('indices.getMapping', {
+        index,
+      });
+
+      // Response will be a dict with key being the index name. Attempt to
+      // pull out the mappings. If any errors found (missing index, etc.), an error
+      // will be thrown.
+      const mappings = response[index]?.mappings as IndexMappings;
+
+      return res.ok({ body: mappings });
     } catch (err: any) {
       return generateCustomError(res, err);
     }

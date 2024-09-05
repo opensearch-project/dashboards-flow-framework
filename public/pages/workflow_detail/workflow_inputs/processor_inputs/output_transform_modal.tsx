@@ -210,12 +210,10 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                         .unwrap()
                         .then(async (resp) => {
                           setSourceInput(
-                            JSON.stringify(
+                            customStringify(
                               resp.hits.hits.map(
                                 (hit: SearchHit) => hit._source
-                              ),
-                              undefined,
-                              2
+                              )
                             )
                           );
                         })
