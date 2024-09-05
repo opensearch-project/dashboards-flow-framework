@@ -534,10 +534,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             .unwrap()
             .then(async (resp) => {
               props.setQueryResponse(
-                JSON.stringify(
-                  resp.hits.hits.map((hit: SearchHit) => hit._source),
-                  undefined,
-                  2
+                customStringify(
+                  resp.hits.hits.map((hit: SearchHit) => hit._source)
                 )
               );
             })
@@ -727,6 +725,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     setIngestDocs={props.setIngestDocs}
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
+                    workflow={props.workflow}
                   />
                 ) : (
                   <SearchInputs

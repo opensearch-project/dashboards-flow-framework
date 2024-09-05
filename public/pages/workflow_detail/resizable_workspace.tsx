@@ -4,7 +4,6 @@
  */
 
 import React, { useRef, useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
 import {
@@ -21,6 +20,7 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
   WorkflowSchema,
+  customStringify,
 } from '../../../common';
 import {
   isValidUiWorkflow,
@@ -286,11 +286,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       </EuiFlexItem>
       <EuiFlexItem grow={7}>
         <EuiCodeBlock language="json" fontSize="m" isCopyable={false}>
-          {JSON.stringify(
-            reduceToTemplate(props.workflow as Workflow),
-            undefined,
-            2
-          )}
+          {customStringify(reduceToTemplate(props.workflow as Workflow))}
         </EuiCodeBlock>
       </EuiFlexItem>
     </EuiFlexGroup>

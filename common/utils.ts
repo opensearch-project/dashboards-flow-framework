@@ -4,7 +4,7 @@
  */
 
 import moment from 'moment';
-import { DATE_FORMAT_PATTERN } from './';
+import { DATE_FORMAT_PATTERN, WORKFLOW_TYPE, Workflow } from './';
 import { isEmpty } from 'lodash';
 
 export function toFormattedDate(timestampMillis: number): String {
@@ -38,4 +38,15 @@ export function getCharacterLimitedString(
 
 export function customStringify(jsonObj: {}): string {
   return JSON.stringify(jsonObj, undefined, 2);
+}
+
+export function isVectorSearchUseCase(workflow: Workflow | undefined): boolean {
+  return (
+    workflow?.ui_metadata?.type !== undefined &&
+    [
+      WORKFLOW_TYPE.HYBRID_SEARCH,
+      WORKFLOW_TYPE.MULTIMODAL_SEARCH,
+      WORKFLOW_TYPE.SEMANTIC_SEARCH,
+    ].includes(workflow?.ui_metadata?.type)
+  );
 }

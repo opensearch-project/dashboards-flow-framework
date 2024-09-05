@@ -21,6 +21,7 @@ import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
 import {
   AppState,
+  catIndices,
   getWorkflow,
   searchModels,
   useAppDispatch,
@@ -101,9 +102,11 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   // On initial load:
   // - fetch workflow
   // - fetch available models as their IDs may be used when building flows
+  // - fetch all indices
   useEffect(() => {
     dispatch(getWorkflow({ workflowId, dataSourceId }));
     dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
+    dispatch(catIndices({ pattern: '*,-.*', dataSourceId }));
   }, []);
 
   return errorMessage.includes(ERROR_GETTING_WORKFLOW_MSG) ||
