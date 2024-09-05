@@ -82,7 +82,7 @@ function fetchEmptyMetadata(): UIState {
           name: {
             id: 'indexName',
             type: 'string',
-            value: 'my-new-index',
+            value: generateId('my_index', 6),
           },
           mappings: {
             id: 'indexMappings',
