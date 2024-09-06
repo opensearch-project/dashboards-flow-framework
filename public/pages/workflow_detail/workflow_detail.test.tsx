@@ -57,13 +57,7 @@ const workflowId = '12345';
 const workflowName = 'test_workflow';
 
 describe('WorkflowDetail', () => {
-  const workflowTypes = [
-    WORKFLOW_TYPE.CUSTOM,
-    WORKFLOW_TYPE.SEMANTIC_SEARCH,
-    WORKFLOW_TYPE.HYBRID_SEARCH,
-  ];
-
-  workflowTypes.forEach((type) => {
+  Object.values(WORKFLOW_TYPE).forEach((type) => {
     test(`renders the page with ${type} type`, () => {
       const { getAllByText, getByText, getByRole } = renderWithRouter(
         workflowId,
