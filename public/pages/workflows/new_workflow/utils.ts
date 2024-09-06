@@ -60,7 +60,7 @@ export function enrichPresetWorkflowWithUiMetadata(
   } as WorkflowTemplate;
 }
 
-function fetchEmptyMetadata(): UIState {
+export function fetchEmptyMetadata(): UIState {
   return {
     type: WORKFLOW_TYPE.CUSTOM,
     config: {
@@ -125,7 +125,7 @@ function fetchEmptyMetadata(): UIState {
   };
 }
 
-function fetchSemanticSearchMetadata(): UIState {
+export function fetchSemanticSearchMetadata(): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.SEMANTIC_SEARCH;
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
@@ -143,7 +143,7 @@ function fetchSemanticSearchMetadata(): UIState {
   return baseState;
 }
 
-function fetchMultimodalSearchMetadata(): UIState {
+export function fetchMultimodalSearchMetadata(): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.MULTIMODAL_SEARCH;
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
@@ -163,7 +163,7 @@ function fetchMultimodalSearchMetadata(): UIState {
   return baseState;
 }
 
-function fetchHybridSearchMetadata(): UIState {
+export function fetchHybridSearchMetadata(): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.HYBRID_SEARCH;
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
