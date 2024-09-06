@@ -28,7 +28,13 @@ jest.mock('../../services', () => {
   };
 });
 
-const history = createMemoryHistory();
+const workflowId = '12345';
+const workflowName = 'test_workflow';
+
+const history = createMemoryHistory({
+  initialEntries: [`/workflow/${workflowId}`],
+});
+
 window.ResizeObserver = resizeObserverMock;
 
 const renderWithRouter = (
@@ -46,15 +52,11 @@ const renderWithRouter = (
               return <WorkflowDetail setActionMenu={jest.fn()} {...props} />;
             }}
           />
-          <Redirect from="/" to={`/workflow/${workflowId}`} />
         </Switch>
       </Router>
     </Provider>
   ),
 });
-
-const workflowId = '12345';
-const workflowName = 'test_workflow';
 
 describe('WorkflowDetail', () => {
   Object.values(WORKFLOW_TYPE).forEach((type) => {
