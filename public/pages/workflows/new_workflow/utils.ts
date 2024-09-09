@@ -17,7 +17,8 @@ import {
   WORKFLOW_TYPE,
   FETCH_ALL_QUERY,
   customStringify,
-  TERM_QUERY,
+  TERM_QUERY_TEXT,
+  TERM_QUERY_LABEL,
   MULTIMODAL_SEARCH_QUERY_BOOL,
   IProcessorConfig,
   VECTOR_TEMPLATE_PLACEHOLDER,
@@ -43,6 +44,10 @@ export function enrichPresetWorkflowWithUiMetadata(
     }
     case WORKFLOW_TYPE.HYBRID_SEARCH: {
       uiMetadata = fetchHybridSearchMetadata();
+      break;
+    }
+    case WORKFLOW_TYPE.SENTIMENT_ANALYSIS: {
+      uiMetadata = fetchSentimentAnalysisMetadata();
       break;
     }
     default: {
@@ -133,7 +138,7 @@ export function fetchSemanticSearchMetadata(): UIState {
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
-  baseState.config.search.request.value = customStringify(TERM_QUERY);
+  baseState.config.search.request.value = customStringify(TERM_QUERY_TEXT);
   baseState.config.search.enrichRequest.processors = [
     injectQueryTemplateInProcessor(
       new MLSearchRequestProcessor().toObj(),
@@ -171,7 +176,7 @@ export function fetchHybridSearchMetadata(): UIState {
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
-  baseState.config.search.request.value = customStringify(TERM_QUERY);
+  baseState.config.search.request.value = customStringify(TERM_QUERY_TEXT);
   baseState.config.search.enrichResponse.processors = [
     injectDefaultWeightsInNormalizationProcessor(
       new NormalizationProcessor().toObj()
@@ -182,6 +187,21 @@ export function fetchHybridSearchMetadata(): UIState {
       new MLSearchRequestProcessor().toObj(),
       HYBRID_SEARCH_QUERY_MATCH_KNN
     ),
+  ];
+  return baseState;
+}
+
+export function fetchSentimentAnalysisMetadata(): UIState {
+  let baseState = fetchEmptyMetadata();
+  baseState.type = WORKFLOW_TYPE.SENTIMENT_ANALYSIS;
+  baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
+  baseState.config.ingest.index.name.value = generateId('knn_index', 6);
+  baseState.config.ingest.index.settings.value = customStringify({
+    [`index.knn`]: true,
+  });
+  baseState.config.search.request.value = customStringify(TERM_QUERY_LABEL);
+  baseState.config.search.enrichRequest.processors = [
+    new MLSearchRequestProcessor().toObj(),
   ];
   return baseState;
 }
