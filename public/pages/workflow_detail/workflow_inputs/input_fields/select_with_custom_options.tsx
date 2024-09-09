@@ -12,7 +12,7 @@ import { WorkspaceFormValues } from '../../../../../common';
 interface SelectWithCustomOptionsProps {
   fieldPath: string;
   placeholder: string;
-  options: any[];
+  options: { label: string }[];
 }
 
 /**
@@ -50,13 +50,15 @@ export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
     return (
       <EuiFlexGroup direction="row" alignItems="flexStart" gutterSize="s">
         <EuiFlexItem grow={false}>
-          <EuiText size="s">{option.label}</EuiText>
+          <EuiText size="s">{option.label || ''}</EuiText>
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiText size="xs" color="subdued" style={{ marginTop: '2px' }}>
-            {`(${option.type || 'unknown type'})`}
-          </EuiText>
-        </EuiFlexItem>
+        {option.type && (
+          <EuiFlexItem grow={false}>
+            <EuiText size="xs" color="subdued" style={{ marginTop: '2px' }}>
+              {`(${option.type})`}
+            </EuiText>
+          </EuiFlexItem>
+        )}
       </EuiFlexGroup>
     );
   }

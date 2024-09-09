@@ -8,7 +8,7 @@ import { WorkflowDict, WorkflowTemplate } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
 
-const initialState = {
+export const INITIAL_WORKFLOWS_STATE = {
   loading: false,
   errorMessage: '',
   workflows: {} as WorkflowDict,
@@ -223,7 +223,7 @@ export const deleteWorkflow = createAsyncThunk(
 
 const workflowsSlice = createSlice({
   name: 'workflows',
-  initialState,
+  initialState: INITIAL_WORKFLOWS_STATE,
   reducers: {},
   extraReducers: (builder) => {
     builder

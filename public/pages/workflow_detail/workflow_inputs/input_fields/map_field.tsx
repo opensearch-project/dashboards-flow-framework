@@ -31,8 +31,8 @@ interface MapFieldProps {
   helpText?: string;
   keyPlaceholder?: string;
   valuePlaceholder?: string;
-  keyOptions?: any[];
-  valueOptions?: any[];
+  keyOptions?: { label: string }[];
+  valueOptions?: { label: string }[];
 }
 
 /**

@@ -8,7 +8,7 @@ import { ConnectorDict, ModelDict } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
 
-const initialState = {
+export const INITIAL_ML_STATE = {
   loading: false,
   errorMessage: '',
   models: {} as ModelDict,
@@ -64,7 +64,7 @@ export const searchConnectors = createAsyncThunk(
 
 const mlSlice = createSlice({
   name: 'ml',
-  initialState,
+  initialState: INITIAL_ML_STATE,
   reducers: {},
   extraReducers: (builder) => {
     builder

@@ -37,8 +37,8 @@ interface MapArrayFieldProps {
   valuePlaceholder?: string;
   onMapAdd?: (curArray: MapArrayFormValue) => void;
   onMapDelete?: (idxToDelete: number) => void;
-  keyOptions?: any[];
-  valueOptions?: any[];
+  keyOptions?: { label: string }[];
+  valueOptions?: { label: string }[];
 }
 
 /**
