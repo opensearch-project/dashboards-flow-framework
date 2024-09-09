@@ -68,6 +68,7 @@ interface InputTransformModalProps {
   inputMapField: IConfigField;
   inputMapFieldPath: string;
   modelInterface: ModelInterface | undefined;
+  valueOptions: { label: string }[];
   onClose: () => void;
 }
 
@@ -163,7 +164,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 Fetch some sample input data and see how it is transformed.
               </EuiText>
               <EuiSpacer size="s" />
-              <EuiText>Expected input</EuiText>
+              <EuiText>Source input</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
                 onClick={async () => {
@@ -266,7 +267,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                         })
                         .catch((error: any) => {
                           getCore().notifications.toasts.addDanger(
-                            `Failed to fetch input data`
+                            `Failed to fetch source input data`
                           );
                         });
                       break;
@@ -307,12 +308,13 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                 helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="Model input field"
+                keyOptions={parseModelInputs(props.modelInterface)}
                 valuePlaceholder={
                   props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                     ? 'Query field'
                     : 'Document field'
                 }
-                keyOptions={parseModelInputs(props.modelInterface)}
+                valueOptions={props.valueOptions}
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {
                   if (isEmpty(curArray)) {
@@ -356,10 +358,10 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 )}
                 <EuiFlexItem grow={true}>
                   {outputOptions.length === 1 ? (
-                    <EuiText>Expected output</EuiText>
+                    <EuiText>Transformed input</EuiText>
                   ) : (
                     <EuiCompressedSelect
-                      prepend={<EuiText>Expected output for</EuiText>}
+                      prepend={<EuiText>Transformed input for</EuiText>}
                       options={outputOptions}
                       value={selectedOutputOption}
                       onChange={(e) => {
