@@ -44,33 +44,13 @@ const sorting = {
   },
 };
 
-const filterOptions = [
+const filterOptions = Object.values(WORKFLOW_TYPE).map((type) => {
   // @ts-ignore
-  {
-    name: WORKFLOW_TYPE.SEMANTIC_SEARCH,
+  return {
+    name: type,
     checked: 'on',
-  } as EuiFilterSelectItem,
-  // @ts-ignore
-  {
-    name: WORKFLOW_TYPE.MULTIMODAL_SEARCH,
-    checked: 'on',
-  } as EuiFilterSelectItem,
-  // @ts-ignore
-  {
-    name: WORKFLOW_TYPE.HYBRID_SEARCH,
-    checked: 'on',
-  } as EuiFilterSelectItem,
-  // @ts-ignore
-  {
-    name: WORKFLOW_TYPE.CUSTOM,
-    checked: 'on',
-  } as EuiFilterSelectItem,
-  // @ts-ignore
-  {
-    name: WORKFLOW_TYPE.UNKNOWN,
-    checked: 'on',
-  } as EuiFilterSelectItem,
-];
+  } as EuiFilterSelectItem;
+});
 
 /**
  * The searchable list of created workflows.

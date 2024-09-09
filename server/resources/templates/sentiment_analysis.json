@@ -1,0 +1,14 @@
+{
+    "name": "Sentiment Analysis",
+    "description": "A basic workflow containing the ingest pipeline, search pipeline, and index configurations for performing sentiment analysis",
+    "version": {
+        "template": "1.0.0",
+        "compatibility": [
+            "2.17.0",
+            "3.0.0"
+        ]
+    },
+    "ui_metadata": {
+        "type": "Sentiment analysis"
+    }
+}

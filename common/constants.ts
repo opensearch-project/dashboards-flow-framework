@@ -90,6 +90,7 @@ export enum WORKFLOW_TYPE {
   SEMANTIC_SEARCH = 'Semantic search',
   MULTIMODAL_SEARCH = 'Multimodal search',
   HYBRID_SEARCH = 'Hybrid search',
+  SENTIMENT_ANALYSIS = 'Sentiment analysis',
   CUSTOM = 'Custom',
   UNKNOWN = 'Unknown',
 }
@@ -181,9 +182,14 @@ export const SHARED_OPTIONAL_FIELDS = ['max_chunk_limit', 'description', 'tag'];
 /**
  * QUERY PRESETS
  */
+export const DEFAULT_TEXT_FIELD = 'my_text';
+export const DEFAULT_VECTOR_FIELD = 'my_embedding';
+export const DEFAULT_IMAGE_FIELD = 'my_image';
+export const DEFAULT_LABEL_FIELD = 'label';
 export const VECTOR_FIELD_PATTERN = `{{vector_field}}`;
 export const TEXT_FIELD_PATTERN = `{{text_field}}`;
 export const IMAGE_FIELD_PATTERN = `{{image_field}}`;
+export const LABEL_FIELD_PATTERN = `{{label_field}}`;
 export const QUERY_TEXT_PATTERN = `{{query_text}}`;
 export const QUERY_IMAGE_PATTERN = `{{query_image}}`;
 export const MODEL_ID_PATTERN = `{{model_id}}`;
@@ -198,10 +204,19 @@ export const FETCH_ALL_QUERY = {
   },
   size: 1000,
 };
-export const TERM_QUERY = {
+export const TERM_QUERY_TEXT = {
   query: {
     term: {
       [TEXT_FIELD_PATTERN]: {
+        value: QUERY_TEXT_PATTERN,
+      },
+    },
+  },
+};
+export const TERM_QUERY_LABEL = {
+  query: {
+    term: {
+      [LABEL_FIELD_PATTERN]: {
         value: QUERY_TEXT_PATTERN,
       },
     },
@@ -353,7 +368,7 @@ export const QUERY_PRESETS = [
   },
   {
     name: 'Term',
-    query: customStringify(TERM_QUERY),
+    query: customStringify(TERM_QUERY_TEXT),
   },
   {
     name: 'Basic k-NN',
