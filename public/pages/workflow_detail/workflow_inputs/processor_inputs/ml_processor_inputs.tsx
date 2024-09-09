@@ -213,6 +213,13 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           inputMapField={inputMapField}
           inputMapFieldPath={inputMapFieldPath}
           modelInterface={modelInterface}
+          valueOptions={
+            props.context === PROCESSOR_CONTEXT.INGEST
+              ? docFields
+              : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+              ? queryFields
+              : indexMappingFields
+          }
           onClose={() => setIsInputTransformModalOpen(false)}
         />
       )}
