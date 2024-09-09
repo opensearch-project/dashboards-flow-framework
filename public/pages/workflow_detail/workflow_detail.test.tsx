@@ -6,13 +6,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import {
-  RouteComponentProps,
-  Route,
-  Switch,
-  Router,
-  Redirect,
-} from 'react-router-dom';
+import { RouteComponentProps, Route, Switch, Router } from 'react-router-dom';
 import { WorkflowDetail } from './workflow_detail';
 import { WorkflowDetailRouterProps } from '../../pages';
 import '@testing-library/jest-dom';

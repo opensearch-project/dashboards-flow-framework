@@ -13,7 +13,7 @@ import {
 } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 
-const initialState = {
+export const INITIAL_OPENSEARCH_STATE = {
   loading: false,
   errorMessage: '',
   indices: {} as { [key: string]: Index },
@@ -183,7 +183,7 @@ export const simulatePipeline = createAsyncThunk(
 
 const opensearchSlice = createSlice({
   name: OPENSEARCH_PREFIX,
-  initialState,
+  initialState: INITIAL_OPENSEARCH_STATE,
   reducers: {},
   extraReducers: (builder) => {
     builder
