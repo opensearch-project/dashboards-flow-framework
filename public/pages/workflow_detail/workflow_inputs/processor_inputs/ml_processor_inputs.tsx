@@ -5,7 +5,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { getIn, useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import { useSelector } from 'react-redux';
+import { flattie } from 'flattie';
 import {
   EuiAccordion,
   EuiSmallButtonEmpty,
@@ -25,14 +27,15 @@ import {
   ML_INFERENCE_DOCS_LINK,
   WorkflowFormValues,
   ModelInterface,
+  IndexMappings,
 } from '../../../../../common';
 import { MapArrayField, ModelField } from '../input_fields';
-import { isEmpty } from 'lodash';
 import { InputTransformModal } from './input_transform_modal';
 import { OutputTransformModal } from './output_transform_modal';
-import { AppState } from '../../../../store';
+import { AppState, getMappings, useAppDispatch } from '../../../../store';
 import {
   formikToPartialPipeline,
+  getDataSourceId,
   parseModelInputs,
   parseModelOutputs,
 } from '../../../../utils';
@@ -52,7 +55,10 @@ interface MLProcessorInputsProps {
  * output map configuration forms, respectively.
  */
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
+  const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
   const models = useSelector((state: AppState) => state.ml.models);
+  const indices = useSelector((state: AppState) => state.opensearch.indices);
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
@@ -115,7 +121,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   // 1: update model interface states
   // 2. clear out any persisted input_map/output_map form values, as those would now be invalid
   function onModelChange(modelId: string) {
-    updateModelInterfaceStates(modelId);
+    setModelInterface(models[modelId]?.interface);
     setFieldValue(inputMapFieldPath, []);
     setFieldValue(outputMapFieldPath, []);
     setFieldTouched(inputMapFieldPath, false);
@@ -127,16 +133,75 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     if (!isEmpty(models)) {
       const modelId = getIn(values, `${modelFieldPath}.id`);
       if (modelId) {
-        updateModelInterfaceStates(modelId);
+        setModelInterface(models[modelId]?.interface);
       }
     }
   }, [models]);
 
-  // reusable function to update interface states based on the model ID
-  function updateModelInterfaceStates(modelId: string) {
-    const newSelectedModel = models[modelId];
-    setModelInterface(newSelectedModel?.interface);
-  }
+  // persisting doc/query/index mapping fields to collect a list
+  // of options to display in the dropdowns when configuring input / output maps
+  const [docFields, setDocFields] = useState<{ label: string }[]>([]);
+  const [queryFields, setQueryFields] = useState<{ label: string }[]>([]);
+  const [indexMappingFields, setIndexMappingFields] = useState<
+    { label: string }[]
+  >([]);
+  useEffect(() => {
+    try {
+      const docObjKeys = Object.keys(
+        flattie((JSON.parse(values.ingest.docs) as {}[])[0])
+      );
+      if (docObjKeys.length > 0) {
+        setDocFields(
+          docObjKeys.map((key) => {
+            return {
+              label: key,
+            };
+          })
+        );
+      }
+    } catch {}
+  }, [values?.ingest?.docs]);
+  useEffect(() => {
+    try {
+      const queryObjKeys = Object.keys(
+        flattie(JSON.parse(values.search.request))
+      );
+      if (queryObjKeys.length > 0) {
+        setQueryFields(
+          queryObjKeys.map((key) => {
+            return {
+              label: key,
+            };
+          })
+        );
+      }
+    } catch {}
+  }, [values?.search?.request]);
+  useEffect(() => {
+    const indexName = values?.ingest?.index?.name as string | undefined;
+    if (indexName !== undefined && indices[indexName] !== undefined) {
+      dispatch(
+        getMappings({
+          index: indexName,
+          dataSourceId,
+        })
+      )
+        .unwrap()
+        .then((resp: IndexMappings) => {
+          const mappingsObjKeys = Object.keys(resp.properties);
+          if (mappingsObjKeys.length > 0) {
+            setIndexMappingFields(
+              mappingsObjKeys.map((key) => {
+                return {
+                  label: key,
+                  type: resp.properties[key]?.type,
+                };
+              })
+            );
+          }
+        });
+    }
+  }, [values?.ingest?.index?.name]);
 
   return (
     <>
@@ -212,12 +277,19 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             root object selector "${JSONPATH_ROOT_SELECTOR}"`}
             helpLink={ML_INFERENCE_DOCS_LINK}
             keyPlaceholder="Model input field"
+            keyOptions={parseModelInputs(modelInterface)}
             valuePlaceholder={
               props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                 ? 'Query field'
                 : 'Document field'
             }
-            keyOptions={parseModelInputs(modelInterface)}
+            valueOptions={
+              props.context === PROCESSOR_CONTEXT.INGEST
+                ? docFields
+                : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? queryFields
+                : indexMappingFields
+            }
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row">
@@ -262,7 +334,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             keyPlaceholder={
               props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                 ? 'Query field'
-                : 'Document field'
+                : 'New document field'
             }
             valuePlaceholder="Model output field"
             valueOptions={parseModelOutputs(modelInterface)}
