@@ -20,6 +20,7 @@ import {
   DEFAULT_LABEL_FIELD,
   DEFAULT_TEXT_FIELD,
   IMAGE_FIELD_PATTERN,
+  IndexMappings,
   LABEL_FIELD_PATTERN,
   MODEL_ID_PATTERN,
   MapArrayFormValue,
@@ -297,6 +298,8 @@ function updateSearchRequestProcessorConfig(
     }
     if (field.id === 'input_map') {
       const inputMap = generateMapFromModelInputs(modelInterface);
+      // TODO: may change in the future. This is assuming the default query is a
+      // basic term query.
       const defaultValue = `query.term.${
         isVectorSearchUseCase ? DEFAULT_TEXT_FIELD : DEFAULT_LABEL_FIELD
       }.value`;
@@ -315,6 +318,8 @@ function updateSearchRequestProcessorConfig(
     }
     if (field.id === 'output_map') {
       const outputMap = generateMapFromModelOutputs(modelInterface);
+      // TODO: may change in the future. This is assuming the default query is a
+      // basic term query.
       const defaultKey = isVectorSearchUseCase
         ? VECTOR
         : `query.term.${DEFAULT_LABEL_FIELD}.value`;
@@ -353,61 +358,45 @@ function updateIndexConfig(
   config: WorkflowConfig,
   fields: QuickConfigureFields
 ): WorkflowConfig {
-  if (fields.textField) {
+  if (
+    fields.textField ||
+    fields.imageField ||
+    fields.vectorField ||
+    fields.labelField
+  ) {
     const existingMappings = JSON.parse(
       config.ingest.index.mappings.value as string
     );
+    let properties = {} as { [key: string]: {} };
+    try {
+      properties = (JSON.parse(
+        config.ingest.index.mappings.value as string
+      ) as IndexMappings).properties;
+    } catch {}
+    if (fields.textField) {
+      properties[fields.textField] = {
+        type: 'text',
+      };
+    }
+    if (fields.imageField) {
+      properties[fields.imageField] = {
+        type: 'binary',
+      };
+    }
+    if (fields.vectorField) {
+      properties[fields.vectorField] = {
+        type: 'knn_vector',
+        dimension: fields.embeddingLength || '',
+      };
+    }
+    if (fields.labelField) {
+      properties[fields.labelField] = {
+        type: 'text',
+      };
+    }
     config.ingest.index.mappings.value = customStringify({
       ...existingMappings,
-      properties: {
-        ...(existingMappings.properties || {}),
-        [fields.textField]: {
-          type: 'text',
-        },
-      },
-    });
-  }
-  if (fields.imageField) {
-    const existingMappings = JSON.parse(
-      config.ingest.index.mappings.value as string
-    );
-    config.ingest.index.mappings.value = customStringify({
-      ...existingMappings,
-      properties: {
-        ...(existingMappings.properties || {}),
-        [fields.imageField]: {
-          type: 'binary',
-        },
-      },
-    });
-  }
-  if (fields.vectorField) {
-    const existingMappings = JSON.parse(
-      config.ingest.index.mappings.value as string
-    );
-    config.ingest.index.mappings.value = customStringify({
-      ...existingMappings,
-      properties: {
-        ...(existingMappings.properties || {}),
-        [fields.vectorField]: {
-          type: 'knn_vector',
-          dimension: fields.embeddingLength || '',
-        },
-      },
-    });
-  }
-  if (fields.labelField) {
-    const existingMappings = JSON.parse(
-      config.ingest.index.mappings.value as string
-    );
-    config.ingest.index.mappings.value = customStringify({
-      ...existingMappings,
-      properties: {
-        ...(existingMappings.properties || {}),
-        [fields.labelField]: {
-          type: 'text',
-        },
-      },
+      properties: { ...properties },
     });
   }
   return config;

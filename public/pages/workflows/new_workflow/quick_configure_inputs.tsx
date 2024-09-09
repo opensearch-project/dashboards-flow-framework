@@ -60,28 +60,33 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
   // defaults for the field values for certain workflow types
   useEffect(() => {
     let defaultFieldValues = {} as QuickConfigureFields;
-    if (
-      props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
-      props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
-      props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH
-    ) {
-      defaultFieldValues = {
-        textField: DEFAULT_TEXT_FIELD,
-        vectorField: DEFAULT_VECTOR_FIELD,
-      };
-    }
-    if (props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH) {
-      defaultFieldValues = {
-        ...defaultFieldValues,
-        imageField: DEFAULT_IMAGE_FIELD,
-      };
-    }
-    if (props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS) {
-      defaultFieldValues = {
-        ...defaultFieldValues,
-        textField: DEFAULT_TEXT_FIELD,
-        labelField: DEFAULT_LABEL_FIELD,
-      };
+    switch (props.workflowType) {
+      case WORKFLOW_TYPE.SEMANTIC_SEARCH:
+      case WORKFLOW_TYPE.HYBRID_SEARCH: {
+        defaultFieldValues = {
+          textField: DEFAULT_TEXT_FIELD,
+          vectorField: DEFAULT_VECTOR_FIELD,
+        };
+        break;
+      }
+      case WORKFLOW_TYPE.MULTIMODAL_SEARCH: {
+        defaultFieldValues = {
+          textField: DEFAULT_TEXT_FIELD,
+          vectorField: DEFAULT_VECTOR_FIELD,
+          imageField: DEFAULT_IMAGE_FIELD,
+        };
+        break;
+      }
+      case WORKFLOW_TYPE.SENTIMENT_ANALYSIS: {
+        defaultFieldValues = {
+          textField: DEFAULT_TEXT_FIELD,
+          labelField: DEFAULT_LABEL_FIELD,
+        };
+        break;
+      }
+      case WORKFLOW_TYPE.CUSTOM:
+      default:
+        break;
     }
     if (deployedModels.length > 0) {
       defaultFieldValues = {
