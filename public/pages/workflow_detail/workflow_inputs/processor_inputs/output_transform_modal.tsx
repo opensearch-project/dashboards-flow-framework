@@ -126,7 +126,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 Fetch some sample output data and see how it is transformed.
               </EuiText>
               <EuiSpacer size="s" />
-              <EuiText>Expected input</EuiText>
+              <EuiText>Source output</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
                 onClick={async () => {
@@ -219,7 +219,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                         })
                         .catch((error: any) => {
                           getCore().notifications.toasts.addDanger(
-                            `Failed to fetch input data`
+                            `Failed to fetch source output data`
                           );
                         });
                       break;
@@ -282,10 +282,10 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
           <EuiFlexItem>
             <>
               {outputOptions.length === 1 ? (
-                <EuiText>Expected output</EuiText>
+                <EuiText>Transformed output</EuiText>
               ) : (
                 <EuiCompressedSelect
-                  prepend={<EuiText>Expected output for</EuiText>}
+                  prepend={<EuiText>Transformed output for</EuiText>}
                   options={outputOptions}
                   value={selectedOutputOption}
                   onChange={(e) => {

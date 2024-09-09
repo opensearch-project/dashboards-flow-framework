@@ -410,6 +410,7 @@ export const DEFAULT_NEW_WORKFLOW_STATE = WORKFLOW_STATE.NOT_STARTED;
 export const DEFAULT_NEW_WORKFLOW_STATE_TYPE = ('NOT_STARTED' as any) as typeof WORKFLOW_STATE;
 export const DATE_FORMAT_PATTERN = 'MM/DD/YY hh:mm A';
 export const EMPTY_FIELD_STRING = '--';
+export const OMIT_SYSTEM_INDEX_PATTERN = '*,-.*';
 export const INDEX_NOT_FOUND_EXCEPTION = 'index_not_found_exception';
 export const ERROR_GETTING_WORKFLOW_MSG = 'Failed to retrieve template';
 export const NO_TEMPLATES_FOUND_MSG = 'There are no templates';

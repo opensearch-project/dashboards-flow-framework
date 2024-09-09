@@ -3,6 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import {
+  INITIAL_ML_STATE,
+  INITIAL_OPENSEARCH_STATE,
+  INITIAL_PRESETS_STATE,
+  INITIAL_WORKFLOWS_STATE,
+} from '../public/store';
 import { WORKFLOW_TYPE } from '../common/constants';
 import { UIState, Workflow } from '../common/interfaces';
 import {
@@ -19,13 +25,10 @@ export function mockStore(
 ) {
   return {
     getState: () => ({
-      opensearch: {
-        errorMessage: '',
-      },
-      ml: {},
+      opensearch: INITIAL_OPENSEARCH_STATE,
+      ml: INITIAL_ML_STATE,
       workflows: {
-        loading: false,
-        errorMessage: '',
+        ...INITIAL_WORKFLOWS_STATE,
         workflows: {
           [workflowId]: generateWorkflow(
             workflowId,
@@ -34,6 +37,7 @@ export function mockStore(
           ),
         },
       },
+      presets: INITIAL_PRESETS_STATE,
     }),
     dispatch: jest.fn(),
     subscribe: jest.fn(),

@@ -5,6 +5,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import { isEmpty } from 'lodash';
+import { useSelector } from 'react-redux';
+import { flattie } from 'flattie';
 import {
   EuiSmallButton,
   EuiModal,
@@ -17,8 +20,6 @@ import {
   EuiCompressedFormRow,
 } from '@elastic/eui';
 import {
-  DEFAULT_LABEL_FIELD,
-  DEFAULT_TEXT_FIELD,
   IMAGE_FIELD_PATTERN,
   IndexMappings,
   LABEL_FIELD_PATTERN,
@@ -47,8 +48,6 @@ import {
   parseModelOutputs,
 } from '../../../utils/utils';
 import { QuickConfigureInputs } from './quick_configure_inputs';
-import { isEmpty } from 'lodash';
-import { useSelector } from 'react-redux';
 
 interface QuickConfigureModalProps {
   workflow: Workflow;
@@ -292,37 +291,34 @@ function updateSearchRequestProcessorConfig(
   modelInterface: ModelInterface | undefined,
   isVectorSearchUseCase: boolean
 ): WorkflowConfig {
+  let defaultQueryValue = '' as string;
+  try {
+    defaultQueryValue = Object.keys(
+      flattie(JSON.parse(config.search?.request?.value as string))
+    )[0];
+  } catch {}
   config.search.enrichRequest.processors[0].fields.forEach((field) => {
     if (field.id === 'model' && fields.modelId) {
       field.value = { id: fields.modelId };
     }
     if (field.id === 'input_map') {
       const inputMap = generateMapFromModelInputs(modelInterface);
-      // TODO: may change in the future. This is assuming the default query is a
-      // basic term query.
-      const defaultValue = `query.term.${
-        isVectorSearchUseCase ? DEFAULT_TEXT_FIELD : DEFAULT_LABEL_FIELD
-      }.value`;
       if (inputMap.length > 0) {
         inputMap[0] = {
           ...inputMap[0],
-          value: defaultValue,
+          value: defaultQueryValue,
         };
       } else {
         inputMap.push({
           key: '',
-          value: defaultValue,
+          value: defaultQueryValue,
         });
       }
       field.value = [inputMap] as MapArrayFormValue;
     }
     if (field.id === 'output_map') {
       const outputMap = generateMapFromModelOutputs(modelInterface);
-      // TODO: may change in the future. This is assuming the default query is a
-      // basic term query.
-      const defaultKey = isVectorSearchUseCase
-        ? VECTOR
-        : `query.term.${DEFAULT_LABEL_FIELD}.value`;
+      const defaultKey = isVectorSearchUseCase ? VECTOR : defaultQueryValue;
       if (outputMap.length > 0) {
         outputMap[0] = {
           ...outputMap[0],
