@@ -17,8 +17,11 @@ import {
   EuiCompressedFormRow,
 } from '@elastic/eui';
 import {
-  EMPTY_MAP_ENTRY,
+  DEFAULT_LABEL_FIELD,
+  DEFAULT_TEXT_FIELD,
   IMAGE_FIELD_PATTERN,
+  IndexMappings,
+  LABEL_FIELD_PATTERN,
   MODEL_ID_PATTERN,
   MapArrayFormValue,
   MapFormValue,
@@ -32,6 +35,7 @@ import {
   Workflow,
   WorkflowConfig,
   customStringify,
+  isVectorSearchUseCase,
 } from '../../../../common';
 import { APP_PATH } from '../../../utils';
 import { processWorkflowName } from './utils';
@@ -89,10 +93,8 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   // fetching model interface if available. used to prefill some
   // of the input/output maps
   useEffect(() => {
-    setModelInterface(
-      models[quickConfigureFields.embeddingModelId || '']?.interface
-    );
-  }, [models, quickConfigureFields.embeddingModelId]);
+    setModelInterface(models[quickConfigureFields.modelId || '']?.interface);
+  }, [models, quickConfigureFields.modelId]);
 
   return (
     <EuiModal onClose={() => props.onClose()} style={{ width: '30vw' }}>
@@ -182,16 +184,16 @@ function injectQuickConfigureFields(
 ): Workflow {
   if (workflow.ui_metadata?.type) {
     switch (workflow.ui_metadata?.type) {
-      // Semantic search / hybrid search: set defaults in the ingest processor, the index mappings,
-      // and the preset query
       case WORKFLOW_TYPE.SEMANTIC_SEARCH:
       case WORKFLOW_TYPE.HYBRID_SEARCH:
-      case WORKFLOW_TYPE.MULTIMODAL_SEARCH: {
+      case WORKFLOW_TYPE.MULTIMODAL_SEARCH:
+      case WORKFLOW_TYPE.SENTIMENT_ANALYSIS: {
         if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
           workflow.ui_metadata.config = updateIngestProcessorConfig(
             workflow.ui_metadata.config,
             quickConfigureFields,
-            modelInterface
+            modelInterface,
+            isVectorSearchUseCase(workflow)
           );
           workflow.ui_metadata.config = updateIndexConfig(
             workflow.ui_metadata.config,
@@ -204,7 +206,8 @@ function injectQuickConfigureFields(
           workflow.ui_metadata.config = updateSearchRequestProcessorConfig(
             workflow.ui_metadata.config,
             quickConfigureFields,
-            modelInterface
+            modelInterface,
+            isVectorSearchUseCase(workflow)
           );
         }
         break;
@@ -222,11 +225,12 @@ function injectQuickConfigureFields(
 function updateIngestProcessorConfig(
   config: WorkflowConfig,
   fields: QuickConfigureFields,
-  modelInterface: ModelInterface | undefined
+  modelInterface: ModelInterface | undefined,
+  isVectorSearchUseCase: boolean
 ): WorkflowConfig {
   config.ingest.enrich.processors[0].fields.forEach((field) => {
-    if (field.id === 'model' && fields.embeddingModelId) {
-      field.value = { id: fields.embeddingModelId };
+    if (field.id === 'model' && fields.modelId) {
+      field.value = { id: fields.modelId };
     }
     if (field.id === 'input_map') {
       const inputMap = generateMapFromModelInputs(modelInterface);
@@ -260,14 +264,17 @@ function updateIngestProcessorConfig(
     }
     if (field.id === 'output_map') {
       const outputMap = generateMapFromModelOutputs(modelInterface);
-      if (fields.vectorField) {
+      const defaultField = isVectorSearchUseCase
+        ? fields.vectorField
+        : fields.labelField;
+      if (defaultField) {
         if (outputMap.length > 0) {
           outputMap[0] = {
             ...outputMap[0],
-            key: fields.vectorField,
+            key: defaultField,
           };
         } else {
-          outputMap.push({ key: fields.vectorField, value: '' });
+          outputMap.push({ key: defaultField, value: '' });
         }
       }
       field.value = [outputMap] as MapArrayFormValue;
@@ -282,36 +289,52 @@ function updateIngestProcessorConfig(
 function updateSearchRequestProcessorConfig(
   config: WorkflowConfig,
   fields: QuickConfigureFields,
-  modelInterface: ModelInterface | undefined
+  modelInterface: ModelInterface | undefined,
+  isVectorSearchUseCase: boolean
 ): WorkflowConfig {
   config.search.enrichRequest.processors[0].fields.forEach((field) => {
-    if (field.id === 'model' && fields.embeddingModelId) {
-      field.value = { id: fields.embeddingModelId };
+    if (field.id === 'model' && fields.modelId) {
+      field.value = { id: fields.modelId };
     }
     if (field.id === 'input_map') {
       const inputMap = generateMapFromModelInputs(modelInterface);
-      // TODO: pre-populate more if the query becomes standard
-      field.value =
-        inputMap.length > 0
-          ? [inputMap]
-          : ([[EMPTY_MAP_ENTRY]] as MapArrayFormValue);
+      // TODO: may change in the future. This is assuming the default query is a
+      // basic term query.
+      const defaultValue = `query.term.${
+        isVectorSearchUseCase ? DEFAULT_TEXT_FIELD : DEFAULT_LABEL_FIELD
+      }.value`;
+      if (inputMap.length > 0) {
+        inputMap[0] = {
+          ...inputMap[0],
+          value: defaultValue,
+        };
+      } else {
+        inputMap.push({
+          key: '',
+          value: defaultValue,
+        });
+      }
+      field.value = [inputMap] as MapArrayFormValue;
     }
     if (field.id === 'output_map') {
-      // prepopulate 'vector' constant as the model output transformed field,
-      // so it is consistent and used in the downstream query_template, if configured.
       const outputMap = generateMapFromModelOutputs(modelInterface);
+      // TODO: may change in the future. This is assuming the default query is a
+      // basic term query.
+      const defaultKey = isVectorSearchUseCase
+        ? VECTOR
+        : `query.term.${DEFAULT_LABEL_FIELD}.value`;
       if (outputMap.length > 0) {
         outputMap[0] = {
           ...outputMap[0],
-          key: VECTOR,
+          key: defaultKey,
         };
       } else {
         outputMap.push({
-          key: VECTOR,
+          key: defaultKey,
           value: '',
         });
       }
-      field.value = [outputMap];
+      field.value = [outputMap] as MapArrayFormValue;
     }
   });
   config.search.enrichRequest.processors[0].optionalFields = config.search.enrichRequest.processors[0].optionalFields?.map(
@@ -335,47 +358,45 @@ function updateIndexConfig(
   config: WorkflowConfig,
   fields: QuickConfigureFields
 ): WorkflowConfig {
-  if (fields.textField) {
+  if (
+    fields.textField ||
+    fields.imageField ||
+    fields.vectorField ||
+    fields.labelField
+  ) {
     const existingMappings = JSON.parse(
       config.ingest.index.mappings.value as string
     );
+    let properties = {} as { [key: string]: {} };
+    try {
+      properties = (JSON.parse(
+        config.ingest.index.mappings.value as string
+      ) as IndexMappings).properties;
+    } catch {}
+    if (fields.textField) {
+      properties[fields.textField] = {
+        type: 'text',
+      };
+    }
+    if (fields.imageField) {
+      properties[fields.imageField] = {
+        type: 'binary',
+      };
+    }
+    if (fields.vectorField) {
+      properties[fields.vectorField] = {
+        type: 'knn_vector',
+        dimension: fields.embeddingLength || '',
+      };
+    }
+    if (fields.labelField) {
+      properties[fields.labelField] = {
+        type: 'text',
+      };
+    }
     config.ingest.index.mappings.value = customStringify({
       ...existingMappings,
-      properties: {
-        ...(existingMappings.properties || {}),
-        [fields.textField]: {
-          type: 'text',
-        },
-      },
-    });
-  }
-  if (fields.imageField) {
-    const existingMappings = JSON.parse(
-      config.ingest.index.mappings.value as string
-    );
-    config.ingest.index.mappings.value = customStringify({
-      ...existingMappings,
-      properties: {
-        ...(existingMappings.properties || {}),
-        [fields.imageField]: {
-          type: 'binary',
-        },
-      },
-    });
-  }
-  if (fields.vectorField) {
-    const existingMappings = JSON.parse(
-      config.ingest.index.mappings.value as string
-    );
-    config.ingest.index.mappings.value = customStringify({
-      ...existingMappings,
-      properties: {
-        ...(existingMappings.properties || {}),
-        [fields.vectorField]: {
-          type: 'knn_vector',
-          dimension: fields.embeddingLength || '',
-        },
-      },
+      properties: { ...properties },
     });
   }
   return config;
@@ -387,10 +408,10 @@ function injectPlaceholderValues(
   fields: QuickConfigureFields
 ): string {
   let finalRequestString = requestString;
-  if (fields.embeddingModelId) {
+  if (fields.modelId) {
     finalRequestString = finalRequestString.replace(
       new RegExp(MODEL_ID_PATTERN, 'g'),
-      fields.embeddingModelId
+      fields.modelId
     );
   }
   if (fields.textField) {
@@ -411,7 +432,12 @@ function injectPlaceholderValues(
       fields.imageField
     );
   }
-
+  if (fields.labelField) {
+    finalRequestString = finalRequestString.replace(
+      new RegExp(LABEL_FIELD_PATTERN, 'g'),
+      fields.labelField
+    );
+  }
   return finalRequestString;
 }
 
