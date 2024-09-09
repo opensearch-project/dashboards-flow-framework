@@ -9,7 +9,6 @@ import { escape, get } from 'lodash';
 import {
   JSONPATH_ROOT_SELECTOR,
   MapFormValue,
-  ModelInput,
   ModelInputFormField,
   ModelInterface,
   ModelOutput,
@@ -100,10 +99,12 @@ export function getObjFromJsonOrYamlString(
   fileContents?: string
 ): object | undefined {
   try {
+    // @ts-ignore
     const jsonObj = JSON.parse(fileContents);
     return jsonObj;
   } catch (e) {}
   try {
+    // @ts-ignore
     const yamlObj = yaml.load(fileContents) as object;
     return yamlObj;
   } catch (e) {}
@@ -112,11 +113,11 @@ export function getObjFromJsonOrYamlString(
 
 // Based off of https://opensearch.org/docs/latest/automating-configurations/api/create-workflow/#request-fields
 // Only "name" field is required
-export function isValidWorkflow(workflowObj: object | undefined): boolean {
+export function isValidWorkflow(workflowObj: any): boolean {
   return workflowObj?.name !== undefined;
 }
 
-export function isValidUiWorkflow(workflowObj: object | undefined): boolean {
+export function isValidUiWorkflow(workflowObj: any): boolean {
   return (
     isValidWorkflow(workflowObj) &&
     workflowObj?.ui_metadata?.config !== undefined &&
@@ -191,12 +192,7 @@ export function generateTransform(input: {}, map: MapFormValue): {} {
         ...output,
         [mapEntry.key]: transformedResult || '',
       };
-    } catch (e: any) {
-      getCore().notifications.toasts.addDanger(
-        'Error generating expected output. Ensure your transforms are valid JSONPath or dot notation syntax.',
-        e
-      );
-    }
+    } catch (e: any) {}
   });
   return output;
 }
