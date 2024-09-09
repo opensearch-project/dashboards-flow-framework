@@ -178,7 +178,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     } catch {}
   }, [values?.search?.request]);
   useEffect(() => {
-    const indexName = values?.ingest?.index?.name as string | undefined;
+    const indexName = values?.search?.index?.name as string | undefined;
     if (indexName !== undefined && indices[indexName] !== undefined) {
       dispatch(
         getMappings({
@@ -201,7 +201,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           }
         });
     }
-  }, [values?.ingest?.index?.name]);
+  }, [values?.search?.index?.name]);
 
   return (
     <>
