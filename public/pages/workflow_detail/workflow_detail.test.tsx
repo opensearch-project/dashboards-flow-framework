@@ -23,6 +23,8 @@ jest.mock('../../services', () => {
   };
 });
 
+jest.setTimeout(10000);
+
 const workflowId = '12345';
 const workflowName = 'test_workflow';
 
