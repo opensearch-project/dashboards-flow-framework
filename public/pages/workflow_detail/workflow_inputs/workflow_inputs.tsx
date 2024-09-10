@@ -278,9 +278,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
   }, [props.workflow]);
 
-  // Utility fn to update the workflow template only. A get workflow API call is subsequently run
+  // Utility fn to update the workflow UI config only. A get workflow API call is subsequently run
   // to fetch the updated state.
-  async function updateWorkflowTemplate() {
+  async function updateWorkflowUiConfig() {
     setIsRunningSave(true);
     const updatedTemplate = {
       name: props.workflow?.name,
@@ -820,7 +820,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           }
                           isLoading={isRunningSave}
                           onClick={() => {
-                            updateWorkflowTemplate();
+                            updateWorkflowUiConfig();
                           }}
                         >
                           {`Save`}
@@ -892,7 +892,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           }
                           isLoading={isRunningSave}
                           onClick={() => {
-                            updateWorkflowTemplate();
+                            updateWorkflowUiConfig();
                           }}
                         >
                           {`Save`}
@@ -911,7 +911,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                             validateAndRunQuery();
                           }}
                         >
-                          Run query
+                          Build and run query
                         </EuiSmallButton>
                       </EuiFlexItem>
                     </>
