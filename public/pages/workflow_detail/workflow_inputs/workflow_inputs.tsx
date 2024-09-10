@@ -655,7 +655,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         .unwrap()
                         .then(async (result) => {
                           setFieldValue('ingest.enabled', false);
-                          await validateAndUpdateWorkflow(false);
                           // @ts-ignore
                           await dispatch(
                             getWorkflow({
