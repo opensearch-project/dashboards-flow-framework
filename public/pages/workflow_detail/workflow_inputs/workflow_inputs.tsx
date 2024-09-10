@@ -315,7 +315,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         });
       })
       .catch((error: any) => {
-        console.error('Error autosaving workflow: ', error);
+        console.error('Error saving workflow: ', error);
       })
       .finally(() => {
         setIsRunningSave(false);
