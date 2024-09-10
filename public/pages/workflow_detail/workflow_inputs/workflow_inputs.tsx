@@ -166,6 +166,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const [unsavedIngestProcessors, setUnsavedIngestProcessors] = useState<
     boolean
   >(false);
+  const [unsavedSearchProcessors, setUnsavedSearchProcessors] = useState<
+    boolean
+  >(false);
 
   // listener when ingest processors have been added/deleted.
   // compare to the indexed/persisted workflow config
@@ -177,6 +180,25 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       )
     );
   }, [props.uiConfig?.ingest?.enrich?.processors?.length]);
+
+  // listener when search processors have been added/deleted.
+  // compare to the indexed/persisted workflow config
+  useEffect(() => {
+    setUnsavedSearchProcessors(
+      !isEqual(
+        props.uiConfig?.search?.enrichRequest?.processors,
+        props.workflow?.ui_metadata?.config?.search?.enrichRequest?.processors
+      ) ||
+        !isEqual(
+          props.uiConfig?.search?.enrichResponse?.processors,
+          props.workflow?.ui_metadata?.config?.search?.enrichResponse
+            ?.processors
+        )
+    );
+  }, [
+    props.uiConfig?.search?.enrichRequest?.processors?.length,
+    props.uiConfig?.search?.enrichResponse?.processors?.length,
+  ]);
 
   // fetch the total template nodes
   useEffect(() => {
@@ -281,6 +303,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       .unwrap()
       .then(async (result) => {
         setUnsavedIngestProcessors(false);
+        setUnsavedSearchProcessors(false);
         setTouched({});
         new Promise((f) => setTimeout(f, 1000)).then(async () => {
           dispatch(
@@ -303,7 +326,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   function revertUnsavedChanges(): void {
     resetForm();
     if (
-      unsavedIngestProcessors &&
+      (unsavedIngestProcessors || unsavedSearchProcessors) &&
       props.workflow?.ui_metadata?.config !== undefined
     ) {
       props.setUiConfig(props.workflow?.ui_metadata?.config);
@@ -334,6 +357,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         .then(async (result) => {
           await sleep(1000);
           setUnsavedIngestProcessors(false);
+          setUnsavedSearchProcessors(false);
           success = true;
           // Kicking off an async task to re-fetch the workflow details
           // after some amount of time. Provisioning will finish in an indeterminate
@@ -378,6 +402,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             .then(async (result) => {
               await sleep(1000);
               setUnsavedIngestProcessors(false);
+              setUnsavedSearchProcessors(false);
               await dispatch(
                 provisionWorkflow({
                   workflowId: updatedWorkflow.id as string,
@@ -771,10 +796,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           iconType="editorUndo"
                           aria-label="undo changes"
                           isDisabled={
-                            unsavedIngestProcessors
-                              ? false
-                              : isRunningSave || isRunningIngest
+                            isRunningSave || isRunningIngest
                               ? true
+                              : unsavedIngestProcessors
+                              ? false
                               : isEmpty(touched?.ingest?.enrich) &&
                                 isEmpty(touched?.ingest?.index)
                           }
@@ -786,10 +811,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       <EuiFlexItem grow={false}>
                         <EuiSmallButtonEmpty
                           disabled={
-                            unsavedIngestProcessors
-                              ? false
-                              : isRunningSave || isRunningIngest
+                            isRunningSave || isRunningIngest
                               ? true
+                              : unsavedIngestProcessors
+                              ? false
                               : isEmpty(touched?.ingest?.enrich) &&
                                 isEmpty(touched?.ingest?.index)
                           }
@@ -838,6 +863,39 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => setSelectedStep(STEP.INGEST)}
                         >
                           Back
+                        </EuiSmallButtonEmpty>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiSmallButtonIcon
+                          iconType="editorUndo"
+                          aria-label="undo changes"
+                          isDisabled={
+                            isRunningSave || isRunningSearch
+                              ? true
+                              : unsavedSearchProcessors
+                              ? false
+                              : isEmpty(touched?.search)
+                          }
+                          onClick={() => {
+                            revertUnsavedChanges();
+                          }}
+                        />
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiSmallButtonEmpty
+                          disabled={
+                            isRunningSave || isRunningSearch
+                              ? true
+                              : unsavedSearchProcessors
+                              ? false
+                              : isEmpty(touched?.search)
+                          }
+                          isLoading={isRunningSave}
+                          onClick={() => {
+                            updateWorkflowTemplate();
+                          }}
+                        >
+                          {`Save`}
                         </EuiSmallButtonEmpty>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
