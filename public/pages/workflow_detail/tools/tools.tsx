@@ -42,7 +42,7 @@ const inputTabs = [
   },
   {
     id: TAB_ID.QUERY,
-    name: 'Run queries',
+    name: 'Run query',
     disabled: false,
   },
   {

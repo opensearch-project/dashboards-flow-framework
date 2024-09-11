@@ -249,7 +249,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                             index: values.search.index.name,
                             body: JSON.stringify({
                               ...JSON.parse(values.search.request as string),
-                              search_pipeline: curSearchPipeline,
+                              search_pipeline: curSearchPipeline || {},
                             }),
                           },
                           dataSourceId,
