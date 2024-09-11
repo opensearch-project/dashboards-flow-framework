@@ -118,7 +118,10 @@ export function ExportModal(props: ExportModalProps) {
         </EuiFlexGroup>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiSmallButtonEmpty onClick={() => props.setIsExportModalOpen(false)}>
+        <EuiSmallButtonEmpty
+          onClick={() => props.setIsExportModalOpen(false)}
+          data-testid="exportCloseButton"
+        >
           Close
         </EuiSmallButtonEmpty>
       </EuiModalFooter>

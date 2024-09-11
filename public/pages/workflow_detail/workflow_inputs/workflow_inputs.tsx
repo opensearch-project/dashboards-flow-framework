@@ -816,6 +816,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         onClick={() => {
                           setSelectedStep(STEP.SEARCH);
                         }}
+                        data-testid="searchPipelineButton"
                       >
                         {`Search pipeline >`}
                       </EuiSmallButton>
@@ -849,6 +850,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             validateAndRunIngestion();
                           }}
+                          data-testid="runIngestionButton"
                           disabled={ingestRunButtonDisabled}
                           isLoading={isRunningIngest}
                         >
@@ -861,6 +863,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             setSelectedStep(STEP.SEARCH);
                           }}
+                          data-testid="searchPipelineButton"
                           disabled={ingestToSearchButtonDisabled}
                         >
                           {`Search pipeline >`}
