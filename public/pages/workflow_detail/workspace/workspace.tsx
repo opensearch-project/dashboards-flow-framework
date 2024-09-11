@@ -137,6 +137,7 @@ export function Workspace(props: WorkspaceProps) {
                   size="l"
                   hasActiveFilters={visualSelected}
                   onClick={() => toggleSelection()}
+                  data-testid="workspaceVisualButton"
                 >
                   Visual
                 </EuiFilterButton>
@@ -144,6 +145,7 @@ export function Workspace(props: WorkspaceProps) {
                   size="l"
                   hasActiveFilters={!visualSelected}
                   onClick={() => toggleSelection()}
+                  data-testid="workspaceJSONButton"
                 >
                   JSON
                 </EuiFilterButton>
