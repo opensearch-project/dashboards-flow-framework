@@ -91,6 +91,7 @@ export enum WORKFLOW_TYPE {
   MULTIMODAL_SEARCH = 'Multimodal search',
   HYBRID_SEARCH = 'Hybrid search',
   SENTIMENT_ANALYSIS = 'Sentiment analysis',
+  RAG = 'Retrieval-augmented generation',
   CUSTOM = 'Custom',
   UNKNOWN = 'Unknown',
 }
