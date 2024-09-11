@@ -248,6 +248,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                                 onToggleToolsChange()
                               }
                               style={{ marginBottom: '-16px' }}
+                              data-testid="toolsPanelId"
                             >
                               <Tools
                                 workflow={workflow}
