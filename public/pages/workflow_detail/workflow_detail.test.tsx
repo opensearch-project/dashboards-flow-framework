@@ -48,9 +48,7 @@ const renderWithRouter = (
               path="/workflow/:workflowId"
               render={(
                 props: RouteComponentProps<WorkflowDetailRouterProps>
-              ) => {
-                return <WorkflowDetail setActionMenu={jest.fn()} {...props} />;
-              }}
+              ) => <WorkflowDetail setActionMenu={jest.fn()} {...props} />}
             />
           </Switch>
         </Router>
@@ -62,14 +60,13 @@ const renderWithRouter = (
 
 describe('WorkflowDetail Page with create ingestion option', () => {
   Object.values(WORKFLOW_TYPE).forEach((type) => {
-    test(`renders the page with ${type} type`, async () => {
+    test(`renders the WorkflowDetail page with ${type} type`, async () => {
       const {
         getAllByText,
         getByText,
         getByRole,
         container,
         getByTestId,
-        history,
       } = renderWithRouter(workflowId, workflowName, type);
 
       expect(getAllByText(workflowName).length).toBeGreaterThan(0);
@@ -99,7 +96,7 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       expect(runIngestionButton).toBeInTheDocument();
       expect(runIngestionButton).toBeEnabled();
 
-      // "Search pipeline >" button should be disabled by default
+      // "Search pipeline" button should be disabled by default
       const searchPipelineButton = getByTestId('searchPipelineButton');
       expect(searchPipelineButton).toBeInTheDocument();
       expect(searchPipelineButton).toBeDisabled();
@@ -108,53 +105,64 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       const createIngestRadio = container.querySelector('#create');
       expect(createIngestRadio).toBeChecked();
 
-      // "Skip ingestion pipeline" option should be disabled by default
+      // "Skip ingestion pipeline" option should be unselected by default
       const skipIngestRadio = container.querySelector('#skip');
       expect(skipIngestRadio).not.toBeChecked();
-
-      // Clicking the "Export" button should open the export component
-      await waitFor(() => userEvent.click(getByTestId('exportButton')));
-      expect(getByText('Export ' + workflowName)).toBeInTheDocument();
-      // Closing the "Export" opened above
-      await waitFor(() => userEvent.click(getByTestId('exportCloseButton')));
-
-      // Testing components in the ReactFlow workspace
-      const visualButton = getByTestId('workspaceVisualButton');
-      expect(visualButton).toBeVisible();
-      expect(visualButton).toHaveClass('euiFilterButton-hasActiveFilters');
-      const jsonButton = getByTestId('workspaceJSONButton');
-      expect(jsonButton).toBeVisible();
-      await waitFor(() => userEvent.click(jsonButton));
-      expect(jsonButton).toHaveClass('euiFilterButton-hasActiveFilters');
-
-      // Testing collapsible Tools panel
-      const toolsPanelInitially = container.querySelector('#tools_panel_id');
-      expect(toolsPanelInitially).toBeVisible();
-
-      const toggleButton = toolsPanelInitially?.querySelector(
-        'button[type="button"]'
-      );
-      expect(toggleButton).toBeInTheDocument();
-      await waitFor(() => userEvent.click(toggleButton!));
-
-      // Testing Tools panel after collapse
-      const toolsPanelAfterCollapse = container.querySelector(
-        '#tools_panel_id'
-      )!;
-      expect(toolsPanelAfterCollapse).toHaveClass(
-        'euiResizablePanel-isCollapsed'
-      );
-
-      // Testing Tools panel after expand
-      await waitFor(() => userEvent.click(toggleButton!));
-      const toolsPanelAfterExpand = container.querySelector('#tools_panel_id')!;
-      expect(toolsPanelAfterExpand).not.toHaveClass(
-        'euiResizablePanel-isCollapsed'
-      );
-
-      // Clicking the WorkflowDetail Page "close" button should go back to the list page
-      await waitFor(() => userEvent.click(getByTestId('closeButton')));
-      expect(history.location.pathname).toBe('/workflows');
     });
+  });
+});
+
+describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
+  test('tests Export button, Tools panel toggling, and Workspace preview', async () => {
+    const { getByText, container, getByTestId } = renderWithRouter(
+      workflowId,
+      workflowName,
+      WORKFLOW_TYPE.CUSTOM
+    );
+
+    // Export button opens the export component
+    await waitFor(() => userEvent.click(getByTestId('exportButton')));
+    expect(getByText(`Export ${workflowName}`)).toBeInTheDocument();
+
+    // Close the export component
+    await waitFor(() => userEvent.click(getByTestId('exportCloseButton')));
+
+    // Check workspace buttons (Visual and JSON)
+    const visualButton = getByTestId('workspaceVisualButton');
+    expect(visualButton).toBeVisible();
+    expect(visualButton).toHaveClass('euiFilterButton-hasActiveFilters');
+    const jsonButton = getByTestId('workspaceJSONButton');
+    expect(jsonButton).toBeVisible();
+    await waitFor(() => userEvent.click(jsonButton));
+    expect(jsonButton).toHaveClass('euiFilterButton-hasActiveFilters');
+
+    // Tools panel should collapse and expand on toggle
+    const toolsPanel = container.querySelector('#tools_panel_id');
+    expect(toolsPanel).toBeVisible();
+
+    const toggleButton = toolsPanel?.querySelector('button[type="button"]');
+    expect(toggleButton).toBeInTheDocument();
+    await waitFor(() => userEvent.click(toggleButton!));
+
+    // Tools panel after collapsing
+    const collapsedToolsPanel = container.querySelector('#tools_panel_id');
+    expect(collapsedToolsPanel).toHaveClass('euiResizablePanel-isCollapsed');
+
+    // Tools panel after expanding
+    await waitFor(() => userEvent.click(toggleButton!));
+    const expandedToolsPanel = container.querySelector('#tools_panel_id');
+    expect(expandedToolsPanel).not.toHaveClass('euiResizablePanel-isCollapsed');
+  });
+
+  test('tests navigation to workflows list on Close button click', async () => {
+    const { getByTestId, history } = renderWithRouter(
+      workflowId,
+      workflowName,
+      WORKFLOW_TYPE.CUSTOM
+    );
+
+    // The WorkflowDetail Page Close button should navigate back to the workflows list
+    await waitFor(() => userEvent.click(getByTestId('closeButton')));
+    expect(history.location.pathname).toBe('/workflows');
   });
 });
