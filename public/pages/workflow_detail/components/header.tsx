@@ -218,6 +218,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 onClick={() => {
                   setIsExportModalOpen(true);
                 }}
+                data-testid="exportButton"
               >
                 Export
               </EuiSmallButton>,
@@ -232,6 +233,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                     )
                   );
                 }}
+                data-testid="closeButton"
               >
                 Close
               </EuiSmallButtonEmpty>,
