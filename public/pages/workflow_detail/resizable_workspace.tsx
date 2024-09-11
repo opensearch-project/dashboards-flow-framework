@@ -237,7 +237,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                                 </EuiFlexItem>
                               </EuiFlexGroup>
                             </EuiResizablePanel>
-                            <EuiResizableButton />
+                            <EuiResizableButton data-testid="toolsPanelCollapseButton" />
                             <EuiResizablePanel
                               id={TOOLS_PANEL_ID}
                               mode="collapsible"
@@ -248,6 +248,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                                 onToggleToolsChange()
                               }
                               style={{ marginBottom: '-16px' }}
+                              data-testid="toolsPanelId"
                             >
                               <Tools
                                 workflow={workflow}
