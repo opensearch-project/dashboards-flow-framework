@@ -686,10 +686,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     id: INGEST_OPTION.CREATE,
                     label: (
                       <EuiFlexGroup direction="column" gutterSize="none">
-                        <EuiText
-                          color="default"
-                          data-testid="createIngestPipelineOption"
-                        >
+                        <EuiText color="default">
                           Create an ingest pipeline
                         </EuiText>
                         <EuiText size="xs" color="subdued">
@@ -702,10 +699,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     id: INGEST_OPTION.SKIP,
                     label: (
                       <EuiFlexGroup direction="column" gutterSize="none">
-                        <EuiText
-                          color="default"
-                          data-testid="skipIngestPipelineOption"
-                        >
+                        <EuiText color="default">
                           Skip ingestion pipeline
                         </EuiText>
                         <EuiText size="xs" color="subdued">
