@@ -217,9 +217,6 @@ export function fetchRAGMetadata(): UIState {
   baseState.type = WORKFLOW_TYPE.RAG;
   baseState.config.ingest.index.name.value = generateId('my_index', 6);
   baseState.config.search.request.value = customStringify(FETCH_ALL_QUERY);
-  baseState.config.search.enrichRequest.processors = [
-    new MLSearchRequestProcessor().toObj(),
-  ];
   baseState.config.search.enrichResponse.processors = [
     new MLSearchResponseProcessor().toObj(),
     new CollapseProcessor().toObj(),

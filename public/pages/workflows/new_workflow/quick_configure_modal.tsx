@@ -27,6 +27,7 @@ import {
   MapArrayFormValue,
   MapFormValue,
   ModelInterface,
+  PROCESSOR_TYPE,
   QuickConfigureFields,
   TEXT_FIELD_PATTERN,
   VECTOR,
@@ -188,7 +189,7 @@ function injectQuickConfigureFields(
       case WORKFLOW_TYPE.MULTIMODAL_SEARCH:
       case WORKFLOW_TYPE.SENTIMENT_ANALYSIS: {
         if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
-          workflow.ui_metadata.config = updateIngestProcessorConfig(
+          workflow.ui_metadata.config = updateIngestProcessors(
             workflow.ui_metadata.config,
             quickConfigureFields,
             modelInterface,
@@ -202,11 +203,21 @@ function injectQuickConfigureFields(
             (workflow.ui_metadata.config.search.request.value || '') as string,
             quickConfigureFields
           );
-          workflow.ui_metadata.config = updateSearchRequestProcessorConfig(
+          workflow.ui_metadata.config = updateSearchRequestProcessors(
             workflow.ui_metadata.config,
             quickConfigureFields,
             modelInterface,
             isVectorSearchUseCase(workflow)
+          );
+        }
+        break;
+      }
+      case WORKFLOW_TYPE.RAG: {
+        if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
+          workflow.ui_metadata.config = updateSearchResponseProcessors(
+            workflow.ui_metadata.config,
+            quickConfigureFields,
+            modelInterface
           );
         }
         break;
@@ -220,132 +231,197 @@ function injectQuickConfigureFields(
   return workflow;
 }
 
-// prefill ML ingest processor config, if applicable
-function updateIngestProcessorConfig(
+// prefill ingest processor configs, if applicable
+function updateIngestProcessors(
   config: WorkflowConfig,
   fields: QuickConfigureFields,
   modelInterface: ModelInterface | undefined,
   isVectorSearchUseCase: boolean
 ): WorkflowConfig {
-  config.ingest.enrich.processors[0].fields.forEach((field) => {
-    if (field.id === 'model' && fields.modelId) {
-      field.value = { id: fields.modelId };
-    }
-    if (field.id === 'input_map') {
-      const inputMap = generateMapFromModelInputs(modelInterface);
-      if (fields.textField) {
-        if (inputMap.length > 0) {
-          inputMap[0] = {
-            ...inputMap[0],
-            value: fields.textField,
-          };
-        } else {
-          inputMap.push({
-            key: '',
-            value: fields.textField,
-          });
+  config.ingest.enrich.processors.forEach((processor, idx) => {
+    // prefill ML inference
+    if (processor.type === PROCESSOR_TYPE.ML) {
+      config.ingest.enrich.processors[idx].fields.forEach((field) => {
+        if (field.id === 'model' && fields.modelId) {
+          field.value = { id: fields.modelId };
         }
-      }
-      if (fields.imageField) {
-        if (inputMap.length > 1) {
-          inputMap[1] = {
-            ...inputMap[1],
-            value: fields.imageField,
-          };
-        } else {
-          inputMap.push({
-            key: '',
-            value: fields.imageField,
-          });
+        if (field.id === 'input_map') {
+          const inputMap = generateMapFromModelInputs(modelInterface);
+          if (fields.textField) {
+            if (inputMap.length > 0) {
+              inputMap[0] = {
+                ...inputMap[0],
+                value: fields.textField,
+              };
+            } else {
+              inputMap.push({
+                key: '',
+                value: fields.textField,
+              });
+            }
+          }
+          if (fields.imageField) {
+            if (inputMap.length > 1) {
+              inputMap[1] = {
+                ...inputMap[1],
+                value: fields.imageField,
+              };
+            } else {
+              inputMap.push({
+                key: '',
+                value: fields.imageField,
+              });
+            }
+          }
+          field.value = [inputMap] as MapArrayFormValue;
         }
-      }
-      field.value = [inputMap] as MapArrayFormValue;
-    }
-    if (field.id === 'output_map') {
-      const outputMap = generateMapFromModelOutputs(modelInterface);
-      const defaultField = isVectorSearchUseCase
-        ? fields.vectorField
-        : fields.labelField;
-      if (defaultField) {
-        if (outputMap.length > 0) {
-          outputMap[0] = {
-            ...outputMap[0],
-            key: defaultField,
-          };
-        } else {
-          outputMap.push({ key: defaultField, value: '' });
+        if (field.id === 'output_map') {
+          const outputMap = generateMapFromModelOutputs(modelInterface);
+          const defaultField = isVectorSearchUseCase
+            ? fields.vectorField
+            : fields.labelField;
+          if (defaultField) {
+            if (outputMap.length > 0) {
+              outputMap[0] = {
+                ...outputMap[0],
+                key: defaultField,
+              };
+            } else {
+              outputMap.push({ key: defaultField, value: '' });
+            }
+          }
+          field.value = [outputMap] as MapArrayFormValue;
         }
-      }
-      field.value = [outputMap] as MapArrayFormValue;
+      });
     }
   });
-
   return config;
 }
 
-// prefill ML search request processor config, if applicable
-// including populating placeholders in any pre-configured query_template
-function updateSearchRequestProcessorConfig(
+// prefill search request processor configs, if applicable
+function updateSearchRequestProcessors(
   config: WorkflowConfig,
   fields: QuickConfigureFields,
   modelInterface: ModelInterface | undefined,
   isVectorSearchUseCase: boolean
 ): WorkflowConfig {
-  let defaultQueryValue = '' as string;
-  try {
-    defaultQueryValue = Object.keys(
-      flattie(JSON.parse(config.search?.request?.value as string))
-    )[0];
-  } catch {}
-  config.search.enrichRequest.processors[0].fields.forEach((field) => {
-    if (field.id === 'model' && fields.modelId) {
-      field.value = { id: fields.modelId };
-    }
-    if (field.id === 'input_map') {
-      const inputMap = generateMapFromModelInputs(modelInterface);
-      if (inputMap.length > 0) {
-        inputMap[0] = {
-          ...inputMap[0],
-          value: defaultQueryValue,
-        };
-      } else {
-        inputMap.push({
-          key: '',
-          value: defaultQueryValue,
-        });
-      }
-      field.value = [inputMap] as MapArrayFormValue;
-    }
-    if (field.id === 'output_map') {
-      const outputMap = generateMapFromModelOutputs(modelInterface);
-      const defaultKey = isVectorSearchUseCase ? VECTOR : defaultQueryValue;
-      if (outputMap.length > 0) {
-        outputMap[0] = {
-          ...outputMap[0],
-          key: defaultKey,
-        };
-      } else {
-        outputMap.push({
-          key: defaultKey,
-          value: '',
-        });
-      }
-      field.value = [outputMap] as MapArrayFormValue;
+  config.search.enrichRequest.processors.forEach((processor, idx) => {
+    // prefill ML inference
+    if (processor.type === PROCESSOR_TYPE.ML) {
+      let defaultQueryValue = '' as string;
+      try {
+        defaultQueryValue = Object.keys(
+          flattie(JSON.parse(config.search?.request?.value as string))
+        )[0];
+      } catch {}
+      config.search.enrichRequest.processors[idx].fields.forEach((field) => {
+        if (field.id === 'model' && fields.modelId) {
+          field.value = { id: fields.modelId };
+        }
+        if (field.id === 'input_map') {
+          const inputMap = generateMapFromModelInputs(modelInterface);
+          if (inputMap.length > 0) {
+            inputMap[0] = {
+              ...inputMap[0],
+              value: defaultQueryValue,
+            };
+          } else {
+            inputMap.push({
+              key: '',
+              value: defaultQueryValue,
+            });
+          }
+          field.value = [inputMap] as MapArrayFormValue;
+        }
+        if (field.id === 'output_map') {
+          const outputMap = generateMapFromModelOutputs(modelInterface);
+          const defaultKey = isVectorSearchUseCase ? VECTOR : defaultQueryValue;
+          if (outputMap.length > 0) {
+            outputMap[0] = {
+              ...outputMap[0],
+              key: defaultKey,
+            };
+          } else {
+            outputMap.push({
+              key: defaultKey,
+              value: '',
+            });
+          }
+          field.value = [outputMap] as MapArrayFormValue;
+        }
+      });
+      config.search.enrichRequest.processors[0].optionalFields = config.search.enrichRequest.processors[0].optionalFields?.map(
+        (optionalField) => {
+          let updatedOptionalField = optionalField;
+          if (optionalField.id === 'query_template') {
+            optionalField.value = injectPlaceholderValues(
+              (optionalField.value || '') as string,
+              fields
+            );
+          }
+          return updatedOptionalField;
+        }
+      );
     }
   });
-  config.search.enrichRequest.processors[0].optionalFields = config.search.enrichRequest.processors[0].optionalFields?.map(
-    (optionalField) => {
-      let updatedOptionalField = optionalField;
-      if (optionalField.id === 'query_template') {
-        optionalField.value = injectPlaceholderValues(
-          (optionalField.value || '') as string,
-          fields
-        );
-      }
-      return updatedOptionalField;
-    }
-  );
+  return config;
+}
 
+// prefill response processor configs, if applicable
+function updateSearchResponseProcessors(
+  config: WorkflowConfig,
+  fields: QuickConfigureFields,
+  modelInterface: ModelInterface | undefined
+): WorkflowConfig {
+  config.search.enrichResponse.processors.forEach((processor, idx) => {
+    // prefill ML inference
+    if (processor.type === PROCESSOR_TYPE.ML) {
+      config.search.enrichResponse.processors[idx].fields.forEach((field) => {
+        if (field.id === 'model' && fields.modelId) {
+          field.value = { id: fields.modelId };
+        }
+        if (field.id === 'input_map') {
+          const inputMap = generateMapFromModelInputs(modelInterface);
+          if (fields.textField) {
+            if (inputMap.length > 0) {
+              inputMap[0] = {
+                ...inputMap[0],
+                value: fields.textField,
+              };
+            } else {
+              inputMap.push({
+                key: '',
+                value: fields.textField,
+              });
+            }
+          }
+          field.value = [inputMap] as MapArrayFormValue;
+        }
+        if (field.id === 'output_map') {
+          const outputMap = generateMapFromModelOutputs(modelInterface);
+          if (fields.llmResponseField) {
+            if (outputMap.length > 0) {
+              outputMap[0] = {
+                ...outputMap[0],
+                key: fields.llmResponseField,
+              };
+            } else {
+              outputMap.push({ key: fields.llmResponseField, value: '' });
+            }
+          }
+          field.value = [outputMap] as MapArrayFormValue;
+        }
+      });
+    }
+    // prefill collapse
+    if (processor.type === PROCESSOR_TYPE.COLLAPSE) {
+      config.search.enrichResponse.processors[idx].fields.forEach((field) => {
+        if (field.id === 'field' && fields.llmResponseField) {
+          field.value = fields.llmResponseField;
+        }
+      });
+    }
+  });
   return config;
 }
 

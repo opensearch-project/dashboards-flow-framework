@@ -19,6 +19,7 @@ import {
   COHERE_DIMENSIONS,
   DEFAULT_IMAGE_FIELD,
   DEFAULT_LABEL_FIELD,
+  DEFAULT_LLM_RESPONSE_FIELD,
   DEFAULT_TEXT_FIELD,
   DEFAULT_VECTOR_FIELD,
   MODEL_STATE,
@@ -84,6 +85,13 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
         };
         break;
       }
+      case WORKFLOW_TYPE.RAG: {
+        defaultFieldValues = {
+          textField: DEFAULT_TEXT_FIELD,
+          llmResponseField: DEFAULT_LLM_RESPONSE_FIELD,
+        };
+        break;
+      }
       case WORKFLOW_TYPE.CUSTOM:
       default:
         break;
@@ -143,10 +151,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
 
   return (
     <>
-      {(props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
-        props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
-        props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH ||
-        props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS) && (
+      {props.workflowType !== WORKFLOW_TYPE.CUSTOM ? (
         <>
           <EuiSpacer size="m" />
           <EuiAccordion
@@ -159,12 +164,16 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               label={
                 props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS
                   ? 'Model'
+                  : props.workflowType === WORKFLOW_TYPE.RAG
+                  ? 'Large language model'
                   : 'Embedding model'
               }
               isInvalid={false}
               helpText={
                 props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS
                   ? 'The sentiment analysis model'
+                  : props.workflowType === WORKFLOW_TYPE.RAG
+                  ? 'The large language model to generate user-friendly responses'
                   : 'The model to generate embeddings'
               }
             >
@@ -209,6 +218,8 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               helpText={`The name of the text document field to be ${
                 props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS
                   ? 'analyzed'
+                  : props.workflowType === WORKFLOW_TYPE.RAG
+                  ? 'used as context to the large language model (LLM)'
                   : 'embedded'
               }`}
             >
@@ -222,7 +233,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                 }}
               />
             </EuiCompressedFormRow>
-            <EuiSpacer size="s" />
+            <EuiSpacer size="s" />{' '}
             {props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH && (
               <>
                 <EuiCompressedFormRow
@@ -297,9 +308,26 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                 />
               </EuiCompressedFormRow>
             )}
+            {props.workflowType === WORKFLOW_TYPE.RAG && (
+              <EuiCompressedFormRow
+                label={'LLM response field'}
+                isInvalid={false}
+                helpText="The name of the field containing the large language model (LLM) response"
+              >
+                <EuiCompressedFieldText
+                  value={fieldValues?.llmResponseField || ''}
+                  onChange={(e) => {
+                    setFieldValues({
+                      ...fieldValues,
+                      llmResponseField: e.target.value,
+                    });
+                  }}
+                />
+              </EuiCompressedFormRow>
+            )}
           </EuiAccordion>
         </>
-      )}
+      ) : undefined}
     </>
   );
 }
