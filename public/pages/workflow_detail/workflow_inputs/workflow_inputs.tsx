@@ -102,6 +102,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     setTouched,
     values,
     touched,
+    dirty,
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
@@ -278,9 +279,36 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
   }, [props.workflow]);
 
-  // Utility fn to update the workflow UI config only. A get workflow API call is subsequently run
-  // to fetch the updated state.
+  // maintain global states (button eligibility)
+  const ingestUndoButtonDisabled =
+    isRunningSave || isRunningIngest
+      ? true
+      : unsavedIngestProcessors
+      ? false
+      : !dirty;
+  const ingestSaveButtonDisabled = ingestUndoButtonDisabled;
+  const ingestRunButtonDisabled = !ingestTemplatesDifferent;
+  const ingestToSearchButtonDisabled =
+    ingestTemplatesDifferent || isRunningIngest;
+  const searchBackButtonDisabled =
+    isRunningSearch ||
+    (isProposingNoSearchResources ? false : searchTemplatesDifferent);
+  const searchUndoButtonDisabled =
+    isRunningSave || isRunningSearch
+      ? true
+      : unsavedSearchProcessors
+      ? false
+      : isEmpty(touched?.search) || !dirty;
+  const searchSaveButtonDisabled = searchUndoButtonDisabled;
+  const searchRunButtonDisabled =
+    isRunningSearch ||
+    (isProposingNoSearchResources &&
+      hasProvisionedSearchResources(props.workflow));
+
+  // Utility fn to update the workflow UI config only, based on the current form values.
+  // A get workflow API call is subsequently run to fetch the updated state.
   async function updateWorkflowUiConfig() {
+    let success = false;
     setIsRunningSave(true);
     const updatedTemplate = {
       name: props.workflow?.name,
@@ -302,6 +330,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     )
       .unwrap()
       .then(async (result) => {
+        success = true;
         setUnsavedIngestProcessors(false);
         setUnsavedSearchProcessors(false);
         setTouched({});
@@ -320,6 +349,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       .finally(() => {
         setIsRunningSave(false);
       });
+    return success;
   }
 
   // Utility fn to revert any unsaved changes, reset the form
@@ -342,7 +372,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     reprovision: boolean
   ): Promise<boolean> {
     let success = false;
-    if (reprovision) {
+    if (!ingestTemplatesDifferent && !searchTemplatesDifferent) {
+      success = await updateWorkflowUiConfig();
+    } else if (reprovision) {
       await dispatch(
         updateWorkflow({
           apiBody: {
@@ -794,14 +826,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         <EuiSmallButtonIcon
                           iconType="editorUndo"
                           aria-label="undo changes"
-                          isDisabled={
-                            isRunningSave || isRunningIngest
-                              ? true
-                              : unsavedIngestProcessors
-                              ? false
-                              : isEmpty(touched?.ingest?.enrich) &&
-                                isEmpty(touched?.ingest?.index)
-                          }
+                          isDisabled={ingestUndoButtonDisabled}
                           onClick={() => {
                             revertUnsavedChanges();
                           }}
@@ -809,14 +834,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiSmallButtonEmpty
-                          disabled={
-                            isRunningSave || isRunningIngest
-                              ? true
-                              : unsavedIngestProcessors
-                              ? false
-                              : isEmpty(touched?.ingest?.enrich) &&
-                                isEmpty(touched?.ingest?.index)
-                          }
+                          disabled={ingestSaveButtonDisabled}
                           isLoading={isRunningSave}
                           onClick={() => {
                             updateWorkflowUiConfig();
@@ -831,7 +849,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             validateAndRunIngestion();
                           }}
-                          disabled={!ingestTemplatesDifferent}
+                          disabled={ingestRunButtonDisabled}
                           isLoading={isRunningIngest}
                         >
                           Build and run ingestion
@@ -843,7 +861,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             setSelectedStep(STEP.SEARCH);
                           }}
-                          disabled={ingestTemplatesDifferent || isRunningIngest}
+                          disabled={ingestToSearchButtonDisabled}
                         >
                           {`Search pipeline >`}
                         </EuiSmallButton>
@@ -853,12 +871,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiSmallButtonEmpty
-                          disabled={
-                            isRunningSearch ||
-                            (isProposingNoSearchResources
-                              ? false
-                              : searchTemplatesDifferent)
-                          }
+                          disabled={searchBackButtonDisabled}
                           onClick={() => setSelectedStep(STEP.INGEST)}
                         >
                           Back
@@ -868,13 +881,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         <EuiSmallButtonIcon
                           iconType="editorUndo"
                           aria-label="undo changes"
-                          isDisabled={
-                            isRunningSave || isRunningSearch
-                              ? true
-                              : unsavedSearchProcessors
-                              ? false
-                              : isEmpty(touched?.search)
-                          }
+                          isDisabled={searchUndoButtonDisabled}
                           onClick={() => {
                             revertUnsavedChanges();
                           }}
@@ -882,13 +889,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiSmallButtonEmpty
-                          disabled={
-                            isRunningSave || isRunningSearch
-                              ? true
-                              : unsavedSearchProcessors
-                              ? false
-                              : isEmpty(touched?.search)
-                          }
+                          disabled={searchSaveButtonDisabled}
                           isLoading={isRunningSave}
                           onClick={() => {
                             updateWorkflowUiConfig();
@@ -899,11 +900,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiSmallButton
-                          disabled={
-                            isRunningSearch ||
-                            (isProposingNoSearchResources &&
-                              hasProvisionedSearchResources(props.workflow))
-                          }
+                          disabled={searchRunButtonDisabled}
                           isLoading={isRunningSearch}
                           fill={false}
                           onClick={() => {
