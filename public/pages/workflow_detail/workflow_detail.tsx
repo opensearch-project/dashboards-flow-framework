@@ -32,6 +32,7 @@ import {
   FETCH_ALL_QUERY,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
   NO_TEMPLATES_FOUND_MSG,
+  OMIT_SYSTEM_INDEX_PATTERN,
   getCharacterLimitedString,
 } from '../../../common';
 import { MountPoint } from '../../../../../src/core/public';
@@ -106,7 +107,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   useEffect(() => {
     dispatch(getWorkflow({ workflowId, dataSourceId }));
     dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
-    dispatch(catIndices({ pattern: '*,-.*', dataSourceId }));
+    dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
   }, []);
 
   return errorMessage.includes(ERROR_GETTING_WORKFLOW_MSG) ||

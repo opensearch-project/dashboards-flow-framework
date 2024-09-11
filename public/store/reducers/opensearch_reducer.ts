@@ -8,11 +8,12 @@ import { getRouteService } from '../../services';
 import {
   Index,
   IngestPipelineConfig,
+  OMIT_SYSTEM_INDEX_PATTERN,
   SimulateIngestPipelineDoc,
 } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 
-const initialState = {
+export const INITIAL_OPENSEARCH_STATE = {
   loading: false,
   errorMessage: '',
   indices: {} as { [key: string]: Index },
@@ -33,7 +34,7 @@ export const catIndices = createAsyncThunk(
     { rejectWithValue }
   ) => {
     // defaulting to fetch everything except system indices (starting with '.')
-    const patternString = pattern || '*,-.*';
+    const patternString = pattern || OMIT_SYSTEM_INDEX_PATTERN;
     const response: any | HttpFetchError = await getRouteService().catIndices(
       patternString,
       dataSourceId
@@ -182,7 +183,7 @@ export const simulatePipeline = createAsyncThunk(
 
 const opensearchSlice = createSlice({
   name: OPENSEARCH_PREFIX,
-  initialState,
+  initialState: INITIAL_OPENSEARCH_STATE,
   reducers: {},
   extraReducers: (builder) => {
     builder

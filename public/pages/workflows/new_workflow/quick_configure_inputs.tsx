@@ -17,6 +17,10 @@ import {
 } from '@elastic/eui';
 import {
   COHERE_DIMENSIONS,
+  DEFAULT_IMAGE_FIELD,
+  DEFAULT_LABEL_FIELD,
+  DEFAULT_TEXT_FIELD,
+  DEFAULT_VECTOR_FIELD,
   MODEL_STATE,
   Model,
   OPENAI_DIMENSIONS,
@@ -29,10 +33,6 @@ interface QuickConfigureInputsProps {
   workflowType?: WORKFLOW_TYPE;
   setFields(fields: QuickConfigureFields): void;
 }
-
-const DEFAULT_TEXT_FIELD = 'my_text';
-const DEFAULT_VECTOR_FIELD = 'my_embedding';
-const DEFAULT_IMAGE_FIELD = 'my_image';
 
 // Dynamic component to allow optional input configuration fields for different use cases.
 // Hooks back to the parent component with such field values
@@ -60,26 +60,38 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
   // defaults for the field values for certain workflow types
   useEffect(() => {
     let defaultFieldValues = {} as QuickConfigureFields;
-    if (
-      props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
-      props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
-      props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH
-    ) {
-      defaultFieldValues = {
-        textField: DEFAULT_TEXT_FIELD,
-        vectorField: DEFAULT_VECTOR_FIELD,
-      };
-    }
-    if (props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH) {
-      defaultFieldValues = {
-        ...defaultFieldValues,
-        imageField: DEFAULT_IMAGE_FIELD,
-      };
+    switch (props.workflowType) {
+      case WORKFLOW_TYPE.SEMANTIC_SEARCH:
+      case WORKFLOW_TYPE.HYBRID_SEARCH: {
+        defaultFieldValues = {
+          textField: DEFAULT_TEXT_FIELD,
+          vectorField: DEFAULT_VECTOR_FIELD,
+        };
+        break;
+      }
+      case WORKFLOW_TYPE.MULTIMODAL_SEARCH: {
+        defaultFieldValues = {
+          textField: DEFAULT_TEXT_FIELD,
+          vectorField: DEFAULT_VECTOR_FIELD,
+          imageField: DEFAULT_IMAGE_FIELD,
+        };
+        break;
+      }
+      case WORKFLOW_TYPE.SENTIMENT_ANALYSIS: {
+        defaultFieldValues = {
+          textField: DEFAULT_TEXT_FIELD,
+          labelField: DEFAULT_LABEL_FIELD,
+        };
+        break;
+      }
+      case WORKFLOW_TYPE.CUSTOM:
+      default:
+        break;
     }
     if (deployedModels.length > 0) {
       defaultFieldValues = {
         ...defaultFieldValues,
-        embeddingModelId: deployedModels[0].id,
+        modelId: deployedModels[0].id,
       };
     }
     setFieldValues(defaultFieldValues);
@@ -93,7 +105,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
   // Try to pre-fill the dimensions based on the chosen model
   useEffect(() => {
     const selectedModel = deployedModels.find(
-      (model) => model.id === fieldValues.embeddingModelId
+      (model) => model.id === fieldValues.modelId
     );
     if (selectedModel?.connectorId !== undefined) {
       const connector = connectors[selectedModel.connectorId];
@@ -127,13 +139,14 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
         }
       }
     }
-  }, [fieldValues.embeddingModelId, deployedModels, connectors]);
+  }, [fieldValues.modelId, deployedModels, connectors]);
 
   return (
     <>
       {(props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
         props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
-        props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH) && (
+        props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH ||
+        props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS) && (
         <>
           <EuiSpacer size="m" />
           <EuiAccordion
@@ -143,9 +156,17 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
           >
             <EuiSpacer size="m" />
             <EuiCompressedFormRow
-              label={'Embedding model'}
+              label={
+                props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS
+                  ? 'Model'
+                  : 'Embedding model'
+              }
               isInvalid={false}
-              helpText="The model to generate embeddings"
+              helpText={
+                props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS
+                  ? 'The sentiment analysis model'
+                  : 'The model to generate embeddings'
+              }
             >
               <EuiCompressedSuperSelect
                 options={deployedModels.map(
@@ -171,11 +192,11 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                       disabled: false,
                     } as EuiSuperSelectOption<string>)
                 )}
-                valueOfSelected={fieldValues?.embeddingModelId || ''}
+                valueOfSelected={fieldValues?.modelId || ''}
                 onChange={(option: string) => {
                   setFieldValues({
                     ...fieldValues,
-                    embeddingModelId: option,
+                    modelId: option,
                   });
                 }}
                 isInvalid={false}
@@ -185,7 +206,11 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             <EuiCompressedFormRow
               label={'Text field'}
               isInvalid={false}
-              helpText="The name of the text document field to be embedded"
+              helpText={`The name of the text document field to be ${
+                props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS
+                  ? 'analyzed'
+                  : 'embedded'
+              }`}
             >
               <EuiCompressedFieldText
                 value={fieldValues?.textField || ''}
@@ -218,37 +243,60 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                 <EuiSpacer size="s" />
               </>
             )}
-            <EuiCompressedFormRow
-              label={'Vector field'}
-              isInvalid={false}
-              helpText="The name of the document field containing the vector embedding"
-            >
-              <EuiCompressedFieldText
-                value={fieldValues?.vectorField || ''}
-                onChange={(e) => {
-                  setFieldValues({
-                    ...fieldValues,
-                    vectorField: e.target.value,
-                  });
-                }}
-              />
-            </EuiCompressedFormRow>
-            <EuiSpacer size="s" />
-            <EuiCompressedFormRow
-              label={'Embedding length'}
-              isInvalid={false}
-              helpText="The length / dimension of the generated vector embeddings. Autofilled values may be inaccurate."
-            >
-              <EuiCompressedFieldNumber
-                value={fieldValues?.embeddingLength || ''}
-                onChange={(e) => {
-                  setFieldValues({
-                    ...fieldValues,
-                    embeddingLength: Number(e.target.value),
-                  });
-                }}
-              />
-            </EuiCompressedFormRow>
+            {(props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
+              props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
+              props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH) && (
+              <>
+                <EuiCompressedFormRow
+                  label={'Vector field'}
+                  isInvalid={false}
+                  helpText="The name of the document field containing the vector embedding"
+                >
+                  <EuiCompressedFieldText
+                    value={fieldValues?.vectorField || ''}
+                    onChange={(e) => {
+                      setFieldValues({
+                        ...fieldValues,
+                        vectorField: e.target.value,
+                      });
+                    }}
+                  />
+                </EuiCompressedFormRow>
+                <EuiSpacer size="s" />
+                <EuiCompressedFormRow
+                  label={'Embedding length'}
+                  isInvalid={false}
+                  helpText="The length / dimension of the generated vector embeddings. Autofilled values may be inaccurate."
+                >
+                  <EuiCompressedFieldNumber
+                    value={fieldValues?.embeddingLength || ''}
+                    onChange={(e) => {
+                      setFieldValues({
+                        ...fieldValues,
+                        embeddingLength: Number(e.target.value),
+                      });
+                    }}
+                  />
+                </EuiCompressedFormRow>
+              </>
+            )}
+            {props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS && (
+              <EuiCompressedFormRow
+                label={'Label field'}
+                isInvalid={false}
+                helpText="The name of the document field containing the sentiment label"
+              >
+                <EuiCompressedFieldText
+                  value={fieldValues?.labelField || ''}
+                  onChange={(e) => {
+                    setFieldValues({
+                      ...fieldValues,
+                      labelField: e.target.value,
+                    });
+                  }}
+                />
+              </EuiCompressedFormRow>
+            )}
           </EuiAccordion>
         </>
       )}

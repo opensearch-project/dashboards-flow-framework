@@ -8,7 +8,7 @@ import { WorkflowTemplate } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
 
-const initialState = {
+export const INITIAL_PRESETS_STATE = {
   loading: false,
   errorMessage: '',
   presetWorkflows: [] as Partial<WorkflowTemplate>[],
@@ -35,7 +35,7 @@ export const getWorkflowPresets = createAsyncThunk(
 
 const presetsSlice = createSlice({
   name: 'presets',
-  initialState,
+  initialState: INITIAL_PRESETS_STATE,
   reducers: {},
   extraReducers: (builder) => {
     builder

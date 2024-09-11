@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
-import { debounce, isEmpty, isEqual } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import {
   EuiSmallButton,
   EuiSmallButtonEmpty,
@@ -24,6 +24,7 @@ import {
   EuiStepsHorizontal,
   EuiText,
   EuiTitle,
+  EuiSmallButtonIcon,
 } from '@elastic/eui';
 import {
   MAX_WORKFLOW_NAME_TO_DISPLAY,
@@ -96,14 +97,17 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const {
     submitForm,
     validateForm,
+    resetForm,
     setFieldValue,
+    setTouched,
     values,
     touched,
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
 
-  // running ingest/search state
+  // transient running states
+  const [isRunningSave, setIsRunningSave] = useState<boolean>(false);
   const [isRunningIngest, setIsRunningIngest] = useState<boolean>(false);
   const [isRunningSearch, setIsRunningSearch] = useState<boolean>(false);
   const [isRunningDelete, setIsRunningDelete] = useState<boolean>(false);
@@ -129,7 +133,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     isEmpty(getIn(values, 'search.enrichResponse'));
 
   // maintaining any fine-grained differences between the generated templates produced by the form,
-  // and the one persisted in the workflow itself. We enable/disable buttons
+  // produced by the current UI config, and the one persisted in the workflow itself. We enable/disable buttons
   // based on any discrepancies found.
   const [persistedTemplateNodes, setPersistedTemplateNodes] = useState<
     TemplateNode[]
@@ -159,6 +163,42 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const [searchTemplatesDifferent, setSearchTemplatesDifferent] = useState<
     boolean
   >(false);
+  const [unsavedIngestProcessors, setUnsavedIngestProcessors] = useState<
+    boolean
+  >(false);
+  const [unsavedSearchProcessors, setUnsavedSearchProcessors] = useState<
+    boolean
+  >(false);
+
+  // listener when ingest processors have been added/deleted.
+  // compare to the indexed/persisted workflow config
+  useEffect(() => {
+    setUnsavedIngestProcessors(
+      !isEqual(
+        props.uiConfig?.ingest?.enrich?.processors,
+        props.workflow?.ui_metadata?.config?.ingest?.enrich?.processors
+      )
+    );
+  }, [props.uiConfig?.ingest?.enrich?.processors?.length]);
+
+  // listener when search processors have been added/deleted.
+  // compare to the indexed/persisted workflow config
+  useEffect(() => {
+    setUnsavedSearchProcessors(
+      !isEqual(
+        props.uiConfig?.search?.enrichRequest?.processors,
+        props.workflow?.ui_metadata?.config?.search?.enrichRequest?.processors
+      ) ||
+        !isEqual(
+          props.uiConfig?.search?.enrichResponse?.processors,
+          props.workflow?.ui_metadata?.config?.search?.enrichResponse
+            ?.processors
+        )
+    );
+  }, [
+    props.uiConfig?.search?.enrichRequest?.processors?.length,
+    props.uiConfig?.search?.enrichResponse?.processors?.length,
+  ]);
 
   // fetch the total template nodes
   useEffect(() => {
@@ -234,75 +274,64 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     formGeneratedSearchTemplateNodes,
   ]);
 
-  // Auto-save the UI metadata when users update form values.
-  // Only update the underlying workflow template (deprovision/provision) when
-  // users explicitly run ingest/search and need to have updated resources
-  // to test against.
-  // We use useCallback() with an autosave flag that is only set within the fn itself.
-  // This is so we can fetch the latest values (uiConfig, formik values) inside a memoized fn,
-  // but only when we need to.
-  const [autosave, setAutosave] = useState<boolean>(false);
-  function triggerAutosave(): void {
-    setAutosave(!autosave);
-  }
-  const debounceAutosave = useCallback(
-    debounce(async () => {
-      triggerAutosave();
-    }, 1000),
-    [autosave]
-  );
-
-  // Hook to execute autosave when triggered. Runs the update API with update_fields set to true,
-  // to update the ui_metadata without updating the underlying template for a provisioned workflow.
-  useEffect(() => {
-    (async () => {
-      if (!isEmpty(touched)) {
-        const updatedTemplate = {
-          name: props.workflow?.name,
-          ui_metadata: {
-            ...props.workflow?.ui_metadata,
-            config: formikToUiConfig(values, props.uiConfig as WorkflowConfig),
-          },
-        } as WorkflowTemplate;
-        await dispatch(
-          updateWorkflow({
-            apiBody: {
-              workflowId: props.workflow?.id as string,
-              workflowTemplate: updatedTemplate,
-              updateFields: true,
-              reprovision: false,
-            },
-            dataSourceId,
-          })
-        )
-          .unwrap()
-          .then(async (result) => {
-            // TODO: figure out clean way to update the "last updated"
-            // section. The problem with re-fetching this every time, is it
-            // triggers lots of component rebuilds due to the base workflow prop
-            // changing.
-            // get any updates after autosave
-            // new Promise((f) => setTimeout(f, 1000)).then(async () => {
-            //   dispatch(getWorkflow(props.workflow?.id as string));
-            // });
-          })
-          .catch((error: any) => {
-            console.error('Error autosaving workflow: ', error);
-          });
-      }
-    })();
-  }, [autosave]);
-
-  // Hook to listen for changes to form values and trigger autosave
-  useEffect(() => {
-    if (!isEmpty(values)) {
-      debounceAutosave();
-    }
-  }, [values]);
-
   useEffect(() => {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
   }, [props.workflow]);
+
+  // Utility fn to update the workflow UI config only. A get workflow API call is subsequently run
+  // to fetch the updated state.
+  async function updateWorkflowUiConfig() {
+    setIsRunningSave(true);
+    const updatedTemplate = {
+      name: props.workflow?.name,
+      ui_metadata: {
+        ...props.workflow?.ui_metadata,
+        config: formikToUiConfig(values, props.uiConfig as WorkflowConfig),
+      },
+    } as WorkflowTemplate;
+    await dispatch(
+      updateWorkflow({
+        apiBody: {
+          workflowId: props.workflow?.id as string,
+          workflowTemplate: updatedTemplate,
+          updateFields: true,
+          reprovision: false,
+        },
+        dataSourceId,
+      })
+    )
+      .unwrap()
+      .then(async (result) => {
+        setUnsavedIngestProcessors(false);
+        setUnsavedSearchProcessors(false);
+        setTouched({});
+        new Promise((f) => setTimeout(f, 1000)).then(async () => {
+          dispatch(
+            getWorkflow({
+              workflowId: props.workflow?.id as string,
+              dataSourceId,
+            })
+          );
+        });
+      })
+      .catch((error: any) => {
+        console.error('Error saving workflow: ', error);
+      })
+      .finally(() => {
+        setIsRunningSave(false);
+      });
+  }
+
+  // Utility fn to revert any unsaved changes, reset the form
+  function revertUnsavedChanges(): void {
+    resetForm();
+    if (
+      (unsavedIngestProcessors || unsavedSearchProcessors) &&
+      props.workflow?.ui_metadata?.config !== undefined
+    ) {
+      props.setUiConfig(props.workflow?.ui_metadata?.config);
+    }
+  }
 
   // Utility fn to update the workflow, including any updated/new resources.
   // The reprovision param is used to determine whether we are doing full
@@ -327,6 +356,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         .unwrap()
         .then(async (result) => {
           await sleep(1000);
+          setUnsavedIngestProcessors(false);
+          setUnsavedSearchProcessors(false);
           success = true;
           // Kicking off an async task to re-fetch the workflow details
           // after some amount of time. Provisioning will finish in an indeterminate
@@ -370,6 +401,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             .unwrap()
             .then(async (result) => {
               await sleep(1000);
+              setUnsavedIngestProcessors(false);
+              setUnsavedSearchProcessors(false);
               await dispatch(
                 provisionWorkflow({
                   workflowId: updatedWorkflow.id as string,
@@ -431,11 +464,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           ...(includeSearch && search !== undefined ? { search } : {}),
         };
         if (Object.keys(relevantValidationResults).length > 0) {
-          // TODO: may want to persist more fine-grained form validation (ingest vs. search)
-          // For example, running an ingest should be possible, even with some
-          // invalid query or search processor config. And vice versa.
+          getCore().notifications.toasts.addDanger('Missing or invalid fields');
           console.error('Form invalid');
         } else {
+          setTouched({});
           const updatedConfig = formikToUiConfig(
             values,
             props.uiConfig as WorkflowConfig
@@ -623,7 +655,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         .unwrap()
                         .then(async (result) => {
                           setFieldValue('ingest.enabled', false);
-                          await validateAndUpdateWorkflow(false);
                           // @ts-ignore
                           await dispatch(
                             getWorkflow({
@@ -767,6 +798,41 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   ) : onIngest ? (
                     <>
                       <EuiFlexItem grow={false}>
+                        <EuiSmallButtonIcon
+                          iconType="editorUndo"
+                          aria-label="undo changes"
+                          isDisabled={
+                            isRunningSave || isRunningIngest
+                              ? true
+                              : unsavedIngestProcessors
+                              ? false
+                              : isEmpty(touched?.ingest?.enrich) &&
+                                isEmpty(touched?.ingest?.index)
+                          }
+                          onClick={() => {
+                            revertUnsavedChanges();
+                          }}
+                        />
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiSmallButtonEmpty
+                          disabled={
+                            isRunningSave || isRunningIngest
+                              ? true
+                              : unsavedIngestProcessors
+                              ? false
+                              : isEmpty(touched?.ingest?.enrich) &&
+                                isEmpty(touched?.ingest?.index)
+                          }
+                          isLoading={isRunningSave}
+                          onClick={() => {
+                            updateWorkflowUiConfig();
+                          }}
+                        >
+                          {`Save`}
+                        </EuiSmallButtonEmpty>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
                         <EuiSmallButton
                           fill={false}
                           onClick={() => {
@@ -776,7 +842,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           disabled={!ingestTemplatesDifferent}
                           isLoading={isRunningIngest}
                         >
-                          Run ingestion
+                          Build and run ingestion
                         </EuiSmallButton>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
@@ -808,6 +874,39 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         </EuiSmallButtonEmpty>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
+                        <EuiSmallButtonIcon
+                          iconType="editorUndo"
+                          aria-label="undo changes"
+                          isDisabled={
+                            isRunningSave || isRunningSearch
+                              ? true
+                              : unsavedSearchProcessors
+                              ? false
+                              : isEmpty(touched?.search)
+                          }
+                          onClick={() => {
+                            revertUnsavedChanges();
+                          }}
+                        />
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiSmallButtonEmpty
+                          disabled={
+                            isRunningSave || isRunningSearch
+                              ? true
+                              : unsavedSearchProcessors
+                              ? false
+                              : isEmpty(touched?.search)
+                          }
+                          isLoading={isRunningSave}
+                          onClick={() => {
+                            updateWorkflowUiConfig();
+                          }}
+                        >
+                          {`Save`}
+                        </EuiSmallButtonEmpty>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
                         <EuiSmallButton
                           disabled={
                             isRunningSearch ||
@@ -820,7 +919,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                             validateAndRunQuery();
                           }}
                         >
-                          Run query
+                          Build and run query
                         </EuiSmallButton>
                       </EuiFlexItem>
                     </>
