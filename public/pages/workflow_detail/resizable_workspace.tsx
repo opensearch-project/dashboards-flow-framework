@@ -237,7 +237,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                                 </EuiFlexItem>
                               </EuiFlexGroup>
                             </EuiResizablePanel>
-                            <EuiResizableButton data-testid="toolsPanelCollapseButton" />
+                            <EuiResizableButton data-testid="toolsPanelSizeAdjustButton" />
                             <EuiResizablePanel
                               id={TOOLS_PANEL_ID}
                               mode="collapsible"
