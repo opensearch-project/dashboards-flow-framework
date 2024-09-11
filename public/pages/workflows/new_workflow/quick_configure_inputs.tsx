@@ -233,7 +233,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                 }}
               />
             </EuiCompressedFormRow>
-            <EuiSpacer size="s" />{' '}
+            <EuiSpacer size="s" />
             {props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH && (
               <>
                 <EuiCompressedFormRow
