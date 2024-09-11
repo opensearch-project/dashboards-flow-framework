@@ -103,6 +103,7 @@ export enum PROCESSOR_TYPE {
   SORT = 'sort',
   TEXT_CHUNKING = 'text_chunking',
   NORMALIZATION = 'normalization-processor',
+  COLLAPSE = 'collapse',
 }
 
 export enum MODEL_TYPE {
