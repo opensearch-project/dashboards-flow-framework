@@ -25,6 +25,7 @@ import {
 } from '../../../../common';
 import { formikToUiConfig } from '../../../utils';
 import {
+  CollapseProcessor,
   MLIngestProcessor,
   MLSearchRequestProcessor,
   MLSearchResponseProcessor,
@@ -288,6 +289,13 @@ export function ProcessorsList(props: ProcessorsListProps) {
                               addProcessor(
                                 new NormalizationProcessor().toObj()
                               );
+                            },
+                          },
+                          {
+                            name: 'Collapse Processor',
+                            onClick: () => {
+                              closePopover();
+                              addProcessor(new CollapseProcessor().toObj());
                             },
                           },
                         ],

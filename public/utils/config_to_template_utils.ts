@@ -315,6 +315,7 @@ export function processorConfigsToTemplateProcessors(
       }
       case PROCESSOR_TYPE.SPLIT:
       case PROCESSOR_TYPE.SORT:
+      case PROCESSOR_TYPE.COLLAPSE:
       default: {
         const formValues = processorConfigToFormik(processorConfig);
         let finalFormValues = {} as FormikValues;
