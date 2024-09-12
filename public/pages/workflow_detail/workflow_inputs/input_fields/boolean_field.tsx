@@ -59,6 +59,7 @@ export function BooleanField(props: BooleanFieldProps) {
               }
               onChange={(id) => {
                 form.setFieldValue(field.name, !field.value);
+                form.setFieldTouched(field.name, true);
               }}
             />
           </EuiCompressedFormRow>

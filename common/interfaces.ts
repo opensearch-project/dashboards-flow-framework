@@ -394,8 +394,8 @@ export type ModelInputFormField = ModelInput & {
 export type ModelOutputFormField = ModelInputFormField;
 
 export type ModelInterface = {
-  input: ModelInput;
-  output: ModelOutput;
+  input?: ModelInput;
+  output?: ModelOutput;
 };
 
 export type ConnectorParameters = {
