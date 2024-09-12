@@ -147,7 +147,7 @@ export function prepareDocsForSimulate(
 // to format them into a more readable string to display
 export function unwrapTransformedDocs(
   simulatePipelineResponse: SimulateIngestPipelineResponse
-) {
+): any[] {
   let errorDuringSimulate = undefined as string | undefined;
   const transformedDocsSources = simulatePipelineResponse.docs.map(
     (transformedDoc) => {
@@ -167,7 +167,7 @@ export function unwrapTransformedDocs(
       `Failed to simulate ingest on all documents: ${errorDuringSimulate}`
     );
   }
-  return customStringify(transformedDocsSources);
+  return transformedDocsSources;
 }
 
 // ML inference processors will use standard dot notation or JSONPath depending on the input.
@@ -181,9 +181,6 @@ export function generateTransform(input: {}, map: MapFormValue): {} {
       if (mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR)) {
         // JSONPath transform
         transformedResult = jsonpath.query(input, path);
-        // Non-JSONPath bracket notation not supported - throw an error
-      } else if (mapEntry.value.includes('[') || mapEntry.value.includes(']')) {
-        throw new Error();
         // Standard dot notation
       } else {
         transformedResult = get(input, path);
