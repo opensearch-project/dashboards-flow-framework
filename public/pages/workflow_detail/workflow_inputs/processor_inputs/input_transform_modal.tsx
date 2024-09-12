@@ -84,6 +84,9 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
 
+  // fetching input data state
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+
   // source input / transformed output state
   const [sourceInput, setSourceInput] = useState<string>('[]');
   const [transformedOutput, setTransformedOutput] = useState<string>('{}');
@@ -116,13 +119,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
     ) {
       let sampleSourceInput = {};
       try {
-        // In the context of ingest or search resp, this input will be an array (list of docs)
-        // In the context of request, it will be a single JSON
-        sampleSourceInput =
-          props.context === PROCESSOR_CONTEXT.INGEST ||
-          props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
-            ? JSON.parse(sourceInput)[0]
-            : JSON.parse(sourceInput);
+        sampleSourceInput = JSON.parse(sourceInput);
         const output = generateTransform(
           sampleSourceInput,
           map[selectedOutputOption]
@@ -167,7 +164,9 @@ export function InputTransformModal(props: InputTransformModalProps) {
               <EuiText>Source input</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
+                isLoading={isFetching}
                 onClick={async () => {
+                  setIsFetching(true);
                   switch (props.context) {
                     case PROCESSOR_CONTEXT.INGEST: {
                       // get the current ingest pipeline up to, but not including, this processor
@@ -196,21 +195,31 @@ export function InputTransformModal(props: InputTransformModalProps) {
                         )
                           .unwrap()
                           .then((resp: SimulateIngestPipelineResponse) => {
-                            setSourceInput(unwrapTransformedDocs(resp));
+                            const docObjs = unwrapTransformedDocs(resp);
+                            if (docObjs.length > 0) {
+                              setSourceInput(customStringify(docObjs[0]));
+                            }
                           })
                           .catch((error: any) => {
                             getCore().notifications.toasts.addDanger(
                               `Failed to fetch input data`
                             );
+                          })
+                          .finally(() => {
+                            setIsFetching(false);
                           });
                       } else {
                         try {
                           const docObjs = JSON.parse(
                             values.ingest.docs
                           ) as {}[];
-                          if (docObjs.length > 0)
-                            setSourceInput(customStringify([docObjs[0]]));
-                        } catch {}
+                          if (docObjs.length > 0) {
+                            setSourceInput(customStringify(docObjs[0]));
+                          }
+                        } catch {
+                        } finally {
+                          setIsFetching(false);
+                        }
                       }
                       break;
                     }
@@ -230,6 +239,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       if (curSearchPipeline === undefined) {
                         setSourceInput(values.search.request);
                       }
+                      setIsFetching(false);
                       break;
                     }
                     case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
@@ -257,18 +267,20 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       )
                         .unwrap()
                         .then(async (resp) => {
-                          setSourceInput(
-                            customStringify(
-                              resp.hits.hits.map(
-                                (hit: SearchHit) => hit._source
-                              )
-                            )
+                          const hits = resp.hits.hits.map(
+                            (hit: SearchHit) => hit._source
                           );
+                          if (hits.length > 0) {
+                            setSourceInput(customStringify(hits[0]));
+                          }
                         })
                         .catch((error: any) => {
                           getCore().notifications.toasts.addDanger(
                             `Failed to fetch source input data`
                           );
+                        })
+                        .finally(() => {
+                          setIsFetching(false);
                         });
                       break;
                     }
@@ -357,7 +369,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   </EuiFlexItem>
                 )}
                 <EuiFlexItem grow={true}>
-                  {outputOptions.length === 1 ? (
+                  {outputOptions.length <= 1 ? (
                     <EuiText>Transformed input</EuiText>
                   ) : (
                     <EuiCompressedSelect

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useFormikContext, getIn } from 'formik';
-import { cloneDeep, isEmpty, set } from 'lodash';
+import { cloneDeep, get, isEmpty, set } from 'lodash';
 import {
   EuiCodeEditor,
   EuiFlexGroup,
@@ -70,6 +70,9 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
   const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
 
+  // fetching input data state
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+
   // source input / transformed output state
   const [sourceInput, setSourceInput] = useState<string>('[]');
   const [transformedOutput, setTransformedOutput] = useState<string>('{}');
@@ -95,13 +98,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
     ) {
       let sampleSourceInput = {};
       try {
-        // In the context of ingest or search resp, this input will be an array (list of docs)
-        // In the context of request, it will be a single JSON
-        sampleSourceInput =
-          props.context === PROCESSOR_CONTEXT.INGEST ||
-          props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
-            ? JSON.parse(sourceInput)[0]
-            : JSON.parse(sourceInput);
+        sampleSourceInput = JSON.parse(sourceInput);
         const output = generateTransform(
           sampleSourceInput,
           map[selectedOutputOption]
@@ -129,7 +126,9 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
               <EuiText>Source output</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
+                isLoading={isFetching}
                 onClick={async () => {
+                  setIsFetching(true);
                   switch (props.context) {
                     // note we skip search request processor context. that is because empty output maps are not supported.
                     // for more details, see comment in ml_processor_inputs.tsx
@@ -165,12 +164,24 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                       )
                         .unwrap()
                         .then((resp: SimulateIngestPipelineResponse) => {
-                          setSourceInput(unwrapTransformedDocs(resp));
+                          try {
+                            const docObjs = unwrapTransformedDocs(resp);
+                            if (docObjs.length > 0) {
+                              const sampleModelResult =
+                                docObjs[0]?.inference_results;
+                              setSourceInput(
+                                customStringify(sampleModelResult)
+                              );
+                            }
+                          } catch {}
                         })
                         .catch((error: any) => {
                           getCore().notifications.toasts.addDanger(
                             `Failed to fetch input data`
                           );
+                        })
+                        .finally(() => {
+                          setIsFetching(false);
                         });
                       break;
                     }
@@ -201,7 +212,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                             index: values.ingest.index.name,
                             body: JSON.stringify({
                               ...JSON.parse(values.search.request as string),
-                              search_pipeline: curSearchPipeline,
+                              search_pipeline: curSearchPipeline || {},
                             }),
                           },
                           dataSourceId,
@@ -209,18 +220,25 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                       )
                         .unwrap()
                         .then(async (resp) => {
-                          setSourceInput(
-                            customStringify(
-                              resp.hits.hits.map(
-                                (hit: SearchHit) => hit._source
-                              )
-                            )
-                          );
+                          const hits = resp.hits.hits.map(
+                            (hit: SearchHit) => hit._source
+                          ) as any[];
+                          if (hits.length > 0) {
+                            const sampleModelResult = get(
+                              hits,
+                              '0.inference_results.0',
+                              {}
+                            );
+                            setSourceInput(customStringify(sampleModelResult));
+                          }
                         })
                         .catch((error: any) => {
                           getCore().notifications.toasts.addDanger(
                             `Failed to fetch source output data`
                           );
+                        })
+                        .finally(() => {
+                          setIsFetching(false);
                         });
                       break;
                     }
@@ -281,7 +299,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              {outputOptions.length === 1 ? (
+              {outputOptions.length <= 1 ? (
                 <EuiText>Transformed output</EuiText>
               ) : (
                 <EuiCompressedSelect
