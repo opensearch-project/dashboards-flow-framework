@@ -5,8 +5,10 @@
 
 import { snakeCase } from 'lodash';
 import {
+  CollapseProcessor,
   MLIngestProcessor,
   MLSearchRequestProcessor,
+  MLSearchResponseProcessor,
   NormalizationProcessor,
 } from '../../../configs';
 import {
@@ -48,6 +50,10 @@ export function enrichPresetWorkflowWithUiMetadata(
     }
     case WORKFLOW_TYPE.SENTIMENT_ANALYSIS: {
       uiMetadata = fetchSentimentAnalysisMetadata();
+      break;
+    }
+    case WORKFLOW_TYPE.RAG: {
+      uiMetadata = fetchRAGMetadata();
       break;
     }
     default: {
@@ -202,6 +208,18 @@ export function fetchSentimentAnalysisMetadata(): UIState {
   baseState.config.search.request.value = customStringify(TERM_QUERY_LABEL);
   baseState.config.search.enrichRequest.processors = [
     new MLSearchRequestProcessor().toObj(),
+  ];
+  return baseState;
+}
+
+export function fetchRAGMetadata(): UIState {
+  let baseState = fetchEmptyMetadata();
+  baseState.type = WORKFLOW_TYPE.RAG;
+  baseState.config.ingest.index.name.value = generateId('my_index', 6);
+  baseState.config.search.request.value = customStringify(FETCH_ALL_QUERY);
+  baseState.config.search.enrichResponse.processors = [
+    new MLSearchResponseProcessor().toObj(),
+    new CollapseProcessor().toObj(),
   ];
   return baseState;
 }

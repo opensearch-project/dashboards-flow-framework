@@ -91,6 +91,7 @@ export enum WORKFLOW_TYPE {
   MULTIMODAL_SEARCH = 'Multimodal search',
   HYBRID_SEARCH = 'Hybrid search',
   SENTIMENT_ANALYSIS = 'Sentiment analysis',
+  RAG = 'Retrieval-augmented generation',
   CUSTOM = 'Custom',
   UNKNOWN = 'Unknown',
 }
@@ -103,6 +104,7 @@ export enum PROCESSOR_TYPE {
   SORT = 'sort',
   TEXT_CHUNKING = 'text_chunking',
   NORMALIZATION = 'normalization-processor',
+  COLLAPSE = 'collapse',
 }
 
 export enum MODEL_TYPE {
@@ -180,12 +182,17 @@ export const DELIMITER_OPTIONAL_FIELDS = ['delimiter'];
 export const SHARED_OPTIONAL_FIELDS = ['max_chunk_limit', 'description', 'tag'];
 
 /**
- * QUERY PRESETS
+ * DEFAULT FIELD VALUES
  */
 export const DEFAULT_TEXT_FIELD = 'my_text';
 export const DEFAULT_VECTOR_FIELD = 'my_embedding';
 export const DEFAULT_IMAGE_FIELD = 'my_image';
 export const DEFAULT_LABEL_FIELD = 'label';
+export const DEFAULT_LLM_RESPONSE_FIELD = 'llm_response';
+
+/**
+ * QUERY PRESETS
+ */
 export const VECTOR_FIELD_PATTERN = `{{vector_field}}`;
 export const TEXT_FIELD_PATTERN = `{{text_field}}`;
 export const IMAGE_FIELD_PATTERN = `{{image_field}}`;
