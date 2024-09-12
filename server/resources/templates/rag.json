@@ -1,0 +1,14 @@
+{
+    "name": "Retrieval-Augmented Generation",
+    "description": "A basic workflow containing the index and search pipeline configurations for performing basic retrieval-augmented generation",
+    "version": {
+        "template": "1.0.0",
+        "compatibility": [
+            "2.17.0",
+            "3.0.0"
+        ]
+    },
+    "ui_metadata": {
+        "type": "Retrieval-augmented generation"
+    }
+}

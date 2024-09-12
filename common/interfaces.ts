@@ -489,6 +489,7 @@ export type QuickConfigureFields = {
   imageField?: string;
   labelField?: string;
   embeddingLength?: number;
+  llmResponseField?: string;
 };
 
 /**

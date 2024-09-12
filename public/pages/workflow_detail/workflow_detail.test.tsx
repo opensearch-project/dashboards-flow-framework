@@ -87,7 +87,7 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       expect(getByText('Visual')).toBeInTheDocument();
       expect(getByText('JSON')).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Run ingestion' })).toBeInTheDocument();
-      expect(getByRole('tab', { name: 'Run queries' })).toBeInTheDocument();
+      expect(getByRole('tab', { name: 'Run query' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
 
