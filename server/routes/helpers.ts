@@ -12,7 +12,9 @@ import {
   MODEL_STATE,
   Model,
   ModelDict,
+  ModelInput,
   ModelInterface,
+  ModelOutput,
   NO_MODIFICATIONS_FOUND_TEXT,
   SearchHit,
   WORKFLOW_RESOURCE_TYPE,
@@ -107,9 +109,17 @@ export function getModelsFromResponses(modelHits: SearchHit[]): ModelDict {
         | undefined;
       let modelInterface = undefined as ModelInterface | undefined;
       if (indexedModelInterface !== undefined) {
+        let parsedInput = undefined as ModelInput | undefined;
+        let parsedOutput = undefined as ModelOutput | undefined;
+        try {
+          parsedInput = JSON.parse(indexedModelInterface.input);
+        } catch {}
+        try {
+          parsedOutput = JSON.parse(indexedModelInterface.output);
+        } catch {}
         modelInterface = {
-          input: JSON.parse(indexedModelInterface.input),
-          output: JSON.parse(indexedModelInterface.output),
+          input: parsedInput,
+          output: parsedOutput,
         } as ModelInterface;
       }
 
