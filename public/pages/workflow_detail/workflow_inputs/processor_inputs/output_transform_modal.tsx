@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useFormikContext, getIn } from 'formik';
-import { cloneDeep, get, isEmpty, set } from 'lodash';
+import { cloneDeep, isEmpty, set } from 'lodash';
 import {
   EuiCodeEditor,
   EuiFlexGroup,
@@ -168,7 +168,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                             const docObjs = unwrapTransformedDocs(resp);
                             if (docObjs.length > 0) {
                               const sampleModelResult =
-                                docObjs[0]?.inference_results;
+                                docObjs[0]?.inference_results || {};
                               setSourceInput(
                                 customStringify(sampleModelResult)
                               );
@@ -224,11 +224,8 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                             (hit: SearchHit) => hit._source
                           ) as any[];
                           if (hits.length > 0) {
-                            const sampleModelResult = get(
-                              hits,
-                              '0.inference_results.0',
-                              {}
-                            );
+                            const sampleModelResult =
+                              hits[0].inference_results || {};
                             setSourceInput(customStringify(sampleModelResult));
                           }
                         })
