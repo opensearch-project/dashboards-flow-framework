@@ -5,6 +5,7 @@
 
 import { PROCESSOR_TYPE } from '../../../common';
 import { Processor } from '../processor';
+import { generateId } from '../../utils';
 
 /**
  * The collapse processor config. Used in search flows.
@@ -12,6 +13,7 @@ import { Processor } from '../processor';
 export class CollapseProcessor extends Processor {
   constructor() {
     super();
+    this.id = generateId('collapse_processor');
     this.type = PROCESSOR_TYPE.COLLAPSE;
     this.name = 'Collapse Processor';
     this.fields = [

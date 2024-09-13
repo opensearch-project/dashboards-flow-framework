@@ -26,6 +26,7 @@ import {
   EuiCodeBlock,
   EuiPopoverTitle,
   EuiIconTip,
+  EuiSwitch,
 } from '@elastic/eui';
 import {
   IConfigField,
@@ -64,6 +65,7 @@ import { MapArrayField } from '../input_fields';
 interface InputTransformModalProps {
   uiConfig: WorkflowConfig;
   config: IProcessorConfig;
+  baseConfigPath: string;
   context: PROCESSOR_CONTEXT;
   inputMapField: IConfigField;
   inputMapFieldPath: string;
@@ -83,6 +85,14 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
+
+  // various prompt states
+  const [viewPromptDetails, setViewPromptDetails] = useState<boolean>(false);
+  const [viewTransformedPrompt, setViewTransformedPrompt] = useState<boolean>(
+    false
+  );
+  const [originalPrompt, setOriginalPrompt] = useState<string>('');
+  const [transformedPrompt, setTransformedPrompt] = useState<string>('');
 
   // fetching input data state
   const [isFetching, setIsFetching] = useState<boolean>(false);
@@ -145,6 +155,32 @@ export function InputTransformModal(props: InputTransformModalProps) {
       setIsValid(undefined);
     }
   }, [transformedOutput]);
+
+  // hook to set the prompt if found in the model config
+  useEffect(() => {
+    const modelConfigString = getIn(
+      values,
+      `${props.baseConfigPath}.${props.config.id}.model_config`
+    );
+    try {
+      const prompt = JSON.parse(modelConfigString)?.prompt;
+      if (!isEmpty(prompt)) {
+        setOriginalPrompt(prompt);
+      }
+    } catch {}
+  }, [
+    getIn(values, `${props.baseConfigPath}.${props.config.id}.model_config`),
+  ]);
+
+  // hook to set the transformed prompt, if a valid prompt found, and
+  // valid parameters set
+  useEffect(() => {
+    if (!isEmpty(originalPrompt)) {
+      setTransformedPrompt(
+        injectValuesIntoPrompt(originalPrompt, JSON.parse(transformedOutput))
+      );
+    }
+  }, [originalPrompt, transformedOutput]);
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -303,6 +339,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   showLineNumbers: false,
                   showGutter: false,
                   showPrintMargin: false,
+                  wrap: true,
                 }}
                 tabSize={2}
               />
@@ -425,11 +462,64 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   showLineNumbers: false,
                   showGutter: false,
                   showPrintMargin: false,
+                  wrap: true,
                 }}
                 tabSize={2}
               />
             </>
           </EuiFlexItem>
+          {!isEmpty(originalPrompt) && (
+            <EuiFlexItem>
+              <>
+                <EuiFlexGroup direction="row">
+                  <EuiFlexItem grow={false}>
+                    <EuiText>Transformed prompt</EuiText>
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false} style={{ marginTop: '16px' }}>
+                    <EuiSwitch
+                      label="Show"
+                      checked={viewPromptDetails}
+                      onChange={() => setViewPromptDetails(!viewPromptDetails)}
+                    />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+                {viewPromptDetails && (
+                  <>
+                    <EuiSpacer size="s" />
+                    <EuiSwitch
+                      label="With injected inputs"
+                      checked={viewTransformedPrompt}
+                      onChange={() =>
+                        setViewTransformedPrompt(!viewTransformedPrompt)
+                      }
+                    />
+                    <EuiSpacer size="m" />
+                    <EuiCodeEditor
+                      mode="json"
+                      theme="textmate"
+                      width="100%"
+                      height="15vh"
+                      value={
+                        viewTransformedPrompt
+                          ? transformedPrompt
+                          : originalPrompt
+                      }
+                      readOnly={true}
+                      setOptions={{
+                        fontSize: '12px',
+                        autoScrollEditorIntoView: true,
+                        showLineNumbers: false,
+                        showGutter: false,
+                        showPrintMargin: false,
+                        wrap: true,
+                      }}
+                      tabSize={2}
+                    />
+                  </>
+                )}
+              </>
+            </EuiFlexItem>
+          )}
         </EuiFlexGroup>
       </EuiModalBody>
       <EuiModalFooter>
@@ -439,4 +529,28 @@ export function InputTransformModal(props: InputTransformModalProps) {
       </EuiModalFooter>
     </EuiModal>
   );
+}
+
+function injectValuesIntoPrompt(
+  promptString: string,
+  parameters: { [key: string]: string }
+): string {
+  let finalPromptString = promptString;
+  // replace any parameter placeholders in the prompt with any values found in the
+  // parameters obj.
+  // we do 2 checks - one for the regular prompt, and one with "toString()" appended.
+  // this is required for parameters that have values as a list, for example.
+  Object.keys(parameters).forEach((parameterKey) => {
+    const parameterValue = parameters[parameterKey];
+    const regex = new RegExp(`\\$\\{parameters.${parameterKey}\\}`, 'g');
+    const regexWithToString = new RegExp(
+      `\\$\\{parameters.${parameterKey}.toString\\(\\)\\}`,
+      'g'
+    );
+    finalPromptString = finalPromptString
+      .replace(regex, parameterValue)
+      .replace(regexWithToString, parameterValue);
+  });
+
+  return finalPromptString;
 }

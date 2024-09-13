@@ -258,6 +258,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                   showLineNumbers: false,
                   showGutter: false,
                   showPrintMargin: false,
+                  wrap: true,
                 }}
                 tabSize={2}
               />
@@ -322,6 +323,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                   showLineNumbers: false,
                   showGutter: false,
                   showPrintMargin: false,
+                  wrap: true,
                 }}
                 tabSize={2}
               />
