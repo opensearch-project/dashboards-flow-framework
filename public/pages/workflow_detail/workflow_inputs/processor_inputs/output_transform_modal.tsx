@@ -86,7 +86,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
   const [sourceOutput, setSourceOutput] = useState<string>('[]');
   const [transformedOutput, setTransformedOutput] = useState<string>('{}');
 
-  // get some current values
+  // get some current form values
   const map = getIn(values, props.outputMapFieldPath) as MapArrayFormValue;
   const fullResponsePath = getIn(
     values,
