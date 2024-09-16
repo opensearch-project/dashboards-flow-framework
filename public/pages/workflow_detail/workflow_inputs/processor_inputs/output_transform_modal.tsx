@@ -20,6 +20,10 @@ import {
   EuiSmallButton,
   EuiSpacer,
   EuiText,
+  EuiPopover,
+  EuiSmallButtonEmpty,
+  EuiPopoverTitle,
+  EuiCodeBlock,
 } from '@elastic/eui';
 import {
   IConfigField,
@@ -50,11 +54,16 @@ import {
 } from '../../../../store';
 import { getCore } from '../../../../services';
 import { MapArrayField } from '../input_fields';
-import { getDataSourceId, parseModelOutputs } from '../../../../utils/utils';
+import {
+  getDataSourceId,
+  parseModelOutputs,
+  parseModelOutputsObj,
+} from '../../../../utils/utils';
 
 interface OutputTransformModalProps {
   uiConfig: WorkflowConfig;
   config: IProcessorConfig;
+  baseConfigPath: string;
   context: PROCESSOR_CONTEXT;
   outputMapField: IConfigField;
   outputMapFieldPath: string;
@@ -77,8 +86,15 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
   const [sourceOutput, setSourceOutput] = useState<string>('[]');
   const [transformedOutput, setTransformedOutput] = useState<string>('{}');
 
-  // get the current output map
+  // get some current values
   const map = getIn(values, props.outputMapFieldPath) as MapArrayFormValue;
+  const fullResponsePath = getIn(
+    values,
+    `${props.baseConfigPath}.${props.config.id}.full_response_path`
+  );
+
+  // popover state containing the model interface details, if applicable
+  const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
   // selected transform state
   const transformOptions = map.map((_, idx) => ({
@@ -123,7 +139,44 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 Fetch some sample output data and see how it is transformed.
               </EuiText>
               <EuiSpacer size="s" />
-              <EuiText>Source output</EuiText>
+              <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                <EuiFlexItem>
+                  <EuiText>Source output</EuiText>
+                </EuiFlexItem>
+                {!isEmpty(
+                  parseModelOutputsObj(props.modelInterface, fullResponsePath)
+                ) && (
+                  <EuiFlexItem grow={false}>
+                    <EuiPopover
+                      isOpen={popoverOpen}
+                      closePopover={() => setPopoverOpen(false)}
+                      button={
+                        <EuiSmallButtonEmpty
+                          onClick={() => setPopoverOpen(!popoverOpen)}
+                        >
+                          View output schema
+                        </EuiSmallButtonEmpty>
+                      }
+                    >
+                      <EuiPopoverTitle>
+                        The JSON Schema defining the model's expected output
+                      </EuiPopoverTitle>
+                      <EuiCodeBlock
+                        language="json"
+                        fontSize="m"
+                        isCopyable={false}
+                      >
+                        {customStringify(
+                          parseModelOutputsObj(
+                            props.modelInterface,
+                            fullResponsePath
+                          )
+                        )}
+                      </EuiCodeBlock>
+                    </EuiPopover>
+                  </EuiFlexItem>
+                )}
+              </EuiFlexGroup>
               <EuiSmallButton
                 style={{ width: '100px' }}
                 isLoading={isFetching}
@@ -277,7 +330,11 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 helpLink={ML_INFERENCE_DOCS_LINK}
                 keyPlaceholder="Document field"
                 valuePlaceholder="Model output field"
-                valueOptions={parseModelOutputs(props.modelInterface)}
+                valueOptions={
+                  fullResponsePath
+                    ? undefined
+                    : parseModelOutputs(props.modelInterface, false)
+                }
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {
                   if (isEmpty(curArray)) {

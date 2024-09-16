@@ -410,6 +410,11 @@ export const QUERY_PRESETS = [
 /**
  * MISCELLANEOUS
  */
+export enum PROCESSOR_CONTEXT {
+  INGEST = 'ingest',
+  SEARCH_REQUEST = 'search_request',
+  SEARCH_RESPONSE = 'search_response',
+}
 export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';
@@ -434,9 +439,6 @@ export const MAX_JSON_STRING_LENGTH = 10000;
 export const MAX_WORKFLOW_NAME_TO_DISPLAY = 40;
 export const WORKFLOW_NAME_REGEXP = RegExp('^[a-zA-Z0-9_-]*$');
 export const EMPTY_MAP_ENTRY = { key: '', value: '' } as MapEntry;
-
-export enum PROCESSOR_CONTEXT {
-  INGEST = 'ingest',
-  SEARCH_REQUEST = 'search_request',
-  SEARCH_RESPONSE = 'search_response',
-}
+export const MODEL_OUTPUT_SCHEMA_NESTED_PATH =
+  'output.properties.inference_results.items.properties.output.items.properties.dataAsMap.properties';
+export const MODEL_OUTPUT_SCHEMA_FULL_PATH = 'output.properties';

@@ -79,6 +79,10 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   ) as IConfigField;
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
   const outputMapValue = getIn(values, outputMapFieldPath);
+  const fullResponsePath = getIn(
+    values,
+    `${props.baseConfigPath}.${props.config.id}.full_response_path`
+  );
 
   // preview availability states
   // if there are preceding search request processors, we cannot fetch and display the interim transformed query.
@@ -228,6 +232,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
         <OutputTransformModal
           uiConfig={props.uiConfig}
           config={props.config}
+          baseConfigPath={props.baseConfigPath}
           context={props.context}
           outputMapField={outputMapField}
           outputMapFieldPath={outputMapFieldPath}
@@ -345,7 +350,11 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 : 'New document field'
             }
             valuePlaceholder="Model output field"
-            valueOptions={parseModelOutputs(modelInterface)}
+            valueOptions={
+              fullResponsePath
+                ? undefined
+                : parseModelOutputs(modelInterface, false)
+            }
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&
