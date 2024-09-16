@@ -29,6 +29,7 @@ export function Query(props: QueryProps) {
       setOptions={{
         fontSize: '12px',
         autoScrollEditorIntoView: true,
+        wrap: true,
       }}
       tabSize={2}
     />

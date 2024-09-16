@@ -99,6 +99,7 @@ export function JsonField(props: JsonFieldProps) {
                 highlightActiveLine: !props.readOnly,
                 highlightSelectedWord: !props.readOnly,
                 highlightGutterLine: !props.readOnly,
+                wrap: true,
               }}
               aria-label="Code Editor"
               tabSize={2}

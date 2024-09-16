@@ -29,6 +29,7 @@ export function Ingest(props: IngestProps) {
       setOptions={{
         fontSize: '12px',
         autoScrollEditorIntoView: true,
+        wrap: true,
       }}
       tabSize={2}
     />
