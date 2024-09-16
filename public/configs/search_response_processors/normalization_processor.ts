@@ -5,6 +5,7 @@
 
 import { PROCESSOR_TYPE } from '../../../common';
 import { Processor } from '../processor';
+import { generateId } from '../../utils';
 
 /**
  * The normalization processor config. Used in search flows.
@@ -12,6 +13,7 @@ import { Processor } from '../processor';
 export class NormalizationProcessor extends Processor {
   constructor() {
     super();
+    this.id = generateId('normalization_processor');
     this.type = PROCESSOR_TYPE.NORMALIZATION;
     this.name = 'Normalization Processor';
     this.fields = [];

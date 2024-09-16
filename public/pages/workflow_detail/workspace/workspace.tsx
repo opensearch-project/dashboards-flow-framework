@@ -214,6 +214,7 @@ export function Workspace(props: WorkspaceProps) {
                 setOptions={{
                   fontSize: '12px',
                   autoScrollEditorIntoView: true,
+                  wrap: true,
                 }}
                 tabSize={2}
               />

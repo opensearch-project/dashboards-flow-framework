@@ -73,40 +73,40 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
   // fetching input data state
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
-  // source input / transformed output state
-  const [sourceInput, setSourceInput] = useState<string>('[]');
+  // source output / transformed output state
+  const [sourceOutput, setSourceOutput] = useState<string>('[]');
   const [transformedOutput, setTransformedOutput] = useState<string>('{}');
 
   // get the current output map
   const map = getIn(values, props.outputMapFieldPath) as MapArrayFormValue;
 
-  // selected output state
-  const outputOptions = map.map((_, idx) => ({
+  // selected transform state
+  const transformOptions = map.map((_, idx) => ({
     value: idx,
     text: `Prediction ${idx + 1}`,
   })) as EuiSelectOption[];
-  const [selectedOutputOption, setSelectedOutputOption] = useState<
+  const [selectedTransformOption, setSelectedTransformOption] = useState<
     number | undefined
-  >((outputOptions[0]?.value as number) ?? undefined);
+  >((transformOptions[0]?.value as number) ?? undefined);
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
     if (
       !isEmpty(map) &&
-      !isEmpty(JSON.parse(sourceInput)) &&
-      selectedOutputOption !== undefined
+      !isEmpty(JSON.parse(sourceOutput)) &&
+      selectedTransformOption !== undefined
     ) {
-      let sampleSourceInput = {};
+      let sampleSourceOutput = {};
       try {
-        sampleSourceInput = JSON.parse(sourceInput);
+        sampleSourceOutput = JSON.parse(sourceOutput);
         const output = generateTransform(
-          sampleSourceInput,
-          map[selectedOutputOption]
+          sampleSourceOutput,
+          map[selectedTransformOption]
         );
         setTransformedOutput(customStringify(output));
       } catch {}
     }
-  }, [map, sourceInput, selectedOutputOption]);
+  }, [map, sourceOutput, selectedTransformOption]);
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -169,7 +169,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                             if (docObjs.length > 0) {
                               const sampleModelResult =
                                 docObjs[0]?.inference_results || {};
-                              setSourceInput(
+                              setSourceOutput(
                                 customStringify(sampleModelResult)
                               );
                             }
@@ -226,7 +226,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                           if (hits.length > 0) {
                             const sampleModelResult =
                               hits[0].inference_results || {};
-                            setSourceInput(customStringify(sampleModelResult));
+                            setSourceOutput(customStringify(sampleModelResult));
                           }
                         })
                         .catch((error: any) => {
@@ -250,7 +250,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 theme="textmate"
                 width="100%"
                 height="15vh"
-                value={sourceInput}
+                value={sourceOutput}
                 readOnly={true}
                 setOptions={{
                   fontSize: '12px',
@@ -258,6 +258,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                   showLineNumbers: false,
                   showGutter: false,
                   showPrintMargin: false,
+                  wrap: true,
                 }}
                 tabSize={2}
               />
@@ -280,14 +281,14 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {
                   if (isEmpty(curArray)) {
-                    setSelectedOutputOption(0);
+                    setSelectedTransformOption(0);
                   }
                 }}
                 // If the map we are deleting is the one we last used to test, reset the state and
                 // default to the first map in the list.
                 onMapDelete={(idxToDelete) => {
-                  if (selectedOutputOption === idxToDelete) {
-                    setSelectedOutputOption(0);
+                  if (selectedTransformOption === idxToDelete) {
+                    setSelectedTransformOption(0);
                     setTransformedOutput('{}');
                   }
                 }}
@@ -296,15 +297,15 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              {outputOptions.length <= 1 ? (
+              {transformOptions.length <= 1 ? (
                 <EuiText>Transformed output</EuiText>
               ) : (
                 <EuiCompressedSelect
                   prepend={<EuiText>Transformed output for</EuiText>}
-                  options={outputOptions}
-                  value={selectedOutputOption}
+                  options={transformOptions}
+                  value={selectedTransformOption}
                   onChange={(e) => {
-                    setSelectedOutputOption(Number(e.target.value));
+                    setSelectedTransformOption(Number(e.target.value));
                   }}
                 />
               )}
@@ -322,6 +323,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                   showLineNumbers: false,
                   showGutter: false,
                   showPrintMargin: false,
+                  wrap: true,
                 }}
                 tabSize={2}
               />

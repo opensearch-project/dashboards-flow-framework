@@ -31,10 +31,6 @@ export abstract class MLProcessor extends Processor {
     ];
     this.optionalFields = [
       {
-        id: 'description',
-        type: 'string',
-      },
-      {
         id: 'model_config',
         type: 'json',
       },
@@ -60,6 +56,10 @@ export abstract class MLProcessor extends Processor {
       },
       {
         id: 'tag',
+        type: 'string',
+      },
+      {
+        id: 'description',
         type: 'string',
       },
     ];

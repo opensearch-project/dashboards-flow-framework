@@ -209,6 +209,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
         <InputTransformModal
           uiConfig={props.uiConfig}
           config={props.config}
+          baseConfigPath={props.baseConfigPath}
           context={props.context}
           inputMapField={inputMapField}
           inputMapFieldPath={inputMapFieldPath}
