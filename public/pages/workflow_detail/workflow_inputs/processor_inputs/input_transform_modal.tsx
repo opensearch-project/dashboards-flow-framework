@@ -97,8 +97,12 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const [sourceInput, setSourceInput] = useState<string>('[]');
   const [transformedInput, setTransformedInput] = useState<string>('{}');
 
-  // get the current input map
+  // get some current form values
   const map = getIn(values, props.inputMapFieldPath) as MapArrayFormValue;
+  const oneToOne = getIn(
+    values,
+    `${props.baseConfigPath}.${props.config.id}.one_to_one`
+  );
 
   // selected transform state
   const transformOptions = map.map((_, idx) => ({
@@ -310,7 +314,11 @@ export function InputTransformModal(props: InputTransformModalProps) {
                             (hit: SearchHit) => hit._source
                           );
                           if (hits.length > 0) {
-                            setSourceInput(customStringify(hits[0]));
+                            setSourceInput(
+                              // if one-to-one, treat the source input as a single retrieved document
+                              // else, treat it as all of the returned documents
+                              customStringify(oneToOne ? hits[0] : hits)
+                            );
                           }
                         })
                         .catch((error: any) => {

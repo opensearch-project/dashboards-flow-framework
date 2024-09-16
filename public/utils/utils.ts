@@ -24,6 +24,7 @@ import {
 import { getCore, getDataSourceEnabled } from '../services';
 import {
   MDSQueryParams,
+  MapEntry,
   ModelInputMap,
   ModelOutputMap,
 } from '../../common/interfaces';
@@ -177,19 +178,17 @@ export function unwrapTransformedDocs(
 
 // ML inference processors will use standard dot notation or JSONPath depending on the input.
 // We follow the same logic here to generate consistent results.
-export function generateTransform(input: {}, map: MapFormValue): {} {
+// Collapse the values depending on if the input is an array or not.
+export function generateTransform(input: {} | [], map: MapFormValue): {} | [] {
   let output = {};
   map.forEach((mapEntry) => {
     const path = mapEntry.value;
     try {
-      let transformedResult = undefined;
-      if (mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR)) {
-        // JSONPath transform
-        transformedResult = jsonpath.query(input, path);
-        // Standard dot notation
-      } else {
-        transformedResult = get(input, path);
-      }
+      const transformedResult = Array.isArray(input)
+        ? input.map((inputEntry) =>
+            getTransformedResult(mapEntry, inputEntry, path)
+          )
+        : getTransformedResult(mapEntry, input, path);
       output = {
         ...output,
         [mapEntry.key]: transformedResult || '',
@@ -197,6 +196,18 @@ export function generateTransform(input: {}, map: MapFormValue): {} {
     } catch (e: any) {}
   });
   return output;
+}
+
+function getTransformedResult(
+  mapEntry: MapEntry,
+  input: {},
+  path: string
+): any {
+  return mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR)
+    ? // JSONPath transform
+      jsonpath.query(input, path)
+    : // Standard dot notation
+      get(input, path);
 }
 
 // Derive the collection of model inputs from the model interface JSONSchema into a form-ready list
