@@ -97,21 +97,21 @@ export function InputTransformModal(props: InputTransformModalProps) {
   // fetching input data state
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
-  // source input / transformed output state
+  // source input / transformed input state
   const [sourceInput, setSourceInput] = useState<string>('[]');
-  const [transformedOutput, setTransformedOutput] = useState<string>('{}');
+  const [transformedInput, setTransformedInput] = useState<string>('{}');
 
   // get the current input map
   const map = getIn(values, props.inputMapFieldPath) as MapArrayFormValue;
 
-  // selected output state
-  const outputOptions = map.map((_, idx) => ({
+  // selected transform state
+  const transformOptions = map.map((_, idx) => ({
     value: idx,
     text: `Prediction ${idx + 1}`,
   })) as EuiSelectOption[];
-  const [selectedOutputOption, setSelectedOutputOption] = useState<
+  const [selectedTransformOption, setSelectedTransformOption] = useState<
     number | undefined
-  >((outputOptions[0]?.value as number) ?? undefined);
+  >((transformOptions[0]?.value as number) ?? undefined);
 
   // popover state containing the model interface details, if applicable
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
@@ -125,19 +125,19 @@ export function InputTransformModal(props: InputTransformModalProps) {
     if (
       !isEmpty(map) &&
       !isEmpty(JSON.parse(sourceInput)) &&
-      selectedOutputOption !== undefined
+      selectedTransformOption !== undefined
     ) {
       let sampleSourceInput = {};
       try {
         sampleSourceInput = JSON.parse(sourceInput);
         const output = generateTransform(
           sampleSourceInput,
-          map[selectedOutputOption]
+          map[selectedTransformOption]
         );
-        setTransformedOutput(customStringify(output));
+        setTransformedInput(customStringify(output));
       } catch {}
     }
-  }, [map, sourceInput, selectedOutputOption]);
+  }, [map, sourceInput, selectedTransformOption]);
 
   // hook to re-determine validity when the generated output changes
   // utilize Ajv JSON schema validator library. For more info/examples, see
@@ -150,11 +150,11 @@ export function InputTransformModal(props: InputTransformModalProps) {
       const validateFn = new Ajv().compile(
         props.modelInterface?.input?.properties?.parameters || {}
       );
-      setIsValid(validateFn(JSON.parse(transformedOutput)));
+      setIsValid(validateFn(JSON.parse(transformedInput)));
     } else {
       setIsValid(undefined);
     }
-  }, [transformedOutput]);
+  }, [transformedInput]);
 
   // hook to set the prompt if found in the model config
   useEffect(() => {
@@ -175,12 +175,19 @@ export function InputTransformModal(props: InputTransformModalProps) {
   // hook to set the transformed prompt, if a valid prompt found, and
   // valid parameters set
   useEffect(() => {
-    if (!isEmpty(originalPrompt)) {
+    const transformedInputObj = JSON.parse(transformedInput);
+    if (!isEmpty(originalPrompt) && !isEmpty(transformedInputObj)) {
       setTransformedPrompt(
-        injectValuesIntoPrompt(originalPrompt, JSON.parse(transformedOutput))
+        injectValuesIntoPrompt(originalPrompt, transformedInputObj)
       );
+      setViewPromptDetails(true);
+      setViewTransformedPrompt(true);
+    } else {
+      setViewPromptDetails(false);
+      setViewTransformedPrompt(false);
+      setTransformedPrompt(originalPrompt);
     }
-  }, [originalPrompt, transformedOutput]);
+  }, [originalPrompt, transformedInput]);
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -367,15 +374,15 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 // If the map we are adding is the first one, populate the selected option to index 0
                 onMapAdd={(curArray) => {
                   if (isEmpty(curArray)) {
-                    setSelectedOutputOption(0);
+                    setSelectedTransformOption(0);
                   }
                 }}
                 // If the map we are deleting is the one we last used to test, reset the state and
                 // default to the first map in the list.
                 onMapDelete={(idxToDelete) => {
-                  if (selectedOutputOption === idxToDelete) {
-                    setSelectedOutputOption(0);
-                    setTransformedOutput('{}');
+                  if (selectedTransformOption === idxToDelete) {
+                    setSelectedTransformOption(0);
+                    setTransformedInput('{}');
                   }
                 }}
               />
@@ -406,15 +413,15 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   </EuiFlexItem>
                 )}
                 <EuiFlexItem grow={true}>
-                  {outputOptions.length <= 1 ? (
+                  {transformOptions.length <= 1 ? (
                     <EuiText>Transformed input</EuiText>
                   ) : (
                     <EuiCompressedSelect
                       prepend={<EuiText>Transformed input for</EuiText>}
-                      options={outputOptions}
-                      value={selectedOutputOption}
+                      options={transformOptions}
+                      value={selectedTransformOption}
                       onChange={(e) => {
-                        setSelectedOutputOption(Number(e.target.value));
+                        setSelectedTransformOption(Number(e.target.value));
                       }}
                     />
                   )}
@@ -454,7 +461,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 theme="textmate"
                 width="100%"
                 height="15vh"
-                value={transformedOutput}
+                value={transformedInput}
                 readOnly={true}
                 setOptions={{
                   fontSize: '12px',
@@ -480,14 +487,22 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       label="Show"
                       checked={viewPromptDetails}
                       onChange={() => setViewPromptDetails(!viewPromptDetails)}
+                      disabled={isEmpty(JSON.parse(transformedInput))}
                     />
                   </EuiFlexItem>
+                  {isEmpty(JSON.parse(transformedInput)) && (
+                    <EuiFlexItem grow={false} style={{ marginTop: '16px' }}>
+                      <EuiText size="s" color="subdued">
+                        Transformed input is empty
+                      </EuiText>
+                    </EuiFlexItem>
+                  )}
                 </EuiFlexGroup>
                 {viewPromptDetails && (
                   <>
                     <EuiSpacer size="s" />
                     <EuiSwitch
-                      label="With injected inputs"
+                      label="With transformed inputs"
                       checked={viewTransformedPrompt}
                       onChange={() =>
                         setViewTransformedPrompt(!viewTransformedPrompt)
