@@ -74,10 +74,6 @@ interface InputTransformModalProps {
   onClose: () => void;
 }
 
-// TODO: InputTransformModal and OutputTransformModal are very similar, and can
-// likely be refactored and have more reusable components. Leave as-is until the
-// UI is more finalized.
-
 /**
  * A modal to configure advanced JSON-to-JSON transforms into a model's expected input
  */
