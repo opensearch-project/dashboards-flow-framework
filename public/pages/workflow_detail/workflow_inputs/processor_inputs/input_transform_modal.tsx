@@ -74,6 +74,9 @@ interface InputTransformModalProps {
   onClose: () => void;
 }
 
+// the max number of input docs we use to display & test transforms with
+const MAX_INPUT_DOCS = 10;
+
 /**
  * A modal to configure advanced JSON-to-JSON transforms into a model's expected input
  */
@@ -119,6 +122,11 @@ export function InputTransformModal(props: InputTransformModalProps) {
   // validation state utilizing the model interface, if applicable. undefined if
   // there is no model interface and/or no source input
   const [isValid, setIsValid] = useState<boolean | undefined>(undefined);
+
+  const description =
+    props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+      ? 'Fetch an input query and see how it is transformed.'
+      : `Fetch some sample documents (up to ${MAX_INPUT_DOCS}) and see how they are transformed.`;
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
@@ -200,9 +208,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
-              <EuiText color="subdued">
-                Fetch some sample input data and see how it is transformed.
-              </EuiText>
+              <EuiText color="subdued">{description}</EuiText>
               <EuiSpacer size="s" />
               <EuiText>Source input</EuiText>
               <EuiSmallButton
@@ -310,9 +316,9 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       )
                         .unwrap()
                         .then(async (resp) => {
-                          const hits = resp.hits.hits.map(
-                            (hit: SearchHit) => hit._source
-                          );
+                          const hits = resp.hits.hits
+                            .map((hit: SearchHit) => hit._source)
+                            .slice(0, MAX_INPUT_DOCS);
                           if (hits.length > 0) {
                             setSourceInput(
                               // if one-to-one, treat the source input as a single retrieved document
