@@ -8,6 +8,8 @@ import jsonpath from 'jsonpath';
 import { escape, get } from 'lodash';
 import {
   JSONPATH_ROOT_SELECTOR,
+  MODEL_OUTPUT_SCHEMA_FULL_PATH,
+  MODEL_OUTPUT_SCHEMA_NESTED_PATH,
   MapFormValue,
   ModelInputFormField,
   ModelInterface,
@@ -18,10 +20,13 @@ import {
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STEP_TYPE,
   Workflow,
-  customStringify,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
-import { MDSQueryParams, ModelInputMap } from '../../common/interfaces';
+import {
+  MDSQueryParams,
+  ModelInputMap,
+  ModelOutputMap,
+} from '../../common/interfaces';
 import queryString from 'query-string';
 import { useLocation } from 'react-router-dom';
 import * as pluginManifest from '../../opensearch_dashboards.json';
@@ -221,11 +226,19 @@ export function parseModelInputsObj(
   ) as ModelInputMap;
 }
 
-// Derive the collection of model outputs from the model interface JSONSchema into a form-ready list
+// Derive the collection of model outputs from the model interface JSONSchema into a form-ready list.
+// Expose the full path or nested path depending on fullResponsePath
 export function parseModelOutputs(
-  modelInterface: ModelInterface | undefined
+  modelInterface: ModelInterface | undefined,
+  fullResponsePath: boolean = false
 ): ModelOutputFormField[] {
-  const modelOutputsObj = get(modelInterface, 'output.properties', {}) as {
+  const modelOutputsObj = get(
+    modelInterface,
+    fullResponsePath
+      ? MODEL_OUTPUT_SCHEMA_FULL_PATH
+      : MODEL_OUTPUT_SCHEMA_NESTED_PATH,
+    {}
+  ) as {
     [key: string]: ModelOutput;
   };
   return Object.keys(modelOutputsObj).map(
@@ -237,6 +250,20 @@ export function parseModelOutputs(
   );
 }
 
+// Derive the collection of model outputs as an obj.
+// Expose the full path or nested path depending on fullResponsePath
+export function parseModelOutputsObj(
+  modelInterface: ModelInterface | undefined,
+  fullResponsePath: boolean = false
+): ModelOutputMap {
+  return get(
+    modelInterface,
+    fullResponsePath
+      ? MODEL_OUTPUT_SCHEMA_FULL_PATH
+      : MODEL_OUTPUT_SCHEMA_NESTED_PATH,
+    {}
+  ) as ModelOutputMap;
+}
 export const getDataSourceFromURL = (location: {
   search: string;
 }): MDSQueryParams => {
