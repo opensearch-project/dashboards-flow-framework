@@ -98,7 +98,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
   // source input / transformed input state
-  const [sourceInput, setSourceInput] = useState<string>('[]');
+  const [sourceInput, setSourceInput] = useState<string>('{}');
   const [transformedInput, setTransformedInput] = useState<string>('{}');
 
   // get some current form values
@@ -143,6 +143,8 @@ export function InputTransformModal(props: InputTransformModalProps) {
         );
         setTransformedInput(customStringify(output));
       } catch {}
+    } else {
+      setTransformedInput('{}');
     }
   }, [map, sourceInput, selectedTransformOption]);
 
@@ -195,6 +197,11 @@ export function InputTransformModal(props: InputTransformModalProps) {
       setTransformedPrompt(originalPrompt);
     }
   }, [originalPrompt, transformedInput]);
+
+  // hook to clear the source input when one_to_one is toggled
+  useEffect(() => {
+    setSourceInput('{}');
+  }, [oneToOne]);
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>

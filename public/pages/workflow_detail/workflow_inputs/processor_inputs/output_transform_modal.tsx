@@ -31,6 +31,7 @@ import {
   IngestPipelineConfig,
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
+  ML_INFERENCE_RESPONSE_DOCS_LINK,
   MapArrayFormValue,
   ModelInterface,
   PROCESSOR_CONTEXT,
@@ -53,7 +54,7 @@ import {
   useAppDispatch,
 } from '../../../../store';
 import { getCore } from '../../../../services';
-import { MapArrayField } from '../input_fields';
+import { BooleanField, MapArrayField } from '../input_fields';
 import {
   getDataSourceId,
   parseModelOutputs,
@@ -83,15 +84,13 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
   // source output / transformed output state
-  const [sourceOutput, setSourceOutput] = useState<string>('[]');
+  const [sourceOutput, setSourceOutput] = useState<string>('{}');
   const [transformedOutput, setTransformedOutput] = useState<string>('{}');
 
   // get some current form values
   const map = getIn(values, props.outputMapFieldPath) as MapArrayFormValue;
-  const fullResponsePath = getIn(
-    values,
-    `${props.baseConfigPath}.${props.config.id}.full_response_path`
-  );
+  const fullResponsePathPath = `${props.baseConfigPath}.${props.config.id}.full_response_path`;
+  const fullResponsePath = getIn(values, fullResponsePathPath);
 
   // popover state containing the model interface details, if applicable
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
@@ -121,8 +120,15 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
         );
         setTransformedOutput(customStringify(output));
       } catch {}
+    } else {
+      setTransformedOutput('{}');
     }
   }, [map, sourceOutput, selectedTransformOption]);
+
+  // hook to clear the source output when full_response_path is toggled
+  useEffect(() => {
+    setSourceOutput('{}');
+  }, [fullResponsePath]);
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -139,6 +145,31 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                 Fetch some sample output data and see how it is transformed.
               </EuiText>
               <EuiSpacer size="s" />
+              {(props.context === PROCESSOR_CONTEXT.INGEST ||
+                props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE) && (
+                <>
+                  <BooleanField
+                    label={'Full response path'}
+                    fieldPath={fullResponsePathPath}
+                    enabledOption={{
+                      id: `${fullResponsePathPath}_true`,
+                      label: 'True',
+                    }}
+                    disabledOption={{
+                      id: `${fullResponsePathPath}_false`,
+                      label: 'False',
+                    }}
+                    showLabel={true}
+                    helpLink={
+                      props.context === PROCESSOR_CONTEXT.INGEST
+                        ? ML_INFERENCE_DOCS_LINK
+                        : ML_INFERENCE_RESPONSE_DOCS_LINK
+                    }
+                    helpText="Parse the full model output"
+                  />
+                  <EuiSpacer size="s" />
+                </>
+              )}
               <EuiFlexGroup direction="row" justifyContent="spaceBetween">
                 <EuiFlexItem>
                   <EuiText>Source output</EuiText>
