@@ -34,6 +34,7 @@ import {
   IngestPipelineConfig,
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
+  ML_INFERENCE_RESPONSE_DOCS_LINK,
   MapArrayFormValue,
   ModelInterface,
   PROCESSOR_CONTEXT,
@@ -60,7 +61,7 @@ import {
   parseModelInputs,
   parseModelInputsObj,
 } from '../../../../utils/utils';
-import { MapArrayField } from '../input_fields';
+import { BooleanField, MapArrayField } from '../input_fields';
 
 interface InputTransformModalProps {
   uiConfig: WorkflowConfig;
@@ -73,6 +74,9 @@ interface InputTransformModalProps {
   valueOptions: { label: string }[];
   onClose: () => void;
 }
+
+// the max number of input docs we use to display & test transforms with
+const MAX_INPUT_DOCS = 10;
 
 /**
  * A modal to configure advanced JSON-to-JSON transforms into a model's expected input
@@ -94,11 +98,13 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
   // source input / transformed input state
-  const [sourceInput, setSourceInput] = useState<string>('[]');
+  const [sourceInput, setSourceInput] = useState<string>('{}');
   const [transformedInput, setTransformedInput] = useState<string>('{}');
 
-  // get the current input map
+  // get some current form values
   const map = getIn(values, props.inputMapFieldPath) as MapArrayFormValue;
+  const oneToOnePath = `${props.baseConfigPath}.${props.config.id}.one_to_one`;
+  const oneToOne = getIn(values, oneToOnePath);
 
   // selected transform state
   const transformOptions = map.map((_, idx) => ({
@@ -116,6 +122,11 @@ export function InputTransformModal(props: InputTransformModalProps) {
   // there is no model interface and/or no source input
   const [isValid, setIsValid] = useState<boolean | undefined>(undefined);
 
+  const description =
+    props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+      ? 'Fetch an input query and see how it is transformed.'
+      : `Fetch some sample documents (up to ${MAX_INPUT_DOCS}) and see how they are transformed.`;
+
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
     if (
@@ -132,6 +143,8 @@ export function InputTransformModal(props: InputTransformModalProps) {
         );
         setTransformedInput(customStringify(output));
       } catch {}
+    } else {
+      setTransformedInput('{}');
     }
   }, [map, sourceInput, selectedTransformOption]);
 
@@ -185,6 +198,11 @@ export function InputTransformModal(props: InputTransformModalProps) {
     }
   }, [originalPrompt, transformedInput]);
 
+  // hook to clear the source input when one_to_one is toggled
+  useEffect(() => {
+    setSourceInput('{}');
+  }, [oneToOne]);
+
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
       <EuiModalHeader>
@@ -196,10 +214,28 @@ export function InputTransformModal(props: InputTransformModalProps) {
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
-              <EuiText color="subdued">
-                Fetch some sample input data and see how it is transformed.
-              </EuiText>
+              <EuiText color="subdued">{description}</EuiText>
               <EuiSpacer size="s" />
+              {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+                <>
+                  <BooleanField
+                    label={'One-to-one'}
+                    fieldPath={oneToOnePath}
+                    enabledOption={{
+                      id: `${oneToOnePath}_true`,
+                      label: 'True',
+                    }}
+                    disabledOption={{
+                      id: `${oneToOnePath}_false`,
+                      label: 'False',
+                    }}
+                    showLabel={true}
+                    helpLink={ML_INFERENCE_RESPONSE_DOCS_LINK}
+                    helpText="Run inference for each document separately"
+                  />
+                  <EuiSpacer size="s" />
+                </>
+              )}
               <EuiText>Source input</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
@@ -306,11 +342,15 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       )
                         .unwrap()
                         .then(async (resp) => {
-                          const hits = resp.hits.hits.map(
-                            (hit: SearchHit) => hit._source
-                          );
+                          const hits = resp.hits.hits
+                            .map((hit: SearchHit) => hit._source)
+                            .slice(0, MAX_INPUT_DOCS);
                           if (hits.length > 0) {
-                            setSourceInput(customStringify(hits[0]));
+                            setSourceInput(
+                              // if one-to-one, treat the source input as a single retrieved document
+                              // else, treat it as all of the returned documents
+                              customStringify(oneToOne ? hits[0] : hits)
+                            );
                           }
                         })
                         .catch((error: any) => {
