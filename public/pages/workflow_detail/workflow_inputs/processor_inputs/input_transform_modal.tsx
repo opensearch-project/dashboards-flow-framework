@@ -34,6 +34,7 @@ import {
   IngestPipelineConfig,
   JSONPATH_ROOT_SELECTOR,
   ML_INFERENCE_DOCS_LINK,
+  ML_INFERENCE_RESPONSE_DOCS_LINK,
   MapArrayFormValue,
   ModelInterface,
   PROCESSOR_CONTEXT,
@@ -60,7 +61,7 @@ import {
   parseModelInputs,
   parseModelInputsObj,
 } from '../../../../utils/utils';
-import { MapArrayField } from '../input_fields';
+import { BooleanField, MapArrayField } from '../input_fields';
 
 interface InputTransformModalProps {
   uiConfig: WorkflowConfig;
@@ -102,10 +103,8 @@ export function InputTransformModal(props: InputTransformModalProps) {
 
   // get some current form values
   const map = getIn(values, props.inputMapFieldPath) as MapArrayFormValue;
-  const oneToOne = getIn(
-    values,
-    `${props.baseConfigPath}.${props.config.id}.one_to_one`
-  );
+  const oneToOnePath = `${props.baseConfigPath}.${props.config.id}.one_to_one`;
+  const oneToOne = getIn(values, oneToOnePath);
 
   // selected transform state
   const transformOptions = map.map((_, idx) => ({
@@ -210,6 +209,26 @@ export function InputTransformModal(props: InputTransformModalProps) {
             <>
               <EuiText color="subdued">{description}</EuiText>
               <EuiSpacer size="s" />
+              {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+                <>
+                  <BooleanField
+                    label={'One-to-one'}
+                    fieldPath={oneToOnePath}
+                    enabledOption={{
+                      id: `${oneToOnePath}_true`,
+                      label: 'True',
+                    }}
+                    disabledOption={{
+                      id: `${oneToOnePath}_false`,
+                      label: 'False',
+                    }}
+                    showLabel={true}
+                    helpLink={ML_INFERENCE_RESPONSE_DOCS_LINK}
+                    helpText="Run inference for each document separately"
+                  />
+                  <EuiSpacer size="s" />
+                </>
+              )}
               <EuiText>Source input</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
