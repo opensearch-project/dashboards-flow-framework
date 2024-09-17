@@ -17,6 +17,7 @@ import {
   EuiSpacer,
   EuiText,
   EuiToolTip,
+  EuiSmallButton,
 } from '@elastic/eui';
 import {
   IProcessorConfig,
@@ -30,8 +31,11 @@ import {
   IndexMappings,
 } from '../../../../../common';
 import { MapArrayField, ModelField } from '../input_fields';
-import { InputTransformModal } from './input_transform_modal';
-import { OutputTransformModal } from './output_transform_modal';
+import {
+  ConfigurePromptModal,
+  InputTransformModal,
+  OutputTransformModal,
+} from './modals';
 import { AppState, getMappings, useAppDispatch } from '../../../../store';
 import {
   formikToPartialPipeline,
@@ -108,13 +112,14 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     }
   }, [props.uiConfig.search.enrichRequest.processors]);
 
-  // advanced transformations modal state
+  // various modal states
   const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
     boolean
   >(false);
   const [isOutputTransformModalOpen, setIsOutputTransformModalOpen] = useState<
     boolean
   >(false);
+  const [isPromptModalOpen, setIsPromptModalOpen] = useState<boolean>(false);
 
   // model interface state
   const [modelInterface, setModelInterface] = useState<
@@ -240,6 +245,14 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           onClose={() => setIsOutputTransformModalOpen(false)}
         />
       )}
+      {isPromptModalOpen && (
+        <ConfigurePromptModal
+          config={props.config}
+          baseConfigPath={props.baseConfigPath}
+          modelInterface={modelInterface}
+          onClose={() => setIsPromptModalOpen(false)}
+        />
+      )}
       <ModelField
         field={modelField}
         fieldPath={modelFieldPath}
@@ -249,6 +262,23 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
         <>
           <EuiSpacer size="s" />
+          {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+            <>
+              <EuiText
+                size="m"
+                style={{ marginTop: '4px' }}
+              >{`Configure prompt (Optional)`}</EuiText>
+              <EuiSpacer size="s" />
+              <EuiSmallButton
+                style={{ width: '100px' }}
+                fill={false}
+                onClick={() => setIsPromptModalOpen(true)}
+              >
+                Configure
+              </EuiSmallButton>
+              <EuiSpacer size="s" />
+            </>
+          )}
           <EuiFlexGroup direction="row">
             <EuiFlexItem grow={false}>
               <EuiText
