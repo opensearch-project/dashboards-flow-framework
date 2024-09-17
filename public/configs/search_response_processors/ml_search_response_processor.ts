@@ -14,11 +14,15 @@ export class MLSearchResponseProcessor extends MLProcessor {
     super();
     this.id = generateId('ml_processor_search_response');
     this.optionalFields = [
+      ...(this.optionalFields || []),
       {
         id: 'one_to_one',
         type: 'boolean',
       },
-      ...(this.optionalFields || []),
+      {
+        id: 'override',
+        type: 'boolean',
+      },
     ];
   }
 }
