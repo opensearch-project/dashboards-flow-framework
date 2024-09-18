@@ -44,7 +44,7 @@ const initialState = {
   workflows: {
     loading: false,
     errorMessage: '',
-    workflows: mockStore(...workflowSet).getState().workflows.workflows,
+    workflows: mockStore(...workflowSet).getState().workflows.workflows, // The `mockStore` used here is from the Test Utils.
   },
 };
 const store = mockStore1(initialState);
@@ -82,22 +82,23 @@ describe('WorkflowList', () => {
     // Sort workflows list by Name
     expect(sortButtons[0]).toBeInTheDocument();
     userEvent.click(sortButtons[0]!);
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    expect(queryByText('workflow_name_19')).toBeInTheDocument();
-    expect(queryByText('workflow_name_0')).toBeNull();
+    await waitFor(() => {
+      expect(queryByText('workflow_name_19')).toBeInTheDocument();
+      expect(queryByText('workflow_name_0')).toBeNull();
+    });
     userEvent.click(sortButtons[0]!);
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    expect(queryByText('workflow_name_0')).toBeInTheDocument();
-    expect(queryByText('workflow_name_9')).toBeInTheDocument();
-    expect(queryByText('workflow_name_10')).toBeNull();
-    expect(queryByText('workflow_name_19')).toBeNull();
+    await waitFor(() => {
+      expect(queryByText('workflow_name_0')).toBeInTheDocument();
+      expect(queryByText('workflow_name_9')).toBeInTheDocument();
+      expect(queryByText('workflow_name_10')).toBeNull();
+      expect(queryByText('workflow_name_19')).toBeNull();
+    });
 
     // Sort workflows list by Type
     expect(sortButtons[1]).toBeInTheDocument();
     userEvent.click(sortButtons[1]!);
-
     await waitFor(() => {
-      expect(getAllByText('Custom').length).toBeGreaterThan(0); // Ensures at least one 'Custom' element is present
+      expect(getAllByText('Custom').length).toBeGreaterThan(0);
       expect(queryByText('Unknown')).toBeNull();
     });
     userEvent.click(sortButtons[1]!);
@@ -118,18 +119,13 @@ describe('WorkflowList', () => {
 
     // Default view 10 items per page
     expect(getByText('workflow_name_0')).toBeInTheDocument();
-    //expect(queryByText('workflow_name_11')).toBeNull();
     expect(queryByText('workflow_name_19')).toBeNull();
 
-    //Navigate to next page
+    // Navigate to next page
     const nextButton = container.querySelector(
       '[data-test-subj="pagination-button-next"]'
     ) as HTMLButtonElement;
-    //console.log('nextButton printed', nextButton);
-
     userEvent.click(nextButton);
-
-    // Check if item from the next page is visible
     await waitFor(() => {
       expect(getByText('workflow_name_19')).toBeInTheDocument();
       expect(queryByText('workflow_name_0')).toBeNull();
@@ -139,15 +135,13 @@ describe('WorkflowList', () => {
     const previousButton = container.querySelector(
       '[data-test-subj="pagination-button-previous"]'
     ) as HTMLButtonElement;
-
     userEvent.click(previousButton);
-
-    // Check if item from the previous page is visible
     await waitFor(() => {
       expect(getByText('workflow_name_0')).toBeInTheDocument();
       expect(queryByText('workflow_name_19')).toBeNull();
     });
   });
+
   test('delete action functionality', async () => {
     const { getByText, getByTestId, getAllByLabelText } = renderWithRouter();
     const deleteButtons = getAllByLabelText('Delete');
@@ -162,6 +156,7 @@ describe('WorkflowList', () => {
     expect(cancelDeleteWorkflowButton).toBeInTheDocument();
     userEvent.click(cancelDeleteWorkflowButton);
   });
+
   test('view resources functionality', async () => {
     const { getByText, getAllByLabelText } = renderWithRouter();
     const viewResourcesButtons = getAllByLabelText('View resources');

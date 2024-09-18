@@ -94,7 +94,8 @@ const templatesDir = path.resolve(
   'resources',
   'templates'
 );
-export const loadPresetTemplates = () =>
+
+export const loadPresetWorkflowTemplates = () =>
   fs
     .readdirSync(templatesDir)
     .filter((file) => file.endsWith('.json'))

@@ -12,7 +12,7 @@ import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import * as ReactReduxHooks from '../../../store/store';
 import '@testing-library/jest-dom';
-import { loadPresetTemplates } from '../../../../test/utils';
+import { loadPresetWorkflowTemplates } from '../../../../test/utils';
 import { INITIAL_ML_STATE } from '../../../../public/store';
 
 jest.mock('../../../services', () => {
@@ -28,7 +28,7 @@ const initialState = {
   ml: INITIAL_ML_STATE,
   presets: {
     loading: false,
-    presetWorkflows: loadPresetTemplates(),
+    presetWorkflows: loadPresetWorkflowTemplates(),
   },
 };
 const store = mockStore(initialState);
@@ -59,6 +59,8 @@ describe('NewWorkflow', () => {
     expect(getAllByText('Hybrid Search')).toHaveLength(1);
     expect(getAllByText('Multimodal Search')).toHaveLength(1);
     expect(getAllByText('Semantic Search')).toHaveLength(1);
+    expect(getAllByText('Retrieval-augmented generation')).toHaveLength(1);
+    expect(getAllByText('Sentiment analysis')).toHaveLength(1);
   });
 
   test('renders the quick configure for preset workflow templates', async () => {
