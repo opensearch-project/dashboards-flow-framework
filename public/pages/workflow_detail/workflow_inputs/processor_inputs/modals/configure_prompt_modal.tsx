@@ -243,7 +243,7 @@ const columns = [
   {
     name: 'Name',
     field: 'label',
-    width: '30%',
+    width: '25%',
   },
   {
     name: 'Type',
@@ -253,7 +253,7 @@ const columns = [
   {
     name: 'Placeholder string',
     field: 'label',
-    width: '55%',
+    width: '50%',
     render: (label: string, modelInput: ModelInputFormField) => (
       <EuiCode
         style={{
@@ -262,9 +262,7 @@ const columns = [
         language="json"
         transparentBackground={true}
       >
-        {modelInput.type === 'array'
-          ? `\$\{parameters.${label}.toString()\}`
-          : `\$\\{parameters.${label}\\}`}
+        {getPlaceholderString(modelInput.type, label)}
       </EuiCode>
     ),
   },
@@ -273,13 +271,7 @@ const columns = [
     field: 'label',
     width: '10%',
     render: (label: string, modelInput: ModelInputFormField) => (
-      <EuiCopy
-        textToCopy={
-          modelInput.type === 'array'
-            ? `\$\{parameters.${label}.toString()\}`
-            : `\$\\{parameters.${label}\\}`
-        }
-      >
+      <EuiCopy textToCopy={getPlaceholderString(modelInput.type, label)}>
         {(copy) => (
           <EuiButtonIcon
             aria-label="Copy"
@@ -291,3 +283,14 @@ const columns = [
     ),
   },
 ];
+
+// small util fn to get the full placeholder string to be
+// inserted into the template. String conversion is required
+// if the input is an array, for example. Also, all values
+// should be prepended with "parameters.", as all inputs
+// will be nested under a base parameters obj.
+function getPlaceholderString(type: string, label: string) {
+  return type === 'array'
+    ? `\$\{parameters.${label}.toString()\}`
+    : `\$\\{parameters.${label}\\}`;
+}
