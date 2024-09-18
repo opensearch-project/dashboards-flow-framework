@@ -43,25 +43,25 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
   customStringify,
-} from '../../../../../common';
+} from '../../../../../../common';
 import {
   formikToPartialPipeline,
   generateTransform,
   prepareDocsForSimulate,
   unwrapTransformedDocs,
-} from '../../../../utils';
+} from '../../../../../utils';
 import {
   searchIndex,
   simulatePipeline,
   useAppDispatch,
-} from '../../../../store';
-import { getCore } from '../../../../services';
+} from '../../../../../store';
+import { getCore } from '../../../../../services';
 import {
   getDataSourceId,
   parseModelInputs,
   parseModelInputsObj,
-} from '../../../../utils/utils';
-import { BooleanField, MapArrayField } from '../input_fields';
+} from '../../../../../utils/utils';
+import { BooleanField, MapArrayField } from '../../input_fields';
 
 interface InputTransformModalProps {
   uiConfig: WorkflowConfig;

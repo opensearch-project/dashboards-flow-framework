@@ -482,6 +482,11 @@ export type QueryPreset = {
   query: string;
 };
 
+export type PromptPreset = {
+  name: string;
+  prompt: string;
+};
+
 export type QuickConfigureFields = {
   modelId?: string;
   vectorField?: string;
