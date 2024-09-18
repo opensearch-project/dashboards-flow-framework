@@ -41,7 +41,7 @@ const renderWithRouter = (
 
   return {
     ...render(
-      <Provider store={mockStore(workflowId, workflowName, workflowType)}>
+      <Provider store={mockStore([workflowId, workflowName, workflowType])}>
         <Router history={history}>
           <Switch>
             <Route

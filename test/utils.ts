@@ -17,25 +17,30 @@ import {
   fetchMultimodalSearchMetadata,
   fetchSemanticSearchMetadata,
 } from '../public/pages/workflows/new_workflow/utils';
+import fs from 'fs';
+import path from 'path';
 
-export function mockStore(
-  workflowId: string,
-  workflowName: string,
-  workflowType: WORKFLOW_TYPE
-) {
+export function mockStore(...workflowSets: [string, string, WORKFLOW_TYPE][]) {
   return {
     getState: () => ({
       opensearch: INITIAL_OPENSEARCH_STATE,
       ml: INITIAL_ML_STATE,
       workflows: {
         ...INITIAL_WORKFLOWS_STATE,
-        workflows: {
-          [workflowId]: generateWorkflow(
-            workflowId,
-            workflowName,
-            workflowType
-          ),
-        },
+        workflows: workflowSets.reduce(
+          (
+            acc: Record<string, Workflow>,
+            [workflowId, workflowName, workflowType]
+          ) => {
+            acc[workflowId] = generateWorkflow(
+              workflowId,
+              workflowName,
+              workflowType
+            );
+            return acc;
+          },
+          {}
+        ),
       },
       presets: INITIAL_PRESETS_STATE,
     }),
@@ -58,6 +63,7 @@ function generateWorkflow(
     ui_metadata: getConfig(workflowType),
   };
 }
+
 function getConfig(workflowType: WORKFLOW_TYPE) {
   let uiMetadata = {} as UIState;
   switch (workflowType) {
@@ -80,6 +86,21 @@ function getConfig(workflowType: WORKFLOW_TYPE) {
   }
   return uiMetadata;
 }
+
+const templatesDir = path.resolve(
+  __dirname,
+  '..',
+  'server',
+  'resources',
+  'templates'
+);
+export const loadPresetTemplates = () =>
+  fs
+    .readdirSync(templatesDir)
+    .filter((file) => file.endsWith('.json'))
+    .map((file) =>
+      JSON.parse(fs.readFileSync(path.join(templatesDir, file), 'utf8'))
+    );
 
 export const resizeObserverMock = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
