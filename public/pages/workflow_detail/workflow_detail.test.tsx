@@ -41,7 +41,13 @@ const renderWithRouter = (
 
   return {
     ...render(
-      <Provider store={mockStore([workflowId, workflowName, workflowType])}>
+      <Provider
+        store={mockStore({
+          id: workflowId,
+          name: workflowName,
+          type: workflowType,
+        })}
+      >
         <Router history={history}>
           <Switch>
             <Route
@@ -59,6 +65,9 @@ const renderWithRouter = (
 };
 
 describe('WorkflowDetail Page with create ingestion option', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   Object.values(WORKFLOW_TYPE).forEach((type) => {
     test(`renders the WorkflowDetail page with ${type} type`, async () => {
       const {
@@ -113,6 +122,9 @@ describe('WorkflowDetail Page with create ingestion option', () => {
 });
 
 describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   test('tests Export button, Tools panel toggling, and Workspace preview', async () => {
     const { getByText, container, getByTestId } = renderWithRouter(
       workflowId,

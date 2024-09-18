@@ -43,6 +43,9 @@ const renderWithRouter = () => ({
 });
 
 describe('Workflows', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   test('renders the page', async () => {
     const { getAllByText, getByTestId, queryByText } = renderWithRouter();
 

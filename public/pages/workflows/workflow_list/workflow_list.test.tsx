@@ -13,6 +13,7 @@ import { WorkflowList } from './workflow_list';
 import { mockStore } from '../../../../test/utils';
 import { WORKFLOW_TYPE } from '../../../../common';
 import configureStore from 'redux-mock-store';
+import { WorkflowInput } from '../../../../test/interfaces';
 
 jest.mock('../../../services', () => {
   const { mockCoreServices } = require('../../../../test');
@@ -22,22 +23,13 @@ jest.mock('../../../services', () => {
   };
 });
 
-const workflows = new Array(20).fill(null).map((_, index) => ({
+const workflowSet: WorkflowInput[] = Array.from({ length: 20 }, (_, index) => ({
   id: `workflow_id_${index}`,
   name: `workflow_name_${index}`,
   type: Object.values(WORKFLOW_TYPE)[
     Math.floor(Math.random() * Object.values(WORKFLOW_TYPE).length)
   ],
 }));
-const workflowSet: [
-  string,
-  string,
-  WORKFLOW_TYPE
-][] = workflows.map(({ id, name, type }): [string, string, WORKFLOW_TYPE] => [
-  id,
-  name,
-  type,
-]);
 
 const mockStore1 = configureStore([]);
 const initialState = {
@@ -47,6 +39,7 @@ const initialState = {
     workflows: mockStore(...workflowSet).getState().workflows.workflows, // The `mockStore` used here is from the Test Utils.
   },
 };
+
 const store = mockStore1(initialState);
 
 const renderWithRouter = () =>
@@ -61,6 +54,9 @@ const renderWithRouter = () =>
   );
 
 describe('WorkflowList', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   test('renders the page', () => {
     const { getAllByText } = renderWithRouter();
     expect(getAllByText('Manage existing workflows').length).toBeGreaterThan(0);

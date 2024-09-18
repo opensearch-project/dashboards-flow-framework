@@ -14,6 +14,8 @@ import * as ReactReduxHooks from '../../../store/store';
 import '@testing-library/jest-dom';
 import { loadPresetWorkflowTemplates } from '../../../../test/utils';
 import { INITIAL_ML_STATE } from '../../../../public/store';
+import { WORKFLOW_TYPE } from '../../../../common/constants';
+import { capitalizeEachWord } from '../../../../test/utils';
 
 jest.mock('../../../services', () => {
   const { mockCoreServices } = require('../../../../test');
@@ -55,12 +57,11 @@ describe('NewWorkflow', () => {
   test('renders the preset workflow templates', () => {
     const { getByPlaceholderText, getAllByText } = renderWithRouter();
     expect(getByPlaceholderText('Search')).toBeInTheDocument();
-    expect(getAllByText('Custom')).toHaveLength(1);
-    expect(getAllByText('Hybrid Search')).toHaveLength(1);
-    expect(getAllByText('Multimodal Search')).toHaveLength(1);
-    expect(getAllByText('Semantic Search')).toHaveLength(1);
-    expect(getAllByText('Retrieval-Augmented Generation')).toHaveLength(1);
-    expect(getAllByText('Sentiment Analysis')).toHaveLength(1);
+    Object.values(WORKFLOW_TYPE).forEach((type) => {
+      if (type !== WORKFLOW_TYPE.UNKNOWN) {
+        expect(getAllByText(capitalizeEachWord(type))).toHaveLength(1);
+      }
+    });
   });
 
   test('renders the quick configure for preset workflow templates', async () => {

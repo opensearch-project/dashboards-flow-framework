@@ -9,6 +9,7 @@ import {
   INITIAL_PRESETS_STATE,
   INITIAL_WORKFLOWS_STATE,
 } from '../public/store';
+import { WorkflowInput } from '../test/interfaces';
 import { WORKFLOW_TYPE } from '../common/constants';
 import { UIState, Workflow } from '../common/interfaces';
 import {
@@ -20,7 +21,7 @@ import {
 import fs from 'fs';
 import path from 'path';
 
-export function mockStore(...workflowSets: [string, string, WORKFLOW_TYPE][]) {
+export function mockStore(...workflowSets: WorkflowInput[]) {
   return {
     getState: () => ({
       opensearch: INITIAL_OPENSEARCH_STATE,
@@ -28,15 +29,8 @@ export function mockStore(...workflowSets: [string, string, WORKFLOW_TYPE][]) {
       workflows: {
         ...INITIAL_WORKFLOWS_STATE,
         workflows: workflowSets.reduce(
-          (
-            acc: Record<string, Workflow>,
-            [workflowId, workflowName, workflowType]
-          ) => {
-            acc[workflowId] = generateWorkflow(
-              workflowId,
-              workflowName,
-              workflowType
-            );
+          (acc: Record<string, Workflow>, { id, name, type }) => {
+            acc[id] = generateWorkflow(id, name, type);
             return acc;
           },
           {}
@@ -102,6 +96,10 @@ export const loadPresetWorkflowTemplates = () =>
     .map((file) =>
       JSON.parse(fs.readFileSync(path.join(templatesDir, file), 'utf8'))
     );
+
+export function capitalizeEachWord(input: string): string {
+  return input.replace(/\b\w/g, (match) => match.toUpperCase());
+}
 
 export const resizeObserverMock = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
