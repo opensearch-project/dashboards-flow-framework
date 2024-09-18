@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useFormikContext, getIn } from 'formik';
-import { cloneDeep, isEmpty, set } from 'lodash';
+import { isEmpty } from 'lodash';
 import {
   EuiCodeEditor,
   EuiFlexGroup,
@@ -15,8 +15,6 @@ import {
   EuiModalFooter,
   EuiModalHeader,
   EuiModalHeaderTitle,
-  EuiCompressedSelect,
-  EuiSelectOption,
   EuiSmallButton,
   EuiSpacer,
   EuiText,
@@ -26,43 +24,19 @@ import {
   EuiCodeBlock,
   EuiCallOut,
   EuiCode,
+  EuiBasicTable,
+  EuiAccordion,
 } from '@elastic/eui';
 import {
-  IConfigField,
   IProcessorConfig,
-  IngestPipelineConfig,
-  JSONPATH_ROOT_SELECTOR,
-  ML_INFERENCE_DOCS_LINK,
-  ML_INFERENCE_RESPONSE_DOCS_LINK,
-  MapArrayFormValue,
+  ModelInputFormField,
   ModelInterface,
-  PROCESSOR_CONTEXT,
-  SearchHit,
-  SearchPipelineConfig,
-  SimulateIngestPipelineResponse,
-  WorkflowConfig,
   WorkflowFormValues,
   customStringify,
 } from '../../../../../../common';
 import {
-  formikToPartialPipeline,
-  generateTransform,
-  prepareDocsForSimulate,
-  unwrapTransformedDocs,
-} from '../../../../../utils';
-import {
-  searchIndex,
-  simulatePipeline,
-  useAppDispatch,
-} from '../../../../../store';
-import { getCore } from '../../../../../services';
-import { BooleanField, MapArrayField } from '../../input_fields';
-import {
-  getDataSourceId,
   parseModelInputs,
   parseModelInputsObj,
-  parseModelOutputs,
-  parseModelOutputsObj,
 } from '../../../../../utils/utils';
 
 interface ConfigurePromptModalProps {
@@ -76,14 +50,15 @@ interface ConfigurePromptModalProps {
  * A modal to configure advanced JSON-to-JSON transforms from a model's expected output
  */
 export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
-  const dispatch = useAppDispatch();
-  const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
 
   // get some current form values
   const modelConfigPath = `${props.baseConfigPath}.${props.config.id}.model_config`;
   const modelConfig = getIn(values, modelConfigPath) as string;
   const modelInputs = parseModelInputs(props.modelInterface);
+
+  // popover state containing the model interface details, if applicable
+  const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
   // prompt state
   const [prompt, setPrompt] = useState<string>('');
@@ -117,39 +92,96 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
-              <EuiText color="subdued">
-                Configure a custom prompt template. Optionally use model input
-                values in the prompt template with placeholders.
-              </EuiText>
-              <EuiSpacer size="s" />
-              <EuiText>Model inputs</EuiText>
               <EuiSpacer size="s" />
               {modelInputs.length > 0 ? (
                 <>
-                  <EuiCodeBlock language="json" fontSize="s" isCopyable={false}>
-                    {customStringify({
-                      parameters: parseModelInputsObj(props.modelInterface),
-                    })}
-                  </EuiCodeBlock>
+                  <EuiAccordion
+                    id={'todo'}
+                    buttonContent="Model inputs"
+                    style={{ marginLeft: '-8px' }}
+                  >
+                    <>
+                      <EuiSpacer size="s" />
+                      <EuiText
+                        style={{ paddingLeft: '8px' }}
+                        size="s"
+                        color="subdued"
+                      >
+                        To use any model inputs in the prompt template, copy the
+                        relevant placeholder string directly.
+                      </EuiText>
+                      <EuiSpacer size="s" />
+                      <EuiBasicTable
+                        items={modelInputs}
+                        columns={[
+                          {
+                            name: 'Name',
+                            field: 'label',
+                            width: '30%',
+                          },
+                          {
+                            name: 'Type',
+                            field: 'type',
+                            width: '15%',
+                          },
+                          {
+                            name: 'Placeholder string',
+                            field: 'label',
+                            width: '55%',
+                            render: (
+                              label: string,
+                              modelInput: ModelInputFormField
+                            ) => (
+                              <EuiCode
+                                style={{
+                                  marginLeft: '-10px',
+                                }}
+                                language="json"
+                                transparentBackground={true}
+                              >
+                                {modelInput.type === 'array'
+                                  ? `\$\{parameters.${label}.toString()\}`
+                                  : `\$\\{parameters.${label}\\}`}
+                              </EuiCode>
+                            ),
+                          },
+                        ]}
+                      />
+                      <EuiSpacer size="s" />
+                      <EuiPopover
+                        isOpen={popoverOpen}
+                        closePopover={() => setPopoverOpen(false)}
+                        button={
+                          <EuiSmallButtonEmpty
+                            onClick={() => setPopoverOpen(!popoverOpen)}
+                          >
+                            View full input schema
+                          </EuiSmallButtonEmpty>
+                        }
+                      >
+                        <EuiPopoverTitle>
+                          The JSON Schema defining the model's expected input
+                        </EuiPopoverTitle>
+                        <EuiCodeBlock
+                          language="json"
+                          fontSize="m"
+                          isCopyable={false}
+                        >
+                          {customStringify({
+                            parameters: parseModelInputsObj(
+                              props.modelInterface
+                            ),
+                          })}
+                        </EuiCodeBlock>
+                      </EuiPopover>
+                    </>
+                  </EuiAccordion>
+                  <EuiSpacer size="m" />
                 </>
               ) : (
                 <EuiCallOut color="warning" title="No defined model inputs" />
               )}
               <EuiSpacer size="s" />
-              {modelInputs.length > 0 && (
-                <>
-                  <EuiText>Model input placeholders</EuiText>
-                  {modelInputs.map((modelInput) => {
-                    return (
-                      <EuiCode
-                        language="json"
-                        transparentBackground={true}
-                      >{`parameters.${modelInput.label}`}</EuiCode>
-                    );
-                  })}
-                  <EuiSpacer size="m" />
-                </>
-              )}
               <EuiText>Prompt</EuiText>
               <EuiSpacer size="s" />
               <EuiCodeEditor
