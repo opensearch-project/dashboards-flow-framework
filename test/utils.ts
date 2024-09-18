@@ -29,10 +29,10 @@ export function mockStore(...workflowSets: WorkflowInput[]) {
       workflows: {
         ...INITIAL_WORKFLOWS_STATE,
         workflows: workflowSets.reduce(
-          (acc: Record<string, Workflow>, { id, name, type }) => {
-            acc[id] = generateWorkflow(id, name, type);
-            return acc;
-          },
+          (acc, workflowInput) => ({
+            ...acc,
+            [workflowInput.id]: generateWorkflow(workflowInput),
+          }),
           {}
         ),
       },
@@ -45,16 +45,12 @@ export function mockStore(...workflowSets: WorkflowInput[]) {
   };
 }
 
-function generateWorkflow(
-  workflowId: string,
-  workflowName: string,
-  workflowType: WORKFLOW_TYPE
-): Workflow {
+function generateWorkflow({ id, name, type }: WorkflowInput): Workflow {
   return {
-    id: workflowId,
-    name: workflowName,
+    id,
+    name,
     version: { template: '1.0.0', compatibility: ['2.17.0', '3.0.0'] },
-    ui_metadata: getConfig(workflowType),
+    ui_metadata: getConfig(type),
   };
 }
 
