@@ -16,6 +16,7 @@ import {
   EuiCompressedFieldNumber,
 } from '@elastic/eui';
 import {
+  BEDROCK_DIMENSIONS,
   COHERE_DIMENSIONS,
   DEFAULT_IMAGE_FIELD,
   DEFAULT_LABEL_FIELD,
@@ -130,9 +131,9 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             // @ts-ignore
             COHERE_DIMENSIONS[connector.parameters?.model] ||
             // @ts-ignore
-            (OPENAI_DIMENSIONS[connector.parameters?.model] as
-              | number
-              | undefined);
+            OPENAI_DIMENSIONS[connector.parameters?.model] ||
+            // @ts-ignore
+            BEDROCK_DIMENSIONS[connector.parameters?.model];
           if (dimensions !== undefined) {
             setFieldValues({
               ...fieldValues,

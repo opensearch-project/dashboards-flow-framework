@@ -86,6 +86,12 @@ export const OPENAI_DIMENSIONS = {
   [`text-embedding-ada-002`]: 1536,
 };
 
+// Amazon BedRock
+export const BEDROCK_DIMENSIONS = {
+  [`amazon.titan-embed-text-v1`]: 1536,
+  [`amazon.titan-embed-text-v2`]: 1024,
+};
+
 /**
  * Various constants pertaining to Workflow configs
  */

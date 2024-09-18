@@ -178,17 +178,35 @@ export function unwrapTransformedDocs(
 
 // ML inference processors will use standard dot notation or JSONPath depending on the input.
 // We follow the same logic here to generate consistent results.
-// Collapse the values depending on if the input is an array or not.
-export function generateTransform(input: {} | [], map: MapFormValue): {} | [] {
+export function generateTransform(input: {} | [], map: MapFormValue): {} {
   let output = {};
   map.forEach((mapEntry) => {
-    const path = mapEntry.value;
     try {
-      const transformedResult = Array.isArray(input)
-        ? input.map((inputEntry) =>
-            getTransformedResult(mapEntry, inputEntry, path)
-          )
-        : getTransformedResult(mapEntry, input, path);
+      const transformedResult = getTransformedResult(
+        mapEntry,
+        input,
+        mapEntry.value
+      );
+      output = {
+        ...output,
+        [mapEntry.key]: transformedResult || '',
+      };
+    } catch (e: any) {}
+  });
+  return output;
+}
+
+// Similar to generateTransform, but collapse the values of the input array into
+// a single field value in the transformed output.
+// A specialty scenario for when configuring input on search response processors, one-to-one is false,
+// and the input is an array.
+export function generateArrayTransform(input: [], map: MapFormValue): {}[] {
+  let output = [] as {}[];
+  map.forEach((mapEntry) => {
+    try {
+      const transformedResult = input.map((inputEntry) =>
+        getTransformedResult(mapEntry, inputEntry, mapEntry.value)
+      );
       output = {
         ...output,
         [mapEntry.key]: transformedResult || '',
@@ -203,7 +221,13 @@ function getTransformedResult(
   input: {},
   path: string
 ): any {
-  return mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR)
+  // Edge case: if the path is ".", it implies returning
+  // the entire value. This may happen if full_response_path=false
+  // and the input is the entire result with nothing else to parse out.
+  // get() does not cover this case, so we override manually.
+  return path === '.'
+    ? input
+    : mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR)
     ? // JSONPath transform
       jsonpath.query(input, path)
     : // Standard dot notation
