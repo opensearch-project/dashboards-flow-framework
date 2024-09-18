@@ -22,15 +22,19 @@ import {
   EuiSmallButtonEmpty,
   EuiPopoverTitle,
   EuiCodeBlock,
-  EuiCallOut,
   EuiCode,
   EuiBasicTable,
   EuiAccordion,
+  EuiCopy,
+  EuiButtonIcon,
+  EuiContextMenu,
 } from '@elastic/eui';
 import {
   IProcessorConfig,
   ModelInputFormField,
   ModelInterface,
+  PROMPT_PRESETS,
+  PromptPreset,
   WorkflowFormValues,
   customStringify,
 } from '../../../../../../common';
@@ -47,21 +51,26 @@ interface ConfigurePromptModalProps {
 }
 
 /**
- * A modal to configure advanced JSON-to-JSON transforms from a model's expected output
+ * A modal to configure a prompt template. Can manually configure, include placeholder values
+ * using other model inputs, and/or select from a presets library.
  */
 export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
-  const { values } = useFormikContext<WorkflowFormValues>();
+  const { values, setFieldValue, setFieldTouched } = useFormikContext<
+    WorkflowFormValues
+  >();
 
   // get some current form values
   const modelConfigPath = `${props.baseConfigPath}.${props.config.id}.model_config`;
   const modelConfig = getIn(values, modelConfigPath) as string;
   const modelInputs = parseModelInputs(props.modelInterface);
 
-  // popover state containing the model interface details, if applicable
-  const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
+  // popover states
+  const [schemaPopoverOpen, setSchemaPopoverOpen] = useState<boolean>(false);
+  const [presetsPopoverOpen, setPresetsPopoverOpen] = useState<boolean>(false);
 
-  // prompt state
-  const [prompt, setPrompt] = useState<string>('');
+  // prompt str state. manipulated as users manually update, or
+  // from selecting a preset
+  const [promptStr, setPromptStr] = useState<string>('');
 
   // hook to set the prompt if found in the model config
   useEffect(() => {
@@ -72,9 +81,9 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
     try {
       const prompt = JSON.parse(modelConfigString)?.prompt;
       if (!isEmpty(prompt)) {
-        setPrompt(prompt);
+        setPromptStr(prompt);
       } else {
-        setPrompt('');
+        setPromptStr('');
       }
     } catch {}
   }, [
@@ -93,10 +102,83 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
           <EuiFlexItem>
             <>
               <EuiSpacer size="s" />
-              {modelInputs.length > 0 ? (
+              <EuiPopover
+                button={
+                  <EuiSmallButton
+                    onClick={() => setPresetsPopoverOpen(!presetsPopoverOpen)}
+                  >
+                    Choose from a preset
+                  </EuiSmallButton>
+                }
+                isOpen={presetsPopoverOpen}
+                closePopover={() => setPresetsPopoverOpen(false)}
+                anchorPosition="downLeft"
+              >
+                <EuiContextMenu
+                  initialPanelId={0}
+                  panels={[
+                    {
+                      id: 0,
+                      items: PROMPT_PRESETS.map((preset: PromptPreset) => ({
+                        name: preset.name,
+                        onClick: () => {
+                          setFieldValue(
+                            modelConfigPath,
+                            customStringify({
+                              ...JSON.parse(modelConfig),
+                              prompt: preset.prompt,
+                            })
+                          );
+                          setFieldTouched(modelConfigPath, true);
+                          setPresetsPopoverOpen(false);
+                        },
+                      })),
+                    },
+                  ]}
+                />
+              </EuiPopover>
+              <EuiSpacer size="m" />
+              <EuiText>Prompt</EuiText>
+              <EuiSpacer size="s" />
+              <EuiCodeEditor
+                mode="json"
+                theme="textmate"
+                width="100%"
+                height="15vh"
+                value={promptStr}
+                readOnly={false}
+                setOptions={{
+                  fontSize: '12px',
+                  autoScrollEditorIntoView: true,
+                  showLineNumbers: false,
+                  showGutter: false,
+                  showPrintMargin: false,
+                  wrap: true,
+                }}
+                tabSize={2}
+                onChange={(value) => setPromptStr(value)}
+                onBlur={(e) => {
+                  let updatedModelConfig = JSON.parse(modelConfig);
+                  if (isEmpty(promptStr)) {
+                    // if the input is blank, it is assumed the user
+                    // does not want any prompt. hence, remove the "prompt" field
+                    // from the config altogether.
+                    delete updatedModelConfig.prompt;
+                  } else {
+                    updatedModelConfig.prompt = promptStr;
+                  }
+                  setFieldValue(
+                    modelConfigPath,
+                    customStringify(updatedModelConfig)
+                  );
+                  setFieldTouched(modelConfigPath);
+                }}
+              />
+              {modelInputs.length > 0 && (
                 <>
+                  <EuiSpacer size="s" />
                   <EuiAccordion
-                    id={'todo'}
+                    id={`modelInputsAccordion`}
                     buttonContent="Model inputs"
                     style={{ marginLeft: '-8px' }}
                   >
@@ -108,52 +190,19 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
                         color="subdued"
                       >
                         To use any model inputs in the prompt template, copy the
-                        relevant placeholder string directly.
+                        placeholder string directly.
                       </EuiText>
                       <EuiSpacer size="s" />
-                      <EuiBasicTable
-                        items={modelInputs}
-                        columns={[
-                          {
-                            name: 'Name',
-                            field: 'label',
-                            width: '30%',
-                          },
-                          {
-                            name: 'Type',
-                            field: 'type',
-                            width: '15%',
-                          },
-                          {
-                            name: 'Placeholder string',
-                            field: 'label',
-                            width: '55%',
-                            render: (
-                              label: string,
-                              modelInput: ModelInputFormField
-                            ) => (
-                              <EuiCode
-                                style={{
-                                  marginLeft: '-10px',
-                                }}
-                                language="json"
-                                transparentBackground={true}
-                              >
-                                {modelInput.type === 'array'
-                                  ? `\$\{parameters.${label}.toString()\}`
-                                  : `\$\\{parameters.${label}\\}`}
-                              </EuiCode>
-                            ),
-                          },
-                        ]}
-                      />
+                      <EuiBasicTable items={modelInputs} columns={columns} />
                       <EuiSpacer size="s" />
                       <EuiPopover
-                        isOpen={popoverOpen}
-                        closePopover={() => setPopoverOpen(false)}
+                        isOpen={schemaPopoverOpen}
+                        closePopover={() => setSchemaPopoverOpen(false)}
                         button={
                           <EuiSmallButtonEmpty
-                            onClick={() => setPopoverOpen(!popoverOpen)}
+                            onClick={() =>
+                              setSchemaPopoverOpen(!schemaPopoverOpen)
+                            }
                           >
                             View full input schema
                           </EuiSmallButtonEmpty>
@@ -167,41 +216,16 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
                           fontSize="m"
                           isCopyable={false}
                         >
-                          {customStringify({
-                            parameters: parseModelInputsObj(
-                              props.modelInterface
-                            ),
-                          })}
+                          {customStringify(
+                            parseModelInputsObj(props.modelInterface)
+                          )}
                         </EuiCodeBlock>
                       </EuiPopover>
                     </>
                   </EuiAccordion>
                   <EuiSpacer size="m" />
                 </>
-              ) : (
-                <EuiCallOut color="warning" title="No defined model inputs" />
               )}
-              <EuiSpacer size="s" />
-              <EuiText>Prompt</EuiText>
-              <EuiSpacer size="s" />
-              <EuiCodeEditor
-                mode="json"
-                theme="textmate"
-                width="100%"
-                height="15vh"
-                value={prompt}
-                readOnly={false}
-                setOptions={{
-                  fontSize: '12px',
-                  autoScrollEditorIntoView: true,
-                  showLineNumbers: false,
-                  showGutter: false,
-                  showPrintMargin: false,
-                  wrap: true,
-                }}
-                tabSize={2}
-                onChange={(value) => console.log('value now: ', value)}
-              />
             </>
           </EuiFlexItem>
         </EuiFlexGroup>
@@ -214,3 +238,56 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
     </EuiModal>
   );
 }
+
+const columns = [
+  {
+    name: 'Name',
+    field: 'label',
+    width: '30%',
+  },
+  {
+    name: 'Type',
+    field: 'type',
+    width: '15%',
+  },
+  {
+    name: 'Placeholder string',
+    field: 'label',
+    width: '55%',
+    render: (label: string, modelInput: ModelInputFormField) => (
+      <EuiCode
+        style={{
+          marginLeft: '-10px',
+        }}
+        language="json"
+        transparentBackground={true}
+      >
+        {modelInput.type === 'array'
+          ? `\$\{parameters.${label}.toString()\}`
+          : `\$\\{parameters.${label}\\}`}
+      </EuiCode>
+    ),
+  },
+  {
+    name: 'Actions',
+    field: 'label',
+    width: '10%',
+    render: (label: string, modelInput: ModelInputFormField) => (
+      <EuiCopy
+        textToCopy={
+          modelInput.type === 'array'
+            ? `\$\{parameters.${label}.toString()\}`
+            : `\$\\{parameters.${label}\\}`
+        }
+      >
+        {(copy) => (
+          <EuiButtonIcon
+            aria-label="Copy"
+            iconType="copy"
+            onClick={copy}
+          ></EuiButtonIcon>
+        )}
+      </EuiCopy>
+    ),
+  },
+];

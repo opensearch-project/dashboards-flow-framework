@@ -276,7 +276,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               >
                 Configure
               </EuiSmallButton>
-              <EuiSpacer size="s" />
+              <EuiSpacer size="l" />
             </>
           )}
           <EuiFlexGroup direction="row">
@@ -310,7 +310,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               </EuiToolTip>
             </EuiFlexItem>
           </EuiFlexGroup>
-          <EuiSpacer size="s" />
           <EuiSpacer size="s" />
           <MapArrayField
             field={inputMapField}

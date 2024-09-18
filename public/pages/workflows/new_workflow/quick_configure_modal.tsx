@@ -214,6 +214,10 @@ function injectQuickConfigureFields(
       }
       case WORKFLOW_TYPE.RAG: {
         if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
+          workflow.ui_metadata.config = updateIndexConfig(
+            workflow.ui_metadata.config,
+            quickConfigureFields
+          );
           workflow.ui_metadata.config = updateSearchResponseProcessors(
             workflow.ui_metadata.config,
             quickConfigureFields,
