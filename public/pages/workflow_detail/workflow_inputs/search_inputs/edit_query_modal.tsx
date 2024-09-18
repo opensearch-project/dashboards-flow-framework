@@ -34,7 +34,9 @@ interface EditQueryModalProps {
  */
 export function EditQueryModal(props: EditQueryModalProps) {
   // Form state
-  const { setFieldValue } = useFormikContext<WorkflowFormValues>();
+  const { setFieldValue, setFieldTouched } = useFormikContext<
+    WorkflowFormValues
+  >();
 
   // popover state
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
@@ -69,9 +71,9 @@ export function EditQueryModal(props: EditQueryModalProps) {
                   name: preset.name,
                   onClick: () => {
                     setFieldValue(props.queryFieldPath, preset.query);
+                    setFieldTouched(props.queryFieldPath, true);
                     setPopoverOpen(false);
                   },
-                  size: 'full',
                 })),
               },
             ]}

@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { MapEntry, QueryPreset, WORKFLOW_STATE } from './interfaces';
+import {
+  MapEntry,
+  PromptPreset,
+  QueryPreset,
+  WORKFLOW_STATE,
+} from './interfaces';
 import { customStringify } from './utils';
 
 export const PLUGIN_ID = 'search-studio';
@@ -408,6 +413,39 @@ export const QUERY_PRESETS = [
     query: customStringify(HYBRID_SEARCH_QUERY_MATCH_NEURAL),
   },
 ] as QueryPreset[];
+
+/**
+ * PROMPT PRESETS
+ */
+export const SUMMARIZE_DOCS_PROMPT =
+  "Human: You are a professional data analyist. \
+You are given a list of document results. You will \
+analyze the data and generate a human-readable summary of the results. If you don't \
+know the answer, just say I don't know.\
+\n\n Results: <provide some results> \
+\n\n Human: Please summarize the results.\
+\n\n Assistant:";
+
+export const QA_WITH_DOCUMENTS_PROMPT =
+  "Human: You are a professional data analyist. \
+You are given a list of document results, along with a question. You will \
+analyze the results and generate a human-readable response to the question, \
+based on the results. If you don't know the answer, just say I don't know.\
+\n\n Results: <provide some results> \
+\n\n Question: <provide some question> \
+\n\n Human: Please answer the question using the provided results.\
+\n\n Assistant:";
+
+export const PROMPT_PRESETS = [
+  {
+    name: 'Summarize documents',
+    prompt: SUMMARIZE_DOCS_PROMPT,
+  },
+  {
+    name: 'QA with documents',
+    prompt: QA_WITH_DOCUMENTS_PROMPT,
+  },
+] as PromptPreset[];
 
 /**
  * MISCELLANEOUS
