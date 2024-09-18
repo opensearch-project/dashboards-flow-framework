@@ -59,8 +59,8 @@ describe('NewWorkflow', () => {
     expect(getAllByText('Hybrid Search')).toHaveLength(1);
     expect(getAllByText('Multimodal Search')).toHaveLength(1);
     expect(getAllByText('Semantic Search')).toHaveLength(1);
-    expect(getAllByText('Retrieval-augmented generation')).toHaveLength(1);
-    expect(getAllByText('Sentiment analysis')).toHaveLength(1);
+    expect(getAllByText('Retrieval-Augmented Generation')).toHaveLength(1);
+    expect(getAllByText('Sentiment Analysis')).toHaveLength(1);
   });
 
   test('renders the quick configure for preset workflow templates', async () => {
