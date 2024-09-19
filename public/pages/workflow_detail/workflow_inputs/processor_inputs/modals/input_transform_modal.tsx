@@ -483,7 +483,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                         <EuiSmallButtonEmpty
                           onClick={() => setPopoverOpen(!popoverOpen)}
                         >
-                          View model inputs
+                          View input schema
                         </EuiSmallButtonEmpty>
                       }
                     >

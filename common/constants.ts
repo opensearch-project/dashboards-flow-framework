@@ -90,6 +90,9 @@ export const OPENAI_DIMENSIONS = {
 export const BEDROCK_DIMENSIONS = {
   [`amazon.titan-embed-text-v1`]: 1536,
   [`amazon.titan-embed-text-v2`]: 1024,
+  [`amazon.titan-embed-image-v1`]: 1024,
+  [`cohere.embed-english-v3`]: 1024, // same as Cohere directly
+  [`cohere.embed-multilingual-v3`]: 1024, // same as Cohere directly
 };
 
 /**
