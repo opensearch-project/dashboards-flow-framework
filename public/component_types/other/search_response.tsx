@@ -16,6 +16,8 @@ export class SearchResponse extends BaseComponent {
     this.type = COMPONENT_CLASS.SEARCH_RESPONSE;
     this.label = 'Search Response';
     this.description = 'OpenSearch search response';
-    this.inputs = [{ id: 'input', label: this.label, acceptMultiple: false }];
+    this.inputs = [
+      { id: 'search_response', label: this.label, acceptMultiple: false },
+    ];
   }
 }

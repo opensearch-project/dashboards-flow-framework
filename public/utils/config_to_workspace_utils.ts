@@ -18,14 +18,15 @@ import {
   PROCESSOR_TYPE,
   IComponent,
   IComponentData,
+  PROCESSOR_CONTEXT,
 } from '../../common';
 import {
   Document,
-  BaseIndexer,
   MLTransformer,
   BaseTransformer,
   SearchResponse,
   SearchRequest,
+  BaseIndex,
 } from '../component_types';
 import { generateId } from './utils';
 
@@ -111,14 +112,17 @@ function ingestConfigToWorkspaceFlow(
     parentNode: parentNode.id,
     extent: 'parent',
   } as ReactFlowComponent;
-  const indexNodeId = generateId(COMPONENT_CLASS.KNN_INDEXER);
+  const indexNodeId = generateId(COMPONENT_CLASS.INDEX);
   const indexNode = {
     id: indexNodeId,
     position: {
       x: parentNode?.style?.width - (NODE_WIDTH + NODE_SPACING),
       y: NODE_HEIGHT_Y,
     },
-    data: initComponentData(new BaseIndexer().toObj(), indexNodeId),
+    data: initComponentData(
+      new BaseIndex(COMPONENT_CATEGORY.INGEST).toObj(),
+      indexNodeId
+    ),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
@@ -128,6 +132,7 @@ function ingestConfigToWorkspaceFlow(
   // Get nodes/edges from the sub-configurations
   const enrichWorkspaceFlow = processorsConfigToWorkspaceFlow(
     ingestConfig.enrich,
+    PROCESSOR_CONTEXT.INGEST,
     parentNode.id,
     NODE_WIDTH + NODE_SPACING * 2 // node padding + (width of doc node) + node padding
   );
@@ -202,11 +207,13 @@ function searchConfigToWorkspaceFlow(
   // Get nodes/edges from the processor sub-configurations
   const enrichRequestWorkspaceFlow = processorsConfigToWorkspaceFlow(
     searchConfig.enrichRequest,
+    PROCESSOR_CONTEXT.SEARCH_REQUEST,
     parentNode.id,
     NODE_WIDTH + NODE_SPACING * 2 // node padding + (width of searchRequest node) + node padding
   );
   const enrichResponseWorkspaceFlow = processorsConfigToWorkspaceFlow(
     searchConfig.enrichResponse,
+    PROCESSOR_CONTEXT.SEARCH_RESPONSE,
     parentNode.id,
     NODE_SPACING +
       (NODE_WIDTH + NODE_SPACING) *
@@ -223,7 +230,7 @@ function searchConfigToWorkspaceFlow(
     parentNode: parentNode.id,
     extent: 'parent',
   } as ReactFlowComponent;
-  const indexNodeId = generateId(COMPONENT_CLASS.KNN_INDEXER);
+  const indexNodeId = generateId(COMPONENT_CLASS.INDEX);
   const indexNode = {
     id: indexNodeId,
     position: {
@@ -233,7 +240,10 @@ function searchConfigToWorkspaceFlow(
           (enrichResponseWorkspaceFlow.nodes.length + 2),
       y: NODE_HEIGHT_Y,
     },
-    data: initComponentData(new BaseIndexer().toObj(), indexNodeId),
+    data: initComponentData(
+      new BaseIndex(COMPONENT_CATEGORY.SEARCH).toObj(),
+      indexNodeId
+    ),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
@@ -282,6 +292,7 @@ function searchConfigToWorkspaceFlow(
 // based on the list of processors in a config
 function processorsConfigToWorkspaceFlow(
   processorsConfig: ProcessorsConfig,
+  context: PROCESSOR_CONTEXT,
   parentNodeId: string,
   xPosition: number
 ): WorkspaceFlowState {
@@ -292,43 +303,58 @@ function processorsConfigToWorkspaceFlow(
 
   processorsConfig.processors.forEach((processorConfig) => {
     let transformer = {} as BaseTransformer;
-    let transformerNodeId = '';
     switch (processorConfig.type) {
       case PROCESSOR_TYPE.ML: {
-        transformer = new MLTransformer();
-        transformerNodeId = generateId(COMPONENT_CLASS.ML_TRANSFORMER);
+        transformer = new MLTransformer(context);
         break;
       }
       case PROCESSOR_TYPE.SPLIT: {
         transformer = new BaseTransformer(
           processorConfig.name,
-          'A processor to split a string field into an array of substrings'
+          'Split a string field into an array of substrings',
+          context
         );
-        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
         break;
       }
       case PROCESSOR_TYPE.SORT: {
         transformer = new BaseTransformer(
           processorConfig.name,
-          'A processor to sort an array of items in either ascending or descending order'
+          'Sort an array of items in either ascending or descending order',
+          context
         );
-        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
         break;
       }
       case PROCESSOR_TYPE.TEXT_CHUNKING: {
         transformer = new BaseTransformer(
           processorConfig.name,
-          'A processor to split long documents into shorter passages'
+          'Split long documents into shorter passages',
+          context
         );
-        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
+        break;
+      }
+      case PROCESSOR_TYPE.NORMALIZATION: {
+        transformer = new BaseTransformer(
+          processorConfig.name,
+          'Normalize and combine document scores from different query clauses',
+          context
+        );
+        break;
+      }
+      case PROCESSOR_TYPE.COLLAPSE: {
+        transformer = new BaseTransformer(
+          processorConfig.name,
+          'Discard hits with duplicate values',
+          context
+        );
+        break;
       }
       default: {
-        transformer = new BaseTransformer(processorConfig.name, '');
-        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
+        transformer = new BaseTransformer(processorConfig.name, '', context);
         break;
       }
     }
 
+    const transformerNodeId = generateId(transformer.type);
     nodes.push({
       id: transformerNodeId,
       position: { x: xPosition, y: NODE_HEIGHT_Y },

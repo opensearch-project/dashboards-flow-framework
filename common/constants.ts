@@ -144,13 +144,10 @@ export enum NODE_CATEGORY {
  * A base set of component classes / types.
  */
 export enum COMPONENT_CLASS {
-  INDEXER = 'indexer',
-  KNN_INDEXER = 'knn_indexer',
-  RETRIEVER = 'retriever',
+  INDEX = 'index',
+  KNN_INDEX = 'knn_index',
   TRANSFORMER = 'transformer',
-  JSON_TO_JSON_TRANSFORMER = 'json_to_json_transformer',
   ML_TRANSFORMER = 'ml_transformer',
-  RESULTS_TRANSFORMER = 'results_transformer',
   SEARCH_REQUEST = 'search_request',
   DOCUMENT = 'document',
   SEARCH_RESPONSE = 'search_response',
