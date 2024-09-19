@@ -134,7 +134,10 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
         </EuiFlexGroup>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiSmallButtonEmpty onClick={() => onModalClose()}>
+        <EuiSmallButtonEmpty
+          onClick={() => onModalClose()}
+          data-testid="cancelImportButton"
+        >
           Cancel
         </EuiSmallButtonEmpty>
         <EuiSmallButton

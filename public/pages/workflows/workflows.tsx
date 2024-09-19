@@ -284,6 +284,7 @@ export function Workflows(props: WorkflowsProps) {
                         onClick={() => {
                           setSelectedTabId(WORKFLOWS_TAB.CREATE);
                         }}
+                        data-testid="createWorkflowButton"
                       >
                         Create workflow
                       </EuiSmallButton>,
@@ -292,6 +293,7 @@ export function Workflows(props: WorkflowsProps) {
                         onClick={() => {
                           setIsImportModalOpen(true);
                         }}
+                        data-testid="importWorkflowButton"
                       >
                         Import workflow
                       </EuiSmallButton>,
@@ -302,6 +304,7 @@ export function Workflows(props: WorkflowsProps) {
                         onClick={() => {
                           setIsImportModalOpen(true);
                         }}
+                        data-testid="importWorkflowButton"
                       >
                         Import workflow
                       </EuiSmallButton>,

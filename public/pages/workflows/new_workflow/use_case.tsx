@@ -55,6 +55,7 @@ export function UseCase(props: UseCaseProps) {
                 onClick={() => {
                   setIsNameModalOpen(true);
                 }}
+                data-testid="goButton"
               >
                 Go
               </EuiSmallButton>
