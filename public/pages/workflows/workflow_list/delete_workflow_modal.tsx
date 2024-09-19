@@ -98,7 +98,10 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
         </EuiFlexGroup>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiSmallButtonEmpty onClick={() => props.clearDeleteState()}>
+        <EuiSmallButtonEmpty
+          onClick={() => props.clearDeleteState()}
+          data-testid="cancelDeleteWorkflowButton"
+        >
           {' '}
           Cancel
         </EuiSmallButtonEmpty>
@@ -135,6 +138,7 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
             setIsDeleting(false);
             props.clearDeleteState();
           }}
+          data-testid="deleteWorkflowButton"
           fill={true}
           color="danger"
         >

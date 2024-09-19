@@ -38,6 +38,9 @@ const renderWithRouter = () =>
   );
 
 describe('ImportWorkflowModal', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   test('renders the page', () => {
     const { getAllByText } = renderWithRouter();
     expect(
