@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { COMPONENT_CLASS } from '../../../../common';
-import { BaseComponent } from '../../base_component';
+import { COMPONENT_CLASS } from '../../../common';
+import { BaseComponent } from '../base_component';
 
 /**
  * A basic search request placeholder UI component.

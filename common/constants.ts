@@ -144,22 +144,16 @@ export enum NODE_CATEGORY {
  * A base set of component classes / types.
  */
 export enum COMPONENT_CLASS {
-  // Indexer-related classes
   INDEXER = 'indexer',
   KNN_INDEXER = 'knn_indexer',
-  // Retriever-related classes
   RETRIEVER = 'retriever',
-  // Transformer-related classes
   TRANSFORMER = 'transformer',
   JSON_TO_JSON_TRANSFORMER = 'json_to_json_transformer',
   ML_TRANSFORMER = 'ml_transformer',
   RESULTS_TRANSFORMER = 'results_transformer',
-  // Search-request-related classes
   SEARCH_REQUEST = 'search_request',
-  // Document-related classes
   DOCUMENT = 'document',
-  // Results-related classes
-  RESULTS = 'results',
+  SEARCH_RESPONSE = 'search_response',
 }
 
 /**
