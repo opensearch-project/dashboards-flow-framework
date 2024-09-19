@@ -162,6 +162,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
           >
             <EuiSpacer size="m" />
             <EuiCompressedFormRow
+              fullWidth={true}
               label={
                 props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS
                   ? 'Model'
@@ -179,6 +180,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               }
             >
               <EuiCompressedSuperSelect
+                fullWidth={true}
                 options={deployedModels.map(
                   (option) =>
                     ({
@@ -214,6 +216,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             </EuiCompressedFormRow>
             <EuiSpacer size="s" />
             <EuiCompressedFormRow
+              fullWidth={true}
               label={'Text field'}
               isInvalid={false}
               helpText={`The name of the text document field to be ${
@@ -225,6 +228,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               }`}
             >
               <EuiCompressedFieldText
+                fullWidth={true}
                 value={fieldValues?.textField || ''}
                 onChange={(e) => {
                   setFieldValues({
@@ -238,11 +242,13 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             {props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH && (
               <>
                 <EuiCompressedFormRow
+                  fullWidth={true}
                   label={'Image field'}
                   isInvalid={false}
                   helpText="The name of the document field containing the image binary"
                 >
                   <EuiCompressedFieldText
+                    fullWidth={true}
                     value={fieldValues?.imageField || ''}
                     onChange={(e) => {
                       setFieldValues({
@@ -260,11 +266,13 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH) && (
               <>
                 <EuiCompressedFormRow
+                  fullWidth={true}
                   label={'Vector field'}
                   isInvalid={false}
                   helpText="The name of the document field containing the vector embedding"
                 >
                   <EuiCompressedFieldText
+                    fullWidth={true}
                     value={fieldValues?.vectorField || ''}
                     onChange={(e) => {
                       setFieldValues({
@@ -276,11 +284,13 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                 </EuiCompressedFormRow>
                 <EuiSpacer size="s" />
                 <EuiCompressedFormRow
+                  fullWidth={true}
                   label={'Embedding length'}
                   isInvalid={false}
                   helpText="The length / dimension of the generated vector embeddings. Autofilled values may be inaccurate."
                 >
                   <EuiCompressedFieldNumber
+                    fullWidth={true}
                     value={fieldValues?.embeddingLength || ''}
                     onChange={(e) => {
                       setFieldValues({
@@ -294,11 +304,13 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             )}
             {props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS && (
               <EuiCompressedFormRow
+                fullWidth={true}
                 label={'Label field'}
                 isInvalid={false}
                 helpText="The name of the document field containing the sentiment label"
               >
                 <EuiCompressedFieldText
+                  fullWidth={true}
                   value={fieldValues?.labelField || ''}
                   onChange={(e) => {
                     setFieldValues({
@@ -311,11 +323,13 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             )}
             {props.workflowType === WORKFLOW_TYPE.RAG && (
               <EuiCompressedFormRow
+                fullWidth={true}
                 label={'LLM response field'}
                 isInvalid={false}
                 helpText="The name of the field containing the large language model (LLM) response"
               >
                 <EuiCompressedFieldText
+                  fullWidth={true}
                   value={fieldValues?.llmResponseField || ''}
                   onChange={(e) => {
                     setFieldValues({
