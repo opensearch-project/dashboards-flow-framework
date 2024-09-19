@@ -555,7 +555,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         }
       } else {
         getCore().notifications.toasts.addDanger(
-          'No valid document provided. Ensure it is a valid JSON array.'
+          'No valid document(s) provided. Ensure it is a valid JSON array.'
         );
       }
     } catch (error) {

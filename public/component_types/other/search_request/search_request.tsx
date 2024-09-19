@@ -7,19 +7,19 @@ import { COMPONENT_CLASS } from '../../../../common';
 import { BaseComponent } from '../../base_component';
 
 /**
- * A basic query placeholder UI component.
+ * A basic search request placeholder UI component.
  * Does not have any functionality.
  */
-export class Query extends BaseComponent {
+export class SearchRequest extends BaseComponent {
   constructor() {
     super();
-    this.type = COMPONENT_CLASS.QUERY;
-    this.label = 'Query';
-    this.description = 'An OpenSearch query';
+    this.type = COMPONENT_CLASS.SEARCH_REQUEST;
+    this.label = 'Search Request';
+    this.description = 'An OpenSearch search request';
     this.outputs = [
       {
-        id: 'output',
-        label: 'Output',
+        id: 'search_request',
+        label: this.label,
       },
     ];
   }

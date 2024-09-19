@@ -154,10 +154,8 @@ export enum COMPONENT_CLASS {
   JSON_TO_JSON_TRANSFORMER = 'json_to_json_transformer',
   ML_TRANSFORMER = 'ml_transformer',
   RESULTS_TRANSFORMER = 'results_transformer',
-  // Query-related classes
-  QUERY = 'query',
-  MATCH_QUERY = 'match_query',
-  NEURAL_QUERY = 'neural_query',
+  // Search-request-related classes
+  SEARCH_REQUEST = 'search_request',
   // Document-related classes
   DOCUMENT = 'document',
   // Results-related classes
