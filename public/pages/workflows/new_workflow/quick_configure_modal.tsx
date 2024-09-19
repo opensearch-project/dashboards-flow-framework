@@ -123,7 +123,10 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
         />
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiSmallButtonEmpty onClick={() => props.onClose()}>
+        <EuiSmallButtonEmpty
+          onClick={() => props.onClose()}
+          data-testid="quickConfigureCancelButton"
+        >
           Cancel
         </EuiSmallButtonEmpty>
         <EuiSmallButton
@@ -166,6 +169,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                 console.error(err);
               });
           }}
+          data-testid="quickConfigureCreateButton"
           fill={true}
           color="primary"
         >

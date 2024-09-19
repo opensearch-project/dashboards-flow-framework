@@ -9,6 +9,7 @@ import {
   INITIAL_PRESETS_STATE,
   INITIAL_WORKFLOWS_STATE,
 } from '../public/store';
+import { WorkflowInput } from '../test/interfaces';
 import { WORKFLOW_TYPE } from '../common/constants';
 import { UIState, Workflow } from '../common/interfaces';
 import {
@@ -17,25 +18,23 @@ import {
   fetchMultimodalSearchMetadata,
   fetchSemanticSearchMetadata,
 } from '../public/pages/workflows/new_workflow/utils';
+import fs from 'fs';
+import path from 'path';
 
-export function mockStore(
-  workflowId: string,
-  workflowName: string,
-  workflowType: WORKFLOW_TYPE
-) {
+export function mockStore(...workflowSets: WorkflowInput[]) {
   return {
     getState: () => ({
       opensearch: INITIAL_OPENSEARCH_STATE,
       ml: INITIAL_ML_STATE,
       workflows: {
         ...INITIAL_WORKFLOWS_STATE,
-        workflows: {
-          [workflowId]: generateWorkflow(
-            workflowId,
-            workflowName,
-            workflowType
-          ),
-        },
+        workflows: workflowSets.reduce(
+          (acc, workflowInput) => ({
+            ...acc,
+            [workflowInput.id]: generateWorkflow(workflowInput),
+          }),
+          {}
+        ),
       },
       presets: INITIAL_PRESETS_STATE,
     }),
@@ -46,18 +45,15 @@ export function mockStore(
   };
 }
 
-function generateWorkflow(
-  workflowId: string,
-  workflowName: string,
-  workflowType: WORKFLOW_TYPE
-): Workflow {
+function generateWorkflow({ id, name, type }: WorkflowInput): Workflow {
   return {
-    id: workflowId,
-    name: workflowName,
+    id,
+    name,
     version: { template: '1.0.0', compatibility: ['2.17.0', '3.0.0'] },
-    ui_metadata: getConfig(workflowType),
+    ui_metadata: getConfig(type),
   };
 }
+
 function getConfig(workflowType: WORKFLOW_TYPE) {
   let uiMetadata = {} as UIState;
   switch (workflowType) {
@@ -79,6 +75,26 @@ function getConfig(workflowType: WORKFLOW_TYPE) {
     }
   }
   return uiMetadata;
+}
+
+const templatesDir = path.resolve(
+  __dirname,
+  '..',
+  'server',
+  'resources',
+  'templates'
+);
+
+export const loadPresetWorkflowTemplates = () =>
+  fs
+    .readdirSync(templatesDir)
+    .filter((file) => file.endsWith('.json'))
+    .map((file) =>
+      JSON.parse(fs.readFileSync(path.join(templatesDir, file), 'utf8'))
+    );
+
+export function capitalizeEachWord(input: string): string {
+  return input.replace(/\b\w/g, (match) => match.toUpperCase());
 }
 
 export const resizeObserverMock = jest.fn().mockImplementation(() => ({
