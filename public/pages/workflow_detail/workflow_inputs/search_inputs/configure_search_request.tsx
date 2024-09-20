@@ -120,6 +120,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
             fill={false}
             style={{ width: '100px' }}
             onClick={() => setIsEditModalOpen(true)}
+            data-testid="queryEditButton"
           >
             Edit
           </EuiSmallButton>
@@ -163,6 +164,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                     console.error('Error running query: ', error);
                   });
               }}
+              data-testid="searchTestButton"
             >
               Test
             </EuiSmallButton>
