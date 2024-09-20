@@ -74,7 +74,6 @@ describe('WorkflowDetail Page with create ingestion option', () => {
         getAllByText,
         getByText,
         getByRole,
-        container,
         getByTestId,
       } = renderWithRouter(workflowId, workflowName, type);
 
@@ -109,14 +108,6 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       const searchPipelineButton = getByTestId('searchPipelineButton');
       expect(searchPipelineButton).toBeInTheDocument();
       expect(searchPipelineButton).toBeDisabled();
-
-      // "Create an ingest pipeline" option should be selected by default
-      const createIngestRadio = container.querySelector('#create');
-      expect(createIngestRadio).toBeChecked();
-
-      // "Skip ingestion pipeline" option should be unselected by default
-      const skipIngestRadio = container.querySelector('#skip');
-      expect(skipIngestRadio).not.toBeChecked();
     });
   });
 });
@@ -176,5 +167,69 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
     // The WorkflowDetail Page Close button should navigate back to the workflows list
     await waitFor(() => userEvent.click(getByTestId('closeButton')));
     expect(history.location.pathname).toBe('/workflows');
+  });
+});
+
+describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  test(`renders the WorkflowDetail page with skip ingestion option`, async () => {
+    const {
+      container,
+      getByTestId,
+      getAllByText,
+      getAllByTestId,
+    } = renderWithRouter(workflowId, workflowName, WORKFLOW_TYPE.HYBRID_SEARCH);
+
+    // "Create an ingest pipeline" option should be selected by default
+    const createIngestRadio = container.querySelector('#create');
+    expect(createIngestRadio).toBeChecked();
+
+    // "Skip ingestion pipeline" option should be unselected by default
+    const skipIngestRadio = container.querySelector('#skip');
+    expect(skipIngestRadio).not.toBeChecked();
+
+    // Selected "Skip ingestion pipeline"
+    await waitFor(() => userEvent.click(skipIngestRadio!));
+    expect(createIngestRadio).not.toBeChecked();
+    expect(skipIngestRadio).toBeChecked();
+    const searchPipelineButton = getByTestId('searchPipelineButton');
+    await waitFor(() => userEvent.click(searchPipelineButton));
+
+    // Search pipeline
+    expect(getAllByText('Define search pipeline').length).toBeGreaterThan(0);
+    expect(getAllByText('Configure query').length).toBeGreaterThan(0);
+    const searchTestButton = getByTestId('searchTestButton');
+    expect(searchTestButton).toBeInTheDocument();
+
+    // Edit Search Query
+    const queryEditButton = getByTestId('queryEditButton');
+    expect(queryEditButton).toBeInTheDocument();
+    await waitFor(() => userEvent.click(queryEditButton));
+    expect(getAllByText('Edit query').length).toBeGreaterThan(0);
+    const searchQueryPresetButton = getByTestId('searchQueryPresetButton');
+    expect(searchQueryPresetButton).toBeInTheDocument();
+    const searchQueryCloseButton = getByTestId('searchQueryCloseButton');
+    expect(searchQueryCloseButton).toBeInTheDocument();
+    await waitFor(() => userEvent.click(searchQueryCloseButton));
+
+    // Add request processor
+    const addRequestProcessorButton = getAllByTestId('addProcessorButton')[0];
+    await waitFor(() => userEvent.click(addRequestProcessorButton));
+    expect(getAllByText('Processors').length).toBeGreaterThan(0);
+
+    // Add response processor
+    const addResponseProcessorButton = getAllByTestId('addProcessorButton')[1];
+    await waitFor(() => userEvent.click(addResponseProcessorButton));
+    expect(getAllByText('Processors').length).toBeGreaterThan(0);
+
+    // Save, Build and Run query, Back buttons
+    expect(getByTestId('saveSearchPipelineButton')).toBeInTheDocument();
+    expect(getByTestId('runQueryButton')).toBeInTheDocument();
+    const searchPipelineBackButton = getByTestId('searchPipelineBackButton');
+    await waitFor(() => userEvent.click(searchPipelineBackButton));
+
+    expect(skipIngestRadio).toBeChecked();
   });
 });

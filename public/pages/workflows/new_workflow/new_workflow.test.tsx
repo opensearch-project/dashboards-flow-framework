@@ -93,4 +93,15 @@ describe('NewWorkflow', () => {
       expect(queryByText('quickConfigureCreateButton')).toBeNull()
     );
   });
+
+  test('search functionality ', async () => {
+    const { getByText, getByPlaceholderText, queryByText } = renderWithRouter();
+
+    // Search by Template Name
+    userEvent.type(getByPlaceholderText('Search'), 'hybrid');
+    await waitFor(() => {
+      expect(getByText('Hybrid Search')).toBeInTheDocument();
+      expect(queryByText('Multimodal Search')).toBeNull();
+    });
+  });
 });

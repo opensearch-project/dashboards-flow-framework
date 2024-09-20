@@ -161,4 +161,16 @@ describe('WorkflowList', () => {
       expect(getByText('No existing resources found')).toBeInTheDocument();
     });
   });
+
+  test('search functionality ', async () => {
+    const { getByText, getByPlaceholderText, queryByText } = renderWithRouter();
+
+    // Search by Name
+    userEvent.type(getByPlaceholderText('Search'), 'name_18');
+    await waitFor(() => {
+      expect(getByText('workflow_name_18')).toBeInTheDocument();
+      expect(queryByText('workflow_name_19')).toBeNull();
+      expect(queryByText('workflow_name_0')).toBeNull();
+    });
+  });
 });

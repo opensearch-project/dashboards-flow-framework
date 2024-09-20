@@ -54,7 +54,10 @@ export function EditQueryModal(props: EditQueryModalProps) {
       <EuiModalBody>
         <EuiPopover
           button={
-            <EuiSmallButton onClick={() => setPopoverOpen(!popoverOpen)}>
+            <EuiSmallButton
+              onClick={() => setPopoverOpen(!popoverOpen)}
+              data-testid="searchQueryPresetButton"
+            >
               Choose from a preset
             </EuiSmallButton>
           }
@@ -90,6 +93,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
       <EuiModalFooter>
         <EuiSmallButton
           onClick={() => props.setModalOpen(false)}
+          data-testid="searchQueryCloseButton"
           fill={false}
           color="primary"
         >

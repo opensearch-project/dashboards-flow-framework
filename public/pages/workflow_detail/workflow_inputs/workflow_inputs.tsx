@@ -876,6 +876,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         <EuiSmallButtonEmpty
                           disabled={searchBackButtonDisabled}
                           onClick={() => setSelectedStep(STEP.INGEST)}
+                          data-testid="searchPipelineBackButton"
                         >
                           Back
                         </EuiSmallButtonEmpty>
@@ -897,6 +898,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             updateWorkflowUiConfig();
                           }}
+                          data-testid="saveSearchPipelineButton"
                         >
                           {`Save`}
                         </EuiSmallButtonEmpty>
@@ -909,6 +911,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           onClick={() => {
                             validateAndRunQuery();
                           }}
+                          data-testid="runQueryButton"
                         >
                           Build and run query
                         </EuiSmallButton>
