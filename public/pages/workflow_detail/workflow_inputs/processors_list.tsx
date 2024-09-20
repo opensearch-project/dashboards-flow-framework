@@ -191,6 +191,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
                 onClick={() => {
                   setPopover(!isPopoverOpen);
                 }}
+                data-testid="addProcessorButton"
               >
                 {processors.length > 0
                   ? 'Add another processor'
