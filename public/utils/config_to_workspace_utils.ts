@@ -18,14 +18,15 @@ import {
   PROCESSOR_TYPE,
   IComponent,
   IComponentData,
+  PROCESSOR_CONTEXT,
 } from '../../common';
 import {
   Document,
-  BaseIndexer,
   MLTransformer,
   BaseTransformer,
-  Query,
-  Results,
+  SearchResponse,
+  SearchRequest,
+  BaseIndex,
 } from '../component_types';
 import { generateId } from './utils';
 
@@ -111,14 +112,17 @@ function ingestConfigToWorkspaceFlow(
     parentNode: parentNode.id,
     extent: 'parent',
   } as ReactFlowComponent;
-  const indexNodeId = generateId(COMPONENT_CLASS.KNN_INDEXER);
+  const indexNodeId = generateId(COMPONENT_CLASS.INDEX);
   const indexNode = {
     id: indexNodeId,
     position: {
-      x: parentNode.style.width - (NODE_WIDTH + NODE_SPACING),
+      x: parentNode?.style?.width - (NODE_WIDTH + NODE_SPACING),
       y: NODE_HEIGHT_Y,
     },
-    data: initComponentData(new BaseIndexer().toObj(), indexNodeId),
+    data: initComponentData(
+      new BaseIndex(COMPONENT_CATEGORY.INGEST).toObj(),
+      indexNodeId
+    ),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
@@ -128,6 +132,7 @@ function ingestConfigToWorkspaceFlow(
   // Get nodes/edges from the sub-configurations
   const enrichWorkspaceFlow = processorsConfigToWorkspaceFlow(
     ingestConfig.enrich,
+    PROCESSOR_CONTEXT.INGEST,
     parentNode.id,
     NODE_WIDTH + NODE_SPACING * 2 // node padding + (width of doc node) + node padding
   );
@@ -202,55 +207,60 @@ function searchConfigToWorkspaceFlow(
   // Get nodes/edges from the processor sub-configurations
   const enrichRequestWorkspaceFlow = processorsConfigToWorkspaceFlow(
     searchConfig.enrichRequest,
+    PROCESSOR_CONTEXT.SEARCH_REQUEST,
     parentNode.id,
-    NODE_WIDTH + NODE_SPACING * 2 // node padding + (width of query node) + node padding
+    NODE_WIDTH + NODE_SPACING * 2 // node padding + (width of searchRequest node) + node padding
   );
   const enrichResponseWorkspaceFlow = processorsConfigToWorkspaceFlow(
     searchConfig.enrichResponse,
+    PROCESSOR_CONTEXT.SEARCH_RESPONSE,
     parentNode.id,
     NODE_SPACING +
       (NODE_WIDTH + NODE_SPACING) *
-        (enrichRequestWorkspaceFlow.nodes.length + 2) // node padding + (width + padding of query node, any request processor nodes, and index node)
+        (enrichRequestWorkspaceFlow.nodes.length + 2) // node padding + (width + padding of searchRequest node, any request processor nodes, and index node)
   );
 
-  // By default, always include a query node, an index node, and a results node.
-  const queryNodeId = generateId(COMPONENT_CLASS.QUERY);
-  const queryNode = {
-    id: queryNodeId,
+  // By default, always include a search request node, an index node, and a search response node.
+  const searchRequestNodeId = generateId(COMPONENT_CLASS.SEARCH_REQUEST);
+  const searchRequestNode = {
+    id: searchRequestNodeId,
     position: { x: 100, y: 70 },
-    data: initComponentData(new Query().toObj(), queryNodeId),
+    data: initComponentData(new SearchRequest().toObj(), searchRequestNodeId),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
   } as ReactFlowComponent;
-  const indexNodeId = generateId(COMPONENT_CLASS.KNN_INDEXER);
+  const indexNodeId = generateId(COMPONENT_CLASS.INDEX);
   const indexNode = {
     id: indexNodeId,
     position: {
       x:
-        parentNode.style.width -
+        parentNode?.style?.width -
         (NODE_WIDTH + NODE_SPACING) *
           (enrichResponseWorkspaceFlow.nodes.length + 2),
       y: NODE_HEIGHT_Y,
     },
-    data: initComponentData(new BaseIndexer().toObj(), indexNodeId),
+    data: initComponentData(
+      new BaseIndex(COMPONENT_CATEGORY.SEARCH).toObj(),
+      indexNodeId
+    ),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
   } as ReactFlowComponent;
-  const resultsNodeId = generateId(COMPONENT_CLASS.RESULTS);
-  const resultsNode = {
-    id: resultsNodeId,
+  const searchResponseNodeId = generateId(COMPONENT_CLASS.SEARCH_RESPONSE);
+  const searchResponseNode = {
+    id: searchResponseNodeId,
     position: {
-      x: parentNode.style.width - (NODE_WIDTH + NODE_SPACING),
+      x: parentNode?.style?.width - (NODE_WIDTH + NODE_SPACING),
       y: NODE_HEIGHT_Y,
     },
-    data: initComponentData(new Results().toObj(), resultsNodeId),
+    data: initComponentData(new SearchResponse().toObj(), searchResponseNodeId),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
   } as ReactFlowComponent;
-  nodes.push(queryNode, indexNode, resultsNode);
+  nodes.push(searchRequestNode, indexNode, searchResponseNode);
 
   nodes.push(
     ...enrichRequestWorkspaceFlow.nodes,
@@ -264,11 +274,11 @@ function searchConfigToWorkspaceFlow(
   // Link up the set of localized nodes/edges per sub-workflow
   edges.push(
     ...getSearchEdges(
-      queryNode,
+      searchRequestNode,
       enrichRequestWorkspaceFlow,
       indexNode,
       enrichResponseWorkspaceFlow,
-      resultsNode
+      searchResponseNode
     )
   );
 
@@ -282,6 +292,7 @@ function searchConfigToWorkspaceFlow(
 // based on the list of processors in a config
 function processorsConfigToWorkspaceFlow(
   processorsConfig: ProcessorsConfig,
+  context: PROCESSOR_CONTEXT,
   parentNodeId: string,
   xPosition: number
 ): WorkspaceFlowState {
@@ -292,43 +303,58 @@ function processorsConfigToWorkspaceFlow(
 
   processorsConfig.processors.forEach((processorConfig) => {
     let transformer = {} as BaseTransformer;
-    let transformerNodeId = '';
     switch (processorConfig.type) {
       case PROCESSOR_TYPE.ML: {
-        transformer = new MLTransformer();
-        transformerNodeId = generateId(COMPONENT_CLASS.ML_TRANSFORMER);
+        transformer = new MLTransformer(context);
         break;
       }
       case PROCESSOR_TYPE.SPLIT: {
         transformer = new BaseTransformer(
           processorConfig.name,
-          'A processor to split a string field into an array of substrings'
+          'Split a string field into an array of substrings',
+          context
         );
-        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
         break;
       }
       case PROCESSOR_TYPE.SORT: {
         transformer = new BaseTransformer(
           processorConfig.name,
-          'A processor to sort an array of items in either ascending or descending order'
+          'Sort an array of items in either ascending or descending order',
+          context
         );
-        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
         break;
       }
       case PROCESSOR_TYPE.TEXT_CHUNKING: {
         transformer = new BaseTransformer(
           processorConfig.name,
-          'A processor to split long documents into shorter passages'
+          'Split long documents into shorter passages',
+          context
         );
-        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
+        break;
+      }
+      case PROCESSOR_TYPE.NORMALIZATION: {
+        transformer = new BaseTransformer(
+          processorConfig.name,
+          'Normalize and combine document scores from different query clauses',
+          context
+        );
+        break;
+      }
+      case PROCESSOR_TYPE.COLLAPSE: {
+        transformer = new BaseTransformer(
+          processorConfig.name,
+          'Discard hits with duplicate values',
+          context
+        );
+        break;
       }
       default: {
-        transformer = new BaseTransformer(processorConfig.name, '');
-        transformerNodeId = generateId(COMPONENT_CLASS.TRANSFORMER);
+        transformer = new BaseTransformer(processorConfig.name, '', context);
         break;
       }
     }
 
+    const transformerNodeId = generateId(transformer.type);
     nodes.push({
       id: transformerNodeId,
       position: { x: xPosition, y: NODE_HEIGHT_Y },
@@ -355,11 +381,11 @@ function processorsConfigToWorkspaceFlow(
 // Given the set of localized flows per sub-configuration, generate the global search-level edges.
 // This takes the assumption the flow is linear, and all sub-configuration flows are fully connected.
 function getSearchEdges(
-  queryNode: ReactFlowComponent,
+  searchRequestNode: ReactFlowComponent,
   enrichRequestFlow: WorkspaceFlowState,
   indexNode: ReactFlowComponent,
   enrichResponseFlow: WorkspaceFlowState,
-  resultsNode: ReactFlowComponent
+  searchResponseNode: ReactFlowComponent
 ): ReactFlowEdge[] {
   const startAndEndNodesEnrichRequest = getStartAndEndNodes(enrichRequestFlow);
   const startAndEndNodesEnrichResponse = getStartAndEndNodes(
@@ -375,7 +401,7 @@ function getSearchEdges(
       ...([
         generateReactFlowEdge(
           requestToEnrichRequestEdgeId,
-          queryNode.id,
+          searchRequestNode.id,
           startAndEndNodesEnrichRequest.startNode.id
         ),
 
@@ -389,14 +415,18 @@ function getSearchEdges(
   } else {
     const requestToIndexEdgeId = generateId('edge');
     edges.push(
-      generateReactFlowEdge(requestToIndexEdgeId, queryNode.id, indexNode.id)
+      generateReactFlowEdge(
+        requestToIndexEdgeId,
+        searchRequestNode.id,
+        indexNode.id
+      )
     );
   }
 
   // Users may omit search response processors altogether. Need to handle cases separately.
   if (startAndEndNodesEnrichResponse !== undefined) {
     const indexToEnrichResponseEdgeId = generateId('edge');
-    const enrichResponseToResultsEdgeId = generateId('edge');
+    const enrichResponseToSearchResponseEdgeId = generateId('edge');
 
     edges.push(
       ...([
@@ -406,16 +436,20 @@ function getSearchEdges(
           startAndEndNodesEnrichResponse.startNode.id
         ),
         generateReactFlowEdge(
-          enrichResponseToResultsEdgeId,
+          enrichResponseToSearchResponseEdgeId,
           startAndEndNodesEnrichResponse.endNode.id,
-          resultsNode.id
+          searchResponseNode.id
         ),
       ] as ReactFlowEdge[])
     );
   } else {
-    const indexToResultsEdgeId = generateId('edge');
+    const indexToSearchResponseEdgeId = generateId('edge');
     edges.push(
-      generateReactFlowEdge(indexToResultsEdgeId, indexNode.id, resultsNode.id)
+      generateReactFlowEdge(
+        indexToSearchResponseEdgeId,
+        indexNode.id,
+        searchResponseNode.id
+      )
     );
   }
 

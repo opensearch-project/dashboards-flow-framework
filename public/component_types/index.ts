@@ -4,5 +4,5 @@
  */
 
 export * from './transformer';
-export * from './indexer';
+export * from './indices';
 export * from './other';
