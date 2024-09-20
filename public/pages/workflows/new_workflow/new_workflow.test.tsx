@@ -73,9 +73,9 @@ describe('NewWorkflow', () => {
     // Click the first "Go" button on the templates and test Quick Configure.
     const goButtons = getAllByTestId('goButton');
     userEvent.click(goButtons[0]);
-    await waitFor(() =>
-      expect(getAllByText('Quick configure')).toHaveLength(1)
-    );
+    await waitFor(() => {
+      expect(getAllByText('Quick configure')).toHaveLength(1);
+    });
 
     // Verify that the create button is present in the Quick Configure pop-up.
     expect(getByTestId('quickConfigureCreateButton')).toBeInTheDocument();
@@ -87,8 +87,19 @@ describe('NewWorkflow', () => {
     userEvent.click(quickConfigureCancelButton);
 
     // Ensure the quick configure pop-up is closed after canceling.
-    await waitFor(() =>
-      expect(queryByText('quickConfigureCreateButton')).toBeNull()
-    );
+    await waitFor(() => {
+      expect(queryByText('quickConfigureCreateButton')).toBeNull();
+    });
+  });
+
+  test('search functionality ', async () => {
+    const { getByText, getByPlaceholderText, queryByText } = renderWithRouter();
+
+    // Search by Template Name
+    userEvent.type(getByPlaceholderText('Search'), 'hybrid');
+    await waitFor(() => {
+      expect(getByText('Hybrid Search')).toBeInTheDocument();
+      expect(queryByText('Multimodal Search')).toBeNull();
+    });
   });
 });

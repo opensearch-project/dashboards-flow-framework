@@ -74,7 +74,6 @@ describe('WorkflowDetail Page with create ingestion option', () => {
         getAllByText,
         getByText,
         getByRole,
-        container,
         getByTestId,
       } = renderWithRouter(workflowId, workflowName, type);
 
@@ -109,14 +108,6 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       const searchPipelineButton = getByTestId('searchPipelineButton');
       expect(searchPipelineButton).toBeInTheDocument();
       expect(searchPipelineButton).toBeDisabled();
-
-      // "Create an ingest pipeline" option should be selected by default
-      const createIngestRadio = container.querySelector('#create');
-      expect(createIngestRadio).toBeChecked();
-
-      // "Skip ingestion pipeline" option should be unselected by default
-      const skipIngestRadio = container.querySelector('#skip');
-      expect(skipIngestRadio).not.toBeChecked();
     });
   });
 });
@@ -133,20 +124,26 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
     );
 
     // Export button opens the export component
-    await waitFor(() => userEvent.click(getByTestId('exportButton')));
-    expect(getByText(`Export ${workflowName}`)).toBeInTheDocument();
+    userEvent.click(getByTestId('exportButton'));
+    await waitFor(() => {
+      expect(getByText(`Export ${workflowName}`)).toBeInTheDocument();
+    });
 
     // Close the export component
-    await waitFor(() => userEvent.click(getByTestId('exportCloseButton')));
+    userEvent.click(getByTestId('exportCloseButton'));
 
     // Check workspace buttons (Visual and JSON)
     const visualButton = getByTestId('workspaceVisualButton');
-    expect(visualButton).toBeVisible();
+    await waitFor(() => {
+      expect(visualButton).toBeVisible();
+    });
     expect(visualButton).toHaveClass('euiFilterButton-hasActiveFilters');
     const jsonButton = getByTestId('workspaceJSONButton');
     expect(jsonButton).toBeVisible();
-    await waitFor(() => userEvent.click(jsonButton));
-    expect(jsonButton).toHaveClass('euiFilterButton-hasActiveFilters');
+    userEvent.click(jsonButton);
+    await waitFor(() => {
+      expect(jsonButton).toHaveClass('euiFilterButton-hasActiveFilters');
+    });
 
     // Tools panel should collapse and expand on toggle
     const toolsPanel = container.querySelector('#tools_panel_id');
@@ -154,16 +151,22 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
 
     const toggleButton = toolsPanel?.querySelector('button[type="button"]');
     expect(toggleButton).toBeInTheDocument();
-    await waitFor(() => userEvent.click(toggleButton!));
+    userEvent.click(toggleButton!);
 
     // Tools panel after collapsing
     const collapsedToolsPanel = container.querySelector('#tools_panel_id');
-    expect(collapsedToolsPanel).toHaveClass('euiResizablePanel-isCollapsed');
+    await waitFor(() => {
+      expect(collapsedToolsPanel).toHaveClass('euiResizablePanel-isCollapsed');
+    });
 
     // Tools panel after expanding
-    await waitFor(() => userEvent.click(toggleButton!));
+    userEvent.click(toggleButton!);
     const expandedToolsPanel = container.querySelector('#tools_panel_id');
-    expect(expandedToolsPanel).not.toHaveClass('euiResizablePanel-isCollapsed');
+    await waitFor(() => {
+      expect(expandedToolsPanel).not.toHaveClass(
+        'euiResizablePanel-isCollapsed'
+      );
+    });
   });
 
   test('tests navigation to workflows list on Close button click', async () => {
@@ -174,7 +177,87 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
     );
 
     // The WorkflowDetail Page Close button should navigate back to the workflows list
-    await waitFor(() => userEvent.click(getByTestId('closeButton')));
-    expect(history.location.pathname).toBe('/workflows');
+    userEvent.click(getByTestId('closeButton'));
+    await waitFor(() => {
+      expect(history.location.pathname).toBe('/workflows');
+    });
+  });
+});
+
+describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  test(`renders the WorkflowDetail page with skip ingestion option`, async () => {
+    const {
+      container,
+      getByTestId,
+      getAllByText,
+      getAllByTestId,
+    } = renderWithRouter(workflowId, workflowName, WORKFLOW_TYPE.HYBRID_SEARCH);
+
+    // "Create an ingest pipeline" option should be selected by default
+    const createIngestRadio = container.querySelector('#create');
+    expect(createIngestRadio).toBeChecked();
+
+    // "Skip ingestion pipeline" option should be unselected by default
+    const skipIngestRadio = container.querySelector('#skip');
+    expect(skipIngestRadio).not.toBeChecked();
+
+    // Selected "Skip ingestion pipeline"
+    userEvent.click(skipIngestRadio!);
+    await waitFor(() => {
+      expect(createIngestRadio).not.toBeChecked();
+    });
+    expect(skipIngestRadio).toBeChecked();
+    const searchPipelineButton = getByTestId('searchPipelineButton');
+    userEvent.click(searchPipelineButton);
+
+    // Search pipeline
+    await waitFor(() => {
+      expect(getAllByText('Define search pipeline').length).toBeGreaterThan(0);
+    });
+    expect(getAllByText('Configure query').length).toBeGreaterThan(0);
+    const searchTestButton = getByTestId('searchTestButton');
+    expect(searchTestButton).toBeInTheDocument();
+
+    // Edit Search Query
+    const queryEditButton = getByTestId('queryEditButton');
+    expect(queryEditButton).toBeInTheDocument();
+    userEvent.click(queryEditButton);
+    await waitFor(() => {
+      expect(getAllByText('Edit query').length).toBeGreaterThan(0);
+    });
+    const searchQueryPresetButton = getByTestId('searchQueryPresetButton');
+    expect(searchQueryPresetButton).toBeInTheDocument();
+    const searchQueryCloseButton = getByTestId('searchQueryCloseButton');
+    expect(searchQueryCloseButton).toBeInTheDocument();
+    userEvent.click(searchQueryCloseButton);
+
+    // Add request processor
+    const addRequestProcessorButton = await waitFor(
+      () => getAllByTestId('addProcessorButton')[0]
+    );
+    userEvent.click(addRequestProcessorButton);
+    await waitFor(() => {
+      expect(getAllByText('Processors').length).toBeGreaterThan(0);
+    });
+
+    // Add response processor
+    const addResponseProcessorButton = getAllByTestId('addProcessorButton')[1];
+    userEvent.click(addResponseProcessorButton);
+    await waitFor(() => {
+      expect(getAllByText('Processors').length).toBeGreaterThan(0);
+    });
+
+    // Save, Build and Run query, Back buttons
+    expect(getByTestId('saveSearchPipelineButton')).toBeInTheDocument();
+    expect(getByTestId('runQueryButton')).toBeInTheDocument();
+    const searchPipelineBackButton = getByTestId('searchPipelineBackButton');
+    userEvent.click(searchPipelineBackButton);
+
+    await waitFor(() => {
+      expect(skipIngestRadio).toBeChecked();
+    });
   });
 });
