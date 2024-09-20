@@ -80,28 +80,30 @@ describe('WorkflowList', () => {
     userEvent.click(sortButtons[0]!);
     await waitFor(() => {
       expect(queryByText('workflow_name_19')).toBeInTheDocument();
-      expect(queryByText('workflow_name_0')).toBeNull();
     });
+    expect(queryByText('workflow_name_0')).toBeNull();
+
     userEvent.click(sortButtons[0]!);
     await waitFor(() => {
       expect(queryByText('workflow_name_0')).toBeInTheDocument();
-      expect(queryByText('workflow_name_9')).toBeInTheDocument();
-      expect(queryByText('workflow_name_10')).toBeNull();
-      expect(queryByText('workflow_name_19')).toBeNull();
     });
+    expect(queryByText('workflow_name_9')).toBeInTheDocument();
+    expect(queryByText('workflow_name_10')).toBeNull();
+    expect(queryByText('workflow_name_19')).toBeNull();
 
     // Sort workflows list by Type
     expect(sortButtons[1]).toBeInTheDocument();
     userEvent.click(sortButtons[1]!);
     await waitFor(() => {
       expect(getAllByText('Custom').length).toBeGreaterThan(0);
-      expect(queryByText('Unknown')).toBeNull();
     });
+    expect(queryByText('Unknown')).toBeNull();
+
     userEvent.click(sortButtons[1]!);
     await waitFor(() => {
       expect(queryByText('Unknown')).toBeNull();
-      expect(getAllByText('Custom').length).toBeGreaterThan(0);
     });
+    expect(getAllByText('Custom').length).toBeGreaterThan(0);
   });
 
   test('pagination functionality', async () => {
@@ -124,8 +126,8 @@ describe('WorkflowList', () => {
     userEvent.click(nextButton);
     await waitFor(() => {
       expect(getByText('workflow_name_19')).toBeInTheDocument();
-      expect(queryByText('workflow_name_0')).toBeNull();
     });
+    expect(queryByText('workflow_name_0')).toBeNull();
 
     // Navigate to previous page
     const previousButton = container.querySelector(
@@ -134,8 +136,8 @@ describe('WorkflowList', () => {
     userEvent.click(previousButton);
     await waitFor(() => {
       expect(getByText('workflow_name_0')).toBeInTheDocument();
-      expect(queryByText('workflow_name_19')).toBeNull();
     });
+    expect(queryByText('workflow_name_19')).toBeNull();
   });
 
   test('delete action functionality', async () => {
@@ -169,8 +171,8 @@ describe('WorkflowList', () => {
     userEvent.type(getByPlaceholderText('Search'), 'name_18');
     await waitFor(() => {
       expect(getByText('workflow_name_18')).toBeInTheDocument();
-      expect(queryByText('workflow_name_19')).toBeNull();
-      expect(queryByText('workflow_name_0')).toBeNull();
     });
+    expect(queryByText('workflow_name_19')).toBeNull();
+    expect(queryByText('workflow_name_0')).toBeNull();
   });
 });

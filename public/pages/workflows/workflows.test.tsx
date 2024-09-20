@@ -54,24 +54,30 @@ describe('Workflows', () => {
     // Import Workflow Testing
     expect(getAllByText('Workflows').length).toBeGreaterThan(0);
     const importWorkflowButton = getByTestId('importWorkflowButton');
-    await waitFor(() => userEvent.click(importWorkflowButton));
-    expect(
-      getAllByText('Select or drag and drop a file').length
-    ).toBeGreaterThan(0);
+    userEvent.click(importWorkflowButton);
+    await waitFor(() => {
+      expect(
+        getAllByText('Select or drag and drop a file').length
+      ).toBeGreaterThan(0);
+    });
 
     // Closing or canceling the import
     const cancelImportButton = getByTestId('cancelImportButton');
-    await waitFor(() => userEvent.click(cancelImportButton));
-    expect(
-      queryByText('Select or drag and drop a file')
-    ).not.toBeInTheDocument();
+    userEvent.click(cancelImportButton);
+    await waitFor(() => {
+      expect(
+        queryByText('Select or drag and drop a file')
+      ).not.toBeInTheDocument();
+    });
     expect(getAllByText('Manage existing workflows').length).toBeGreaterThan(0);
 
     // When the "Create Workflow" button is clicked, the "New workflow" tab opens
     // Create Workflow Testing
     const createWorkflowButton = getByTestId('createWorkflowButton');
     expect(createWorkflowButton).toBeInTheDocument();
-    await waitFor(() => userEvent.click(createWorkflowButton));
-    expect(getAllByText('Create from a template').length).toBeGreaterThan(0);
+    userEvent.click(createWorkflowButton);
+    await waitFor(() => {
+      expect(getAllByText('Create from a template').length).toBeGreaterThan(0);
+    });
   });
 });
