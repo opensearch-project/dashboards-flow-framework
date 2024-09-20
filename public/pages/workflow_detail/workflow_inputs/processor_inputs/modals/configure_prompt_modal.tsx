@@ -122,13 +122,15 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
                       items: PROMPT_PRESETS.map((preset: PromptPreset) => ({
                         name: preset.name,
                         onClick: () => {
-                          setFieldValue(
-                            modelConfigPath,
-                            customStringify({
-                              ...JSON.parse(modelConfig),
-                              prompt: preset.prompt,
-                            })
-                          );
+                          try {
+                            setFieldValue(
+                              modelConfigPath,
+                              customStringify({
+                                ...JSON.parse(modelConfig),
+                                prompt: preset.prompt,
+                              })
+                            );
+                          } catch {}
                           setFieldTouched(modelConfigPath, true);
                           setPresetsPopoverOpen(false);
                         },
@@ -158,7 +160,10 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
                 tabSize={2}
                 onChange={(value) => setPromptStr(value)}
                 onBlur={(e) => {
-                  let updatedModelConfig = JSON.parse(modelConfig);
+                  let updatedModelConfig = {} as any;
+                  try {
+                    updatedModelConfig = JSON.parse(modelConfig);
+                  } catch {}
                   if (isEmpty(promptStr)) {
                     // if the input is blank, it is assumed the user
                     // does not want any prompt. hence, remove the "prompt" field

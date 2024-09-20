@@ -138,7 +138,10 @@ export function prepareDocsForSimulate(
   indexName: string
 ): SimulateIngestPipelineDoc[] {
   const preparedDocs = [] as SimulateIngestPipelineDoc[];
-  const docObjs = JSON.parse(docs) as {}[];
+  let docObjs = [] as {}[];
+  try {
+    docObjs = JSON.parse(docs) as {}[];
+  } catch {}
   docObjs.forEach((doc) => {
     preparedDocs.push({
       _index: indexName,
