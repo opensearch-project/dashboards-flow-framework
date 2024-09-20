@@ -242,6 +242,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
               <EuiSmallButton
                 style={{ width: '100px' }}
                 isLoading={isFetching}
+                disabled={onIngestAndNoDocs || onSearchAndNoQuery}
                 onClick={async () => {
                   setIsFetching(true);
                   switch (props.context) {
