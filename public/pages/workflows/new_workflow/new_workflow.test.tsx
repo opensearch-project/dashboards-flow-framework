@@ -14,8 +14,6 @@ import * as ReactReduxHooks from '../../../store/store';
 import '@testing-library/jest-dom';
 import { loadPresetWorkflowTemplates } from '../../../../test/utils';
 import { INITIAL_ML_STATE } from '../../../../public/store';
-import { WORKFLOW_TYPE } from '../../../../common/constants';
-import { capitalizeEachWord } from '../../../../test/utils';
 
 jest.mock('../../../services', () => {
   const { mockCoreServices } = require('../../../../test');
@@ -54,13 +52,13 @@ describe('NewWorkflow', () => {
     jest.spyOn(ReactReduxHooks, 'useAppDispatch').mockReturnValue(mockDispatch);
   });
 
-  test('renders the preset workflow templates', () => {
+  test('renders the preset workflow names & descriptions', () => {
+    const presetWorkflows = loadPresetWorkflowTemplates();
     const { getByPlaceholderText, getAllByText } = renderWithRouter();
     expect(getByPlaceholderText('Search')).toBeInTheDocument();
-    Object.values(WORKFLOW_TYPE).forEach((type) => {
-      if (type !== WORKFLOW_TYPE.UNKNOWN) {
-        expect(getAllByText(capitalizeEachWord(type))).toHaveLength(1);
-      }
+    presetWorkflows.forEach((workflow) => {
+      expect(getAllByText(workflow.name)).toHaveLength(1);
+      expect(getAllByText(workflow.description)).toHaveLength(1);
     });
   });
 

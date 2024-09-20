@@ -86,6 +86,15 @@ export const OPENAI_DIMENSIONS = {
   [`text-embedding-ada-002`]: 1536,
 };
 
+// Amazon BedRock
+export const BEDROCK_DIMENSIONS = {
+  [`amazon.titan-embed-text-v1`]: 1536,
+  [`amazon.titan-embed-text-v2`]: 1024,
+  [`amazon.titan-embed-image-v1`]: 1024,
+  [`cohere.embed-english-v3`]: 1024, // same as Cohere directly
+  [`cohere.embed-multilingual-v3`]: 1024, // same as Cohere directly
+};
+
 /**
  * Various constants pertaining to Workflow configs
  */
@@ -135,24 +144,13 @@ export enum NODE_CATEGORY {
  * A base set of component classes / types.
  */
 export enum COMPONENT_CLASS {
-  // Indexer-related classes
-  INDEXER = 'indexer',
-  KNN_INDEXER = 'knn_indexer',
-  // Retriever-related classes
-  RETRIEVER = 'retriever',
-  // Transformer-related classes
+  INDEX = 'index',
+  KNN_INDEX = 'knn_index',
   TRANSFORMER = 'transformer',
-  JSON_TO_JSON_TRANSFORMER = 'json_to_json_transformer',
   ML_TRANSFORMER = 'ml_transformer',
-  RESULTS_TRANSFORMER = 'results_transformer',
-  // Query-related classes
-  QUERY = 'query',
-  MATCH_QUERY = 'match_query',
-  NEURAL_QUERY = 'neural_query',
-  // Document-related classes
+  SEARCH_REQUEST = 'search_request',
   DOCUMENT = 'document',
-  // Results-related classes
-  RESULTS = 'results',
+  SEARCH_RESPONSE = 'search_response',
 }
 
 /**

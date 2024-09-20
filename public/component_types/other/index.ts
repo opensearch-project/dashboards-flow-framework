@@ -4,5 +4,5 @@
  */
 
 export * from './document';
-export * from './results';
-export * from './query';
+export * from './search_response';
+export * from './search_request';

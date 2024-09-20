@@ -1,6 +1,6 @@
 {
-    "name": "Retrieval-Augmented Generation",
-    "description": "A basic workflow containing the index and search pipeline configurations for performing basic retrieval-augmented generation",
+    "name": "Retrieval-Augmented Generation (RAG)",
+    "description": "A basic workflow containing the index and search pipeline configurations for performing basic retrieval-augmented generation (RAG)",
     "version": {
         "template": "1.0.0",
         "compatibility": [

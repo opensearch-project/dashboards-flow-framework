@@ -204,7 +204,7 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
                               setSchemaPopoverOpen(!schemaPopoverOpen)
                             }
                           >
-                            View full input schema
+                            View input schema
                           </EuiSmallButtonEmpty>
                         }
                       >
