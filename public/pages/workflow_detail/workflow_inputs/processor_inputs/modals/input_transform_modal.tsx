@@ -27,6 +27,7 @@ import {
   EuiPopoverTitle,
   EuiIconTip,
   EuiSwitch,
+  EuiCallOut,
 } from '@elastic/eui';
 import {
   IConfigField,
@@ -106,6 +107,22 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const map = getIn(values, props.inputMapFieldPath) as MapArrayFormValue;
   const oneToOnePath = `${props.baseConfigPath}.${props.config.id}.one_to_one`;
   const oneToOne = getIn(values, oneToOnePath);
+  const docs = getIn(values, 'ingest.docs');
+  let docObjs = [] as {}[] | undefined;
+  try {
+    docObjs = JSON.parse(docs);
+  } catch {}
+  const query = getIn(values, 'search.request');
+  let queryObj = {} as {} | undefined;
+  try {
+    queryObj = JSON.parse(query);
+  } catch {}
+  const onIngestAndNoDocs =
+    props.context === PROCESSOR_CONTEXT.INGEST && isEmpty(docObjs);
+  const onSearchAndNoQuery =
+    (props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST ||
+      props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE) &&
+    isEmpty(queryObj);
 
   // selected transform state
   const transformOptions = map.map((_, idx) => ({
@@ -226,6 +243,20 @@ export function InputTransformModal(props: InputTransformModalProps) {
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
+              {(onIngestAndNoDocs || onSearchAndNoQuery) && (
+                <>
+                  <EuiCallOut
+                    size="s"
+                    title={
+                      onIngestAndNoDocs
+                        ? 'No source documents detected. Fetching is unavailable.'
+                        : 'No source query detected. Fetching is unavailable.'
+                    }
+                    color="warning"
+                  />
+                  <EuiSpacer size="s" />
+                </>
+              )}
               <EuiText color="subdued">{description}</EuiText>
               <EuiSpacer size="s" />
               {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
@@ -252,6 +283,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
               <EuiSmallButton
                 style={{ width: '100px' }}
                 isLoading={isFetching}
+                disabled={onIngestAndNoDocs || onSearchAndNoQuery}
                 onClick={async () => {
                   setIsFetching(true);
                   switch (props.context) {

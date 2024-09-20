@@ -24,6 +24,7 @@ import {
   EuiSmallButtonEmpty,
   EuiPopoverTitle,
   EuiCodeBlock,
+  EuiCallOut,
 } from '@elastic/eui';
 import {
   IConfigField,
@@ -91,6 +92,22 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
   const map = getIn(values, props.outputMapFieldPath) as MapArrayFormValue;
   const fullResponsePathPath = `${props.baseConfigPath}.${props.config.id}.full_response_path`;
   const fullResponsePath = getIn(values, fullResponsePathPath);
+  const docs = getIn(values, 'ingest.docs');
+  let docObjs = [] as {}[] | undefined;
+  try {
+    docObjs = JSON.parse(docs);
+  } catch {}
+  const query = getIn(values, 'search.request');
+  let queryObj = {} as {} | undefined;
+  try {
+    queryObj = JSON.parse(query);
+  } catch {}
+  const onIngestAndNoDocs =
+    props.context === PROCESSOR_CONTEXT.INGEST && isEmpty(docObjs);
+  const onSearchAndNoQuery =
+    (props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST ||
+      props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE) &&
+    isEmpty(queryObj);
 
   // popover state containing the model interface details, if applicable
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
@@ -141,6 +158,20 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
+              {(onIngestAndNoDocs || onSearchAndNoQuery) && (
+                <>
+                  <EuiCallOut
+                    size="s"
+                    title={
+                      onIngestAndNoDocs
+                        ? 'No source documents detected. Fetching is unavailable.'
+                        : 'No source query detected. Fetching is unavailable.'
+                    }
+                    color="warning"
+                  />
+                  <EuiSpacer size="s" />
+                </>
+              )}
               <EuiText color="subdued">
                 Fetch some sample output data and see how it is transformed.
               </EuiText>
@@ -211,6 +242,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
               <EuiSmallButton
                 style={{ width: '100px' }}
                 isLoading={isFetching}
+                disabled={onIngestAndNoDocs || onSearchAndNoQuery}
                 onClick={async () => {
                   setIsFetching(true);
                   switch (props.context) {
