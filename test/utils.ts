@@ -93,10 +93,6 @@ export const loadPresetWorkflowTemplates = () =>
       JSON.parse(fs.readFileSync(path.join(templatesDir, file), 'utf8'))
     );
 
-export function capitalizeEachWord(input: string): string {
-  return input.replace(/\b\w/g, (match) => match.toUpperCase());
-}
-
 export const resizeObserverMock = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),

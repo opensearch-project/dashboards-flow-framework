@@ -105,11 +105,13 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
       </EuiModalHeader>
       <EuiModalBody>
         <EuiCompressedFormRow
+          fullWidth={true}
           label={'Name'}
           error={'Invalid name'}
           isInvalid={isInvalidName(workflowName)}
         >
           <EuiCompressedFieldText
+            fullWidth={true}
             placeholder={processWorkflowName(props.workflow.name)}
             value={workflowName}
             onChange={(e) => {

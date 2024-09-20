@@ -57,6 +57,7 @@ import {
 } from '../../../../../store';
 import { getCore } from '../../../../../services';
 import {
+  generateArrayTransform,
   getDataSourceId,
   parseModelInputs,
   parseModelInputsObj,
@@ -134,13 +135,24 @@ export function InputTransformModal(props: InputTransformModalProps) {
       !isEmpty(JSON.parse(sourceInput)) &&
       selectedTransformOption !== undefined
     ) {
-      let sampleSourceInput = {};
+      let sampleSourceInput = {} as {} | [];
       try {
         sampleSourceInput = JSON.parse(sourceInput);
-        const output = generateTransform(
-          sampleSourceInput,
-          map[selectedTransformOption]
-        );
+        const output =
+          // Edge case: users are collapsing input docs into a single input field when many-to-one is selected
+          // fo input transforms on search response processors.
+          oneToOne === false &&
+          props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE &&
+          Array.isArray(sampleSourceInput)
+            ? generateArrayTransform(
+                sampleSourceInput as [],
+                map[selectedTransformOption]
+              )
+            : generateTransform(
+                sampleSourceInput,
+                map[selectedTransformOption]
+              );
+
         setTransformedInput(customStringify(output));
       } catch {}
     } else {
@@ -471,7 +483,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                         <EuiSmallButtonEmpty
                           onClick={() => setPopoverOpen(!popoverOpen)}
                         >
-                          View model inputs
+                          View input schema
                         </EuiSmallButtonEmpty>
                       }
                     >

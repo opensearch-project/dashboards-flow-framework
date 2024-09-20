@@ -28,8 +28,6 @@ interface ProcessorInputsProps {
   context: PROCESSOR_CONTEXT;
 }
 
-const PROCESSOR_INPUTS_SPACER_SIZE = 'm';
-
 // Component to dynamically render the processor inputs based on the processor types.
 // For most processors, we can use the standard/default ConfigFieldList components
 // for rendering the required and optional fields. For more complex processors, we have
@@ -51,7 +49,6 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                   baseConfigPath={props.baseConfigPath}
                   context={props.context}
                 />
-                <EuiSpacer size={PROCESSOR_INPUTS_SPACER_SIZE} />
               </EuiFlexItem>
             );
             break;
@@ -65,7 +62,6 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                   baseConfigPath={props.baseConfigPath}
                   context={props.context}
                 />
-                <EuiSpacer size={PROCESSOR_INPUTS_SPACER_SIZE} />
               </EuiFlexItem>
             );
             break;
@@ -79,7 +75,6 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                   baseConfigPath={props.baseConfigPath}
                   context={props.context}
                 />
-                <EuiSpacer size={PROCESSOR_INPUTS_SPACER_SIZE} />
               </EuiFlexItem>
             );
             break;
