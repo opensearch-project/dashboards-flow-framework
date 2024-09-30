@@ -102,10 +102,3 @@ jobs:
         run: |
           cd OpenSearch-Dashboards/plugins/dashboards-flow-framework
           yarn run test:jest --coverage
-      - name: Uploads coverage
-        uses: codecov/codecov-action@v3
-        with:
-          verbose: true 
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
