@@ -232,7 +232,7 @@ function getTransformedResult(
     ? input
     : mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR)
     ? // JSONPath transform
-      jsonpath.query(input, path)
+      jsonpath.value(input, path)
     : // Standard dot notation
       get(input, path);
 }

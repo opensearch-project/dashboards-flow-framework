@@ -33,6 +33,7 @@ import {
   IProcessorConfig,
   ModelInputFormField,
   ModelInterface,
+  PROMPT_FIELD,
   PROMPT_PRESETS,
   PromptPreset,
   WorkflowFormValues,
@@ -74,21 +75,16 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
 
   // hook to set the prompt if found in the model config
   useEffect(() => {
-    const modelConfigString = getIn(
-      values,
-      `${props.baseConfigPath}.${props.config.id}.model_config`
-    ) as string;
     try {
-      const prompt = JSON.parse(modelConfigString)?.prompt;
+      const modelConfigObj = JSON.parse(getIn(values, modelConfigPath));
+      const prompt = getIn(modelConfigObj, PROMPT_FIELD);
       if (!isEmpty(prompt)) {
         setPromptStr(prompt);
       } else {
         setPromptStr('');
       }
     } catch {}
-  }, [
-    getIn(values, `${props.baseConfigPath}.${props.config.id}.model_config`),
-  ]);
+  }, [getIn(values, modelConfigPath)]);
 
   return (
     <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -127,7 +123,7 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
                               modelConfigPath,
                               customStringify({
                                 ...JSON.parse(modelConfig),
-                                prompt: preset.prompt,
+                                [PROMPT_FIELD]: preset.prompt,
                               })
                             );
                           } catch {}
@@ -168,9 +164,9 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
                     // if the input is blank, it is assumed the user
                     // does not want any prompt. hence, remove the "prompt" field
                     // from the config altogether.
-                    delete updatedModelConfig.prompt;
+                    delete updatedModelConfig[PROMPT_FIELD];
                   } else {
-                    updatedModelConfig.prompt = promptStr;
+                    updatedModelConfig[PROMPT_FIELD] = promptStr;
                   }
                   setFieldValue(
                     modelConfigPath,
