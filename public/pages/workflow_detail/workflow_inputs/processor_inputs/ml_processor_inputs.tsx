@@ -45,6 +45,7 @@ import {
   parseModelOutputs,
 } from '../../../../utils';
 import { ConfigFieldList } from '../config_field_list';
+import { OverrideQueryModal } from './modals/override_query_modal';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
@@ -127,6 +128,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     boolean
   >(false);
   const [isPromptModalOpen, setIsPromptModalOpen] = useState<boolean>(false);
+  const [isQueryModalOpen, setIsQueryModalOpen] = useState<boolean>(false);
 
   // model interface state
   const [modelInterface, setModelInterface] = useState<
@@ -281,6 +283,14 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           onClose={() => setIsPromptModalOpen(false)}
         />
       )}
+      {isQueryModalOpen && (
+        <OverrideQueryModal
+          config={props.config}
+          baseConfigPath={props.baseConfigPath}
+          modelInterface={modelInterface}
+          onClose={() => setIsQueryModalOpen(false)}
+        />
+      )}
       <ModelField
         field={modelField}
         fieldPath={modelFieldPath}
@@ -290,6 +300,23 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
         <>
           <EuiSpacer size="s" />
+          {props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST && (
+            <>
+              <EuiText
+                size="m"
+                style={{ marginTop: '4px' }}
+              >{`Override query (Optional)`}</EuiText>
+              <EuiSpacer size="s" />
+              <EuiSmallButton
+                style={{ width: '100px' }}
+                fill={false}
+                onClick={() => setIsQueryModalOpen(true)}
+              >
+                Override
+              </EuiSmallButton>
+              <EuiSpacer size="l" />
+            </>
+          )}
           {containsPromptField && (
             <>
               <EuiText
@@ -442,7 +469,17 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             <EuiSpacer size="s" />
             <ConfigFieldList
               configId={props.config.id}
-              configFields={props.config.optionalFields || []}
+              configFields={
+                // For ML search request processors, we don't expose the optional query_template field, since we have a dedicated
+                // UI for configuring that. See override_query_modal.tsx for details.
+                props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                  ? [
+                      ...(props.config.optionalFields?.filter(
+                        (optionalField) => optionalField.id !== 'query_template'
+                      ) || []),
+                    ]
+                  : props.config.optionalFields || []
+              }
               baseConfigPath={props.baseConfigPath}
             />
           </EuiAccordion>
