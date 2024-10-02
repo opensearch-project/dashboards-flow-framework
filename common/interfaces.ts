@@ -6,7 +6,12 @@
 import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
-import { COMPONENT_CLASS, PROCESSOR_TYPE, WORKFLOW_TYPE } from './constants';
+import {
+  COMPONENT_CLASS,
+  PROCESSOR_TYPE,
+  PROMPT_FIELD,
+  WORKFLOW_TYPE,
+} from './constants';
 
 export type Index = {
   name: string;
@@ -401,6 +406,7 @@ export type ModelInterface = {
 export type ConnectorParameters = {
   model?: string;
   dimensions?: number;
+  [PROMPT_FIELD]?: string;
 };
 
 export type Model = {

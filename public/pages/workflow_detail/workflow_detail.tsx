@@ -23,6 +23,7 @@ import {
   AppState,
   catIndices,
   getWorkflow,
+  searchConnectors,
   searchModels,
   useAppDispatch,
 } from '../../store';
@@ -102,11 +103,12 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
 
   // On initial load:
   // - fetch workflow
-  // - fetch available models as their IDs may be used when building flows
+  // - fetch available models & connectors as their IDs may be used when building flows
   // - fetch all indices
   useEffect(() => {
     dispatch(getWorkflow({ workflowId, dataSourceId }));
     dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
+    dispatch(searchConnectors({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
     dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
   }, []);
 
