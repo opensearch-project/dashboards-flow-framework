@@ -292,7 +292,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     ingestTemplatesDifferent || isRunningIngest;
   const searchBackButtonDisabled =
     isRunningSearch ||
-    (isProposingNoSearchResources ? false : searchTemplatesDifferent);
+    (isProposingNoSearchResources || !ingestProvisioned
+      ? false
+      : searchTemplatesDifferent);
   const searchUndoButtonDisabled =
     isRunningSave || isRunningSearch
       ? true
