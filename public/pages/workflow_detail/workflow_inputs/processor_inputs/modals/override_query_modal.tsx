@@ -25,11 +25,19 @@ import {
   EuiContextMenu,
 } from '@elastic/eui';
 import {
+  IMAGE_FIELD_PATTERN,
   IProcessorConfig,
+  LABEL_FIELD_PATTERN,
   MapEntry,
+  MODEL_ID_PATTERN,
   ModelInterface,
+  QUERY_IMAGE_PATTERN,
   QUERY_PRESETS,
+  QUERY_TEXT_PATTERN,
   QueryPreset,
+  TEXT_FIELD_PATTERN,
+  VECTOR_FIELD_PATTERN,
+  VECTOR_PATTERN,
   WorkflowFormValues,
 } from '../../../../../../common';
 import { parseModelOutputs } from '../../../../../utils/utils';
@@ -43,8 +51,8 @@ interface OverrideQueryModalProps {
 }
 
 /**
- * A modal to configure a prompt template. Can manually configure, include placeholder values
- * using other model inputs, and/or select from a presets library.
+ * A modal to configure a query template & override the existing query. Can manually configure,
+ * include placeholder values using model outputs, and/or select from a presets library.
  */
 export function OverrideQueryModal(props: OverrideQueryModalProps) {
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
@@ -85,7 +93,7 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
       <EuiModalBody style={{ height: '40vh' }}>
         <EuiText color="subdued">
           Configure a custom query template to override the existing one.
-          Optionally inject dynamic model outputs into the query.
+          Optionally inject dynamic model outputs into the new query.
         </EuiText>
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
@@ -112,7 +120,45 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
                         name: preset.name,
                         onClick: () => {
                           try {
-                            setFieldValue(queryFieldPath, preset.query);
+                            setFieldValue(
+                              queryFieldPath,
+                              preset.query
+                                // sanitize the query preset string into valid template placeholder format, for
+                                // any placeholder values in the query.
+                                // for example, replacing `"{{vector}}"` with `${vector}`
+                                .replace(
+                                  new RegExp(`"${VECTOR_FIELD_PATTERN}"`, 'g'),
+                                  `\$\{vector_field\}`
+                                )
+                                .replace(
+                                  new RegExp(`"${VECTOR_PATTERN}"`, 'g'),
+                                  `\$\{vector\}`
+                                )
+                                .replace(
+                                  new RegExp(`"${TEXT_FIELD_PATTERN}"`, 'g'),
+                                  `\$\{text_field\}`
+                                )
+                                .replace(
+                                  new RegExp(`"${IMAGE_FIELD_PATTERN}"`, 'g'),
+                                  `\$\{image_field\}`
+                                )
+                                .replace(
+                                  new RegExp(`"${LABEL_FIELD_PATTERN}"`, 'g'),
+                                  `\$\{label_field\}`
+                                )
+                                .replace(
+                                  new RegExp(`"${QUERY_TEXT_PATTERN}"`, 'g'),
+                                  `\$\{query_text\}`
+                                )
+                                .replace(
+                                  new RegExp(`"${QUERY_IMAGE_PATTERN}"`, 'g'),
+                                  `\$\{query_image\}`
+                                )
+                                .replace(
+                                  new RegExp(`"${MODEL_ID_PATTERN}"`, 'g'),
+                                  `\$\{model_id\}`
+                                )
+                            );
                           } catch {}
                           setFieldTouched(queryFieldPath, true);
                           setPresetsPopoverOpen(false);
