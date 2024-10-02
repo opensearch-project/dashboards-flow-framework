@@ -37,12 +37,12 @@ enum TAB_ID {
 const inputTabs = [
   {
     id: TAB_ID.INGEST,
-    name: 'Run ingestion',
+    name: 'Ingest response',
     disabled: false,
   },
   {
     id: TAB_ID.QUERY,
-    name: 'Run query',
+    name: 'Search response',
     disabled: false,
   },
   {
