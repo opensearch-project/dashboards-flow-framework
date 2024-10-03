@@ -94,6 +94,10 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody style={{ height: '40vh' }}>
+        <EuiText color="subdued">
+          Configure a custom prompt template for the model. Optionally inject
+          dynamic model inputs into the template.
+        </EuiText>
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
             <>
