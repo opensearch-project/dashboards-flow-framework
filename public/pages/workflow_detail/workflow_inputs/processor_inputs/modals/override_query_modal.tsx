@@ -119,47 +119,45 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
                       items: QUERY_PRESETS.map((preset: QueryPreset) => ({
                         name: preset.name,
                         onClick: () => {
-                          try {
-                            setFieldValue(
-                              queryFieldPath,
-                              preset.query
-                                // sanitize the query preset string into valid template placeholder format, for
-                                // any placeholder values in the query.
-                                // for example, replacing `"{{vector}}"` with `${vector}`
-                                .replace(
-                                  new RegExp(`"${VECTOR_FIELD_PATTERN}"`, 'g'),
-                                  `\$\{vector_field\}`
-                                )
-                                .replace(
-                                  new RegExp(`"${VECTOR_PATTERN}"`, 'g'),
-                                  `\$\{vector\}`
-                                )
-                                .replace(
-                                  new RegExp(`"${TEXT_FIELD_PATTERN}"`, 'g'),
-                                  `\$\{text_field\}`
-                                )
-                                .replace(
-                                  new RegExp(`"${IMAGE_FIELD_PATTERN}"`, 'g'),
-                                  `\$\{image_field\}`
-                                )
-                                .replace(
-                                  new RegExp(`"${LABEL_FIELD_PATTERN}"`, 'g'),
-                                  `\$\{label_field\}`
-                                )
-                                .replace(
-                                  new RegExp(`"${QUERY_TEXT_PATTERN}"`, 'g'),
-                                  `\$\{query_text\}`
-                                )
-                                .replace(
-                                  new RegExp(`"${QUERY_IMAGE_PATTERN}"`, 'g'),
-                                  `\$\{query_image\}`
-                                )
-                                .replace(
-                                  new RegExp(`"${MODEL_ID_PATTERN}"`, 'g'),
-                                  `\$\{model_id\}`
-                                )
-                            );
-                          } catch {}
+                          setFieldValue(
+                            queryFieldPath,
+                            preset.query
+                              // sanitize the query preset string into valid template placeholder format, for
+                              // any placeholder values in the query.
+                              // for example, replacing `"{{vector}}"` with `${vector}`
+                              .replace(
+                                new RegExp(`"${VECTOR_FIELD_PATTERN}"`, 'g'),
+                                `\$\{vector_field\}`
+                              )
+                              .replace(
+                                new RegExp(`"${VECTOR_PATTERN}"`, 'g'),
+                                `\$\{vector\}`
+                              )
+                              .replace(
+                                new RegExp(`"${TEXT_FIELD_PATTERN}"`, 'g'),
+                                `\$\{text_field\}`
+                              )
+                              .replace(
+                                new RegExp(`"${IMAGE_FIELD_PATTERN}"`, 'g'),
+                                `\$\{image_field\}`
+                              )
+                              .replace(
+                                new RegExp(`"${LABEL_FIELD_PATTERN}"`, 'g'),
+                                `\$\{label_field\}`
+                              )
+                              .replace(
+                                new RegExp(`"${QUERY_TEXT_PATTERN}"`, 'g'),
+                                `\$\{query_text\}`
+                              )
+                              .replace(
+                                new RegExp(`"${QUERY_IMAGE_PATTERN}"`, 'g'),
+                                `\$\{query_image\}`
+                              )
+                              .replace(
+                                new RegExp(`"${MODEL_ID_PATTERN}"`, 'g'),
+                                `\$\{model_id\}`
+                              )
+                          );
                           setFieldTouched(queryFieldPath, true);
                           setPresetsPopoverOpen(false);
                         },
@@ -208,7 +206,12 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
         </EuiFlexGroup>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiSmallButton onClick={props.onClose} fill={false} color="primary">
+        <EuiSmallButton
+          onClick={props.onClose}
+          fill={false}
+          color="primary"
+          data-testid="closeModalButton"
+        >
           Close
         </EuiSmallButton>
       </EuiModalFooter>

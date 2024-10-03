@@ -311,6 +311,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 style={{ width: '100px' }}
                 fill={false}
                 onClick={() => setIsQueryModalOpen(true)}
+                data-testid="overrideQueryButton"
               >
                 Override
               </EuiSmallButton>
@@ -328,6 +329,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 style={{ width: '100px' }}
                 fill={false}
                 onClick={() => setIsPromptModalOpen(true)}
+                data-testid="configurePromptButton"
               >
                 Configure
               </EuiSmallButton>
