@@ -297,5 +297,5 @@ const columns = [
 function getPlaceholderString(type: string, label: string) {
   return type === 'array'
     ? `\$\{parameters.${label}.toString()\}`
-    : `\$\\{parameters.${label}\\}`;
+    : `\$\{parameters.${label}\}`;
 }
