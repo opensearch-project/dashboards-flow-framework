@@ -283,6 +283,11 @@ export function Workflows(props: WorkflowsProps) {
                         fill={true}
                         onClick={() => {
                           setSelectedTabId(WORKFLOWS_TAB.CREATE);
+                          replaceActiveTab(
+                            WORKFLOWS_TAB.CREATE,
+                            props,
+                            dataSourceId
+                          );
                         }}
                         data-testid="createWorkflowButton"
                       >
