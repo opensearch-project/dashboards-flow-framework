@@ -49,7 +49,7 @@ function generateWorkflow({ id, name, type }: WorkflowInput): Workflow {
   return {
     id,
     name,
-    version: { template: '1.0.0', compatibility: ['2.17.0', '3.0.0'] },
+    version: { template: '1.0.0', compatibility: ['2.18.0', '3.0.0'] },
     ui_metadata: getConfig(type),
   };
 }
