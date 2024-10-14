@@ -124,7 +124,7 @@ jobs:
         with:
           path: opensearch-dashboards-functional-test
           repository: saimedhi/opensearch-dashboards-functional-test
-          ref: add_flow_framework
+          ref: add_FF_PR
           fetch-depth: 0
 
       - name: Install Cypress
