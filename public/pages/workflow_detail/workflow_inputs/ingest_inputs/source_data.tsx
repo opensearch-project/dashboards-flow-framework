@@ -194,6 +194,7 @@ export function SourceData(props: SourceDataProps) {
                   id={SOURCE_OPTIONS.MANUAL}
                   hasActiveFilters={selectedOption === SOURCE_OPTIONS.MANUAL}
                   onClick={() => setSelectedOption(SOURCE_OPTIONS.MANUAL)}
+                  data-testid="manualEditSourceDataButton"
                 >
                   Manual
                 </EuiSmallFilterButton>
@@ -201,6 +202,7 @@ export function SourceData(props: SourceDataProps) {
                   id={SOURCE_OPTIONS.UPLOAD}
                   hasActiveFilters={selectedOption === SOURCE_OPTIONS.UPLOAD}
                   onClick={() => setSelectedOption(SOURCE_OPTIONS.UPLOAD)}
+                  data-testid="uploadSourceDataButton"
                 >
                   Upload
                 </EuiSmallFilterButton>
@@ -212,6 +214,7 @@ export function SourceData(props: SourceDataProps) {
                   onClick={() =>
                     setSelectedOption(SOURCE_OPTIONS.EXISTING_INDEX)
                   }
+                  data-testid="selectIndexSourceDataButton"
                 >
                   Existing index
                 </EuiSmallFilterButton>
@@ -271,6 +274,7 @@ export function SourceData(props: SourceDataProps) {
               onClick={() => setIsEditModalOpen(false)}
               fill={false}
               color="primary"
+              data-testid="closeSourceDataButton"
             >
               Close
             </EuiSmallButton>
@@ -288,6 +292,7 @@ export function SourceData(props: SourceDataProps) {
             fill={false}
             style={{ width: '100px' }}
             onClick={() => setIsEditModalOpen(true)}
+            data-testid="editSourceDataButton"
           >
             Edit
           </EuiSmallButton>
