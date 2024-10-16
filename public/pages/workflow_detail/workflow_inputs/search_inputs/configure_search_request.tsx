@@ -15,7 +15,6 @@ import {
   EuiCompressedSuperSelect,
   EuiSuperSelectOption,
   EuiText,
-  EuiTitle,
   EuiSpacer,
 } from '@elastic/eui';
 import {
@@ -83,9 +82,9 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
       )}
       <EuiFlexGroup direction="column">
         <EuiFlexItem grow={false}>
-          <EuiTitle size="s">
-            <h2>Configure query</h2>
-          </EuiTitle>
+          <EuiText size="s">
+            <h3>Configure query</h3>
+          </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiCompressedFormRow label="Retrieval index">
@@ -100,7 +99,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                   (option) =>
                     ({
                       value: option.name,
-                      inputDisplay: <EuiText>{option.name}</EuiText>,
+                      inputDisplay: <EuiText size="s">{option.name}</EuiText>,
                       disabled: false,
                     } as EuiSuperSelectOption<string>)
                 )}

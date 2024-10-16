@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiTitle } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
 import { TextField } from '../input_fields';
 import { AdvancedSettings } from './advanced_settings';
 
@@ -17,9 +17,9 @@ export function IngestData(props: IngestDataProps) {
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
-        <EuiTitle size="s">
-          <h2>Ingest data</h2>
-        </EuiTitle>
+        <EuiText size="s">
+          <h3>Ingest data</h3>
+        </EuiText>
       </EuiFlexItem>
       <EuiFlexItem>
         <TextField label="Index name" fieldPath={'ingest.index.name'} />

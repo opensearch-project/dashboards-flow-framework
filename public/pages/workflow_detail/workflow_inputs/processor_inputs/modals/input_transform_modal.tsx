@@ -26,7 +26,7 @@ import {
   EuiCodeBlock,
   EuiPopoverTitle,
   EuiIconTip,
-  EuiSwitch,
+  EuiCompressedSwitch,
   EuiCallOut,
 } from '@elastic/eui';
 import {
@@ -279,7 +279,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   <EuiSpacer size="s" />
                 </>
               )}
-              <EuiText>Source input</EuiText>
+              <EuiText size="s">Source input</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
                 isLoading={isFetching}
@@ -434,7 +434,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiText>Define transform</EuiText>
+              <EuiText size="s">Define transform</EuiText>
               <EuiSpacer size="s" />
               <MapArrayField
                 field={props.inputMapField}
@@ -494,10 +494,12 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 )}
                 <EuiFlexItem grow={true}>
                   {transformOptions.length <= 1 ? (
-                    <EuiText>Transformed input</EuiText>
+                    <EuiText size="s">Transformed input</EuiText>
                   ) : (
                     <EuiCompressedSelect
-                      prepend={<EuiText>Transformed input for</EuiText>}
+                      prepend={
+                        <EuiText size="s">Transformed input for</EuiText>
+                      }
                       options={transformOptions}
                       value={selectedTransformOption}
                       onChange={(e) => {
@@ -511,6 +513,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                     <EuiPopover
                       isOpen={popoverOpen}
                       closePopover={() => setPopoverOpen(false)}
+                      panelPaddingSize="s"
                       button={
                         <EuiSmallButtonEmpty
                           onClick={() => setPopoverOpen(!popoverOpen)}
@@ -560,10 +563,10 @@ export function InputTransformModal(props: InputTransformModalProps) {
               <>
                 <EuiFlexGroup direction="row">
                   <EuiFlexItem grow={false}>
-                    <EuiText>Transformed prompt</EuiText>
+                    <EuiText size="s">Transformed prompt</EuiText>
                   </EuiFlexItem>
                   <EuiFlexItem grow={false} style={{ marginTop: '16px' }}>
-                    <EuiSwitch
+                    <EuiCompressedSwitch
                       label="Show"
                       checked={viewPromptDetails}
                       onChange={() => setViewPromptDetails(!viewPromptDetails)}
@@ -581,7 +584,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 {viewPromptDetails && (
                   <>
                     <EuiSpacer size="s" />
-                    <EuiSwitch
+                    <EuiCompressedSwitch
                       label="With transformed inputs"
                       checked={viewTransformedPrompt}
                       onChange={() =>

@@ -16,7 +16,6 @@ import ReactFlow, {
 import {
   EuiFlexItem,
   EuiFlexGroup,
-  EuiTitle,
   EuiFilterGroup,
   EuiFilterButton,
   EuiCodeEditor,
@@ -127,14 +126,14 @@ export function Workspace(props: WorkspaceProps) {
         <div>
           <EuiFlexGroup direction="row" style={{ padding: '12px' }}>
             <EuiFlexItem grow={false}>
-              <EuiTitle>
+              <EuiText size="s">
                 <h2>Preview</h2>
-              </EuiTitle>
+              </EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiFilterGroup>
                 <EuiFilterButton
-                  size="l"
+                  size="s"
                   hasActiveFilters={visualSelected}
                   onClick={() => toggleSelection()}
                   data-testid="workspaceVisualButton"
@@ -142,7 +141,7 @@ export function Workspace(props: WorkspaceProps) {
                   Visual
                 </EuiFilterButton>
                 <EuiFilterButton
-                  size="l"
+                  size="s"
                   hasActiveFilters={!visualSelected}
                   onClick={() => toggleSelection()}
                   data-testid="workspaceJSONButton"
@@ -153,11 +152,11 @@ export function Workspace(props: WorkspaceProps) {
             </EuiFlexItem>
             <EuiFlexItem grow={false} style={{ paddingTop: '8px' }}>
               {visualSelected ? (
-                <EuiText>
+                <EuiText size="s">
                   {`A basic visual view representing the configured ingest & search flows.`}
                 </EuiText>
               ) : (
-                <EuiText>
+                <EuiText size="s">
                   {`The Flow Framework provisioning template describing how to build out the configured resources. `}
                   <EuiLink href={WORKFLOW_TUTORIAL_LINK} target="_blank">
                     Learn more

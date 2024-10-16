@@ -8,7 +8,6 @@ import {
   EuiText,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiTitle,
   EuiCard,
   EuiHorizontalRule,
   EuiSmallButton,
@@ -34,9 +33,9 @@ export function UseCase(props: UseCaseProps) {
       )}
       <EuiCard
         title={
-          <EuiTitle size="s">
-            <h2>{props.workflow.name}</h2>
-          </EuiTitle>
+          <EuiText size="s">
+            <h3>{props.workflow.name}</h3>
+          </EuiText>
         }
         titleSize="s"
         paddingSize="l"
@@ -45,7 +44,7 @@ export function UseCase(props: UseCaseProps) {
         <EuiFlexGroup direction="column" gutterSize="l">
           <EuiHorizontalRule size="full" margin="m" />
           <EuiFlexItem grow={true}>
-            <EuiText>{props.workflow.description}</EuiText>
+            <EuiText size="s">{props.workflow.description}</EuiText>
           </EuiFlexItem>
           <EuiFlexGroup direction="column" alignItems="center">
             <EuiFlexItem grow={false}>

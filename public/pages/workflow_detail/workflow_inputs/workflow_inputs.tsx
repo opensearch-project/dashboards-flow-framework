@@ -23,7 +23,6 @@ import {
   EuiSpacer,
   EuiStepsHorizontal,
   EuiText,
-  EuiTitle,
   EuiSmallButtonIcon,
 } from '@elastic/eui';
 import {
@@ -660,7 +659,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   </EuiModalHeaderTitle>
                 </EuiModalHeader>
                 <EuiModalBody>
-                  <EuiText>
+                  <EuiText size="s">
                     The resources for this workflow will be permanently deleted.
                     This action cannot be undone.
                   </EuiText>
@@ -750,7 +749,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           {!onIngestAndDisabled && (
             <>
               <EuiFlexItem grow={false}>
-                <EuiTitle>
+                <EuiText size="s">
                   <h2>
                     {onIngestAndUnprovisioned ? (
                       'Define ingest pipeline'
@@ -776,7 +775,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       'Define search pipeline'
                     )}
                   </h2>
-                </EuiTitle>
+                </EuiText>
               </EuiFlexItem>
               <EuiFlexItem
                 grow={true}

@@ -115,6 +115,7 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
                 anchorPosition="downLeft"
               >
                 <EuiContextMenu
+                  size="s"
                   initialPanelId={0}
                   panels={[
                     {
@@ -140,7 +141,7 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
                 />
               </EuiPopover>
               <EuiSpacer size="m" />
-              <EuiText>Prompt</EuiText>
+              <EuiText size="s">Prompt</EuiText>
               <EuiSpacer size="s" />
               <EuiCodeEditor
                 mode="json"
@@ -203,6 +204,7 @@ export function ConfigurePromptModal(props: ConfigurePromptModalProps) {
                       <EuiPopover
                         isOpen={schemaPopoverOpen}
                         closePopover={() => setSchemaPopoverOpen(false)}
+                        panelPaddingSize="s"
                         button={
                           <EuiSmallButtonEmpty
                             onClick={() =>

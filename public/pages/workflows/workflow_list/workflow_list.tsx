@@ -16,9 +16,8 @@ import {
   EuiLoadingSpinner,
   EuiFlyout,
   EuiFlyoutHeader,
-  EuiTitle,
-  EuiFlyoutBody,
   EuiText,
+  EuiFlyoutBody,
 } from '@elastic/eui';
 import { AppState } from '../../../store';
 import {
@@ -139,12 +138,12 @@ export function WorkflowList(props: WorkflowListProps) {
           onClose={() => setIsResourcesFlyoutOpen(false)}
         >
           <EuiFlyoutHeader hasBorder={true}>
-            <EuiTitle size="m">
+            <EuiText size="m">
               <h2>{`Active resources with ${getCharacterLimitedString(
                 selectedWorkflow.name,
                 MAX_WORKFLOW_NAME_TO_DISPLAY
               )}`}</h2>
-            </EuiTitle>
+            </EuiText>
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
             <ResourceList workflow={selectedWorkflow} />

@@ -18,7 +18,6 @@ import {
   EuiModalHeaderTitle,
   EuiSpacer,
   EuiText,
-  EuiTitle,
   EuiFilterGroup,
   EuiSmallFilterButton,
   EuiSuperSelectOption,
@@ -244,7 +243,9 @@ export function SourceData(props: SourceDataProps) {
                       (option) =>
                         ({
                           value: option.name,
-                          inputDisplay: <EuiText>{option.name}</EuiText>,
+                          inputDisplay: (
+                            <EuiText size="s">{option.name}</EuiText>
+                          ),
                           disabled: false,
                         } as EuiSuperSelectOption<string>)
                     )}
@@ -279,9 +280,9 @@ export function SourceData(props: SourceDataProps) {
       )}
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
-          <EuiTitle size="s">
-            <h2>Source data</h2>
-          </EuiTitle>
+          <EuiText size="s">
+            <h3>Source data</h3>
+          </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiSmallButton
