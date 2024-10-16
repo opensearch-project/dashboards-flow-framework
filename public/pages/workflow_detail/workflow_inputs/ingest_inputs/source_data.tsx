@@ -184,7 +184,7 @@ export function SourceData(props: SourceDataProps) {
         >
           <EuiModalHeader>
             <EuiModalHeaderTitle>
-              <p>{`Edit source data`}</p>
+              <p>{`Import data`}</p>
             </EuiModalHeaderTitle>
           </EuiModalHeader>
           <EuiModalBody>
@@ -258,7 +258,7 @@ export function SourceData(props: SourceDataProps) {
                 </>
               )}
               <JsonField
-                label="Documents"
+                label="Documents to be imported"
                 fieldPath={'ingest.docs'}
                 helpText="Documents should be formatted as a valid JSON array."
                 editorHeight="25vh"
@@ -280,7 +280,7 @@ export function SourceData(props: SourceDataProps) {
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
           <EuiTitle size="s">
-            <h2>Source data</h2>
+            <h2>Import data</h2>
           </EuiTitle>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
@@ -294,7 +294,7 @@ export function SourceData(props: SourceDataProps) {
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <JsonField
-            label="Documents"
+            label="Documents to be imported"
             fieldPath={'ingest.docs'}
             helpText="Documents should be formatted as a valid JSON array."
             editorHeight="25vh"
