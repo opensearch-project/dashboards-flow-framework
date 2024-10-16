@@ -34,6 +34,7 @@ import {
   WorkspaceFormValues,
   customStringify,
   isVectorSearchUseCase,
+  toFormattedDate,
 } from '../../../../../common';
 import {
   AppState,
@@ -47,6 +48,7 @@ interface SourceDataProps {
   workflow: Workflow | undefined;
   uiConfig: WorkflowConfig;
   setIngestDocs: (docs: string) => void;
+  lastIngested: number | undefined;
 }
 
 enum SOURCE_OPTIONS {
@@ -63,6 +65,13 @@ export function SourceData(props: SourceDataProps) {
   const dataSourceId = getDataSourceId();
   const { values, setFieldValue } = useFormikContext<WorkspaceFormValues>();
   const indices = useSelector((state: AppState) => state.opensearch.indices);
+
+  // empty/populated docs state
+  let docs = [];
+  try {
+    docs = JSON.parse(getIn(values, 'ingest.docs', []));
+  } catch {}
+  const docsPopulated = docs.length > 0;
 
   // selected option state
   const [selectedOption, setSelectedOption] = useState<SOURCE_OPTIONS>(
@@ -183,7 +192,7 @@ export function SourceData(props: SourceDataProps) {
         >
           <EuiModalHeader>
             <EuiModalHeaderTitle>
-              <p>{`Edit source data`}</p>
+              <p>{`Import data`}</p>
             </EuiModalHeaderTitle>
           </EuiModalHeader>
           <EuiModalBody>
@@ -259,7 +268,7 @@ export function SourceData(props: SourceDataProps) {
                 </>
               )}
               <JsonField
-                label="Documents"
+                label="Documents to be imported"
                 fieldPath={'ingest.docs'}
                 helpText="Documents should be formatted as a valid JSON array."
                 editorHeight="25vh"
@@ -284,24 +293,34 @@ export function SourceData(props: SourceDataProps) {
             <h3>Source data</h3>
           </EuiText>
         </EuiFlexItem>
+        {props.lastIngested !== undefined && (
+          <EuiFlexItem grow={false}>
+            <EuiText size="s" color="subdued">
+              {`Last ingested: ${toFormattedDate(props.lastIngested)}`}
+            </EuiText>
+          </EuiFlexItem>
+        )}
+
         <EuiFlexItem grow={false}>
           <EuiSmallButton
             fill={false}
             style={{ width: '100px' }}
             onClick={() => setIsEditModalOpen(true)}
           >
-            Edit
+            {docsPopulated ? `Edit` : `Select data`}
           </EuiSmallButton>
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <JsonField
-            label="Documents"
-            fieldPath={'ingest.docs'}
-            helpText="Documents should be formatted as a valid JSON array."
-            editorHeight="25vh"
-            readOnly={true}
-          />
-        </EuiFlexItem>
+        {docsPopulated && (
+          <EuiFlexItem grow={false}>
+            <JsonField
+              label="Documents to be imported"
+              fieldPath={'ingest.docs'}
+              helpText="Documents should be formatted as a valid JSON array."
+              editorHeight="25vh"
+              readOnly={true}
+            />
+          </EuiFlexItem>
+        )}
       </EuiFlexGroup>
     </>
   );
