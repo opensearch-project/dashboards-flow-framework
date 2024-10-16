@@ -9,7 +9,6 @@ import {
   EuiFlexItem,
   EuiCard,
   EuiText,
-  EuiTitle,
   EuiSpacer,
 } from '@elastic/eui';
 import { IComponentData } from '../../../../../common';
@@ -38,9 +37,9 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
       title={
         <EuiFlexGroup direction="row" justifyContent="spaceBetween">
           <EuiFlexItem grow={false}>
-            <EuiTitle size="s">
+            <EuiText size="s">
               <h3>{component.label}</h3>
-            </EuiTitle>
+            </EuiText>
           </EuiFlexItem>
           <EuiFlexItem grow={false}></EuiFlexItem>
         </EuiFlexGroup>

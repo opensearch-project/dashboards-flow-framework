@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiTitle } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
 
 interface GroupComponentProps {
   data: { label: string };
@@ -20,9 +20,9 @@ export function GroupComponent(props: GroupComponentProps) {
     // overlapping the group node title
     <EuiFlexGroup direction="column">
       <EuiFlexItem style={{ backgroundColor: 'transparent' }}>
-        <EuiTitle size="l">
+        <EuiText size="s">
           <h2 style={{ marginLeft: '8px' }}>{props.data.label}</h2>
-        </EuiTitle>
+        </EuiText>
       </EuiFlexItem>
       <EuiFlexItem></EuiFlexItem>
     </EuiFlexGroup>

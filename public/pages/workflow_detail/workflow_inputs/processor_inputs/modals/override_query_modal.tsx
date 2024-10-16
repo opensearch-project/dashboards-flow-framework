@@ -112,6 +112,7 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
                 anchorPosition="downLeft"
               >
                 <EuiContextMenu
+                  size="s"
                   initialPanelId={0}
                   panels={[
                     {

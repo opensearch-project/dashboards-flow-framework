@@ -40,7 +40,7 @@ export function Resources(props: ResourcesProps) {
           titleSize="s"
           body={
             <>
-              <EuiText>
+              <EuiText size="s">
                 Provision the workflow to generate resources in order to start
                 prototyping.
               </EuiText>

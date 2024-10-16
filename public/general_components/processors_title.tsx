@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { EuiFlexItem, EuiTitle } from '@elastic/eui';
+import { EuiFlexItem, EuiText } from '@elastic/eui';
 
 interface ProcessorsTitleProps {
   title: string;
@@ -17,17 +17,17 @@ interface ProcessorsTitleProps {
 export function ProcessorsTitle(props: ProcessorsTitleProps) {
   return (
     <EuiFlexItem grow={false}>
-      <EuiTitle size="s">
+      <EuiText size="s">
         <div>
-          <h2
+          <h3
             style={{ display: 'inline-block' }}
-          >{`${props.title} (${props.processorCount}) -`}</h2>
+          >{`${props.title} (${props.processorCount}) -`}</h3>
           &nbsp;
-          <h2 style={{ display: 'inline-block', fontStyle: 'italic' }}>
+          <h3 style={{ display: 'inline-block', fontStyle: 'italic' }}>
             optional
-          </h2>
+          </h3>
         </div>
-      </EuiTitle>
+      </EuiText>
     </EuiFlexItem>
   );
 }
