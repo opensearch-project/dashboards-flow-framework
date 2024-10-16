@@ -85,11 +85,7 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
-        <EuiFlexGroup
-          direction="column"
-          justifyContent="center"
-          alignItems="center"
-        >
+        <EuiFlexGroup direction="column">
           {fileContents !== undefined && !isValidWorkflow(fileObj) && (
             <>
               <EuiFlexItem>
@@ -116,11 +112,15 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
           )}
           <EuiFlexItem grow={false}>
             <EuiCompressedFilePicker
+              fullWidth={true}
+              compressed={false}
               multiple={false}
               initialPromptText="Select or drag and drop a file"
               onChange={(files) => {
                 if (files && files.length > 0) {
                   fileReader.readAsText(files[0]);
+                } else {
+                  setFileContents(undefined);
                 }
               }}
               display="large"

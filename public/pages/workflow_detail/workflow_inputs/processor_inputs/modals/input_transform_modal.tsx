@@ -77,7 +77,7 @@ interface InputTransformModalProps {
   onClose: () => void;
 }
 
-// the max number of input docs we use to display & test transforms with
+// the max number of input docs we use to display & test transforms with (search response hits)
 const MAX_INPUT_DOCS = 10;
 
 /**
@@ -143,7 +143,9 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const description =
     props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
       ? 'Fetch an input query and see how it is transformed.'
-      : `Fetch some sample documents (up to ${MAX_INPUT_DOCS}) and see how they are transformed.`;
+      : props.context === PROCESSOR_CONTEXT.INGEST
+      ? 'Fetch a sample document and see how it is transformed'
+      : `Fetch some returned documents (up to ${MAX_INPUT_DOCS}) and see how they are transformed.`;
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
