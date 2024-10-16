@@ -121,6 +121,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // confirm modal state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  // last ingested state
+  const [lastIngested, setLastIngested] = useState<number | undefined>(
+    undefined
+  );
+
   // maintain global states
   const onIngest = selectedStep === STEP.INGEST;
   const onSearch = selectedStep === STEP.SEARCH;
@@ -548,6 +553,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             .unwrap()
             .then(async (resp) => {
               props.setIngestResponse(customStringify(resp));
+              setLastIngested(Date.now());
             })
             .catch((error: any) => {
               props.setIngestResponse('');
@@ -786,6 +792,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
                     workflow={props.workflow}
+                    lastIngested={lastIngested}
                   />
                 )}
               </>
