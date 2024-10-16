@@ -631,7 +631,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             height: '100%',
           }}
         >
-          <EuiFlexItem grow={false}>
+          <EuiFlexItem grow={false} style={{ marginBottom: '-8px' }}>
             <EuiStepsHorizontal
               steps={[
                 {
@@ -798,7 +798,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               />
             )}
           </EuiFlexItem>
-          <EuiFlexItem grow={false} style={{ marginBottom: '-10px' }}>
+          <EuiFlexItem
+            grow={false}
+            style={{ marginBottom: '-10px', marginTop: '-24px' }}
+          >
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
