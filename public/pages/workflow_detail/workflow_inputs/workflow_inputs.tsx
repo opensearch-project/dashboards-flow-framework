@@ -711,30 +711,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               </EuiModal>
             )}
           </EuiFlexItem>
-          <EuiFlexItem grow={false} style={{ marginBottom: '-8px' }}>
-            <EuiTitle>
-              <h2>
-                {onIngestAndUnprovisioned ? (
-                  'Define ingest pipeline'
-                ) : onIngestAndProvisioned ? (
-                  <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                    <EuiFlexItem grow={false}>Edit ingest pipeline</EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiSmallButtonEmpty
-                        color="danger"
-                        onClick={() => setIsModalOpen(true)}
-                      >
-                        <EuiIcon type="trash" />
-                        {`    `}Delete resources
-                      </EuiSmallButtonEmpty>
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
-                ) : (
-                  'Define search pipeline'
-                )}
-              </h2>
-            </EuiTitle>
-          </EuiFlexItem>
           <EuiFlexItem
             grow={true}
             style={{
@@ -742,6 +718,32 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               overflowX: 'hidden',
             }}
           >
+            <EuiFlexItem grow={false}>
+              <EuiTitle>
+                <h2>
+                  {onIngestAndUnprovisioned ? (
+                    'Define ingest pipeline'
+                  ) : onIngestAndProvisioned ? (
+                    <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                      <EuiFlexItem grow={false}>
+                        Edit ingest pipeline
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiSmallButtonEmpty
+                          color="danger"
+                          onClick={() => setIsModalOpen(true)}
+                        >
+                          <EuiIcon type="trash" />
+                          {`    `}Delete resources
+                        </EuiSmallButtonEmpty>
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
+                  ) : (
+                    'Define search pipeline'
+                  )}
+                </h2>
+              </EuiTitle>
+            </EuiFlexItem>
             {onIngest ? (
               <>
                 {onIngestAndUnprovisioned && (
