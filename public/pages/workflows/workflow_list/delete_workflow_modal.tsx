@@ -83,7 +83,9 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
       <EuiModalBody>
         <EuiFlexGroup direction="column">
           <EuiFlexItem>
-            <EuiText>The workflow will be permanently deleted.</EuiText>
+            <EuiText size="s">
+              The workflow will be permanently deleted.
+            </EuiText>
           </EuiFlexItem>
           <EuiFlexItem>
             <EuiCheckbox

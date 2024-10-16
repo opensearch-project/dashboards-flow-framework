@@ -10,7 +10,6 @@ import {
   EuiFlexItem,
   EuiSpacer,
   EuiText,
-  EuiTitle,
 } from '@elastic/eui';
 
 interface EmptyListMessageProps {
@@ -24,9 +23,9 @@ export function EmptyListMessage(props: EmptyListMessageProps) {
         <EuiSpacer size="m" />
       </EuiFlexItem>
       <EuiFlexItem>
-        <EuiTitle size="s">
+        <EuiText size="s">
           <h3>No workflows found</h3>
-        </EuiTitle>
+        </EuiText>
       </EuiFlexItem>
       <EuiFlexItem>
         <EuiText size="s">

@@ -83,7 +83,7 @@ export function ExportModal(props: ExportModalProps) {
       <EuiModalBody>
         <EuiFlexGroup direction="column">
           <EuiFlexItem grow={false}>
-            <EuiText>
+            <EuiText size="s">
               {`To build out identical resources in other environments, create and provision a workflow using the below template.`}{' '}
               <EuiLink href={CREATE_WORKFLOW_LINK} target="_blank">
                 Learn more
