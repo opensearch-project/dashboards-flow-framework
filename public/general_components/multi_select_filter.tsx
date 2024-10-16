@@ -76,7 +76,7 @@ export function MultiSelectFilter(props: MultiSelectFilterProps) {
           }
           isOpen={isPopoverOpen}
           closePopover={onPopoverClose}
-          panelPaddingSize="none"
+          panelPaddingSize="s"
         >
           <div className="euiFilterSelect__items multi-select-filter--width">
             {filters.map((filter, index) => (

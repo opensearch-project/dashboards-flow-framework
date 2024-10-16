@@ -13,7 +13,7 @@ import {
   EuiPanel,
   EuiTab,
   EuiTabs,
-  EuiTitle,
+  EuiText,
 } from '@elastic/eui';
 import { Workflow } from '../../../../common';
 import { Resources } from './resources';
@@ -117,9 +117,9 @@ export function Tools(props: ToolsProps) {
         }}
       >
         <EuiFlexItem grow={false}>
-          <EuiTitle>
+          <EuiText size="s">
             <h2>Tools</h2>
-          </EuiTitle>
+          </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiTabs size="s" expand={false}>

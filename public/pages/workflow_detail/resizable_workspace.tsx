@@ -276,7 +276,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           titleSize="s"
           body={
             <>
-              <EuiText>
+              <EuiText size="s">
                 Only valid workflows created from this OpenSearch Dashboards
                 application are editable and viewable.
               </EuiText>
