@@ -204,6 +204,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
             anchorPosition="downLeft"
           >
             <EuiContextMenu
+              size="s"
               initialPanelId={PANEL_ID}
               panels={[
                 {

@@ -13,7 +13,7 @@ import {
   EuiPanel,
   EuiTab,
   EuiTabs,
-  EuiTitle,
+  EuiText,
 } from '@elastic/eui';
 import { Workflow } from '../../../../common';
 import { Resources } from './resources';
@@ -37,12 +37,12 @@ enum TAB_ID {
 const inputTabs = [
   {
     id: TAB_ID.INGEST,
-    name: 'Run ingestion',
+    name: 'Ingest response',
     disabled: false,
   },
   {
     id: TAB_ID.QUERY,
-    name: 'Run query',
+    name: 'Search response',
     disabled: false,
   },
   {
@@ -117,9 +117,9 @@ export function Tools(props: ToolsProps) {
         }}
       >
         <EuiFlexItem grow={false}>
-          <EuiTitle>
+          <EuiText size="s">
             <h2>Tools</h2>
-          </EuiTitle>
+          </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiTabs size="s" expand={false}>

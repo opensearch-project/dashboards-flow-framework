@@ -15,6 +15,7 @@ interface IngestInputsProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   workflow: Workflow | undefined;
+  lastIngested: number | undefined;
 }
 
 /**
@@ -28,6 +29,7 @@ export function IngestInputs(props: IngestInputsProps) {
           workflow={props.workflow}
           uiConfig={props.uiConfig}
           setIngestDocs={props.setIngestDocs}
+          lastIngested={props.lastIngested}
         />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>

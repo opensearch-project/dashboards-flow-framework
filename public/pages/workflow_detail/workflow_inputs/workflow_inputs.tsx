@@ -20,10 +20,8 @@ import {
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiPanel,
-  EuiSpacer,
   EuiStepsHorizontal,
   EuiText,
-  EuiTitle,
   EuiSmallButtonIcon,
 } from '@elastic/eui';
 import {
@@ -121,6 +119,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // confirm modal state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  // last ingested state
+  const [lastIngested, setLastIngested] = useState<number | undefined>(
+    undefined
+  );
 
   // maintain global states
   const onIngest = selectedStep === STEP.INGEST;
@@ -292,7 +295,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     ingestTemplatesDifferent || isRunningIngest;
   const searchBackButtonDisabled =
     isRunningSearch ||
-    (isProposingNoSearchResources ? false : searchTemplatesDifferent);
+    (isProposingNoSearchResources || !ingestProvisioned
+      ? false
+      : searchTemplatesDifferent);
   const searchUndoButtonDisabled =
     isRunningSave || isRunningSearch
       ? true
@@ -547,6 +552,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             .unwrap()
             .then(async (resp) => {
               props.setIngestResponse(customStringify(resp));
+              setLastIngested(Date.now());
             })
             .catch((error: any) => {
               props.setIngestResponse('');
@@ -630,7 +636,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             height: '100%',
           }}
         >
-          <EuiFlexItem grow={false}>
+          <EuiFlexItem grow={false} style={{ marginBottom: '-8px' }}>
             <EuiStepsHorizontal
               steps={[
                 {
@@ -658,7 +664,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   </EuiModalHeaderTitle>
                 </EuiModalHeader>
                 <EuiModalBody>
-                  <EuiText>
+                  <EuiText size="s">
                     The resources for this workflow will be permanently deleted.
                     This action cannot be undone.
                   </EuiText>
@@ -709,99 +715,99 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 </EuiModalFooter>
               </EuiModal>
             )}
-            {onIngestAndUnprovisioned && (
-              <>
-                <EuiSpacer size="m" />
-                <BooleanField
-                  fieldPath="ingest.enabled"
-                  enabledOption={{
-                    id: INGEST_OPTION.CREATE,
-                    label: (
-                      <EuiFlexGroup direction="column" gutterSize="none">
-                        <EuiText color="default">
-                          Create an ingest pipeline
-                        </EuiText>
-                        <EuiText size="xs" color="subdued">
-                          Configure and ingest data into an index.
-                        </EuiText>
-                      </EuiFlexGroup>
-                    ),
-                  }}
-                  disabledOption={{
-                    id: INGEST_OPTION.SKIP,
-                    label: (
-                      <EuiFlexGroup direction="column" gutterSize="none">
-                        <EuiText color="default">
-                          Skip ingestion pipeline
-                        </EuiText>
-                        <EuiText size="xs" color="subdued">
-                          Use an existing index with data ingested.
-                        </EuiText>
-                      </EuiFlexGroup>
-                    ),
-                  }}
-                  showLabel={false}
-                />
-              </>
-            )}
           </EuiFlexItem>
-          {!onIngestAndDisabled && (
-            <>
-              <EuiFlexItem grow={false}>
-                <EuiTitle>
-                  <h2>
-                    {onIngestAndUnprovisioned ? (
-                      'Define ingest pipeline'
-                    ) : onIngestAndProvisioned ? (
-                      <EuiFlexGroup
-                        direction="row"
-                        justifyContent="spaceBetween"
-                      >
-                        <EuiFlexItem grow={false}>
-                          Edit ingest pipeline
-                        </EuiFlexItem>
-                        <EuiFlexItem grow={false}>
-                          <EuiSmallButtonEmpty
-                            color="danger"
-                            onClick={() => setIsModalOpen(true)}
-                          >
-                            <EuiIcon type="trash" />
-                            {`    `}Delete resources
-                          </EuiSmallButtonEmpty>
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                    ) : (
-                      'Define search pipeline'
-                    )}
-                  </h2>
-                </EuiTitle>
-              </EuiFlexItem>
-              <EuiFlexItem
-                grow={true}
-                style={{
-                  overflowY: 'scroll',
-                  overflowX: 'hidden',
-                }}
-              >
-                {onIngest ? (
+          <EuiFlexItem
+            grow={true}
+            style={{
+              overflowY: 'scroll',
+              overflowX: 'hidden',
+            }}
+          >
+            <EuiFlexItem grow={false}>
+              <EuiText size="s">
+                <h2>
+                  {onIngestAndUnprovisioned ? (
+                    'Define ingest pipeline'
+                  ) : onIngestAndProvisioned ? (
+                    <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                      <EuiFlexItem grow={false}>
+                        Edit ingest pipeline
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiSmallButtonEmpty
+                          color="danger"
+                          onClick={() => setIsModalOpen(true)}
+                        >
+                          <EuiIcon type="trash" />
+                          {`    `}Delete resources
+                        </EuiSmallButtonEmpty>
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
+                  ) : (
+                    'Define search pipeline'
+                  )}
+                </h2>
+              </EuiText>
+            </EuiFlexItem>
+            {onIngest ? (
+              <>
+                {onIngestAndUnprovisioned && (
+                  <>
+                    <BooleanField
+                      fieldPath="ingest.enabled"
+                      enabledOption={{
+                        id: INGEST_OPTION.CREATE,
+                        label: (
+                          <EuiFlexGroup direction="column" gutterSize="none">
+                            <EuiText color="default">
+                              Create an ingest pipeline
+                            </EuiText>
+                            <EuiText size="xs" color="subdued">
+                              Configure and ingest data into an index.
+                            </EuiText>
+                          </EuiFlexGroup>
+                        ),
+                      }}
+                      disabledOption={{
+                        id: INGEST_OPTION.SKIP,
+                        label: (
+                          <EuiFlexGroup direction="column" gutterSize="none">
+                            <EuiText color="default">
+                              Skip ingestion pipeline
+                            </EuiText>
+                            <EuiText size="xs" color="subdued">
+                              Use an existing index with data ingested.
+                            </EuiText>
+                          </EuiFlexGroup>
+                        ),
+                      }}
+                      showLabel={false}
+                    />
+                  </>
+                )}
+                {!onIngestAndDisabled && (
                   <IngestInputs
                     setIngestDocs={props.setIngestDocs}
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
                     workflow={props.workflow}
-                  />
-                ) : (
-                  <SearchInputs
-                    uiConfig={props.uiConfig}
-                    setUiConfig={props.setUiConfig}
-                    setQuery={props.setQuery}
-                    setQueryResponse={props.setQueryResponse}
+                    lastIngested={lastIngested}
                   />
                 )}
-              </EuiFlexItem>
-            </>
-          )}
-          <EuiFlexItem grow={false} style={{ marginBottom: '-10px' }}>
+              </>
+            ) : (
+              <SearchInputs
+                uiConfig={props.uiConfig}
+                setUiConfig={props.setUiConfig}
+                setQuery={props.setQuery}
+                setQueryResponse={props.setQueryResponse}
+              />
+            )}
+          </EuiFlexItem>
+          <EuiFlexItem
+            grow={false}
+            style={{ marginBottom: '-10px', marginTop: '-24px' }}
+          >
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />

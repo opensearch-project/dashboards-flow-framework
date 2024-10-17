@@ -29,6 +29,7 @@ import {
   WorkflowFormValues,
   ModelInterface,
   IndexMappings,
+  PROMPT_FIELD,
 } from '../../../../../common';
 import { MapArrayField, ModelField } from '../input_fields';
 import {
@@ -44,6 +45,7 @@ import {
   parseModelOutputs,
 } from '../../../../utils';
 import { ConfigFieldList } from '../config_field_list';
+import { OverrideQueryModal } from './modals/override_query_modal';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
@@ -61,18 +63,18 @@ interface MLProcessorInputsProps {
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const models = useSelector((state: AppState) => state.ml.models);
+  const { models, connectors } = useSelector((state: AppState) => state.ml);
   const indices = useSelector((state: AppState) => state.opensearch.indices);
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
 
-  // extracting field info from the ML processor config
-  // TODO: have a better mechanism for guaranteeing the expected fields/config instead of hardcoding them here
+  // get some current form & config values
   const modelField = props.config.fields.find(
     (field) => field.type === 'model'
   ) as IConfigField;
   const modelFieldPath = `${props.baseConfigPath}.${props.config.id}.${modelField.id}`;
+  const modelIdFieldPath = `${modelFieldPath}.id`;
   const inputMapField = props.config.fields.find(
     (field) => field.id === 'input_map'
   ) as IConfigField;
@@ -86,6 +88,12 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const fullResponsePath = getIn(
     values,
     `${props.baseConfigPath}.${props.config.id}.full_response_path`
+  );
+
+  // contains a configurable prompt field or not. if so, expose some extra
+  // dedicated UI
+  const [containsPromptField, setContainsPromptField] = useState<boolean>(
+    false
   );
 
   // preview availability states
@@ -120,6 +128,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     boolean
   >(false);
   const [isPromptModalOpen, setIsPromptModalOpen] = useState<boolean>(false);
+  const [isQueryModalOpen, setIsQueryModalOpen] = useState<boolean>(false);
 
   // model interface state
   const [modelInterface, setModelInterface] = useState<
@@ -140,7 +149,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   // on initial load of the models, update model interface states
   useEffect(() => {
     if (!isEmpty(models)) {
-      const modelId = getIn(values, `${modelFieldPath}.id`);
+      const modelId = getIn(values, modelIdFieldPath);
       if (modelId) {
         setModelInterface(models[modelId]?.interface);
       }
@@ -212,6 +221,27 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     }
   }, [values?.search?.index?.name]);
 
+  // Check if there is an exposed prompt field users can override. Need to navigate
+  // to the associated connector details to view the connector parameters list.
+  useEffect(() => {
+    const selectedModel = Object.values(models).find(
+      (model) => model.id === getIn(values, modelIdFieldPath)
+    );
+    if (selectedModel?.connectorId !== undefined) {
+      const connectorParameters =
+        connectors[selectedModel.connectorId]?.parameters;
+      if (connectorParameters !== undefined) {
+        if (connectorParameters[PROMPT_FIELD] !== undefined) {
+          setContainsPromptField(true);
+        } else {
+          setContainsPromptField(false);
+        }
+      } else {
+        setContainsPromptField(false);
+      }
+    }
+  }, [models, connectors, getIn(values, modelIdFieldPath)]);
+
   return (
     <>
       {isInputTransformModalOpen && (
@@ -253,6 +283,14 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           onClose={() => setIsPromptModalOpen(false)}
         />
       )}
+      {isQueryModalOpen && (
+        <OverrideQueryModal
+          config={props.config}
+          baseConfigPath={props.baseConfigPath}
+          modelInterface={modelInterface}
+          onClose={() => setIsQueryModalOpen(false)}
+        />
+      )}
       <ModelField
         field={modelField}
         fieldPath={modelFieldPath}
@@ -262,7 +300,25 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
         <>
           <EuiSpacer size="s" />
-          {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+          {props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST && (
+            <>
+              <EuiText
+                size="m"
+                style={{ marginTop: '4px' }}
+              >{`Override query (Optional)`}</EuiText>
+              <EuiSpacer size="s" />
+              <EuiSmallButton
+                style={{ width: '100px' }}
+                fill={false}
+                onClick={() => setIsQueryModalOpen(true)}
+                data-testid="overrideQueryButton"
+              >
+                Override
+              </EuiSmallButton>
+              <EuiSpacer size="l" />
+            </>
+          )}
+          {containsPromptField && (
             <>
               <EuiText
                 size="m"
@@ -273,6 +329,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 style={{ width: '100px' }}
                 fill={false}
                 onClick={() => setIsPromptModalOpen(true)}
+                data-testid="configurePromptButton"
               >
                 Configure
               </EuiSmallButton>
@@ -414,7 +471,17 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             <EuiSpacer size="s" />
             <ConfigFieldList
               configId={props.config.id}
-              configFields={props.config.optionalFields || []}
+              configFields={
+                // For ML search request processors, we don't expose the optional query_template field, since we have a dedicated
+                // UI for configuring that. See override_query_modal.tsx for details.
+                props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                  ? [
+                      ...(props.config.optionalFields?.filter(
+                        (optionalField) => optionalField.id !== 'query_template'
+                      ) || []),
+                    ]
+                  : props.config.optionalFields || []
+              }
               baseConfigPath={props.baseConfigPath}
             />
           </EuiAccordion>

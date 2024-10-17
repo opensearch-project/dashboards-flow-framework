@@ -19,7 +19,7 @@ export function Errors(props: ErrorsProps) {
   return (
     <>
       {isEmpty(props.errorMessage) ? (
-        <EuiText>There are no errors.</EuiText>
+        <EuiText size="s">There are no errors.</EuiText>
       ) : (
         <EuiCodeBlock fontSize="m" isCopyable={false}>
           {props.errorMessage}

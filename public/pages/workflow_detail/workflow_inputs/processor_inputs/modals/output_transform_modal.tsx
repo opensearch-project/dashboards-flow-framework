@@ -203,7 +203,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
               )}
               <EuiFlexGroup direction="row" justifyContent="spaceBetween">
                 <EuiFlexItem>
-                  <EuiText>Source output</EuiText>
+                  <EuiText size="s">Source output</EuiText>
                 </EuiFlexItem>
                 {!isEmpty(
                   parseModelOutputsObj(props.modelInterface, fullResponsePath)
@@ -212,6 +212,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                     <EuiPopover
                       isOpen={popoverOpen}
                       closePopover={() => setPopoverOpen(false)}
+                      panelPaddingSize="s"
                       button={
                         <EuiSmallButtonEmpty
                           onClick={() => setPopoverOpen(!popoverOpen)}
@@ -382,7 +383,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiText>Define transform</EuiText>
+              <EuiText size="s">Define transform</EuiText>
               <EuiSpacer size="s" />
               <MapArrayField
                 field={props.outputMapField}
@@ -418,10 +419,10 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
           <EuiFlexItem>
             <>
               {transformOptions.length <= 1 ? (
-                <EuiText>Transformed output</EuiText>
+                <EuiText size="s">Transformed output</EuiText>
               ) : (
                 <EuiCompressedSelect
-                  prepend={<EuiText>Transformed output for</EuiText>}
+                  prepend={<EuiText size="s">Transformed output for</EuiText>}
                   options={transformOptions}
                   value={selectedTransformOption}
                   onChange={(e) => {

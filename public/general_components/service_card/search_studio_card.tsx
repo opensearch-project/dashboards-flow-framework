@@ -4,7 +4,12 @@
  */
 
 import React from 'react';
-import { EuiButton, EuiFlexGroup, EuiFlexItem, EuiIcon } from '@elastic/eui';
+import {
+  EuiSmallButton,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiIcon,
+} from '@elastic/eui';
 import { i18n } from '@osd/i18n';
 import { PLUGIN_ID } from '../../../common';
 import { ContentManagementPluginStart } from '../../../../../src/plugins/content_management/public';
@@ -26,8 +31,7 @@ export const registerSearchStudioCard = (
   const footer = (
     <EuiFlexGroup justifyContent="flexEnd">
       <EuiFlexItem grow={false}>
-        <EuiButton
-          size="s"
+        <EuiSmallButton
           onClick={() => {
             core.application.navigateToApp(PLUGIN_ID);
           }}
@@ -35,7 +39,7 @@ export const registerSearchStudioCard = (
           {i18n.translate('flowFrameworkDashboards.searchStudioCard.footer', {
             defaultMessage: 'Try OpenSearch Studio',
           })}
-        </EuiButton>
+        </EuiSmallButton>
       </EuiFlexItem>
     </EuiFlexGroup>
   );

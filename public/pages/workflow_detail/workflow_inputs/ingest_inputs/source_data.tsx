@@ -18,7 +18,6 @@ import {
   EuiModalHeaderTitle,
   EuiSpacer,
   EuiText,
-  EuiTitle,
   EuiFilterGroup,
   EuiSmallFilterButton,
   EuiSuperSelectOption,
@@ -35,6 +34,7 @@ import {
   WorkspaceFormValues,
   customStringify,
   isVectorSearchUseCase,
+  toFormattedDate,
 } from '../../../../../common';
 import {
   AppState,
@@ -48,6 +48,7 @@ interface SourceDataProps {
   workflow: Workflow | undefined;
   uiConfig: WorkflowConfig;
   setIngestDocs: (docs: string) => void;
+  lastIngested: number | undefined;
 }
 
 enum SOURCE_OPTIONS {
@@ -64,6 +65,13 @@ export function SourceData(props: SourceDataProps) {
   const dataSourceId = getDataSourceId();
   const { values, setFieldValue } = useFormikContext<WorkspaceFormValues>();
   const indices = useSelector((state: AppState) => state.opensearch.indices);
+
+  // empty/populated docs state
+  let docs = [];
+  try {
+    docs = JSON.parse(getIn(values, 'ingest.docs', []));
+  } catch {}
+  const docsPopulated = docs.length > 0;
 
   // selected option state
   const [selectedOption, setSelectedOption] = useState<SOURCE_OPTIONS>(
@@ -184,7 +192,7 @@ export function SourceData(props: SourceDataProps) {
         >
           <EuiModalHeader>
             <EuiModalHeaderTitle>
-              <p>{`Edit source data`}</p>
+              <p>{`Import data`}</p>
             </EuiModalHeaderTitle>
           </EuiModalHeader>
           <EuiModalBody>
@@ -247,7 +255,9 @@ export function SourceData(props: SourceDataProps) {
                       (option) =>
                         ({
                           value: option.name,
-                          inputDisplay: <EuiText>{option.name}</EuiText>,
+                          inputDisplay: (
+                            <EuiText size="s">{option.name}</EuiText>
+                          ),
                           disabled: false,
                         } as EuiSuperSelectOption<string>)
                     )}
@@ -261,7 +271,7 @@ export function SourceData(props: SourceDataProps) {
                 </>
               )}
               <JsonField
-                label="Documents"
+                label="Documents to be imported"
                 fieldPath={'ingest.docs'}
                 helpText="Documents should be formatted as a valid JSON array."
                 editorHeight="25vh"
@@ -283,10 +293,18 @@ export function SourceData(props: SourceDataProps) {
       )}
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
-          <EuiTitle size="s">
-            <h2>Source data</h2>
-          </EuiTitle>
+          <EuiText size="s">
+            <h3>Source data</h3>
+          </EuiText>
         </EuiFlexItem>
+        {props.lastIngested !== undefined && (
+          <EuiFlexItem grow={false}>
+            <EuiText size="s" color="subdued">
+              {`Last ingested: ${toFormattedDate(props.lastIngested)}`}
+            </EuiText>
+          </EuiFlexItem>
+        )}
+
         <EuiFlexItem grow={false}>
           <EuiSmallButton
             fill={false}
@@ -294,18 +312,20 @@ export function SourceData(props: SourceDataProps) {
             onClick={() => setIsEditModalOpen(true)}
             data-testid="editSourceDataButton"
           >
-            Edit
+            {docsPopulated ? `Edit` : `Select data`}
           </EuiSmallButton>
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <JsonField
-            label="Documents"
-            fieldPath={'ingest.docs'}
-            helpText="Documents should be formatted as a valid JSON array."
-            editorHeight="25vh"
-            readOnly={true}
-          />
-        </EuiFlexItem>
+        {docsPopulated && (
+          <EuiFlexItem grow={false}>
+            <JsonField
+              label="Documents to be imported"
+              fieldPath={'ingest.docs'}
+              helpText="Documents should be formatted as a valid JSON array."
+              editorHeight="25vh"
+              readOnly={true}
+            />
+          </EuiFlexItem>
+        )}
       </EuiFlexGroup>
     </>
   );

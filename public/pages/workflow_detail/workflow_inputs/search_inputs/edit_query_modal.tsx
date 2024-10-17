@@ -67,6 +67,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
           anchorPosition="downLeft"
         >
           <EuiContextMenu
+            size="s"
             initialPanelId={0}
             panels={[
               {

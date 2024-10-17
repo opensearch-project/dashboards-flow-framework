@@ -26,7 +26,7 @@ import {
   EuiCodeBlock,
   EuiPopoverTitle,
   EuiIconTip,
-  EuiSwitch,
+  EuiCompressedSwitch,
   EuiCallOut,
 } from '@elastic/eui';
 import {
@@ -77,7 +77,7 @@ interface InputTransformModalProps {
   onClose: () => void;
 }
 
-// the max number of input docs we use to display & test transforms with
+// the max number of input docs we use to display & test transforms with (search response hits)
 const MAX_INPUT_DOCS = 10;
 
 /**
@@ -143,7 +143,9 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const description =
     props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
       ? 'Fetch an input query and see how it is transformed.'
-      : `Fetch some sample documents (up to ${MAX_INPUT_DOCS}) and see how they are transformed.`;
+      : props.context === PROCESSOR_CONTEXT.INGEST
+      ? 'Fetch a sample document and see how it is transformed'
+      : `Fetch some returned documents (up to ${MAX_INPUT_DOCS}) and see how they are transformed.`;
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
@@ -279,7 +281,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   <EuiSpacer size="s" />
                 </>
               )}
-              <EuiText>Source input</EuiText>
+              <EuiText size="s">Source input</EuiText>
               <EuiSmallButton
                 style={{ width: '100px' }}
                 isLoading={isFetching}
@@ -434,7 +436,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
           </EuiFlexItem>
           <EuiFlexItem>
             <>
-              <EuiText>Define transform</EuiText>
+              <EuiText size="s">Define transform</EuiText>
               <EuiSpacer size="s" />
               <MapArrayField
                 field={props.inputMapField}
@@ -494,10 +496,12 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 )}
                 <EuiFlexItem grow={true}>
                   {transformOptions.length <= 1 ? (
-                    <EuiText>Transformed input</EuiText>
+                    <EuiText size="s">Transformed input</EuiText>
                   ) : (
                     <EuiCompressedSelect
-                      prepend={<EuiText>Transformed input for</EuiText>}
+                      prepend={
+                        <EuiText size="s">Transformed input for</EuiText>
+                      }
                       options={transformOptions}
                       value={selectedTransformOption}
                       onChange={(e) => {
@@ -511,6 +515,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                     <EuiPopover
                       isOpen={popoverOpen}
                       closePopover={() => setPopoverOpen(false)}
+                      panelPaddingSize="s"
                       button={
                         <EuiSmallButtonEmpty
                           onClick={() => setPopoverOpen(!popoverOpen)}
@@ -560,10 +565,10 @@ export function InputTransformModal(props: InputTransformModalProps) {
               <>
                 <EuiFlexGroup direction="row">
                   <EuiFlexItem grow={false}>
-                    <EuiText>Transformed prompt</EuiText>
+                    <EuiText size="s">Transformed prompt</EuiText>
                   </EuiFlexItem>
                   <EuiFlexItem grow={false} style={{ marginTop: '16px' }}>
-                    <EuiSwitch
+                    <EuiCompressedSwitch
                       label="Show"
                       checked={viewPromptDetails}
                       onChange={() => setViewPromptDetails(!viewPromptDetails)}
@@ -581,7 +586,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 {viewPromptDetails && (
                   <>
                     <EuiSpacer size="s" />
-                    <EuiSwitch
+                    <EuiCompressedSwitch
                       label="With transformed inputs"
                       checked={viewTransformedPrompt}
                       onChange={() =>

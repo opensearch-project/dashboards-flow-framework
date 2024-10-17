@@ -8,7 +8,6 @@ import { RouteComponentProps, useLocation } from 'react-router-dom';
 import { escape } from 'lodash';
 import {
   EuiPageHeader,
-  EuiTitle,
   EuiPage,
   EuiPageBody,
   EuiPageContent,
@@ -219,9 +218,9 @@ export function Workflows(props: WorkflowsProps) {
     />
   ) : (
     <EuiFlexGroup direction="column" style={{ margin: '0px' }}>
-      <EuiTitle size="l">
+      <EuiText size="m">
         <h1>{PLUGIN_NAME}</h1>
-      </EuiTitle>
+      </EuiText>
       <EuiText color="subdued">{DESCRIPTION}</EuiText>
     </EuiFlexGroup>
   );
@@ -267,13 +266,13 @@ export function Workflows(props: WorkflowsProps) {
             <EuiPageHeader
               style={{ marginTop: '-8px' }}
               pageTitle={
-                <EuiTitle size="m">
+                <EuiText size="s">
                   <h2>
                     {selectedTabId === WORKFLOWS_TAB.MANAGE
                       ? 'Workflows'
                       : 'Create from a template'}
                   </h2>
-                </EuiTitle>
+                </EuiText>
               }
               rightSideItems={
                 selectedTabId === WORKFLOWS_TAB.MANAGE
@@ -283,7 +282,13 @@ export function Workflows(props: WorkflowsProps) {
                         fill={true}
                         onClick={() => {
                           setSelectedTabId(WORKFLOWS_TAB.CREATE);
+                          replaceActiveTab(
+                            WORKFLOWS_TAB.CREATE,
+                            props,
+                            dataSourceId
+                          );
                         }}
+                        iconType="plus"
                         data-testid="createWorkflowButton"
                       >
                         Create workflow
