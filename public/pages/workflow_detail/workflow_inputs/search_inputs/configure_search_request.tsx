@@ -7,7 +7,6 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import {
-  EuiSmallButton,
   EuiCompressedFieldText,
   EuiFlexGroup,
   EuiFlexItem,
@@ -15,8 +14,8 @@ import {
   EuiCompressedSuperSelect,
   EuiSuperSelectOption,
   EuiText,
-  EuiSpacer,
   EuiCodeBlock,
+  EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import {
   SearchHit,
@@ -80,7 +79,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           queryFieldPath="search.request"
         />
       )}
-      <EuiFlexGroup direction="column">
+      <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
           <EuiText size="s">
             <h3>Configure query</h3>
@@ -114,17 +113,68 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
             )}
           </EuiCompressedFormRow>
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiSmallButton
-            fill={false}
-            style={{ width: '100px' }}
-            onClick={() => setIsEditModalOpen(true)}
-            data-testid="queryEditButton"
-          >
-            Edit
-          </EuiSmallButton>
+        <EuiFlexItem>
+          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+            <EuiFlexItem grow={false}>
+              <EuiText size="s">
+                <h4>Query definition</h4>
+              </EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup>
+                <EuiFlexItem>
+                  <EuiSmallButtonEmpty
+                    style={{ width: '100px' }}
+                    onClick={() => setIsEditModalOpen(true)}
+                    data-testid="queryEditButton"
+                    iconType="pencil"
+                    iconSide="left"
+                  >
+                    Edit
+                  </EuiSmallButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <EuiSmallButtonEmpty
+                    onClick={() => {
+                      // for this test query, we don't want to involve any configured search pipelines, if any exist
+                      // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
+                      dispatch(
+                        searchIndex({
+                          apiBody: {
+                            index: values.search.index.name,
+                            body: values.search.request,
+                            searchPipeline: '_none',
+                          },
+                          dataSourceId,
+                        })
+                      )
+                        .unwrap()
+                        .then(async (resp) => {
+                          props.setQueryResponse(
+                            customStringify(
+                              resp.hits.hits.map(
+                                (hit: SearchHit) => hit._source
+                              )
+                            )
+                          );
+                        })
+                        .catch((error: any) => {
+                          props.setQueryResponse('');
+                          console.error('Error running query: ', error);
+                        });
+                    }}
+                    data-testid="searchTestButton"
+                    iconType="play"
+                    iconSide="left"
+                  >
+                    Test query
+                  </EuiSmallButtonEmpty>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          </EuiFlexGroup>
         </EuiFlexItem>
-        <EuiFlexItem grow={true}>
+        <EuiFlexItem grow={true} style={{ marginTop: '0px' }}>
           <EuiCodeBlock
             fontSize="s"
             language="json"
@@ -135,47 +185,6 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           >
             {getIn(values, 'search.request')}
           </EuiCodeBlock>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <>
-            <EuiSmallButton
-              fill={false}
-              style={{ width: '100px' }}
-              onClick={() => {
-                // for this test query, we don't want to involve any configured search pipelines, if any exist
-                // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
-                dispatch(
-                  searchIndex({
-                    apiBody: {
-                      index: values.search.index.name,
-                      body: values.search.request,
-                      searchPipeline: '_none',
-                    },
-                    dataSourceId,
-                  })
-                )
-                  .unwrap()
-                  .then(async (resp) => {
-                    props.setQueryResponse(
-                      customStringify(
-                        resp.hits.hits.map((hit: SearchHit) => hit._source)
-                      )
-                    );
-                  })
-                  .catch((error: any) => {
-                    props.setQueryResponse('');
-                    console.error('Error running query: ', error);
-                  });
-              }}
-              data-testid="searchTestButton"
-            >
-              Test
-            </EuiSmallButton>
-            <EuiSpacer size="s" />
-            <EuiText size="s" color="subdued">
-              Run query without any search pipeline configuration.
-            </EuiText>
-          </>
         </EuiFlexItem>
       </EuiFlexGroup>
     </>

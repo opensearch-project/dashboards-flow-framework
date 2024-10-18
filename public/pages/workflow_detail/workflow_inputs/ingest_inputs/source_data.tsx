@@ -23,6 +23,7 @@ import {
   EuiSuperSelectOption,
   EuiCompressedSuperSelect,
   EuiCodeBlock,
+  EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
@@ -294,9 +295,25 @@ export function SourceData(props: SourceDataProps) {
       )}
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
-          <EuiText size="s">
-            <h3>Source data</h3>
-          </EuiText>
+          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+            <EuiFlexItem grow={false}>
+              <EuiText size="s">
+                <h3>Import data</h3>
+              </EuiText>
+            </EuiFlexItem>
+            {docsPopulated && (
+              <EuiFlexItem grow={false}>
+                <EuiSmallButtonEmpty
+                  onClick={() => setIsEditModalOpen(true)}
+                  data-testid="editSourceDataButton"
+                  iconType="pencil"
+                  iconSide="left"
+                >
+                  Edit
+                </EuiSmallButtonEmpty>
+              </EuiFlexItem>
+            )}
+          </EuiFlexGroup>
         </EuiFlexItem>
         {props.lastIngested !== undefined && (
           <EuiFlexItem grow={false}>
@@ -306,16 +323,19 @@ export function SourceData(props: SourceDataProps) {
           </EuiFlexItem>
         )}
 
-        <EuiFlexItem grow={false}>
-          <EuiSmallButton
-            fill={false}
-            style={{ width: '100px' }}
-            onClick={() => setIsEditModalOpen(true)}
-            data-testid="editSourceDataButton"
-          >
-            {docsPopulated ? `Edit` : `Select data`}
-          </EuiSmallButton>
-        </EuiFlexItem>
+        {!docsPopulated && (
+          <EuiFlexItem grow={false}>
+            <EuiSmallButton
+              fill={false}
+              style={{ width: '100px' }}
+              onClick={() => setIsEditModalOpen(true)}
+              data-testid="selectDataToImportButton"
+            >
+              {`Select data`}
+            </EuiSmallButton>
+          </EuiFlexItem>
+        )}
+
         {docsPopulated && (
           <>
             <EuiSpacer size="s" />
