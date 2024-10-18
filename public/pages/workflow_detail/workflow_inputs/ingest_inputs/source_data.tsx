@@ -22,6 +22,7 @@ import {
   EuiSmallFilterButton,
   EuiSuperSelectOption,
   EuiCompressedSuperSelect,
+  EuiCodeBlock,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
@@ -316,15 +317,21 @@ export function SourceData(props: SourceDataProps) {
           </EuiSmallButton>
         </EuiFlexItem>
         {docsPopulated && (
-          <EuiFlexItem grow={false}>
-            <JsonField
-              label="Documents to be imported"
-              fieldPath={'ingest.docs'}
-              helpText="Documents should be formatted as a valid JSON array."
-              editorHeight="25vh"
-              readOnly={true}
-            />
-          </EuiFlexItem>
+          <>
+            <EuiSpacer size="s" />
+            <EuiFlexItem grow={true}>
+              <EuiCodeBlock
+                fontSize="s"
+                language="json"
+                overflowHeight={300}
+                isCopyable={false}
+                whiteSpace="pre"
+                paddingSize="none"
+              >
+                {getIn(values, 'ingest.docs')}
+              </EuiCodeBlock>
+            </EuiFlexItem>
+          </>
         )}
       </EuiFlexGroup>
     </>
