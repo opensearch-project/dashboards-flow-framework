@@ -209,7 +209,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
               panels={[
                 {
                   id: PANEL_ID,
-                  title: 'Processors',
+                  title: 'PROCESSORS',
                   items:
                     props.context === PROCESSOR_CONTEXT.INGEST
                       ? [

@@ -456,7 +456,6 @@ export enum PROCESSOR_CONTEXT {
 export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';
-export const DEFAULT_NEW_WORKFLOW_STATE = WORKFLOW_STATE.NOT_STARTED;
 export const DEFAULT_NEW_WORKFLOW_STATE_TYPE = ('NOT_STARTED' as any) as typeof WORKFLOW_STATE;
 export const DATE_FORMAT_PATTERN = 'MM/DD/YY hh:mm A';
 export const EMPTY_FIELD_STRING = '--';
