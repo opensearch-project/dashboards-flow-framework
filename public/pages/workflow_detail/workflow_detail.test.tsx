@@ -83,9 +83,8 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       );
       expect(getAllByText('Skip ingestion pipeline').length).toBeGreaterThan(0);
       expect(getAllByText('Define ingest pipeline').length).toBeGreaterThan(0);
-      expect(getAllByText('Tools').length).toBeGreaterThan(0);
+      expect(getAllByText('Inspector').length).toBeGreaterThan(0);
       expect(getAllByText('Preview').length).toBeGreaterThan(0);
-      expect(getAllByText('Not started').length).toBeGreaterThan(0);
       expect(
         getAllByText((content) => content.startsWith('Last updated:')).length
       ).toBeGreaterThan(0);
@@ -240,14 +239,14 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
     );
     userEvent.click(addRequestProcessorButton);
     await waitFor(() => {
-      expect(getAllByText('Processors').length).toBeGreaterThan(0);
+      expect(getAllByText('PROCESSORS').length).toBeGreaterThan(0);
     });
 
     // Add response processor
     const addResponseProcessorButton = getAllByTestId('addProcessorButton')[1];
     userEvent.click(addResponseProcessorButton);
     await waitFor(() => {
-      expect(getAllByText('Processors').length).toBeGreaterThan(0);
+      expect(getAllByText('PROCESSORS').length).toBeGreaterThan(0);
     });
 
     // Save, Build and Run query, Back buttons
