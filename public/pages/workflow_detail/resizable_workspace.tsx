@@ -41,6 +41,7 @@ interface ResizableWorkspaceProps {
 }
 
 const WORKFLOW_INPUTS_PANEL_ID = 'workflow_inputs_panel_id';
+const PREVIEW_PANEL_ID = 'preview_panel_id';
 const TOOLS_PANEL_ID = 'tools_panel_id';
 
 /**
@@ -69,18 +70,16 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     undefined
   );
 
-  // Workflow inputs side panel state
-  const [isWorkflowInputsPanelOpen, setIsWorkflowInputsPanelOpen] = useState<
-    boolean
-  >(true);
+  // Preview side panel state. This panel encapsulates the tools panel as a child resizable panel.
+  const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState<boolean>(true);
   const collapseFnHorizontal = useRef(
     (id: string, options: { direction: 'left' | 'right' }) => {}
   );
-  const onToggleWorkflowInputsChange = () => {
-    collapseFnHorizontal.current(WORKFLOW_INPUTS_PANEL_ID, {
-      direction: 'left',
+  const onTogglePreviewChange = () => {
+    collapseFnHorizontal.current(PREVIEW_PANEL_ID, {
+      direction: 'right',
     });
-    setIsWorkflowInputsPanelOpen(!isWorkflowInputsPanelOpen);
+    setIsPreviewPanelOpen(!isPreviewPanelOpen);
   };
 
   // ingest state
@@ -143,7 +142,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
             direction="horizontal"
             className="stretch-absolute"
             style={{
-              marginLeft: isWorkflowInputsPanelOpen ? '-8px' : '0px',
+              marginLeft: '-8px',
               marginTop: '-8px',
             }}
           >
@@ -159,13 +158,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 <>
                   <EuiResizablePanel
                     id={WORKFLOW_INPUTS_PANEL_ID}
-                    mode="collapsible"
-                    initialSize={50}
+                    mode="main"
+                    initialSize={60}
                     minSize="25%"
                     paddingSize="s"
-                    onToggleCollapsedInternal={() =>
-                      onToggleWorkflowInputsChange()
-                    }
                   >
                     <WorkflowInputs
                       workflow={props.workflow}
@@ -181,14 +177,16 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   </EuiResizablePanel>
                   <EuiResizableButton />
                   <EuiResizablePanel
+                    id={PREVIEW_PANEL_ID}
                     style={{
-                      marginRight: '-32px',
+                      marginRight: isPreviewPanelOpen ? '-32px' : '0px',
                       marginBottom: isToolsPanelOpen ? '0px' : '24px',
                     }}
-                    mode="main"
+                    mode="collapsible"
                     initialSize={60}
                     minSize="25%"
                     paddingSize="s"
+                    onToggleCollapsedInternal={() => onTogglePreviewChange()}
                   >
                     <EuiResizableContainer
                       className="workspace-panel"
