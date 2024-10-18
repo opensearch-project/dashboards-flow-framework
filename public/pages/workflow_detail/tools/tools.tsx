@@ -57,6 +57,9 @@ const inputTabs = [
   },
 ];
 
+// TODO: this may change in the future
+const PANEL_TITLE = 'Inspector';
+
 /**
  * The base Tools component for performing ingest and search, viewing resources, and debugging.
  */
@@ -116,9 +119,9 @@ export function Tools(props: ToolsProps) {
           height: '100%',
         }}
       >
-        <EuiFlexItem grow={false}>
+        <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
           <EuiText size="s">
-            <h2>Tools</h2>
+            <h2>{PANEL_TITLE}</h2>
           </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
