@@ -121,7 +121,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
               </EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiFlexGroup>
+              <EuiFlexGroup direction="row" gutterSize="none">
                 <EuiFlexItem>
                   <EuiSmallButtonEmpty
                     style={{ width: '100px' }}
