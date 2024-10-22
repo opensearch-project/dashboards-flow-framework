@@ -165,3 +165,4 @@ jobs:
         with:
           name: cypress-videos-${{ matrix.os }}
           path: opensearch-dashboards-functional-test/cypress/videos
+          
