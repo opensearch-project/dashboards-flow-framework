@@ -10,12 +10,10 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiCompressedFormRow,
-  EuiLink,
   EuiPanel,
   EuiSmallButton,
   EuiSmallButtonEmpty,
   EuiSpacer,
-  EuiText,
 } from '@elastic/eui';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
@@ -30,15 +28,17 @@ import { MapField } from './map_field';
 interface MapArrayFieldProps {
   field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
-  label?: string;
-  helpLink?: string;
   helpText?: string;
+  keyTitle?: string;
   keyPlaceholder?: string;
+  valueTitle?: string;
   valuePlaceholder?: string;
   onMapAdd?: (curArray: MapArrayFormValue) => void;
   onMapDelete?: (idxToDelete: number) => void;
   keyOptions?: { label: string }[];
   valueOptions?: { label: string }[];
+  addMapEntryButtonText?: string;
+  addMapButtonText?: string;
 }
 
 /**
@@ -90,17 +90,6 @@ export function MapArrayField(props: MapArrayFieldProps) {
           <EuiCompressedFormRow
             fullWidth={true}
             key={props.fieldPath}
-            label={props.label}
-            labelAppend={
-              props.helpLink ? (
-                <EuiText size="xs">
-                  <EuiLink href={props.helpLink} target="_blank">
-                    Learn more
-                  </EuiLink>
-                </EuiText>
-              ) : undefined
-            }
-            helpText={props.helpText || undefined}
             isInvalid={
               getIn(errors, field.name) !== undefined &&
               getIn(errors, field.name).length > 0 &&
@@ -135,10 +124,14 @@ export function MapArrayField(props: MapArrayFieldProps) {
                           <EuiPanel grow={true}>
                             <MapField
                               fieldPath={`${props.fieldPath}.${idx}`}
+                              helpText={props.helpText}
+                              keyTitle={props.keyTitle}
                               keyPlaceholder={props.keyPlaceholder}
+                              valueTitle={props.valueTitle}
                               valuePlaceholder={props.valuePlaceholder}
                               keyOptions={props.keyOptions}
                               valueOptions={props.valueOptions}
+                              addEntryButtonText={props.addMapEntryButtonText}
                             />
                           </EuiPanel>
                         </EuiAccordion>
@@ -151,10 +144,14 @@ export function MapArrayField(props: MapArrayFieldProps) {
                   <EuiPanel grow={true}>
                     <MapField
                       fieldPath={`${props.fieldPath}.0`}
+                      helpText={props.helpText}
+                      keyTitle={props.keyTitle}
                       keyPlaceholder={props.keyPlaceholder}
+                      valueTitle={props.valueTitle}
                       valuePlaceholder={props.valuePlaceholder}
                       keyOptions={props.keyOptions}
                       valueOptions={props.valueOptions}
+                      addEntryButtonText={props.addMapEntryButtonText}
                     />
                   </EuiPanel>
                   <EuiSpacer size="s" />
@@ -182,7 +179,9 @@ export function MapArrayField(props: MapArrayFieldProps) {
                         onClick={() => {
                           addMap(field.value);
                         }}
-                      >{`(Advanced) Add another prediction`}</EuiSmallButtonEmpty>
+                      >
+                        {props.addMapButtonText || `(Advanced) Add another map`}
+                      </EuiSmallButtonEmpty>
                     )}
                   </>
                 </div>

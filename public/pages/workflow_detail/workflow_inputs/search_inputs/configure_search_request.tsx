@@ -5,9 +5,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useFormikContext } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import {
-  EuiSmallButton,
   EuiCompressedFieldText,
   EuiFlexGroup,
   EuiFlexItem,
@@ -15,14 +14,14 @@ import {
   EuiCompressedSuperSelect,
   EuiSuperSelectOption,
   EuiText,
-  EuiSpacer,
+  EuiCodeBlock,
+  EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import {
   SearchHit,
   WorkflowFormValues,
   customStringify,
 } from '../../../../../common';
-import { JsonField } from '../input_fields';
 import { AppState, searchIndex, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils/utils';
 import { EditQueryModal } from './edit_query_modal';
@@ -80,7 +79,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           queryFieldPath="search.request"
         />
       )}
-      <EuiFlexGroup direction="column">
+      <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
           <EuiText size="s">
             <h3>Configure query</h3>
@@ -114,64 +113,78 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
             )}
           </EuiCompressedFormRow>
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiSmallButton
-            fill={false}
-            style={{ width: '100px' }}
-            onClick={() => setIsEditModalOpen(true)}
-            data-testid="queryEditButton"
-          >
-            Edit
-          </EuiSmallButton>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <JsonField
-            label="Query"
-            fieldPath={'search.request'}
-            editorHeight="25vh"
-            readOnly={true}
-          />
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <>
-            <EuiSmallButton
-              fill={false}
-              style={{ width: '100px' }}
-              onClick={() => {
-                // for this test query, we don't want to involve any configured search pipelines, if any exist
-                // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
-                dispatch(
-                  searchIndex({
-                    apiBody: {
-                      index: values.search.index.name,
-                      body: values.search.request,
-                      searchPipeline: '_none',
-                    },
-                    dataSourceId,
-                  })
-                )
-                  .unwrap()
-                  .then(async (resp) => {
-                    props.setQueryResponse(
-                      customStringify(
-                        resp.hits.hits.map((hit: SearchHit) => hit._source)
+        <EuiFlexItem>
+          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+            <EuiFlexItem grow={false}>
+              <EuiText size="s">
+                <h4>Query definition</h4>
+              </EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup direction="row" gutterSize="none">
+                <EuiFlexItem>
+                  <EuiSmallButtonEmpty
+                    style={{ width: '100px' }}
+                    onClick={() => setIsEditModalOpen(true)}
+                    data-testid="queryEditButton"
+                    iconType="pencil"
+                    iconSide="left"
+                  >
+                    Edit
+                  </EuiSmallButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <EuiSmallButtonEmpty
+                    onClick={() => {
+                      // for this test query, we don't want to involve any configured search pipelines, if any exist
+                      // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
+                      dispatch(
+                        searchIndex({
+                          apiBody: {
+                            index: values.search.index.name,
+                            body: values.search.request,
+                            searchPipeline: '_none',
+                          },
+                          dataSourceId,
+                        })
                       )
-                    );
-                  })
-                  .catch((error: any) => {
-                    props.setQueryResponse('');
-                    console.error('Error running query: ', error);
-                  });
-              }}
-              data-testid="searchTestButton"
-            >
-              Test
-            </EuiSmallButton>
-            <EuiSpacer size="s" />
-            <EuiText size="s" color="subdued">
-              Run query without any search pipeline configuration.
-            </EuiText>
-          </>
+                        .unwrap()
+                        .then(async (resp) => {
+                          props.setQueryResponse(
+                            customStringify(
+                              resp.hits.hits.map(
+                                (hit: SearchHit) => hit._source
+                              )
+                            )
+                          );
+                        })
+                        .catch((error: any) => {
+                          props.setQueryResponse('');
+                          console.error('Error running query: ', error);
+                        });
+                    }}
+                    data-testid="searchTestButton"
+                    iconType="play"
+                    iconSide="left"
+                  >
+                    Test query
+                  </EuiSmallButtonEmpty>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiFlexItem>
+        <EuiFlexItem grow={true} style={{ marginTop: '0px' }}>
+          <EuiCodeBlock
+            fontSize="s"
+            language="json"
+            overflowHeight={300}
+            isCopyable={false}
+            whiteSpace="pre"
+            paddingSize="none"
+          >
+            {getIn(values, 'search.request')}
+          </EuiCodeBlock>
         </EuiFlexItem>
       </EuiFlexGroup>
     </>

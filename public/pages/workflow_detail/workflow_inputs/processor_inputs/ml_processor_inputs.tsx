@@ -336,16 +336,12 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <EuiSpacer size="l" />
             </>
           )}
-          <EuiFlexGroup direction="row">
+          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
               <EuiText
                 size="m"
                 style={{ marginTop: '4px' }}
-              >{`Configure input transformations (${
-                props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                  ? 'Required'
-                  : 'Optional'
-              })`}</EuiText>
+              >{`Inputs`}</EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiToolTip
@@ -357,12 +353,12 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               >
                 <EuiSmallButtonEmpty
                   disabled={!isInputPreviewAvailable}
-                  style={{ width: '100px', paddingTop: '8px' }}
+                  style={{ paddingTop: '8px' }}
                   onClick={() => {
                     setIsInputTransformModalOpen(true);
                   }}
                 >
-                  Preview
+                  Preview inputs
                 </EuiSmallButtonEmpty>
               </EuiToolTip>
             </EuiFlexItem>
@@ -371,16 +367,20 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           <MapArrayField
             field={inputMapField}
             fieldPath={inputMapFieldPath}
-            label="Input Map"
             helpText={`An array specifying how to map fields from the ingested document to the model’s input. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
             root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-            helpLink={ML_INFERENCE_DOCS_LINK}
-            keyPlaceholder="Model input field"
+            keyTitle="Name"
+            keyPlaceholder="Name"
             keyOptions={parseModelInputs(modelInterface)}
-            valuePlaceholder={
+            valueTitle={
               props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                 ? 'Query field'
                 : 'Document field'
+            }
+            valuePlaceholder={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Specify a query field'
+                : 'Define a document field'
             }
             valueOptions={
               props.context === PROCESSOR_CONTEXT.INGEST
@@ -389,18 +389,16 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 ? queryFields
                 : indexMappingFields
             }
+            addMapEntryButtonText="Add input"
+            addMapButtonText="(Advanced) Add input group"
           />
           <EuiSpacer size="l" />
-          <EuiFlexGroup direction="row">
+          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
               <EuiText
                 size="m"
                 style={{ marginTop: '4px' }}
-              >{`Configure output transformations (${
-                props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                  ? 'Required'
-                  : 'Optional'
-              })`}</EuiText>
+              >{`Outputs`}</EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiToolTip
@@ -412,12 +410,12 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               >
                 <EuiSmallButtonEmpty
                   disabled={!isOutputPreviewAvailable}
-                  style={{ width: '100px', paddingTop: '8px' }}
+                  style={{ paddingTop: '8px' }}
                   onClick={() => {
                     setIsOutputTransformModalOpen(true);
                   }}
                 >
-                  Preview
+                  Preview outputs
                 </EuiSmallButtonEmpty>
               </EuiToolTip>
             </EuiFlexItem>
@@ -426,21 +424,27 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           <MapArrayField
             field={outputMapField}
             fieldPath={outputMapFieldPath}
-            label="Output Map"
             helpText={`An array specifying how to map the model’s output to new document fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
             root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-            helpLink={ML_INFERENCE_DOCS_LINK}
-            keyPlaceholder={
+            keyTitle={
               props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                 ? 'Query field'
                 : 'New document field'
             }
-            valuePlaceholder="Model output field"
+            keyPlaceholder={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Specify a query field'
+                : 'Define a document field'
+            }
+            valueTitle="Name"
+            valuePlaceholder="Name"
             valueOptions={
               fullResponsePath
                 ? undefined
                 : parseModelOutputs(modelInterface, false)
             }
+            addMapEntryButtonText="Add output"
+            addMapButtonText="(Advanced) Add output group"
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&
