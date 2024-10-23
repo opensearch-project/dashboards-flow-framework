@@ -34,7 +34,6 @@ import {
   IProcessorConfig,
   IngestPipelineConfig,
   JSONPATH_ROOT_SELECTOR,
-  ML_INFERENCE_DOCS_LINK,
   ML_INFERENCE_RESPONSE_DOCS_LINK,
   MapArrayFormValue,
   ModelInterface,
@@ -441,16 +440,20 @@ export function InputTransformModal(props: InputTransformModalProps) {
               <MapArrayField
                 field={props.inputMapField}
                 fieldPath={props.inputMapFieldPath}
-                label="Input Map"
                 helpText={`An array specifying how to map fields from the ingested document to the model’s input. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-                helpLink={ML_INFERENCE_DOCS_LINK}
-                keyPlaceholder="Model input field"
+                keyTitle="Name"
+                keyPlaceholder="Name"
                 keyOptions={parseModelInputs(props.modelInterface)}
-                valuePlaceholder={
+                valueTitle={
                   props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                     ? 'Query field'
                     : 'Document field'
+                }
+                valuePlaceholder={
+                  props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                    ? 'Specify a query field'
+                    : 'Define a document field'
                 }
                 valueOptions={props.valueOptions}
                 // If the map we are adding is the first one, populate the selected option to index 0
@@ -467,6 +470,8 @@ export function InputTransformModal(props: InputTransformModalProps) {
                     setTransformedInput('{}');
                   }
                 }}
+                addMapEntryButtonText="Add input"
+                addMapButtonText="(Advanced) Add input group"
               />
             </>
           </EuiFlexItem>

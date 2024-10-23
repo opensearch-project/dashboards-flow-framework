@@ -388,12 +388,20 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
               <MapArrayField
                 field={props.outputMapField}
                 fieldPath={props.outputMapFieldPath}
-                label="Output Map"
                 helpText={`An array specifying how to map the model’s output to new fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-                helpLink={ML_INFERENCE_DOCS_LINK}
-                keyPlaceholder="Document field"
-                valuePlaceholder="Model output field"
+                keyTitle={
+                  props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                    ? 'Query field'
+                    : 'New document field'
+                }
+                keyPlaceholder={
+                  props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                    ? 'Specify a query field'
+                    : 'Define a document field'
+                }
+                valueTitle="Name"
+                valuePlaceholder="Name"
                 valueOptions={
                   fullResponsePath
                     ? undefined
@@ -413,6 +421,8 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                     setTransformedOutput('{}');
                   }
                 }}
+                addMapEntryButtonText="Add output"
+                addMapButtonText="(Advanced) Add output group"
               />
             </>
           </EuiFlexItem>
