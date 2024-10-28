@@ -12,7 +12,12 @@ import {
   EuiResizableContainer,
   EuiText,
 } from '@elastic/eui';
-import { Workflow, WorkflowConfig, customStringify } from '../../../common';
+import {
+  CONFIG_STEP,
+  Workflow,
+  WorkflowConfig,
+  customStringify,
+} from '../../../common';
 import { isValidUiWorkflow, reduceToTemplate } from '../../utils';
 import { WorkflowInputs } from './workflow_inputs';
 import { Workspace } from './workspace';
@@ -28,6 +33,14 @@ interface ResizableWorkspaceProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   ingestDocs: string;
   setIngestDocs: (docs: string) => void;
+  isRunningIngest: boolean;
+  setIsRunningIngest: (isRunningIngest: boolean) => void;
+  isRunningSearch: boolean;
+  setIsRunningSearch: (isRunningSearch: boolean) => void;
+  selectedStep: CONFIG_STEP;
+  setSelectedStep: (step: CONFIG_STEP) => void;
+  setUnsavedIngestProcessors: (unsavedIngestProcessors: boolean) => void;
+  setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
 }
 
 const WORKFLOW_INPUTS_PANEL_ID = 'workflow_inputs_panel_id';
@@ -80,7 +93,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       className="stretch-absolute"
       style={{
         marginLeft: '-8px',
-        marginTop: '-8px',
+        marginTop: '40px',
       }}
     >
       {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
@@ -105,6 +118,14 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 setQueryResponse={setQueryResponse}
                 ingestDocs={props.ingestDocs}
                 setIngestDocs={props.setIngestDocs}
+                isRunningIngest={props.isRunningIngest}
+                setIsRunningIngest={props.setIsRunningIngest}
+                isRunningSearch={props.isRunningSearch}
+                setIsRunningSearch={props.setIsRunningSearch}
+                selectedStep={props.selectedStep}
+                setSelectedStep={props.setSelectedStep}
+                setUnsavedIngestProcessors={props.setUnsavedIngestProcessors}
+                setUnsavedSearchProcessors={props.setUnsavedSearchProcessors}
               />
             </EuiResizablePanel>
             <EuiResizableButton />

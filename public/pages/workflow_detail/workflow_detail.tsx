@@ -37,6 +37,7 @@ import {
 } from '../../store';
 import { ResizableWorkspace } from './resizable_workspace';
 import {
+  CONFIG_STEP,
   ERROR_GETTING_WORKFLOW_MSG,
   FETCH_ALL_QUERY,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
@@ -51,7 +52,6 @@ import { MountPoint } from '../../../../../src/core/public';
 import {
   constructHrefWithDataSourceId,
   getDataSourceId,
-  isValidUiWorkflow,
 } from '../../utils/utils';
 import { getDataSourceEnabled } from '../../services';
 
@@ -138,6 +138,20 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     undefined
   );
 
+  // various form-related states. persisted here to pass down to the child's form and header components, particularly
+  // to have consistency on the button states (enabled/disabled)
+  const [isRunningIngest, setIsRunningIngest] = useState<boolean>(false);
+  const [isRunningSearch, setIsRunningSearch] = useState<boolean>(false);
+  const [selectedStep, setSelectedStep] = useState<CONFIG_STEP>(
+    CONFIG_STEP.INGEST
+  );
+  const [unsavedIngestProcessors, setUnsavedIngestProcessors] = useState<
+    boolean
+  >(false);
+  const [unsavedSearchProcessors, setUnsavedSearchProcessors] = useState<
+    boolean
+  >(false);
+
   // Initialize the UI config based on the workflow's config, if applicable.
   useEffect(() => {
     if (workflow?.ui_metadata?.config) {
@@ -188,17 +202,32 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
           <EuiPageBody className="workflow-detail stretch-relative">
             <WorkflowDetailHeader
               workflow={workflow}
+              uiConfig={uiConfig}
+              setUiConfig={setUiConfig}
+              isRunningIngest={isRunningIngest}
+              isRunningSearch={isRunningSearch}
+              selectedStep={selectedStep}
+              unsavedIngestProcessors={unsavedIngestProcessors}
+              setUnsavedIngestProcessors={setUnsavedIngestProcessors}
+              unsavedSearchProcessors={unsavedSearchProcessors}
+              setUnsavedSearchProcessors={setUnsavedSearchProcessors}
               setActionMenu={props.setActionMenu}
             />
-            <ReactFlowProvider>
-              <ResizableWorkspace
-                workflow={workflow}
-                uiConfig={uiConfig}
-                setUiConfig={setUiConfig}
-                ingestDocs={ingestDocs}
-                setIngestDocs={setIngestDocs}
-              />
-            </ReactFlowProvider>
+            <ResizableWorkspace
+              workflow={workflow}
+              uiConfig={uiConfig}
+              setUiConfig={setUiConfig}
+              ingestDocs={ingestDocs}
+              setIngestDocs={setIngestDocs}
+              isRunningIngest={isRunningIngest}
+              setIsRunningIngest={setIsRunningIngest}
+              isRunningSearch={isRunningSearch}
+              setIsRunningSearch={setIsRunningSearch}
+              selectedStep={selectedStep}
+              setSelectedStep={setSelectedStep}
+              setUnsavedIngestProcessors={setUnsavedIngestProcessors}
+              setUnsavedSearchProcessors={setUnsavedSearchProcessors}
+            />
           </EuiPageBody>
         </EuiPage>
       </ReactFlowProvider>

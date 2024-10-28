@@ -22,9 +22,9 @@ import {
   EuiPanel,
   EuiStepsHorizontal,
   EuiText,
-  EuiSmallButtonIcon,
 } from '@elastic/eui';
 import {
+  CONFIG_STEP,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
   SearchHit,
   TemplateNode,
@@ -72,11 +72,14 @@ interface WorkflowInputsProps {
   setQueryResponse: (queryResponse: string) => void;
   ingestDocs: string;
   setIngestDocs: (docs: string) => void;
-}
-
-enum STEP {
-  INGEST = 'Ingestion pipeline',
-  SEARCH = 'Search pipeline',
+  isRunningIngest: boolean;
+  setIsRunningIngest: (isRunningIngest: boolean) => void;
+  isRunningSearch: boolean;
+  setIsRunningSearch: (isRunningSearch: boolean) => void;
+  selectedStep: CONFIG_STEP;
+  setSelectedStep: (step: CONFIG_STEP) => void;
+  setUnsavedIngestProcessors: (unsavedIngestProcessors: boolean) => void;
+  setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
 }
 
 enum INGEST_OPTION {
@@ -93,12 +96,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const {
     submitForm,
     validateForm,
-    resetForm,
     setFieldValue,
     setTouched,
     values,
-    touched,
-    dirty,
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
@@ -107,13 +107,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const [query, setQuery] = useState<string>('');
 
   // transient running states
-  const [isRunningSave, setIsRunningSave] = useState<boolean>(false);
-  const [isRunningIngest, setIsRunningIngest] = useState<boolean>(false);
-  const [isRunningSearch, setIsRunningSearch] = useState<boolean>(false);
   const [isRunningDelete, setIsRunningDelete] = useState<boolean>(false);
-
-  // selected step state
-  const [selectedStep, setSelectedStep] = useState<STEP>(STEP.INGEST);
 
   // provisioned resources states
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
@@ -127,8 +121,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   );
 
   // maintain global states
-  const onIngest = selectedStep === STEP.INGEST;
-  const onSearch = selectedStep === STEP.SEARCH;
+  const onIngest = props.selectedStep === CONFIG_STEP.INGEST;
+  const onSearch = props.selectedStep === CONFIG_STEP.SEARCH;
   const ingestEnabled = values?.ingest?.enabled || false;
   const onIngestAndProvisioned = onIngest && ingestProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
@@ -168,42 +162,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const [searchTemplatesDifferent, setSearchTemplatesDifferent] = useState<
     boolean
   >(false);
-  const [unsavedIngestProcessors, setUnsavedIngestProcessors] = useState<
-    boolean
-  >(false);
-  const [unsavedSearchProcessors, setUnsavedSearchProcessors] = useState<
-    boolean
-  >(false);
-
-  // listener when ingest processors have been added/deleted.
-  // compare to the indexed/persisted workflow config
-  useEffect(() => {
-    setUnsavedIngestProcessors(
-      !isEqual(
-        props.uiConfig?.ingest?.enrich?.processors,
-        props.workflow?.ui_metadata?.config?.ingest?.enrich?.processors
-      )
-    );
-  }, [props.uiConfig?.ingest?.enrich?.processors?.length]);
-
-  // listener when search processors have been added/deleted.
-  // compare to the indexed/persisted workflow config
-  useEffect(() => {
-    setUnsavedSearchProcessors(
-      !isEqual(
-        props.uiConfig?.search?.enrichRequest?.processors,
-        props.workflow?.ui_metadata?.config?.search?.enrichRequest?.processors
-      ) ||
-        !isEqual(
-          props.uiConfig?.search?.enrichResponse?.processors,
-          props.workflow?.ui_metadata?.config?.search?.enrichResponse
-            ?.processors
-        )
-    );
-  }, [
-    props.uiConfig?.search?.enrichRequest?.processors?.length,
-    props.uiConfig?.search?.enrichResponse?.processors?.length,
-  ]);
 
   // fetch the total template nodes
   useEffect(() => {
@@ -284,30 +242,16 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   }, [props.workflow]);
 
   // maintain global states (button eligibility)
-  const ingestUndoButtonDisabled =
-    isRunningSave || isRunningIngest
-      ? true
-      : unsavedIngestProcessors
-      ? false
-      : !dirty;
-  const ingestSaveButtonDisabled = ingestUndoButtonDisabled;
   const ingestRunButtonDisabled = !ingestTemplatesDifferent;
   const ingestToSearchButtonDisabled =
-    ingestTemplatesDifferent || isRunningIngest;
+    ingestTemplatesDifferent || props.isRunningIngest;
   const searchBackButtonDisabled =
-    isRunningSearch ||
+    props.isRunningSearch ||
     (isProposingNoSearchResources || !ingestProvisioned
       ? false
       : searchTemplatesDifferent);
-  const searchUndoButtonDisabled =
-    isRunningSave || isRunningSearch
-      ? true
-      : unsavedSearchProcessors
-      ? false
-      : isEmpty(touched?.search) || !dirty;
-  const searchSaveButtonDisabled = searchUndoButtonDisabled;
   const searchRunButtonDisabled =
-    isRunningSearch ||
+    props.isRunningSearch ||
     (isProposingNoSearchResources &&
       hasProvisionedSearchResources(props.workflow));
 
@@ -315,7 +259,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // A get workflow API call is subsequently run to fetch the updated state.
   async function updateWorkflowUiConfig() {
     let success = false;
-    setIsRunningSave(true);
     const updatedTemplate = {
       name: props.workflow?.name,
       ui_metadata: {
@@ -337,8 +280,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       .unwrap()
       .then(async (result) => {
         success = true;
-        setUnsavedIngestProcessors(false);
-        setUnsavedSearchProcessors(false);
+        props.setUnsavedIngestProcessors(false);
+        props.setUnsavedSearchProcessors(false);
         setTouched({});
         new Promise((f) => setTimeout(f, 1000)).then(async () => {
           dispatch(
@@ -351,22 +294,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       })
       .catch((error: any) => {
         console.error('Error saving workflow: ', error);
-      })
-      .finally(() => {
-        setIsRunningSave(false);
       });
     return success;
-  }
-
-  // Utility fn to revert any unsaved changes, reset the form
-  function revertUnsavedChanges(): void {
-    resetForm();
-    if (
-      (unsavedIngestProcessors || unsavedSearchProcessors) &&
-      props.workflow?.ui_metadata?.config !== undefined
-    ) {
-      props.setUiConfig(props.workflow?.ui_metadata?.config);
-    }
   }
 
   // Utility fn to update the workflow, including any updated/new resources.
@@ -394,8 +323,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         .unwrap()
         .then(async (result) => {
           await sleep(1000);
-          setUnsavedIngestProcessors(false);
-          setUnsavedSearchProcessors(false);
+          props.setUnsavedIngestProcessors(false);
+          props.setUnsavedSearchProcessors(false);
           success = true;
           // Kicking off an async task to re-fetch the workflow details
           // after some amount of time. Provisioning will finish in an indeterminate
@@ -439,8 +368,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             .unwrap()
             .then(async (result) => {
               await sleep(1000);
-              setUnsavedIngestProcessors(false);
-              setUnsavedSearchProcessors(false);
+              props.setUnsavedIngestProcessors(false);
+              props.setUnsavedSearchProcessors(false);
               await dispatch(
                 provisionWorkflow({
                   workflowId: updatedWorkflow.id as string,
@@ -535,7 +464,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // to clean up any created resources and not have leftover / stale data in some index.
   // This is propagated by passing `reprovision=false` to validateAndUpdateWorkflow()
   async function validateAndRunIngestion(): Promise<boolean> {
-    setIsRunningIngest(true);
+    props.setIsRunningIngest(true);
     let success = false;
     try {
       let ingestDocsObjs = [] as {}[];
@@ -568,7 +497,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     } catch (error) {
       console.error('Error ingesting documents: ', error);
     }
-    setIsRunningIngest(false);
+    props.setIsRunningIngest(false);
     return success;
   }
 
@@ -580,7 +509,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // This logic is propagated by passing `reprovision=true/false` in the
   // validateAndUpdateWorkflow() fn calls below.
   async function validateAndRunQuery(): Promise<boolean> {
-    setIsRunningSearch(true);
+    props.setIsRunningSearch(true);
     let success = false;
     try {
       let queryObj = {};
@@ -621,7 +550,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     } catch (error) {
       console.error('Error running query: ', error);
     }
-    setIsRunningSearch(false);
+    props.setIsRunningSearch(false);
     return success;
   }
 
@@ -641,13 +570,13 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             <EuiStepsHorizontal
               steps={[
                 {
-                  title: STEP.INGEST,
+                  title: CONFIG_STEP.INGEST,
                   isComplete: onSearch,
                   isSelected: onIngest,
                   onClick: () => {},
                 },
                 {
-                  title: STEP.SEARCH,
+                  title: CONFIG_STEP.SEARCH,
                   isComplete: false,
                   isSelected: onSearch,
                   onClick: () => {},
@@ -821,7 +750,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         fill={true}
                         disabled={false}
                         onClick={() => {
-                          setSelectedStep(STEP.SEARCH);
+                          props.setSelectedStep(CONFIG_STEP.SEARCH);
                         }}
                         data-testid="searchPipelineButton"
                       >
@@ -831,27 +760,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   ) : onIngest ? (
                     <>
                       <EuiFlexItem grow={false}>
-                        <EuiSmallButtonIcon
-                          iconType="editorUndo"
-                          aria-label="undo changes"
-                          isDisabled={ingestUndoButtonDisabled}
-                          onClick={() => {
-                            revertUnsavedChanges();
-                          }}
-                        />
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiSmallButtonEmpty
-                          disabled={ingestSaveButtonDisabled}
-                          isLoading={isRunningSave}
-                          onClick={() => {
-                            updateWorkflowUiConfig();
-                          }}
-                        >
-                          {`Save`}
-                        </EuiSmallButtonEmpty>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
                         <EuiSmallButton
                           fill={false}
                           onClick={() => {
@@ -859,7 +767,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           }}
                           data-testid="runIngestionButton"
                           disabled={ingestRunButtonDisabled}
-                          isLoading={isRunningIngest}
+                          isLoading={props.isRunningIngest}
                         >
                           Build and run ingestion
                         </EuiSmallButton>
@@ -868,7 +776,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         <EuiSmallButton
                           fill={true}
                           onClick={() => {
-                            setSelectedStep(STEP.SEARCH);
+                            props.setSelectedStep(CONFIG_STEP.SEARCH);
                           }}
                           data-testid="searchPipelineButton"
                           disabled={ingestToSearchButtonDisabled}
@@ -882,38 +790,18 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       <EuiFlexItem grow={false}>
                         <EuiSmallButtonEmpty
                           disabled={searchBackButtonDisabled}
-                          onClick={() => setSelectedStep(STEP.INGEST)}
+                          onClick={() =>
+                            props.setSelectedStep(CONFIG_STEP.INGEST)
+                          }
                           data-testid="searchPipelineBackButton"
                         >
                           Back
                         </EuiSmallButtonEmpty>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
-                        <EuiSmallButtonIcon
-                          iconType="editorUndo"
-                          aria-label="undo changes"
-                          isDisabled={searchUndoButtonDisabled}
-                          onClick={() => {
-                            revertUnsavedChanges();
-                          }}
-                        />
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiSmallButtonEmpty
-                          disabled={searchSaveButtonDisabled}
-                          isLoading={isRunningSave}
-                          onClick={() => {
-                            updateWorkflowUiConfig();
-                          }}
-                          data-testid="saveSearchPipelineButton"
-                        >
-                          {`Save`}
-                        </EuiSmallButtonEmpty>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
                         <EuiSmallButton
                           disabled={searchRunButtonDisabled}
-                          isLoading={isRunningSearch}
+                          isLoading={props.isRunningSearch}
                           fill={false}
                           onClick={() => {
                             validateAndRunQuery();
