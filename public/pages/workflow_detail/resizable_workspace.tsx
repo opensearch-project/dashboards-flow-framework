@@ -18,7 +18,11 @@ import {
   WorkflowConfig,
   customStringify,
 } from '../../../common';
-import { isValidUiWorkflow, reduceToTemplate } from '../../utils';
+import {
+  isValidUiWorkflow,
+  reduceToTemplate,
+  SHOW_ACTIONS_IN_HEADER,
+} from '../../utils';
 import { WorkflowInputs } from './workflow_inputs';
 import { Workspace } from './workspace';
 import { Tools } from './tools';
@@ -93,7 +97,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       className="stretch-absolute"
       style={{
         marginLeft: '-8px',
-        marginTop: '40px',
+        marginTop: SHOW_ACTIONS_IN_HEADER ? '-8px' : '40px',
       }}
     >
       {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {

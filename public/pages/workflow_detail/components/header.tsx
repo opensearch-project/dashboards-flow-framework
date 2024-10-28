@@ -133,23 +133,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
     );
   };
 
-  const topNavConfig: TopNavMenuData[] = [
-    {
-      iconType: 'exportAction',
-      tooltip: 'Export',
-      ariaLabel: 'Export',
-      run: onExportButtonClick,
-      controlType: 'icon',
-    } as TopNavMenuIconData,
-    {
-      iconType: 'exit',
-      tooltip: 'Return to projects',
-      ariaLabel: 'Exit',
-      run: onExitButtonClick,
-      controlType: 'icon',
-    } as TopNavMenuIconData,
-  ];
-
   // get & render the data source component, if applicable
   let DataSourceComponent: ReactElement | null = null;
   if (dataSourceEnabled && getDataSourceManagementPlugin()) {
@@ -219,6 +202,14 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
       ? false
       : isEmpty(touched?.search) || !dirty;
   const searchSaveButtonDisabled = searchUndoButtonDisabled;
+  const undoDisabled =
+    props.selectedStep === CONFIG_STEP.INGEST
+      ? ingestUndoButtonDisabled
+      : searchUndoButtonDisabled;
+  const saveDisabled =
+    props.selectedStep === CONFIG_STEP.INGEST
+      ? ingestSaveButtonDisabled
+      : searchSaveButtonDisabled;
 
   // Utility fn to update the workflow UI config only, based on the current form values.
   // A get workflow API call is subsequently run to fetch the updated state.
@@ -290,7 +281,38 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
         <>
           <TopNavMenu
             appName={PLUGIN_ID}
-            config={topNavConfig}
+            config={[
+              {
+                iconType: 'editorUndo',
+                tooltip: 'Revert changes',
+                ariaLabel: 'Revert',
+                run: revertUnsavedChanges,
+                controlType: 'icon',
+                disabled: undoDisabled,
+              } as TopNavMenuIconData,
+              {
+                iconType: 'save',
+                tooltip: 'Save',
+                ariaLabel: 'Save',
+                run: updateWorkflowUiConfig,
+                controlType: 'icon',
+                disabled: saveDisabled,
+              } as TopNavMenuIconData,
+              {
+                iconType: 'exportAction',
+                tooltip: 'Export',
+                ariaLabel: 'Export',
+                run: onExportButtonClick,
+                controlType: 'icon',
+              } as TopNavMenuIconData,
+              {
+                iconType: 'exit',
+                tooltip: 'Return to projects',
+                ariaLabel: 'Exit',
+                run: onExitButtonClick,
+                controlType: 'icon',
+              } as TopNavMenuIconData,
+            ]}
             screenTitle={workflowName}
             showDataSourceMenu={dataSourceEnabled}
             dataSourceMenuConfig={
@@ -364,11 +386,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
               </EuiSmallButtonEmpty>,
               <EuiSmallButtonEmpty
                 style={{ marginTop: '8px' }}
-                disabled={
-                  props.selectedStep === CONFIG_STEP.INGEST
-                    ? ingestSaveButtonDisabled
-                    : searchSaveButtonDisabled
-                }
+                disabled={saveDisabled}
                 isLoading={isRunningSave}
                 onClick={() => {
                   updateWorkflowUiConfig();
@@ -380,11 +398,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 style={{ marginTop: '8px' }}
                 iconType="editorUndo"
                 aria-label="undo changes"
-                isDisabled={
-                  props.selectedStep === CONFIG_STEP.INGEST
-                    ? ingestUndoButtonDisabled
-                    : searchUndoButtonDisabled
-                }
+                isDisabled={undoDisabled}
                 onClick={() => {
                   revertUnsavedChanges();
                 }}
