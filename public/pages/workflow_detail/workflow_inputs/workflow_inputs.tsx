@@ -72,8 +72,6 @@ interface WorkflowInputsProps {
   setQueryResponse: (queryResponse: string) => void;
   ingestDocs: string;
   setIngestDocs: (docs: string) => void;
-  query: string;
-  setQuery: (query: string) => void;
 }
 
 enum STEP {
@@ -104,6 +102,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+
+  // query state
+  const [query, setQuery] = useState<string>('');
 
   // transient running states
   const [isRunningSave, setIsRunningSave] = useState<boolean>(false);
@@ -584,7 +585,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     try {
       let queryObj = {};
       try {
-        queryObj = JSON.parse(props.query);
+        queryObj = JSON.parse(query);
       } catch (e) {}
       if (!isEmpty(queryObj)) {
         if (hasProvisionedIngestResources(props.workflow)) {
@@ -597,7 +598,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           const indexName = values.search.index.name;
           dispatch(
             searchIndex({
-              apiBody: { index: indexName, body: props.query },
+              apiBody: { index: indexName, body: query },
               dataSourceId,
             })
           )
@@ -799,7 +800,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <SearchInputs
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
-                setQuery={props.setQuery}
+                setQuery={setQuery}
                 setQueryResponse={props.setQueryResponse}
               />
             )}

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   EuiCodeBlock,
   EuiEmptyPrompt,
@@ -13,7 +13,7 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { Workflow, WorkflowConfig, customStringify } from '../../../common';
-import { reduceToTemplate } from '../../utils';
+import { isValidUiWorkflow, reduceToTemplate } from '../../utils';
 import { WorkflowInputs } from './workflow_inputs';
 import { Workspace } from './workspace';
 import { Tools } from './tools';
@@ -24,13 +24,10 @@ import '../../global-styles.scss';
 
 interface ResizableWorkspaceProps {
   workflow: Workflow | undefined;
-  isValidWorkflow: boolean;
   uiConfig: WorkflowConfig | undefined;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   ingestDocs: string;
   setIngestDocs: (docs: string) => void;
-  query: string;
-  setQuery: (query: string) => void;
 }
 
 const WORKFLOW_INPUTS_PANEL_ID = 'workflow_inputs_panel_id';
@@ -68,7 +65,16 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [ingestResponse, setIngestResponse] = useState<string>('');
   const [queryResponse, setQueryResponse] = useState<string>('');
 
-  return props.isValidWorkflow ? (
+  // is valid workflow state, + associated hook to set it as such
+  const [isValidWorkflow, setIsValidWorkflow] = useState<boolean>(true);
+  useEffect(() => {
+    const missingUiFlow = props.workflow && !isValidUiWorkflow(props.workflow);
+    if (missingUiFlow) {
+      setIsValidWorkflow(false);
+    }
+  }, [props.workflow]);
+
+  return isValidWorkflow ? (
     <EuiResizableContainer
       direction="horizontal"
       className="stretch-absolute"
@@ -99,8 +105,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 setQueryResponse={setQueryResponse}
                 ingestDocs={props.ingestDocs}
                 setIngestDocs={props.setIngestDocs}
-                query={props.query}
-                setQuery={props.setQuery}
               />
             </EuiResizablePanel>
             <EuiResizableButton />

@@ -129,24 +129,14 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   const [formValues, setFormValues] = useState<WorkflowFormValues>({});
   const [formSchema, setFormSchema] = useState<WorkflowSchema>(yup.object({}));
 
-  // ingest / query states
+  // ingest docs state. we need to persist here to update the form values.
   const [ingestDocs, setIngestDocs] = useState<string>('');
-  const [query, setQuery] = useState<string>('');
 
   // Temp UI config state. For persisting changes to the UI config that may
   // not be saved in the backend (e.g., adding / removing an ingest processor)
   const [uiConfig, setUiConfig] = useState<WorkflowConfig | undefined>(
     undefined
   );
-
-  // is valid workflow state, + associated hook to set it as such
-  const [isValidWorkflow, setIsValidWorkflow] = useState<boolean>(true);
-  useEffect(() => {
-    const missingUiFlow = workflow && !isValidUiWorkflow(workflow);
-    if (missingUiFlow) {
-      setIsValidWorkflow(false);
-    }
-  }, [workflow]);
 
   // Initialize the UI config based on the workflow's config, if applicable.
   useEffect(() => {
@@ -207,9 +197,6 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                 setUiConfig={setUiConfig}
                 ingestDocs={ingestDocs}
                 setIngestDocs={setIngestDocs}
-                query={query}
-                setQuery={setQuery}
-                isValidWorkflow={isValidWorkflow}
               />
             </ReactFlowProvider>
           </EuiPageBody>
