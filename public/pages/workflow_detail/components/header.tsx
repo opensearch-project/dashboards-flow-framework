@@ -78,8 +78,16 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
   >();
 
   // workflow state
-  const [workflowName, setWorkflowName] = useState<string>('');
-  const [workflowLastUpdated, setWorkflowLastUpdated] = useState<string>('');
+  //const [workflowName, setWorkflowName] = useState<string>('');
+  const workflowName = getCharacterLimitedString(
+    props.workflow?.name,
+    MAX_WORKFLOW_NAME_TO_DISPLAY
+  );
+  const workflowLastUpdated = toFormattedDate(
+    // @ts-ignore
+    props.workflow?.lastUpdated
+  ).toString();
+  // const [workflowLastUpdated, setWorkflowLastUpdated] = useState<string>('');
 
   // export modal state
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
@@ -91,27 +99,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
   const {
     chrome: { setHeaderVariant },
   } = getCore();
-
-  // get some workflow details
-  useEffect(() => {
-    if (props.workflow) {
-      setWorkflowName(
-        getCharacterLimitedString(
-          props.workflow.name,
-          MAX_WORKFLOW_NAME_TO_DISPLAY
-        )
-      );
-      try {
-        const formattedDate = toFormattedDate(
-          // @ts-ignore
-          props.workflow.lastUpdated
-        ).toString();
-        setWorkflowLastUpdated(formattedDate);
-      } catch (err) {
-        setWorkflowLastUpdated('');
-      }
-    }
-  }, [props.workflow]);
 
   // When NewHomePage is enabled, use 'application' HeaderVariant; otherwise, use 'page' HeaderVariant (default).
   useEffect(() => {
