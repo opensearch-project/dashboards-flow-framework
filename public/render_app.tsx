@@ -39,20 +39,20 @@ export const renderApp = (
     params.element
   );
 
-  const EXPECTED_BASE_PATH = `/app/${PLUGIN_ID}#`;
+  const handleLinkClick = (event: MouseEvent) => {
+    const anchorTag = (event.target as HTMLElement).closest(
+      'a'
+    ) as HTMLAnchorElement | null;
 
-  const unlistenParentHistory = params.history.listen(() => {
-    if (
-      hideInAppSideNavBar &&
-      window.location.pathname.endsWith(`/app/${PLUGIN_ID}`)
-    ) {
-      window.location.href = EXPECTED_BASE_PATH;
+    if (anchorTag && anchorTag.href.endsWith(`/app/${PLUGIN_ID}`)) {
+      window.location.href = anchorTag.href + '#';
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     }
-  });
+  };
+  document.addEventListener('click', handleLinkClick);
 
   return () => {
     ReactDOM.unmountComponentAtNode(params.element);
-    unlistenParentHistory();
+    document.removeEventListener('click', handleLinkClick);
   };
 };

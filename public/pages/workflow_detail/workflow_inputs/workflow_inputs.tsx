@@ -625,7 +625,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   }
 
   return (
-    <EuiPanel paddingSize="m" grow={true} className="workspace-panel">
+    <EuiPanel
+      paddingSize="m"
+      grow={true}
+      className="workspace-panel stretch-relative"
+    >
       {props.uiConfig === undefined ? (
         <EuiLoadingSpinner size="xl" />
       ) : (
@@ -812,7 +816,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
               </EuiFlexItem>
-              <EuiFlexItem>
+              <EuiFlexItem style={{ marginBottom: '18px' }}>
                 <EuiFlexGroup direction="row" justifyContent="flexEnd">
                   {onIngest && !ingestEnabled ? (
                     <EuiFlexItem grow={false}>
