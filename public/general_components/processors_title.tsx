@@ -16,9 +16,12 @@ interface ProcessorsTitleProps {
  */
 export function ProcessorsTitle(props: ProcessorsTitleProps) {
   return (
-    <EuiFlexItem grow={false}>
+    <EuiFlexItem
+      grow={false}
+      style={{ marginTop: '-24px', marginBottom: '-8px' }}
+    >
       <EuiText size="s">
-        <div>
+        <>
           <h3
             style={{ display: 'inline-block' }}
           >{`${props.title} (${props.processorCount}) -`}</h3>
@@ -26,7 +29,7 @@ export function ProcessorsTitle(props: ProcessorsTitleProps) {
           <h3 style={{ display: 'inline-block', fontStyle: 'italic' }}>
             optional
           </h3>
-        </div>
+        </>
       </EuiText>
     </EuiFlexItem>
   );
