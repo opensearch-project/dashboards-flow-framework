@@ -11,7 +11,7 @@ import {
 } from '../public/store';
 import { WorkflowInput } from '../test/interfaces';
 import { WORKFLOW_TYPE } from '../common/constants';
-import { UIState, Workflow } from '../common/interfaces';
+import { UIState, Workflow, WorkflowDict } from '../common/interfaces';
 import {
   fetchEmptyMetadata,
   fetchHybridSearchMetadata,
@@ -22,19 +22,17 @@ import fs from 'fs';
 import path from 'path';
 
 export function mockStore(...workflowSets: WorkflowInput[]) {
+  let workflowDict = {} as WorkflowDict;
+  workflowSets?.forEach((workflowInput) => {
+    workflowDict[workflowInput.id] = generateWorkflow(workflowInput);
+  });
   return {
     getState: () => ({
       opensearch: INITIAL_OPENSEARCH_STATE,
       ml: INITIAL_ML_STATE,
       workflows: {
         ...INITIAL_WORKFLOWS_STATE,
-        workflows: workflowSets.reduce(
-          (acc, workflowInput) => ({
-            ...acc,
-            [workflowInput.id]: generateWorkflow(workflowInput),
-          }),
-          {}
-        ),
+        workflows: workflowDict,
       },
       presets: INITIAL_PRESETS_STATE,
     }),
