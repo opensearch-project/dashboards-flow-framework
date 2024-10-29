@@ -24,19 +24,36 @@ import {
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
+  customStringify,
+  FETCH_ALL_QUERY,
   IConfigField,
+  IndexMappings,
   IngestDocsFormValues,
+  isVectorSearchUseCase,
+  SearchHit,
   SOURCE_OPTIONS,
+  Workflow,
+  WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
-import { AppState } from '../../../../store';
-import { getFieldSchema, getInitialValue } from '../../../../utils';
+import {
+  AppState,
+  getMappings,
+  searchIndex,
+  useAppDispatch,
+} from '../../../../store';
+import {
+  getDataSourceId,
+  getFieldSchema,
+  getInitialValue,
+} from '../../../../utils';
+import { getProcessorInfo } from './source_data';
 
 interface SourceDataProps {
+  workflow: Workflow | undefined;
+  uiConfig: WorkflowConfig;
   selectedOption: SOURCE_OPTIONS;
   setSelectedOption: (option: SOURCE_OPTIONS) => void;
-  selectedIndex: string | undefined;
-  setSelectedIndex: (index: string) => void;
   setIsModalOpen: (isOpen: boolean) => void;
 }
 
@@ -44,6 +61,8 @@ interface SourceDataProps {
  * Modal for configuring the source data for ingest.
  */
 export function SourceDataModal(props: SourceDataProps) {
+  const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   const indices = useSelector((state: AppState) => state.opensearch.indices);
 
@@ -57,11 +76,23 @@ export function SourceDataModal(props: SourceDataProps) {
     } as IConfigField),
   });
 
-  // persist standalone values. update when there is changes detected to the parent form
+  // persist standalone values. update / initialize when it is first opened
   const [tempDocs, setTempDocs] = useState<string>('[]');
+  //   useEffect(() => {
+  //     setTempDocs(getIn(values, 'ingest.docs'));
+  //   }, [getIn(values, 'ingest.docs')]);
+
+  // selected index state
+  const [selectedIndex, setSelectedIndex] = useState<string | undefined>(
+    undefined
+  );
+
+  // hook to clear out the selected index when switching options
   useEffect(() => {
-    setTempDocs(getIn(values, 'ingest.docs'));
-  }, [getIn(values, 'ingest.docs')]);
+    if (props.selectedOption !== SOURCE_OPTIONS.EXISTING_INDEX) {
+      setSelectedIndex(undefined);
+    }
+  }, [props.selectedOption]);
 
   function onClose() {
     props.setIsModalOpen(false);
@@ -70,6 +101,34 @@ export function SourceDataModal(props: SourceDataProps) {
   function onUpdate() {
     // 1. Update the form with the temp docs
     setFieldValue('ingest.docs', tempDocs);
+
+    // 2. Update several form values if an index is selected (and if vector search)
+    if (selectedIndex !== undefined) {
+      if (isVectorSearchUseCase(props.workflow)) {
+        dispatch(getMappings({ index: selectedIndex, dataSourceId }))
+          .unwrap()
+          .then((resp: IndexMappings) => {
+            const { processorId, inputMapEntry } = getProcessorInfo(
+              props.uiConfig,
+              values
+            );
+            if (processorId !== undefined && inputMapEntry !== undefined) {
+              // set/overwrite default text field for the input map. may be empty.
+              if (inputMapEntry !== undefined) {
+                const textFieldFormPath = `ingest.enrich.${processorId}.input_map.0.0.value`;
+                const curTextField = getIn(values, textFieldFormPath) as string;
+                if (!Object.keys(resp.properties).includes(curTextField)) {
+                  const defaultTextField =
+                    Object.keys(resp.properties).find((fieldName) => {
+                      return resp.properties[fieldName]?.type === 'text';
+                    }) || '';
+                  setFieldValue(textFieldFormPath, defaultTextField);
+                }
+              }
+            }
+          });
+      }
+    }
 
     props.setIsModalOpen(false);
   }
@@ -83,10 +142,39 @@ export function SourceDataModal(props: SourceDataProps) {
       validate={(values) => {}}
     >
       {(formikProps) => {
-        // internal hook to loop back and update tempDocs when form changes are detected
+        // override to parent form value when changes detected
         useEffect(() => {
+          formikProps.setFieldValue('docs', getIn(values, 'ingest.docs'));
+        }, [getIn(values, 'ingest.docs')]);
+
+        // update tempDocs when form changes are detected
+        useEffect(() => {
+          console.log('setting temp docs from internal form...');
           setTempDocs(getIn(formikProps.values, 'docs'));
         }, [getIn(formikProps.values, 'docs')]);
+
+        // fetch sample documents if an existing index is chosen
+        useEffect(() => {
+          if (selectedIndex !== undefined) {
+            dispatch(
+              searchIndex({
+                apiBody: {
+                  index: selectedIndex,
+                  body: FETCH_ALL_QUERY,
+                  searchPipeline: '_none',
+                },
+                dataSourceId,
+              })
+            )
+              .unwrap()
+              .then((resp) => {
+                const docObjs = resp.hits?.hits
+                  ?.slice(0, 5)
+                  ?.map((hit: SearchHit) => hit?._source);
+                formikProps.setFieldValue('docs', customStringify(docObjs));
+              });
+          }
+        }, [selectedIndex]);
 
         return (
           <EuiModal onClose={() => onClose()} style={{ width: '70vw' }}>
@@ -179,9 +267,9 @@ export function SourceDataModal(props: SourceDataProps) {
                             disabled: false,
                           } as EuiSuperSelectOption<string>)
                       )}
-                      valueOfSelected={props.selectedIndex}
+                      valueOfSelected={selectedIndex}
                       onChange={(option) => {
-                        props.setSelectedIndex(option);
+                        setSelectedIndex(option);
                       }}
                       isInvalid={false}
                     />

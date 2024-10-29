@@ -15,20 +15,14 @@ import {
   EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import {
-  FETCH_ALL_QUERY,
-  IndexMappings,
   MapEntry,
   SOURCE_OPTIONS,
-  SearchHit,
   Workflow,
   WorkflowConfig,
   WorkflowFormValues,
-  customStringify,
   isVectorSearchUseCase,
   toFormattedDate,
 } from '../../../../../common';
-import { getMappings, searchIndex, useAppDispatch } from '../../../../store';
-import { getDataSourceId } from '../../../../utils';
 import { SourceDataModal } from './source_data_modal';
 
 interface SourceDataProps {
@@ -42,8 +36,6 @@ interface SourceDataProps {
  * Input component for configuring the source data for ingest.
  */
 export function SourceData(props: SourceDataProps) {
-  const dispatch = useAppDispatch();
-  const dataSourceId = getDataSourceId();
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
 
   // empty/populated docs state
@@ -60,66 +52,6 @@ export function SourceData(props: SourceDataProps) {
 
   // edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-
-  // selected index state. when an index is selected, update several form values (if vector search)
-  const [selectedIndex, setSelectedIndex] = useState<string | undefined>(
-    undefined
-  );
-  useEffect(() => {
-    if (selectedIndex !== undefined) {
-      // 1. fetch and set sample docs
-      dispatch(
-        searchIndex({
-          apiBody: {
-            index: selectedIndex,
-            body: FETCH_ALL_QUERY,
-            searchPipeline: '_none',
-          },
-          dataSourceId,
-        })
-      )
-        .unwrap()
-        .then((resp) => {
-          const docObjs = resp.hits?.hits
-            ?.slice(0, 5)
-            ?.map((hit: SearchHit) => hit?._source);
-          setFieldValue('ingest.docs', customStringify(docObjs));
-        });
-
-      // 2. fetch index mappings, and try to set defaults for the ML processor configs, if applicable
-      if (isVectorSearchUseCase(props.workflow)) {
-        dispatch(getMappings({ index: selectedIndex, dataSourceId }))
-          .unwrap()
-          .then((resp: IndexMappings) => {
-            const { processorId, inputMapEntry } = getProcessorInfo(
-              props.uiConfig,
-              values
-            );
-            if (processorId !== undefined && inputMapEntry !== undefined) {
-              // set/overwrite default text field for the input map. may be empty.
-              if (inputMapEntry !== undefined) {
-                const textFieldFormPath = `ingest.enrich.${processorId}.input_map.0.0.value`;
-                const curTextField = getIn(values, textFieldFormPath) as string;
-                if (!Object.keys(resp.properties).includes(curTextField)) {
-                  const defaultTextField =
-                    Object.keys(resp.properties).find((fieldName) => {
-                      return resp.properties[fieldName]?.type === 'text';
-                    }) || '';
-                  setFieldValue(textFieldFormPath, defaultTextField);
-                }
-              }
-            }
-          });
-      }
-    }
-  }, [selectedIndex]);
-
-  // hook to clear out the selected index when switching options
-  useEffect(() => {
-    if (selectedOption !== SOURCE_OPTIONS.EXISTING_INDEX) {
-      setSelectedIndex(undefined);
-    }
-  }, [selectedOption]);
 
   // hook to listen when the docs form value changes.
   useEffect(() => {
@@ -159,10 +91,10 @@ export function SourceData(props: SourceDataProps) {
     <>
       {isEditModalOpen && (
         <SourceDataModal
+          workflow={props.workflow}
+          uiConfig={props.uiConfig}
           selectedOption={selectedOption}
           setSelectedOption={setSelectedOption}
-          selectedIndex={selectedIndex}
-          setSelectedIndex={setSelectedIndex}
           setIsModalOpen={setIsEditModalOpen}
         />
       )}
@@ -234,7 +166,7 @@ export function SourceData(props: SourceDataProps) {
 // helper fn to parse out some useful info from the ML ingest processor config, if applicable
 // takes on the assumption the first processor is an ML inference processor, and should
 // only be executed for workflows coming from preset vector search use cases.
-function getProcessorInfo(
+export function getProcessorInfo(
   uiConfig: WorkflowConfig,
   values: WorkflowFormValues
 ): {
