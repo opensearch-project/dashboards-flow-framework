@@ -300,7 +300,7 @@ export function SourceDataModal(props: SourceDataProps) {
                 onClick={() => onClose()}
                 fill={false}
                 color="primary"
-                data-testid="cancelSourceDataButton"
+                data-testid="closeSourceDataButton"
               >
                 Cancel
               </EuiSmallButton>
