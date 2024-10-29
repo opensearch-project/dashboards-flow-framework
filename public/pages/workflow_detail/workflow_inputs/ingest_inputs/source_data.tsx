@@ -4,32 +4,21 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import {
   EuiSmallButton,
-  EuiCompressedFilePicker,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiModal,
-  EuiModalBody,
-  EuiModalFooter,
-  EuiModalHeader,
-  EuiModalHeaderTitle,
   EuiSpacer,
   EuiText,
-  EuiFilterGroup,
-  EuiSmallFilterButton,
-  EuiSuperSelectOption,
-  EuiCompressedSuperSelect,
   EuiCodeBlock,
   EuiSmallButtonEmpty,
 } from '@elastic/eui';
-import { JsonField } from '../input_fields';
 import {
   FETCH_ALL_QUERY,
   IndexMappings,
   MapEntry,
+  SOURCE_OPTIONS,
   SearchHit,
   Workflow,
   WorkflowConfig,
@@ -38,25 +27,15 @@ import {
   isVectorSearchUseCase,
   toFormattedDate,
 } from '../../../../../common';
-import {
-  AppState,
-  getMappings,
-  searchIndex,
-  useAppDispatch,
-} from '../../../../store';
+import { getMappings, searchIndex, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
+import { SourceDataModal } from './source_data_modal';
 
 interface SourceDataProps {
   workflow: Workflow | undefined;
   uiConfig: WorkflowConfig;
   setIngestDocs: (docs: string) => void;
   lastIngested: number | undefined;
-}
-
-enum SOURCE_OPTIONS {
-  MANUAL = 'manual',
-  UPLOAD = 'upload',
-  EXISTING_INDEX = 'existing_index',
 }
 
 /**
@@ -66,7 +45,6 @@ export function SourceData(props: SourceDataProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values, setFieldValue } = useFormikContext<WorkspaceFormValues>();
-  const indices = useSelector((state: AppState) => state.opensearch.indices);
 
   // empty/populated docs state
   let docs = [];
@@ -82,14 +60,6 @@ export function SourceData(props: SourceDataProps) {
 
   // edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-
-  // files state. when a file is read, update the form value.
-  const fileReader = new FileReader();
-  fileReader.onload = (e) => {
-    if (e.target) {
-      setFieldValue('ingest.docs', e.target.result);
-    }
-  };
 
   // selected index state. when an index is selected, update several form values (if vector search)
   const [selectedIndex, setSelectedIndex] = useState<string | undefined>(
@@ -188,110 +158,13 @@ export function SourceData(props: SourceDataProps) {
   return (
     <>
       {isEditModalOpen && (
-        <EuiModal
-          onClose={() => setIsEditModalOpen(false)}
-          style={{ width: '70vw' }}
-        >
-          <EuiModalHeader>
-            <EuiModalHeaderTitle>
-              <p>{`Import data`}</p>
-            </EuiModalHeaderTitle>
-          </EuiModalHeader>
-          <EuiModalBody>
-            <>
-              <EuiFilterGroup>
-                <EuiSmallFilterButton
-                  id={SOURCE_OPTIONS.MANUAL}
-                  hasActiveFilters={selectedOption === SOURCE_OPTIONS.MANUAL}
-                  onClick={() => setSelectedOption(SOURCE_OPTIONS.MANUAL)}
-                  data-testid="manualEditSourceDataButton"
-                >
-                  Manual
-                </EuiSmallFilterButton>
-                <EuiSmallFilterButton
-                  id={SOURCE_OPTIONS.UPLOAD}
-                  hasActiveFilters={selectedOption === SOURCE_OPTIONS.UPLOAD}
-                  onClick={() => setSelectedOption(SOURCE_OPTIONS.UPLOAD)}
-                  data-testid="uploadSourceDataButton"
-                >
-                  Upload
-                </EuiSmallFilterButton>
-                <EuiSmallFilterButton
-                  id={SOURCE_OPTIONS.EXISTING_INDEX}
-                  hasActiveFilters={
-                    selectedOption === SOURCE_OPTIONS.EXISTING_INDEX
-                  }
-                  onClick={() =>
-                    setSelectedOption(SOURCE_OPTIONS.EXISTING_INDEX)
-                  }
-                  data-testid="selectIndexSourceDataButton"
-                >
-                  Existing index
-                </EuiSmallFilterButton>
-              </EuiFilterGroup>
-              <EuiSpacer size="m" />
-              {selectedOption === SOURCE_OPTIONS.UPLOAD && (
-                <>
-                  <EuiCompressedFilePicker
-                    accept="application/json"
-                    multiple={false}
-                    initialPromptText="Upload file"
-                    onChange={(files) => {
-                      if (files && files.length > 0) {
-                        fileReader.readAsText(files[0]);
-                      }
-                    }}
-                    display="default"
-                  />
-                  <EuiSpacer size="s" />
-                </>
-              )}
-              {selectedOption === SOURCE_OPTIONS.EXISTING_INDEX && (
-                <>
-                  <EuiText color="subdued" size="s">
-                    Up to 5 sample documents will be automatically populated.
-                  </EuiText>
-                  <EuiSpacer size="s" />
-                  <EuiCompressedSuperSelect
-                    options={Object.values(indices).map(
-                      (option) =>
-                        ({
-                          value: option.name,
-                          inputDisplay: (
-                            <EuiText size="s">{option.name}</EuiText>
-                          ),
-                          disabled: false,
-                        } as EuiSuperSelectOption<string>)
-                    )}
-                    valueOfSelected={selectedIndex}
-                    onChange={(option) => {
-                      setSelectedIndex(option);
-                    }}
-                    isInvalid={false}
-                  />
-                  <EuiSpacer size="xs" />
-                </>
-              )}
-              <JsonField
-                label="Documents to be imported"
-                fieldPath={'ingest.docs'}
-                helpText="Documents should be formatted as a valid JSON array."
-                editorHeight="25vh"
-                readOnly={false}
-              />
-            </>
-          </EuiModalBody>
-          <EuiModalFooter>
-            <EuiSmallButton
-              onClick={() => setIsEditModalOpen(false)}
-              fill={false}
-              color="primary"
-              data-testid="closeSourceDataButton"
-            >
-              Close
-            </EuiSmallButton>
-          </EuiModalFooter>
-        </EuiModal>
+        <SourceDataModal
+          selectedOption={selectedOption}
+          setSelectedOption={setSelectedOption}
+          selectedIndex={selectedIndex}
+          setSelectedIndex={setSelectedIndex}
+          setIsModalOpen={setIsEditModalOpen}
+        />
       )}
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
