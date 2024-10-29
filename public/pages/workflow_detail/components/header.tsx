@@ -85,7 +85,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
     // @ts-ignore
     props.workflow?.lastUpdated
   ).toString();
-  // const [workflowLastUpdated, setWorkflowLastUpdated] = useState<string>('');
 
   // export modal state
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
