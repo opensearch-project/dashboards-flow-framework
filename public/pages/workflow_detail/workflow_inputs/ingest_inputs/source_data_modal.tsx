@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Formik, getIn, useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import * as yup from 'yup';
 import {
   EuiSmallButton,
@@ -58,7 +59,8 @@ interface SourceDataProps {
 }
 
 /**
- * Modal for configuring the source data for ingest.
+ * Modal for configuring the source data for ingest. Maintains standalone form state, and only updates
+ * parent form if the user explicitly clicks "Update", and there are no validation errors.
  */
 export function SourceDataModal(props: SourceDataProps) {
   const dispatch = useAppDispatch();
@@ -78,9 +80,10 @@ export function SourceDataModal(props: SourceDataProps) {
 
   // persist standalone values. update / initialize when it is first opened
   const [tempDocs, setTempDocs] = useState<string>('[]');
-  //   useEffect(() => {
-  //     setTempDocs(getIn(values, 'ingest.docs'));
-  //   }, [getIn(values, 'ingest.docs')]);
+  const [tempErrors, setTempErrors] = useState<boolean>(false);
+
+  // button updating state
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
   // selected index state
   const [selectedIndex, setSelectedIndex] = useState<string | undefined>(
@@ -99,6 +102,7 @@ export function SourceDataModal(props: SourceDataProps) {
   }
 
   function onUpdate() {
+    setIsUpdating(true);
     // 1. Update the form with the temp docs
     setFieldValue('ingest.docs', tempDocs);
 
@@ -123,13 +127,15 @@ export function SourceDataModal(props: SourceDataProps) {
                       return resp.properties[fieldName]?.type === 'text';
                     }) || '';
                   setFieldValue(textFieldFormPath, defaultTextField);
+                  setIsUpdating(false);
                 }
               }
             }
           });
       }
+    } else {
+      setIsUpdating(false);
     }
-
     props.setIsModalOpen(false);
   }
 
@@ -149,11 +155,10 @@ export function SourceDataModal(props: SourceDataProps) {
 
         // update tempDocs when form changes are detected
         useEffect(() => {
-          console.log('setting temp docs from internal form...');
           setTempDocs(getIn(formikProps.values, 'docs'));
         }, [getIn(formikProps.values, 'docs')]);
 
-        // fetch sample documents if an existing index is chosen
+        // fetch & populate sample documents if an existing index is chosen
         useEffect(() => {
           if (selectedIndex !== undefined) {
             dispatch(
@@ -175,6 +180,11 @@ export function SourceDataModal(props: SourceDataProps) {
               });
           }
         }, [selectedIndex]);
+
+        // update tempErrors if errors detected
+        useEffect(() => {
+          setTempErrors(!isEmpty(formikProps.errors));
+        }, [formikProps.errors]);
 
         return (
           <EuiModal onClose={() => onClose()} style={{ width: '70vw' }}>
@@ -296,6 +306,8 @@ export function SourceDataModal(props: SourceDataProps) {
               </EuiSmallButton>
               <EuiSmallButton
                 onClick={() => onUpdate()}
+                isLoading={isUpdating}
+                isDisabled={tempErrors} // blocking update until valid input is given
                 fill={true}
                 color="primary"
                 data-testid="updateSourceDataButton"
