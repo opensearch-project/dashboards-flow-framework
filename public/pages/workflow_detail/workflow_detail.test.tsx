@@ -249,8 +249,7 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
       expect(getAllByText('PROCESSORS').length).toBeGreaterThan(0);
     });
 
-    // Save, Build and Run query, Back buttons
-    expect(getByTestId('saveSearchPipelineButton')).toBeInTheDocument();
+    // Build and Run query, Back buttons are present
     expect(getByTestId('runQueryButton')).toBeInTheDocument();
     const searchPipelineBackButton = getByTestId('searchPipelineBackButton');
     userEvent.click(searchPipelineBackButton);
