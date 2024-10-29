@@ -18,7 +18,7 @@ import {
 } from '@elastic/eui';
 import {
   MODEL_STATE,
-  WorkspaceFormValues,
+  WorkflowFormValues,
   ModelFormValue,
   IConfigField,
   ML_CHOOSE_MODEL_LINK,
@@ -46,7 +46,7 @@ export function ModelField(props: ModelFieldProps) {
   // keeps re-rendering this component (and subsequently re-fetching data) as they're building flows
   const models = useSelector((state: AppState) => state.ml.models);
 
-  const { errors, touched, values } = useFormikContext<WorkspaceFormValues>();
+  const { errors, touched, values } = useFormikContext<WorkflowFormValues>();
 
   // Deployed models state
   const [deployedModels, setDeployedModels] = useState<ModelItem[]>([]);

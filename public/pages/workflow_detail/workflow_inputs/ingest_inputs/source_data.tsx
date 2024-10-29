@@ -22,7 +22,7 @@ import {
   SearchHit,
   Workflow,
   WorkflowConfig,
-  WorkspaceFormValues,
+  WorkflowFormValues,
   customStringify,
   isVectorSearchUseCase,
   toFormattedDate,
@@ -44,7 +44,7 @@ interface SourceDataProps {
 export function SourceData(props: SourceDataProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const { values, setFieldValue } = useFormikContext<WorkspaceFormValues>();
+  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
 
   // empty/populated docs state
   let docs = [];
@@ -236,7 +236,7 @@ export function SourceData(props: SourceDataProps) {
 // only be executed for workflows coming from preset vector search use cases.
 function getProcessorInfo(
   uiConfig: WorkflowConfig,
-  values: WorkspaceFormValues
+  values: WorkflowFormValues
 ): {
   processorId: string | undefined;
   inputMapEntry: MapEntry | undefined;

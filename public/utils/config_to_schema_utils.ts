@@ -103,7 +103,7 @@ function processorsConfigToSchema(processorsConfig: ProcessorsConfig): Schema {
  **************** Yup (validation) utils **********************
  */
 
-function getFieldSchema(
+export function getFieldSchema(
   field: IConfigField,
   optional: boolean = false
 ): Schema {
