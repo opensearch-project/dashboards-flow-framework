@@ -3,11 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { escape } from 'lodash';
+import { Formik } from 'formik';
+import * as yup from 'yup';
 import {
   EuiSmallButton,
   EuiEmptyPrompt,
@@ -16,7 +18,13 @@ import {
   EuiPage,
   EuiPageBody,
 } from '@elastic/eui';
-import { APP_PATH, BREADCRUMBS, SHOW_ACTIONS_IN_HEADER } from '../../utils';
+import {
+  APP_PATH,
+  BREADCRUMBS,
+  SHOW_ACTIONS_IN_HEADER,
+  uiConfigToFormik,
+  uiConfigToSchema,
+} from '../../utils';
 import { getCore } from '../../services';
 import { WorkflowDetailHeader } from './components';
 import {
@@ -29,25 +37,27 @@ import {
 } from '../../store';
 import { ResizableWorkspace } from './resizable_workspace';
 import {
+  CONFIG_STEP,
   ERROR_GETTING_WORKFLOW_MSG,
   FETCH_ALL_QUERY,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
   NO_TEMPLATES_FOUND_MSG,
   OMIT_SYSTEM_INDEX_PATTERN,
+  WorkflowConfig,
+  WorkflowFormValues,
+  WorkflowSchema,
   getCharacterLimitedString,
 } from '../../../common';
 import { MountPoint } from '../../../../../src/core/public';
-
-// styling
-import './workflow-detail-styles.scss';
-import '../../global-styles.scss';
-
 import {
   constructHrefWithDataSourceId,
   getDataSourceId,
 } from '../../utils/utils';
-
 import { getDataSourceEnabled } from '../../services';
+
+// styling
+import './workflow-detail-styles.scss';
+import '../../global-styles.scss';
 
 export interface WorkflowDetailRouterProps {
   workflowId: string;
@@ -66,6 +76,19 @@ interface WorkflowDetailProps
 
 export function WorkflowDetail(props: WorkflowDetailProps) {
   const dispatch = useAppDispatch();
+
+  // On initial load:
+  // - fetch workflow
+  // - fetch available models & connectors as their IDs may be used when building flows
+  // - fetch all indices
+  useEffect(() => {
+    dispatch(getWorkflow({ workflowId, dataSourceId }));
+    dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
+    dispatch(searchConnectors({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
+    dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
+  }, []);
+
+  // data-source-related states
   const dataSourceEnabled = getDataSourceEnabled().enabled;
   const dataSourceId = getDataSourceId();
   const { workflows, errorMessage } = useSelector(
@@ -80,6 +103,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     MAX_WORKFLOW_NAME_TO_DISPLAY
   );
 
+  // setting breadcrumbs based on data source enabled
   const {
     chrome: { setBreadcrumbs },
   } = getCore();
@@ -101,16 +125,49 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     );
   }, [SHOW_ACTIONS_IN_HEADER, dataSourceEnabled, dataSourceId, workflowName]);
 
-  // On initial load:
-  // - fetch workflow
-  // - fetch available models & connectors as their IDs may be used when building flows
-  // - fetch all indices
+  // form state
+  const [formValues, setFormValues] = useState<WorkflowFormValues>({});
+  const [formSchema, setFormSchema] = useState<WorkflowSchema>(yup.object({}));
+
+  // ingest docs state. we need to persist here to update the form values.
+  const [ingestDocs, setIngestDocs] = useState<string>('');
+
+  // Temp UI config state. For persisting changes to the UI config that may
+  // not be saved in the backend (e.g., adding / removing an ingest processor)
+  const [uiConfig, setUiConfig] = useState<WorkflowConfig | undefined>(
+    undefined
+  );
+
+  // various form-related states. persisted here to pass down to the child's form and header components, particularly
+  // to have consistency on the button states (enabled/disabled)
+  const [isRunningIngest, setIsRunningIngest] = useState<boolean>(false);
+  const [isRunningSearch, setIsRunningSearch] = useState<boolean>(false);
+  const [selectedStep, setSelectedStep] = useState<CONFIG_STEP>(
+    CONFIG_STEP.INGEST
+  );
+  const [unsavedIngestProcessors, setUnsavedIngestProcessors] = useState<
+    boolean
+  >(false);
+  const [unsavedSearchProcessors, setUnsavedSearchProcessors] = useState<
+    boolean
+  >(false);
+
+  // Initialize the UI config based on the workflow's config, if applicable.
   useEffect(() => {
-    dispatch(getWorkflow({ workflowId, dataSourceId }));
-    dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
-    dispatch(searchConnectors({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
-    dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
-  }, []);
+    if (workflow?.ui_metadata?.config) {
+      setUiConfig(workflow.ui_metadata.config);
+    }
+  }, [workflow]);
+
+  // Initialize the form state based on the current UI config, if applicable
+  useEffect(() => {
+    if (uiConfig) {
+      const initFormValues = uiConfigToFormik(uiConfig, ingestDocs);
+      const initFormSchema = uiConfigToSchema(uiConfig);
+      setFormValues(initFormValues);
+      setFormSchema(initFormSchema);
+    }
+  }, [uiConfig]);
 
   return errorMessage.includes(ERROR_GETTING_WORKFLOW_MSG) ||
     errorMessage.includes(NO_TEMPLATES_FOUND_MSG) ? (
@@ -133,18 +190,47 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
       </EuiFlexItem>
     </EuiFlexGroup>
   ) : (
-    <ReactFlowProvider>
-      <EuiPage>
-        <EuiPageBody className="workflow-detail stretch-relative">
-          <WorkflowDetailHeader
-            workflow={workflow}
-            setActionMenu={props.setActionMenu}
-          />
-          <ReactFlowProvider>
-            <ResizableWorkspace workflow={workflow} />
-          </ReactFlowProvider>
-        </EuiPageBody>
-      </EuiPage>
-    </ReactFlowProvider>
+    <Formik
+      enableReinitialize={true}
+      initialValues={formValues}
+      validationSchema={formSchema}
+      onSubmit={(values) => {}}
+      validate={(values) => {}}
+    >
+      <ReactFlowProvider>
+        <EuiPage>
+          <EuiPageBody className="workflow-detail stretch-relative">
+            <WorkflowDetailHeader
+              workflow={workflow}
+              uiConfig={uiConfig}
+              setUiConfig={setUiConfig}
+              isRunningIngest={isRunningIngest}
+              isRunningSearch={isRunningSearch}
+              selectedStep={selectedStep}
+              unsavedIngestProcessors={unsavedIngestProcessors}
+              setUnsavedIngestProcessors={setUnsavedIngestProcessors}
+              unsavedSearchProcessors={unsavedSearchProcessors}
+              setUnsavedSearchProcessors={setUnsavedSearchProcessors}
+              setActionMenu={props.setActionMenu}
+            />
+            <ResizableWorkspace
+              workflow={workflow}
+              uiConfig={uiConfig}
+              setUiConfig={setUiConfig}
+              ingestDocs={ingestDocs}
+              setIngestDocs={setIngestDocs}
+              isRunningIngest={isRunningIngest}
+              setIsRunningIngest={setIsRunningIngest}
+              isRunningSearch={isRunningSearch}
+              setIsRunningSearch={setIsRunningSearch}
+              selectedStep={selectedStep}
+              setSelectedStep={setSelectedStep}
+              setUnsavedIngestProcessors={setUnsavedIngestProcessors}
+              setUnsavedSearchProcessors={setUnsavedSearchProcessors}
+            />
+          </EuiPageBody>
+        </EuiPage>
+      </ReactFlowProvider>
+    </Formik>
   );
 }
