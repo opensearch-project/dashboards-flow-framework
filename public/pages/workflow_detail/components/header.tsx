@@ -48,7 +48,6 @@ import { DataSourceViewConfig } from '../../../../../../src/plugins/data_source_
 import { HeaderVariant } from '../../../../../../src/core/public';
 import {
   TopNavControlTextData,
-  TopNavMenuData,
   TopNavMenuIconData,
 } from '../../../../../../src/plugins/navigation/public';
 import { MountPoint } from '../../../../../../src/core/public';
@@ -78,7 +77,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
   >();
 
   // workflow state
-  //const [workflowName, setWorkflowName] = useState<string>('');
   const workflowName = getCharacterLimitedString(
     props.workflow?.name,
     MAX_WORKFLOW_NAME_TO_DISPLAY
