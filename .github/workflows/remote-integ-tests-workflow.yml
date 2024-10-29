@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest ]
-        jdk: [ 21 ]
+        jdk: [ 11 ]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -28,7 +28,7 @@ jobs:
         with:
           path: flow-framework
           repository: opensearch-project/flow-framework
-          ref: '${{ github.base_ref }}'
+          ref: ${{ env.OPENSEARCH_DASHBOARDS_VERSION }}
 
       - name: Run OpenSearch with plugin
         run: |
@@ -36,12 +36,12 @@ jobs:
           ./gradlew run &
           timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:9200)" != "200" ]]; do sleep 5; done'
         shell: bash
-    
+
       - name: Check OpenSearch Running on Linux
         if: ${{ runner.os != 'Windows'}}
         run: curl http://localhost:9200/
         shell: bash
-      
+
       - name: Checkout OpenSearch Dashboards
         uses: actions/checkout@v2
         with:
@@ -70,44 +70,55 @@ jobs:
           node-version: ${{ steps.tool-versions.outputs.node_version }}
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Setup Opensearch Dashboards
+      - name: Install correct yarn version for OpenSearch Dashboards
+        id: setup-yarn
         run: |
           npm uninstall -g yarn
-          echo "Installing yarn ${{ steps.tool-versions.outputs.yarn_version }}"
-          npm i -g yarn@${{ steps.tool-versions.outputs.yarn_version }}
-          yarn cache clean
-          yarn add sha.js
-        working-directory: OpenSearch-Dashboards
-        shell: bash
+          echo "Installing yarn ${{ steps.versions_step.outputs.yarn_version }}"
+          npm i -g yarn@${{ steps.versions_step.outputs.yarn_version }}
 
-      - name: Bootstrap Opensearch Dashboards
+      - name: Yarn Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            OpenSearch-Dashboards/**/target
+            OpenSearch-Dashboards/**/node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('OpenSearch-Dashboards/**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-
+
+      - name: Bootstrap OpenSearch Dashboards
         run: |
+          cd OpenSearch-Dashboards
           yarn osd bootstrap --single-version=loose
-        working-directory: OpenSearch-Dashboards/plugins/dashboards-flow-framework
       
+      - name: Compile OpenSearch Dashboards
+        run: |
+          cd OpenSearch-Dashboards
+          node scripts/build_opensearch_dashboards_platform_plugins --no-examples --workers=10 --verbose
+
       - name: Run Opensearch Dashboards with FF Installed
         run: |
           nohup yarn start --no-base-path --no-watch --server.host="0.0.0.0" | tee dashboard.log &
-          sleep 60
         working-directory: OpenSearch-Dashboards
 
-      - name : Check If OpenSearch Dashboards Is Ready
+      - name: Check If OpenSearch Dashboards Is Ready
         if: ${{ runner.os == 'Linux' }}
         run: |
-          if timeout 600 grep -q "bundles compiled successfully after" <(tail -n0 -f dashboard.log); then
-            echo "OpenSearch Dashboards compiled successfully."
+          cd ./OpenSearch-Dashboards
+          if timeout 60 grep -q "http server running" <(tail -n +1 -f dashboard.log); then
+            echo "OpenSearch Dashboards started successfully."
           else
-            echo "Timeout for 600 seconds reached. OpenSearch Dashboards did not finish compiling."
+            echo "Timeout of 60 seconds reached. OpenSearch Dashboards did not start successfully."
             exit 1
-          fi
-        working-directory: OpenSearch-Dashboards
+          fi&
 
       - name: Show OpenSearch Dashboards Logs
         if: always()
         run: cat dashboard.log
         working-directory: OpenSearch-Dashboards
-      
-      - name: Health check 
+
+      - name: Health check
         run: |
           timeout 600 bash -c 'while [[ "$(curl -k http://localhost:5601/api/status | jq -r '.status.overall.state')" != "green" ]]; do sleep 5; done'
         shell: bash
@@ -165,4 +176,3 @@ jobs:
         with:
           name: cypress-videos-${{ matrix.os }}
           path: opensearch-dashboards-functional-test/cypress/videos
-          
