@@ -114,8 +114,13 @@ export type WorkflowSchema = ObjectSchema<WorkflowSchemaObj>;
 export type IngestDocsFormValues = {
   docs: FormikValues;
 };
-export type IngestDocsSchemaObj = WorkflowSchemaObj;
 export type IngestDocsSchema = WorkflowSchema;
+
+// Form / schema interfaces for the request query sub-form
+export type RequestFormValues = {
+  request: ConfigFieldValue;
+};
+export type RequestSchema = WorkflowSchema;
 
 /**
  ********** WORKSPACE TYPES/INTERFACES **********
