@@ -42,7 +42,6 @@ export class FlowFrameworkDashboardsPlugin
     core: CoreSetup,
     plugins: any
   ): FlowFrameworkDashboardsPluginSetup {
-    const hideInAppSideNavBar = core.chrome.navGroup.getNavGroupEnabled();
     // Register the plugin in the side navigation
     core.application.register({
       id: PLUGIN_ID,
@@ -62,7 +61,7 @@ export class FlowFrameworkDashboardsPlugin
         setCore(coreStart);
         setHeaderActionMenu(params.setHeaderActionMenu);
         setRouteService(routeServices);
-        return renderApp(coreStart, params, hideInAppSideNavBar);
+        return renderApp(coreStart, params);
       },
     });
     core.chrome.navGroup.addNavLinksToGroup(DEFAULT_NAV_GROUPS.search, [
