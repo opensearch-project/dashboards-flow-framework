@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import { get, isEmpty } from 'lodash';
 import { EuiComboBox, EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
-import { WorkspaceFormValues } from '../../../../../common';
+import { WorkflowFormValues } from '../../../../../common';
 
 interface SelectWithCustomOptionsProps {
   fieldPath: string;
@@ -20,7 +20,7 @@ interface SelectWithCustomOptionsProps {
  */
 export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
   const { values, setFieldTouched, setFieldValue } = useFormikContext<
-    WorkspaceFormValues
+    WorkflowFormValues
   >();
 
   // selected option state
