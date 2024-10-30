@@ -11,7 +11,7 @@ import {
   EuiLink,
   EuiText,
 } from '@elastic/eui';
-import { WorkspaceFormValues, customStringify } from '../../../../../common';
+import { WorkflowFormValues, customStringify } from '../../../../../common';
 import { camelCaseToTitleString } from '../../../../utils';
 
 interface JsonFieldProps {
@@ -31,7 +31,7 @@ interface JsonFieldProps {
 export function JsonField(props: JsonFieldProps) {
   const validate = props.validate !== undefined ? props.validate : true;
 
-  const { errors, touched, values } = useFormikContext<WorkspaceFormValues>();
+  const { errors, touched, values } = useFormikContext<WorkflowFormValues>();
 
   // temp input state. only format when users click out of the code editor
   const [jsonStr, setJsonStr] = useState<string>('{}');

@@ -11,7 +11,7 @@ import {
   EuiSuperSelectOption,
   EuiText,
 } from '@elastic/eui';
-import { WorkspaceFormValues, IConfigField } from '../../../../../common';
+import { WorkflowFormValues, IConfigField } from '../../../../../common';
 import { camelCaseToTitleString } from '../../../../utils';
 
 interface SelectFieldProps {
@@ -24,7 +24,7 @@ interface SelectFieldProps {
  * A generic select field from a list of preconfigured options
  */
 export function SelectField(props: SelectFieldProps) {
-  const { errors, touched } = useFormikContext<WorkspaceFormValues>();
+  const { errors, touched } = useFormikContext<WorkflowFormValues>();
 
   return (
     <Field name={props.fieldPath}>

@@ -67,9 +67,6 @@ export type IndexConfig = {
   settings: IConfigField;
 };
 
-// TODO: may expand to just IndexConfig (including mappings/settings info)
-// if we want to persist this for users using some existing index,
-// and want to pass that index config around.
 export type SearchIndexConfig = {
   name: IConfigField;
 };
@@ -112,6 +109,13 @@ export type WorkflowSchemaObj = {
   [key: string]: ObjectSchema<any, any, any>;
 };
 export type WorkflowSchema = ObjectSchema<WorkflowSchemaObj>;
+
+// Form / schema interfaces for the ingest docs sub-form
+export type IngestDocsFormValues = {
+  docs: FormikValues;
+};
+export type IngestDocsSchemaObj = WorkflowSchemaObj;
+export type IngestDocsSchema = WorkflowSchema;
 
 /**
  ********** WORKSPACE TYPES/INTERFACES **********

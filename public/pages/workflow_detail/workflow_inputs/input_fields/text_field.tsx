@@ -11,7 +11,7 @@ import {
   EuiLink,
   EuiText,
 } from '@elastic/eui';
-import { WorkspaceFormValues } from '../../../../../common';
+import { WorkflowFormValues } from '../../../../../common';
 import { getInitialValue } from '../../../../utils';
 
 interface TextFieldProps {
@@ -28,7 +28,7 @@ interface TextFieldProps {
  * An input field for a component where users input plaintext
  */
 export function TextField(props: TextFieldProps) {
-  const { errors, touched } = useFormikContext<WorkspaceFormValues>();
+  const { errors, touched } = useFormikContext<WorkflowFormValues>();
   return (
     <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
