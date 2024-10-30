@@ -50,7 +50,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
   }) as RequestSchema;
 
   // persist standalone values. update / initialize when it is first opened
-  const [tempRequest, setTempRequest] = useState<string>('[]');
+  const [tempRequest, setTempRequest] = useState<string>('{}');
   const [tempErrors, setTempErrors] = useState<boolean>(false);
 
   // Form state
