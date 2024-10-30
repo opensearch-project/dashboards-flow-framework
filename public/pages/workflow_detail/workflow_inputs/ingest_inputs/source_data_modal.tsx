@@ -30,6 +30,7 @@ import {
   IConfigField,
   IndexMappings,
   IngestDocsFormValues,
+  IngestDocsSchema,
   isVectorSearchUseCase,
   SearchHit,
   SOURCE_OPTIONS,
@@ -76,7 +77,7 @@ export function SourceDataModal(props: SourceDataProps) {
     docs: getFieldSchema({
       type: 'jsonArray',
     } as IConfigField),
-  });
+  }) as IngestDocsSchema;
 
   // persist standalone values. update / initialize when it is first opened
   const [tempDocs, setTempDocs] = useState<string>('[]');

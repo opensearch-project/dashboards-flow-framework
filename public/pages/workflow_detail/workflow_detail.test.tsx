@@ -229,9 +229,9 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
     });
     const searchQueryPresetButton = getByTestId('searchQueryPresetButton');
     expect(searchQueryPresetButton).toBeInTheDocument();
-    const searchQueryCloseButton = getByTestId('searchQueryCloseButton');
-    expect(searchQueryCloseButton).toBeInTheDocument();
-    userEvent.click(searchQueryCloseButton);
+    const updateSearchQueryButton = getByTestId('updateSearchQueryButton');
+    expect(updateSearchQueryButton).toBeInTheDocument();
+    userEvent.click(updateSearchQueryButton);
 
     // Add request processor
     const addRequestProcessorButton = await waitFor(
