@@ -74,7 +74,6 @@ interface InputTransformModalProps {
   config: IProcessorConfig;
   baseConfigPath: string;
   context: PROCESSOR_CONTEXT;
-  inputMapField: IConfigField;
   inputMapFieldPath: string;
   modelInterface: ModelInterface | undefined;
   valueOptions: { label: string }[];
@@ -90,7 +89,9 @@ const MAX_INPUT_DOCS = 10;
 export function InputTransformModal(props: InputTransformModalProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const { values } = useFormikContext<WorkflowFormValues>();
+  const { values, setFieldValue, setFieldTouched } = useFormikContext<
+    WorkflowFormValues
+  >();
 
   // sub-form values/schema
   const inputTransformFormValues = {
@@ -101,14 +102,18 @@ export function InputTransformModal(props: InputTransformModalProps) {
     input_map: getFieldSchema({
       type: 'mapArray',
     } as IConfigField),
-    one_to_one: getFieldSchema({
-      type: 'boolean',
-    } as IConfigField),
+    one_to_one: getFieldSchema(
+      {
+        type: 'boolean',
+      } as IConfigField,
+      true
+    ),
   }) as InputTransformSchema;
 
   // persist standalone values. update / initialize when it is first opened
-  // TODO: add more here
   const [tempErrors, setTempErrors] = useState<boolean>(false);
+  const [tempOneToOne, setTempOneToOne] = useState<boolean>(false);
+  const [tempInputMap, setTempInputMap] = useState<MapArrayFormValue>([]);
 
   // various prompt states
   const [viewPromptDetails, setViewPromptDetails] = useState<boolean>(false);
@@ -126,9 +131,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
   const [transformedInput, setTransformedInput] = useState<string>('{}');
 
   // get some current form values
-  const map = getIn(values, props.inputMapFieldPath) as MapArrayFormValue;
   const oneToOnePath = `${props.baseConfigPath}.${props.config.id}.one_to_one`;
-  const oneToOne = getIn(values, oneToOnePath);
   const docs = getIn(values, 'ingest.docs');
   let docObjs = [] as {}[] | undefined;
   try {
@@ -147,13 +150,13 @@ export function InputTransformModal(props: InputTransformModalProps) {
     isEmpty(queryObj);
 
   // selected transform state
-  const transformOptions = map.map((_, idx) => ({
+  const transformOptions = tempInputMap.map((_, idx) => ({
     value: idx,
     text: `Prediction ${idx + 1}`,
   })) as EuiSelectOption[];
   const [selectedTransformOption, setSelectedTransformOption] = useState<
-    number | undefined
-  >((transformOptions[0]?.value as number) ?? undefined);
+    number
+  >((transformOptions[0]?.value as number) ?? 0);
 
   // popover state containing the model interface details, if applicable
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
@@ -171,27 +174,23 @@ export function InputTransformModal(props: InputTransformModalProps) {
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
-    if (
-      !isEmpty(map) &&
-      !isEmpty(JSON.parse(sourceInput)) &&
-      selectedTransformOption !== undefined
-    ) {
+    if (!isEmpty(tempInputMap) && !isEmpty(JSON.parse(sourceInput))) {
       let sampleSourceInput = {} as {} | [];
       try {
         sampleSourceInput = JSON.parse(sourceInput);
         const output =
           // Edge case: users are collapsing input docs into a single input field when many-to-one is selected
           // fo input transforms on search response processors.
-          oneToOne === false &&
+          tempOneToOne === false &&
           props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE &&
           Array.isArray(sampleSourceInput)
             ? generateArrayTransform(
                 sampleSourceInput as [],
-                map[selectedTransformOption]
+                tempInputMap[selectedTransformOption]
               )
             : generateTransform(
                 sampleSourceInput,
-                map[selectedTransformOption]
+                tempInputMap[selectedTransformOption]
               );
 
         setTransformedInput(customStringify(output));
@@ -199,7 +198,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
     } else {
       setTransformedInput('{}');
     }
-  }, [map, sourceInput, selectedTransformOption]);
+  }, [tempInputMap, sourceInput, selectedTransformOption]);
 
   // hook to re-determine validity when the generated output changes
   // utilize Ajv JSON schema validator library. For more info/examples, see
@@ -254,7 +253,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
   // hook to clear the source input when one_to_one is toggled
   useEffect(() => {
     setSourceInput('{}');
-  }, [oneToOne]);
+  }, [tempOneToOne]);
 
   return (
     <Formik
@@ -265,18 +264,24 @@ export function InputTransformModal(props: InputTransformModalProps) {
       validate={(values) => {}}
     >
       {(formikProps) => {
-        // // override to parent form value when changes detected
-        // useEffect(() => {
-        //   formikProps.setFieldValue(
-        //     'request',
-        //     getIn(values, props.queryFieldPath)
-        //   );
-        // }, [getIn(values, props.queryFieldPath)]);
+        // override to parent form values when changes detected
+        useEffect(() => {
+          formikProps.setFieldValue(
+            'input_map',
+            getIn(values, props.inputMapFieldPath)
+          );
+        }, [getIn(values, props.inputMapFieldPath)]);
+        useEffect(() => {
+          formikProps.setFieldValue('one_to_one', getIn(values, oneToOnePath));
+        }, [getIn(values, oneToOnePath)]);
 
-        // // update tempRequest when form changes are detected
-        // useEffect(() => {
-        //   setTempRequest(getIn(formikProps.values, 'request'));
-        // }, [getIn(formikProps.values, 'request')]);
+        // update temp vars when form changes are detected
+        useEffect(() => {
+          setTempInputMap(getIn(formikProps.values, 'input_map'));
+        }, [getIn(formikProps.values, 'input_map')]);
+        useEffect(() => {
+          setTempOneToOne(getIn(formikProps.values, 'one_to_one'));
+        }, [getIn(formikProps.values, 'one_to_one')]);
 
         // update tempErrors if errors detected
         useEffect(() => {
@@ -314,13 +319,13 @@ export function InputTransformModal(props: InputTransformModalProps) {
                       <>
                         <BooleanField
                           label={'One-to-one'}
-                          fieldPath={oneToOnePath}
+                          fieldPath={'one_to_one'}
                           enabledOption={{
-                            id: `${oneToOnePath}_true`,
+                            id: `one_to_one_true`,
                             label: 'True',
                           }}
                           disabledOption={{
-                            id: `${oneToOnePath}_false`,
+                            id: `one_to_one_false`,
                             label: 'False',
                           }}
                           showLabel={true}
@@ -450,7 +455,9 @@ export function InputTransformModal(props: InputTransformModalProps) {
                                   setSourceInput(
                                     // if one-to-one, treat the source input as a single retrieved document
                                     // else, treat it as all of the returned documents
-                                    customStringify(oneToOne ? hits[0] : hits)
+                                    customStringify(
+                                      tempOneToOne ? hits[0] : hits
+                                    )
                                   );
                                 }
                               })
@@ -494,8 +501,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                     <EuiText size="s">Define transform</EuiText>
                     <EuiSpacer size="s" />
                     <MapArrayField
-                      field={props.inputMapField}
-                      fieldPath={props.inputMapFieldPath}
+                      fieldPath={'input_map'}
                       helpText={`An array specifying how to map fields from the ingested document to the model’s input. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
                       root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                       keyTitle="Name"
@@ -692,9 +698,6 @@ export function InputTransformModal(props: InputTransformModalProps) {
               </EuiFlexGroup>
             </EuiModalBody>
             <EuiModalFooter>
-              {/* <EuiSmallButton onClick={props.onClose} fill={false} color="primary">
-                Close
-              </EuiSmallButton> */}
               <EuiSmallButton
                 onClick={props.onClose}
                 fill={false}
@@ -705,11 +708,19 @@ export function InputTransformModal(props: InputTransformModalProps) {
               </EuiSmallButton>
               <EuiSmallButton
                 onClick={() => {
-                  // setFieldValue(props.queryFieldPath, tempRequest);
-                  // setFieldTouched(props.queryFieldPath, true);
-
-                  // TODO: add logic here
-
+                  // update the parent form values
+                  if (props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE) {
+                    setFieldValue(
+                      oneToOnePath,
+                      getIn(formikProps.values, 'one_to_one')
+                    );
+                    setFieldTouched(oneToOnePath, true);
+                  }
+                  setFieldValue(
+                    props.inputMapFieldPath,
+                    getIn(formikProps.values, 'input_map')
+                  );
+                  setFieldTouched(props.inputMapFieldPath, true);
                   props.onClose();
                 }}
                 isDisabled={tempErrors} // blocking update until valid input is given

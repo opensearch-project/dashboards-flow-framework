@@ -27,7 +27,6 @@ import {
   EuiCallOut,
 } from '@elastic/eui';
 import {
-  IConfigField,
   IProcessorConfig,
   IngestPipelineConfig,
   JSONPATH_ROOT_SELECTOR,
@@ -67,7 +66,6 @@ interface OutputTransformModalProps {
   config: IProcessorConfig;
   baseConfigPath: string;
   context: PROCESSOR_CONTEXT;
-  outputMapField: IConfigField;
   outputMapFieldPath: string;
   modelInterface: ModelInterface | undefined;
   onClose: () => void;
@@ -118,16 +116,12 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
     text: `Prediction ${idx + 1}`,
   })) as EuiSelectOption[];
   const [selectedTransformOption, setSelectedTransformOption] = useState<
-    number | undefined
-  >((transformOptions[0]?.value as number) ?? undefined);
+    number
+  >((transformOptions[0]?.value as number) ?? 0);
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
-    if (
-      !isEmpty(map) &&
-      !isEmpty(JSON.parse(sourceOutput)) &&
-      selectedTransformOption !== undefined
-    ) {
+    if (!isEmpty(map) && !isEmpty(JSON.parse(sourceOutput))) {
       let sampleSourceOutput = {};
       try {
         sampleSourceOutput = JSON.parse(sourceOutput);
@@ -386,7 +380,6 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
               <EuiText size="s">Define transform</EuiText>
               <EuiSpacer size="s" />
               <MapArrayField
-                field={props.outputMapField}
                 fieldPath={props.outputMapFieldPath}
                 helpText={`An array specifying how to map the model’s output to new fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
                 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
