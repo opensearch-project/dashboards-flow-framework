@@ -11,7 +11,7 @@ import {
   EuiText,
   EuiCompressedFieldNumber,
 } from '@elastic/eui';
-import { WorkspaceFormValues } from '../../../../../common';
+import { WorkflowFormValues } from '../../../../../common';
 import { camelCaseToTitleString, getInitialValue } from '../../../../utils';
 
 interface NumberFieldProps {
@@ -27,7 +27,7 @@ interface NumberFieldProps {
  * An input field for a component where users input numbers
  */
 export function NumberField(props: NumberFieldProps) {
-  const { errors, touched } = useFormikContext<WorkspaceFormValues>();
+  const { errors, touched } = useFormikContext<WorkflowFormValues>();
 
   return (
     <Field name={props.fieldPath}>

@@ -484,3 +484,8 @@ export enum CONFIG_STEP {
   INGEST = 'Ingestion pipeline',
   SEARCH = 'Search pipeline',
 }
+export enum SOURCE_OPTIONS {
+  MANUAL = 'manual',
+  UPLOAD = 'upload',
+  EXISTING_INDEX = 'existing_index',
+}
