@@ -5,12 +5,11 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { HashRouter as Router, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { AppMountParameters, CoreStart } from '../../../src/core/public';
 import { FlowFrameworkDashboardsApp } from './app';
 import { store } from './store';
-import { PLUGIN_ID } from '../common';
 
 // styling
 import './global-styles.scss';
@@ -24,7 +23,7 @@ export const renderApp = (
   params.element.className = 'stretch-absolute';
   ReactDOM.render(
     <Provider store={store}>
-      <Router basename={params.appBasePath + '#/'}>
+      <Router>
         <Route
           render={(props) => (
             <FlowFrameworkDashboardsApp
@@ -39,16 +38,8 @@ export const renderApp = (
     params.element
   );
 
-  const EXPECTED_BASE_PATH = `/app/${PLUGIN_ID}#`;
-
   const unlistenParentHistory = params.history.listen(() => {
-    if (
-      hideInAppSideNavBar &&
-      window.location.pathname.endsWith(`/app/${PLUGIN_ID}`)
-    ) {
-      window.location.href = EXPECTED_BASE_PATH;
-      window.dispatchEvent(new HashChangeEvent('hashchange'));
-    }
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
   });
 
   return () => {
