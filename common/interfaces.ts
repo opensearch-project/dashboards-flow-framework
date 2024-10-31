@@ -122,6 +122,20 @@ export type RequestFormValues = {
 };
 export type RequestSchema = WorkflowSchema;
 
+// Form / schema interfaces for the input transform sub-form
+export type InputTransformFormValues = {
+  input_map: MapArrayFormValue;
+  one_to_one: ConfigFieldValue;
+};
+export type InputTransformSchema = WorkflowSchema;
+
+// Form / schema interfaces for the output transform sub-form
+export type OutputTransformFormValues = {
+  output_map: MapArrayFormValue;
+  full_response_path: ConfigFieldValue;
+};
+export type OutputTransformSchema = WorkflowSchema;
+
 /**
  ********** WORKSPACE TYPES/INTERFACES **********
  */
