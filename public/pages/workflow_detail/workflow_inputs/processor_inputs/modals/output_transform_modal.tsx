@@ -26,6 +26,7 @@ import {
   EuiPopoverTitle,
   EuiCodeBlock,
   EuiCallOut,
+  EuiIconTip,
 } from '@elastic/eui';
 import {
   IConfigField,
@@ -209,17 +210,288 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
           setTempErrors(!isEmpty(formikProps.errors));
         }, [formikProps.errors]);
 
+        const OutputMap = (
+          <MapArrayField
+            fieldPath={'output_map'}
+            helpText={`An array specifying how to map the model’s output to new fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
+root object selector "${JSONPATH_ROOT_SELECTOR}"`}
+            keyTitle={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Query field'
+                : 'New document field'
+            }
+            keyPlaceholder={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Specify a query field'
+                : 'Define a document field'
+            }
+            valueTitle="Name"
+            valuePlaceholder="Name"
+            valueOptions={
+              tempFullResponsePath
+                ? undefined
+                : parseModelOutputs(props.modelInterface, false)
+            }
+            // If the map we are adding is the first one, populate the selected option to index 0
+            onMapAdd={(curArray) => {
+              if (isEmpty(curArray)) {
+                setSelectedTransformOption(0);
+              }
+            }}
+            // If the map we are deleting is the one we last used to test, reset the state and
+            // default to the first map in the list.
+            onMapDelete={(idxToDelete) => {
+              if (selectedTransformOption === idxToDelete) {
+                setSelectedTransformOption(0);
+                setTransformedOutput('{}');
+              }
+            }}
+            addMapEntryButtonText="Add output"
+            addMapButtonText="(Advanced) Add output group"
+          />
+        );
+
+        const FullResponsePathConfig = (
+          <BooleanField
+            label={'Full response path'}
+            fieldPath={'full_response_path'}
+            enabledOption={{
+              id: `full_response_path_true`,
+              label: 'True',
+            }}
+            disabledOption={{
+              id: `full_response_path_false`,
+              label: 'False',
+            }}
+            showLabel={true}
+            helpLink={
+              props.context === PROCESSOR_CONTEXT.INGEST
+                ? ML_INFERENCE_DOCS_LINK
+                : ML_INFERENCE_RESPONSE_DOCS_LINK
+            }
+            helpText="Parse the full model output"
+          />
+        );
+
+        const FetchButton = (
+          <EuiSmallButton
+            style={{ width: '100px' }}
+            isLoading={isFetching}
+            disabled={onIngestAndNoDocs || onSearchAndNoQuery}
+            onClick={async () => {
+              setIsFetching(true);
+              switch (props.context) {
+                // note we skip search request processor context. that is because empty output maps are not supported.
+                // for more details, see comment in ml_processor_inputs.tsx
+                case PROCESSOR_CONTEXT.INGEST: {
+                  // get the current ingest pipeline up to, and including this processor.
+                  // remove any currently-configured output map since we only want the transformation
+                  // up to, and including, the input map transformations
+                  const valuesWithoutOutputMapConfig = cloneDeep(values);
+                  set(
+                    valuesWithoutOutputMapConfig,
+                    props.outputMapFieldPath,
+                    []
+                  );
+                  set(
+                    valuesWithoutOutputMapConfig,
+                    fullResponsePathPath,
+                    getIn(formikProps.values, 'full_response_path')
+                  );
+                  const curIngestPipeline = formikToPartialPipeline(
+                    valuesWithoutOutputMapConfig,
+                    props.uiConfig,
+                    props.config.id,
+                    true,
+                    PROCESSOR_CONTEXT.INGEST
+                  ) as IngestPipelineConfig;
+                  const curDocs = prepareDocsForSimulate(
+                    values.ingest.docs,
+                    values.ingest.index.name
+                  );
+                  await dispatch(
+                    simulatePipeline({
+                      apiBody: {
+                        pipeline: curIngestPipeline,
+                        docs: [curDocs[0]],
+                      },
+                      dataSourceId,
+                    })
+                  )
+                    .unwrap()
+                    .then((resp: SimulateIngestPipelineResponse) => {
+                      try {
+                        const docObjs = unwrapTransformedDocs(resp);
+                        if (docObjs.length > 0) {
+                          const sampleModelResult =
+                            docObjs[0]?.inference_results || {};
+                          setSourceOutput(customStringify(sampleModelResult));
+                        }
+                      } catch {}
+                    })
+                    .catch((error: any) => {
+                      getCore().notifications.toasts.addDanger(
+                        `Failed to fetch input data`
+                      );
+                    })
+                    .finally(() => {
+                      setIsFetching(false);
+                    });
+                  break;
+                }
+                case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
+                  // get the current search pipeline up to, and including this processor.
+                  // remove any currently-configured output map since we only want the transformation
+                  // up to, and including, the input map transformations
+                  const valuesWithoutOutputMapConfig = cloneDeep(values);
+                  set(
+                    valuesWithoutOutputMapConfig,
+                    props.outputMapFieldPath,
+                    []
+                  );
+                  set(
+                    valuesWithoutOutputMapConfig,
+                    fullResponsePathPath,
+                    getIn(formikProps.values, 'full_response_path')
+                  );
+                  const curSearchPipeline = formikToPartialPipeline(
+                    valuesWithoutOutputMapConfig,
+                    props.uiConfig,
+                    props.config.id,
+                    true,
+                    PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                  ) as SearchPipelineConfig;
+
+                  // Execute search. Augment the existing query with
+                  // the partial search pipeline (inline) to get the latest transformed
+                  // version of the request.
+                  dispatch(
+                    searchIndex({
+                      apiBody: {
+                        index: values.ingest.index.name,
+                        body: JSON.stringify({
+                          ...JSON.parse(values.search.request as string),
+                          search_pipeline: curSearchPipeline || {},
+                        }),
+                      },
+                      dataSourceId,
+                    })
+                  )
+                    .unwrap()
+                    .then(async (resp) => {
+                      const hits = resp.hits.hits.map(
+                        (hit: SearchHit) => hit._source
+                      ) as any[];
+                      if (hits.length > 0) {
+                        const sampleModelResult =
+                          hits[0].inference_results || {};
+                        setSourceOutput(customStringify(sampleModelResult));
+                      }
+                    })
+                    .catch((error: any) => {
+                      getCore().notifications.toasts.addDanger(
+                        `Failed to fetch source output data`
+                      );
+                    })
+                    .finally(() => {
+                      setIsFetching(false);
+                    });
+                  break;
+                }
+              }
+            }}
+          >
+            Fetch
+          </EuiSmallButton>
+        );
+
+        const SourceOutput = (
+          <EuiCodeEditor
+            mode="json"
+            theme="textmate"
+            width="100%"
+            height="15vh"
+            value={sourceOutput}
+            readOnly={true}
+            setOptions={{
+              fontSize: '12px',
+              autoScrollEditorIntoView: true,
+              showLineNumbers: false,
+              showGutter: false,
+              showPrintMargin: false,
+              wrap: true,
+            }}
+            tabSize={2}
+          />
+        );
+
+        const TransformedOutput = (
+          <EuiCodeEditor
+            mode="json"
+            theme="textmate"
+            width="100%"
+            height="15vh"
+            value={transformedOutput}
+            readOnly={true}
+            setOptions={{
+              fontSize: '12px',
+              autoScrollEditorIntoView: true,
+              showLineNumbers: false,
+              showGutter: false,
+              showPrintMargin: false,
+              wrap: true,
+            }}
+            tabSize={2}
+          />
+        );
+
         return (
-          <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
+          <EuiModal onClose={props.onClose} style={{ width: '100vw' }}>
             <EuiModalHeader>
               <EuiModalHeaderTitle>
                 <p>{`Configure output`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
-            <EuiModalBody style={{ height: '60vh' }}>
+            <EuiModalBody>
               <EuiFlexGroup direction="column">
                 <EuiFlexItem>
                   <>
+                    <EuiFlexGroup direction="row" gutterSize="xs">
+                      <EuiFlexItem grow={false}>
+                        <EuiText size="s">
+                          <h3>Define transform</h3>
+                        </EuiText>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false} style={{ marginTop: '8px' }}>
+                        <EuiIconTip
+                          content={
+                            'Map the model outputs to new document fields'
+                          }
+                          position="right"
+                        />
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
+                    <EuiSpacer size="s" />
+                    {OutputMap}
+                  </>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <EuiFlexGroup direction="row" gutterSize="xs">
+                    <EuiFlexItem grow={false}>
+                      <EuiText size="s">
+                        <h3>Preview</h3>
+                      </EuiText>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false} style={{ marginTop: '8px' }}>
+                      <EuiIconTip
+                        content={
+                          'Fetch some sample output data and see how it is transformed'
+                        }
+                        position="right"
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                  <EuiFlexItem>
                     {(onIngestAndNoDocs || onSearchAndNoQuery) && (
                       <>
                         <EuiCallOut
@@ -232,319 +504,101 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                           color="warning"
                         />
                         <EuiSpacer size="s" />
+                        {(props.context === PROCESSOR_CONTEXT.INGEST ||
+                          props.context ===
+                            PROCESSOR_CONTEXT.SEARCH_RESPONSE) && (
+                          <>
+                            {FullResponsePathConfig}
+                            <EuiSpacer size="s" />
+                          </>
+                        )}
+                        {FetchButton}
                       </>
                     )}
-                    <EuiText color="subdued">
-                      Fetch some sample output data and see how it is
-                      transformed.
-                    </EuiText>
-                    <EuiSpacer size="s" />
-                    {(props.context === PROCESSOR_CONTEXT.INGEST ||
-                      props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE) && (
+                  </EuiFlexItem>
+                  <EuiSpacer size="s" />
+                  <EuiFlexGroup direction="row">
+                    <EuiFlexItem>
                       <>
-                        <BooleanField
-                          label={'Full response path'}
-                          fieldPath={'full_response_path'}
-                          enabledOption={{
-                            id: `full_response_path_true`,
-                            label: 'True',
-                          }}
-                          disabledOption={{
-                            id: `full_response_path_false`,
-                            label: 'False',
-                          }}
-                          showLabel={true}
-                          helpLink={
-                            props.context === PROCESSOR_CONTEXT.INGEST
-                              ? ML_INFERENCE_DOCS_LINK
-                              : ML_INFERENCE_RESPONSE_DOCS_LINK
-                          }
-                          helpText="Parse the full model output"
-                        />
-                        <EuiSpacer size="s" />
-                      </>
-                    )}
-                    <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                      <EuiFlexItem>
-                        <EuiText size="s">Source output</EuiText>
-                      </EuiFlexItem>
-                      {!isEmpty(
-                        parseModelOutputsObj(
-                          props.modelInterface,
-                          tempFullResponsePath
-                        )
-                      ) && (
-                        <EuiFlexItem grow={false}>
-                          <EuiPopover
-                            isOpen={popoverOpen}
-                            closePopover={() => setPopoverOpen(false)}
-                            panelPaddingSize="s"
-                            button={
-                              <EuiSmallButtonEmpty
-                                onClick={() => setPopoverOpen(!popoverOpen)}
-                              >
-                                View output schema
-                              </EuiSmallButtonEmpty>
-                            }
+                        <EuiFlexItem>
+                          <EuiFlexGroup
+                            direction="row"
+                            justifyContent="spaceBetween"
                           >
-                            <EuiPopoverTitle>
-                              The JSON Schema defining the model's expected
-                              output
-                            </EuiPopoverTitle>
-                            <EuiCodeBlock
-                              language="json"
-                              fontSize="m"
-                              isCopyable={false}
-                            >
-                              {customStringify(
-                                parseModelOutputsObj(
-                                  props.modelInterface,
-                                  tempFullResponsePath
-                                )
-                              )}
-                            </EuiCodeBlock>
-                          </EuiPopover>
-                        </EuiFlexItem>
-                      )}
-                    </EuiFlexGroup>
-                    <EuiSmallButton
-                      style={{ width: '100px' }}
-                      isLoading={isFetching}
-                      disabled={onIngestAndNoDocs || onSearchAndNoQuery}
-                      onClick={async () => {
-                        setIsFetching(true);
-                        switch (props.context) {
-                          // note we skip search request processor context. that is because empty output maps are not supported.
-                          // for more details, see comment in ml_processor_inputs.tsx
-                          case PROCESSOR_CONTEXT.INGEST: {
-                            // get the current ingest pipeline up to, and including this processor.
-                            // remove any currently-configured output map since we only want the transformation
-                            // up to, and including, the input map transformations
-                            const valuesWithoutOutputMapConfig = cloneDeep(
-                              values
-                            );
-                            set(
-                              valuesWithoutOutputMapConfig,
-                              props.outputMapFieldPath,
-                              []
-                            );
-                            set(
-                              valuesWithoutOutputMapConfig,
-                              fullResponsePathPath,
-                              getIn(formikProps.values, 'full_response_path')
-                            );
-                            const curIngestPipeline = formikToPartialPipeline(
-                              valuesWithoutOutputMapConfig,
-                              props.uiConfig,
-                              props.config.id,
-                              true,
-                              PROCESSOR_CONTEXT.INGEST
-                            ) as IngestPipelineConfig;
-                            const curDocs = prepareDocsForSimulate(
-                              values.ingest.docs,
-                              values.ingest.index.name
-                            );
-                            await dispatch(
-                              simulatePipeline({
-                                apiBody: {
-                                  pipeline: curIngestPipeline,
-                                  docs: [curDocs[0]],
-                                },
-                                dataSourceId,
-                              })
-                            )
-                              .unwrap()
-                              .then((resp: SimulateIngestPipelineResponse) => {
-                                try {
-                                  const docObjs = unwrapTransformedDocs(resp);
-                                  if (docObjs.length > 0) {
-                                    const sampleModelResult =
-                                      docObjs[0]?.inference_results || {};
-                                    setSourceOutput(
-                                      customStringify(sampleModelResult)
-                                    );
+                            <EuiFlexItem>
+                              <EuiText size="s">Source output</EuiText>
+                            </EuiFlexItem>
+                            {!isEmpty(
+                              parseModelOutputsObj(
+                                props.modelInterface,
+                                tempFullResponsePath
+                              )
+                            ) && (
+                              <EuiFlexItem grow={false}>
+                                <EuiPopover
+                                  isOpen={popoverOpen}
+                                  closePopover={() => setPopoverOpen(false)}
+                                  panelPaddingSize="s"
+                                  button={
+                                    <EuiSmallButtonEmpty
+                                      onClick={() =>
+                                        setPopoverOpen(!popoverOpen)
+                                      }
+                                    >
+                                      View output schema
+                                    </EuiSmallButtonEmpty>
                                   }
-                                } catch {}
-                              })
-                              .catch((error: any) => {
-                                getCore().notifications.toasts.addDanger(
-                                  `Failed to fetch input data`
-                                );
-                              })
-                              .finally(() => {
-                                setIsFetching(false);
-                              });
-                            break;
-                          }
-                          case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
-                            // get the current search pipeline up to, and including this processor.
-                            // remove any currently-configured output map since we only want the transformation
-                            // up to, and including, the input map transformations
-                            const valuesWithoutOutputMapConfig = cloneDeep(
-                              values
-                            );
-                            set(
-                              valuesWithoutOutputMapConfig,
-                              props.outputMapFieldPath,
-                              []
-                            );
-                            set(
-                              valuesWithoutOutputMapConfig,
-                              fullResponsePathPath,
-                              getIn(formikProps.values, 'full_response_path')
-                            );
-                            const curSearchPipeline = formikToPartialPipeline(
-                              valuesWithoutOutputMapConfig,
-                              props.uiConfig,
-                              props.config.id,
-                              true,
-                              PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                            ) as SearchPipelineConfig;
+                                >
+                                  <EuiPopoverTitle>
+                                    The JSON Schema defining the model's
+                                    expected output
+                                  </EuiPopoverTitle>
+                                  <EuiCodeBlock
+                                    language="json"
+                                    fontSize="m"
+                                    isCopyable={false}
+                                  >
+                                    {customStringify(
+                                      parseModelOutputsObj(
+                                        props.modelInterface,
+                                        tempFullResponsePath
+                                      )
+                                    )}
+                                  </EuiCodeBlock>
+                                </EuiPopover>
+                              </EuiFlexItem>
+                            )}
+                          </EuiFlexGroup>
+                          <EuiSpacer size="s" />
+                          {SourceOutput}
+                        </EuiFlexItem>
+                      </>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <>
+                        {transformOptions.length <= 1 ? (
+                          <EuiText size="s">Transformed output</EuiText>
+                        ) : (
+                          <EuiCompressedSelect
+                            prepend={
+                              <EuiText size="s">Transformed output for</EuiText>
+                            }
+                            options={transformOptions}
+                            value={selectedTransformOption}
+                            onChange={(e) => {
+                              setSelectedTransformOption(
+                                Number(e.target.value)
+                              );
+                            }}
+                          />
+                        )}
+                        <EuiSpacer size="s" />
+                        <EuiSpacer size="s" />
 
-                            // Execute search. Augment the existing query with
-                            // the partial search pipeline (inline) to get the latest transformed
-                            // version of the request.
-                            dispatch(
-                              searchIndex({
-                                apiBody: {
-                                  index: values.ingest.index.name,
-                                  body: JSON.stringify({
-                                    ...JSON.parse(
-                                      values.search.request as string
-                                    ),
-                                    search_pipeline: curSearchPipeline || {},
-                                  }),
-                                },
-                                dataSourceId,
-                              })
-                            )
-                              .unwrap()
-                              .then(async (resp) => {
-                                const hits = resp.hits.hits.map(
-                                  (hit: SearchHit) => hit._source
-                                ) as any[];
-                                if (hits.length > 0) {
-                                  const sampleModelResult =
-                                    hits[0].inference_results || {};
-                                  setSourceOutput(
-                                    customStringify(sampleModelResult)
-                                  );
-                                }
-                              })
-                              .catch((error: any) => {
-                                getCore().notifications.toasts.addDanger(
-                                  `Failed to fetch source output data`
-                                );
-                              })
-                              .finally(() => {
-                                setIsFetching(false);
-                              });
-                            break;
-                          }
-                        }
-                      }}
-                    >
-                      Fetch
-                    </EuiSmallButton>
-                    <EuiSpacer size="s" />
-                    <EuiCodeEditor
-                      mode="json"
-                      theme="textmate"
-                      width="100%"
-                      height="15vh"
-                      value={sourceOutput}
-                      readOnly={true}
-                      setOptions={{
-                        fontSize: '12px',
-                        autoScrollEditorIntoView: true,
-                        showLineNumbers: false,
-                        showGutter: false,
-                        showPrintMargin: false,
-                        wrap: true,
-                      }}
-                      tabSize={2}
-                    />
-                  </>
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  <>
-                    <EuiText size="s">Define transform</EuiText>
-                    <EuiSpacer size="s" />
-                    <MapArrayField
-                      fieldPath={'output_map'}
-                      helpText={`An array specifying how to map the model’s output to new fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
-                root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-                      keyTitle={
-                        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                          ? 'Query field'
-                          : 'New document field'
-                      }
-                      keyPlaceholder={
-                        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                          ? 'Specify a query field'
-                          : 'Define a document field'
-                      }
-                      valueTitle="Name"
-                      valuePlaceholder="Name"
-                      valueOptions={
-                        tempFullResponsePath
-                          ? undefined
-                          : parseModelOutputs(props.modelInterface, false)
-                      }
-                      // If the map we are adding is the first one, populate the selected option to index 0
-                      onMapAdd={(curArray) => {
-                        if (isEmpty(curArray)) {
-                          setSelectedTransformOption(0);
-                        }
-                      }}
-                      // If the map we are deleting is the one we last used to test, reset the state and
-                      // default to the first map in the list.
-                      onMapDelete={(idxToDelete) => {
-                        if (selectedTransformOption === idxToDelete) {
-                          setSelectedTransformOption(0);
-                          setTransformedOutput('{}');
-                        }
-                      }}
-                      addMapEntryButtonText="Add output"
-                      addMapButtonText="(Advanced) Add output group"
-                    />
-                  </>
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  <>
-                    {transformOptions.length <= 1 ? (
-                      <EuiText size="s">Transformed output</EuiText>
-                    ) : (
-                      <EuiCompressedSelect
-                        prepend={
-                          <EuiText size="s">Transformed output for</EuiText>
-                        }
-                        options={transformOptions}
-                        value={selectedTransformOption}
-                        onChange={(e) => {
-                          setSelectedTransformOption(Number(e.target.value));
-                        }}
-                      />
-                    )}
-                    <EuiSpacer size="s" />
-                    <EuiCodeEditor
-                      mode="json"
-                      theme="textmate"
-                      width="100%"
-                      height="15vh"
-                      value={transformedOutput}
-                      readOnly={true}
-                      setOptions={{
-                        fontSize: '12px',
-                        autoScrollEditorIntoView: true,
-                        showLineNumbers: false,
-                        showGutter: false,
-                        showPrintMargin: false,
-                        wrap: true,
-                      }}
-                      tabSize={2}
-                    />
-                  </>
+                        {TransformedOutput}
+                      </>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
                 </EuiFlexItem>
               </EuiFlexGroup>
             </EuiModalBody>
