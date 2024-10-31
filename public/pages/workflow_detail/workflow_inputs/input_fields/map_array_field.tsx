@@ -18,7 +18,6 @@ import {
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
   EMPTY_MAP_ENTRY,
-  IConfigField,
   MapArrayFormValue,
   MapEntry,
   WorkflowFormValues,
@@ -26,7 +25,6 @@ import {
 import { MapField } from './map_field';
 
 interface MapArrayFieldProps {
-  field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   helpText?: string;
   keyTitle?: string;

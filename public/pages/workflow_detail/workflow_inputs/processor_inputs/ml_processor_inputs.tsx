@@ -25,7 +25,6 @@ import {
   PROCESSOR_CONTEXT,
   WorkflowConfig,
   JSONPATH_ROOT_SELECTOR,
-  ML_INFERENCE_DOCS_LINK,
   WorkflowFormValues,
   ModelInterface,
   IndexMappings,
@@ -75,15 +74,9 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   ) as IConfigField;
   const modelFieldPath = `${props.baseConfigPath}.${props.config.id}.${modelField.id}`;
   const modelIdFieldPath = `${modelFieldPath}.id`;
-  const inputMapField = props.config.fields.find(
-    (field) => field.id === 'input_map'
-  ) as IConfigField;
-  const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${inputMapField.id}`;
+  const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.input_map`;
   const inputMapValue = getIn(values, inputMapFieldPath);
-  const outputMapField = props.config.fields.find(
-    (field) => field.id === 'output_map'
-  ) as IConfigField;
-  const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.${outputMapField.id}`;
+  const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map`;
   const outputMapValue = getIn(values, outputMapFieldPath);
   const fullResponsePath = getIn(
     values,
@@ -250,7 +243,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           config={props.config}
           baseConfigPath={props.baseConfigPath}
           context={props.context}
-          inputMapField={inputMapField}
           inputMapFieldPath={inputMapFieldPath}
           modelInterface={modelInterface}
           valueOptions={
@@ -269,7 +261,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           config={props.config}
           baseConfigPath={props.baseConfigPath}
           context={props.context}
-          outputMapField={outputMapField}
           outputMapFieldPath={outputMapFieldPath}
           modelInterface={modelInterface}
           onClose={() => setIsOutputTransformModalOpen(false)}
@@ -365,7 +356,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           </EuiFlexGroup>
           <EuiSpacer size="s" />
           <MapArrayField
-            field={inputMapField}
             fieldPath={inputMapFieldPath}
             helpText={`An array specifying how to map fields from the ingested document to the model’s input. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
             root object selector "${JSONPATH_ROOT_SELECTOR}"`}
@@ -422,7 +412,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           </EuiFlexGroup>
           <EuiSpacer size="s" />
           <MapArrayField
-            field={outputMapField}
             fieldPath={outputMapFieldPath}
             helpText={`An array specifying how to map the model’s output to new document fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
             root object selector "${JSONPATH_ROOT_SELECTOR}"`}
