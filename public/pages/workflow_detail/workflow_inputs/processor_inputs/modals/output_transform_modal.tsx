@@ -325,8 +325,13 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                             );
                             set(
                               valuesWithoutOutputMapConfig,
-                              `ingest.enrich.${props.config.id}.output_map`,
+                              props.outputMapFieldPath,
                               []
+                            );
+                            set(
+                              valuesWithoutOutputMapConfig,
+                              fullResponsePathPath,
+                              getIn(formikProps.values, 'full_response_path')
                             );
                             const curIngestPipeline = formikToPartialPipeline(
                               valuesWithoutOutputMapConfig,
@@ -380,8 +385,13 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                             );
                             set(
                               valuesWithoutOutputMapConfig,
-                              `search.enrichResponse.${props.config.id}.output_map`,
+                              props.outputMapFieldPath,
                               []
+                            );
+                            set(
+                              valuesWithoutOutputMapConfig,
+                              fullResponsePathPath,
+                              getIn(formikProps.values, 'full_response_path')
                             );
                             const curSearchPipeline = formikToPartialPipeline(
                               valuesWithoutOutputMapConfig,
