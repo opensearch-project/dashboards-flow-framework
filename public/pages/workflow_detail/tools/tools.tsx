@@ -112,7 +112,12 @@ export function Tools(props: ToolsProps) {
   }, [props.queryResponse]);
 
   return (
-    <EuiPanel paddingSize="m" grow={true} style={{ height: '100%' }}>
+    <EuiPanel
+      paddingSize="m"
+      borderRadius="l"
+      grow={true}
+      style={{ height: '100%' }}
+    >
       <EuiFlexGroup
         direction="column"
         style={{
