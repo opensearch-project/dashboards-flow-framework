@@ -555,18 +555,25 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   }
 
   return (
-    <EuiPanel paddingSize="m" grow={true} className="workspace-panel">
+    <EuiPanel
+      paddingSize="s"
+      grow={true}
+      className="workspace-panel"
+      borderRadius="l"
+    >
       {props.uiConfig === undefined ? (
         <EuiLoadingSpinner size="xl" />
       ) : (
         <EuiFlexGroup
           direction="column"
           justifyContent="spaceBetween"
+          gutterSize="none"
           style={{
             height: '100%',
+            gap: '16px',
           }}
         >
-          <EuiFlexItem grow={false} style={{ marginBottom: '-8px' }}>
+          <EuiFlexItem grow={false}>
             <EuiStepsHorizontal
               steps={[
                 {
@@ -734,10 +741,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               />
             )}
           </EuiFlexItem>
-          <EuiFlexItem
-            grow={false}
-            style={{ marginBottom: '-10px', marginTop: '-24px' }}
-          >
+          <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />

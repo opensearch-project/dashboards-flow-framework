@@ -336,7 +336,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
         <>
           {dataSourceEnabled && DataSourceComponent}
           <EuiPageHeader
-            style={{ marginTop: '-8px' }}
             pageTitle={
               <EuiFlexGroup direction="row" alignItems="flexEnd" gutterSize="m">
                 <EuiFlexItem grow={false}>{workflowName}</EuiFlexItem>
@@ -344,7 +343,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
             }
             rightSideItems={[
               <EuiSmallButton
-                style={{ marginTop: '8px' }}
                 fill={true}
                 onClick={() => {
                   setIsExportModalOpen(true);
@@ -354,7 +352,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 Export
               </EuiSmallButton>,
               <EuiSmallButtonEmpty
-                style={{ marginTop: '8px' }}
                 onClick={() => {
                   history.replace(
                     constructUrlWithParams(
@@ -369,7 +366,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 Close
               </EuiSmallButtonEmpty>,
               <EuiSmallButtonEmpty
-                style={{ marginTop: '8px' }}
                 disabled={saveDisabled}
                 isLoading={isRunningSave}
                 onClick={() => {
@@ -379,7 +375,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 {`Save`}
               </EuiSmallButtonEmpty>,
               <EuiSmallButtonIcon
-                style={{ marginTop: '8px' }}
                 iconType="editorUndo"
                 aria-label="undo changes"
                 isDisabled={undoDisabled}
@@ -387,11 +382,15 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                   revertUnsavedChanges();
                 }}
               />,
-              <EuiText style={{ marginTop: '14px' }} color="subdued" size="s">
+              <EuiText color="subdued" size="s">
                 {`Last updated: ${workflowLastUpdated}`}
               </EuiText>,
             ]}
             bottomBorder={false}
+            rightSideGroupProps={{
+              alignItems: 'center',
+            }}
+            paddingSize="s"
           />
         </>
       )}

@@ -116,7 +116,7 @@ export function Workspace(props: WorkspaceProps) {
       justifyContent="spaceBetween"
     >
       <EuiFlexItem
-        className="euiPanel euiPanel--hasShadow euiPanel--borderRadiusMedium"
+        className="euiPanel euiPanel--hasShadow euiPanel--borderRadiusLarge"
         style={{ overflowX: 'hidden' }}
       >
         {/**

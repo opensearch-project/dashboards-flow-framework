@@ -96,8 +96,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       direction="horizontal"
       className="stretch-absolute"
       style={{
-        marginLeft: '-8px',
-        marginTop: SHOW_ACTIONS_IN_HEADER ? '-8px' : '40px',
+        marginTop: SHOW_ACTIONS_IN_HEADER ? '0' : '58px',
+        height: SHOW_ACTIONS_IN_HEADER ? '100%' : 'calc(100% - 58px)',
+        gap: '4px',
       }}
     >
       {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
@@ -112,7 +113,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               mode="main"
               initialSize={60}
               minSize="25%"
-              paddingSize="s"
+              paddingSize="none"
+              scrollable={false}
             >
               <WorkflowInputs
                 workflow={props.workflow}
@@ -135,23 +137,18 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
             <EuiResizableButton />
             <EuiResizablePanel
               id={PREVIEW_PANEL_ID}
-              style={{
-                marginRight: isPreviewPanelOpen ? '-32px' : '0px',
-                marginBottom: isToolsPanelOpen ? '0px' : '24px',
-              }}
               mode="collapsible"
               initialSize={60}
               minSize="25%"
-              paddingSize="s"
+              paddingSize="none"
+              borderRadius="l"
               onToggleCollapsedInternal={() => onTogglePreviewChange()}
             >
               <EuiResizableContainer
                 className="workspace-panel"
                 direction="vertical"
                 style={{
-                  marginLeft: '-8px',
-                  marginTop: '-8px',
-                  padding: 'none',
+                  gap: '4px',
                 }}
               >
                 {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
@@ -171,12 +168,12 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         mode="main"
                         initialSize={60}
                         minSize="25%"
-                        paddingSize="s"
-                        style={{ marginBottom: '-8px' }}
+                        paddingSize="none"
+                        borderRadius="l"
                       >
                         <EuiFlexGroup
                           direction="column"
-                          gutterSize="s"
+                          gutterSize="none"
                           style={{ height: '100%' }}
                         >
                           <EuiFlexItem>
@@ -193,9 +190,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         mode="collapsible"
                         initialSize={50}
                         minSize="25%"
-                        paddingSize="s"
+                        paddingSize="none"
+                        borderRadius="l"
                         onToggleCollapsedInternal={() => onToggleToolsChange()}
-                        style={{ marginBottom: '-16px' }}
                       >
                         <Tools
                           workflow={props.workflow}
