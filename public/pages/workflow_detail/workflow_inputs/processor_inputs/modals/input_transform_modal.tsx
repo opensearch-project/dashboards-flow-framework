@@ -590,7 +590,9 @@ export function InputTransformModal(props: InputTransformModalProps) {
                           justifyContent="spaceBetween"
                         >
                           <EuiFlexItem>
-                            <EuiText size="s">Source input</EuiText>
+                            <EuiText size="s">
+                              Data before transformation
+                            </EuiText>
                           </EuiFlexItem>
                         </EuiFlexGroup>
                         <EuiSpacer size="s" />
@@ -626,12 +628,14 @@ export function InputTransformModal(props: InputTransformModalProps) {
                           )}
                           <EuiFlexItem grow={true}>
                             {transformOptions.length <= 1 ? (
-                              <EuiText size="s">Transformed input</EuiText>
+                              <EuiText size="s">
+                                Data after transformation
+                              </EuiText>
                             ) : (
                               <EuiCompressedSelect
                                 prepend={
                                   <EuiText size="s">
-                                    Transformed input for
+                                    Data after transformation for
                                   </EuiText>
                                 }
                                 options={transformOptions}
@@ -657,7 +661,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                                     style={{ marginTop: '-4px' }}
                                     onClick={() => setPopoverOpen(!popoverOpen)}
                                   >
-                                    View input schema
+                                    Input schema
                                   </EuiSmallButtonEmpty>
                                 }
                               >

@@ -401,7 +401,7 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
               }
             }}
           >
-            Fetch
+            Fetch data
           </EuiSmallButton>
         );
 
@@ -526,7 +526,9 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                             justifyContent="spaceBetween"
                           >
                             <EuiFlexItem>
-                              <EuiText size="s">Source output</EuiText>
+                              <EuiText size="s">
+                                Data before transformation
+                              </EuiText>
                             </EuiFlexItem>
                             {!isEmpty(
                               parseModelOutputsObj(
@@ -545,7 +547,7 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                                         setPopoverOpen(!popoverOpen)
                                       }
                                     >
-                                      View output schema
+                                      Output schema
                                     </EuiSmallButtonEmpty>
                                   }
                                 >
@@ -577,11 +579,13 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                     <EuiFlexItem>
                       <>
                         {transformOptions.length <= 1 ? (
-                          <EuiText size="s">Transformed output</EuiText>
+                          <EuiText size="s">Data after transformation</EuiText>
                         ) : (
                           <EuiCompressedSelect
                             prepend={
-                              <EuiText size="s">Transformed output for</EuiText>
+                              <EuiText size="s">
+                                Data after transformation for
+                              </EuiText>
                             }
                             options={transformOptions}
                             value={selectedTransformOption}
