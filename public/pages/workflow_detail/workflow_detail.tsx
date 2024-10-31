@@ -198,7 +198,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
       validate={(values) => {}}
     >
       <ReactFlowProvider>
-        <EuiPage>
+        <EuiPage paddingSize="s">
           <EuiPageBody className="workflow-detail stretch-relative">
             <WorkflowDetailHeader
               workflow={workflow}
