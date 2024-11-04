@@ -22,6 +22,7 @@ import {
   EuiSmallFilterButton,
   EuiSuperSelectOption,
   EuiCompressedSuperSelect,
+  EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
@@ -297,14 +298,13 @@ export function SourceDataModal(props: SourceDataProps) {
               </>
             </EuiModalBody>
             <EuiModalFooter>
-              <EuiSmallButton
+              <EuiSmallButtonEmpty
                 onClick={() => onClose()}
-                fill={false}
                 color="primary"
                 data-testid="closeSourceDataButton"
               >
                 Cancel
-              </EuiSmallButton>
+              </EuiSmallButtonEmpty>
               <EuiSmallButton
                 onClick={() => onUpdate()}
                 isLoading={isUpdating}
@@ -313,7 +313,7 @@ export function SourceDataModal(props: SourceDataProps) {
                 color="primary"
                 data-testid="updateSourceDataButton"
               >
-                Update
+                Save
               </EuiSmallButton>
             </EuiModalFooter>
           </EuiModal>
