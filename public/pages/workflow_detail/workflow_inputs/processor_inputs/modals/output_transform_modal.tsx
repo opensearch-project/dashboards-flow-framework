@@ -449,7 +449,7 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
           <EuiModal onClose={props.onClose} style={{ width: '100vw' }}>
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>{`Configure output`}</p>
+                <p>{`Preview output transformation`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiModalBody>
@@ -543,6 +543,7 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                                   panelPaddingSize="s"
                                   button={
                                     <EuiSmallButtonEmpty
+                                      style={{ marginTop: '-4px' }}
                                       onClick={() =>
                                         setPopoverOpen(!popoverOpen)
                                       }
@@ -607,14 +608,13 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
               </EuiFlexGroup>
             </EuiModalBody>
             <EuiModalFooter>
-              <EuiSmallButton
+              <EuiSmallButtonEmpty
                 onClick={props.onClose}
-                fill={false}
                 color="primary"
                 data-testid="cancelOutputTransformModalButton"
               >
                 Cancel
-              </EuiSmallButton>
+              </EuiSmallButtonEmpty>
               <EuiSmallButton
                 onClick={() => {
                   // update the parent form values
@@ -636,7 +636,7 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                 color="primary"
                 data-testid="updateOutputTransformModalButton"
               >
-                Update
+                Save
               </EuiSmallButton>
             </EuiModalFooter>
           </EuiModal>

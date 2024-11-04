@@ -521,7 +521,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
           <EuiModal onClose={props.onClose} style={{ width: '100vw' }}>
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>{`Configure input`}</p>
+                <p>{`Preview input transformation`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiModalBody>
@@ -753,14 +753,13 @@ export function InputTransformModal(props: InputTransformModalProps) {
               </EuiFlexGroup>
             </EuiModalBody>
             <EuiModalFooter>
-              <EuiSmallButton
+              <EuiSmallButtonEmpty
                 onClick={props.onClose}
-                fill={false}
                 color="primary"
                 data-testid="cancelInputTransformModalButton"
               >
                 Cancel
-              </EuiSmallButton>
+              </EuiSmallButtonEmpty>
               <EuiSmallButton
                 onClick={() => {
                   // update the parent form values
@@ -783,7 +782,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 color="primary"
                 data-testid="updateInputTransformModalButton"
               >
-                Update
+                Save
               </EuiSmallButton>
             </EuiModalFooter>
           </EuiModal>
