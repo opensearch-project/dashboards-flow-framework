@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { columns } from '../pages/workflow_detail/tools/resources/columns';
+import { columns } from '../../workflow_detail/tools/resources/columns';
 import {
   EuiCodeBlock,
   EuiFlexGroup,
@@ -15,14 +15,18 @@ import {
   EuiText,
   Direction,
 } from '@elastic/eui';
-import { Workflow, WorkflowResource, customStringify } from '../../common';
+import {
+  Workflow,
+  WorkflowResource,
+  customStringify,
+} from '../../../../common';
 import {
   getIndex,
   getIngestPipeline,
   getSearchPipeline,
   useAppDispatch,
-} from '../store';
-import { getDataSourceId } from '../../public/utils';
+} from '../../../store';
+import { getDataSourceId } from '../../../utils';
 
 interface ResourceListProps {
   workflow?: Workflow;
@@ -167,6 +171,7 @@ export function ResourceList(props: ResourceListProps) {
             },
           ]}
           items={sortedItems}
+          noItemsMessage={'No existing resources found'}
         />
       </EuiFlexItem>
     </EuiFlexGroup>

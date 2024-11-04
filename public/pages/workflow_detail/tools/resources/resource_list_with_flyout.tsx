@@ -17,11 +17,15 @@ import {
   EuiIcon,
   EuiText,
 } from '@elastic/eui';
-import { Workflow, WorkflowResource, customStringify } from '../../common';
-import { fetchResourceData } from './resource_list';
-import { useAppDispatch } from '../store';
-import { getDataSourceId } from '../../public/utils';
-import { columns } from '../pages/workflow_detail/tools/resources/columns';
+import {
+  Workflow,
+  WorkflowResource,
+  customStringify,
+} from '../../../../../common';
+import { fetchResourceData } from '../../../workflows/workflow_list/resource_list';
+import { useAppDispatch } from '../../../../store';
+import { getDataSourceId } from '../../../../utils';
+import { columns } from './columns';
 
 interface ResourceListFlyoutProps {
   workflow?: Workflow;
