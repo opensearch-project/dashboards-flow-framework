@@ -184,18 +184,18 @@ export const fetchResourceData = async (
   dataSourceId: string,
   dispatch: any
 ) => {
-  if (item.id.includes('ingest_pipeline')) {
+  if (item.stepType.includes('ingest_pipeline')) {
     return await dispatch(
       getIngestPipeline({ pipelineId: item.id, dataSourceId })
     ).unwrap();
-  } else if (item.id.includes('index')) {
+  } else if (item.stepType.includes('index')) {
     return await dispatch(
       getIndex({
         index: item.id,
         dataSourceId,
       })
     ).unwrap();
-  } else if (item.id.includes('search_pipeline')) {
+  } else if (item.stepType.includes('search_pipeline')) {
     return await dispatch(
       getSearchPipeline({
         pipelineId: item.id,
