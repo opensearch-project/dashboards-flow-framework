@@ -569,9 +569,9 @@ export function InputTransformModal(props: InputTransformModalProps) {
                             }
                             color="warning"
                           />
+                          <EuiSpacer size="s" />
                         </>
                       )}
-                      <EuiSpacer size="s" />
                       {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
                         <>
                           {OneToOneConfig}

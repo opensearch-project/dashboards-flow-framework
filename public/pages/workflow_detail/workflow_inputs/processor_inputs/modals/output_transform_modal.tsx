@@ -492,29 +492,31 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                     </EuiFlexItem>
                   </EuiFlexGroup>
                   <EuiFlexItem>
-                    {(onIngestAndNoDocs || onSearchAndNoQuery) && (
-                      <>
-                        <EuiCallOut
-                          size="s"
-                          title={
-                            onIngestAndNoDocs
-                              ? 'No source documents detected. Fetching is unavailable.'
-                              : 'No source query detected. Fetching is unavailable.'
-                          }
-                          color="warning"
-                        />
-                        <EuiSpacer size="s" />
-                        {(props.context === PROCESSOR_CONTEXT.INGEST ||
-                          props.context ===
-                            PROCESSOR_CONTEXT.SEARCH_RESPONSE) && (
-                          <>
-                            {FullResponsePathConfig}
-                            <EuiSpacer size="s" />
-                          </>
-                        )}
-                        {FetchButton}
-                      </>
-                    )}
+                    <>
+                      {(onIngestAndNoDocs || onSearchAndNoQuery) && (
+                        <>
+                          <EuiCallOut
+                            size="s"
+                            title={
+                              onIngestAndNoDocs
+                                ? 'No source documents detected. Fetching is unavailable.'
+                                : 'No source query detected. Fetching is unavailable.'
+                            }
+                            color="warning"
+                          />
+                          <EuiSpacer size="s" />
+                        </>
+                      )}
+                      {(props.context === PROCESSOR_CONTEXT.INGEST ||
+                        props.context ===
+                          PROCESSOR_CONTEXT.SEARCH_RESPONSE) && (
+                        <>
+                          {FullResponsePathConfig}
+                          <EuiSpacer size="s" />
+                        </>
+                      )}
+                      {FetchButton}
+                    </>
                   </EuiFlexItem>
                   <EuiSpacer size="s" />
                   <EuiFlexGroup direction="row">
