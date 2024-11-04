@@ -26,6 +26,9 @@ const SEARCH_INDEX_ACTION = `${OPENSEARCH_PREFIX}/search`;
 const INGEST_ACTION = `${OPENSEARCH_PREFIX}/ingest`;
 const BULK_ACTION = `${OPENSEARCH_PREFIX}/bulk`;
 const SIMULATE_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/simulatePipeline`;
+const GET_INGEST_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/getIngestPipeline`;
+const GET_SEARCH_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/getSearchPipeline`;
+const GET_INDEX_ACTION = `${OPENSEARCH_PREFIX}/getIndex`;
 
 export const catIndices = createAsyncThunk(
   CAT_INDICES_ACTION,
@@ -63,6 +66,24 @@ export const getMappings = createAsyncThunk(
       return rejectWithValue(
         'Error getting index mappings: ' + response.body.message
       );
+    } else {
+      return response;
+    }
+  }
+);
+
+export const getIndex = createAsyncThunk(
+  GET_INDEX_ACTION,
+  async (
+    { index, dataSourceId }: { index: string; dataSourceId?: string },
+    { rejectWithValue }
+  ) => {
+    const response: any | HttpFetchError = await getRouteService().getIndex(
+      index,
+      dataSourceId
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue('Error getting index settings and mappings: ' + response.body.message);
     } else {
       return response;
     }
@@ -174,6 +195,62 @@ export const simulatePipeline = createAsyncThunk(
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
         'Error simulating ingest pipeline: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
+  }
+);
+
+export const getSearchPipeline = createAsyncThunk(
+  GET_SEARCH_PIPELINE_ACTION,
+  async (
+    {
+      pipelineId,
+      dataSourceId,
+    }: {
+      pipelineId: string;
+      dataSourceId?: string;
+    },
+    { rejectWithValue }
+  ) => {
+    const response:
+      | any
+      | HttpFetchError = await getRouteService().getSearchPipeline(
+      pipelineId,
+      dataSourceId
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error fetching search pipeline: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
+  }
+);
+
+export const getIngestPipeline = createAsyncThunk(
+  GET_INGEST_PIPELINE_ACTION,
+  async (
+    {
+      pipelineId,
+      dataSourceId,
+    }: {
+      pipelineId: string;
+      dataSourceId?: string;
+    },
+    { rejectWithValue }
+  ) => {
+    const response:
+      | any
+      | HttpFetchError = await getRouteService().getIngestPipeline(
+      pipelineId,
+      dataSourceId
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error fetching ingest pipeline: ' + response.body.message
       );
     } else {
       return response;
