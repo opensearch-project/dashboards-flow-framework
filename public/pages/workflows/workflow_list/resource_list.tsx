@@ -20,13 +20,8 @@ import {
   WorkflowResource,
   customStringify,
 } from '../../../../common';
-import {
-  getIndex,
-  getIngestPipeline,
-  getSearchPipeline,
-  useAppDispatch,
-} from '../../../store';
-import { getDataSourceId } from '../../../utils';
+import { useAppDispatch } from '../../../store';
+import { fetchResourceData, getDataSourceId } from '../../../utils';
 
 interface ResourceListProps {
   workflow?: Workflow;
@@ -177,31 +172,3 @@ export function ResourceList(props: ResourceListProps) {
     </EuiFlexGroup>
   );
 }
-
-// Fetches Resource details data for a given resource item.
-export const fetchResourceData = async (
-  item: WorkflowResource,
-  dataSourceId: string,
-  dispatch: any
-) => {
-  if (item.stepType.includes('ingest_pipeline')) {
-    return await dispatch(
-      getIngestPipeline({ pipelineId: item.id, dataSourceId })
-    ).unwrap();
-  } else if (item.stepType.includes('index')) {
-    return await dispatch(
-      getIndex({
-        index: item.id,
-        dataSourceId,
-      })
-    ).unwrap();
-  } else if (item.stepType.includes('search_pipeline')) {
-    return await dispatch(
-      getSearchPipeline({
-        pipelineId: item.id,
-        dataSourceId,
-      })
-    ).unwrap();
-  }
-  return null;
-};

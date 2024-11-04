@@ -22,7 +22,7 @@ import {
   WorkflowResource,
   customStringify,
 } from '../../../../../common';
-import { fetchResourceData } from '../../../workflows/workflow_list/resource_list';
+import { fetchResourceData } from '../../../../utils';
 import { useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
 import { columns } from './columns';

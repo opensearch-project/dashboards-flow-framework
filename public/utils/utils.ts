@@ -20,6 +20,7 @@ import {
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STEP_TYPE,
   Workflow,
+  WorkflowResource,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
 import {
@@ -34,6 +35,7 @@ import * as pluginManifest from '../../opensearch_dashboards.json';
 import { DataSourceAttributes } from '../../../../src/plugins/data_source/common/data_sources';
 import { SavedObject } from '../../../../src/core/public';
 import semver from 'semver';
+import { getIndex, getIngestPipeline, getSearchPipeline } from '../store';
 
 // Generate a random ID. Optionally add a prefix. Optionally
 // override the default # characters to generate.
@@ -366,4 +368,34 @@ export const dataSourceFilterFn = (
       installedPlugins.includes(plugin)
     )
   );
+};
+
+// Fetches Resource details data for a given resource item.
+export const fetchResourceData = async (
+  item: WorkflowResource,
+  dataSourceId: string,
+  dispatch: any
+) => {
+  if (item.stepType === WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE) {
+    return await dispatch(
+      getIngestPipeline({ pipelineId: item.id, dataSourceId })
+    ).unwrap();
+  } else if (item.stepType === WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE) {
+    return await dispatch(
+      getIndex({
+        index: item.id,
+        dataSourceId,
+      })
+    ).unwrap();
+  } else if (
+    item.stepType === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+  ) {
+    return await dispatch(
+      getSearchPipeline({
+        pipelineId: item.id,
+        dataSourceId,
+      })
+    ).unwrap();
+  }
+  return null;
 };
