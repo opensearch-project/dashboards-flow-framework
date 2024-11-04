@@ -17,6 +17,7 @@ import {
   EuiModalHeaderTitle,
   EuiPopover,
   EuiSpacer,
+  EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
@@ -139,14 +140,13 @@ export function EditQueryModal(props: EditQueryModalProps) {
               />
             </EuiModalBody>
             <EuiModalFooter>
-              <EuiSmallButton
+              <EuiSmallButtonEmpty
                 onClick={() => props.setModalOpen(false)}
-                fill={false}
                 color="primary"
                 data-testid="cancelSearchQueryButton"
               >
                 Cancel
-              </EuiSmallButton>
+              </EuiSmallButtonEmpty>
               <EuiSmallButton
                 onClick={() => {
                   setFieldValue(props.queryFieldPath, tempRequest);
@@ -158,7 +158,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
                 color="primary"
                 data-testid="updateSearchQueryButton"
               >
-                Update
+                Save
               </EuiSmallButton>
             </EuiModalFooter>
           </EuiModal>
