@@ -42,7 +42,7 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const [resourceDetails, setResourceDetails] = useState<string | null>(null);
-  const { loading } = useSelector((state: AppState) => state.opensearch);
+  const loading = useSelector((state: AppState) => state.opensearch.loading);
 
   // Hook to initialize all resources. Reduce to unique IDs, since
   // the backend resources may include the same resource multiple times

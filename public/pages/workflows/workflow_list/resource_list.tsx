@@ -41,7 +41,7 @@ export function ResourceList(props: ResourceListProps) {
   const [itemIdToExpandedRowMap, setItemIdToExpandedRowMap] = useState<{
     [key: string]: any;
   }>({});
-  const { loading } = useSelector((state: AppState) => state.opensearch);
+  const loading = useSelector((state: AppState) => state.opensearch.loading);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [sortField, setSortField] = useState<keyof WorkflowResource>('id');
