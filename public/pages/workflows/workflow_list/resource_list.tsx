@@ -70,7 +70,7 @@ export function ResourceList(props: ResourceListProps) {
           </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={true} style={{ paddingLeft: '20px' }}>
-          {!isEmpty(data) && !loading ? (
+          {!data.startsWith('error:') && !loading ? (
             <EuiCodeBlock
               language="json"
               fontSize="m"
@@ -89,12 +89,7 @@ export function ResourceList(props: ResourceListProps) {
               iconType="alert"
               iconColor="danger"
               title={<h2>Error loading resource details</h2>}
-              body={
-                <p>
-                  You do not have permissions to access details of this
-                  resource.
-                </p>
-              }
+              body={<p>{data.replace(/^error:\s*/, '')}</p>}
             />
           )}
         </EuiFlexItem>
@@ -122,7 +117,7 @@ export function ResourceList(props: ResourceListProps) {
       } catch (error) {
         setItemIdToExpandedRowMap((prevMap) => ({
           ...prevMap,
-          [item.id]: renderExpandedRow(''),
+          [item.id]: renderExpandedRow('error:' + error),
         }));
       }
     }
