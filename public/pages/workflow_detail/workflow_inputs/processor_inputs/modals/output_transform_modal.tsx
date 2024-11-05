@@ -248,6 +248,7 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
             }}
             addMapEntryButtonText="Add output"
             addMapButtonText="(Advanced) Add output group"
+            mappingDirection="sortLeft"
           />
         );
 

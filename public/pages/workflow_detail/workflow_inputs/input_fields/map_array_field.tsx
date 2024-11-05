@@ -37,6 +37,7 @@ interface MapArrayFieldProps {
   valueOptions?: { label: string }[];
   addMapEntryButtonText?: string;
   addMapButtonText?: string;
+  mappingDirection?: 'sortRight' | 'sortLeft' | undefined;
 }
 
 /**
@@ -130,6 +131,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
                               keyOptions={props.keyOptions}
                               valueOptions={props.valueOptions}
                               addEntryButtonText={props.addMapEntryButtonText}
+                              mappingDirection={props.mappingDirection}
                             />
                           </EuiPanel>
                         </EuiAccordion>
@@ -150,6 +152,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
                       keyOptions={props.keyOptions}
                       valueOptions={props.valueOptions}
                       addEntryButtonText={props.addMapEntryButtonText}
+                      mappingDirection={props.mappingDirection}
                     />
                   </EuiPanel>
                   <EuiSpacer size="s" />

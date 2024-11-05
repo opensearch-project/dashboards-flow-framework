@@ -381,6 +381,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             }
             addMapEntryButtonText="Add input"
             addMapButtonText="(Advanced) Add input group"
+            mappingDirection="sortRight"
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -434,6 +435,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             }
             addMapEntryButtonText="Add output"
             addMapButtonText="(Advanced) Add output group"
+            mappingDirection="sortLeft"
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&

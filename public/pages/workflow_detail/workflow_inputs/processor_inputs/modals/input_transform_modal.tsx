@@ -323,6 +323,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
             }}
             addMapEntryButtonText="Add input"
             addMapButtonText="(Advanced) Add input group"
+            mappingDirection="sortRight"
           />
         );
 

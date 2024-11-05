@@ -37,6 +37,7 @@ interface MapFieldProps {
   keyOptions?: { label: string }[];
   valueOptions?: { label: string }[];
   addEntryButtonText?: string;
+  mappingDirection?: 'sortRight' | 'sortLeft' | undefined;
 }
 
 // The keys will be more static in general. Give more space for values where users
@@ -163,7 +164,9 @@ export function MapField(props: MapFieldProps) {
                               grow={false}
                               style={{ marginTop: '10px' }}
                             >
-                              <EuiIcon type="sortRight" />
+                              <EuiIcon
+                                type={props.mappingDirection || 'sortRight'}
+                              />
                             </EuiFlexItem>
                           </>
                         </EuiFlexGroup>
