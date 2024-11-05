@@ -190,7 +190,7 @@ export function processorConfigsToTemplateProcessors(
         if (output_map?.length > 0) {
           processor.ml_inference.output_map = output_map.map(
             (mapFormValue: MapFormValue) =>
-              mergeMapIntoSingleObj(mapFormValue, true) // we reverse the form inputs, so reverse back when converting back to the underlying template configuration
+              mergeMapIntoSingleObj(mapFormValue, true) // we reverse the form inputs for the output map, so reverse back when converting back to the underlying template configuration
           );
         }
 

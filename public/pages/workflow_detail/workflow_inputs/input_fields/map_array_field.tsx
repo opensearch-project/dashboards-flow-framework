@@ -177,7 +177,6 @@ export function MapArrayField(props: MapArrayFieldProps) {
                     ) : (
                       <EuiPanel grow={true} paddingSize="none">
                         <EuiFlexItem grow={true} style={{ margin: '0px' }}>
-                          {' '}
                           <EuiSmallButtonEmpty
                             iconType="plusInCircle"
                             iconSide="left"
