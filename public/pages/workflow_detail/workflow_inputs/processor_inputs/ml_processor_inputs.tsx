@@ -29,6 +29,9 @@ import {
   ModelInterface,
   IndexMappings,
   PROMPT_FIELD,
+  MapArrayFormValue,
+  MapEntry,
+  MapFormValue,
 } from '../../../../../common';
 import { MapArrayField, ModelField } from '../input_fields';
 import {
@@ -132,9 +135,27 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   // 1: update model interface states
   // 2. clear out any persisted input_map/output_map form values, as those would now be invalid
   function onModelChange(modelId: string) {
-    setModelInterface(models[modelId]?.interface);
-    setFieldValue(inputMapFieldPath, []);
-    setFieldValue(outputMapFieldPath, []);
+    const newModelInterface = models[modelId]?.interface;
+    setModelInterface(newModelInterface);
+    const modelInputsAsForm = [
+      parseModelInputs(newModelInterface).map((modelInput) => {
+        return {
+          key: modelInput.label,
+          value: '',
+        } as MapEntry;
+      }) as MapFormValue,
+    ] as MapArrayFormValue;
+    const modelOutputsAsForm = [
+      parseModelOutputs(newModelInterface).map((modelOutput) => {
+        return {
+          key: modelOutput.label,
+          value: '',
+        } as MapEntry;
+      }) as MapFormValue,
+    ] as MapArrayFormValue;
+
+    setFieldValue(inputMapFieldPath, modelInputsAsForm);
+    setFieldValue(outputMapFieldPath, modelOutputsAsForm);
     setFieldTouched(inputMapFieldPath, false);
     setFieldTouched(outputMapFieldPath, false);
   }
