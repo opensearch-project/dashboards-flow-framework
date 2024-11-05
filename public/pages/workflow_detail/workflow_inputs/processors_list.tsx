@@ -140,47 +140,50 @@ export function ProcessorsList(props: ProcessorsListProps) {
   }
 
   return (
-    <EuiFlexGroup direction="column">
+    <EuiFlexGroup direction="column" gutterSize="s">
       {processors.map((processor: IProcessorConfig, processorIndex) => {
         return (
           <EuiFlexItem key={processorIndex}>
-            <EuiAccordion
-              initialIsOpen={
-                processorAdded && processorIndex === processors.length - 1
-              }
-              id={`accordion${processor.id}`}
-              buttonContent={`${processor.name || 'Processor'}`}
-              extraAction={
-                <EuiSmallButtonIcon
-                  style={{ marginTop: '8px' }}
-                  iconType={'trash'}
-                  color="danger"
-                  aria-label="Delete"
-                  onClick={() => {
-                    deleteProcessor(processor.id);
-                  }}
-                />
-              }
-            >
-              <EuiSpacer size="s" />
-              <EuiPanel>
-                <ProcessorInputs
-                  uiConfig={props.uiConfig}
-                  config={processor}
-                  baseConfigPath={
-                    props.context === PROCESSOR_CONTEXT.INGEST
-                      ? 'ingest.enrich'
-                      : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                      ? 'search.enrichRequest'
-                      : 'search.enrichResponse'
-                  }
-                  context={props.context}
-                />
-              </EuiPanel>
-            </EuiAccordion>
+            <EuiPanel paddingSize="s">
+              <EuiAccordion
+                initialIsOpen={
+                  processorAdded && processorIndex === processors.length - 1
+                }
+                id={`accordion${processor.id}`}
+                buttonContent={`${processor.name || 'Processor'}`}
+                extraAction={
+                  <EuiSmallButtonIcon
+                    style={{ marginTop: '8px' }}
+                    iconType={'trash'}
+                    color="danger"
+                    aria-label="Delete"
+                    onClick={() => {
+                      deleteProcessor(processor.id);
+                    }}
+                  />
+                }
+              >
+                <EuiSpacer size="s" />
+                <EuiFlexItem style={{ paddingLeft: '28px' }}>
+                  <ProcessorInputs
+                    uiConfig={props.uiConfig}
+                    config={processor}
+                    baseConfigPath={
+                      props.context === PROCESSOR_CONTEXT.INGEST
+                        ? 'ingest.enrich'
+                        : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                        ? 'search.enrichRequest'
+                        : 'search.enrichResponse'
+                    }
+                    context={props.context}
+                  />
+                </EuiFlexItem>
+              </EuiAccordion>
+            </EuiPanel>
           </EuiFlexItem>
         );
       })}
+      <EuiSpacer size="s" />
       <EuiFlexItem grow={false}>
         <div>
           <EuiPopover
