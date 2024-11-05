@@ -571,9 +571,8 @@ export class OpenSearchRoutesService {
         this.client
       );
 
-      const response = await callWithRequest('transport.request', {
-        method: 'GET',
-        path: SEARCH_PIPELINE_ROUTE + '/' + pipeline_id,
+      const response = await callWithRequest('coreClient.getSearchPipeline', {
+        pipeline_id: pipeline_id,
       });
 
       return res.ok({ body: response });
