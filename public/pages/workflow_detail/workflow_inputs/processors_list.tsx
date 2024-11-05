@@ -153,7 +153,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
                 buttonContent={`${processor.name || 'Processor'}`}
                 extraAction={
                   <EuiSmallButtonIcon
-                    style={{ marginTop: '8px' }}
                     iconType={'trash'}
                     color="danger"
                     aria-label="Delete"
