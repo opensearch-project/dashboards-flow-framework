@@ -24,7 +24,6 @@ import {
   IngestPipelineConfig,
   SEARCH_INDEX_NODE_API_PATH,
   SEARCH_PIPELINE_NODE_API_PATH,
-  SEARCH_PIPELINE_ROUTE,
   SIMULATE_PIPELINE_NODE_API_PATH,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
