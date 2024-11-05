@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import {
-  EuiSmallButton,
+  EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
   EuiContextMenu,
   EuiFlexGroup,
@@ -184,131 +184,141 @@ export function ProcessorsList(props: ProcessorsListProps) {
         );
       })}
       <EuiSpacer size="s" />
-      <EuiFlexItem grow={false}>
-        <div>
-          <EuiPopover
-            button={
-              <EuiSmallButton
-                iconType="arrowDown"
-                iconSide="right"
-                onClick={() => {
-                  setPopover(!isPopoverOpen);
-                }}
-                data-testid="addProcessorButton"
-              >
-                {processors.length > 0
-                  ? 'Add another processor'
-                  : 'Add processor'}
-              </EuiSmallButton>
-            }
-            isOpen={isPopoverOpen}
-            closePopover={closePopover}
-            panelPaddingSize="none"
-            anchorPosition="downLeft"
+      <EuiFlexItem>
+        <EuiPanel paddingSize="s" grow={true}>
+          <EuiFlexGroup
+            gutterSize="none"
+            alignItems="center"
+            justifyContent="center"
           >
-            <EuiContextMenu
-              size="s"
-              initialPanelId={PANEL_ID}
-              panels={[
-                {
-                  id: PANEL_ID,
-                  title: 'PROCESSORS',
-                  items:
-                    props.context === PROCESSOR_CONTEXT.INGEST
-                      ? [
-                          {
-                            name: 'ML Inference Processor',
-                            onClick: () => {
-                              closePopover();
-                              addProcessor(new MLIngestProcessor().toObj());
-                            },
-                          },
-                          {
-                            name: 'Split Processor',
-                            onClick: () => {
-                              closePopover();
-                              addProcessor(new SplitIngestProcessor().toObj());
-                            },
-                          },
-                          {
-                            name: 'Sort Processor',
-                            onClick: () => {
-                              closePopover();
-                              addProcessor(new SortIngestProcessor().toObj());
-                            },
-                          },
-                          {
-                            name: 'Text Chunking Processor',
-                            onClick: () => {
-                              closePopover();
-                              addProcessor(
-                                new TextChunkingIngestProcessor().toObj()
-                              );
-                            },
-                          },
-                        ]
-                      : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                      ? [
-                          {
-                            name: 'ML Inference Processor',
-                            onClick: () => {
-                              closePopover();
-                              addProcessor(
-                                new MLSearchRequestProcessor().toObj()
-                              );
-                            },
-                          },
-                        ]
-                      : [
-                          {
-                            name: 'ML Inference Processor',
-                            onClick: () => {
-                              closePopover();
-                              addProcessor(
-                                new MLSearchResponseProcessor().toObj()
-                              );
-                            },
-                          },
-                          {
-                            name: 'Split Processor',
-                            onClick: () => {
-                              closePopover();
-                              addProcessor(
-                                new SplitSearchResponseProcessor().toObj()
-                              );
-                            },
-                          },
-                          {
-                            name: 'Sort Processor',
-                            onClick: () => {
-                              closePopover();
-                              addProcessor(
-                                new SortSearchResponseProcessor().toObj()
-                              );
-                            },
-                          },
-                          {
-                            name: 'Normalization Processor',
-                            onClick: () => {
-                              closePopover();
-                              addProcessor(
-                                new NormalizationProcessor().toObj()
-                              );
-                            },
-                          },
-                          {
-                            name: 'Collapse Processor',
-                            onClick: () => {
-                              closePopover();
-                              addProcessor(new CollapseProcessor().toObj());
-                            },
-                          },
-                        ],
-                },
-              ]}
-            />
-          </EuiPopover>
-        </div>
+            <EuiFlexItem grow={false}>
+              <EuiPopover
+                button={
+                  <EuiSmallButtonEmpty
+                    iconType="plusInCircle"
+                    iconSide="left"
+                    onClick={() => {
+                      setPopover(!isPopoverOpen);
+                    }}
+                    data-testid="addProcessorButton"
+                  >
+                    {`Add processor`}
+                  </EuiSmallButtonEmpty>
+                }
+                isOpen={isPopoverOpen}
+                closePopover={closePopover}
+                panelPaddingSize="none"
+                anchorPosition="downLeft"
+              >
+                <EuiContextMenu
+                  size="s"
+                  initialPanelId={PANEL_ID}
+                  panels={[
+                    {
+                      id: PANEL_ID,
+                      title: 'PROCESSORS',
+                      items:
+                        props.context === PROCESSOR_CONTEXT.INGEST
+                          ? [
+                              {
+                                name: 'ML Inference Processor',
+                                onClick: () => {
+                                  closePopover();
+                                  addProcessor(new MLIngestProcessor().toObj());
+                                },
+                              },
+                              {
+                                name: 'Split Processor',
+                                onClick: () => {
+                                  closePopover();
+                                  addProcessor(
+                                    new SplitIngestProcessor().toObj()
+                                  );
+                                },
+                              },
+                              {
+                                name: 'Sort Processor',
+                                onClick: () => {
+                                  closePopover();
+                                  addProcessor(
+                                    new SortIngestProcessor().toObj()
+                                  );
+                                },
+                              },
+                              {
+                                name: 'Text Chunking Processor',
+                                onClick: () => {
+                                  closePopover();
+                                  addProcessor(
+                                    new TextChunkingIngestProcessor().toObj()
+                                  );
+                                },
+                              },
+                            ]
+                          : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                          ? [
+                              {
+                                name: 'ML Inference Processor',
+                                onClick: () => {
+                                  closePopover();
+                                  addProcessor(
+                                    new MLSearchRequestProcessor().toObj()
+                                  );
+                                },
+                              },
+                            ]
+                          : [
+                              {
+                                name: 'ML Inference Processor',
+                                onClick: () => {
+                                  closePopover();
+                                  addProcessor(
+                                    new MLSearchResponseProcessor().toObj()
+                                  );
+                                },
+                              },
+                              {
+                                name: 'Split Processor',
+                                onClick: () => {
+                                  closePopover();
+                                  addProcessor(
+                                    new SplitSearchResponseProcessor().toObj()
+                                  );
+                                },
+                              },
+                              {
+                                name: 'Sort Processor',
+                                onClick: () => {
+                                  closePopover();
+                                  addProcessor(
+                                    new SortSearchResponseProcessor().toObj()
+                                  );
+                                },
+                              },
+                              {
+                                name: 'Normalization Processor',
+                                onClick: () => {
+                                  closePopover();
+                                  addProcessor(
+                                    new NormalizationProcessor().toObj()
+                                  );
+                                },
+                              },
+                              {
+                                name: 'Collapse Processor',
+                                onClick: () => {
+                                  closePopover();
+                                  addProcessor(new CollapseProcessor().toObj());
+                                },
+                              },
+                            ],
+                    },
+                  ]}
+                />
+              </EuiPopover>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiPanel>
       </EuiFlexItem>
     </EuiFlexGroup>
   );
