@@ -12,8 +12,8 @@ import {
   EuiIcon,
   EuiLink,
   EuiText,
-  EuiSmallButton,
   EuiIconTip,
+  EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
@@ -240,13 +240,16 @@ export function MapField(props: MapFieldProps) {
               })}
               <EuiFlexItem grow={false}>
                 <div>
-                  <EuiSmallButton
+                  <EuiSmallButtonEmpty
+                    style={{ marginLeft: '-8px', marginTop: '0px' }}
+                    iconType={'plusInCircle'}
+                    iconSide="left"
                     onClick={() => {
                       addMapEntry(field.value);
                     }}
                   >
                     {props.addEntryButtonText || 'Add more'}
-                  </EuiSmallButton>
+                  </EuiSmallButtonEmpty>
                 </div>
               </EuiFlexItem>
             </EuiFlexGroup>
