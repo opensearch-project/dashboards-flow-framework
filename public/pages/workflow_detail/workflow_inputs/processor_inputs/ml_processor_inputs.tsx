@@ -401,7 +401,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 : indexMappingFields
             }
             addMapEntryButtonText="Add input"
-            addMapButtonText="(Advanced) Add input group"
+            addMapButtonText="Add input group (Advanced)"
             mappingDirection="sortLeft"
           />
           <EuiSpacer size="l" />
@@ -455,7 +455,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 : 'Define a document field'
             }
             addMapEntryButtonText="Add output"
-            addMapButtonText="(Advanced) Add output group"
+            addMapButtonText="Add output group (Advanced)"
             mappingDirection="sortRight"
           />
           <EuiSpacer size="s" />
