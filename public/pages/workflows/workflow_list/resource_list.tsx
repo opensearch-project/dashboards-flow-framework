@@ -14,14 +14,18 @@ import {
   RIGHT_ALIGNMENT,
   EuiText,
   Direction,
+  EuiEmptyPrompt,
+  EuiLoadingSpinner,
 } from '@elastic/eui';
 import {
   Workflow,
   WorkflowResource,
   customStringify,
 } from '../../../../common';
-import { useAppDispatch } from '../../../store';
+import { AppState, useAppDispatch } from '../../../store';
 import { fetchResourceData, getDataSourceId } from '../../../utils';
+import { useSelector } from 'react-redux';
+import { isEmpty } from 'lodash';
 
 interface ResourceListProps {
   workflow?: Workflow;
@@ -35,9 +39,9 @@ export function ResourceList(props: ResourceListProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const [itemIdToExpandedRowMap, setItemIdToExpandedRowMap] = useState<{
-    [key: string]: React.ReactNode;
+    [key: string]: any;
   }>({});
-  const [codeBlockData, setCodeBlockData] = useState<any>(null);
+  const { loading } = useSelector((state: AppState) => state.opensearch);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [sortField, setSortField] = useState<keyof WorkflowResource>('id');
@@ -56,16 +60,6 @@ export function ResourceList(props: ResourceListProps) {
     }
   }, [props.workflow?.resourcesCreated]);
 
-  useEffect(() => {
-    if (codeBlockData) {
-      const { item, data } = codeBlockData;
-      setItemIdToExpandedRowMap((prevMap) => ({
-        ...prevMap,
-        [item.id]: renderExpandedRow(data),
-      }));
-    }
-  }, [codeBlockData]);
-
   // Renders the expanded row to show resource details in a code block.
   const renderExpandedRow = useCallback(
     (data: any) => (
@@ -76,18 +70,37 @@ export function ResourceList(props: ResourceListProps) {
           </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={true} style={{ paddingLeft: '20px' }}>
-          <EuiCodeBlock
-            language="json"
-            fontSize="m"
-            isCopyable={true}
-            overflowHeight={150}
-          >
-            {customStringify(data)}
-          </EuiCodeBlock>
+          {!isEmpty(data) && !loading ? (
+            <EuiCodeBlock
+              language="json"
+              fontSize="m"
+              isCopyable={true}
+              overflowHeight={150}
+            >
+              {customStringify(data)}
+            </EuiCodeBlock>
+          ) : loading ? (
+            <EuiEmptyPrompt
+              icon={<EuiLoadingSpinner size="xl" />}
+              title={<h2>Loading</h2>}
+            />
+          ) : (
+            <EuiEmptyPrompt
+              iconType="alert"
+              iconColor="danger"
+              title={<h2>Error loading resource details</h2>}
+              body={
+                <p>
+                  You do not have permissions to access details of this
+                  resource.
+                </p>
+              }
+            />
+          )}
         </EuiFlexItem>
       </EuiFlexGroup>
     ),
-    [codeBlockData]
+    [loading]
   );
 
   // Expands or collapses the details for a resource item.
@@ -101,10 +114,16 @@ export function ResourceList(props: ResourceListProps) {
       try {
         const result = await fetchResourceData(item, dataSourceId!, dispatch);
         if (result) {
-          setCodeBlockData({ item, data: result });
+          setItemIdToExpandedRowMap((prevMap) => ({
+            ...prevMap,
+            [item.id]: renderExpandedRow(result),
+          }));
         }
       } catch (error) {
-        console.error('Failed to fetch resource data:', error);
+        setItemIdToExpandedRowMap((prevMap) => ({
+          ...prevMap,
+          [item.id]: renderExpandedRow(''),
+        }));
       }
     }
   };

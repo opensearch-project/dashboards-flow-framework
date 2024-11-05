@@ -83,7 +83,9 @@ export const getIndex = createAsyncThunk(
       dataSourceId
     );
     if (response instanceof HttpFetchError) {
-      return rejectWithValue('Error getting index settings and mappings: ' + response.body.message);
+      return rejectWithValue(
+        'Error getting index settings and mappings: ' + response.body.message
+      );
     } else {
       return response;
     }
@@ -272,6 +274,18 @@ const opensearchSlice = createSlice({
         state.loading = true;
         state.errorMessage = '';
       })
+      .addCase(getIndex.pending, (state, action) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
+      .addCase(getIngestPipeline.pending, (state, action) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
+      .addCase(getSearchPipeline.pending, (state, action) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
       .addCase(searchIndex.pending, (state, action) => {
         state.loading = true;
         state.errorMessage = '';
@@ -293,6 +307,18 @@ const opensearchSlice = createSlice({
         state.loading = false;
         state.errorMessage = '';
       })
+      .addCase(getIndex.fulfilled, (state, action) => {
+        state.loading = false;
+        state.errorMessage = '';
+      })
+      .addCase(getSearchPipeline.fulfilled, (state, action) => {
+        state.loading = false;
+        state.errorMessage = '';
+      })
+      .addCase(getIngestPipeline.fulfilled, (state, action) => {
+        state.loading = false;
+        state.errorMessage = '';
+      })
       .addCase(searchIndex.fulfilled, (state, action) => {
         state.loading = false;
         state.errorMessage = '';
@@ -306,6 +332,18 @@ const opensearchSlice = createSlice({
         state.loading = false;
       })
       .addCase(getMappings.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(getIndex.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(getIngestPipeline.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(getSearchPipeline.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       })

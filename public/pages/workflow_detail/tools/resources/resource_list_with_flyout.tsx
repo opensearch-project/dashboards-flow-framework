@@ -16,6 +16,8 @@ import {
   EuiTitle,
   EuiIcon,
   EuiText,
+  EuiEmptyPrompt,
+  EuiLoadingSpinner,
 } from '@elastic/eui';
 import {
   Workflow,
@@ -23,9 +25,10 @@ import {
   customStringify,
 } from '../../../../../common';
 import { fetchResourceData } from '../../../../utils';
-import { useAppDispatch } from '../../../../store';
+import { AppState, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
 import { columns } from './columns';
+import { useSelector } from 'react-redux';
 
 interface ResourceListFlyoutProps {
   workflow?: Workflow;
@@ -39,6 +42,7 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const [resourceDetails, setResourceDetails] = useState<string | null>(null);
+  const { loading } = useSelector((state: AppState) => state.opensearch);
 
   // Hook to initialize all resources. Reduce to unique IDs, since
   // the backend resources may include the same resource multiple times
@@ -72,10 +76,7 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
     try {
       const result = await fetchResourceData(row, dataSourceId!, dispatch);
       setResourceDetails(customStringify(result));
-    } catch (error) {
-      console.error('Failed to fetch resource data:', error);
-      setResourceDetails('Error fetching resource data.');
-    }
+    } catch (error) {}
   };
 
   // Closes the flyout and resets the selected resource data.
@@ -123,21 +124,27 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
             <EuiFlexGroup direction="column" gutterSize="xs">
-              <EuiFlexItem grow={true} style={{ paddingLeft: '20px' }}>
+              <EuiFlexItem grow={true}>
                 <EuiText size="m">
                   <h4>Resource details</h4>
                 </EuiText>
               </EuiFlexItem>
-
               <EuiFlexItem grow={true}>
-                <EuiCodeBlock
-                  language="json"
-                  fontSize="m"
-                  isCopyable={true}
-                  overflowHeight={650}
-                >
-                  {resourceDetails || 'Loading...'}
-                </EuiCodeBlock>
+                {resourceDetails && !loading ? (
+                  <EuiCodeBlock
+                    language="json"
+                    fontSize="m"
+                    isCopyable={true}
+                    overflowHeight={650}
+                  >
+                    {resourceDetails}
+                  </EuiCodeBlock>
+                ) : (
+                  <EuiEmptyPrompt
+                    icon={<EuiLoadingSpinner size="xl" />}
+                    title={<h2>Loading</h2>}
+                  />
+                )}
               </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlyoutBody>
