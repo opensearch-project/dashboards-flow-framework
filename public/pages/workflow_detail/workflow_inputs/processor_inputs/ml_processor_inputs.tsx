@@ -381,7 +381,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             }
             addMapEntryButtonText="Add input"
             addMapButtonText="(Advanced) Add input group"
-            mappingDirection="sortRight"
+            mappingDirection="sortLeft"
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -416,26 +416,26 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             fieldPath={outputMapFieldPath}
             helpText={`An array specifying how to map the model’s output to new document fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
             root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-            keyTitle={
-              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? 'Query field'
-                : 'New document field'
-            }
-            keyPlaceholder={
-              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? 'Specify a query field'
-                : 'Define a document field'
-            }
-            valueTitle="Name"
-            valuePlaceholder="Name"
-            valueOptions={
+            keyTitle="Name"
+            keyPlaceholder="Name"
+            keyOptions={
               fullResponsePath
                 ? undefined
                 : parseModelOutputs(modelInterface, false)
             }
+            valueTitle={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Query field'
+                : 'New document field'
+            }
+            valuePlaceholder={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Specify a query field'
+                : 'Define a document field'
+            }
             addMapEntryButtonText="Add output"
             addMapButtonText="(Advanced) Add output group"
-            mappingDirection="sortLeft"
+            mappingDirection="sortRight"
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&
