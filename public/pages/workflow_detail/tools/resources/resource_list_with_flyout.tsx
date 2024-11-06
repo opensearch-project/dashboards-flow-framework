@@ -24,9 +24,18 @@ import {
   WorkflowResource,
   customStringify,
 } from '../../../../../common';
-import { fetchResourceData } from '../../../../utils';
-import { AppState, useAppDispatch } from '../../../../store';
-import { getDataSourceId } from '../../../../utils';
+import {
+  AppState,
+  useAppDispatch,
+  getIndex,
+  getIngestPipeline,
+  getSearchPipeline,
+} from '../../../../store';
+import {
+  extractIdsByStepType,
+  getDataSourceId,
+  getErrorMessageForStepType,
+} from '../../../../utils';
 import { columns } from './columns';
 import { useSelector } from 'react-redux';
 
@@ -42,7 +51,16 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const [resourceDetails, setResourceDetails] = useState<string | null>(null);
-  const loading = useSelector((state: AppState) => state.opensearch.loading);
+  const [rowErrorMessage, setRowErrorMessage] = useState<string | null>(null);
+  const {
+    loading,
+    getIndexErrorMessage,
+    getIngestPipelineErrorMessage,
+    getSearchPipelineErrorMessage,
+    indexDetails,
+    ingestPipelineDetails,
+    searchPipelineDetails,
+  } = useSelector((state: AppState) => state.opensearch);
 
   // Hook to initialize all resources. Reduce to unique IDs, since
   // the backend resources may include the same resource multiple times
@@ -56,6 +74,36 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
       setAllResources(Object.values(resourcesMap));
     }
   }, [props.workflow?.resourcesCreated]);
+
+  useEffect(() => {
+    const {
+      indexIds,
+      ingestPipelineIds,
+      searchPipelineIds,
+    } = extractIdsByStepType(allResources);
+
+    if (indexIds) {
+      try {
+        dispatch(getIndex({ index: indexIds, dataSourceId }));
+      } catch {}
+    }
+
+    if (ingestPipelineIds) {
+      try {
+        dispatch(
+          getIngestPipeline({ pipelineId: ingestPipelineIds, dataSourceId })
+        );
+      } catch {}
+    }
+
+    if (searchPipelineIds) {
+      try {
+        dispatch(
+          getSearchPipeline({ pipelineId: searchPipelineIds, dataSourceId })
+        );
+      } catch {}
+    }
+  }, [allResources]);
 
   const sorting = {
     sort: {
@@ -73,10 +121,19 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
   const openFlyout = async (row: WorkflowResource) => {
     setSelectedRowData(row);
     setIsFlyoutVisible(true);
-    try {
-      const result = await fetchResourceData(row, dataSourceId!, dispatch);
-      setResourceDetails(customStringify(result));
-    } catch (error) {}
+    const value =
+      indexDetails[row.id] ??
+      ingestPipelineDetails[row.id] ??
+      searchPipelineDetails[row.id] ??
+      '';
+    setResourceDetails(customStringify({ [row.id]: value }));
+    const resourceDetailsErrorMessage = getErrorMessageForStepType(
+      row.stepType,
+      getIndexErrorMessage,
+      getIngestPipelineErrorMessage,
+      getSearchPipelineErrorMessage
+    );
+    setRowErrorMessage(resourceDetailsErrorMessage);
   };
 
   // Closes the flyout and resets the selected resource data.
@@ -130,7 +187,7 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
                 </EuiText>
               </EuiFlexItem>
               <EuiFlexItem grow={true}>
-                {resourceDetails && !loading ? (
+                {!rowErrorMessage && !loading ? (
                   <EuiCodeBlock
                     language="json"
                     fontSize="m"
@@ -139,10 +196,17 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
                   >
                     {resourceDetails}
                   </EuiCodeBlock>
-                ) : (
+                ) : loading ? (
                   <EuiEmptyPrompt
                     icon={<EuiLoadingSpinner size="xl" />}
                     title={<h2>Loading</h2>}
+                  />
+                ) : (
+                  <EuiEmptyPrompt
+                    iconType="alert"
+                    iconColor="danger"
+                    title={<h2>Error loading resource details</h2>}
+                    body={<p>{rowErrorMessage}</p>}
                   />
                 )}
               </EuiFlexItem>

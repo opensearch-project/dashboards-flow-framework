@@ -22,10 +22,19 @@ import {
   WorkflowResource,
   customStringify,
 } from '../../../../common';
-import { AppState, useAppDispatch } from '../../../store';
-import { fetchResourceData, getDataSourceId } from '../../../utils';
+import {
+  AppState,
+  getIndex,
+  getIngestPipeline,
+  getSearchPipeline,
+  useAppDispatch,
+} from '../../../store';
+import {
+  extractIdsByStepType,
+  getDataSourceId,
+  getErrorMessageForStepType,
+} from '../../../utils';
 import { useSelector } from 'react-redux';
-import { isEmpty } from 'lodash';
 
 interface ResourceListProps {
   workflow?: Workflow;
@@ -41,7 +50,15 @@ export function ResourceList(props: ResourceListProps) {
   const [itemIdToExpandedRowMap, setItemIdToExpandedRowMap] = useState<{
     [key: string]: any;
   }>({});
-  const loading = useSelector((state: AppState) => state.opensearch.loading);
+  const {
+    loading,
+    getIndexErrorMessage,
+    getIngestPipelineErrorMessage,
+    getSearchPipelineErrorMessage,
+    indexDetails,
+    ingestPipelineDetails,
+    searchPipelineDetails,
+  } = useSelector((state: AppState) => state.opensearch);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [sortField, setSortField] = useState<keyof WorkflowResource>('id');
@@ -60,9 +77,39 @@ export function ResourceList(props: ResourceListProps) {
     }
   }, [props.workflow?.resourcesCreated]);
 
+  useEffect(() => {
+    const {
+      indexIds,
+      ingestPipelineIds,
+      searchPipelineIds,
+    } = extractIdsByStepType(allResources);
+
+    if (indexIds) {
+      try {
+        dispatch(getIndex({ index: indexIds, dataSourceId }));
+      } catch {}
+    }
+
+    if (ingestPipelineIds) {
+      try {
+        dispatch(
+          getIngestPipeline({ pipelineId: ingestPipelineIds, dataSourceId })
+        );
+      } catch {}
+    }
+
+    if (searchPipelineIds) {
+      try {
+        dispatch(
+          getSearchPipeline({ pipelineId: searchPipelineIds, dataSourceId })
+        );
+      } catch {}
+    }
+  }, [allResources]);
+
   // Renders the expanded row to show resource details in a code block.
   const renderExpandedRow = useCallback(
-    (data: any) => (
+    (data: any, resourceDetailsErrorMessage?: string) => (
       <EuiFlexGroup direction="column" gutterSize="xs">
         <EuiFlexItem grow={true} style={{ paddingLeft: '20px' }}>
           <EuiText size="m">
@@ -70,7 +117,7 @@ export function ResourceList(props: ResourceListProps) {
           </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={true} style={{ paddingLeft: '20px' }}>
-          {!data.startsWith('error:') && !loading ? (
+          {!resourceDetailsErrorMessage && !loading ? (
             <EuiCodeBlock
               language="json"
               fontSize="m"
@@ -89,7 +136,7 @@ export function ResourceList(props: ResourceListProps) {
               iconType="alert"
               iconColor="danger"
               title={<h2>Error loading resource details</h2>}
-              body={<p>{data.replace(/^error:\s*/, '')}</p>}
+              body={<p>{resourceDetailsErrorMessage}</p>}
             />
           )}
         </EuiFlexItem>
@@ -106,18 +153,23 @@ export function ResourceList(props: ResourceListProps) {
       delete updatedItemIdToExpandedRowMap[item.id];
       setItemIdToExpandedRowMap(updatedItemIdToExpandedRowMap);
     } else {
-      try {
-        const result = await fetchResourceData(item, dataSourceId!, dispatch);
-        if (result) {
-          setItemIdToExpandedRowMap((prevMap) => ({
-            ...prevMap,
-            [item.id]: renderExpandedRow(result),
-          }));
-        }
-      } catch (error) {
+      const value =
+        indexDetails[item.id] ??
+        ingestPipelineDetails[item.id] ??
+        searchPipelineDetails[item.id] ??
+        '';
+      const resourceDetailsErrorMessage = getErrorMessageForStepType(
+        item.stepType,
+        getIndexErrorMessage,
+        getIngestPipelineErrorMessage,
+        getSearchPipelineErrorMessage
+      );
+
+      const result = { [item.id]: value };
+      if (result) {
         setItemIdToExpandedRowMap((prevMap) => ({
           ...prevMap,
-          [item.id]: renderExpandedRow('error:' + error),
+          [item.id]: renderExpandedRow(result, resourceDetailsErrorMessage),
         }));
       }
     }

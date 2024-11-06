@@ -21,10 +21,13 @@ import {
   INGEST_PIPELINE_NODE_API_PATH,
   Index,
   IndexMappings,
+  IndexResponse,
   IngestPipelineConfig,
+  IngestPipelineResponse,
   SEARCH_INDEX_NODE_API_PATH,
   SEARCH_PIPELINE_NODE_API_PATH,
   SIMULATE_PIPELINE_NODE_API_PATH,
+  SearchPipelineResponse,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
 } from '../../common';
@@ -398,7 +401,15 @@ export class OpenSearchRoutesService {
       const response = await callWithRequest('indices.get', {
         index,
       });
-      return res.ok({ body: response });
+      // re-formatting the results to match IndexResponse
+      const cleanedIndexDetails = Object.entries(response).map(
+        ([indexName, indexDetails]) => ({
+          indexName,
+          indexDetails,
+        })
+      ) as IndexResponse[];
+
+      return res.ok({ body: cleanedIndexDetails });
     } catch (err: any) {
       return generateCustomError(res, err);
     }
@@ -546,8 +557,15 @@ export class OpenSearchRoutesService {
       const response = await callWithRequest('ingest.getPipeline', {
         id: pipeline_id,
       });
+      // re-formatting the results to match IngestPipelineResponse
+      const cleanedIngestPipelineDetails = Object.entries(response).map(
+        ([pipelineId, ingestPipelineDetails]) => ({
+          pipelineId,
+          ingestPipelineDetails,
+        })
+      ) as IngestPipelineResponse[];
 
-      return res.ok({ body: response });
+      return res.ok({ body: cleanedIngestPipelineDetails });
     } catch (err: any) {
       return generateCustomError(res, err);
     }
@@ -574,7 +592,15 @@ export class OpenSearchRoutesService {
         pipeline_id: pipeline_id,
       });
 
-      return res.ok({ body: response });
+      // re-formatting the results to match SearchPipelineResponse
+      const cleanedSearchPipelineDetails = Object.entries(response).map(
+        ([pipelineId, searchPipelineDetails]) => ({
+          pipelineId,
+          searchPipelineDetails,
+        })
+      ) as SearchPipelineResponse[];
+
+      return res.ok({ body: cleanedSearchPipelineDetails });
     } catch (err: any) {
       return generateCustomError(res, err);
     }
