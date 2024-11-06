@@ -28,7 +28,8 @@ export function BooleanField(props: BooleanFieldProps) {
       {({ field, form }: FieldProps) => {
         return (
           <EuiCompressedCheckbox
-            id={`checkBox${field.name}`}
+            data-testid={`checkbox-${field.name}`}
+            id={`checkbox-${field.name}`}
             label={
               <>
                 <EuiFlexGroup direction="row">
