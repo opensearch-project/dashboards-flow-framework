@@ -215,22 +215,22 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
             fieldPath={'output_map'}
             helpText={`An array specifying how to map the model’s output to new fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
 root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-            keyTitle={
+            keyTitle="Name"
+            keyPlaceholder="Name"
+            keyOptions={
+              tempFullResponsePath
+                ? undefined
+                : parseModelOutputs(props.modelInterface, false)
+            }
+            valueTitle={
               props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                 ? 'Query field'
                 : 'New document field'
             }
-            keyPlaceholder={
+            valuePlaceholder={
               props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                 ? 'Specify a query field'
                 : 'Define a document field'
-            }
-            valueTitle="Name"
-            valuePlaceholder="Name"
-            valueOptions={
-              tempFullResponsePath
-                ? undefined
-                : parseModelOutputs(props.modelInterface, false)
             }
             // If the map we are adding is the first one, populate the selected option to index 0
             onMapAdd={(curArray) => {
@@ -247,7 +247,8 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
               }
             }}
             addMapEntryButtonText="Add output"
-            addMapButtonText="(Advanced) Add output group"
+            addMapButtonText="Add output group (Advanced)"
+            mappingDirection="sortRight"
           />
         );
 
