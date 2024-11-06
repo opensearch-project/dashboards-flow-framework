@@ -7,7 +7,12 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { getRouteService } from '../../services';
 import {
   Index,
+  IndexConfiguration,
+  IndexResponse,
   IngestPipelineConfig,
+  IngestPipelineResponse,
+  SearchPipelineConfig,
+  SearchPipelineResponse,
   OMIT_SYSTEM_INDEX_PATTERN,
   SimulateIngestPipelineDoc,
 } from '../../../common';
@@ -16,7 +21,13 @@ import { HttpFetchError } from '../../../../../src/core/public';
 export const INITIAL_OPENSEARCH_STATE = {
   loading: false,
   errorMessage: '',
+  getIndexErrorMessage: '',
+  getSearchPipelineErrorMessage: '',
+  getIngestPipelineErrorMessage: '',
   indices: {} as { [key: string]: Index },
+  indexDetails: {} as { [key: string]: IndexConfiguration },
+  ingestPipelineDetails: {} as { [key: string]: IngestPipelineConfig },
+  searchPipelineDetails: {} as { [key: string]: SearchPipelineConfig },
 };
 
 const OPENSEARCH_PREFIX = 'opensearch';
@@ -26,6 +37,9 @@ const SEARCH_INDEX_ACTION = `${OPENSEARCH_PREFIX}/search`;
 const INGEST_ACTION = `${OPENSEARCH_PREFIX}/ingest`;
 const BULK_ACTION = `${OPENSEARCH_PREFIX}/bulk`;
 const SIMULATE_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/simulatePipeline`;
+const GET_INGEST_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/getIngestPipeline`;
+const GET_SEARCH_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/getSearchPipeline`;
+const GET_INDEX_ACTION = `${OPENSEARCH_PREFIX}/getIndex`;
 
 export const catIndices = createAsyncThunk(
   CAT_INDICES_ACTION,
@@ -62,6 +76,26 @@ export const getMappings = createAsyncThunk(
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
         'Error getting index mappings: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
+  }
+);
+
+export const getIndex = createAsyncThunk(
+  GET_INDEX_ACTION,
+  async (
+    { index, dataSourceId }: { index: string; dataSourceId?: string },
+    { rejectWithValue }
+  ) => {
+    const response: any | HttpFetchError = await getRouteService().getIndex(
+      index,
+      dataSourceId
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error getting index settings and mappings: ' + response.body.message
       );
     } else {
       return response;
@@ -181,6 +215,62 @@ export const simulatePipeline = createAsyncThunk(
   }
 );
 
+export const getSearchPipeline = createAsyncThunk(
+  GET_SEARCH_PIPELINE_ACTION,
+  async (
+    {
+      pipelineId,
+      dataSourceId,
+    }: {
+      pipelineId: string;
+      dataSourceId?: string;
+    },
+    { rejectWithValue }
+  ) => {
+    const response:
+      | any
+      | HttpFetchError = await getRouteService().getSearchPipeline(
+      pipelineId,
+      dataSourceId
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error fetching search pipeline: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
+  }
+);
+
+export const getIngestPipeline = createAsyncThunk(
+  GET_INGEST_PIPELINE_ACTION,
+  async (
+    {
+      pipelineId,
+      dataSourceId,
+    }: {
+      pipelineId: string;
+      dataSourceId?: string;
+    },
+    { rejectWithValue }
+  ) => {
+    const response:
+      | any
+      | HttpFetchError = await getRouteService().getIngestPipeline(
+      pipelineId,
+      dataSourceId
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue(
+        'Error fetching ingest pipeline: ' + response.body.message
+      );
+    } else {
+      return response;
+    }
+  }
+);
+
 const opensearchSlice = createSlice({
   name: OPENSEARCH_PREFIX,
   initialState: INITIAL_OPENSEARCH_STATE,
@@ -194,6 +284,18 @@ const opensearchSlice = createSlice({
       .addCase(getMappings.pending, (state, action) => {
         state.loading = true;
         state.errorMessage = '';
+      })
+      .addCase(getIndex.pending, (state, action) => {
+        state.loading = true;
+        state.getIndexErrorMessage = '';
+      })
+      .addCase(getIngestPipeline.pending, (state, action) => {
+        state.loading = true;
+        state.getIngestPipelineErrorMessage = '';
+      })
+      .addCase(getSearchPipeline.pending, (state, action) => {
+        state.loading = true;
+        state.getSearchPipelineErrorMessage = '';
       })
       .addCase(searchIndex.pending, (state, action) => {
         state.loading = true;
@@ -216,6 +318,43 @@ const opensearchSlice = createSlice({
         state.loading = false;
         state.errorMessage = '';
       })
+      .addCase(getIndex.fulfilled, (state, action) => {
+        const resourceDetailsMap = new Map<string, IndexConfiguration>();
+        action.payload.forEach((index: IndexResponse) => {
+          resourceDetailsMap.set(index.indexName, index.indexDetails);
+        });
+        state.indexDetails = Object.fromEntries(resourceDetailsMap.entries());
+        state.loading = false;
+        state.getIndexErrorMessage = '';
+      })
+      .addCase(getSearchPipeline.fulfilled, (state, action) => {
+        const resourceDetailsMap = new Map<string, SearchPipelineConfig>();
+        action.payload.forEach((pipeline: SearchPipelineResponse) => {
+          resourceDetailsMap.set(
+            pipeline.pipelineId,
+            pipeline.searchPipelineDetails
+          );
+        });
+        state.searchPipelineDetails = Object.fromEntries(
+          resourceDetailsMap.entries()
+        );
+        state.loading = false;
+        state.getSearchPipelineErrorMessage = '';
+      })
+      .addCase(getIngestPipeline.fulfilled, (state, action) => {
+        const resourceDetailsMap = new Map<string, IngestPipelineConfig>();
+        action.payload.forEach((pipeline: IngestPipelineResponse) => {
+          resourceDetailsMap.set(
+            pipeline.pipelineId,
+            pipeline.ingestPipelineDetails
+          );
+        });
+        state.ingestPipelineDetails = Object.fromEntries(
+          resourceDetailsMap.entries()
+        );
+        state.loading = false;
+        state.getIngestPipelineErrorMessage = '';
+      })
       .addCase(searchIndex.fulfilled, (state, action) => {
         state.loading = false;
         state.errorMessage = '';
@@ -230,6 +369,18 @@ const opensearchSlice = createSlice({
       })
       .addCase(getMappings.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(getIndex.rejected, (state, action) => {
+        state.getIndexErrorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(getIngestPipeline.rejected, (state, action) => {
+        state.getIngestPipelineErrorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(getSearchPipeline.rejected, (state, action) => {
+        state.getSearchPipelineErrorMessage = action.payload as string;
         state.loading = false;
       })
       .addCase(searchIndex.rejected, (state, action) => {

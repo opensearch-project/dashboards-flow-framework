@@ -28,9 +28,10 @@ import {
   getCharacterLimitedString,
 } from '../../../../common';
 import { columns } from './columns';
-import { MultiSelectFilter, ResourceList } from '../../../general_components';
+import { MultiSelectFilter } from '../../../general_components';
 import { WORKFLOWS_TAB } from '../workflows';
 import { DeleteWorkflowModal } from './delete_workflow_modal';
+import { ResourceList } from './resource_list';
 
 interface WorkflowListProps {
   setSelectedTabId: (tabId: WORKFLOWS_TAB) => void;
