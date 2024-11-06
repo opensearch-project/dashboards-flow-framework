@@ -11,7 +11,7 @@ import {
   Logger,
 } from '../../../src/core/server';
 import { first } from 'rxjs/operators';
-import { flowFrameworkPlugin, mlPlugin } from './cluster';
+import { flowFrameworkPlugin, mlPlugin, corePlugin } from './cluster';
 import {
   FlowFrameworkDashboardsPluginSetup,
   FlowFrameworkDashboardsPluginStart,
@@ -62,7 +62,7 @@ export class FlowFrameworkDashboardsPlugin
     const client: ILegacyClusterClient = core.opensearch.legacy.createClient(
       'flow_framework',
       {
-        plugins: [flowFrameworkPlugin, mlPlugin],
+        plugins: [flowFrameworkPlugin, mlPlugin, corePlugin],
         ...globalConfig.opensearch,
       }
     );
@@ -71,6 +71,7 @@ export class FlowFrameworkDashboardsPlugin
     if (dataSourceEnabled) {
       dataSource.registerCustomApiSchema(flowFrameworkPlugin);
       dataSource.registerCustomApiSchema(mlPlugin);
+      dataSource.registerCustomApiSchema(corePlugin);
     }
     const opensearchRoutesService = new OpenSearchRoutesService(
       client,

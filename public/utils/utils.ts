@@ -20,6 +20,7 @@ import {
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STEP_TYPE,
   Workflow,
+  WorkflowResource,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
 import {
@@ -366,4 +367,58 @@ export const dataSourceFilterFn = (
       installedPlugins.includes(plugin)
     )
   );
+};
+
+export const extractIdsByStepType = (resources: WorkflowResource[]) => {
+  const ids = resources.reduce(
+    (
+      acc: {
+        indexIds: string[];
+        ingestPipelineIds: string[];
+        searchPipelineIds: string[];
+      },
+      item: WorkflowResource
+    ) => {
+      switch (item.stepType) {
+        case WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE:
+          acc.indexIds.push(item.id);
+          break;
+        case WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE:
+          acc.ingestPipelineIds.push(item.id);
+          break;
+        case WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE:
+          acc.searchPipelineIds.push(item.id);
+          break;
+      }
+      return acc;
+    },
+    { indexIds: [], ingestPipelineIds: [], searchPipelineIds: [] }
+  );
+
+  return {
+    indexIds: ids.indexIds.join(','),
+    ingestPipelineIds: ids.ingestPipelineIds.join(','),
+    searchPipelineIds: ids.searchPipelineIds.join(','),
+  };
+};
+
+export const getErrorMessageForStepType = (
+  stepType: WORKFLOW_STEP_TYPE,
+  getIndexErrorMessage: string,
+  getIngestPipelineErrorMessage: string,
+  getSearchPipelineErrorMessage: string
+) => {
+  switch (stepType) {
+    case WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE:
+      return getIndexErrorMessage;
+
+    case WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE:
+      return getIngestPipelineErrorMessage;
+
+    case WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE:
+      return getSearchPipelineErrorMessage;
+
+    default:
+      return '';
+  }
 };
