@@ -189,7 +189,8 @@ export function processorConfigsToTemplateProcessors(
 
         if (output_map?.length > 0) {
           processor.ml_inference.output_map = output_map.map(
-            (mapFormValue: MapFormValue) => mergeMapIntoSingleObj(mapFormValue)
+            (mapFormValue: MapFormValue) =>
+              mergeMapIntoSingleObj(mapFormValue, true) // we reverse the form inputs for the output map, so reverse back when converting back to the underlying template configuration
           );
         }
 
@@ -420,13 +421,21 @@ export function reduceToTemplate(workflow: Workflow): WorkflowTemplate {
 // Helper fn to merge the form map (an arr of objs) into a single obj, such that each key
 // is an obj property, and each value is a property value. Used to format into the
 // expected inputs for input_maps and output_maps of the ML inference processors.
-function mergeMapIntoSingleObj(mapFormValue: MapFormValue): {} {
+function mergeMapIntoSingleObj(
+  mapFormValue: MapFormValue,
+  reverse: boolean = false
+): {} {
   let curMap = {} as MapEntry;
   mapFormValue.forEach((mapEntry) => {
-    curMap = {
-      ...curMap,
-      [mapEntry.key]: mapEntry.value,
-    };
+    curMap = reverse
+      ? {
+          ...curMap,
+          [mapEntry.value]: mapEntry.key,
+        }
+      : {
+          ...curMap,
+          [mapEntry.key]: mapEntry.value,
+        };
   });
   return curMap;
 }

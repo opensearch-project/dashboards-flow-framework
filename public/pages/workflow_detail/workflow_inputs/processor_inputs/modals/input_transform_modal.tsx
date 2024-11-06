@@ -288,347 +288,406 @@ export function InputTransformModal(props: InputTransformModalProps) {
           setTempErrors(!isEmpty(formikProps.errors));
         }, [formikProps.errors]);
 
+        const InputMap = (
+          <MapArrayField
+            fieldPath={'input_map'}
+            helpText={`An array specifying how to map fields from the ingested document to the model’s input. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
+        root object selector "${JSONPATH_ROOT_SELECTOR}"`}
+            keyTitle="Name"
+            keyPlaceholder="Name"
+            keyOptions={parseModelInputs(props.modelInterface)}
+            valueTitle={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Query field'
+                : 'Document field'
+            }
+            valuePlaceholder={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Specify a query field'
+                : 'Define a document field'
+            }
+            valueOptions={props.valueOptions}
+            // If the map we are adding is the first one, populate the selected option to index 0
+            onMapAdd={(curArray) => {
+              if (isEmpty(curArray)) {
+                setSelectedTransformOption(0);
+              }
+            }}
+            // If the map we are deleting is the one we last used to test, reset the state and
+            // default to the first map in the list.
+            onMapDelete={(idxToDelete) => {
+              if (selectedTransformOption === idxToDelete) {
+                setSelectedTransformOption(0);
+                setTransformedInput('{}');
+              }
+            }}
+            addMapEntryButtonText="Add input"
+            addMapButtonText="Add input group (Advanced)"
+            mappingDirection="sortLeft"
+          />
+        );
+
+        const OneToOneConfig = (
+          <BooleanField
+            label={'One-to-one'}
+            fieldPath={'one_to_one'}
+            enabledOption={{
+              id: `one_to_one_true`,
+              label: 'True',
+            }}
+            disabledOption={{
+              id: `one_to_one_false`,
+              label: 'False',
+            }}
+            showLabel={true}
+            helpLink={ML_INFERENCE_RESPONSE_DOCS_LINK}
+            helpText="Run inference for each document separately"
+          />
+        );
+
+        const FetchButton = (
+          <EuiSmallButton
+            style={{ width: '100px' }}
+            isLoading={isFetching}
+            disabled={onIngestAndNoDocs || onSearchAndNoQuery}
+            onClick={async () => {
+              setIsFetching(true);
+              switch (props.context) {
+                case PROCESSOR_CONTEXT.INGEST: {
+                  // get the current ingest pipeline up to, but not including, this processor
+                  const curIngestPipeline = formikToPartialPipeline(
+                    values,
+                    props.uiConfig,
+                    props.config.id,
+                    false,
+                    PROCESSOR_CONTEXT.INGEST
+                  );
+                  // if there are preceding processors, we need to simulate the partial ingest pipeline,
+                  // in order to get the latest transformed version of the docs
+                  if (curIngestPipeline !== undefined) {
+                    const curDocs = prepareDocsForSimulate(
+                      values.ingest.docs,
+                      values.ingest.index.name
+                    );
+                    await dispatch(
+                      simulatePipeline({
+                        apiBody: {
+                          pipeline: curIngestPipeline as IngestPipelineConfig,
+                          docs: [curDocs[0]],
+                        },
+                        dataSourceId,
+                      })
+                    )
+                      .unwrap()
+                      .then((resp: SimulateIngestPipelineResponse) => {
+                        const docObjs = unwrapTransformedDocs(resp);
+                        if (docObjs.length > 0) {
+                          setSourceInput(customStringify(docObjs[0]));
+                        }
+                      })
+                      .catch((error: any) => {
+                        getCore().notifications.toasts.addDanger(
+                          `Failed to fetch input data`
+                        );
+                      })
+                      .finally(() => {
+                        setIsFetching(false);
+                      });
+                  } else {
+                    try {
+                      const docObjs = JSON.parse(values.ingest.docs) as {}[];
+                      if (docObjs.length > 0) {
+                        setSourceInput(customStringify(docObjs[0]));
+                      }
+                    } catch {
+                    } finally {
+                      setIsFetching(false);
+                    }
+                  }
+                  break;
+                }
+                case PROCESSOR_CONTEXT.SEARCH_REQUEST: {
+                  // get the current search pipeline up to, but not including, this processor
+                  const curSearchPipeline = formikToPartialPipeline(
+                    values,
+                    props.uiConfig,
+                    props.config.id,
+                    false,
+                    PROCESSOR_CONTEXT.SEARCH_REQUEST
+                  );
+                  // if there are preceding processors, we cannot generate. The button to render
+                  // this modal should be disabled if the search pipeline would be enabled. We add
+                  // this if check as an extra layer of checking, and if mechanism for gating
+                  // this is changed in the future.
+                  if (curSearchPipeline === undefined) {
+                    setSourceInput(values.search.request);
+                  }
+                  setIsFetching(false);
+                  break;
+                }
+                case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
+                  // get the current search pipeline up to, but not including, this processor
+                  const curSearchPipeline = formikToPartialPipeline(
+                    values,
+                    props.uiConfig,
+                    props.config.id,
+                    false,
+                    PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                  );
+                  // Execute search. If there are preceding processors, augment the existing query with
+                  // the partial search pipeline (inline) to get the latest transformed version of the response.
+                  dispatch(
+                    searchIndex({
+                      apiBody: {
+                        index: values.search.index.name,
+                        body: JSON.stringify({
+                          ...JSON.parse(values.search.request as string),
+                          search_pipeline: curSearchPipeline || {},
+                        }),
+                      },
+                      dataSourceId,
+                    })
+                  )
+                    .unwrap()
+                    .then(async (resp) => {
+                      const hits = resp.hits.hits
+                        .map((hit: SearchHit) => hit._source)
+                        .slice(0, MAX_INPUT_DOCS);
+                      if (hits.length > 0) {
+                        setSourceInput(
+                          // if one-to-one, treat the source input as a single retrieved document
+                          // else, treat it as all of the returned documents
+                          customStringify(tempOneToOne ? hits[0] : hits)
+                        );
+                      }
+                    })
+                    .catch((error: any) => {
+                      getCore().notifications.toasts.addDanger(
+                        `Failed to fetch source input data`
+                      );
+                    })
+                    .finally(() => {
+                      setIsFetching(false);
+                    });
+                  break;
+                }
+              }
+            }}
+          >
+            Fetch data
+          </EuiSmallButton>
+        );
+
+        const SourceInput = (
+          <EuiCodeEditor
+            mode="json"
+            theme="textmate"
+            width="100%"
+            height="15vh"
+            value={sourceInput}
+            readOnly={true}
+            setOptions={{
+              fontSize: '12px',
+              autoScrollEditorIntoView: true,
+              showLineNumbers: false,
+              showGutter: false,
+              showPrintMargin: false,
+              wrap: true,
+            }}
+            tabSize={2}
+          />
+        );
+
+        const TransformedInput = (
+          <EuiCodeEditor
+            mode="json"
+            theme="textmate"
+            width="100%"
+            height="15vh"
+            value={transformedInput}
+            readOnly={true}
+            setOptions={{
+              fontSize: '12px',
+              autoScrollEditorIntoView: true,
+              showLineNumbers: false,
+              showGutter: false,
+              showPrintMargin: false,
+              wrap: true,
+            }}
+            tabSize={2}
+          />
+        );
+
         return (
-          <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
+          <EuiModal onClose={props.onClose} style={{ width: '100vw' }}>
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>{`Configure input`}</p>
+                <p>{`Preview input transformation`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
-            <EuiModalBody style={{ height: '60vh' }}>
+            <EuiModalBody>
               <EuiFlexGroup direction="column">
                 <EuiFlexItem>
                   <>
-                    {(onIngestAndNoDocs || onSearchAndNoQuery) && (
-                      <>
-                        <EuiCallOut
-                          size="s"
-                          title={
-                            onIngestAndNoDocs
-                              ? 'No source documents detected. Fetching is unavailable.'
-                              : 'No source query detected. Fetching is unavailable.'
-                          }
-                          color="warning"
-                        />
-                        <EuiSpacer size="s" />
-                      </>
-                    )}
-                    <EuiText color="subdued">{description}</EuiText>
-                    <EuiSpacer size="s" />
-                    {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
-                      <>
-                        <BooleanField
-                          label={'One-to-one'}
-                          fieldPath={'one_to_one'}
-                          enabledOption={{
-                            id: `one_to_one_true`,
-                            label: 'True',
-                          }}
-                          disabledOption={{
-                            id: `one_to_one_false`,
-                            label: 'False',
-                          }}
-                          showLabel={true}
-                          helpLink={ML_INFERENCE_RESPONSE_DOCS_LINK}
-                          helpText="Run inference for each document separately"
-                        />
-                        <EuiSpacer size="s" />
-                      </>
-                    )}
-                    <EuiText size="s">Source input</EuiText>
-                    <EuiSmallButton
-                      style={{ width: '100px' }}
-                      isLoading={isFetching}
-                      disabled={onIngestAndNoDocs || onSearchAndNoQuery}
-                      onClick={async () => {
-                        setIsFetching(true);
-                        switch (props.context) {
-                          case PROCESSOR_CONTEXT.INGEST: {
-                            // get the current ingest pipeline up to, but not including, this processor
-                            const curIngestPipeline = formikToPartialPipeline(
-                              values,
-                              props.uiConfig,
-                              props.config.id,
-                              false,
-                              PROCESSOR_CONTEXT.INGEST
-                            );
-                            // if there are preceding processors, we need to simulate the partial ingest pipeline,
-                            // in order to get the latest transformed version of the docs
-                            if (curIngestPipeline !== undefined) {
-                              const curDocs = prepareDocsForSimulate(
-                                values.ingest.docs,
-                                values.ingest.index.name
-                              );
-                              await dispatch(
-                                simulatePipeline({
-                                  apiBody: {
-                                    pipeline: curIngestPipeline as IngestPipelineConfig,
-                                    docs: [curDocs[0]],
-                                  },
-                                  dataSourceId,
-                                })
-                              )
-                                .unwrap()
-                                .then(
-                                  (resp: SimulateIngestPipelineResponse) => {
-                                    const docObjs = unwrapTransformedDocs(resp);
-                                    if (docObjs.length > 0) {
-                                      setSourceInput(
-                                        customStringify(docObjs[0])
-                                      );
-                                    }
-                                  }
-                                )
-                                .catch((error: any) => {
-                                  getCore().notifications.toasts.addDanger(
-                                    `Failed to fetch input data`
-                                  );
-                                })
-                                .finally(() => {
-                                  setIsFetching(false);
-                                });
-                            } else {
-                              try {
-                                const docObjs = JSON.parse(
-                                  values.ingest.docs
-                                ) as {}[];
-                                if (docObjs.length > 0) {
-                                  setSourceInput(customStringify(docObjs[0]));
-                                }
-                              } catch {
-                              } finally {
-                                setIsFetching(false);
-                              }
-                            }
-                            break;
-                          }
-                          case PROCESSOR_CONTEXT.SEARCH_REQUEST: {
-                            // get the current search pipeline up to, but not including, this processor
-                            const curSearchPipeline = formikToPartialPipeline(
-                              values,
-                              props.uiConfig,
-                              props.config.id,
-                              false,
-                              PROCESSOR_CONTEXT.SEARCH_REQUEST
-                            );
-                            // if there are preceding processors, we cannot generate. The button to render
-                            // this modal should be disabled if the search pipeline would be enabled. We add
-                            // this if check as an extra layer of checking, and if mechanism for gating
-                            // this is changed in the future.
-                            if (curSearchPipeline === undefined) {
-                              setSourceInput(values.search.request);
-                            }
-                            setIsFetching(false);
-                            break;
-                          }
-                          case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
-                            // get the current search pipeline up to, but not including, this processor
-                            const curSearchPipeline = formikToPartialPipeline(
-                              values,
-                              props.uiConfig,
-                              props.config.id,
-                              false,
-                              PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                            );
-                            // Execute search. If there are preceding processors, augment the existing query with
-                            // the partial search pipeline (inline) to get the latest transformed version of the response.
-                            dispatch(
-                              searchIndex({
-                                apiBody: {
-                                  index: values.search.index.name,
-                                  body: JSON.stringify({
-                                    ...JSON.parse(
-                                      values.search.request as string
-                                    ),
-                                    search_pipeline: curSearchPipeline || {},
-                                  }),
-                                },
-                                dataSourceId,
-                              })
-                            )
-                              .unwrap()
-                              .then(async (resp) => {
-                                const hits = resp.hits.hits
-                                  .map((hit: SearchHit) => hit._source)
-                                  .slice(0, MAX_INPUT_DOCS);
-                                if (hits.length > 0) {
-                                  setSourceInput(
-                                    // if one-to-one, treat the source input as a single retrieved document
-                                    // else, treat it as all of the returned documents
-                                    customStringify(
-                                      tempOneToOne ? hits[0] : hits
-                                    )
-                                  );
-                                }
-                              })
-                              .catch((error: any) => {
-                                getCore().notifications.toasts.addDanger(
-                                  `Failed to fetch source input data`
-                                );
-                              })
-                              .finally(() => {
-                                setIsFetching(false);
-                              });
-                            break;
-                          }
-                        }
-                      }}
-                    >
-                      Fetch
-                    </EuiSmallButton>
-                    <EuiSpacer size="s" />
-                    <EuiCodeEditor
-                      mode="json"
-                      theme="textmate"
-                      width="100%"
-                      height="15vh"
-                      value={sourceInput}
-                      readOnly={true}
-                      setOptions={{
-                        fontSize: '12px',
-                        autoScrollEditorIntoView: true,
-                        showLineNumbers: false,
-                        showGutter: false,
-                        showPrintMargin: false,
-                        wrap: true,
-                      }}
-                      tabSize={2}
-                    />
-                  </>
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  <>
-                    <EuiText size="s">Define transform</EuiText>
-                    <EuiSpacer size="s" />
-                    <MapArrayField
-                      fieldPath={'input_map'}
-                      helpText={`An array specifying how to map fields from the ingested document to the model’s input. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
-                      root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-                      keyTitle="Name"
-                      keyPlaceholder="Name"
-                      keyOptions={parseModelInputs(props.modelInterface)}
-                      valueTitle={
-                        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                          ? 'Query field'
-                          : 'Document field'
-                      }
-                      valuePlaceholder={
-                        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                          ? 'Specify a query field'
-                          : 'Define a document field'
-                      }
-                      valueOptions={props.valueOptions}
-                      // If the map we are adding is the first one, populate the selected option to index 0
-                      onMapAdd={(curArray) => {
-                        if (isEmpty(curArray)) {
-                          setSelectedTransformOption(0);
-                        }
-                      }}
-                      // If the map we are deleting is the one we last used to test, reset the state and
-                      // default to the first map in the list.
-                      onMapDelete={(idxToDelete) => {
-                        if (selectedTransformOption === idxToDelete) {
-                          setSelectedTransformOption(0);
-                          setTransformedInput('{}');
-                        }
-                      }}
-                      addMapEntryButtonText="Add input"
-                      addMapButtonText="(Advanced) Add input group"
-                    />
-                  </>
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  <>
-                    <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                      {isValid !== undefined && (
-                        <EuiFlexItem
-                          grow={false}
-                          style={{
-                            marginTop: '16px',
-                            marginLeft: '8px',
-                            marginRight: '-8px',
-                          }}
-                        >
-                          <EuiIconTip
-                            type={isValid ? 'check' : 'cross'}
-                            color={isValid ? 'success' : 'danger'}
-                            size="m"
-                            content={
-                              isValid
-                                ? 'Meets model interface requirements'
-                                : 'Does not meet model interface requirements'
-                            }
-                          />
-                        </EuiFlexItem>
-                      )}
-                      <EuiFlexItem grow={true}>
-                        {transformOptions.length <= 1 ? (
-                          <EuiText size="s">Transformed input</EuiText>
-                        ) : (
-                          <EuiCompressedSelect
-                            prepend={
-                              <EuiText size="s">Transformed input for</EuiText>
-                            }
-                            options={transformOptions}
-                            value={selectedTransformOption}
-                            onChange={(e) => {
-                              setSelectedTransformOption(
-                                Number(e.target.value)
-                              );
-                            }}
-                          />
-                        )}
+                    <EuiFlexGroup direction="row" gutterSize="xs">
+                      <EuiFlexItem grow={false}>
+                        <EuiText size="s">
+                          <h3>Define transform</h3>
+                        </EuiText>
                       </EuiFlexItem>
-                      {!isEmpty(parseModelInputsObj(props.modelInterface)) && (
-                        <EuiFlexItem grow={false}>
-                          <EuiPopover
-                            isOpen={popoverOpen}
-                            closePopover={() => setPopoverOpen(false)}
-                            panelPaddingSize="s"
-                            button={
-                              <EuiSmallButtonEmpty
-                                onClick={() => setPopoverOpen(!popoverOpen)}
-                              >
-                                View input schema
-                              </EuiSmallButtonEmpty>
-                            }
-                          >
-                            <EuiPopoverTitle>
-                              The JSON Schema defining the model's expected
-                              input
-                            </EuiPopoverTitle>
-                            <EuiCodeBlock
-                              language="json"
-                              fontSize="m"
-                              isCopyable={false}
-                            >
-                              {customStringify(
-                                parseModelInputsObj(props.modelInterface)
-                              )}
-                            </EuiCodeBlock>
-                          </EuiPopover>
-                        </EuiFlexItem>
-                      )}
+                      <EuiFlexItem grow={false} style={{ marginTop: '8px' }}>
+                        <EuiIconTip
+                          content={'Map the source input to the model inputs'}
+                          position="right"
+                        />
+                      </EuiFlexItem>
                     </EuiFlexGroup>
                     <EuiSpacer size="s" />
-                    <EuiCodeEditor
-                      mode="json"
-                      theme="textmate"
-                      width="100%"
-                      height="15vh"
-                      value={transformedInput}
-                      readOnly={true}
-                      setOptions={{
-                        fontSize: '12px',
-                        autoScrollEditorIntoView: true,
-                        showLineNumbers: false,
-                        showGutter: false,
-                        showPrintMargin: false,
-                        wrap: true,
-                      }}
-                      tabSize={2}
-                    />
+                    {InputMap}
                   </>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <EuiFlexGroup direction="row" gutterSize="xs">
+                    <EuiFlexItem grow={false}>
+                      <EuiText size="s">
+                        <h3>Preview</h3>
+                      </EuiText>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false} style={{ marginTop: '8px' }}>
+                      <EuiIconTip content={description} position="right" />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                  <EuiFlexItem>
+                    <>
+                      {(onIngestAndNoDocs || onSearchAndNoQuery) && (
+                        <>
+                          <EuiCallOut
+                            size="s"
+                            title={
+                              onIngestAndNoDocs
+                                ? 'No source documents detected. Fetching is unavailable.'
+                                : 'No source query detected. Fetching is unavailable.'
+                            }
+                            color="warning"
+                          />
+                          <EuiSpacer size="s" />
+                        </>
+                      )}
+                      {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+                        <>
+                          {OneToOneConfig}
+                          <EuiSpacer size="s" />
+                        </>
+                      )}
+                      {FetchButton}
+                    </>
+                  </EuiFlexItem>
+                  <EuiSpacer size="s" />
+                  <EuiFlexGroup direction="row">
+                    <EuiFlexItem>
+                      <>
+                        <EuiFlexGroup
+                          direction="row"
+                          justifyContent="spaceBetween"
+                        >
+                          <EuiFlexItem>
+                            <EuiText size="s">
+                              Data before transformation
+                            </EuiText>
+                          </EuiFlexItem>
+                        </EuiFlexGroup>
+                        <EuiSpacer size="s" />
+                        {SourceInput}
+                      </>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <>
+                        <EuiFlexGroup
+                          direction="row"
+                          justifyContent="spaceBetween"
+                        >
+                          {isValid !== undefined && (
+                            <EuiFlexItem
+                              grow={false}
+                              style={{
+                                marginTop: '16px',
+                                marginLeft: '8px',
+                                marginRight: '-8px',
+                              }}
+                            >
+                              <EuiIconTip
+                                type={isValid ? 'check' : 'cross'}
+                                color={isValid ? 'success' : 'danger'}
+                                size="m"
+                                content={
+                                  isValid
+                                    ? 'Meets model interface requirements'
+                                    : 'Does not meet model interface requirements'
+                                }
+                              />
+                            </EuiFlexItem>
+                          )}
+                          <EuiFlexItem grow={true}>
+                            {transformOptions.length <= 1 ? (
+                              <EuiText size="s">
+                                Data after transformation
+                              </EuiText>
+                            ) : (
+                              <EuiCompressedSelect
+                                prepend={
+                                  <EuiText size="s">
+                                    Data after transformation for
+                                  </EuiText>
+                                }
+                                options={transformOptions}
+                                value={selectedTransformOption}
+                                onChange={(e) => {
+                                  setSelectedTransformOption(
+                                    Number(e.target.value)
+                                  );
+                                }}
+                              />
+                            )}
+                          </EuiFlexItem>
+                          {!isEmpty(
+                            parseModelInputsObj(props.modelInterface)
+                          ) && (
+                            <EuiFlexItem grow={false}>
+                              <EuiPopover
+                                isOpen={popoverOpen}
+                                closePopover={() => setPopoverOpen(false)}
+                                panelPaddingSize="s"
+                                button={
+                                  <EuiSmallButtonEmpty
+                                    style={{ marginTop: '-4px' }}
+                                    onClick={() => setPopoverOpen(!popoverOpen)}
+                                  >
+                                    Input schema
+                                  </EuiSmallButtonEmpty>
+                                }
+                              >
+                                <EuiPopoverTitle>
+                                  The JSON Schema defining the model's expected
+                                  input
+                                </EuiPopoverTitle>
+                                <EuiCodeBlock
+                                  language="json"
+                                  fontSize="m"
+                                  isCopyable={false}
+                                >
+                                  {customStringify(
+                                    parseModelInputsObj(props.modelInterface)
+                                  )}
+                                </EuiCodeBlock>
+                              </EuiPopover>
+                            </EuiFlexItem>
+                          )}
+                        </EuiFlexGroup>
+                        <EuiSpacer size="s" />
+                        {TransformedInput}
+                      </>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
                 </EuiFlexItem>
                 {!isEmpty(originalPrompt) && (
                   <EuiFlexItem>
@@ -648,10 +707,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                           />
                         </EuiFlexItem>
                         {isEmpty(JSON.parse(transformedInput)) && (
-                          <EuiFlexItem
-                            grow={false}
-                            style={{ marginTop: '16px' }}
-                          >
+                          <EuiFlexItem grow={false}>
                             <EuiText size="s" color="subdued">
                               Transformed input is empty
                             </EuiText>
@@ -698,14 +754,13 @@ export function InputTransformModal(props: InputTransformModalProps) {
               </EuiFlexGroup>
             </EuiModalBody>
             <EuiModalFooter>
-              <EuiSmallButton
+              <EuiSmallButtonEmpty
                 onClick={props.onClose}
-                fill={false}
                 color="primary"
                 data-testid="cancelInputTransformModalButton"
               >
                 Cancel
-              </EuiSmallButton>
+              </EuiSmallButtonEmpty>
               <EuiSmallButton
                 onClick={() => {
                   // update the parent form values
@@ -728,7 +783,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 color="primary"
                 data-testid="updateInputTransformModalButton"
               >
-                Update
+                Save
               </EuiSmallButton>
             </EuiModalFooter>
           </EuiModal>

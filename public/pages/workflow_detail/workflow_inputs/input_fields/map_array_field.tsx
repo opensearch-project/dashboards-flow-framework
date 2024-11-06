@@ -37,6 +37,7 @@ interface MapArrayFieldProps {
   valueOptions?: { label: string }[];
   addMapEntryButtonText?: string;
   addMapButtonText?: string;
+  mappingDirection?: 'sortRight' | 'sortLeft' | undefined;
 }
 
 /**
@@ -130,6 +131,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
                               keyOptions={props.keyOptions}
                               valueOptions={props.valueOptions}
                               addEntryButtonText={props.addMapEntryButtonText}
+                              mappingDirection={props.mappingDirection}
                             />
                           </EuiPanel>
                         </EuiAccordion>
@@ -150,6 +152,7 @@ export function MapArrayField(props: MapArrayFieldProps) {
                       keyOptions={props.keyOptions}
                       valueOptions={props.valueOptions}
                       addEntryButtonText={props.addMapEntryButtonText}
+                      mappingDirection={props.mappingDirection}
                     />
                   </EuiPanel>
                   <EuiSpacer size="s" />
@@ -172,14 +175,20 @@ export function MapArrayField(props: MapArrayFieldProps) {
                         {'Configure'}
                       </EuiSmallButton>
                     ) : (
-                      <EuiSmallButtonEmpty
-                        style={{ marginLeft: '-8px', marginTop: '-4px' }}
-                        onClick={() => {
-                          addMap(field.value);
-                        }}
-                      >
-                        {props.addMapButtonText || `(Advanced) Add another map`}
-                      </EuiSmallButtonEmpty>
+                      <EuiPanel grow={true} paddingSize="none">
+                        <EuiFlexItem grow={true} style={{ margin: '0px' }}>
+                          <EuiSmallButtonEmpty
+                            iconType="plusInCircle"
+                            iconSide="left"
+                            onClick={() => {
+                              addMap(field.value);
+                            }}
+                          >
+                            {props.addMapButtonText ||
+                              `Add another map (Advanced)`}
+                          </EuiSmallButtonEmpty>
+                        </EuiFlexItem>
+                      </EuiPanel>
                     )}
                   </>
                 </div>
