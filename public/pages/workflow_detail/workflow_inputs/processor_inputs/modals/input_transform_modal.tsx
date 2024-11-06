@@ -37,7 +37,6 @@ import {
   InputTransformFormValues,
   InputTransformSchema,
   JSONPATH_ROOT_SELECTOR,
-  ML_INFERENCE_RESPONSE_DOCS_LINK,
   MapArrayFormValue,
   ModelInterface,
   PROCESSOR_CONTEXT,
@@ -331,16 +330,6 @@ export function InputTransformModal(props: InputTransformModalProps) {
           <BooleanField
             label={'One-to-one'}
             fieldPath={'one_to_one'}
-            enabledOption={{
-              id: `one_to_one_true`,
-              label: 'True',
-            }}
-            disabledOption={{
-              id: `one_to_one_false`,
-              label: 'False',
-            }}
-            showLabel={true}
-            helpLink={ML_INFERENCE_RESPONSE_DOCS_LINK}
             helpText="Run inference for each document separately"
           />
         );

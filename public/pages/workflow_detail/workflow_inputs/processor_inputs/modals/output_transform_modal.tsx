@@ -27,14 +27,13 @@ import {
   EuiCodeBlock,
   EuiCallOut,
   EuiIconTip,
+  EuiAccordion,
 } from '@elastic/eui';
 import {
   IConfigField,
   IProcessorConfig,
   IngestPipelineConfig,
   JSONPATH_ROOT_SELECTOR,
-  ML_INFERENCE_DOCS_LINK,
-  ML_INFERENCE_RESPONSE_DOCS_LINK,
   MapArrayFormValue,
   ModelInterface,
   OutputTransformFormValues,
@@ -254,22 +253,8 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
 
         const FullResponsePathConfig = (
           <BooleanField
-            label={'Full response path'}
+            label={'Full Response Path'}
             fieldPath={'full_response_path'}
-            enabledOption={{
-              id: `full_response_path_true`,
-              label: 'True',
-            }}
-            disabledOption={{
-              id: `full_response_path_false`,
-              label: 'False',
-            }}
-            showLabel={true}
-            helpLink={
-              props.context === PROCESSOR_CONTEXT.INGEST
-                ? ML_INFERENCE_DOCS_LINK
-                : ML_INFERENCE_RESPONSE_DOCS_LINK
-            }
             helpText="Parse the full model output"
           />
         );
@@ -474,6 +459,20 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                     </EuiFlexGroup>
                     <EuiSpacer size="s" />
                     {OutputMap}
+                    {(props.context === PROCESSOR_CONTEXT.INGEST ||
+                      props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE) && (
+                      <>
+                        <EuiSpacer size="s" />
+                        <EuiAccordion
+                          id={`advancedSettingsOutputTransform${props.config.id}`}
+                          buttonContent="Advanced settings"
+                          paddingSize="none"
+                        >
+                          <EuiSpacer size="s" />
+                          {FullResponsePathConfig}
+                        </EuiAccordion>
+                      </>
+                    )}
                   </>
                 </EuiFlexItem>
                 <EuiFlexItem>
@@ -505,14 +504,6 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                             }
                             color="warning"
                           />
-                          <EuiSpacer size="s" />
-                        </>
-                      )}
-                      {(props.context === PROCESSOR_CONTEXT.INGEST ||
-                        props.context ===
-                          PROCESSOR_CONTEXT.SEARCH_RESPONSE) && (
-                        <>
-                          {FullResponsePathConfig}
                           <EuiSpacer size="s" />
                         </>
                       )}

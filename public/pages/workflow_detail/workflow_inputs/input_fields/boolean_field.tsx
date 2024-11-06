@@ -6,22 +6,17 @@
 import React from 'react';
 import { Field, FieldProps } from 'formik';
 import {
-  EuiCompressedFormRow,
-  EuiCompressedRadioGroup,
-  EuiLink,
-  EuiRadioGroupOption,
+  EuiCompressedCheckbox,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiIconTip,
   EuiText,
 } from '@elastic/eui';
-import { camelCaseToTitleString } from '../../../../utils';
 
 interface BooleanFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
-  enabledOption: EuiRadioGroupOption;
-  disabledOption: EuiRadioGroupOption;
-  label?: string;
-  helpLink?: string;
+  label: string;
   helpText?: string;
-  showLabel?: boolean;
 }
 
 /**
@@ -32,37 +27,31 @@ export function BooleanField(props: BooleanFieldProps) {
     <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
         return (
-          <EuiCompressedFormRow
-            key={props.fieldPath}
+          <EuiCompressedCheckbox
+            id={`checkBox${field.name}`}
             label={
-              props.showLabel &&
-              (props.label || camelCaseToTitleString(field.name))
+              <>
+                <EuiFlexGroup direction="row">
+                  <EuiFlexItem grow={false}>
+                    <EuiText size="s">{props.label}</EuiText>
+                  </EuiFlexItem>
+                  {props.helpText && (
+                    <EuiFlexItem
+                      grow={false}
+                      style={{ marginLeft: '-8px', marginTop: '10px' }}
+                    >
+                      <EuiIconTip content={props.helpText} position="right" />
+                    </EuiFlexItem>
+                  )}
+                </EuiFlexGroup>
+              </>
             }
-            labelAppend={
-              props.helpLink ? (
-                <EuiText size="xs">
-                  <EuiLink href={props.helpLink} target="_blank">
-                    Learn more
-                  </EuiLink>
-                </EuiText>
-              ) : undefined
-            }
-            helpText={props.helpText || undefined}
-            isInvalid={false}
-          >
-            <EuiCompressedRadioGroup
-              options={[props.enabledOption, props.disabledOption]}
-              idSelected={
-                field.value === undefined || field.value === true
-                  ? props.enabledOption.id
-                  : props.disabledOption.id
-              }
-              onChange={(id) => {
-                form.setFieldValue(field.name, !field.value);
-                form.setFieldTouched(field.name, true);
-              }}
-            />
-          </EuiCompressedFormRow>
+            checked={field.value === undefined || field.value === true}
+            onChange={() => {
+              form.setFieldValue(field.name, !field.value);
+              form.setFieldTouched(field.name, true);
+            }}
+          />
         );
       }}
     </Field>
