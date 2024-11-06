@@ -29,6 +29,9 @@ import {
   ModelInterface,
   IndexMappings,
   PROMPT_FIELD,
+  MapArrayFormValue,
+  MapEntry,
+  MapFormValue,
 } from '../../../../../common';
 import { MapArrayField, ModelField } from '../input_fields';
 import {
@@ -132,9 +135,27 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   // 1: update model interface states
   // 2. clear out any persisted input_map/output_map form values, as those would now be invalid
   function onModelChange(modelId: string) {
-    setModelInterface(models[modelId]?.interface);
-    setFieldValue(inputMapFieldPath, []);
-    setFieldValue(outputMapFieldPath, []);
+    const newModelInterface = models[modelId]?.interface;
+    setModelInterface(newModelInterface);
+    const modelInputsAsForm = [
+      parseModelInputs(newModelInterface).map((modelInput) => {
+        return {
+          key: modelInput.label,
+          value: '',
+        } as MapEntry;
+      }) as MapFormValue,
+    ] as MapArrayFormValue;
+    const modelOutputsAsForm = [
+      parseModelOutputs(newModelInterface).map((modelOutput) => {
+        return {
+          key: modelOutput.label,
+          value: '',
+        } as MapEntry;
+      }) as MapFormValue,
+    ] as MapArrayFormValue;
+
+    setFieldValue(inputMapFieldPath, modelInputsAsForm);
+    setFieldValue(outputMapFieldPath, modelOutputsAsForm);
     setFieldTouched(inputMapFieldPath, false);
     setFieldTouched(outputMapFieldPath, false);
   }
@@ -380,7 +401,8 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 : indexMappingFields
             }
             addMapEntryButtonText="Add input"
-            addMapButtonText="(Advanced) Add input group"
+            addMapButtonText="Add input group (Advanced)"
+            mappingDirection="sortLeft"
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -415,25 +437,26 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             fieldPath={outputMapFieldPath}
             helpText={`An array specifying how to map the model’s output to new document fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
             root object selector "${JSONPATH_ROOT_SELECTOR}"`}
-            keyTitle={
-              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? 'Query field'
-                : 'New document field'
-            }
-            keyPlaceholder={
-              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? 'Specify a query field'
-                : 'Define a document field'
-            }
-            valueTitle="Name"
-            valuePlaceholder="Name"
-            valueOptions={
+            keyTitle="Name"
+            keyPlaceholder="Name"
+            keyOptions={
               fullResponsePath
                 ? undefined
                 : parseModelOutputs(modelInterface, false)
             }
+            valueTitle={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Query field'
+                : 'New document field'
+            }
+            valuePlaceholder={
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'Specify a query field'
+                : 'Define a document field'
+            }
             addMapEntryButtonText="Add output"
-            addMapButtonText="(Advanced) Add output group"
+            addMapButtonText="Add output group (Advanced)"
+            mappingDirection="sortRight"
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&

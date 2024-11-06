@@ -12,8 +12,8 @@ import {
   EuiIcon,
   EuiLink,
   EuiText,
-  EuiSmallButton,
   EuiIconTip,
+  EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
@@ -37,6 +37,7 @@ interface MapFieldProps {
   keyOptions?: { label: string }[];
   valueOptions?: { label: string }[];
   addEntryButtonText?: string;
+  mappingDirection?: 'sortRight' | 'sortLeft' | undefined;
 }
 
 // The keys will be more static in general. Give more space for values where users
@@ -50,9 +51,13 @@ const VALUE_FLEX_RATIO = 6;
  * Allow custom options as a backup/default to ensure flexibility.
  */
 export function MapField(props: MapFieldProps) {
-  const { setFieldValue, setFieldTouched, errors, touched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const {
+    setFieldValue,
+    setFieldTouched,
+    errors,
+    touched,
+    values,
+  } = useFormikContext<WorkflowFormValues>();
 
   // Adding a map entry to the end of the existing arr
   function addMapEntry(curEntries: MapFormValue): void {
@@ -139,7 +144,28 @@ export function MapField(props: MapFieldProps) {
                           <>
                             <EuiFlexItem>
                               <>
-                                {!isEmpty(props.keyOptions) ? (
+                                {/**
+                                 * We determine if there is an interface based on if there are key options or not,
+                                 * as the options would be derived from the underlying interface.
+                                 * And if so, these values should be static.
+                                 * So, we only display the static text with no mechanism to change it's value.
+                                 * Note we still allow more entries, if a user wants to override / add custom
+                                 * keys if there is some gaps in the model interface.
+                                 */}
+                                {!isEmpty(props.keyOptions) &&
+                                !isEmpty(
+                                  getIn(values, `${props.fieldPath}.${idx}.key`)
+                                ) ? (
+                                  <EuiText
+                                    size="s"
+                                    style={{ marginTop: '4px' }}
+                                  >
+                                    {getIn(
+                                      values,
+                                      `${props.fieldPath}.${idx}.key`
+                                    )}
+                                  </EuiText>
+                                ) : !isEmpty(props.keyOptions) ? (
                                   <SelectWithCustomOptions
                                     fieldPath={`${props.fieldPath}.${idx}.key`}
                                     options={props.keyOptions as any[]}
@@ -163,7 +189,9 @@ export function MapField(props: MapFieldProps) {
                               grow={false}
                               style={{ marginTop: '10px' }}
                             >
-                              <EuiIcon type="sortRight" />
+                              <EuiIcon
+                                type={props.mappingDirection || 'sortRight'}
+                              />
                             </EuiFlexItem>
                           </>
                         </EuiFlexGroup>
@@ -212,13 +240,16 @@ export function MapField(props: MapFieldProps) {
               })}
               <EuiFlexItem grow={false}>
                 <div>
-                  <EuiSmallButton
+                  <EuiSmallButtonEmpty
+                    style={{ marginLeft: '-8px', marginTop: '0px' }}
+                    iconType={'plusInCircle'}
+                    iconSide="left"
                     onClick={() => {
                       addMapEntry(field.value);
                     }}
                   >
                     {props.addEntryButtonText || 'Add more'}
-                  </EuiSmallButton>
+                  </EuiSmallButtonEmpty>
                 </div>
               </EuiFlexItem>
             </EuiFlexGroup>
