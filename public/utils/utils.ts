@@ -35,7 +35,6 @@ import * as pluginManifest from '../../opensearch_dashboards.json';
 import { DataSourceAttributes } from '../../../../src/plugins/data_source/common/data_sources';
 import { SavedObject } from '../../../../src/core/public';
 import semver from 'semver';
-import { getIndex, getIngestPipeline, getSearchPipeline } from '../store';
 
 // Generate a random ID. Optionally add a prefix. Optionally
 // override the default # characters to generate.
@@ -370,32 +369,56 @@ export const dataSourceFilterFn = (
   );
 };
 
-// Fetches Resource details data for a given resource item.
-export const fetchResourceData = async (
-  item: WorkflowResource,
-  dataSourceId: string,
-  dispatch: any
+export const extractIdsByStepType = (resources: WorkflowResource[]) => {
+  const ids = resources.reduce(
+    (
+      acc: {
+        indexIds: string[];
+        ingestPipelineIds: string[];
+        searchPipelineIds: string[];
+      },
+      item: WorkflowResource
+    ) => {
+      switch (item.stepType) {
+        case WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE:
+          acc.indexIds.push(item.id);
+          break;
+        case WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE:
+          acc.ingestPipelineIds.push(item.id);
+          break;
+        case WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE:
+          acc.searchPipelineIds.push(item.id);
+          break;
+      }
+      return acc;
+    },
+    { indexIds: [], ingestPipelineIds: [], searchPipelineIds: [] }
+  );
+
+  return {
+    indexIds: ids.indexIds.join(','),
+    ingestPipelineIds: ids.ingestPipelineIds.join(','),
+    searchPipelineIds: ids.searchPipelineIds.join(','),
+  };
+};
+
+export const getErrorMessageForStepType = (
+  stepType: WORKFLOW_STEP_TYPE,
+  getIndexErrorMessage: string,
+  getIngestPipelineErrorMessage: string,
+  getSearchPipelineErrorMessage: string
 ) => {
-  if (item.stepType === WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE) {
-    return await dispatch(
-      getIngestPipeline({ pipelineId: item.id, dataSourceId })
-    ).unwrap();
-  } else if (item.stepType === WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE) {
-    return await dispatch(
-      getIndex({
-        index: item.id,
-        dataSourceId,
-      })
-    ).unwrap();
-  } else if (
-    item.stepType === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
-  ) {
-    return await dispatch(
-      getSearchPipeline({
-        pipelineId: item.id,
-        dataSourceId,
-      })
-    ).unwrap();
+  switch (stepType) {
+    case WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE:
+      return getIndexErrorMessage;
+
+    case WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE:
+      return getIngestPipelineErrorMessage;
+
+    case WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE:
+      return getSearchPipelineErrorMessage;
+
+    default:
+      return '';
   }
-  return null;
 };

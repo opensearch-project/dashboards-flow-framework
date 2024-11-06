@@ -555,3 +555,18 @@ export type SimulateIngestPipelineResponse = {
 };
 
 export type SearchHit = SimulateIngestPipelineDoc;
+
+export type IndexResponse = {
+  indexName: string;
+  indexDetails: IndexConfiguration;
+};
+
+export type IngestPipelineResponse = {
+  pipelineId: string;
+  ingestPipelineDetails: IngestPipelineConfig;
+};
+
+export type SearchPipelineResponse = {
+  pipelineId: string;
+  searchPipelineDetails: SearchPipelineConfig;
+};
