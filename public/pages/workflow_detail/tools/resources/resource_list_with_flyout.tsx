@@ -192,7 +192,7 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
                     language="json"
                     fontSize="m"
                     isCopyable={true}
-                    overflowHeight={650}
+                    overflowHeight={600}
                   >
                     {resourceDetails}
                   </EuiCodeBlock>
