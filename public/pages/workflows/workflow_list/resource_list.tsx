@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { columns } from '../../workflow_detail/tools/resources/columns';
 import {
   EuiCodeBlock,
@@ -108,41 +108,41 @@ export function ResourceList(props: ResourceListProps) {
   }, [allResources]);
 
   // Renders the expanded row to show resource details in a code block.
-  const renderExpandedRow = useCallback(
-    (data: any, resourceDetailsErrorMessage?: string) => (
-      <EuiFlexGroup direction="column" gutterSize="xs">
-        <EuiFlexItem grow={true} style={{ paddingLeft: '20px' }}>
-          <EuiText size="m">
-            <h4>Resource details</h4>
-          </EuiText>
-        </EuiFlexItem>
-        <EuiFlexItem grow={true} style={{ paddingLeft: '20px' }}>
-          {!resourceDetailsErrorMessage && !loading ? (
-            <EuiCodeBlock
-              language="json"
-              fontSize="m"
-              isCopyable={true}
-              overflowHeight={150}
-            >
-              {customStringify(data)}
-            </EuiCodeBlock>
-          ) : loading ? (
-            <EuiEmptyPrompt
-              icon={<EuiLoadingSpinner size="xl" />}
-              title={<h2>Loading</h2>}
-            />
-          ) : (
-            <EuiEmptyPrompt
-              iconType="alert"
-              iconColor="danger"
-              title={<h2>Error loading resource details</h2>}
-              body={<p>{resourceDetailsErrorMessage}</p>}
-            />
-          )}
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    ),
-    [loading]
+  const renderExpandedRow = (
+    data: any,
+    resourceDetailsErrorMessage?: string
+  ) => (
+    <EuiFlexGroup direction="column" gutterSize="xs">
+      <EuiFlexItem grow={true} style={{ paddingLeft: '20px' }}>
+        <EuiText size="m">
+          <h4>Resource details</h4>
+        </EuiText>
+      </EuiFlexItem>
+      <EuiFlexItem grow={true} style={{ paddingLeft: '20px' }}>
+        {!resourceDetailsErrorMessage && !loading ? (
+          <EuiCodeBlock
+            language="json"
+            fontSize="m"
+            isCopyable={true}
+            overflowHeight={150}
+          >
+            {customStringify(data)}
+          </EuiCodeBlock>
+        ) : loading ? (
+          <EuiEmptyPrompt
+            icon={<EuiLoadingSpinner size="xl" />}
+            title={<h2>Loading</h2>}
+          />
+        ) : (
+          <EuiEmptyPrompt
+            iconType="alert"
+            iconColor="danger"
+            title={<h2>Error loading resource details</h2>}
+            body={<p>{resourceDetailsErrorMessage}</p>}
+          />
+        )}
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 
   // Expands or collapses the details for a resource item.
