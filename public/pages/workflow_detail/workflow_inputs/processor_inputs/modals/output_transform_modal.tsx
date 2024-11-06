@@ -469,7 +469,9 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
                           paddingSize="none"
                         >
                           <EuiSpacer size="s" />
-                          {FullResponsePathConfig}
+                          <EuiFlexItem style={{ marginLeft: '4px' }}>
+                            {FullResponsePathConfig}
+                          </EuiFlexItem>
                         </EuiAccordion>
                       </>
                     )}

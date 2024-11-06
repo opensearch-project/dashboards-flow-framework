@@ -29,6 +29,7 @@ import {
   EuiIconTip,
   EuiCompressedSwitch,
   EuiCallOut,
+  EuiAccordion,
 } from '@elastic/eui';
 import {
   IConfigField,
@@ -533,6 +534,21 @@ export function InputTransformModal(props: InputTransformModalProps) {
                     </EuiFlexGroup>
                     <EuiSpacer size="s" />
                     {InputMap}
+                    {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+                      <>
+                        <EuiSpacer size="s" />
+                        <EuiAccordion
+                          id={`advancedSettingsInputTransform${props.config.id}`}
+                          buttonContent="Advanced settings"
+                          paddingSize="none"
+                        >
+                          <EuiSpacer size="s" />
+                          <EuiFlexItem style={{ marginLeft: '4px' }}>
+                            {OneToOneConfig}
+                          </EuiFlexItem>
+                        </EuiAccordion>
+                      </>
+                    )}
                   </>
                 </EuiFlexItem>
                 <EuiFlexItem>
@@ -559,12 +575,6 @@ export function InputTransformModal(props: InputTransformModalProps) {
                             }
                             color="warning"
                           />
-                          <EuiSpacer size="s" />
-                        </>
-                      )}
-                      {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
-                        <>
-                          {OneToOneConfig}
                           <EuiSpacer size="s" />
                         </>
                       )}
