@@ -63,15 +63,6 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                 <BooleanField
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={fieldPath}
-                  enabledOption={{
-                    id: `${fieldPath}_true`,
-                    label: 'True',
-                  }}
-                  disabledOption={{
-                    id: `${fieldPath}_false`,
-                    label: 'False',
-                  }}
-                  showLabel={true}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>

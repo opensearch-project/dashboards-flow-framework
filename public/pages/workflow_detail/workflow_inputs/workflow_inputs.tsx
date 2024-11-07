@@ -82,11 +82,6 @@ interface WorkflowInputsProps {
   setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
 }
 
-enum INGEST_OPTION {
-  CREATE = 'create',
-  SKIP = 'skip',
-}
-
 /**
  * The workflow inputs component containing the multi-step flow to create ingest
  * and search flows for a particular workflow.
@@ -692,33 +687,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   <>
                     <BooleanField
                       fieldPath="ingest.enabled"
-                      enabledOption={{
-                        id: INGEST_OPTION.CREATE,
-                        label: (
-                          <EuiFlexGroup direction="column" gutterSize="none">
-                            <EuiText color="default">
-                              Create an ingest pipeline
-                            </EuiText>
-                            <EuiText size="xs" color="subdued">
-                              Configure and ingest data into an index.
-                            </EuiText>
-                          </EuiFlexGroup>
-                        ),
-                      }}
-                      disabledOption={{
-                        id: INGEST_OPTION.SKIP,
-                        label: (
-                          <EuiFlexGroup direction="column" gutterSize="none">
-                            <EuiText color="default">
-                              Skip ingestion pipeline
-                            </EuiText>
-                            <EuiText size="xs" color="subdued">
-                              Use an existing index with data ingested.
-                            </EuiText>
-                          </EuiFlexGroup>
-                        ),
-                      }}
-                      showLabel={false}
+                      label="Enabled"
+                      helpText="Create a new ingest pipeline and index"
                     />
                   </>
                 )}
