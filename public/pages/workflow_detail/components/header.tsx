@@ -195,6 +195,23 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
       ? ingestSaveButtonDisabled
       : searchSaveButtonDisabled;
 
+  // Add warning when exiting with unsaved changes
+  function alertFn(e: BeforeUnloadEvent) {
+    e.preventDefault();
+  }
+
+  // Hook for warning of unsaved changes if a browser refresh is detected
+  useEffect(() => {
+    if (!saveDisabled) {
+      window.addEventListener('beforeunload', alertFn);
+    } else {
+      window.removeEventListener('beforeunload', alertFn);
+    }
+    return () => {
+      window.removeEventListener('beforeunload', alertFn);
+    };
+  }, [saveDisabled]);
+
   // Utility fn to update the workflow UI config only, based on the current form values.
   // A get workflow API call is subsequently run to fetch the updated state.
   async function updateWorkflowUiConfig() {
