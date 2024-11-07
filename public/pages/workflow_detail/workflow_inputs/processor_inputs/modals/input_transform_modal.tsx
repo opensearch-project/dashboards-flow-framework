@@ -29,6 +29,7 @@ import {
   EuiIconTip,
   EuiCompressedSwitch,
   EuiCallOut,
+  EuiAccordion,
 } from '@elastic/eui';
 import {
   IConfigField,
@@ -37,7 +38,6 @@ import {
   InputTransformFormValues,
   InputTransformSchema,
   JSONPATH_ROOT_SELECTOR,
-  ML_INFERENCE_RESPONSE_DOCS_LINK,
   MapArrayFormValue,
   ModelInterface,
   PROCESSOR_CONTEXT,
@@ -331,16 +331,6 @@ export function InputTransformModal(props: InputTransformModalProps) {
           <BooleanField
             label={'One-to-one'}
             fieldPath={'one_to_one'}
-            enabledOption={{
-              id: `one_to_one_true`,
-              label: 'True',
-            }}
-            disabledOption={{
-              id: `one_to_one_false`,
-              label: 'False',
-            }}
-            showLabel={true}
-            helpLink={ML_INFERENCE_RESPONSE_DOCS_LINK}
             helpText="Run inference for each document separately"
           />
         );
@@ -544,6 +534,21 @@ export function InputTransformModal(props: InputTransformModalProps) {
                     </EuiFlexGroup>
                     <EuiSpacer size="s" />
                     {InputMap}
+                    {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+                      <>
+                        <EuiSpacer size="s" />
+                        <EuiAccordion
+                          id={`advancedSettingsInputTransform${props.config.id}`}
+                          buttonContent="Advanced settings"
+                          paddingSize="none"
+                        >
+                          <EuiSpacer size="s" />
+                          <EuiFlexItem style={{ marginLeft: '4px' }}>
+                            {OneToOneConfig}
+                          </EuiFlexItem>
+                        </EuiAccordion>
+                      </>
+                    )}
                   </>
                 </EuiFlexItem>
                 <EuiFlexItem>
@@ -570,12 +575,6 @@ export function InputTransformModal(props: InputTransformModalProps) {
                             }
                             color="warning"
                           />
-                          <EuiSpacer size="s" />
-                        </>
-                      )}
-                      {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
-                        <>
-                          {OneToOneConfig}
                           <EuiSpacer size="s" />
                         </>
                       )}
