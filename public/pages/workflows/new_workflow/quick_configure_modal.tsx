@@ -160,7 +160,6 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                 history.replace(
                   constructUrlWithParams(
                     APP_PATH.WORKFLOWS,
-
                     workflow.id,
                     dataSourceId
                   )
