@@ -78,11 +78,6 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       } = renderWithRouter(workflowId, workflowName, type);
 
       expect(getAllByText(workflowName).length).toBeGreaterThan(0);
-      expect(getAllByText('Create an ingest pipeline').length).toBeGreaterThan(
-        0
-      );
-      expect(getAllByText('Skip ingestion pipeline').length).toBeGreaterThan(0);
-      expect(getAllByText('Define ingest pipeline').length).toBeGreaterThan(0);
       expect(getAllByText('Inspector').length).toBeGreaterThan(0);
       expect(getAllByText('Preview').length).toBeGreaterThan(0);
       expect(
@@ -188,27 +183,19 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
     jest.clearAllMocks();
   });
   test(`renders the WorkflowDetail page with skip ingestion option`, async () => {
-    const {
-      container,
-      getByTestId,
-      getAllByText,
-      getAllByTestId,
-    } = renderWithRouter(workflowId, workflowName, WORKFLOW_TYPE.HYBRID_SEARCH);
+    const { getByTestId, getAllByText, getAllByTestId } = renderWithRouter(
+      workflowId,
+      workflowName,
+      WORKFLOW_TYPE.HYBRID_SEARCH
+    );
 
-    // "Create an ingest pipeline" option should be selected by default
-    const createIngestRadio = container.querySelector('#create');
-    expect(createIngestRadio).toBeChecked();
+    // Defining a new ingest pipeline & index is enabled by default
+    const enabledCheckbox = getByTestId('checkbox-ingest.enabled');
+    expect(enabledCheckbox).toBeChecked();
 
-    // "Skip ingestion pipeline" option should be unselected by default
-    const skipIngestRadio = container.querySelector('#skip');
-    expect(skipIngestRadio).not.toBeChecked();
-
-    // Selected "Skip ingestion pipeline"
-    userEvent.click(skipIngestRadio!);
-    await waitFor(() => {
-      expect(createIngestRadio).not.toBeChecked();
-    });
-    expect(skipIngestRadio).toBeChecked();
+    // Skipping ingest pipeline and navigating to search
+    userEvent.click(enabledCheckbox);
+    await waitFor(() => {});
     const searchPipelineButton = getByTestId('searchPipelineButton');
     userEvent.click(searchPipelineButton);
 
@@ -255,7 +242,7 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
     userEvent.click(searchPipelineBackButton);
 
     await waitFor(() => {
-      expect(skipIngestRadio).toBeChecked();
+      expect(enabledCheckbox).not.toBeChecked();
     });
   });
 });
