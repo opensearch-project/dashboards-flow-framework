@@ -5,3 +5,4 @@
 
 export * from './flow_framework_plugin';
 export * from './ml_plugin';
+export * from './core_plugin';

@@ -26,6 +26,9 @@ import {
   BASE_NODE_API_PATH,
   SEARCH_CONNECTORS_NODE_API_PATH,
   GET_MAPPINGS_NODE_API_PATH,
+  SEARCH_PIPELINE_NODE_API_PATH,
+  INGEST_PIPELINE_NODE_API_PATH,
+  GET_INDEX_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -85,6 +88,10 @@ export interface RouteService {
     index: string,
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
+  getIndex: (
+    index: string,
+    dataSourceId?: string
+  ) => Promise<any | HttpFetchError>;
   searchIndex: ({
     index,
     body,
@@ -118,12 +125,19 @@ export interface RouteService {
     body: {},
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
-
   simulatePipeline: (
     body: {
       pipeline: IngestPipelineConfig;
       docs: SimulateIngestPipelineDoc[];
     },
+    dataSourceId?: string
+  ) => Promise<any | HttpFetchError>;
+  getIngestPipeline: (
+    pipelineId: string,
+    dataSourceId?: string
+  ) => Promise<any | HttpFetchError>;
+  getSearchPipeline: (
+    pipelineId: string,
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
 }
@@ -288,6 +302,19 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
+    getIndex: async (index: string, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/getIndex`
+          : GET_INDEX_NODE_API_PATH;
+        const response = await core.http.get<{ respString: string }>(
+          `${url}/${index}`
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
     searchIndex: async ({
       index,
       body,
@@ -393,6 +420,32 @@ export function configureRoutes(core: CoreStart): RouteService {
         const response = await core.http.post<{ respString: string }>(url, {
           body: JSON.stringify(body),
         });
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    getSearchPipeline: async (pipelineId: string, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/getSearchPipeline`
+          : SEARCH_PIPELINE_NODE_API_PATH;
+        const response = await core.http.get<{ respString: string }>(
+          `${url}/${pipelineId}`
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    getIngestPipeline: async (pipelineId: string, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/getIngestPipeline`
+          : INGEST_PIPELINE_NODE_API_PATH;
+        const response = await core.http.get<{ respString: string }>(
+          `${url}/${pipelineId}`
+        );
         return response;
       } catch (e: any) {
         return e as HttpFetchError;

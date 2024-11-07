@@ -15,13 +15,19 @@ import {
   BASE_NODE_API_PATH,
   BULK_NODE_API_PATH,
   CAT_INDICES_NODE_API_PATH,
+  GET_INDEX_NODE_API_PATH,
   GET_MAPPINGS_NODE_API_PATH,
   INGEST_NODE_API_PATH,
+  INGEST_PIPELINE_NODE_API_PATH,
   Index,
   IndexMappings,
+  IndexResponse,
   IngestPipelineConfig,
+  IngestPipelineResponse,
   SEARCH_INDEX_NODE_API_PATH,
+  SEARCH_PIPELINE_NODE_API_PATH,
   SIMULATE_PIPELINE_NODE_API_PATH,
+  SearchPipelineResponse,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
 } from '../../common';
@@ -81,6 +87,29 @@ export function registerOpenSearchRoutes(
       },
     },
     opensearchRoutesService.getMappings
+  );
+  router.get(
+    {
+      path: `${GET_INDEX_NODE_API_PATH}/{index}`,
+      validate: {
+        params: schema.object({
+          index: schema.string(),
+        }),
+      },
+    },
+    opensearchRoutesService.getIndex
+  );
+  router.get(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/getIndex/{index}`,
+      validate: {
+        params: schema.object({
+          index: schema.string(),
+          data_source_id: schema.string(),
+        }),
+      },
+    },
+    opensearchRoutesService.getIndex
   );
   router.post(
     {
@@ -232,6 +261,52 @@ export function registerOpenSearchRoutes(
     },
     opensearchRoutesService.simulatePipeline
   );
+  router.get(
+    {
+      path: `${INGEST_PIPELINE_NODE_API_PATH}/{pipeline_id}`,
+      validate: {
+        params: schema.object({
+          pipeline_id: schema.string(),
+        }),
+      },
+    },
+    opensearchRoutesService.getIngestPipeline
+  );
+  router.get(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/getIngestPipeline/{pipeline_id}`,
+      validate: {
+        params: schema.object({
+          pipeline_id: schema.string(),
+          data_source_id: schema.string(),
+        }),
+      },
+    },
+    opensearchRoutesService.getIngestPipeline
+  );
+  router.get(
+    {
+      path: `${SEARCH_PIPELINE_NODE_API_PATH}/{pipeline_id}`,
+      validate: {
+        params: schema.object({
+          pipeline_id: schema.string(),
+        }),
+      },
+    },
+    opensearchRoutesService.getSearchPipeline
+  );
+  router.get(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/getSearchPipeline/{pipeline_id}`,
+      validate: {
+        params: schema.object({
+          pipeline_id: schema.string(),
+          data_source_id: schema.string(),
+        }),
+      },
+    },
+    opensearchRoutesService.getSearchPipeline
+  );
 }
 
 export class OpenSearchRoutesService {
@@ -303,6 +378,38 @@ export class OpenSearchRoutesService {
       const mappings = response[index]?.mappings as IndexMappings;
 
       return res.ok({ body: mappings });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  getIndex = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { index } = req.params as { index: string };
+    const { data_source_id = '' } = req.params as { data_source_id?: string };
+    try {
+      const callWithRequest = getClientBasedOnDataSource(
+        context,
+        this.dataSourceEnabled,
+        req,
+        data_source_id,
+        this.client
+      );
+      const response = await callWithRequest('indices.get', {
+        index,
+      });
+      // re-formatting the results to match IndexResponse
+      const cleanedIndexDetails = Object.entries(response).map(
+        ([indexName, indexDetails]) => ({
+          indexName,
+          indexDetails,
+        })
+      ) as IndexResponse[];
+
+      return res.ok({ body: cleanedIndexDetails });
     } catch (err: any) {
       return generateCustomError(res, err);
     }
@@ -425,6 +532,75 @@ export class OpenSearchRoutesService {
       return res.ok({
         body: { docs: response.docs } as SimulateIngestPipelineResponse,
       });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  getIngestPipeline = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { pipeline_id } = req.params as { pipeline_id: string };
+    const { data_source_id = '' } = req.params as { data_source_id?: string };
+
+    try {
+      const callWithRequest = getClientBasedOnDataSource(
+        context,
+        this.dataSourceEnabled,
+        req,
+        data_source_id,
+        this.client
+      );
+
+      const response = await callWithRequest('ingest.getPipeline', {
+        id: pipeline_id,
+      });
+      // re-formatting the results to match IngestPipelineResponse
+      const cleanedIngestPipelineDetails = Object.entries(response).map(
+        ([pipelineId, ingestPipelineDetails]) => ({
+          pipelineId,
+          ingestPipelineDetails,
+        })
+      ) as IngestPipelineResponse[];
+
+      return res.ok({ body: cleanedIngestPipelineDetails });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  getSearchPipeline = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { pipeline_id } = req.params as { pipeline_id: string };
+    const { data_source_id = '' } = req.params as { data_source_id?: string };
+
+    try {
+      const callWithRequest = getClientBasedOnDataSource(
+        context,
+        this.dataSourceEnabled,
+        req,
+        data_source_id,
+        this.client
+      );
+
+      const response = await callWithRequest('coreClient.getSearchPipeline', {
+        pipeline_id: pipeline_id,
+      });
+
+      // re-formatting the results to match SearchPipelineResponse
+      const cleanedSearchPipelineDetails = Object.entries(response).map(
+        ([pipelineId, searchPipelineDetails]) => ({
+          pipelineId,
+          searchPipelineDetails,
+        })
+      ) as SearchPipelineResponse[];
+
+      return res.ok({ body: cleanedSearchPipelineDetails });
     } catch (err: any) {
       return generateCustomError(res, err);
     }

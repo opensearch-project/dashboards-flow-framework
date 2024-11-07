@@ -14,6 +14,7 @@ import { mockStore } from '../../../../test/utils';
 import { WORKFLOW_TYPE } from '../../../../common';
 import configureStore from 'redux-mock-store';
 import { WorkflowInput } from '../../../../test/interfaces';
+import { INITIAL_OPENSEARCH_STATE } from '../../../store';
 
 jest.mock('../../../services', () => {
   const { mockCoreServices } = require('../../../../test');
@@ -33,6 +34,7 @@ const workflowSet: WorkflowInput[] = Array.from({ length: 20 }, (_, index) => ({
 
 const mockStore1 = configureStore([]);
 const initialState = {
+  opensearch: INITIAL_OPENSEARCH_STATE,
   workflows: {
     loading: false,
     errorMessage: '',
