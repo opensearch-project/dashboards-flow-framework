@@ -336,7 +336,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
             showFilterBar={false}
             useDefaultBehaviors={true}
             setMenuMountPoint={getHeaderActionMenu()}
-            groupActions={USE_NEW_HOME_PAGE}
+            groupActions={true}
           />
           <HeaderControl
             setMountPoint={setAppRightControls}
