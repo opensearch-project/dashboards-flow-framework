@@ -9,23 +9,25 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiIcon,
+  EuiTitle,
 } from '@elastic/eui';
 import { i18n } from '@osd/i18n';
 import { PLUGIN_ID } from '../../../common';
 import { ContentManagementPluginStart } from '../../../../../src/plugins/content_management/public';
 import { CoreStart } from '../../../../../src/core/public';
 import pluginIcon from './icon.svg';
+import { ExperimentalBadge } from '../experimental_badge';
+
+const HEADER_TEXT = 'Design and test your search solutions with ease';
+const DESCRIPTION_TEXT =
+  'OpenSearch Flow is a visual editor for creating search AI flows to power advanced search and generative AI solutions.';
 
 export const registerPluginCard = (
   contentManagement: ContentManagementPluginStart,
   core: CoreStart
 ) => {
   const icon = (
-    <EuiIcon
-      size="original"
-      aria-label="Design and test your search solutions with ease"
-      type={pluginIcon}
-    />
+    <EuiIcon size="original" aria-label={HEADER_TEXT} type={pluginIcon} />
   );
 
   const footer = (
@@ -50,17 +52,31 @@ export const registerPluginCard = (
       id: 'opensearch_flow',
       kind: 'card',
       order: 20,
-      title: i18n.translate(
-        'flowFrameworkDashboards.opensearchFlowCard.title',
-        {
-          defaultMessage: 'Design and test your search solutions with ease',
-        }
-      ),
+      getTitle: () => {
+        return (
+          <EuiFlexGroup direction="row" gutterSize="xs">
+            <EuiFlexItem grow={false}>
+              <EuiTitle size="s">
+                <h3>
+                  {i18n.translate(
+                    'flowFrameworkDashboards.opensearchFlowCard.title',
+                    {
+                      defaultMessage: HEADER_TEXT,
+                    }
+                  )}
+                </h3>
+              </EuiTitle>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <ExperimentalBadge popoverEnabled={true} />
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        );
+      },
       description: i18n.translate(
         'flowFrameworkDashboards.opensearchFlowCard.description',
         {
-          defaultMessage:
-            'OpenSearch Flow is a visual editor for creating search AI flows to power advanced search and generative AI solutions.',
+          defaultMessage: DESCRIPTION_TEXT,
         }
       ),
       getIcon: () => icon,
