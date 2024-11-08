@@ -68,7 +68,10 @@ export const registerPluginCard = (
               </EuiTitle>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <ExperimentalBadge popoverEnabled={true} />
+              <ExperimentalBadge
+                popoverEnabled={true}
+                popoverAnchorPosition="upLeft"
+              />
             </EuiFlexItem>
           </EuiFlexGroup>
         );

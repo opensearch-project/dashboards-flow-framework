@@ -178,6 +178,8 @@ export const WORKFLOW_TUTORIAL_LINK =
   'https://opensearch.org/docs/latest/automating-configurations/workflow-tutorial/';
 export const NORMALIZATION_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/normalization-processor/';
+export const GITHUB_FEEDBACK_LINK =
+  'https://github.com/opensearch-project/dashboards-flow-framework/issues/new/choose';
 
 /**
  * Text chunking algorithm constants

@@ -4,37 +4,60 @@
  */
 
 import React, { useState } from 'react';
-import { EuiPopover, EuiSmallButtonIcon, EuiText } from '@elastic/eui';
+import {
+  EuiBetaBadge,
+  EuiPopover,
+  EuiPopoverFooter,
+  EuiPopoverTitle,
+  EuiSmallButton,
+  EuiText,
+  PopoverAnchorPosition,
+} from '@elastic/eui';
+import { GITHUB_FEEDBACK_LINK } from '../../common';
 
 interface ExperimentalBadgeProps {
   popoverEnabled: boolean;
+  popoverAnchorPosition?: PopoverAnchorPosition;
 }
 
 /**
- * Experimental badge with an optional popover for users to provide feedback
+ * Experimental/beta badge with an optional popover for users to provide feedback
  */
 export function ExperimentalBadge(props: ExperimentalBadgeProps) {
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
-  return (
+
+  return props.popoverEnabled ? (
     <EuiPopover
       button={
-        <EuiSmallButtonIcon
-          style={{ marginBottom: '4px' }}
-          iconType="beaker"
-          iconSize="l"
-          color="primary"
-          aria-label="experimental"
-          isDisabled={!props.popoverEnabled}
-          onClick={() => {
-            setPopoverOpen(!popoverOpen);
-          }}
+        <EuiBetaBadge
+          label=""
+          iconType={'beaker'}
+          onClick={() => setPopoverOpen(!popoverOpen)}
         />
       }
       isOpen={popoverOpen}
       closePopover={() => setPopoverOpen(false)}
       panelPaddingSize="s"
+      anchorPosition={props.popoverAnchorPosition || 'downCenter'}
     >
-      <EuiText>TODO</EuiText>
+      <EuiPopoverTitle>EXPERIMENTAL FEATURE</EuiPopoverTitle>
+      <EuiText style={{ width: '400px' }}>
+        {`OpenSearch Flow is experimental and should not be used in a\n
+        production environment.`}
+      </EuiText>
+      <EuiPopoverFooter>
+        <EuiSmallButton
+          fill={false}
+          href={GITHUB_FEEDBACK_LINK}
+          iconSide="right"
+          iconType="popout"
+          target="_blank"
+        >
+          Provide feedback on GitHub
+        </EuiSmallButton>
+      </EuiPopoverFooter>
     </EuiPopover>
+  ) : (
+    <EuiBetaBadge label="" iconType={'beaker'} />
   );
 }
