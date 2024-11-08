@@ -30,6 +30,7 @@ export function ExperimentalBadge(props: ExperimentalBadgeProps) {
     <EuiPopover
       button={
         <EuiBetaBadge
+          size="m"
           label=""
           iconType={'beaker'}
           onClick={() => setPopoverOpen(!popoverOpen)}

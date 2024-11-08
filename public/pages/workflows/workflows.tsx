@@ -15,10 +15,11 @@ import {
   EuiFlexGroup,
   EuiSmallButton,
   EuiText,
+  EuiFlexItem,
 } from '@elastic/eui';
 import queryString from 'query-string';
 import { useSelector } from 'react-redux';
-import { BREADCRUMBS, SHOW_ACTIONS_IN_HEADER } from '../../utils/constants';
+import { BREADCRUMBS, USE_NEW_HOME_PAGE } from '../../utils/constants';
 import { getApplication, getCore, getNavigationUI } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
@@ -28,18 +29,16 @@ import { FETCH_ALL_QUERY, PLUGIN_NAME } from '../../../common';
 import { ImportWorkflowModal } from './import_workflow';
 import { MountPoint } from '../../../../../src/core/public';
 import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_source_management/public';
-
 import { dataSourceFilterFn, getDataSourceFromURL } from '../../utils/utils';
-
 import {
   getDataSourceManagementPlugin,
   getDataSourceEnabled,
   getNotifications,
   getSavedObjectsClient,
 } from '../../services';
-
 import { prettifyErrorMessage } from '../../../common/utils';
 import { DataSourceOption } from '../../../../../src/plugins/data_source_management/public/components/data_source_menu/types';
+import { ExperimentalBadge } from '../../general_components';
 
 export interface WorkflowsRouterProps {}
 
@@ -127,7 +126,7 @@ export function Workflows(props: WorkflowsProps) {
 
   useEffect(() => {
     setBreadcrumbs(
-      SHOW_ACTIONS_IN_HEADER
+      USE_NEW_HOME_PAGE
         ? [BREADCRUMBS.TITLE]
         : [
             BREADCRUMBS.PLUGIN_NAME,
@@ -207,7 +206,7 @@ export function Workflows(props: WorkflowsProps) {
   ingestion flows with a visual interface. Experiment with different configurations with prototyping tools and launch them 
   into your environment.`;
 
-  const pageTitleAndDescription = SHOW_ACTIONS_IN_HEADER ? (
+  const pageTitleAndDescription = USE_NEW_HOME_PAGE ? (
     <HeaderControl
       controls={[
         {
@@ -218,9 +217,19 @@ export function Workflows(props: WorkflowsProps) {
     />
   ) : (
     <EuiFlexGroup direction="column" style={{ margin: '0px' }}>
-      <EuiText size="m">
-        <h1>{PLUGIN_NAME}</h1>
-      </EuiText>
+      <EuiFlexGroup direction="row" gutterSize="s">
+        <EuiFlexItem grow={false}>
+          <EuiText size="m">
+            <h1>{PLUGIN_NAME}</h1>
+          </EuiText>
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <ExperimentalBadge
+            popoverEnabled={true}
+            popoverAnchorPosition="downLeft"
+          />
+        </EuiFlexItem>
+      </EuiFlexGroup>
       <EuiText color="subdued">{DESCRIPTION}</EuiText>
     </EuiFlexGroup>
   );
