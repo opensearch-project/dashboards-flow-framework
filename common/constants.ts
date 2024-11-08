@@ -11,8 +11,8 @@ import {
 } from './interfaces';
 import { customStringify } from './utils';
 
-export const PLUGIN_ID = 'search-studio';
-export const PLUGIN_NAME = 'Search Studio';
+export const PLUGIN_ID = 'opensearch-flow';
+export const PLUGIN_NAME = 'OpenSearch Flow';
 
 /**
  * BACKEND FLOW FRAMEWORK APIs

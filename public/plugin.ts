@@ -16,7 +16,7 @@ import {
   FlowFrameworkDashboardsPluginSetup,
   AppPluginStartDependencies,
 } from './types';
-import { registerSearchStudioCard } from './general_components/service_card/search_studio_card';
+import { registerPluginCard } from './general_components';
 import { PLUGIN_ID, PLUGIN_NAME } from '../common';
 import {
   setCore,
@@ -84,14 +84,14 @@ export class FlowFrameworkDashboardsPlugin
 
   public start(
     core: CoreStart,
-    { navigation, contentManagement }: AppPluginStartDependencies,
+    { navigation, contentManagement }: AppPluginStartDependencies
   ): FlowFrameworkDashboardsPluginStart {
     setNotifications(core.notifications);
     setSavedObjectsClient(core.savedObjects.client);
     setNavigationUI(navigation.ui);
     setApplication(core.application);
     if (contentManagement) {
-      registerSearchStudioCard(contentManagement, core);
+      registerPluginCard(contentManagement, core);
     }
     return {};
   }

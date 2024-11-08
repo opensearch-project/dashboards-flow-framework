@@ -5,3 +5,4 @@
 
 export { MultiSelectFilter } from './multi_select_filter';
 export { ProcessorsTitle } from './processors_title';
+export * from './service_card';

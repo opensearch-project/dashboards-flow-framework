@@ -14,9 +14,9 @@ import { i18n } from '@osd/i18n';
 import { PLUGIN_ID } from '../../../common';
 import { ContentManagementPluginStart } from '../../../../../src/plugins/content_management/public';
 import { CoreStart } from '../../../../../src/core/public';
-import searchStudioIcon from './icon.svg';
+import pluginIcon from './icon.svg';
 
-export const registerSearchStudioCard = (
+export const registerPluginCard = (
   contentManagement: ContentManagementPluginStart,
   core: CoreStart
 ) => {
@@ -24,7 +24,7 @@ export const registerSearchStudioCard = (
     <EuiIcon
       size="original"
       aria-label="Design and test your search solutions with ease"
-      type={searchStudioIcon}
+      type={pluginIcon}
     />
   );
 
@@ -36,8 +36,8 @@ export const registerSearchStudioCard = (
             core.application.navigateToApp(PLUGIN_ID);
           }}
         >
-          {i18n.translate('flowFrameworkDashboards.searchStudioCard.footer', {
-            defaultMessage: 'Try OpenSearch Studio',
+          {i18n.translate('flowFrameworkDashboards.opensearchFlowCard.footer', {
+            defaultMessage: 'Try OpenSearch Flow',
           })}
         </EuiSmallButton>
       </EuiFlexItem>
@@ -45,19 +45,22 @@ export const registerSearchStudioCard = (
   );
 
   contentManagement.registerContentProvider({
-    id: 'search_studio_card',
+    id: 'opensearch_flow_card',
     getContent: () => ({
-      id: 'search_studio',
+      id: 'opensearch_flow',
       kind: 'card',
       order: 20,
-      title: i18n.translate('flowFrameworkDashboards.searchStudioCard.title', {
-        defaultMessage: 'Design and test your search solutions with ease',
-      }),
+      title: i18n.translate(
+        'flowFrameworkDashboards.opensearchFlowCard.title',
+        {
+          defaultMessage: 'Design and test your search solutions with ease',
+        }
+      ),
       description: i18n.translate(
-        'flowFrameworkDashboards.searchStudioCard.description',
+        'flowFrameworkDashboards.opensearchFlowCard.description',
         {
           defaultMessage:
-            'OpenSearch Studio is a visual editor for creating search AI flows to power advanced search and generative AI solutions.',
+            'OpenSearch Flow is a visual editor for creating search AI flows to power advanced search and generative AI solutions.',
         }
       ),
       getIcon: () => icon,
