@@ -487,17 +487,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             <EuiSpacer size="s" />
             <ConfigFieldList
               configId={props.config.id}
-              configFields={
-                // For ML search request processors, we don't expose the optional query_template field, since we have a dedicated
-                // UI for configuring that. See override_query_modal.tsx for details.
-                props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                  ? [
-                      ...(props.config.optionalFields?.filter(
-                        (optionalField) => optionalField.id !== 'query_template'
-                      ) || []),
-                    ]
-                  : props.config.optionalFields || []
-              }
+              configFields={props.config.optionalFields || []}
               baseConfigPath={props.baseConfigPath}
             />
           </EuiAccordion>
