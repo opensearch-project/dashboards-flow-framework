@@ -27,7 +27,7 @@ import {
 } from '../../../../common';
 import {
   APP_PATH,
-  SHOW_ACTIONS_IN_HEADER,
+  USE_NEW_HOME_PAGE,
   constructUrlWithParams,
   getDataSourceId,
   dataSourceFilterFn,
@@ -99,13 +99,13 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
 
   // When NewHomePage is enabled, use 'application' HeaderVariant; otherwise, use 'page' HeaderVariant (default).
   useEffect(() => {
-    if (SHOW_ACTIONS_IN_HEADER) {
+    if (USE_NEW_HOME_PAGE) {
       setHeaderVariant?.(HeaderVariant.APPLICATION);
     }
     return () => {
       setHeaderVariant?.();
     };
-  }, [setHeaderVariant, SHOW_ACTIONS_IN_HEADER]);
+  }, [setHeaderVariant, USE_NEW_HOME_PAGE]);
 
   const onExportButtonClick = () => {
     setIsExportModalOpen(true);
@@ -278,7 +278,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           setIsExportModalOpen={setIsExportModalOpen}
         />
       )}
-      {SHOW_ACTIONS_IN_HEADER ? (
+      {USE_NEW_HOME_PAGE ? (
         <>
           <TopNavMenu
             appName={PLUGIN_ID}
@@ -336,7 +336,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
             showFilterBar={false}
             useDefaultBehaviors={true}
             setMenuMountPoint={getHeaderActionMenu()}
-            groupActions={SHOW_ACTIONS_IN_HEADER}
+            groupActions={true}
           />
           <HeaderControl
             setMountPoint={setAppRightControls}

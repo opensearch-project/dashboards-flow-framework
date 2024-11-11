@@ -21,7 +21,7 @@ import {
 import {
   APP_PATH,
   BREADCRUMBS,
-  SHOW_ACTIONS_IN_HEADER,
+  USE_NEW_HOME_PAGE,
   uiConfigToFormik,
   uiConfigToSchema,
 } from '../../utils';
@@ -109,7 +109,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   } = getCore();
   useEffect(() => {
     setBreadcrumbs(
-      SHOW_ACTIONS_IN_HEADER
+      USE_NEW_HOME_PAGE
         ? [
             BREADCRUMBS.TITLE_WITH_REF(
               dataSourceEnabled ? dataSourceId : undefined
@@ -123,7 +123,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
             { text: workflowName },
           ]
     );
-  }, [SHOW_ACTIONS_IN_HEADER, dataSourceEnabled, dataSourceId, workflowName]);
+  }, [USE_NEW_HOME_PAGE, dataSourceEnabled, dataSourceId, workflowName]);
 
   // form state
   const [formValues, setFormValues] = useState<WorkflowFormValues>({});

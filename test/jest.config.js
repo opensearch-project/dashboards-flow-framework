@@ -7,10 +7,10 @@ module.exports = {
   rootDir: '../',
   roots: ['<rootDir>'],
   coverageDirectory: './coverage',
-  // we mock any style-related files and return an empty module. This is needed due to errors
+  // we mock any non-js-related files and return an empty module. This is needed due to errors
   // when jest tries to interpret these types of files.
   moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': '<rootDir>/test/mocks/style_mock.ts',
+    '\\.(css|less|scss|sass|svg)$': '<rootDir>/test/mocks/empty_mock.ts',
   },
   testEnvironment: 'jest-environment-jsdom',
   coverageReporters: ['lcov', 'text', 'cobertura'],
