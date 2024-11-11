@@ -11,8 +11,8 @@ import {
 } from './interfaces';
 import { customStringify } from './utils';
 
-export const PLUGIN_ID = 'search-studio';
-export const PLUGIN_NAME = 'Search Studio';
+export const PLUGIN_ID = 'opensearch-flow';
+export const PLUGIN_NAME = 'OpenSearch Flow';
 
 /**
  * BACKEND FLOW FRAMEWORK APIs
@@ -178,6 +178,8 @@ export const WORKFLOW_TUTORIAL_LINK =
   'https://opensearch.org/docs/latest/automating-configurations/workflow-tutorial/';
 export const NORMALIZATION_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/normalization-processor/';
+export const GITHUB_FEEDBACK_LINK =
+  'https://github.com/opensearch-project/dashboards-flow-framework/issues/new/choose';
 
 /**
  * Text chunking algorithm constants

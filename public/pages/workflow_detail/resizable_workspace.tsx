@@ -21,7 +21,7 @@ import {
 import {
   isValidUiWorkflow,
   reduceToTemplate,
-  SHOW_ACTIONS_IN_HEADER,
+  USE_NEW_HOME_PAGE,
 } from '../../utils';
 import { WorkflowInputs } from './workflow_inputs';
 import { Workspace } from './workspace';
@@ -96,8 +96,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       direction="horizontal"
       className="stretch-absolute"
       style={{
-        marginTop: SHOW_ACTIONS_IN_HEADER ? '0' : '58px',
-        height: SHOW_ACTIONS_IN_HEADER ? '100%' : 'calc(100% - 58px)',
+        marginTop: USE_NEW_HOME_PAGE ? '0' : '58px',
+        height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 58px)',
         gap: '4px',
       }}
     >
