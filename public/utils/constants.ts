@@ -34,6 +34,4 @@ export const BREADCRUMBS = Object.freeze({
   }),
 });
 
-export const SHOW_ACTIONS_IN_HEADER = getUISettings().get(
-  'home:useNewHomePage'
-);
+export const USE_NEW_HOME_PAGE = getUISettings().get('home:useNewHomePage');
