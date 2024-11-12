@@ -238,7 +238,7 @@ function getTransformedResult(
       : // Standard dot notation
         get(input, path);
 
-  // ML processors dynamically handle arrays vs. single values differently.
+  // ML processors dynamically handle arrays vs. single values differently when indexing.
   // We replicate that logic here to get consistent results
   return Array.isArray(result) && result.length === 1 ? result[0] : result;
 }
