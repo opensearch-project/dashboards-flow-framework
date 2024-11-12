@@ -229,18 +229,13 @@ function getTransformedResult(
   // the entire value. This may happen if full_response_path=false
   // and the input is the entire result with nothing else to parse out.
   // get() does not cover this case, so we override manually.
-  const result =
-    path === '.'
-      ? input
-      : mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR)
-      ? // JSONPath transform
-        jsonpath.query(input, path)
-      : // Standard dot notation
-        get(input, path);
-
-  // ML processors dynamically handle arrays vs. single values differently when indexing.
-  // We replicate that logic here to get consistent results
-  return Array.isArray(result) && result.length === 1 ? result[0] : result;
+  return path === '.'
+    ? input
+    : mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR)
+    ? // JSONPath transform
+      jsonpath.query(input, path)
+    : // Standard dot notation
+      get(input, path);
 }
 
 // Derive the collection of model inputs from the model interface JSONSchema into a form-ready list
