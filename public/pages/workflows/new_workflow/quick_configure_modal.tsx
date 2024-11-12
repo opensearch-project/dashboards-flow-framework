@@ -293,10 +293,10 @@ function updateIngestProcessors(
             if (outputMap.length > 0) {
               outputMap[0] = {
                 ...outputMap[0],
-                key: defaultField,
+                value: defaultField,
               };
             } else {
-              outputMap.push({ key: defaultField, value: '' });
+              outputMap.push({ key: '', value: defaultField });
             }
           }
           field.value = [outputMap] as MapArrayFormValue;
@@ -344,16 +344,18 @@ function updateSearchRequestProcessors(
         }
         if (field.id === 'output_map') {
           const outputMap = generateMapFromModelOutputs(modelInterface);
-          const defaultKey = isVectorSearchUseCase ? VECTOR : defaultQueryValue;
+          const defaultValue = isVectorSearchUseCase
+            ? VECTOR
+            : defaultQueryValue;
           if (outputMap.length > 0) {
             outputMap[0] = {
               ...outputMap[0],
-              key: defaultKey,
+              value: defaultValue,
             };
           } else {
             outputMap.push({
-              key: defaultKey,
-              value: '',
+              key: '',
+              value: defaultValue,
             });
           }
           field.value = [outputMap] as MapArrayFormValue;
@@ -412,10 +414,10 @@ function updateSearchResponseProcessors(
             if (outputMap.length > 0) {
               outputMap[0] = {
                 ...outputMap[0],
-                key: fields.llmResponseField,
+                value: fields.llmResponseField,
               };
             } else {
-              outputMap.push({ key: fields.llmResponseField, value: '' });
+              outputMap.push({ key: '', value: fields.llmResponseField });
             }
           }
           field.value = [outputMap] as MapArrayFormValue;
@@ -540,7 +542,7 @@ function generateMapFromModelInputs(
   return inputMap;
 }
 
-// generate a set of mappings s.t. each value is
+// generate a set of mappings s.t. each key is
 // a unique model output
 function generateMapFromModelOutputs(
   modelInterface?: ModelInterface
@@ -550,8 +552,8 @@ function generateMapFromModelOutputs(
     const modelOutputs = parseModelOutputs(modelInterface);
     modelOutputs.forEach((modelOutput) => {
       outputMap.push({
-        key: '',
-        value: modelOutput.label,
+        key: modelOutput.label,
+        value: '',
       });
     });
   }

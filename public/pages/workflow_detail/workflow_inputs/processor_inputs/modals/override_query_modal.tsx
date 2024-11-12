@@ -68,13 +68,13 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
   );
   // TODO: should handle edge case of multiple output maps configured. Currently
   // defaulting to prediction 0 / assuming not multiple predictions to track.
-  const outputMapKeys = getIn(outputMap, '0', []).map(
-    (mapEntry: MapEntry) => mapEntry.key
+  const outputMapValues = getIn(outputMap, '0', []).map(
+    (mapEntry: MapEntry) => mapEntry.value
   ) as string[];
   const finalModelOutputs =
-    outputMapKeys.length > 0
-      ? outputMapKeys.map((outputMapKey) => {
-          return { label: outputMapKey };
+    outputMapValues.length > 0
+      ? outputMapValues.map((outputMapValue) => {
+          return { label: outputMapValue };
         })
       : modelOutputs.map((modelOutput) => {
           return { label: modelOutput.label };
