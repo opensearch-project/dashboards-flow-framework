@@ -348,6 +348,14 @@ function processorsConfigToWorkspaceFlow(
         );
         break;
       }
+      case PROCESSOR_TYPE.RERANK: {
+        transformer = new BaseTransformer(
+          processorConfig.name,
+          'Rerank results by a document field',
+          context
+        );
+        break;
+      }
       default: {
         transformer = new BaseTransformer(processorConfig.name, '', context);
         break;
