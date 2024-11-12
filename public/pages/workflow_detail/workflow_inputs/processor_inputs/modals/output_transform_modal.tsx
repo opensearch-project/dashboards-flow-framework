@@ -35,6 +35,7 @@ import {
   IngestPipelineConfig,
   JSONPATH_ROOT_SELECTOR,
   MapArrayFormValue,
+  MapFormValue,
   ModelInterface,
   OutputTransformFormValues,
   OutputTransformSchema,
@@ -157,7 +158,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
         sampleSourceOutput = JSON.parse(sourceOutput);
         const output = generateTransform(
           sampleSourceOutput,
-          tempOutputMap[selectedTransformOption]
+          reverseKeysAndValues(tempOutputMap[selectedTransformOption])
         );
         setTransformedOutput(customStringify(output));
       } catch {}
@@ -640,4 +641,15 @@ root object selector "${JSONPATH_ROOT_SELECTOR}"`}
       }}
     </Formik>
   );
+}
+
+// since we persist the form keys/values reversed, we have a util fn to reverse back, so we can use
+// single util fns for manipulation of the form values (generating transforms, etc.)
+function reverseKeysAndValues(values: MapFormValue): MapFormValue {
+  return values.map((mapEntry) => {
+    return {
+      key: mapEntry.value,
+      value: mapEntry.key,
+    };
+  });
 }
