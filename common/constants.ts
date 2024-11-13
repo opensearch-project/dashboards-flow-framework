@@ -127,6 +127,7 @@ export enum PROCESSOR_TYPE {
   TEXT_CHUNKING = 'text_chunking',
   NORMALIZATION = 'normalization-processor',
   COLLAPSE = 'collapse',
+  RERANK = 'rerank',
 }
 
 export enum MODEL_TYPE {

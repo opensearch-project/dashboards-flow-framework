@@ -314,6 +314,27 @@ export function processorConfigsToTemplateProcessors(
         });
         break;
       }
+      // Since we only support the by_field type of the rerank processor,
+      // we need to nest the form values within the parent "by_field" field.
+      case PROCESSOR_TYPE.RERANK: {
+        const formValues = processorConfigToFormik(processorConfig);
+        let finalFormValues = {} as FormikValues;
+        Object.keys(formValues).forEach((formKey: string) => {
+          const formValue = formValues[formKey];
+          finalFormValues = optionallyAddToFinalForm(
+            finalFormValues,
+            formKey,
+            formValue
+          );
+        });
+        finalFormValues = {
+          by_field: finalFormValues,
+        };
+        processorsList.push({
+          [processorConfig.type]: finalFormValues,
+        });
+        break;
+      }
       case PROCESSOR_TYPE.SPLIT:
       case PROCESSOR_TYPE.SORT:
       case PROCESSOR_TYPE.COLLAPSE:
