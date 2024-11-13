@@ -30,6 +30,7 @@ import {
   MLSearchRequestProcessor,
   MLSearchResponseProcessor,
   NormalizationProcessor,
+  RerankProcessor,
   SortIngestProcessor,
   SortSearchResponseProcessor,
   SplitIngestProcessor,
@@ -274,6 +275,13 @@ export function ProcessorsList(props: ProcessorsListProps) {
                                   addProcessor(
                                     new MLSearchResponseProcessor().toObj()
                                   );
+                                },
+                              },
+                              {
+                                name: 'Rerank Processor',
+                                onClick: () => {
+                                  closePopover();
+                                  addProcessor(new RerankProcessor().toObj());
                                 },
                               },
                               {
