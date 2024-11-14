@@ -378,8 +378,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           <EuiSpacer size="s" />
           <MapArrayField
             fieldPath={inputMapFieldPath}
-            helpText={`An array specifying how to map fields from the ingested document to the model’s input. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
-            root object selector "${JSONPATH_ROOT_SELECTOR}"`}
             keyTitle="Name"
             keyPlaceholder="Name"
             keyOptions={parseModelInputs(modelInterface)}
@@ -393,6 +391,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 ? 'Specify a query field'
                 : 'Define a document field'
             }
+            valueHelpText={`Specify a document field or define JSONPath to transform the document to map to a model input field.`}
             valueOptions={
               props.context === PROCESSOR_CONTEXT.INGEST
                 ? docFields
@@ -435,10 +434,9 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           <EuiSpacer size="s" />
           <MapArrayField
             fieldPath={outputMapFieldPath}
-            helpText={`An array specifying how to map the model’s output to new document fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
-            root object selector "${JSONPATH_ROOT_SELECTOR}"`}
             keyTitle="Name"
             keyPlaceholder="Name"
+            keyHelpText={`Specify a model output field or define JSONPath to transform the model output to map to a new document field.`}
             keyOptions={
               fullResponsePath
                 ? undefined

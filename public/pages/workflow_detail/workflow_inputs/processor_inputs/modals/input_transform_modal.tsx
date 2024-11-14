@@ -37,7 +37,6 @@ import {
   IngestPipelineConfig,
   InputTransformFormValues,
   InputTransformSchema,
-  JSONPATH_ROOT_SELECTOR,
   MapArrayFormValue,
   ModelInterface,
   PROCESSOR_CONTEXT,
@@ -291,8 +290,6 @@ export function InputTransformModal(props: InputTransformModalProps) {
         const InputMap = (
           <MapArrayField
             fieldPath={'input_map'}
-            helpText={`An array specifying how to map fields from the ingested document to the model’s input. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
-        root object selector "${JSONPATH_ROOT_SELECTOR}"`}
             keyTitle="Name"
             keyPlaceholder="Name"
             keyOptions={parseModelInputs(props.modelInterface)}
@@ -306,6 +303,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 ? 'Specify a query field'
                 : 'Define a document field'
             }
+            valueHelpText={`Specify a document field or define JSONPath to transform the document to map to a model input field.`}
             valueOptions={props.valueOptions}
             // If the map we are adding is the first one, populate the selected option to index 0
             onMapAdd={(curArray) => {
