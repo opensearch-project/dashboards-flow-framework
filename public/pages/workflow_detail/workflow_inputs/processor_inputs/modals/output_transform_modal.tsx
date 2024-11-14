@@ -33,7 +33,6 @@ import {
   IConfigField,
   IProcessorConfig,
   IngestPipelineConfig,
-  JSONPATH_ROOT_SELECTOR,
   MapArrayFormValue,
   MapFormValue,
   ModelInterface,
@@ -213,10 +212,9 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
         const OutputMap = (
           <MapArrayField
             fieldPath={'output_map'}
-            helpText={`An array specifying how to map the model’s output to new fields. Dot notation is used by default. To explicitly use JSONPath, please ensure to prepend with the
-root object selector "${JSONPATH_ROOT_SELECTOR}"`}
             keyTitle="Name"
             keyPlaceholder="Name"
+            keyHelpText={`Specify a model output field or define JSONPath to transform the model output to map to a new document field.`}
             keyOptions={
               tempFullResponsePath
                 ? undefined

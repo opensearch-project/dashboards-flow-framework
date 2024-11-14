@@ -26,11 +26,12 @@ import { MapField } from './map_field';
 
 interface MapArrayFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
-  helpText?: string;
   keyTitle?: string;
   keyPlaceholder?: string;
+  keyHelpText?: string;
   valueTitle?: string;
   valuePlaceholder?: string;
+  valueHelpText?: string;
   onMapAdd?: (curArray: MapArrayFormValue) => void;
   onMapDelete?: (idxToDelete: number) => void;
   keyOptions?: { label: string }[];
@@ -123,11 +124,12 @@ export function MapArrayField(props: MapArrayFieldProps) {
                           <EuiPanel grow={true}>
                             <MapField
                               fieldPath={`${props.fieldPath}.${idx}`}
-                              helpText={props.helpText}
                               keyTitle={props.keyTitle}
                               keyPlaceholder={props.keyPlaceholder}
+                              keyHelpText={props.keyHelpText}
                               valueTitle={props.valueTitle}
                               valuePlaceholder={props.valuePlaceholder}
+                              valueHelpText={props.valueHelpText}
                               keyOptions={props.keyOptions}
                               valueOptions={props.valueOptions}
                               addEntryButtonText={props.addMapEntryButtonText}
@@ -144,13 +146,14 @@ export function MapArrayField(props: MapArrayFieldProps) {
                   <EuiPanel grow={true}>
                     <MapField
                       fieldPath={`${props.fieldPath}.0`}
-                      helpText={props.helpText}
                       keyTitle={props.keyTitle}
                       keyPlaceholder={props.keyPlaceholder}
+                      keyHelpText={props.keyHelpText}
                       valueTitle={props.valueTitle}
                       valuePlaceholder={props.valuePlaceholder}
                       keyOptions={props.keyOptions}
                       valueOptions={props.valueOptions}
+                      valueHelpText={props.valueHelpText}
                       addEntryButtonText={props.addMapEntryButtonText}
                       mappingDirection={props.mappingDirection}
                     />
