@@ -29,11 +29,12 @@ interface MapFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   label?: string;
   helpLink?: string;
-  helpText?: string;
   keyTitle?: string;
   keyPlaceholder?: string;
+  keyHelpText?: string;
   valueTitle?: string;
   valuePlaceholder?: string;
+  valueHelpText?: string;
   keyOptions?: { label: string }[];
   valueOptions?: { label: string }[];
   addEntryButtonText?: string;
@@ -111,9 +112,21 @@ export function MapField(props: MapFieldProps) {
               <EuiFlexItem style={{ marginBottom: '0px' }}>
                 <EuiFlexGroup direction="row" gutterSize="xs">
                   <EuiFlexItem grow={KEY_FLEX_RATIO}>
-                    <EuiText size="s" color="subdued">
-                      {props.keyTitle || 'Key'}
-                    </EuiText>
+                    <EuiFlexGroup direction="row" gutterSize="xs">
+                      <EuiFlexItem grow={false}>
+                        <EuiText size="s" color="subdued">
+                          {props.keyTitle || 'Key'}
+                        </EuiText>
+                      </EuiFlexItem>
+                      {props.keyHelpText && (
+                        <EuiFlexItem grow={false}>
+                          <EuiIconTip
+                            content={props.keyHelpText}
+                            position="right"
+                          />
+                        </EuiFlexItem>
+                      )}
+                    </EuiFlexGroup>
                   </EuiFlexItem>
                   <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                     <EuiFlexGroup direction="row" gutterSize="xs">
@@ -122,10 +135,10 @@ export function MapField(props: MapFieldProps) {
                           {props.valueTitle || 'Value'}
                         </EuiText>
                       </EuiFlexItem>
-                      {props.helpText && (
+                      {props.valueHelpText && (
                         <EuiFlexItem grow={false}>
                           <EuiIconTip
-                            content={props.helpText}
+                            content={props.valueHelpText}
                             position="right"
                           />
                         </EuiFlexItem>
