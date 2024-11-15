@@ -35,6 +35,7 @@ import {
   SearchPipelineConfig,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
+import { sanitizeJSONPath } from './utils';
 
 /*
  **************** Config -> template utils **********************
@@ -451,11 +452,11 @@ function mergeMapIntoSingleObj(
     curMap = reverse
       ? {
           ...curMap,
-          [mapEntry.value]: mapEntry.key,
+          [sanitizeJSONPath(mapEntry.value)]: sanitizeJSONPath(mapEntry.key),
         }
       : {
           ...curMap,
-          [mapEntry.key]: mapEntry.value,
+          [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(mapEntry.value),
         };
   });
   return curMap;
