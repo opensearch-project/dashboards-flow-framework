@@ -157,7 +157,8 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
         sampleSourceOutput = JSON.parse(sourceOutput);
         const output = generateTransform(
           sampleSourceOutput,
-          reverseKeysAndValues(tempOutputMap[selectedTransformOption])
+          reverseKeysAndValues(tempOutputMap[selectedTransformOption]),
+          props.context
         );
         setTransformedOutput(customStringify(output));
       } catch {}

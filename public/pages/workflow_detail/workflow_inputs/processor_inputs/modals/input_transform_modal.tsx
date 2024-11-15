@@ -185,11 +185,13 @@ export function InputTransformModal(props: InputTransformModalProps) {
           Array.isArray(sampleSourceInput)
             ? generateArrayTransform(
                 sampleSourceInput as [],
-                tempInputMap[selectedTransformOption]
+                tempInputMap[selectedTransformOption],
+                props.context
               )
             : generateTransform(
                 sampleSourceInput,
-                tempInputMap[selectedTransformOption]
+                tempInputMap[selectedTransformOption],
+                props.context
               );
 
         setTransformedInput(customStringify(output));
