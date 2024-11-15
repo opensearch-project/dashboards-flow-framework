@@ -464,6 +464,10 @@ export enum PROCESSOR_CONTEXT {
   SEARCH_REQUEST = 'search_request',
   SEARCH_RESPONSE = 'search_response',
 }
+export enum TRANSFORM_CONTEXT {
+  INPUT = 'input',
+  OUTPUT = 'output',
+}
 export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';

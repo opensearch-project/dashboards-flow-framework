@@ -42,6 +42,7 @@ import {
   PROCESSOR_CONTEXT,
   SearchHit,
   SimulateIngestPipelineResponse,
+  TRANSFORM_CONTEXT,
   WorkflowConfig,
   WorkflowFormValues,
   customStringify,
@@ -185,11 +186,15 @@ export function InputTransformModal(props: InputTransformModalProps) {
           Array.isArray(sampleSourceInput)
             ? generateArrayTransform(
                 sampleSourceInput as [],
-                tempInputMap[selectedTransformOption]
+                tempInputMap[selectedTransformOption],
+                props.context,
+                TRANSFORM_CONTEXT.INPUT
               )
             : generateTransform(
                 sampleSourceInput,
-                tempInputMap[selectedTransformOption]
+                tempInputMap[selectedTransformOption],
+                props.context,
+                TRANSFORM_CONTEXT.INPUT
               );
 
         setTransformedInput(customStringify(output));
@@ -303,7 +308,15 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 ? 'Specify a query field'
                 : 'Define a document field'
             }
-            valueHelpText={`Specify a document field or define JSONPath to transform the document to map to a model input field.`}
+            valueHelpText={`Specify a ${
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'query'
+                : 'document'
+            } field or define JSONPath to transform the ${
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'query'
+                : 'document'
+            } to map to a model input field.`}
             valueOptions={props.valueOptions}
             // If the map we are adding is the first one, populate the selected option to index 0
             onMapAdd={(curArray) => {
