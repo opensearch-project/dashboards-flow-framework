@@ -42,6 +42,7 @@ import {
   PROCESSOR_CONTEXT,
   SearchHit,
   SimulateIngestPipelineResponse,
+  TRANSFORM_CONTEXT,
   WorkflowConfig,
   WorkflowFormValues,
   customStringify,
@@ -186,12 +187,14 @@ export function InputTransformModal(props: InputTransformModalProps) {
             ? generateArrayTransform(
                 sampleSourceInput as [],
                 tempInputMap[selectedTransformOption],
-                props.context
+                props.context,
+                TRANSFORM_CONTEXT.INPUT
               )
             : generateTransform(
                 sampleSourceInput,
                 tempInputMap[selectedTransformOption],
-                props.context
+                props.context,
+                TRANSFORM_CONTEXT.INPUT
               );
 
         setTransformedInput(customStringify(output));

@@ -18,6 +18,7 @@ import {
   PROCESSOR_CONTEXT,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
+  TRANSFORM_CONTEXT,
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STEP_TYPE,
   Workflow,
@@ -186,7 +187,8 @@ export function unwrapTransformedDocs(
 export function generateTransform(
   input: {} | [],
   map: MapFormValue,
-  context: PROCESSOR_CONTEXT
+  context: PROCESSOR_CONTEXT,
+  transformContext: TRANSFORM_CONTEXT
 ): {} {
   let output = {};
   map.forEach((mapEntry) => {
@@ -195,7 +197,8 @@ export function generateTransform(
         mapEntry,
         input,
         mapEntry.value,
-        context
+        context,
+        transformContext
       );
       output = {
         ...output,
@@ -213,13 +216,20 @@ export function generateTransform(
 export function generateArrayTransform(
   input: [],
   map: MapFormValue,
-  context: PROCESSOR_CONTEXT
+  context: PROCESSOR_CONTEXT,
+  transformContext: TRANSFORM_CONTEXT
 ): {}[] {
   let output = [] as {}[];
   map.forEach((mapEntry) => {
     try {
       const transformedResult = input.map((inputEntry) =>
-        getTransformedResult(mapEntry, inputEntry, mapEntry.value, context)
+        getTransformedResult(
+          mapEntry,
+          inputEntry,
+          mapEntry.value,
+          context,
+          transformContext
+        )
       );
       output = {
         ...output,
@@ -234,14 +244,16 @@ function getTransformedResult(
   mapEntry: MapEntry,
   input: {},
   path: string,
-  context: PROCESSOR_CONTEXT
+  context: PROCESSOR_CONTEXT,
+  transformContext: TRANSFORM_CONTEXT
 ): any {
-  // Rregular dot notation can only be executed if 1/ the JSONPath selector is not explicitly defined,
-  // and 2/ it is in the context of ingest. For search request / search response parsing,
-  // it can only be JSONPath, due to backend parsing limitations.
+  // Regular dot notation can only be executed if 1/ the JSONPath selector is not explicitly defined,
+  // and 2/ it is in the context of ingest, and 3/ it is transforming the input (the source document).
+  // For all other scenarios, it can only be JSONPath, due to backend parsing limitations.
   if (
     !mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR) &&
-    context === PROCESSOR_CONTEXT.INGEST
+    context === PROCESSOR_CONTEXT.INGEST &&
+    transformContext === TRANSFORM_CONTEXT.INPUT
   ) {
     // sub-edge case: if the path is ".", it implies returning
     // the entire value. This may happen if full_response_path=false
