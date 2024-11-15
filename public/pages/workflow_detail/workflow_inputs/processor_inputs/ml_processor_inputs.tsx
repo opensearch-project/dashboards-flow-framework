@@ -24,7 +24,6 @@ import {
   IConfigField,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
-  JSONPATH_ROOT_SELECTOR,
   WorkflowFormValues,
   ModelInterface,
   IndexMappings,
@@ -41,6 +40,7 @@ import {
 } from './modals';
 import { AppState, getMappings, useAppDispatch } from '../../../../store';
 import {
+  convertArrayAccessorsToBracketNotation,
   formikToPartialPipeline,
   getDataSourceId,
   parseModelInputs,
@@ -186,7 +186,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
         setDocFields(
           docObjKeys.map((key) => {
             return {
-              label: key,
+              label: convertArrayAccessorsToBracketNotation(key),
             };
           })
         );
@@ -202,7 +202,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
         setQueryFields(
           queryObjKeys.map((key) => {
             return {
-              label: key,
+              label: convertArrayAccessorsToBracketNotation(key),
             };
           })
         );

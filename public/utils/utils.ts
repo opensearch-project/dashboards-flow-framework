@@ -473,3 +473,11 @@ export const getErrorMessageForStepType = (
       return '';
   }
 };
+
+export function convertArrayAccessorsToBracketNotation(path: string): string {
+  return path.split('.').reduce((prevValue, curValue, idx) => {
+    return isNaN(parseInt(curValue))
+      ? prevValue + '.' + curValue
+      : prevValue + `[${curValue}]`;
+  });
+}
