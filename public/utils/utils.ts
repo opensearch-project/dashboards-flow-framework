@@ -486,10 +486,21 @@ export const getErrorMessageForStepType = (
   }
 };
 
-export function convertArrayAccessorsToBracketNotation(path: string): string {
+// Sanitize the nested keys in a given JSONPath definition.
+// to ensure it works consistently on the frontend & backend. There are several discrepancies
+// between the frontend and the backend packages, such that some
+// scenarios will succeed on the frontend and fail on the backend,
+// or vice versa.
+export function sanitizeJSONPath(path: string): string {
   return path.split('.').reduce((prevValue, curValue, idx) => {
-    return isNaN(parseInt(curValue))
-      ? prevValue + '.' + curValue
-      : prevValue + `[${curValue}]`;
+    // Case 1: accessing array via dot notation. Fails on the backend.
+    if (!isNaN(parseInt(curValue))) {
+      return prevValue + `[${curValue}]`;
+      // Case 2: accessing key with a dash via dot notation. Fails on the frontend.
+    } else if (curValue.includes('-')) {
+      return prevValue + `["${curValue}"]`;
+    } else {
+      return prevValue + '.' + curValue;
+    }
   });
 }
