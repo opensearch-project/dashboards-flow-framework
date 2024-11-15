@@ -42,6 +42,7 @@ import {
   SearchHit,
   SearchPipelineConfig,
   SimulateIngestPipelineResponse,
+  TRANSFORM_CONTEXT,
   WorkflowConfig,
   WorkflowFormValues,
   customStringify,
@@ -157,7 +158,9 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
         sampleSourceOutput = JSON.parse(sourceOutput);
         const output = generateTransform(
           sampleSourceOutput,
-          reverseKeysAndValues(tempOutputMap[selectedTransformOption])
+          reverseKeysAndValues(tempOutputMap[selectedTransformOption]),
+          props.context,
+          TRANSFORM_CONTEXT.OUTPUT
         );
         setTransformedOutput(customStringify(output));
       } catch {}

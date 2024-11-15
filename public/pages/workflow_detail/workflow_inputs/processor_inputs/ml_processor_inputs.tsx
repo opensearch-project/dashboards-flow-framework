@@ -24,7 +24,6 @@ import {
   IConfigField,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
-  JSONPATH_ROOT_SELECTOR,
   WorkflowFormValues,
   ModelInterface,
   IndexMappings,
@@ -45,6 +44,7 @@ import {
   getDataSourceId,
   parseModelInputs,
   parseModelOutputs,
+  sanitizeJSONPath,
 } from '../../../../utils';
 import { ConfigFieldList } from '../config_field_list';
 import { OverrideQueryModal } from './modals/override_query_modal';
@@ -186,7 +186,13 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
         setDocFields(
           docObjKeys.map((key) => {
             return {
-              label: key,
+              label:
+                // ingest inputs can handle dot notation, and hence don't need
+                // sanitizing to handle JSONPath edge cases. The other contexts
+                // only support JSONPath, and hence need some post-processing/sanitizing.
+                props.context === PROCESSOR_CONTEXT.INGEST
+                  ? key
+                  : sanitizeJSONPath(key),
             };
           })
         );
@@ -202,7 +208,13 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
         setQueryFields(
           queryObjKeys.map((key) => {
             return {
-              label: key,
+              label:
+                // ingest inputs can handle dot notation, and hence don't need
+                // sanitizing to handle JSONPath edge cases. The other contexts
+                // only support JSONPath, and hence need some post-processing/sanitizing.
+                props.context === PROCESSOR_CONTEXT.INGEST
+                  ? key
+                  : sanitizeJSONPath(key),
             };
           })
         );
@@ -391,7 +403,15 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 ? 'Specify a query field'
                 : 'Define a document field'
             }
-            valueHelpText={`Specify a document field or define JSONPath to transform the document to map to a model input field.`}
+            valueHelpText={`Specify a ${
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'query'
+                : 'document'
+            } field or define JSONPath to transform the ${
+              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                ? 'query'
+                : 'document'
+            } to map to a model input field.`}
             valueOptions={
               props.context === PROCESSOR_CONTEXT.INGEST
                 ? docFields

@@ -15,8 +15,10 @@ import {
   ModelInterface,
   ModelOutput,
   ModelOutputFormField,
+  PROCESSOR_CONTEXT,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
+  TRANSFORM_CONTEXT,
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STEP_TYPE,
   Workflow,
@@ -182,14 +184,21 @@ export function unwrapTransformedDocs(
 
 // ML inference processors will use standard dot notation or JSONPath depending on the input.
 // We follow the same logic here to generate consistent results.
-export function generateTransform(input: {} | [], map: MapFormValue): {} {
+export function generateTransform(
+  input: {} | [],
+  map: MapFormValue,
+  context: PROCESSOR_CONTEXT,
+  transformContext: TRANSFORM_CONTEXT
+): {} {
   let output = {};
   map.forEach((mapEntry) => {
     try {
       const transformedResult = getTransformedResult(
         mapEntry,
         input,
-        mapEntry.value
+        mapEntry.value,
+        context,
+        transformContext
       );
       output = {
         ...output,
@@ -204,12 +213,23 @@ export function generateTransform(input: {} | [], map: MapFormValue): {} {
 // a single field value in the transformed output.
 // A specialty scenario for when configuring input on search response processors, one-to-one is false,
 // and the input is an array.
-export function generateArrayTransform(input: [], map: MapFormValue): {}[] {
+export function generateArrayTransform(
+  input: [],
+  map: MapFormValue,
+  context: PROCESSOR_CONTEXT,
+  transformContext: TRANSFORM_CONTEXT
+): {}[] {
   let output = [] as {}[];
   map.forEach((mapEntry) => {
     try {
       const transformedResult = input.map((inputEntry) =>
-        getTransformedResult(mapEntry, inputEntry, mapEntry.value)
+        getTransformedResult(
+          mapEntry,
+          inputEntry,
+          mapEntry.value,
+          context,
+          transformContext
+        )
       );
       output = {
         ...output,
@@ -223,19 +243,62 @@ export function generateArrayTransform(input: [], map: MapFormValue): {}[] {
 function getTransformedResult(
   mapEntry: MapEntry,
   input: {},
-  path: string
+  path: string,
+  context: PROCESSOR_CONTEXT,
+  transformContext: TRANSFORM_CONTEXT
 ): any {
-  // Edge case: if the path is ".", it implies returning
-  // the entire value. This may happen if full_response_path=false
-  // and the input is the entire result with nothing else to parse out.
-  // get() does not cover this case, so we override manually.
-  return path === '.'
-    ? input
-    : mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR)
-    ? // JSONPath transform
-      jsonpath.query(input, path)
-    : // Standard dot notation
-      get(input, path);
+  // Regular dot notation can only be executed if 1/ the JSONPath selector is not explicitly defined,
+  // and 2/ it is in the context of ingest, and 3/ it is transforming the input (the source document).
+  // For all other scenarios, it can only be JSONPath, due to backend parsing limitations.
+  if (
+    !mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR) &&
+    context === PROCESSOR_CONTEXT.INGEST &&
+    transformContext === TRANSFORM_CONTEXT.INPUT
+  ) {
+    // sub-edge case: if the path is ".", it implies returning
+    // the entire value. This may happen if full_response_path=false
+    // and the input is the entire result with nothing else to parse out.
+    // get() does not cover this case, so we override manually.
+    if (path === '.') {
+      return input;
+    } else {
+      return get(input, path);
+    }
+  } else {
+    // The backend sets a JSONPath setting ALWAYS_RETURN_LIST=false, which
+    // dynamically returns a list or single value, based on whether
+    // the path is definite or not. We try to mimic that with a
+    // custom fn isIndefiniteJsonPath(), since this setting, nor
+    // knowing if the path is definite or indefinite, is not exposed
+    // by any known jsonpath JS-based / NPM libraries.
+    // if found to be definite, we remove the outermost array, which
+    // will always be returned by default when running query().
+    const isIndefinite = isIndefiniteJsonPath(path);
+    const res = jsonpath.query(input, path);
+    if (isIndefinite) {
+      return res;
+    } else {
+      return res[0];
+    }
+  }
+}
+
+// Indefinite/definite path defns:
+// https://github.com/json-path/JsonPath?tab=readme-ov-file#what-is-returned-when
+// Note this may not cover every use case, as the true definition requires low-level
+// branch navigation of the path nodes, which is not exposed by this npm library.
+// Hence, we do our best to cover the majority of use cases and common patterns.
+function isIndefiniteJsonPath(path: string): boolean {
+  // regex has 3 overall OR checks:
+  // 1. consecutive '.'s, indicating deep scan - \.{2}
+  // 2. ?(<anything>), indicating an expression - \?\(.*\)
+  // 3. multiple array indices - \[\d+,\d+\] | \[.*:.*\] | \[\*\]
+  // if any are met, then we call the path indefinite.
+  const indefiniteRegEx = new RegExp(
+    /\.{2}|\?\(.*\)|\[\d+,\d+\]|\[.*:.*\]|\[\*\]/,
+    'g'
+  );
+  return indefiniteRegEx.test(path);
 }
 
 // Derive the collection of model inputs from the model interface JSONSchema into a form-ready list
@@ -422,3 +485,22 @@ export const getErrorMessageForStepType = (
       return '';
   }
 };
+
+// Sanitize the nested keys in a given JSONPath definition.
+// to ensure it works consistently on the frontend & backend. There are several discrepancies
+// between the frontend and the backend packages, such that some
+// scenarios will succeed on the frontend and fail on the backend,
+// or vice versa.
+export function sanitizeJSONPath(path: string): string {
+  return path.split('.').reduce((prevValue, curValue, idx) => {
+    // Case 1: accessing array via dot notation. Fails on the backend.
+    if (!isNaN(parseInt(curValue))) {
+      return prevValue + `[${curValue}]`;
+      // Case 2: accessing key with a dash via dot notation. Fails on the frontend.
+    } else if (curValue.includes('-')) {
+      return prevValue + `["${curValue}"]`;
+    } else {
+      return prevValue + '.' + curValue;
+    }
+  });
+}
