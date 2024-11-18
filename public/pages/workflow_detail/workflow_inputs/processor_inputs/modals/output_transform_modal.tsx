@@ -367,7 +367,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
                   )
                     .unwrap()
                     .then(async (resp) => {
-                      const hits = resp.hits.hits.map(
+                      const hits = resp?.hits?.hits?.map(
                         (hit: SearchHit) => hit._source
                       ) as any[];
                       if (hits.length > 0) {

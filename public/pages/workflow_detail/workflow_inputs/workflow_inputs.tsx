@@ -530,7 +530,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             .then(async (resp) => {
               props.setQueryResponse(
                 customStringify(
-                  resp.hits.hits.map((hit: SearchHit) => hit._source)
+                  resp?.hits?.hits?.map((hit: SearchHit) => hit._source)
                 )
               );
             })
