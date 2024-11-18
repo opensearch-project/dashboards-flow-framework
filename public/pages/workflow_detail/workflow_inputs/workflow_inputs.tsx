@@ -727,8 +727,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           props.setSelectedStep(CONFIG_STEP.SEARCH);
                         }}
                         data-testid="searchPipelineButton"
+                        iconSide="right"
+                        iconType="arrowRight"
                       >
-                        {`Search pipeline >`}
+                        {`Search pipeline`}
                       </EuiSmallButton>
                     </EuiFlexItem>
                   ) : onIngest ? (
@@ -754,8 +756,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           }}
                           data-testid="searchPipelineButton"
                           disabled={ingestToSearchButtonDisabled}
+                          iconSide="right"
+                          iconType="arrowRight"
                         >
-                          {`Search pipeline >`}
+                          {`Search pipeline`}
                         </EuiSmallButton>
                       </EuiFlexItem>
                     </>
@@ -768,8 +772,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                             props.setSelectedStep(CONFIG_STEP.INGEST)
                           }
                           data-testid="searchPipelineBackButton"
+                          iconSide="left"
+                          iconType="arrowLeft"
                         >
-                          Back
+                          Ingest pipeline
                         </EuiSmallButtonEmpty>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
