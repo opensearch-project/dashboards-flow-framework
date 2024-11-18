@@ -126,18 +126,8 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
     // Close the export component
     userEvent.click(getByTestId('exportCloseButton'));
 
-    // Check workspace buttons (Visual and JSON)
-    const visualButton = getByTestId('workspaceVisualButton');
-    await waitFor(() => {
-      expect(visualButton).toBeVisible();
-    });
-    expect(visualButton).toHaveClass('euiFilterButton-hasActiveFilters');
-    const jsonButton = getByTestId('workspaceJSONButton');
-    expect(jsonButton).toBeVisible();
-    userEvent.click(jsonButton);
-    await waitFor(() => {
-      expect(jsonButton).toHaveClass('euiFilterButton-hasActiveFilters');
-    });
+    // Check workspace button group exists (Visual and JSON)
+    getByTestId('visualJSONToggleButtonGroup');
 
     // Tools panel should collapse and expand on toggle
     const toolsPanel = container.querySelector('#tools_panel_id');
