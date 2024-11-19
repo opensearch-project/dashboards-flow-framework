@@ -415,7 +415,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 : 'document'
             } to map to a model input field.${
               props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR} - for example, "_request.query.match.my_field"`
+                ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR}" - for example, "_request.query.match.my_field"`
                 : ''
             }`}
             valueOptions={
