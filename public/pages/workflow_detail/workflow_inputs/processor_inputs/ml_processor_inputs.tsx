@@ -31,6 +31,8 @@ import {
   MapArrayFormValue,
   MapEntry,
   MapFormValue,
+  REQUEST_PREFIX,
+  REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
 } from '../../../../../common';
 import { MapArrayField, ModelField } from '../input_fields';
 import {
@@ -411,7 +413,11 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                 ? 'query'
                 : 'document'
-            } to map to a model input field.`}
+            } to map to a model input field.${
+              props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR} - for example, "_request.query.match.my_field"`
+                : ''
+            }`}
             valueOptions={
               props.context === PROCESSOR_CONTEXT.INGEST
                 ? docFields

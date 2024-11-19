@@ -481,6 +481,8 @@ export const NO_TEMPLATES_FOUND_MSG = 'There are no templates';
 export const NO_MODIFICATIONS_FOUND_TEXT =
   'Template does not contain any modifications';
 export const JSONPATH_ROOT_SELECTOR = '$';
+export const REQUEST_PREFIX = '_request.';
+export const REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR = '$._request.';
 export enum SORT_ORDER {
   ASC = 'asc',
   DESC = 'desc',

@@ -46,6 +46,8 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
   customStringify,
+  REQUEST_PREFIX,
+  REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
 } from '../../../../../../common';
 import {
   formikToPartialPipeline,
@@ -188,13 +190,15 @@ export function InputTransformModal(props: InputTransformModalProps) {
                 sampleSourceInput as [],
                 tempInputMap[selectedTransformOption],
                 props.context,
-                TRANSFORM_CONTEXT.INPUT
+                TRANSFORM_CONTEXT.INPUT,
+                queryObj
               )
             : generateTransform(
                 sampleSourceInput,
                 tempInputMap[selectedTransformOption],
                 props.context,
-                TRANSFORM_CONTEXT.INPUT
+                TRANSFORM_CONTEXT.INPUT,
+                queryObj
               );
 
         setTransformedInput(customStringify(output));
@@ -316,7 +320,11 @@ export function InputTransformModal(props: InputTransformModalProps) {
               props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                 ? 'query'
                 : 'document'
-            } to map to a model input field.`}
+            } to map to a model input field.${
+              props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR} - for example, "_request.query.match.my_field"`
+                : ''
+            }`}
             valueOptions={props.valueOptions}
             // If the map we are adding is the first one, populate the selected option to index 0
             onMapAdd={(curArray) => {

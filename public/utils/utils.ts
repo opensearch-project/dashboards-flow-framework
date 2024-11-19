@@ -5,7 +5,7 @@
 
 import yaml from 'js-yaml';
 import jsonpath from 'jsonpath';
-import { escape, get } from 'lodash';
+import { escape, get, isEmpty } from 'lodash';
 import {
   JSONPATH_ROOT_SELECTOR,
   MODEL_OUTPUT_SCHEMA_FULL_PATH,
@@ -16,6 +16,8 @@ import {
   ModelOutput,
   ModelOutputFormField,
   PROCESSOR_CONTEXT,
+  REQUEST_PREFIX,
+  REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
   TRANSFORM_CONTEXT,
@@ -188,17 +190,18 @@ export function generateTransform(
   input: {} | [],
   map: MapFormValue,
   context: PROCESSOR_CONTEXT,
-  transformContext: TRANSFORM_CONTEXT
+  transformContext: TRANSFORM_CONTEXT,
+  queryContext?: {}
 ): {} {
   let output = {};
   map.forEach((mapEntry) => {
     try {
       const transformedResult = getTransformedResult(
-        mapEntry,
         input,
         mapEntry.value,
         context,
-        transformContext
+        transformContext,
+        queryContext
       );
       output = {
         ...output,
@@ -217,20 +220,41 @@ export function generateArrayTransform(
   input: [],
   map: MapFormValue,
   context: PROCESSOR_CONTEXT,
-  transformContext: TRANSFORM_CONTEXT
+  transformContext: TRANSFORM_CONTEXT,
+  queryContext?: {}
 ): {}[] {
   let output = [] as {}[];
   map.forEach((mapEntry) => {
     try {
-      const transformedResult = input.map((inputEntry) =>
-        getTransformedResult(
-          mapEntry,
-          inputEntry,
+      // If users define a path using the special query request
+      // prefix, parse the query context, instead of the other input.      let transformedResult = [] as any[];
+      let transformedResult = [] as any[];
+      if (
+        (mapEntry.value.startsWith(REQUEST_PREFIX) ||
+          mapEntry.value.startsWith(
+            REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR
+          )) &&
+        queryContext !== undefined &&
+        !isEmpty(queryContext)
+      ) {
+        transformedResult = getTransformedResult(
+          {},
           mapEntry.value,
           context,
-          transformContext
-        )
-      );
+          transformContext,
+          queryContext
+        );
+      } else {
+        transformedResult = input.map((inputEntry) =>
+          getTransformedResult(
+            inputEntry,
+            mapEntry.value,
+            context,
+            transformContext,
+            queryContext
+          )
+        );
+      }
       output = {
         ...output,
         [mapEntry.key]: transformedResult || '',
@@ -241,17 +265,17 @@ export function generateArrayTransform(
 }
 
 function getTransformedResult(
-  mapEntry: MapEntry,
   input: {},
   path: string,
   context: PROCESSOR_CONTEXT,
-  transformContext: TRANSFORM_CONTEXT
+  transformContext: TRANSFORM_CONTEXT,
+  queryContext?: {}
 ): any {
   // Regular dot notation can only be executed if 1/ the JSONPath selector is not explicitly defined,
   // and 2/ it is in the context of ingest, and 3/ it is transforming the input (the source document).
   // For all other scenarios, it can only be JSONPath, due to backend parsing limitations.
   if (
-    !mapEntry.value.startsWith(JSONPATH_ROOT_SELECTOR) &&
+    !path.startsWith(JSONPATH_ROOT_SELECTOR) &&
     context === PROCESSOR_CONTEXT.INGEST &&
     transformContext === TRANSFORM_CONTEXT.INPUT
   ) {
@@ -264,22 +288,38 @@ function getTransformedResult(
     } else {
       return get(input, path);
     }
+    // If users define a path using the special query request
+    // prefix, parse the query context, instead of the other input.
+  } else if (
+    (path.startsWith(REQUEST_PREFIX) ||
+      path.startsWith(REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR)) &&
+    queryContext !== undefined &&
+    !isEmpty(queryContext)
+  ) {
+    const updatedPath = path.startsWith(REQUEST_PREFIX)
+      ? path.replace(REQUEST_PREFIX, '')
+      : path.replace(REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR, '');
+    return executeJsonPath(queryContext, updatedPath);
   } else {
-    // The backend sets a JSONPath setting ALWAYS_RETURN_LIST=false, which
-    // dynamically returns a list or single value, based on whether
-    // the path is definite or not. We try to mimic that with a
-    // custom fn isIndefiniteJsonPath(), since this setting, nor
-    // knowing if the path is definite or indefinite, is not exposed
-    // by any known jsonpath JS-based / NPM libraries.
-    // if found to be definite, we remove the outermost array, which
-    // will always be returned by default when running query().
-    const isIndefinite = isIndefiniteJsonPath(path);
-    const res = jsonpath.query(input, path);
-    if (isIndefinite) {
-      return res;
-    } else {
-      return res[0];
-    }
+    return executeJsonPath(input, path);
+  }
+}
+
+// The backend sets a JSONPath setting ALWAYS_RETURN_LIST=false, which
+// dynamically returns a list or single value, based on whether
+// the path is definite or not. We try to mimic that with a
+// custom fn isIndefiniteJsonPath(), since this setting, nor
+// knowing if the path is definite or indefinite, is not exposed
+// by any known jsonpath JS-based / NPM libraries.
+// if found to be definite, we remove the outermost array, which
+// will always be returned by default when running query().
+function executeJsonPath(input: {}, path: string): any[] {
+  const isIndefinite = isIndefiniteJsonPath(path);
+  const res = jsonpath.query(input, path);
+  if (isIndefinite) {
+    return res;
+  } else {
+    return res[0];
   }
 }
 
