@@ -451,8 +451,8 @@ export function InputTransformModal(props: InputTransformModalProps) {
                   )
                     .unwrap()
                     .then(async (resp) => {
-                      const hits = resp.hits.hits
-                        .map((hit: SearchHit) => hit._source)
+                      const hits = resp?.hits?.hits
+                        ?.map((hit: SearchHit) => hit._source)
                         .slice(0, MAX_INPUT_DOCS);
                       if (hits.length > 0) {
                         setSourceInput(

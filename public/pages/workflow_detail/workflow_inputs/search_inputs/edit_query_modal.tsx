@@ -106,6 +106,8 @@ export function EditQueryModal(props: EditQueryModalProps) {
                   <EuiSmallButton
                     onClick={() => setPopoverOpen(!popoverOpen)}
                     data-testid="searchQueryPresetButton"
+                    iconSide="right"
+                    iconType="arrowDown"
                   >
                     Choose from a preset
                   </EuiSmallButton>
