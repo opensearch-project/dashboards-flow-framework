@@ -227,8 +227,8 @@ export function generateArrayTransform(
   map.forEach((mapEntry) => {
     try {
       // If users define a path using the special query request
-      // prefix, parse the query context, instead of the other input.      let transformedResult = [] as any[];
-      let transformedResult = [] as any[];
+      // prefix, parse the query context, instead of the other input.
+      let transformedResult;
       if (
         (mapEntry.value.startsWith(REQUEST_PREFIX) ||
           mapEntry.value.startsWith(
