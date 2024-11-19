@@ -152,7 +152,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                         .then(async (resp) => {
                           props.setQueryResponse(
                             customStringify(
-                              resp.hits.hits.map(
+                              resp?.hits?.hits?.map(
                                 (hit: SearchHit) => hit._source
                               )
                             )
