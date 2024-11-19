@@ -175,7 +175,7 @@ export function SourceDataModal(props: SourceDataProps) {
             )
               .unwrap()
               .then((resp) => {
-                const docObjs = resp.hits?.hits
+                const docObjs = resp?.hits?.hits
                   ?.slice(0, 5)
                   ?.map((hit: SearchHit) => hit?._source);
                 formikProps.setFieldValue('docs', customStringify(docObjs));

@@ -16,11 +16,10 @@ import ReactFlow, {
 import {
   EuiFlexItem,
   EuiFlexGroup,
-  EuiFilterGroup,
-  EuiFilterButton,
   EuiCodeEditor,
   EuiText,
   EuiLink,
+  EuiSmallButtonGroup,
 } from '@elastic/eui';
 import {
   IComponentData,
@@ -55,12 +54,26 @@ const nodeTypes = {
 };
 const edgeTypes = { customEdge: DeletableEdge };
 
+enum TOGGLE_BUTTON_ID {
+  VISUAL = 'workspaceVisualButton',
+  JSON = 'workspaceJSONButton',
+}
+
 export function Workspace(props: WorkspaceProps) {
   // Visual/JSON toggle states
-  const [visualSelected, setVisualSelected] = useState<boolean>(true);
-  function toggleSelection(): void {
-    setVisualSelected(!visualSelected);
-  }
+  const [toggleButtonSelected, setToggleButtonSelected] = useState<
+    TOGGLE_BUTTON_ID
+  >(TOGGLE_BUTTON_ID.VISUAL);
+  const toggleButtons = [
+    {
+      id: `workspaceVisualButton`,
+      label: 'Visual',
+    },
+    {
+      id: `workspaceJSONButton`,
+      label: 'JSON',
+    },
+  ];
 
   // JSON state
   const [provisionTemplate, setProvisionTemplate] = useState<string>('');
@@ -131,27 +144,18 @@ export function Workspace(props: WorkspaceProps) {
               </EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiFilterGroup>
-                <EuiFilterButton
-                  size="s"
-                  hasActiveFilters={visualSelected}
-                  onClick={() => toggleSelection()}
-                  data-testid="workspaceVisualButton"
-                >
-                  Visual
-                </EuiFilterButton>
-                <EuiFilterButton
-                  size="s"
-                  hasActiveFilters={!visualSelected}
-                  onClick={() => toggleSelection()}
-                  data-testid="workspaceJSONButton"
-                >
-                  JSON
-                </EuiFilterButton>
-              </EuiFilterGroup>
+              <EuiSmallButtonGroup
+                legend="Toggle between visual and JSON views"
+                options={toggleButtons}
+                idSelected={toggleButtonSelected}
+                onChange={(id) =>
+                  setToggleButtonSelected(id as TOGGLE_BUTTON_ID)
+                }
+                data-testid="visualJSONToggleButtonGroup"
+              />
             </EuiFlexItem>
             <EuiFlexItem grow={false} style={{ paddingTop: '8px' }}>
-              {visualSelected ? (
+              {toggleButtonSelected === TOGGLE_BUTTON_ID.VISUAL ? (
                 <EuiText size="s">
                   {`A basic visual view representing the configured ingest & search flows.`}
                 </EuiText>
@@ -168,7 +172,7 @@ export function Workspace(props: WorkspaceProps) {
         </div>
         <div className="reactflow-parent-wrapper">
           <div className="reactflow-wrapper" ref={reactFlowWrapper}>
-            {visualSelected ? (
+            {toggleButtonSelected === TOGGLE_BUTTON_ID.VISUAL ? (
               <ReactFlow
                 id="workspace"
                 nodes={nodes}

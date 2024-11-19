@@ -103,6 +103,8 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
                 button={
                   <EuiSmallButton
                     onClick={() => setPresetsPopoverOpen(!presetsPopoverOpen)}
+                    iconSide="right"
+                    iconType="arrowDown"
                   >
                     Choose from a preset
                   </EuiSmallButton>

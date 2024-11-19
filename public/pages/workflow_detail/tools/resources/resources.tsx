@@ -35,14 +35,12 @@ export function Resources(props: ResourcesProps) {
         </>
       ) : (
         <EuiEmptyPrompt
-          iconType={'cross'}
           title={<h2>No resources available</h2>}
           titleSize="s"
           body={
             <>
               <EuiText size="s">
-                Provision the workflow to generate resources in order to start
-                prototyping.
+                Run the pipeline to generate resources.
               </EuiText>
             </>
           }

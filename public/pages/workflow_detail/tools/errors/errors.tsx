@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { EuiCodeBlock, EuiText } from '@elastic/eui';
+import { EuiCodeBlock, EuiEmptyPrompt } from '@elastic/eui';
 import { isEmpty } from 'lodash';
 
 interface ErrorsProps {
@@ -19,7 +19,7 @@ export function Errors(props: ErrorsProps) {
   return (
     <>
       {isEmpty(props.errorMessage) ? (
-        <EuiText size="s">There are no errors.</EuiText>
+        <EuiEmptyPrompt title={<h2>No errors</h2>} titleSize="s" />
       ) : (
         <EuiCodeBlock fontSize="m" isCopyable={false}>
           {props.errorMessage}
