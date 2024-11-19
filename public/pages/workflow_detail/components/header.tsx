@@ -47,13 +47,14 @@ import {
 import { DataSourceViewConfig } from '../../../../../../src/plugins/data_source_management/public';
 import { HeaderVariant } from '../../../../../../src/core/public';
 import {
-  TopNavControlTextData,
+  TopNavControlData,
   TopNavMenuIconData,
 } from '../../../../../../src/plugins/navigation/public';
 import { MountPoint } from '../../../../../../src/core/public';
 import { getWorkflow, updateWorkflow, useAppDispatch } from '../../../store';
 import { useFormikContext } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
+import { ExperimentalBadge } from '../../../general_components';
 
 interface WorkflowDetailHeaderProps {
   workflow?: Workflow;
@@ -342,10 +343,18 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
             setMountPoint={setAppRightControls}
             controls={[
               {
+                renderComponent: (
+                  <ExperimentalBadge
+                    popoverEnabled={true}
+                    popoverAnchorPosition="downLeft"
+                  />
+                ),
+              },
+              {
                 text: `Last updated: ${workflowLastUpdated}`,
                 color: 'subdued',
                 className: 'workflow-detail-last-updated',
-              } as TopNavControlTextData,
+              } as TopNavControlData,
             ]}
           />
         </>
@@ -402,6 +411,10 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
               <EuiText color="subdued" size="s">
                 {`Last updated: ${workflowLastUpdated}`}
               </EuiText>,
+              <ExperimentalBadge
+                popoverEnabled={true}
+                popoverAnchorPosition="downLeft"
+              />,
             ]}
             bottomBorder={false}
             rightSideGroupProps={{
