@@ -140,7 +140,7 @@ export type RequestSchema = WorkflowSchema;
 
 // Form / schema interfaces for the input transform sub-form
 export type InputTransformFormValues = {
-  input_map: MapArrayFormValue;
+  input_map: InputMapArrayFormValue;
   one_to_one: ConfigFieldValue;
 };
 export type InputTransformSchema = WorkflowSchema;
