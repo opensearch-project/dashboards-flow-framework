@@ -121,6 +121,8 @@ export function ModelInputs(props: ModelInputsProps) {
             };
           })
         );
+      } else {
+        setDocFields([]);
       }
     } catch {}
   }, [values?.ingest?.docs]);
@@ -146,6 +148,7 @@ export function ModelInputs(props: ModelInputsProps) {
       }
     } catch {}
   }, [values?.search?.request]);
+
   useEffect(() => {
     const indexName = values?.search?.index?.name as string | undefined;
     if (indexName !== undefined && indices[indexName] !== undefined) {
@@ -200,12 +203,7 @@ export function ModelInputs(props: ModelInputsProps) {
   }
 
   // Defining constants for the key/value text vars, typically dependent on the different processor contexts.
-  const keyPlaceholder = 'Name';
   const keyOptions = parseModelInputs(modelInterface);
-  const valuePlaceholder =
-    props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-      ? 'Specify a query field'
-      : 'Define a document field';
   const valueOptions =
     props.context === PROCESSOR_CONTEXT.INGEST
       ? docFields
@@ -271,6 +269,10 @@ export function ModelInputs(props: ModelInputsProps) {
                     </EuiFlexItem>
                     {field.value?.map(
                       (mapEntry: InputMapEntry, idx: number) => {
+                        const transformType = getIn(
+                          values,
+                          `${inputMapFieldPath}.${idx}.value.transformType`
+                        );
                         return (
                           <EuiFlexItem key={idx}>
                             <EuiFlexGroup direction="row" gutterSize="xs">
@@ -307,14 +309,14 @@ export function ModelInputs(props: ModelInputsProps) {
                                           <SelectWithCustomOptions
                                             fieldPath={`${inputMapFieldPath}.${idx}.key`}
                                             options={keyOptions as any[]}
-                                            placeholder={keyPlaceholder}
+                                            placeholder={`Name`}
                                             allowCreate={true}
                                           />
                                         ) : (
                                           <TextField
                                             fullWidth={true}
                                             fieldPath={`${inputMapFieldPath}.${idx}.key`}
-                                            placeholder={keyPlaceholder}
+                                            placeholder={`Name`}
                                             showError={false}
                                           />
                                         )}
@@ -336,31 +338,52 @@ export function ModelInputs(props: ModelInputsProps) {
                                     options={TRANSFORM_OPTIONS}
                                     placeholder={`Input type`}
                                     allowCreate={false}
+                                    onChange={() => {
+                                      // If the transform type changes, clear any set value as it will likely not make sense
+                                      // under other types/contexts.
+                                      setFieldValue(
+                                        `${inputMapFieldPath}.${idx}.value.value`,
+                                        ''
+                                      );
+                                    }}
                                   />
                                 </EuiFlexItem>
                               </EuiFlexItem>
                               <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                                 <EuiFlexGroup direction="row" gutterSize="xs">
                                   <>
+                                    {/**
+                                     * Conditionally render the value form component based on the transform type.
+                                     * It may be a button, dropdown, or simply freeform text.
+                                     */}
                                     <EuiFlexItem>
                                       <>
-                                        {!isEmpty(valueOptions) ? (
+                                        {isEmpty(transformType) ||
+                                        // TODO: add buttons & new modals to configure expressions & templates
+                                        transformType ===
+                                          TRANSFORM_TYPE.EXPRESSION ||
+                                        transformType ===
+                                          TRANSFORM_TYPE.STRING ||
+                                        transformType ===
+                                          TRANSFORM_TYPE.TEMPLATE ||
+                                        isEmpty(valueOptions) ? (
+                                          <TextField
+                                            fullWidth={true}
+                                            fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
+                                            placeholder={`Value`}
+                                            showError={false}
+                                          />
+                                        ) : (
                                           <SelectWithCustomOptions
                                             fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
                                             options={valueOptions || []}
                                             placeholder={
-                                              valuePlaceholder || 'Output'
+                                              props.context ===
+                                              PROCESSOR_CONTEXT.SEARCH_REQUEST
+                                                ? 'Query field'
+                                                : 'Document field'
                                             }
                                             allowCreate={true}
-                                          />
-                                        ) : (
-                                          <TextField
-                                            fullWidth={true}
-                                            fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
-                                            placeholder={
-                                              valuePlaceholder || 'Output'
-                                            }
-                                            showError={false}
                                           />
                                         )}
                                       </>

@@ -14,6 +14,7 @@ interface SelectWithCustomOptionsProps {
   placeholder: string;
   options: { label: string }[];
   allowCreate?: boolean;
+  onChange?: () => void;
 }
 
 /**
@@ -79,6 +80,9 @@ export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
       onChange={(options) => {
         setFieldTouched(props.fieldPath, true);
         setFieldValue(props.fieldPath, get(options, '0.label'));
+        if (props.onChange) {
+          props.onChange();
+        }
       }}
       onCreateOption={props.allowCreate ? onCreateOption : undefined}
       customOptionText={
