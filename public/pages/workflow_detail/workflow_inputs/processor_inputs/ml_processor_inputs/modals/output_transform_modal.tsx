@@ -46,7 +46,7 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
   customStringify,
-} from '../../../../../../common';
+} from '../../../../../../../common';
 import {
   formikToPartialPipeline,
   generateTransform,
@@ -54,19 +54,19 @@ import {
   getInitialValue,
   prepareDocsForSimulate,
   unwrapTransformedDocs,
-} from '../../../../../utils';
+} from '../../../../../../utils';
 import {
   searchIndex,
   simulatePipeline,
   useAppDispatch,
-} from '../../../../../store';
-import { getCore } from '../../../../../services';
-import { BooleanField, MapArrayField } from '../../input_fields';
+} from '../../../../../../store';
+import { getCore } from '../../../../../../services';
+import { BooleanField, MapArrayField } from '../../../input_fields';
 import {
   getDataSourceId,
   parseModelOutputs,
   parseModelOutputsObj,
-} from '../../../../../utils/utils';
+} from '../../../../../../utils/utils';
 
 interface OutputTransformModalProps {
   uiConfig: WorkflowConfig;

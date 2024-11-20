@@ -39,7 +39,8 @@ import {
   ConfigurePromptModal,
   InputTransformModal,
   OutputTransformModal,
-} from '../modals';
+  OverrideQueryModal,
+} from './modals';
 import { AppState, getMappings, useAppDispatch } from '../../../../../store';
 import {
   formikToPartialPipeline,
@@ -49,7 +50,6 @@ import {
   sanitizeJSONPath,
 } from '../../../../../utils';
 import { ConfigFieldList } from '../../config_field_list';
-import { OverrideQueryModal } from '../modals/override_query_modal';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
