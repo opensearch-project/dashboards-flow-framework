@@ -31,16 +31,15 @@ import {
   MapArrayFormValue,
   MapEntry,
   MapFormValue,
-  REQUEST_PREFIX,
-  REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
 } from '../../../../../../common';
-import { MapArrayField, ModelField } from '../../input_fields';
+import { ModelField } from '../../input_fields';
 import {
   ConfigurePromptModal,
   InputTransformModal,
   OutputTransformModal,
   OverrideQueryModal,
 } from './modals';
+import { ModelInputs } from './model_inputs';
 import { AppState, getMappings, useAppDispatch } from '../../../../../store';
 import {
   formikToPartialPipeline,
@@ -50,6 +49,7 @@ import {
   sanitizeJSONPath,
 } from '../../../../../utils';
 import { ConfigFieldList } from '../../config_field_list';
+import { ModelOutputs } from './model_outputs';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
@@ -83,10 +83,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const inputMapValue = getIn(values, inputMapFieldPath);
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map`;
   const outputMapValue = getIn(values, outputMapFieldPath);
-  const fullResponsePath = getIn(
-    values,
-    `${props.baseConfigPath}.${props.config.id}.full_response_path`
-  );
 
   // contains a configurable prompt field or not. if so, expose some extra
   // dedicated UI
@@ -390,44 +386,10 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
-          <MapArrayField
-            fieldPath={inputMapFieldPath}
-            keyTitle="Name"
-            keyPlaceholder="Name"
-            keyOptions={parseModelInputs(modelInterface)}
-            valueTitle={
-              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? 'Query field'
-                : 'Document field'
-            }
-            valuePlaceholder={
-              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? 'Specify a query field'
-                : 'Define a document field'
-            }
-            valueHelpText={`Specify a ${
-              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? 'query'
-                : 'document'
-            } field or define JSONPath to transform the ${
-              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? 'query'
-                : 'document'
-            } to map to a model input field.${
-              props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR}" - for example, "_request.query.match.my_field"`
-                : ''
-            }`}
-            valueOptions={
-              props.context === PROCESSOR_CONTEXT.INGEST
-                ? docFields
-                : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? queryFields
-                : indexMappingFields
-            }
-            addMapEntryButtonText="Add input"
-            addMapButtonText="Add input group (Advanced)"
-            mappingDirection="sortLeft"
+          <ModelInputs
+            config={props.config}
+            baseConfigPath={props.baseConfigPath}
+            context={props.context}
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -458,29 +420,10 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
-          <MapArrayField
-            fieldPath={outputMapFieldPath}
-            keyTitle="Name"
-            keyPlaceholder="Name"
-            keyHelpText={`Specify a model output field or define JSONPath to transform the model output to map to a new document field.`}
-            keyOptions={
-              fullResponsePath
-                ? undefined
-                : parseModelOutputs(modelInterface, false)
-            }
-            valueTitle={
-              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? 'Query field'
-                : 'New document field'
-            }
-            valuePlaceholder={
-              props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? 'Specify a query field'
-                : 'Define a document field'
-            }
-            addMapEntryButtonText="Add output"
-            addMapButtonText="Add output group (Advanced)"
-            mappingDirection="sortRight"
+          <ModelOutputs
+            config={props.config}
+            baseConfigPath={props.baseConfigPath}
+            context={props.context}
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&
