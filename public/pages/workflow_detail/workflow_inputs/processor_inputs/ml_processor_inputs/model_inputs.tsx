@@ -141,8 +141,6 @@ export function ModelInputs(props: ModelInputsProps) {
     }
   }, [values?.search?.index?.name]);
 
-  console.log('model inputs: ', parseModelInputs(modelInterface));
-
   return (
     <MapArrayField
       fieldPath={inputMapFieldPath}
