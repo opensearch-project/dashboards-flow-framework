@@ -35,7 +35,8 @@ export type ConfigFieldType =
   | 'map'
   | 'mapArray'
   | 'boolean'
-  | 'number';
+  | 'number'
+  | 'transform';
 
 export type ConfigFieldValue = string | {};
 

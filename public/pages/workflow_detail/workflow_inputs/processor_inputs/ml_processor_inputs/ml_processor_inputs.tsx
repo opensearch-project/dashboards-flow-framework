@@ -33,23 +33,23 @@ import {
   MapFormValue,
   REQUEST_PREFIX,
   REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
-} from '../../../../../common';
-import { MapArrayField, ModelField } from '../input_fields';
+} from '../../../../../../common';
+import { MapArrayField, ModelField } from '../../input_fields';
 import {
   ConfigurePromptModal,
   InputTransformModal,
   OutputTransformModal,
-} from './modals';
-import { AppState, getMappings, useAppDispatch } from '../../../../store';
+} from '../modals';
+import { AppState, getMappings, useAppDispatch } from '../../../../../store';
 import {
   formikToPartialPipeline,
   getDataSourceId,
   parseModelInputs,
   parseModelOutputs,
   sanitizeJSONPath,
-} from '../../../../utils';
-import { ConfigFieldList } from '../config_field_list';
-import { OverrideQueryModal } from './modals/override_query_modal';
+} from '../../../../../utils';
+import { ConfigFieldList } from '../../config_field_list';
+import { OverrideQueryModal } from '../modals/override_query_modal';
 
 interface MLProcessorInputsProps {
   uiConfig: WorkflowConfig;
