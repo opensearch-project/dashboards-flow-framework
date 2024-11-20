@@ -39,9 +39,9 @@ import {
   VECTOR_FIELD_PATTERN,
   VECTOR_PATTERN,
   WorkflowFormValues,
-} from '../../../../../../common';
-import { parseModelOutputs } from '../../../../../utils/utils';
-import { JsonField } from '../../input_fields';
+} from '../../../../../../../common';
+import { parseModelOutputs } from '../../../../../../utils/utils';
+import { JsonField } from '../../../input_fields';
 
 interface OverrideQueryModalProps {
   config: IProcessorConfig;
