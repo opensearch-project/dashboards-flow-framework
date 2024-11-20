@@ -38,11 +38,11 @@ import {
   PromptPreset,
   WorkflowFormValues,
   customStringify,
-} from '../../../../../../common';
+} from '../../../../../../../common';
 import {
   parseModelInputs,
   parseModelInputsObj,
-} from '../../../../../utils/utils';
+} from '../../../../../../utils/utils';
 
 interface ConfigurePromptModalProps {
   config: IProcessorConfig;
