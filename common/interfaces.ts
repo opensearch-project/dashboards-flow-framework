@@ -37,20 +37,9 @@ export type ConfigFieldType =
   | 'mapArray'
   | 'boolean'
   | 'number'
-  | 'transform'
-  | 'transformArray';
+  | 'inputMapArray';
 
-export type ConfigFieldTransformValue = {
-  transformType: TRANSFORM_TYPE;
-  value: string;
-};
-export type ConfigFieldTransformArrayValue = ConfigFieldTransformValue[];
-
-export type ConfigFieldValue =
-  | string
-  | ConfigFieldTransformValue
-  | ConfigFieldTransformArrayValue
-  | {};
+export type ConfigFieldValue = string | {};
 
 export interface IConfigField {
   type: ConfigFieldType;
@@ -113,9 +102,14 @@ export type MapFormValue = MapEntry[];
 
 export type MapArrayFormValue = MapFormValue[];
 
+export type Transform = {
+  transformType: TRANSFORM_TYPE;
+  value: string;
+};
+
 export type InputMapEntry = {
   key: string;
-  value: ConfigFieldTransformValue;
+  value: Transform;
 };
 
 export type InputMapFormValue = InputMapEntry[];

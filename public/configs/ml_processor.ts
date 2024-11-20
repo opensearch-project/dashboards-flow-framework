@@ -22,7 +22,7 @@ export abstract class MLProcessor extends Processor {
       },
       {
         id: 'input_map',
-        type: 'transformArray',
+        type: 'inputMapArray',
       },
       {
         id: 'output_map',

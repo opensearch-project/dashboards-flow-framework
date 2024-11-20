@@ -470,10 +470,10 @@ export enum TRANSFORM_CONTEXT {
   OUTPUT = 'output',
 }
 export enum TRANSFORM_TYPE {
-  STRING = 'string',
-  FIELD = 'field',
-  EXPRESSION = 'expression',
-  TEMPLATE = 'template',
+  STRING = 'String',
+  FIELD = 'Field',
+  EXPRESSION = 'Expression',
+  TEMPLATE = 'Template',
 }
 export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
@@ -503,7 +503,7 @@ export const EMPTY_MAP_ENTRY = { key: '', value: '' } as MapEntry;
 export const EMPTY_INPUT_MAP_ENTRY = {
   key: '',
   value: {
-    transformType: TRANSFORM_TYPE.FIELD,
+    transformType: '' as TRANSFORM_TYPE,
     value: '',
   },
 } as InputMapEntry;

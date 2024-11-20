@@ -15,8 +15,6 @@ import {
   WorkflowFormValues,
   ModelInterface,
   IndexMappings,
-  REQUEST_PREFIX,
-  REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
   InputMapEntry,
   InputMapFormValue,
   TRANSFORM_TYPE,
@@ -34,7 +32,6 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiIcon,
-  EuiIconTip,
   EuiPanel,
   EuiSmallButton,
   EuiSmallButtonEmpty,
@@ -49,10 +46,16 @@ interface ModelInputsProps {
   context: PROCESSOR_CONTEXT;
 }
 
-// The keys will be more static in general. Give more space for values where users
-// will typically be writing out more complex transforms/configuration (in the case of ML inference processors).
-const KEY_FLEX_RATIO = 4;
-const VALUE_FLEX_RATIO = 6;
+// Determining spacing between the input field columns
+const KEY_FLEX_RATIO = 3;
+const TYPE_FLEX_RATIO = 2;
+const VALUE_FLEX_RATIO = 5;
+
+const TRANSFORM_OPTIONS = Object.values(TRANSFORM_TYPE).map((type) => {
+  return {
+    label: type,
+  };
+});
 
 /**
  * Base component to configure ML inputs.
@@ -75,7 +78,6 @@ export function ModelInputs(props: ModelInputsProps) {
   ) as IConfigField;
   const modelFieldPath = `${props.baseConfigPath}.${props.config.id}.${modelField.id}`;
   // Assuming no more than one set of input map entries.
-  // TODO: confirm the above.
   const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.input_map.0`;
 
   // model interface state
@@ -177,7 +179,7 @@ export function ModelInputs(props: ModelInputsProps) {
       {
         key: '',
         value: {
-          transformType: TRANSFORM_TYPE.FIELD,
+          transformType: '' as TRANSFORM_TYPE,
           value: '',
         },
       } as InputMapEntry,
@@ -198,26 +200,12 @@ export function ModelInputs(props: ModelInputsProps) {
   }
 
   // Defining constants for the key/value text vars, typically dependent on the different processor contexts.
-  const keyTitle = 'Name';
   const keyPlaceholder = 'Name';
   const keyOptions = parseModelInputs(modelInterface);
-  const valueTitle =
-    props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-      ? 'Query field'
-      : 'Document field';
   const valuePlaceholder =
     props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
       ? 'Specify a query field'
       : 'Define a document field';
-  const valueHelpText = `Specify a ${
-    props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST ? 'query' : 'document'
-  } field or define JSONPath to transform the ${
-    props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST ? 'query' : 'document'
-  } to map to a model input field.${
-    props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
-      ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR}" - for example, "_request.query.match.my_field"`
-      : ''
-  }`;
   const valueOptions =
     props.context === PROCESSOR_CONTEXT.INGEST
       ? docFields
@@ -256,7 +244,16 @@ export function ModelInputs(props: ModelInputsProps) {
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
                               <EuiText size="s" color="subdued">
-                                {keyTitle}
+                                {`Name`}
+                              </EuiText>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={TYPE_FLEX_RATIO}>
+                          <EuiFlexGroup direction="row" gutterSize="xs">
+                            <EuiFlexItem grow={false}>
+                              <EuiText size="s" color="subdued">
+                                {`Input type`}
                               </EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
@@ -265,14 +262,8 @@ export function ModelInputs(props: ModelInputsProps) {
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
                               <EuiText size="s" color="subdued">
-                                {valueTitle}
+                                Value
                               </EuiText>
-                            </EuiFlexItem>
-                            <EuiFlexItem grow={false}>
-                              <EuiIconTip
-                                content={valueHelpText}
-                                position="right"
-                              />
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
@@ -317,6 +308,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                             fieldPath={`${inputMapFieldPath}.${idx}.key`}
                                             options={keyOptions as any[]}
                                             placeholder={keyPlaceholder}
+                                            allowCreate={true}
                                           />
                                         ) : (
                                           <TextField
@@ -337,6 +329,16 @@ export function ModelInputs(props: ModelInputsProps) {
                                   </>
                                 </EuiFlexGroup>
                               </EuiFlexItem>
+                              <EuiFlexItem grow={TYPE_FLEX_RATIO}>
+                                <EuiFlexItem>
+                                  <SelectWithCustomOptions
+                                    fieldPath={`${inputMapFieldPath}.${idx}.value.transformType`}
+                                    options={TRANSFORM_OPTIONS}
+                                    placeholder={`Input type`}
+                                    allowCreate={false}
+                                  />
+                                </EuiFlexItem>
+                              </EuiFlexItem>
                               <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                                 <EuiFlexGroup direction="row" gutterSize="xs">
                                   <>
@@ -349,6 +351,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                             placeholder={
                                               valuePlaceholder || 'Output'
                                             }
+                                            allowCreate={true}
                                           />
                                         ) : (
                                           <TextField

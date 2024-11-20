@@ -171,7 +171,6 @@ export function getFieldSchema(
             }
           }
         );
-
       break;
     }
     case 'jsonString': {
@@ -192,26 +191,19 @@ export function getFieldSchema(
       );
       break;
     }
-    case 'transform': {
-      yup.object().shape({
-        key: defaultStringSchema.required(),
-        value: yup.object().shape({
-          transformType: defaultStringSchema.required(),
-          value: defaultStringSchema.required(),
-        }),
-      });
-
-      break;
-    }
-    case 'transformArray': {
+    // an array of an array of transforms.
+    // this format comes from the ML inference processor input map.
+    case 'inputMapArray': {
       baseSchema = yup.array().of(
-        yup.object().shape({
-          key: defaultStringSchema.required(),
-          value: yup.object().shape({
-            transformType: defaultStringSchema.required(),
-            value: defaultStringSchema.required(),
-          }),
-        })
+        yup.array().of(
+          yup.object().shape({
+            key: defaultStringSchema.required(),
+            value: yup.object().shape({
+              transformType: defaultStringSchema.required(),
+              value: defaultStringSchema.required(),
+            }),
+          })
+        )
       );
       break;
     }
@@ -221,6 +213,7 @@ export function getFieldSchema(
     }
     case 'number': {
       baseSchema = yup.number();
+      break;
     }
   }
 
