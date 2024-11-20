@@ -33,6 +33,8 @@ import {
   MapEntry,
   MapFormValue,
   EMPTY_INPUT_MAP_ENTRY,
+  REQUEST_PREFIX,
+  REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
 } from '../../../../../../common';
 import { ModelField } from '../../input_fields';
 import {
@@ -142,9 +144,12 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     const newModelInterface = models[modelId]?.interface;
     setModelInterface(newModelInterface);
     const modelInputsAsForm = [
-      parseModelInputs(newModelInterface).map(
-        (modelInput) => EMPTY_INPUT_MAP_ENTRY
-      ) as InputMapFormValue,
+      parseModelInputs(newModelInterface).map((modelInput) => {
+        return {
+          ...EMPTY_INPUT_MAP_ENTRY,
+          key: modelInput.label,
+        };
+      }) as InputMapFormValue,
     ] as InputMapArrayFormValue;
     const modelOutputsAsForm = [
       parseModelOutputs(newModelInterface).map((modelOutput) => {
