@@ -20,6 +20,7 @@ import {
   InputMapEntry,
   InputMapFormValue,
   TRANSFORM_TYPE,
+  EMPTY_INPUT_MAP_ENTRY,
 } from '../../../../../../common';
 import { TextField } from '../../input_fields';
 import { AppState, getMappings, useAppDispatch } from '../../../../../store';
@@ -35,6 +36,7 @@ import {
   EuiIcon,
   EuiIconTip,
   EuiPanel,
+  EuiSmallButton,
   EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
   EuiText,
@@ -224,170 +226,190 @@ export function ModelInputs(props: ModelInputsProps) {
       : indexMappingFields;
 
   return (
-    <EuiPanel grow={true}>
-      <Field name={inputMapFieldPath} key={inputMapFieldPath}>
-        {({ field, form }: FieldProps) => {
-          return (
-            <EuiCompressedFormRow
-              fullWidth={true}
-              key={inputMapFieldPath}
-              error={
-                getIn(errors, field.name) !== undefined &&
-                getIn(errors, field.name).length > 0
-                  ? 'Invalid or missing mapping values'
-                  : false
-              }
-              isInvalid={
-                getIn(errors, field.name) !== undefined &&
-                getIn(errors, field.name).length > 0 &&
-                getIn(touched, field.name) !== undefined &&
-                getIn(touched, field.name).length > 0
-              }
-            >
-              <EuiFlexGroup direction="column">
-                <EuiFlexItem style={{ marginBottom: '0px' }}>
-                  <EuiFlexGroup direction="row" gutterSize="xs">
-                    <EuiFlexItem grow={KEY_FLEX_RATIO}>
-                      <EuiFlexGroup direction="row" gutterSize="xs">
-                        <EuiFlexItem grow={false}>
-                          <EuiText size="s" color="subdued">
-                            {keyTitle}
-                          </EuiText>
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                      <EuiFlexGroup direction="row" gutterSize="xs">
-                        <EuiFlexItem grow={false}>
-                          <EuiText size="s" color="subdued">
-                            {valueTitle}
-                          </EuiText>
-                        </EuiFlexItem>
-                        <EuiFlexItem grow={false}>
-                          <EuiIconTip
-                            content={valueHelpText}
-                            position="right"
-                          />
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
-                </EuiFlexItem>
-                {field.value?.map((mapEntry: InputMapEntry, idx: number) => {
-                  return (
-                    <EuiFlexItem key={idx}>
+    <Field name={inputMapFieldPath} key={inputMapFieldPath}>
+      {({ field, form }: FieldProps) => {
+        const populatedMap = field.value?.length !== 0;
+        return (
+          <>
+            {populatedMap ? (
+              <EuiPanel>
+                <EuiCompressedFormRow
+                  fullWidth={true}
+                  key={inputMapFieldPath}
+                  error={
+                    getIn(errors, field.name) !== undefined &&
+                    getIn(errors, field.name).length > 0
+                      ? 'Invalid or missing mapping values'
+                      : false
+                  }
+                  isInvalid={
+                    getIn(errors, field.name) !== undefined &&
+                    getIn(errors, field.name).length > 0 &&
+                    getIn(touched, field.name) !== undefined &&
+                    getIn(touched, field.name).length > 0
+                  }
+                >
+                  <EuiFlexGroup direction="column">
+                    <EuiFlexItem style={{ marginBottom: '0px' }}>
                       <EuiFlexGroup direction="row" gutterSize="xs">
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
-                            <>
-                              <EuiFlexItem>
-                                <>
-                                  {/**
-                                   * We determine if there is an interface based on if there are key options or not,
-                                   * as the options would be derived from the underlying interface.
-                                   * And if so, these values should be static.
-                                   * So, we only display the static text with no mechanism to change it's value.
-                                   * Note we still allow more entries, if a user wants to override / add custom
-                                   * keys if there is some gaps in the model interface.
-                                   */}
-                                  {!isEmpty(keyOptions) &&
-                                  !isEmpty(
-                                    getIn(
-                                      values,
-                                      `${inputMapFieldPath}.${idx}.key`
-                                    )
-                                  ) ? (
-                                    <EuiText
-                                      size="s"
-                                      style={{ marginTop: '4px' }}
-                                    >
-                                      {getIn(
-                                        values,
-                                        `${inputMapFieldPath}.${idx}.key`
-                                      )}
-                                    </EuiText>
-                                  ) : !isEmpty(keyOptions) ? (
-                                    <SelectWithCustomOptions
-                                      fieldPath={`${inputMapFieldPath}.${idx}.key`}
-                                      options={keyOptions as any[]}
-                                      placeholder={keyPlaceholder}
-                                    />
-                                  ) : (
-                                    <TextField
-                                      fullWidth={true}
-                                      fieldPath={`${inputMapFieldPath}.${idx}.key`}
-                                      placeholder={keyPlaceholder}
-                                      showError={false}
-                                    />
-                                  )}
-                                </>
-                              </EuiFlexItem>
-                              <EuiFlexItem
-                                grow={false}
-                                style={{ marginTop: '10px' }}
-                              >
-                                <EuiIcon type={'sortLeft'} />
-                              </EuiFlexItem>
-                            </>
+                            <EuiFlexItem grow={false}>
+                              <EuiText size="s" color="subdued">
+                                {keyTitle}
+                              </EuiText>
+                            </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
-                            <>
-                              <EuiFlexItem>
-                                <>
-                                  {!isEmpty(valueOptions) ? (
-                                    <SelectWithCustomOptions
-                                      fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
-                                      options={valueOptions || []}
-                                      placeholder={valuePlaceholder || 'Output'}
-                                    />
-                                  ) : (
-                                    <TextField
-                                      fullWidth={true}
-                                      fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
-                                      placeholder={valuePlaceholder || 'Output'}
-                                      showError={false}
-                                    />
-                                  )}
-                                </>
-                              </EuiFlexItem>
-                              <EuiFlexItem grow={false}>
-                                <EuiSmallButtonIcon
-                                  iconType={'trash'}
-                                  color="danger"
-                                  aria-label="Delete"
-                                  onClick={() => {
-                                    deleteMapEntry(field.value, idx);
-                                  }}
-                                />
-                              </EuiFlexItem>
-                            </>
+                            <EuiFlexItem grow={false}>
+                              <EuiText size="s" color="subdued">
+                                {valueTitle}
+                              </EuiText>
+                            </EuiFlexItem>
+                            <EuiFlexItem grow={false}>
+                              <EuiIconTip
+                                content={valueHelpText}
+                                position="right"
+                              />
+                            </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
-                  );
-                })}
-                <EuiFlexItem grow={false}>
-                  <div>
-                    <EuiSmallButtonEmpty
-                      style={{ marginLeft: '-8px', marginTop: '0px' }}
-                      iconType={'plusInCircle'}
-                      iconSide="left"
-                      onClick={() => {
-                        addMapEntry(field.value);
-                      }}
-                    >
-                      {`Add input`}
-                    </EuiSmallButtonEmpty>
-                  </div>
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiCompressedFormRow>
-          );
-        }}
-      </Field>
-    </EuiPanel>
+                    {field.value?.map(
+                      (mapEntry: InputMapEntry, idx: number) => {
+                        return (
+                          <EuiFlexItem key={idx}>
+                            <EuiFlexGroup direction="row" gutterSize="xs">
+                              <EuiFlexItem grow={KEY_FLEX_RATIO}>
+                                <EuiFlexGroup direction="row" gutterSize="xs">
+                                  <>
+                                    <EuiFlexItem>
+                                      <>
+                                        {/**
+                                         * We determine if there is an interface based on if there are key options or not,
+                                         * as the options would be derived from the underlying interface.
+                                         * And if so, these values should be static.
+                                         * So, we only display the static text with no mechanism to change it's value.
+                                         * Note we still allow more entries, if a user wants to override / add custom
+                                         * keys if there is some gaps in the model interface.
+                                         */}
+                                        {!isEmpty(keyOptions) &&
+                                        !isEmpty(
+                                          getIn(
+                                            values,
+                                            `${inputMapFieldPath}.${idx}.key`
+                                          )
+                                        ) ? (
+                                          <EuiText
+                                            size="s"
+                                            style={{ marginTop: '4px' }}
+                                          >
+                                            {getIn(
+                                              values,
+                                              `${inputMapFieldPath}.${idx}.key`
+                                            )}
+                                          </EuiText>
+                                        ) : !isEmpty(keyOptions) ? (
+                                          <SelectWithCustomOptions
+                                            fieldPath={`${inputMapFieldPath}.${idx}.key`}
+                                            options={keyOptions as any[]}
+                                            placeholder={keyPlaceholder}
+                                          />
+                                        ) : (
+                                          <TextField
+                                            fullWidth={true}
+                                            fieldPath={`${inputMapFieldPath}.${idx}.key`}
+                                            placeholder={keyPlaceholder}
+                                            showError={false}
+                                          />
+                                        )}
+                                      </>
+                                    </EuiFlexItem>
+                                    <EuiFlexItem
+                                      grow={false}
+                                      style={{ marginTop: '10px' }}
+                                    >
+                                      <EuiIcon type={'sortLeft'} />
+                                    </EuiFlexItem>
+                                  </>
+                                </EuiFlexGroup>
+                              </EuiFlexItem>
+                              <EuiFlexItem grow={VALUE_FLEX_RATIO}>
+                                <EuiFlexGroup direction="row" gutterSize="xs">
+                                  <>
+                                    <EuiFlexItem>
+                                      <>
+                                        {!isEmpty(valueOptions) ? (
+                                          <SelectWithCustomOptions
+                                            fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
+                                            options={valueOptions || []}
+                                            placeholder={
+                                              valuePlaceholder || 'Output'
+                                            }
+                                          />
+                                        ) : (
+                                          <TextField
+                                            fullWidth={true}
+                                            fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
+                                            placeholder={
+                                              valuePlaceholder || 'Output'
+                                            }
+                                            showError={false}
+                                          />
+                                        )}
+                                      </>
+                                    </EuiFlexItem>
+                                    <EuiFlexItem grow={false}>
+                                      <EuiSmallButtonIcon
+                                        iconType={'trash'}
+                                        color="danger"
+                                        aria-label="Delete"
+                                        onClick={() => {
+                                          deleteMapEntry(field.value, idx);
+                                        }}
+                                      />
+                                    </EuiFlexItem>
+                                  </>
+                                </EuiFlexGroup>
+                              </EuiFlexItem>
+                            </EuiFlexGroup>
+                          </EuiFlexItem>
+                        );
+                      }
+                    )}
+                    <EuiFlexItem grow={false}>
+                      <div>
+                        <EuiSmallButtonEmpty
+                          style={{ marginLeft: '-8px', marginTop: '0px' }}
+                          iconType={'plusInCircle'}
+                          iconSide="left"
+                          onClick={() => {
+                            addMapEntry(field.value);
+                          }}
+                        >
+                          {`Add input`}
+                        </EuiSmallButtonEmpty>
+                      </div>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiCompressedFormRow>
+              </EuiPanel>
+            ) : (
+              <EuiSmallButton
+                style={{ width: '100px' }}
+                onClick={() => {
+                  setFieldValue(field.name, [EMPTY_INPUT_MAP_ENTRY]);
+                }}
+              >
+                {'Configure'}
+              </EuiSmallButton>
+            )}
+          </>
+        );
+      }}
+    </Field>
   );
 }
