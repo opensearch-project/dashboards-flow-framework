@@ -25,7 +25,6 @@ import {
   SearchProcessor,
   IngestConfig,
   SearchConfig,
-  MapFormValue,
   MapEntry,
   TEXT_CHUNKING_ALGORITHM,
   SHARED_OPTIONAL_FIELDS,
@@ -33,6 +32,8 @@ import {
   DELIMITER_OPTIONAL_FIELDS,
   IngestPipelineConfig,
   SearchPipelineConfig,
+  InputMapFormValue,
+  MapFormValue,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
 import { sanitizeJSONPath } from './utils';
@@ -184,7 +185,8 @@ export function processorConfigsToTemplateProcessors(
         // process input/output maps
         if (input_map?.length > 0) {
           processor.ml_inference.input_map = input_map.map(
-            (mapFormValue: MapFormValue) => mergeMapIntoSingleObj(mapFormValue)
+            (inputMapFormValue: InputMapFormValue) =>
+              mergeInputMapIntoSingleObj(inputMapFormValue)
           );
         }
 
@@ -442,7 +444,7 @@ export function reduceToTemplate(workflow: Workflow): WorkflowTemplate {
 
 // Helper fn to merge the form map (an arr of objs) into a single obj, such that each key
 // is an obj property, and each value is a property value. Used to format into the
-// expected inputs for input_maps and output_maps of the ML inference processors.
+// expected inputs for processor configurations
 function mergeMapIntoSingleObj(
   mapFormValue: MapFormValue,
   reverse: boolean = false
@@ -457,6 +459,30 @@ function mergeMapIntoSingleObj(
       : {
           ...curMap,
           [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(mapEntry.value),
+        };
+  });
+  return curMap;
+}
+
+// Same as mergeMapIntoSingleObj, but specified for the ML processor input map format.
+function mergeInputMapIntoSingleObj(
+  mapFormValue: InputMapFormValue,
+  reverse: boolean = false
+): {} {
+  let curMap = {} as MapEntry;
+  mapFormValue.forEach((mapEntry) => {
+    curMap = reverse
+      ? {
+          ...curMap,
+          [sanitizeJSONPath(mapEntry.value.value)]: sanitizeJSONPath(
+            mapEntry.key
+          ),
+        }
+      : {
+          ...curMap,
+          [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(
+            mapEntry.value.value
+          ),
         };
   });
   return curMap;

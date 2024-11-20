@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useFormikContext, getIn } from 'formik';
+import { useFormikContext, getIn, Field, FieldProps } from 'formik';
 import { isEmpty } from 'lodash';
 import { useSelector } from 'react-redux';
 import { flattie } from 'flattie';
@@ -17,20 +17,40 @@ import {
   IndexMappings,
   REQUEST_PREFIX,
   REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
+  InputMapEntry,
+  InputMapFormValue,
+  TRANSFORM_TYPE,
 } from '../../../../../../common';
-import { MapArrayField } from '../../input_fields';
+import { TextField } from '../../input_fields';
 import { AppState, getMappings, useAppDispatch } from '../../../../../store';
 import {
   getDataSourceId,
   parseModelInputs,
   sanitizeJSONPath,
 } from '../../../../../utils';
+import {
+  EuiCompressedFormRow,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiIcon,
+  EuiIconTip,
+  EuiPanel,
+  EuiSmallButtonEmpty,
+  EuiSmallButtonIcon,
+  EuiText,
+} from '@elastic/eui';
+import { SelectWithCustomOptions } from '../../input_fields/select_with_custom_options';
 
 interface ModelInputsProps {
   config: IProcessorConfig;
   baseConfigPath: string;
   context: PROCESSOR_CONTEXT;
 }
+
+// The keys will be more static in general. Give more space for values where users
+// will typically be writing out more complex transforms/configuration (in the case of ML inference processors).
+const KEY_FLEX_RATIO = 4;
+const VALUE_FLEX_RATIO = 6;
 
 /**
  * Base component to configure ML inputs.
@@ -40,14 +60,21 @@ export function ModelInputs(props: ModelInputsProps) {
   const dataSourceId = getDataSourceId();
   const { models } = useSelector((state: AppState) => state.ml);
   const indices = useSelector((state: AppState) => state.opensearch.indices);
-  const { values } = useFormikContext<WorkflowFormValues>();
-
+  const {
+    setFieldValue,
+    setFieldTouched,
+    errors,
+    touched,
+    values,
+  } = useFormikContext<WorkflowFormValues>();
   // get some current form & config values
   const modelField = props.config.fields.find(
     (field) => field.type === 'model'
   ) as IConfigField;
   const modelFieldPath = `${props.baseConfigPath}.${props.config.id}.${modelField.id}`;
-  const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.input_map`;
+  // Assuming no more than one set of input map entries.
+  // TODO: confirm the above.
+  const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.input_map.0`;
 
   // model interface state
   const [modelInterface, setModelInterface] = useState<
@@ -141,45 +168,226 @@ export function ModelInputs(props: ModelInputsProps) {
     }
   }, [values?.search?.index?.name]);
 
+  // Adding a map entry to the end of the existing arr
+  function addMapEntry(curEntries: InputMapFormValue): void {
+    const updatedEntries = [
+      ...curEntries,
+      {
+        key: '',
+        value: {
+          transformType: TRANSFORM_TYPE.FIELD,
+          value: '',
+        },
+      } as InputMapEntry,
+    ];
+    setFieldValue(inputMapFieldPath, updatedEntries);
+    setFieldTouched(inputMapFieldPath, true);
+  }
+
+  // Deleting a map entry
+  function deleteMapEntry(
+    curEntries: InputMapFormValue,
+    entryIndexToDelete: number
+  ): void {
+    const updatedEntries = [...curEntries];
+    updatedEntries.splice(entryIndexToDelete, 1);
+    setFieldValue(inputMapFieldPath, updatedEntries);
+    setFieldTouched(inputMapFieldPath, true);
+  }
+
+  // Defining constants for the key/value text vars, typically dependent on the different processor contexts.
+  const keyTitle = 'Name';
+  const keyPlaceholder = 'Name';
+  const keyOptions = parseModelInputs(modelInterface);
+  const valueTitle =
+    props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+      ? 'Query field'
+      : 'Document field';
+  const valuePlaceholder =
+    props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+      ? 'Specify a query field'
+      : 'Define a document field';
+  const valueHelpText = `Specify a ${
+    props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST ? 'query' : 'document'
+  } field or define JSONPath to transform the ${
+    props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST ? 'query' : 'document'
+  } to map to a model input field.${
+    props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
+      ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR}" - for example, "_request.query.match.my_field"`
+      : ''
+  }`;
+  const valueOptions =
+    props.context === PROCESSOR_CONTEXT.INGEST
+      ? docFields
+      : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+      ? queryFields
+      : indexMappingFields;
+
   return (
-    <MapArrayField
-      fieldPath={inputMapFieldPath}
-      keyTitle="Name"
-      keyPlaceholder="Name"
-      keyOptions={parseModelInputs(modelInterface)}
-      valueTitle={
-        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? 'Query field'
-          : 'Document field'
-      }
-      valuePlaceholder={
-        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? 'Specify a query field'
-          : 'Define a document field'
-      }
-      valueHelpText={`Specify a ${
-        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? 'query'
-          : 'document'
-      } field or define JSONPath to transform the ${
-        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? 'query'
-          : 'document'
-      } to map to a model input field.${
-        props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
-          ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR}" - for example, "_request.query.match.my_field"`
-          : ''
-      }`}
-      valueOptions={
-        props.context === PROCESSOR_CONTEXT.INGEST
-          ? docFields
-          : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? queryFields
-          : indexMappingFields
-      }
-      addMapEntryButtonText="Add input"
-      addMapButtonText="Add input group (Advanced)"
-      mappingDirection="sortLeft"
-    />
+    <EuiPanel grow={true}>
+      <Field name={inputMapFieldPath} key={inputMapFieldPath}>
+        {({ field, form }: FieldProps) => {
+          return (
+            <EuiCompressedFormRow
+              fullWidth={true}
+              key={inputMapFieldPath}
+              error={
+                getIn(errors, field.name) !== undefined &&
+                getIn(errors, field.name).length > 0
+                  ? 'Invalid or missing mapping values'
+                  : false
+              }
+              isInvalid={
+                getIn(errors, field.name) !== undefined &&
+                getIn(errors, field.name).length > 0 &&
+                getIn(touched, field.name) !== undefined &&
+                getIn(touched, field.name).length > 0
+              }
+            >
+              <EuiFlexGroup direction="column">
+                <EuiFlexItem style={{ marginBottom: '0px' }}>
+                  <EuiFlexGroup direction="row" gutterSize="xs">
+                    <EuiFlexItem grow={KEY_FLEX_RATIO}>
+                      <EuiFlexGroup direction="row" gutterSize="xs">
+                        <EuiFlexItem grow={false}>
+                          <EuiText size="s" color="subdued">
+                            {keyTitle}
+                          </EuiText>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={VALUE_FLEX_RATIO}>
+                      <EuiFlexGroup direction="row" gutterSize="xs">
+                        <EuiFlexItem grow={false}>
+                          <EuiText size="s" color="subdued">
+                            {valueTitle}
+                          </EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiIconTip
+                            content={valueHelpText}
+                            position="right"
+                          />
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+                {field.value?.map((mapEntry: InputMapEntry, idx: number) => {
+                  return (
+                    <EuiFlexItem key={idx}>
+                      <EuiFlexGroup direction="row" gutterSize="xs">
+                        <EuiFlexItem grow={KEY_FLEX_RATIO}>
+                          <EuiFlexGroup direction="row" gutterSize="xs">
+                            <>
+                              <EuiFlexItem>
+                                <>
+                                  {/**
+                                   * We determine if there is an interface based on if there are key options or not,
+                                   * as the options would be derived from the underlying interface.
+                                   * And if so, these values should be static.
+                                   * So, we only display the static text with no mechanism to change it's value.
+                                   * Note we still allow more entries, if a user wants to override / add custom
+                                   * keys if there is some gaps in the model interface.
+                                   */}
+                                  {!isEmpty(keyOptions) &&
+                                  !isEmpty(
+                                    getIn(
+                                      values,
+                                      `${inputMapFieldPath}.${idx}.key`
+                                    )
+                                  ) ? (
+                                    <EuiText
+                                      size="s"
+                                      style={{ marginTop: '4px' }}
+                                    >
+                                      {getIn(
+                                        values,
+                                        `${inputMapFieldPath}.${idx}.key`
+                                      )}
+                                    </EuiText>
+                                  ) : !isEmpty(keyOptions) ? (
+                                    <SelectWithCustomOptions
+                                      fieldPath={`${inputMapFieldPath}.${idx}.key`}
+                                      options={keyOptions as any[]}
+                                      placeholder={keyPlaceholder}
+                                    />
+                                  ) : (
+                                    <TextField
+                                      fullWidth={true}
+                                      fieldPath={`${inputMapFieldPath}.${idx}.key`}
+                                      placeholder={keyPlaceholder}
+                                      showError={false}
+                                    />
+                                  )}
+                                </>
+                              </EuiFlexItem>
+                              <EuiFlexItem
+                                grow={false}
+                                style={{ marginTop: '10px' }}
+                              >
+                                <EuiIcon type={'sortLeft'} />
+                              </EuiFlexItem>
+                            </>
+                          </EuiFlexGroup>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={VALUE_FLEX_RATIO}>
+                          <EuiFlexGroup direction="row" gutterSize="xs">
+                            <>
+                              <EuiFlexItem>
+                                <>
+                                  {!isEmpty(valueOptions) ? (
+                                    <SelectWithCustomOptions
+                                      fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
+                                      options={valueOptions || []}
+                                      placeholder={valuePlaceholder || 'Output'}
+                                    />
+                                  ) : (
+                                    <TextField
+                                      fullWidth={true}
+                                      fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
+                                      placeholder={valuePlaceholder || 'Output'}
+                                      showError={false}
+                                    />
+                                  )}
+                                </>
+                              </EuiFlexItem>
+                              <EuiFlexItem grow={false}>
+                                <EuiSmallButtonIcon
+                                  iconType={'trash'}
+                                  color="danger"
+                                  aria-label="Delete"
+                                  onClick={() => {
+                                    deleteMapEntry(field.value, idx);
+                                  }}
+                                />
+                              </EuiFlexItem>
+                            </>
+                          </EuiFlexGroup>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                  );
+                })}
+                <EuiFlexItem grow={false}>
+                  <div>
+                    <EuiSmallButtonEmpty
+                      style={{ marginLeft: '-8px', marginTop: '0px' }}
+                      iconType={'plusInCircle'}
+                      iconSide="left"
+                      onClick={() => {
+                        addMapEntry(field.value);
+                      }}
+                    >
+                      {`Add input`}
+                    </EuiSmallButtonEmpty>
+                  </div>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiCompressedFormRow>
+          );
+        }}
+      </Field>
+    </EuiPanel>
   );
 }

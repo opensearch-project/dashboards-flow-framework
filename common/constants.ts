@@ -506,3 +506,9 @@ export enum SOURCE_OPTIONS {
   UPLOAD = 'upload',
   EXISTING_INDEX = 'existing_index',
 }
+export enum TRANSFORM_TYPE {
+  STRING = 'string',
+  FIELD = 'field',
+  EXPRESSION = 'expression',
+  TEMPLATE = 'template',
+}

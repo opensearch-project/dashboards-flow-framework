@@ -34,6 +34,12 @@ import {
 } from '../../../../../../common';
 import { ModelField } from '../../input_fields';
 import {
+  TRANSFORM_TYPE,
+  InputMapEntry,
+  InputMapFormValue,
+  InputMapArrayFormValue,
+} from '../../../../../../common';
+import {
   ConfigurePromptModal,
   InputTransformModal,
   OutputTransformModal,
@@ -139,10 +145,13 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       parseModelInputs(newModelInterface).map((modelInput) => {
         return {
           key: modelInput.label,
-          value: '',
-        } as MapEntry;
-      }) as MapFormValue,
-    ] as MapArrayFormValue;
+          value: {
+            transformType: TRANSFORM_TYPE.FIELD,
+            value: '',
+          },
+        } as InputMapEntry;
+      }) as InputMapFormValue,
+    ] as InputMapArrayFormValue;
     const modelOutputsAsForm = [
       parseModelOutputs(newModelInterface).map((modelOutput) => {
         return {

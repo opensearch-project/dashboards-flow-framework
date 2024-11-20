@@ -192,6 +192,29 @@ export function getFieldSchema(
       );
       break;
     }
+    case 'transform': {
+      yup.object().shape({
+        key: defaultStringSchema.required(),
+        value: yup.object().shape({
+          transformType: defaultStringSchema.required(),
+          value: defaultStringSchema.required(),
+        }),
+      });
+
+      break;
+    }
+    case 'transformArray': {
+      baseSchema = yup.array().of(
+        yup.object().shape({
+          key: defaultStringSchema.required(),
+          value: yup.object().shape({
+            transformType: defaultStringSchema.required(),
+            value: defaultStringSchema.required(),
+          }),
+        })
+      );
+      break;
+    }
     case 'boolean': {
       baseSchema = yup.boolean();
       break;

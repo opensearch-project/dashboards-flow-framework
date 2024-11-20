@@ -16,6 +16,7 @@ import {
   ConfigFieldValue,
   ModelFormValue,
   SearchIndexConfig,
+  TRANSFORM_TYPE,
 } from '../../common';
 
 /*
@@ -146,7 +147,8 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
     case 'jsonArray': {
       return '[]';
     }
-    case 'mapArray': {
+    case 'mapArray':
+    case 'transformArray': {
       return [];
     }
     case 'boolean': {
@@ -154,6 +156,12 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
     }
     case 'number': {
       return 0;
+    }
+    case 'transform': {
+      return {
+        transformType: TRANSFORM_TYPE.FIELD,
+        value: '',
+      };
     }
   }
 }

@@ -10,6 +10,7 @@ import {
   COMPONENT_CLASS,
   PROCESSOR_TYPE,
   PROMPT_FIELD,
+  TRANSFORM_TYPE,
   WORKFLOW_TYPE,
 } from './constants';
 
@@ -35,9 +36,21 @@ export type ConfigFieldType =
   | 'map'
   | 'mapArray'
   | 'boolean'
-  | 'number';
+  | 'number'
+  | 'transform'
+  | 'transformArray';
 
-export type ConfigFieldValue = string | {};
+export type ConfigFieldTransformValue = {
+  transformType: TRANSFORM_TYPE;
+  value: string;
+};
+export type ConfigFieldTransformArrayValue = ConfigFieldTransformValue[];
+
+export type ConfigFieldValue =
+  | string
+  | ConfigFieldTransformValue
+  | ConfigFieldTransformArrayValue
+  | {};
 
 export interface IConfigField {
   type: ConfigFieldType;
@@ -99,6 +112,15 @@ export type MapEntry = {
 export type MapFormValue = MapEntry[];
 
 export type MapArrayFormValue = MapFormValue[];
+
+export type InputMapEntry = {
+  key: string;
+  value: ConfigFieldTransformValue;
+};
+
+export type InputMapFormValue = InputMapEntry[];
+
+export type InputMapArrayFormValue = InputMapFormValue[];
 
 export type WorkflowFormValues = {
   ingest: FormikValues;
