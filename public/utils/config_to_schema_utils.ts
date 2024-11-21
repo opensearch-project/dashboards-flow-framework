@@ -200,7 +200,10 @@ export function getFieldSchema(
             key: defaultStringSchema.required(),
             value: yup.object().shape({
               transformType: defaultStringSchema.required(),
-              value: defaultStringSchema.required(),
+              value: yup
+                .string()
+                .min(1, 'Too short')
+                .max(MAX_JSON_STRING_LENGTH, 'Too long'),
             }),
           })
         )

@@ -9,6 +9,17 @@ import { isEmpty } from 'lodash';
 import { useSelector } from 'react-redux';
 import { flattie } from 'flattie';
 import {
+  EuiCompressedFormRow,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiIcon,
+  EuiPanel,
+  EuiSmallButton,
+  EuiSmallButtonEmpty,
+  EuiSmallButtonIcon,
+  EuiText,
+} from '@elastic/eui';
+import {
   IProcessorConfig,
   IConfigField,
   PROCESSOR_CONTEXT,
@@ -20,25 +31,14 @@ import {
   TRANSFORM_TYPE,
   EMPTY_INPUT_MAP_ENTRY,
 } from '../../../../../../common';
-import { TextField } from '../../input_fields';
+import { TextField, SelectWithCustomOptions } from '../../input_fields';
 import { AppState, getMappings, useAppDispatch } from '../../../../../store';
 import {
   getDataSourceId,
   parseModelInputs,
   sanitizeJSONPath,
 } from '../../../../../utils';
-import {
-  EuiCompressedFormRow,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiIcon,
-  EuiPanel,
-  EuiSmallButton,
-  EuiSmallButtonEmpty,
-  EuiSmallButtonIcon,
-  EuiText,
-} from '@elastic/eui';
-import { SelectWithCustomOptions } from '../../input_fields/select_with_custom_options';
+import { ConfigureTemplateModal } from './modals/';
 
 interface ModelInputsProps {
   config: IProcessorConfig;
@@ -84,6 +84,11 @@ export function ModelInputs(props: ModelInputsProps) {
   const [modelInterface, setModelInterface] = useState<
     ModelInterface | undefined
   >(undefined);
+
+  // various modal states
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState<boolean>(
+    false
+  );
 
   // on initial load of the models, update model interface states
   useEffect(() => {
@@ -356,17 +361,38 @@ export function ModelInputs(props: ModelInputsProps) {
                                      * Conditionally render the value form component based on the transform type.
                                      * It may be a button, dropdown, or simply freeform text.
                                      */}
+                                    {isTemplateModalOpen && (
+                                      <ConfigureTemplateModal
+                                        fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
+                                        modelInterface={modelInterface}
+                                        onClose={() =>
+                                          setIsTemplateModalOpen(false)
+                                        }
+                                      />
+                                    )}
                                     <EuiFlexItem>
                                       <>
-                                        {isEmpty(transformType) ||
-                                        // TODO: add buttons & new modals to configure expressions & templates
-                                        transformType ===
-                                          TRANSFORM_TYPE.EXPRESSION ||
-                                        transformType ===
-                                          TRANSFORM_TYPE.STRING ||
-                                        transformType ===
-                                          TRANSFORM_TYPE.TEMPLATE ||
-                                        isEmpty(valueOptions) ? (
+                                        {transformType ===
+                                        TRANSFORM_TYPE.TEMPLATE ? (
+                                          <EuiSmallButton
+                                            style={{ width: '100px' }}
+                                            fill={false}
+                                            onClick={() =>
+                                              setIsTemplateModalOpen(true)
+                                            }
+                                            data-testid="configureTemplateButton"
+                                          >
+                                            Configure
+                                          </EuiSmallButton>
+                                        ) : isEmpty(transformType) ||
+                                          // TODO: add buttons & new modals to configure expressions & templates
+                                          transformType ===
+                                            TRANSFORM_TYPE.EXPRESSION ||
+                                          transformType ===
+                                            TRANSFORM_TYPE.STRING ||
+                                          transformType ===
+                                            TRANSFORM_TYPE.TEMPLATE ||
+                                          isEmpty(valueOptions) ? (
                                           <TextField
                                             fullWidth={true}
                                             fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
