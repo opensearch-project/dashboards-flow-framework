@@ -363,7 +363,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                      */}
                                     {isTemplateModalOpen && (
                                       <ConfigureTemplateModal
-                                        fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
+                                        fieldPath={`${inputMapFieldPath}.${idx}.value`}
                                         modelInterface={modelInterface}
                                         onClose={() =>
                                           setIsTemplateModalOpen(false)

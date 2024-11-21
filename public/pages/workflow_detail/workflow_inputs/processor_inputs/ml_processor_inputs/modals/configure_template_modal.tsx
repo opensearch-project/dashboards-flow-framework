@@ -16,19 +16,20 @@ import {
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiSmallButton,
-  EuiSpacer,
   EuiText,
   EuiPopover,
   EuiContextMenu,
   EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import {
+  MAX_STRING_LENGTH,
   MAX_TEMPLATE_STRING_LENGTH,
   ModelInterface,
   PROMPT_PRESETS,
   PromptPreset,
   TemplateFormValues,
   TemplateSchema,
+  TemplateVar,
   WorkflowFormValues,
 } from '../../../../../../../common';
 import { getInitialValue } from '../../../../../../utils';
@@ -51,19 +52,37 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
   // sub-form values/schema
   const templateFormValues = {
-    template: getInitialValue('string'),
+    value: getInitialValue('string'),
+    nestedVars: [],
   } as TemplateFormValues;
   const templateFormSchema = yup.object({
-    template: yup
+    value: yup
       .string()
       .trim()
       .min(1, 'Too short')
       .max(MAX_TEMPLATE_STRING_LENGTH, 'Too long')
       .required('Required') as yup.Schema,
+    nestedVars: yup.array().of(
+      yup.object().shape({
+        name: yup
+          .string()
+          .trim()
+          .min(1, 'Too short')
+          .max(MAX_STRING_LENGTH, 'Too long')
+          .required('Required') as yup.Schema,
+        value: yup
+          .string()
+          .trim()
+          .min(1, 'Too short')
+          .max(MAX_STRING_LENGTH, 'Too long')
+          .required('Required') as yup.Schema,
+      })
+    ) as yup.Schema,
   }) as TemplateSchema;
 
   // persist standalone values. update / initialize when it is first opened
   const [tempTemplate, setTempTemplate] = useState<string>('');
+  const [tempNestedVars, setTempNestedVars] = useState<TemplateVar[]>([]);
   const [tempErrors, setTempErrors] = useState<boolean>(false);
 
   // button updating state
@@ -72,10 +91,11 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
   // popover states
   const [presetsPopoverOpen, setPresetsPopoverOpen] = useState<boolean>(false);
 
-  // if updating, take the temp var and assign it to the parent form
+  // if updating, take the temp vars and assign it to the parent form
   function onUpdate() {
     setIsUpdating(true);
-    setFieldValue(props.fieldPath, tempTemplate);
+    setFieldValue(`${props.fieldPath}.value`, tempTemplate);
+    setFieldValue(`${props.fieldPath}.nestedVars`, tempNestedVars);
     setFieldTouched(props.fieldPath, true);
     props.onClose();
   }
@@ -89,15 +109,25 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
       validate={(values) => {}}
     >
       {(formikProps) => {
-        // override to parent form value when changes detected
+        // override to parent form values when changes detected
         useEffect(() => {
-          formikProps.setFieldValue('template', getIn(values, props.fieldPath));
-        }, [getIn(values, 'ingest.docs')]);
+          formikProps.setFieldValue(
+            'value',
+            getIn(values, `${props.fieldPath}.value`)
+          );
+          formikProps.setFieldValue(
+            'nestedVars',
+            getIn(values, `${props.fieldPath}.nestedVars`)
+          );
+        }, [getIn(values, props.fieldPath)]);
 
-        // update tempTemplate when form changes are detected
+        // update temp vars when form changes are detected
         useEffect(() => {
-          setTempTemplate(getIn(formikProps.values, 'template'));
-        }, [getIn(formikProps.values, 'template')]);
+          setTempTemplate(getIn(formikProps.values, 'value'));
+        }, [getIn(formikProps.values, 'value')]);
+        useEffect(() => {
+          setTempNestedVars(getIn(formikProps.values, 'nestedVars'));
+        }, [getIn(formikProps.values, 'nestedVars')]);
 
         // update tempErrors if errors detected
         useEffect(() => {
@@ -152,12 +182,12 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                       onClick: () => {
                                         try {
                                           formikProps.setFieldValue(
-                                            'template',
+                                            'value',
                                             preset.prompt
                                           );
                                         } catch {}
                                         formikProps.setFieldTouched(
-                                          'template',
+                                          'value',
                                           true
                                         );
                                         setPresetsPopoverOpen(false);
@@ -176,7 +206,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         mode="json"
                         theme="textmate"
                         width="100%"
-                        height="25vh"
+                        height="15vh"
                         value={tempTemplate}
                         readOnly={false}
                         setOptions={{
@@ -189,10 +219,10 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         }}
                         tabSize={2}
                         onChange={(value) =>
-                          formikProps.setFieldValue('template', value)
+                          formikProps.setFieldValue('value', value)
                         }
                         onBlur={(e) => {
-                          formikProps.setFieldTouched('template');
+                          formikProps.setFieldTouched('value');
                         }}
                       />
                     </EuiFlexItem>
@@ -200,7 +230,28 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                       <EuiText size="m">Input variables</EuiText>
                     </EuiFlexItem>
                     <EuiFlexItem>
-                      <EuiText>TODO add input var mappings here</EuiText>
+                      <EuiFlexGroup
+                        direction="row"
+                        justifyContent="spaceAround"
+                      >
+                        <EuiFlexItem grow={4}>
+                          <EuiText size="s" color="subdued">
+                            {`Name`}
+                          </EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={6}>
+                          <EuiText size="s" color="subdued">
+                            {`Expression`}
+                          </EuiText>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                      {formikProps.values.nestedVars?.map((templateVar) => {
+                        return (
+                          <EuiFlexItem>
+                            <EuiText>{templateVar.name}</EuiText>
+                          </EuiFlexItem>
+                        );
+                      })}
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>

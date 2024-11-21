@@ -205,6 +205,12 @@ export function getFieldSchema(
                 .string()
                 .min(1, 'Too short')
                 .max(MAX_TEMPLATE_STRING_LENGTH, 'Too long'),
+              nestedVars: yup.array().of(
+                yup.object().shape({
+                  name: defaultStringSchema.required(),
+                  value: defaultStringSchema.required(),
+                })
+              ),
             }),
           })
         )

@@ -102,9 +102,17 @@ export type MapFormValue = MapEntry[];
 
 export type MapArrayFormValue = MapFormValue[];
 
+export type TemplateVar = {
+  name: string;
+  transform: string;
+};
+
 export type Transform = {
   transformType: TRANSFORM_TYPE;
   value: string;
+  // Templates may persist their own set of nested transforms
+  // to be dynamically injected into the template
+  nestedVars?: TemplateVar[];
 };
 
 export type InputMapEntry = {
@@ -153,9 +161,7 @@ export type OutputTransformFormValues = {
 export type OutputTransformSchema = WorkflowSchema;
 
 // Form / schema interfaces for the template sub-form
-export type TemplateFormValues = {
-  template: FormikValues;
-};
+export type TemplateFormValues = Omit<Transform, 'transformType'>;
 export type TemplateSchema = WorkflowSchema;
 
 /**
