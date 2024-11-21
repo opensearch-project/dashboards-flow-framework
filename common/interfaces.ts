@@ -152,6 +152,12 @@ export type OutputTransformFormValues = {
 };
 export type OutputTransformSchema = WorkflowSchema;
 
+// Form / schema interfaces for the template sub-form
+export type TemplateFormValues = {
+  template: FormikValues;
+};
+export type TemplateSchema = WorkflowSchema;
+
 /**
  ********** WORKSPACE TYPES/INTERFACES **********
  */

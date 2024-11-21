@@ -18,6 +18,7 @@ import {
   MAX_DOCS,
   MAX_STRING_LENGTH,
   MAX_JSON_STRING_LENGTH,
+  MAX_TEMPLATE_STRING_LENGTH,
 } from '../../common';
 
 /*
@@ -203,7 +204,7 @@ export function getFieldSchema(
               value: yup
                 .string()
                 .min(1, 'Too short')
-                .max(MAX_JSON_STRING_LENGTH, 'Too long'),
+                .max(MAX_TEMPLATE_STRING_LENGTH, 'Too long'),
             }),
           })
         )
