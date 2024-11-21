@@ -34,6 +34,7 @@ import {
   SearchPipelineConfig,
   InputMapFormValue,
   MapFormValue,
+  TRANSFORM_TYPE,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
 import { sanitizeJSONPath } from './utils';
@@ -182,11 +183,31 @@ export function processorConfigsToTemplateProcessors(
           },
         } as MLInferenceProcessor;
 
-        // process input/output maps
+        // process model config.
+        // TODO: this special handling, plus the special handling on index settings/mappings
+        // could be improved if the 'json' obj returned {} during the conversion instead
+        // of "{}". We may have future JSON fields which right now are going to require
+        // this manual parsing before adding to the template.
+        let modelConfig = {};
+        try {
+          // @ts-ignore
+          modelConfig = JSON.parse(model_config);
+        } catch (e) {}
+
+        // process input/output maps.
+        // if static values found in the input map, add to the model config
         if (input_map?.length > 0) {
           processor.ml_inference.input_map = input_map.map(
-            (inputMapFormValue: InputMapFormValue) =>
-              mergeInputMapIntoSingleObj(inputMapFormValue)
+            (inputMapFormValue: InputMapFormValue) => {
+              const res = processModelInputs(inputMapFormValue);
+              if (!isEmpty(res.modelConfig)) {
+                modelConfig = {
+                  ...modelConfig,
+                  ...res.modelConfig,
+                };
+              }
+              return res.inputMap;
+            }
           );
         }
 
@@ -208,21 +229,10 @@ export function processorConfigsToTemplateProcessors(
           );
         });
 
-        // process model config.
-        // TODO: this special handling, plus the special handling on index settings/mappings
-        // could be improved if the 'json' obj returned {} during the conversion instead
-        // of "{}". We may have future JSON fields which right now are going to require
-        // this manual parsing before adding to the template.
-        let finalModelConfig = {};
-        try {
-          // @ts-ignore
-          finalModelConfig = JSON.parse(model_config);
-        } catch (e) {}
-
         processor.ml_inference = {
           ...processor.ml_inference,
           ...additionalFormValues,
-          model_config: finalModelConfig,
+          model_config: modelConfig,
         };
 
         processorsList.push(processor);
@@ -464,28 +474,37 @@ function mergeMapIntoSingleObj(
   return curMap;
 }
 
-// Same as mergeMapIntoSingleObj, but specified for the ML processor input map format.
-function mergeInputMapIntoSingleObj(
-  mapFormValue: InputMapFormValue,
-  reverse: boolean = false
-): {} {
-  let curMap = {} as MapEntry;
+// Bucket the model inputs configured on the UI as input map entries containing dynamic data,
+// or model config entries containing static data.
+function processModelInputs(
+  mapFormValue: InputMapFormValue
+): { inputMap: {}; modelConfig: {} } {
+  let inputMap = {};
+  let modelConfig = {};
   mapFormValue.forEach((mapEntry) => {
-    curMap = reverse
-      ? {
-          ...curMap,
-          [sanitizeJSONPath(mapEntry.value.value)]: sanitizeJSONPath(
-            mapEntry.key
-          ),
-        }
-      : {
-          ...curMap,
-          [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(
-            mapEntry.value.value
-          ),
-        };
+    // dynamic data
+    if (
+      mapEntry.value.transformType === TRANSFORM_TYPE.FIELD ||
+      mapEntry.value.transformType === TRANSFORM_TYPE.EXPRESSION
+    ) {
+      inputMap = {
+        ...inputMap,
+        [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(
+          mapEntry.value.value
+        ),
+      };
+      // static data
+    } else {
+      modelConfig = {
+        ...modelConfig,
+        [mapEntry.key]: mapEntry.value.value,
+      };
+    }
   });
-  return curMap;
+  return {
+    inputMap,
+    modelConfig,
+  };
 }
 
 // utility fn used to build the final set of processor config fields, filtering
