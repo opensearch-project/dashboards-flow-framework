@@ -112,78 +112,124 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiModalBody style={{ height: '40vh' }}>
-              <EuiFlexGroup direction="column">
-                <EuiFlexItem>
-                  <>
-                    <EuiSpacer size="s" />
-                    <EuiPopover
-                      button={
-                        <EuiSmallButton
-                          onClick={() =>
-                            setPresetsPopoverOpen(!presetsPopoverOpen)
-                          }
-                          iconSide="right"
-                          iconType="arrowDown"
-                        >
-                          Choose from a preset
-                        </EuiSmallButton>
-                      }
-                      isOpen={presetsPopoverOpen}
-                      closePopover={() => setPresetsPopoverOpen(false)}
-                      anchorPosition="downLeft"
-                    >
-                      <EuiContextMenu
-                        size="s"
-                        initialPanelId={0}
-                        panels={[
-                          {
-                            id: 0,
-                            items: PROMPT_PRESETS.map(
-                              (preset: PromptPreset) => ({
-                                name: preset.name,
-                                onClick: () => {
-                                  try {
-                                    formikProps.setFieldValue(
-                                      'template',
-                                      preset.prompt
-                                    );
-                                  } catch {}
-                                  formikProps.setFieldTouched('template', true);
-                                  setPresetsPopoverOpen(false);
+              <EuiFlexGroup direction="row">
+                <EuiFlexItem grow={6}>
+                  <EuiFlexGroup direction="column">
+                    <EuiFlexItem grow={false}>
+                      <EuiFlexGroup
+                        direction="row"
+                        justifyContent="spaceAround"
+                      >
+                        <EuiFlexItem>
+                          <EuiText size="m">Prompt</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem>
+                          <EuiPopover
+                            button={
+                              <EuiSmallButton
+                                onClick={() =>
+                                  setPresetsPopoverOpen(!presetsPopoverOpen)
+                                }
+                                iconSide="right"
+                                iconType="arrowDown"
+                              >
+                                Choose from a preset
+                              </EuiSmallButton>
+                            }
+                            isOpen={presetsPopoverOpen}
+                            closePopover={() => setPresetsPopoverOpen(false)}
+                            anchorPosition="downLeft"
+                          >
+                            <EuiContextMenu
+                              size="s"
+                              initialPanelId={0}
+                              panels={[
+                                {
+                                  id: 0,
+                                  items: PROMPT_PRESETS.map(
+                                    (preset: PromptPreset) => ({
+                                      name: preset.name,
+                                      onClick: () => {
+                                        try {
+                                          formikProps.setFieldValue(
+                                            'template',
+                                            preset.prompt
+                                          );
+                                        } catch {}
+                                        formikProps.setFieldTouched(
+                                          'template',
+                                          true
+                                        );
+                                        setPresetsPopoverOpen(false);
+                                      },
+                                    })
+                                  ),
                                 },
-                              })
-                            ),
-                          },
-                        ]}
+                              ]}
+                            />
+                          </EuiPopover>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <EuiCodeEditor
+                        mode="json"
+                        theme="textmate"
+                        width="100%"
+                        height="25vh"
+                        value={tempTemplate}
+                        readOnly={false}
+                        setOptions={{
+                          fontSize: '12px',
+                          autoScrollEditorIntoView: true,
+                          showLineNumbers: false,
+                          showGutter: false,
+                          showPrintMargin: false,
+                          wrap: true,
+                        }}
+                        tabSize={2}
+                        onChange={(value) =>
+                          formikProps.setFieldValue('template', value)
+                        }
+                        onBlur={(e) => {
+                          formikProps.setFieldTouched('template');
+                        }}
                       />
-                    </EuiPopover>
-                    <EuiSpacer size="m" />
-                    <EuiText size="s">Prompt</EuiText>
-                    <EuiSpacer size="s" />
-                    <EuiCodeEditor
-                      mode="json"
-                      theme="textmate"
-                      width="100%"
-                      height="15vh"
-                      value={tempTemplate}
-                      readOnly={false}
-                      setOptions={{
-                        fontSize: '12px',
-                        autoScrollEditorIntoView: true,
-                        showLineNumbers: false,
-                        showGutter: false,
-                        showPrintMargin: false,
-                        wrap: true,
-                      }}
-                      tabSize={2}
-                      onChange={(value) =>
-                        formikProps.setFieldValue('template', value)
-                      }
-                      onBlur={(e) => {
-                        formikProps.setFieldTouched('template');
-                      }}
-                    />
-                  </>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiText size="m">Input variables</EuiText>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <EuiText>TODO add input var mappings here</EuiText>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+                <EuiFlexItem grow={4}>
+                  <EuiFlexGroup direction="column">
+                    <EuiFlexItem>
+                      <EuiFlexGroup
+                        direction="row"
+                        justifyContent="spaceAround"
+                      >
+                        <EuiFlexItem>
+                          <EuiText size="m">Prompt preview</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem>
+                          <EuiSmallButton
+                            onClick={() =>
+                              // TODO
+                              console.log('executing preview...')
+                            }
+                          >
+                            Run preview
+                          </EuiSmallButton>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <EuiText>TODO add transform here</EuiText>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
                 </EuiFlexItem>
               </EuiFlexGroup>
             </EuiModalBody>
