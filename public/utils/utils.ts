@@ -29,7 +29,6 @@ import {
 import { getCore, getDataSourceEnabled } from '../services';
 import {
   MDSQueryParams,
-  MapEntry,
   ModelInputMap,
   ModelOutputMap,
 } from '../../common/interfaces';
