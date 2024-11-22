@@ -30,6 +30,7 @@ import {
   InputMapFormValue,
   TRANSFORM_TYPE,
   EMPTY_INPUT_MAP_ENTRY,
+  WorkflowConfig,
 } from '../../../../../../common';
 import { TextField, SelectWithCustomOptions } from '../../input_fields';
 import { AppState, getMappings, useAppDispatch } from '../../../../../store';
@@ -43,6 +44,7 @@ import { ConfigureTemplateModal } from './modals/';
 interface ModelInputsProps {
   config: IProcessorConfig;
   baseConfigPath: string;
+  uiConfig: WorkflowConfig;
   context: PROCESSOR_CONTEXT;
 }
 
@@ -363,6 +365,10 @@ export function ModelInputs(props: ModelInputsProps) {
                                      */}
                                     {isTemplateModalOpen && (
                                       <ConfigureTemplateModal
+                                        config={props.config}
+                                        baseConfigPath={props.baseConfigPath}
+                                        uiConfig={props.uiConfig}
+                                        context={props.context}
                                         fieldPath={`${inputMapFieldPath}.${idx}.value`}
                                         modelInterface={modelInterface}
                                         onClose={() =>

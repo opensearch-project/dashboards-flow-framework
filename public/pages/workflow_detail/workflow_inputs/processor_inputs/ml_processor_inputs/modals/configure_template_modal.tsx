@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useFormikContext, getIn, Formik } from 'formik';
+import { isEmpty } from 'lodash';
 import * as yup from 'yup';
 import {
   EuiCodeEditor,
@@ -25,21 +26,44 @@ import {
   EuiCopy,
 } from '@elastic/eui';
 import {
+  customStringify,
+  IngestPipelineConfig,
+  IProcessorConfig,
   MAX_STRING_LENGTH,
   MAX_TEMPLATE_STRING_LENGTH,
   ModelInterface,
+  PROCESSOR_CONTEXT,
   PROMPT_PRESETS,
   PromptPreset,
+  SearchHit,
+  SimulateIngestPipelineResponse,
   TemplateFormValues,
   TemplateSchema,
   TemplateVar,
+  WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../../../common';
-import { getInitialValue } from '../../../../../../utils';
-import { isEmpty } from 'lodash';
+import {
+  formikToPartialPipeline,
+  getDataSourceId,
+  getInitialValue,
+  prepareDocsForSimulate,
+  unwrapTransformedDocs,
+} from '../../../../../../utils';
 import { TextField } from '../../../input_fields';
+import {
+  searchIndex,
+  simulatePipeline,
+  useAppDispatch,
+} from '../../../../../../store';
+import { getCore } from '../../../../../../services';
 
 interface ConfigureTemplateModalProps {
+  uiConfig: WorkflowConfig;
+  config: IProcessorConfig;
+  context: PROCESSOR_CONTEXT;
+  baseConfigPath: string;
+
   fieldPath: string;
   modelInterface: ModelInterface | undefined;
   onClose: () => void;
@@ -49,11 +73,16 @@ interface ConfigureTemplateModalProps {
 const KEY_FLEX_RATIO = 4;
 const VALUE_FLEX_RATIO = 6;
 
+// the max number of input docs we use to display & test transforms with (search response hits)
+const MAX_INPUT_DOCS = 10;
+
 /**
  * A modal to configure a prompt template. Can manually configure, include placeholder values
  * using other model inputs, and/or select from a presets library.
  */
 export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
+  const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
@@ -93,11 +122,40 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
   const [tempNestedVars, setTempNestedVars] = useState<TemplateVar[]>([]);
   const [tempErrors, setTempErrors] = useState<boolean>(false);
 
+  // get some current form values
+  const oneToOne = getIn(
+    values,
+    `${props.baseConfigPath}.${props.config.id}.one_to_one`
+  );
+  const docs = getIn(values, 'ingest.docs');
+  let docObjs = [] as {}[] | undefined;
+  try {
+    docObjs = JSON.parse(docs);
+  } catch {}
+  const query = getIn(values, 'search.request');
+  let queryObj = {} as {} | undefined;
+  try {
+    queryObj = JSON.parse(query);
+  } catch {}
+  const onIngestAndNoDocs =
+    props.context === PROCESSOR_CONTEXT.INGEST && isEmpty(docObjs);
+  const onSearchAndNoQuery =
+    (props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST ||
+      props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE) &&
+    isEmpty(queryObj);
+
   // button updating state
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
   // popover states
   const [presetsPopoverOpen, setPresetsPopoverOpen] = useState<boolean>(false);
+
+  // source input / transformed input state
+  const [sourceInput, setSourceInput] = useState<string>('{}');
+  const [transformedInput, setTransformedInput] = useState<string>('{}');
+
+  // fetching input data state
+  const [isFetching, setIsFetching] = useState<boolean>(false);
 
   // if updating, take the temp vars and assign it to the parent form
   function onUpdate() {
@@ -380,7 +438,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                 </EuiFlexItem>
                 <EuiFlexItem grow={4}>
                   <EuiFlexGroup direction="column">
-                    <EuiFlexItem>
+                    <EuiFlexItem grow={false}>
                       <EuiFlexGroup
                         direction="row"
                         justifyContent="spaceAround"
@@ -390,18 +448,176 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         </EuiFlexItem>
                         <EuiFlexItem>
                           <EuiSmallButton
-                            onClick={() =>
-                              // TODO
-                              console.log('executing preview...')
-                            }
+                            style={{ width: '100px' }}
+                            isLoading={isFetching}
+                            disabled={onIngestAndNoDocs || onSearchAndNoQuery}
+                            onClick={async () => {
+                              setIsFetching(true);
+                              switch (props.context) {
+                                case PROCESSOR_CONTEXT.INGEST: {
+                                  // get the current ingest pipeline up to, but not including, this processor
+                                  const curIngestPipeline = formikToPartialPipeline(
+                                    values,
+                                    props.uiConfig,
+                                    props.config.id,
+                                    false,
+                                    PROCESSOR_CONTEXT.INGEST
+                                  );
+                                  // if there are preceding processors, we need to simulate the partial ingest pipeline,
+                                  // in order to get the latest transformed version of the docs
+                                  if (curIngestPipeline !== undefined) {
+                                    const curDocs = prepareDocsForSimulate(
+                                      values.ingest.docs,
+                                      values.ingest.index.name
+                                    );
+                                    await dispatch(
+                                      simulatePipeline({
+                                        apiBody: {
+                                          pipeline: curIngestPipeline as IngestPipelineConfig,
+                                          docs: [curDocs[0]],
+                                        },
+                                        dataSourceId,
+                                      })
+                                    )
+                                      .unwrap()
+                                      .then(
+                                        (
+                                          resp: SimulateIngestPipelineResponse
+                                        ) => {
+                                          const docObjs = unwrapTransformedDocs(
+                                            resp
+                                          );
+                                          if (docObjs.length > 0) {
+                                            setSourceInput(
+                                              customStringify(docObjs[0])
+                                            );
+                                          }
+                                        }
+                                      )
+                                      .catch((error: any) => {
+                                        getCore().notifications.toasts.addDanger(
+                                          `Failed to fetch input data`
+                                        );
+                                      })
+                                      .finally(() => {
+                                        setIsFetching(false);
+                                      });
+                                  } else {
+                                    try {
+                                      const docObjs = JSON.parse(
+                                        values.ingest.docs
+                                      ) as {}[];
+                                      if (docObjs.length > 0) {
+                                        setSourceInput(
+                                          customStringify(docObjs[0])
+                                        );
+                                      }
+                                    } catch {
+                                    } finally {
+                                      setIsFetching(false);
+                                    }
+                                  }
+                                  break;
+                                }
+                                case PROCESSOR_CONTEXT.SEARCH_REQUEST: {
+                                  // get the current search pipeline up to, but not including, this processor
+                                  const curSearchPipeline = formikToPartialPipeline(
+                                    values,
+                                    props.uiConfig,
+                                    props.config.id,
+                                    false,
+                                    PROCESSOR_CONTEXT.SEARCH_REQUEST
+                                  );
+                                  // if there are preceding processors, we cannot generate. The button to render
+                                  // this modal should be disabled if the search pipeline would be enabled. We add
+                                  // this if check as an extra layer of checking, and if mechanism for gating
+                                  // this is changed in the future.
+                                  if (curSearchPipeline === undefined) {
+                                    setSourceInput(values.search.request);
+                                  }
+                                  setIsFetching(false);
+                                  break;
+                                }
+                                case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
+                                  // get the current search pipeline up to, but not including, this processor
+                                  const curSearchPipeline = formikToPartialPipeline(
+                                    values,
+                                    props.uiConfig,
+                                    props.config.id,
+                                    false,
+                                    PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                                  );
+                                  // Execute search. If there are preceding processors, augment the existing query with
+                                  // the partial search pipeline (inline) to get the latest transformed version of the response.
+                                  dispatch(
+                                    searchIndex({
+                                      apiBody: {
+                                        index: values.search.index.name,
+                                        body: JSON.stringify({
+                                          ...JSON.parse(
+                                            values.search.request as string
+                                          ),
+                                          search_pipeline:
+                                            curSearchPipeline || {},
+                                        }),
+                                      },
+                                      dataSourceId,
+                                    })
+                                  )
+                                    .unwrap()
+                                    .then(async (resp) => {
+                                      const hits = resp?.hits?.hits
+                                        ?.map((hit: SearchHit) => hit._source)
+                                        .slice(0, MAX_INPUT_DOCS);
+                                      if (hits.length > 0) {
+                                        setSourceInput(
+                                          // if one-to-one, treat the source input as a single retrieved document
+                                          // else, treat it as all of the returned documents
+                                          customStringify(
+                                            oneToOne ? hits[0] : hits
+                                          )
+                                        );
+                                      }
+                                    })
+                                    .catch((error: any) => {
+                                      getCore().notifications.toasts.addDanger(
+                                        `Failed to fetch source input data`
+                                      );
+                                    })
+                                    .finally(() => {
+                                      setIsFetching(false);
+                                    });
+                                  break;
+                                }
+                              }
+                            }}
                           >
                             Run preview
                           </EuiSmallButton>
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
-                    <EuiFlexItem>
-                      <EuiText>TODO add transform here</EuiText>
+                    <EuiFlexItem grow={false}>
+                      <EuiText size="s">Source data</EuiText>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiCodeEditor
+                        mode="json"
+                        theme="textmate"
+                        width="100%"
+                        height="15vh"
+                        value={sourceInput}
+                        readOnly={true}
+                        setOptions={{
+                          fontSize: '12px',
+                          autoScrollEditorIntoView: true,
+                          showLineNumbers: false,
+                          showGutter: false,
+                          showPrintMargin: false,
+                          wrap: true,
+                        }}
+                        tabSize={2}
+                      />
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>

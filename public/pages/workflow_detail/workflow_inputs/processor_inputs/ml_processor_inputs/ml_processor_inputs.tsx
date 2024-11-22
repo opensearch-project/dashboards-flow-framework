@@ -416,6 +416,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           <ModelInputs
             config={props.config}
             baseConfigPath={props.baseConfigPath}
+            uiConfig={props.uiConfig}
             context={props.context}
           />
           <EuiSpacer size="l" />
