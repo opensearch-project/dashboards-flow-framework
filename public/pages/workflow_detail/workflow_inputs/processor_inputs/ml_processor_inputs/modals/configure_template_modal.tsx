@@ -28,6 +28,7 @@ import {
 import {
   customStringify,
   IngestPipelineConfig,
+  InputMapEntry,
   IProcessorConfig,
   MAX_STRING_LENGTH,
   MAX_TEMPLATE_STRING_LENGTH,
@@ -40,11 +41,14 @@ import {
   TemplateFormValues,
   TemplateSchema,
   TemplateVar,
+  TRANSFORM_CONTEXT,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../../../common';
 import {
   formikToPartialPipeline,
+  generateArrayTransform,
+  generateTransform,
   getDataSourceId,
   getInitialValue,
   prepareDocsForSimulate,
@@ -156,6 +160,43 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
   // fetching input data state
   const [isFetching, setIsFetching] = useState<boolean>(false);
+
+  // hook to re-generate the transform when any inputs to the transform are updated
+  useEffect(() => {
+    const nestedVarsAsInputMap = tempNestedVars.map((templateVar) => {
+      return {} as InputMapEntry;
+    });
+    if (!isEmpty(tempNestedVars) && !isEmpty(JSON.parse(sourceInput))) {
+      let sampleSourceInput = {} as {} | [];
+      try {
+        sampleSourceInput = JSON.parse(sourceInput);
+        const output =
+          // Edge case: users are collapsing input docs into a single input field when many-to-one is selected
+          // fo input transforms on search response processors.
+          oneToOne === false &&
+          props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE &&
+          Array.isArray(sampleSourceInput)
+            ? generateArrayTransform(
+                sampleSourceInput as [],
+                tempNestedVars.map(),
+                props.context,
+                TRANSFORM_CONTEXT.INPUT,
+                queryObj
+              )
+            : generateTransform(
+                sampleSourceInput,
+                tempNestedVars,
+                props.context,
+                TRANSFORM_CONTEXT.INPUT,
+                queryObj
+              );
+
+        setTransformedInput(customStringify(output));
+      } catch {}
+    } else {
+      setTransformedInput('{}');
+    }
+  }, [tempNestedVars, sourceInput]);
 
   // if updating, take the temp vars and assign it to the parent form
   function onUpdate() {
