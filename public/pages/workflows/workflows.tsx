@@ -39,6 +39,7 @@ import {
 import { prettifyErrorMessage } from '../../../common/utils';
 import { DataSourceOption } from '../../../../../src/plugins/data_source_management/public/components/data_source_menu/types';
 import { ExperimentalBadge } from '../../general_components';
+import { TopNavControlData } from '../../../../../src/plugins/navigation/public';
 
 export interface WorkflowsRouterProps {}
 
@@ -88,7 +89,7 @@ export function Workflows(props: WorkflowsProps) {
     chrome: { setBreadcrumbs },
   } = getCore();
   const { HeaderControl } = getNavigationUI();
-  const { setAppDescriptionControls } = getApplication();
+  const { setAppDescriptionControls, setAppCenterControls } = getApplication();
 
   // import modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
@@ -202,6 +203,23 @@ export function Workflows(props: WorkflowsProps) {
       );
     }, [getSavedObjectsClient, getNotifications(), props.setActionMenu]);
   }
+
+  const experimentalBadgeInHeader = (
+    <HeaderControl
+      setMountPoint={setAppCenterControls}
+      controls={[
+        {
+          renderComponent: (
+            <ExperimentalBadge
+              popoverEnabled={true}
+              popoverAnchorPosition="downLeft"
+            />
+          ),
+        } as TopNavControlData,
+      ]}
+    />
+  );
+
   const DESCRIPTION = `Design, experiment, and prototype your solutions with ${PLUGIN_NAME}. Build your search and last mile 
   ingestion flows with a visual interface. Experiment with different configurations with prototyping tools and launch them 
   into your environment.`;
@@ -244,6 +262,7 @@ export function Workflows(props: WorkflowsProps) {
         />
       )}
       {dataSourceEnabled && renderDataSourceComponent}
+      {USE_NEW_HOME_PAGE && experimentalBadgeInHeader}
       <EuiPage>
         <EuiPageBody>
           <EuiPageHeader
