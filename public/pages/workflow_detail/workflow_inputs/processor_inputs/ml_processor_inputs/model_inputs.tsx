@@ -48,8 +48,8 @@ interface ModelInputsProps {
 
 // Spacing between the input field columns
 const KEY_FLEX_RATIO = 3;
-const TYPE_FLEX_RATIO = 2;
-const VALUE_FLEX_RATIO = 5;
+const TYPE_FLEX_RATIO = 3;
+const VALUE_FLEX_RATIO = 4;
 
 const TRANSFORM_OPTIONS = Object.values(TRANSFORM_TYPE).map((type) => {
   return {
