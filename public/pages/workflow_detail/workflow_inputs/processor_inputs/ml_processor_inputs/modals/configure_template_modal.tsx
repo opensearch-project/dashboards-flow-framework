@@ -225,13 +225,13 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
           <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>{`Configure template`}</p>
+                <p>{`Configure prompt`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiModalBody style={{ height: '40vh' }}>
               <EuiFlexGroup direction="row">
                 <EuiFlexItem grow={6}>
-                  <EuiFlexGroup direction="column">
+                  <EuiFlexGroup direction="column" gutterSize="xs">
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup
                         direction="row"
@@ -288,7 +288,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
-                    <EuiFlexItem>
+                    <EuiFlexItem grow={false}>
                       <EuiCodeEditor
                         mode="json"
                         theme="textmate"
@@ -313,10 +313,11 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         }}
                       />
                     </EuiFlexItem>
+                    <EuiSpacer size="s" />
                     <EuiFlexItem grow={false}>
                       <EuiText size="m">Input variables</EuiText>
                     </EuiFlexItem>
-                    <EuiFlexItem>
+                    <EuiFlexItem grow={false}>
                       <EuiFlexGroup
                         direction="row"
                         justifyContent="spaceAround"
@@ -437,7 +438,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                   </EuiFlexGroup>
                 </EuiFlexItem>
                 <EuiFlexItem grow={4}>
-                  <EuiFlexGroup direction="column">
+                  <EuiFlexGroup direction="column" gutterSize="xs">
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup
                         direction="row"
@@ -607,6 +608,28 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         width="100%"
                         height="15vh"
                         value={sourceInput}
+                        readOnly={true}
+                        setOptions={{
+                          fontSize: '12px',
+                          autoScrollEditorIntoView: true,
+                          showLineNumbers: false,
+                          showGutter: false,
+                          showPrintMargin: false,
+                          wrap: true,
+                        }}
+                        tabSize={2}
+                      />
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiText size="s">Prompt</EuiText>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiCodeEditor
+                        mode="json"
+                        theme="textmate"
+                        width="100%"
+                        height="15vh"
+                        value={transformedInput}
                         readOnly={true}
                         setOptions={{
                           fontSize: '12px',
