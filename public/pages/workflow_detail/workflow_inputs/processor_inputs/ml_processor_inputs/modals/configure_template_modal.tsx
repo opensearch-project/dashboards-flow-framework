@@ -22,6 +22,7 @@ import {
   EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
   EuiSpacer,
+  EuiCopy,
 } from '@elastic/eui';
 import {
   MAX_STRING_LENGTH,
@@ -282,6 +283,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                 key={idx}
                                 direction="row"
                                 justifyContent="spaceAround"
+                                gutterSize="s"
                               >
                                 <EuiFlexItem grow={KEY_FLEX_RATIO}>
                                   <TextField
@@ -295,6 +297,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                   <EuiFlexGroup
                                     direction="row"
                                     justifyContent="spaceAround"
+                                    gutterSize="xs"
                                   >
                                     <EuiFlexItem>
                                       <TextField
@@ -303,6 +306,40 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                         placeholder={`Transform`}
                                         showError={true}
                                       />
+                                    </EuiFlexItem>
+                                    <EuiFlexItem grow={false}>
+                                      <EuiCopy
+                                        textToCopy={getPlaceholderString(
+                                          getIn(
+                                            formikProps.values,
+                                            `nestedVars.${idx}.transform`
+                                          )
+                                        )}
+                                      >
+                                        {(copy) => (
+                                          <EuiSmallButtonIcon
+                                            aria-label="Copy"
+                                            iconType="copy"
+                                            disabled={isEmpty(
+                                              getIn(
+                                                formikProps.values,
+                                                `nestedVars.${idx}.transform`
+                                              )
+                                            )}
+                                            color={
+                                              isEmpty(
+                                                getIn(
+                                                  formikProps.values,
+                                                  `nestedVars.${idx}.transform`
+                                                )
+                                              )
+                                                ? 'subdued'
+                                                : 'primary'
+                                            }
+                                            onClick={copy}
+                                          />
+                                        )}
+                                      </EuiCopy>
                                     </EuiFlexItem>
                                     <EuiFlexItem grow={false}>
                                       <EuiSmallButtonIcon
@@ -401,4 +438,15 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
       }}
     </Formik>
   );
+}
+
+// small util fn to get the full placeholder string to be
+// inserted into the template. String conversion is required
+// if the input is an array, for example. Also, all values
+// should be prepended with "parameters.", as all inputs
+// will be nested under a base parameters obj.
+function getPlaceholderString(label: string, type?: string) {
+  return type === 'array'
+    ? `\$\{parameters.${label}.toString()\}`
+    : `\$\{parameters.${label}\}`;
 }
