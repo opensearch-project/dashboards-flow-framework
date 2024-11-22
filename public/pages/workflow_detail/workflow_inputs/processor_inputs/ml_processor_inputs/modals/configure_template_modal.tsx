@@ -20,6 +20,8 @@ import {
   EuiPopover,
   EuiContextMenu,
   EuiSmallButtonEmpty,
+  EuiSmallButtonIcon,
+  EuiSpacer,
 } from '@elastic/eui';
 import {
   MAX_STRING_LENGTH,
@@ -34,12 +36,17 @@ import {
 } from '../../../../../../../common';
 import { getInitialValue } from '../../../../../../utils';
 import { isEmpty } from 'lodash';
+import { TextField } from '../../../input_fields';
 
 interface ConfigureTemplateModalProps {
   fieldPath: string;
   modelInterface: ModelInterface | undefined;
   onClose: () => void;
 }
+
+// Spacing between the input field columns
+const KEY_FLEX_RATIO = 4;
+const VALUE_FLEX_RATIO = 6;
 
 /**
  * A modal to configure a prompt template. Can manually configure, include placeholder values
@@ -70,7 +77,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
           .min(1, 'Too short')
           .max(MAX_STRING_LENGTH, 'Too long')
           .required('Required') as yup.Schema,
-        value: yup
+        transform: yup
           .string()
           .trim()
           .min(1, 'Too short')
@@ -133,6 +140,27 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
         useEffect(() => {
           setTempErrors(!isEmpty(formikProps.errors));
         }, [formikProps.errors]);
+
+        // Adding an input var to the end of the existing arr
+        function addInputVar(curInputVars: TemplateVar[]): void {
+          const updatedInputVars = [
+            ...curInputVars,
+            { name: '', transform: '' } as TemplateVar,
+          ];
+          formikProps.setFieldValue(`nestedVars`, updatedInputVars);
+          formikProps.setFieldTouched(`nestedVars`, true);
+        }
+
+        // Deleting an input var
+        function deleteInputVar(
+          curInputVars: TemplateVar[],
+          idxToDelete: number
+        ): void {
+          const updatedInputVars = [...curInputVars];
+          updatedInputVars.splice(idxToDelete, 1);
+          formikProps.setFieldValue('nestedVars', updatedInputVars);
+          formikProps.setFieldTouched('nestedVars', true);
+        }
 
         return (
           <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
@@ -234,24 +262,82 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         direction="row"
                         justifyContent="spaceAround"
                       >
-                        <EuiFlexItem grow={4}>
+                        <EuiFlexItem grow={KEY_FLEX_RATIO}>
                           <EuiText size="s" color="subdued">
                             {`Name`}
                           </EuiText>
                         </EuiFlexItem>
-                        <EuiFlexItem grow={6}>
+                        <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiText size="s" color="subdued">
                             {`Expression`}
                           </EuiText>
                         </EuiFlexItem>
                       </EuiFlexGroup>
-                      {formikProps.values.nestedVars?.map((templateVar) => {
-                        return (
-                          <EuiFlexItem>
-                            <EuiText>{templateVar.name}</EuiText>
-                          </EuiFlexItem>
-                        );
-                      })}
+                      <EuiSpacer size="s" />
+                      {formikProps.values.nestedVars?.map(
+                        (templateVar, idx) => {
+                          return (
+                            <div key={idx}>
+                              <EuiFlexGroup
+                                key={idx}
+                                direction="row"
+                                justifyContent="spaceAround"
+                              >
+                                <EuiFlexItem grow={KEY_FLEX_RATIO}>
+                                  <TextField
+                                    fullWidth={true}
+                                    fieldPath={`nestedVars.${idx}.name`}
+                                    placeholder={`Name`}
+                                    showError={true}
+                                  />
+                                </EuiFlexItem>
+                                <EuiFlexItem grow={VALUE_FLEX_RATIO}>
+                                  <EuiFlexGroup
+                                    direction="row"
+                                    justifyContent="spaceAround"
+                                  >
+                                    <EuiFlexItem>
+                                      <TextField
+                                        fullWidth={true}
+                                        fieldPath={`nestedVars.${idx}.transform`}
+                                        placeholder={`Transform`}
+                                        showError={true}
+                                      />
+                                    </EuiFlexItem>
+                                    <EuiFlexItem grow={false}>
+                                      <EuiSmallButtonIcon
+                                        iconType={'trash'}
+                                        color="danger"
+                                        aria-label="Delete"
+                                        onClick={() => {
+                                          deleteInputVar(
+                                            formikProps.values.nestedVars || [],
+                                            idx
+                                          );
+                                        }}
+                                      />
+                                    </EuiFlexItem>
+                                  </EuiFlexGroup>
+                                </EuiFlexItem>
+                              </EuiFlexGroup>
+                              <EuiSpacer size="s" />
+                            </div>
+                          );
+                        }
+                      )}
+                      <EuiSmallButtonEmpty
+                        style={{
+                          marginLeft: '-8px',
+                          width: '125px',
+                        }}
+                        iconType={'plusInCircle'}
+                        iconSide="left"
+                        onClick={() => {
+                          addInputVar(formikProps.values.nestedVars || []);
+                        }}
+                      >
+                        {`Add variable`}
+                      </EuiSmallButtonEmpty>
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
@@ -293,7 +379,14 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                 Cancel
               </EuiSmallButtonEmpty>
               <EuiSmallButton
-                onClick={() => onUpdate()}
+                onClick={() => {
+                  formikProps
+                    .submitForm()
+                    .then((value: any) => {
+                      onUpdate();
+                    })
+                    .catch((err: any) => {});
+                }}
                 isLoading={isUpdating}
                 isDisabled={tempErrors} // blocking update until valid input is given
                 fill={true}

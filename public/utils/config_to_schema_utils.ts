@@ -208,7 +208,7 @@ export function getFieldSchema(
               nestedVars: yup.array().of(
                 yup.object().shape({
                   name: defaultStringSchema.required(),
-                  value: defaultStringSchema.required(),
+                  transform: defaultStringSchema.required(),
                 })
               ),
             }),

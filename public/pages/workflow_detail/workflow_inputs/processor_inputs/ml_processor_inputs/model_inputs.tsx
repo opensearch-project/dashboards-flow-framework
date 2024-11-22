@@ -46,7 +46,7 @@ interface ModelInputsProps {
   context: PROCESSOR_CONTEXT;
 }
 
-// Determining spacing between the input field columns
+// Spacing between the input field columns
 const KEY_FLEX_RATIO = 3;
 const TYPE_FLEX_RATIO = 2;
 const VALUE_FLEX_RATIO = 5;
