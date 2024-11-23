@@ -148,6 +148,9 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
       props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE) &&
     isEmpty(queryObj);
 
+  // transformed template state
+  const [transformedTemplate, setTransformedTemplate] = useState<string>('');
+
   // button updating state
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
@@ -163,10 +166,15 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
-    const nestedVarsAsInputMap = tempNestedVars.map((templateVar) => {
-      return {} as InputMapEntry;
+    const nestedVarsAsInputMap = tempNestedVars?.map((templateVar) => {
+      return {
+        key: templateVar.name,
+        value: {
+          value: templateVar.transform,
+        },
+      } as InputMapEntry;
     });
-    if (!isEmpty(tempNestedVars) && !isEmpty(JSON.parse(sourceInput))) {
+    if (!isEmpty(nestedVarsAsInputMap) && !isEmpty(JSON.parse(sourceInput))) {
       let sampleSourceInput = {} as {} | [];
       try {
         sampleSourceInput = JSON.parse(sourceInput);
@@ -178,14 +186,14 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
           Array.isArray(sampleSourceInput)
             ? generateArrayTransform(
                 sampleSourceInput as [],
-                tempNestedVars.map(),
+                nestedVarsAsInputMap,
                 props.context,
                 TRANSFORM_CONTEXT.INPUT,
                 queryObj
               )
             : generateTransform(
                 sampleSourceInput,
-                tempNestedVars,
+                nestedVarsAsInputMap,
                 props.context,
                 TRANSFORM_CONTEXT.INPUT,
                 queryObj
@@ -197,6 +205,16 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
       setTransformedInput('{}');
     }
   }, [tempNestedVars, sourceInput]);
+
+  // hook to set the transformed template, when the template
+  // and/or its injected variables are updated
+  useEffect(() => {
+    if (!isEmpty(tempTemplate)) {
+      setTransformedTemplate(
+        injectValuesIntoTemplate(tempTemplate, JSON.parse(transformedInput))
+      );
+    }
+  }, [tempTemplate, transformedInput]);
 
   // if updating, take the temp vars and assign it to the parent form
   function onUpdate() {
@@ -412,7 +430,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                         textToCopy={getPlaceholderString(
                                           getIn(
                                             formikProps.values,
-                                            `nestedVars.${idx}.transform`
+                                            `nestedVars.${idx}.name`
                                           )
                                         )}
                                       >
@@ -670,7 +688,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         theme="textmate"
                         width="100%"
                         height="15vh"
-                        value={transformedInput}
+                        value={transformedTemplate}
                         readOnly={true}
                         setOptions={{
                           fontSize: '12px',
@@ -729,4 +747,28 @@ function getPlaceholderString(label: string, type?: string) {
   return type === 'array'
     ? `\$\{parameters.${label}.toString()\}`
     : `\$\{parameters.${label}\}`;
+}
+
+function injectValuesIntoTemplate(
+  template: string,
+  parameters: { [key: string]: string }
+): string {
+  let finalTemplate = template;
+  // replace any parameter placeholders in the prompt with any values found in the
+  // parameters obj.
+  // we do 2 checks - one for the regular prompt, and one with "toString()" appended.
+  // this is required for parameters that have values as a list, for example.
+  Object.keys(parameters).forEach((parameterKey) => {
+    const parameterValue = parameters[parameterKey];
+    const regex = new RegExp(`\\$\\{parameters.${parameterKey}\\}`, 'g');
+    const regexWithToString = new RegExp(
+      `\\$\\{parameters.${parameterKey}.toString\\(\\)\\}`,
+      'g'
+    );
+    finalTemplate = finalTemplate
+      .replace(regex, parameterValue)
+      .replace(regexWithToString, parameterValue);
+  });
+
+  return finalTemplate;
 }
