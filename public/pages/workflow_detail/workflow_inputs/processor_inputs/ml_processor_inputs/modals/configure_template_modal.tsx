@@ -347,6 +347,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
+                    <EuiSpacer size="s" />
                     <EuiFlexItem grow={false}>
                       <EuiCodeEditor
                         mode="json"
