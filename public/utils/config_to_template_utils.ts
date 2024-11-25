@@ -493,6 +493,24 @@ function processModelInputs(
           mapEntry.value.value
         ),
       };
+      // template with dynamic nested vars. Add the nested vars as input map entries,
+      // and add the static template itself to the model config.
+    } else if (
+      mapEntry.value.transformType === TRANSFORM_TYPE.TEMPLATE &&
+      !isEmpty(mapEntry.value.nestedVars)
+    ) {
+      mapEntry.value.nestedVars?.forEach((nestedVar) => {
+        inputMap = {
+          ...inputMap,
+          [sanitizeJSONPath(nestedVar.name)]: sanitizeJSONPath(
+            nestedVar.transform
+          ),
+        };
+      });
+      modelConfig = {
+        ...modelConfig,
+        [mapEntry.key]: mapEntry.value.value,
+      };
       // static data
     } else {
       modelConfig = {
