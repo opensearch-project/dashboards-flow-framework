@@ -39,7 +39,7 @@ import {
   parseModelInputs,
   sanitizeJSONPath,
 } from '../../../../../utils';
-import { ConfigureTemplateModal } from './modals/';
+import { ConfigureExpressionModal, ConfigureTemplateModal } from './modals/';
 
 interface ModelInputsProps {
   config: IProcessorConfig;
@@ -89,6 +89,9 @@ export function ModelInputs(props: ModelInputsProps) {
 
   // various modal states
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState<boolean>(
+    false
+  );
+  const [isExpressionModalOpen, setIsExpressionModalOpen] = useState<boolean>(
     false
   );
 
@@ -376,6 +379,19 @@ export function ModelInputs(props: ModelInputsProps) {
                                         }
                                       />
                                     )}
+                                    {isExpressionModalOpen && (
+                                      <ConfigureExpressionModal
+                                        config={props.config}
+                                        baseConfigPath={props.baseConfigPath}
+                                        uiConfig={props.uiConfig}
+                                        context={props.context}
+                                        fieldPath={`${inputMapFieldPath}.${idx}.value`}
+                                        modelInterface={modelInterface}
+                                        onClose={() =>
+                                          setIsExpressionModalOpen(false)
+                                        }
+                                      />
+                                    )}
                                     <EuiFlexItem>
                                       <>
                                         {transformType ===
@@ -390,10 +406,19 @@ export function ModelInputs(props: ModelInputsProps) {
                                           >
                                             Configure
                                           </EuiSmallButton>
+                                        ) : transformType ===
+                                          TRANSFORM_TYPE.EXPRESSION ? (
+                                          <EuiSmallButton
+                                            style={{ width: '100px' }}
+                                            fill={false}
+                                            onClick={() =>
+                                              setIsExpressionModalOpen(true)
+                                            }
+                                            data-testid="configureExpressionButton"
+                                          >
+                                            Configure
+                                          </EuiSmallButton>
                                         ) : isEmpty(transformType) ||
-                                          // TODO: add buttons & new modals to configure expressions & templates
-                                          transformType ===
-                                            TRANSFORM_TYPE.EXPRESSION ||
                                           transformType ===
                                             TRANSFORM_TYPE.STRING ||
                                           transformType ===
