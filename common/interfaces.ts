@@ -164,6 +164,12 @@ export type OutputTransformSchema = WorkflowSchema;
 export type TemplateFormValues = Omit<Transform, 'transformType'>;
 export type TemplateSchema = WorkflowSchema;
 
+// Form / schema interfaces for the expression/transform sub-form
+export type ExpressionFormValues = {
+  expression: string;
+};
+export type ExpressionSchema = WorkflowSchema;
+
 /**
  ********** WORKSPACE TYPES/INTERFACES **********
  */

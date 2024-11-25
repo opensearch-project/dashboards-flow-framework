@@ -349,11 +349,15 @@ export function ModelInputs(props: ModelInputsProps) {
                                     placeholder={`Input type`}
                                     allowCreate={false}
                                     onChange={() => {
-                                      // If the transform type changes, clear any set value as it will likely not make sense
-                                      // under other types/contexts.
+                                      // If the transform type changes, clear any set value and/or nested vars,
+                                      // as it will likely not make sense under other types/contexts.
                                       setFieldValue(
                                         `${inputMapFieldPath}.${idx}.value.value`,
                                         ''
+                                      );
+                                      setFieldValue(
+                                        `${inputMapFieldPath}.${idx}.value.nestedVars`,
+                                        []
                                       );
                                     }}
                                   />
@@ -387,6 +391,10 @@ export function ModelInputs(props: ModelInputsProps) {
                                         context={props.context}
                                         fieldPath={`${inputMapFieldPath}.${idx}.value`}
                                         modelInterface={modelInterface}
+                                        modelInputFieldName={getIn(
+                                          values,
+                                          `${inputMapFieldPath}.${idx}.key`
+                                        )}
                                         onClose={() =>
                                           setIsExpressionModalOpen(false)
                                         }
