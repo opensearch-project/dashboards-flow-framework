@@ -14,3 +14,4 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Dan Widdis                | [dbwiddis](https://github.com/dbwiddis)           | Amazon      |
 | Minal Shah                | [minalsha](https://github.com/minalsha)           | Amazon      |
 | Sai Medhini Reddy Maryada | [saimedhi](https://github.com/saimedhi)           | Amazon      |
+| Kama Huang                | [kamahuan](https://github.com/kamahuan)           | Amazon      |
