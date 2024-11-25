@@ -31,6 +31,7 @@ import {
   TRANSFORM_TYPE,
   EMPTY_INPUT_MAP_ENTRY,
   WorkflowConfig,
+  getCharacterLimitedString,
 } from '../../../../../../common';
 import { TextField, SelectWithCustomOptions } from '../../input_fields';
 import { AppState, getMappings, useAppDispatch } from '../../../../../store';
@@ -404,28 +405,122 @@ export function ModelInputs(props: ModelInputsProps) {
                                       <>
                                         {transformType ===
                                         TRANSFORM_TYPE.TEMPLATE ? (
-                                          <EuiSmallButton
-                                            style={{ width: '100px' }}
-                                            fill={false}
-                                            onClick={() =>
-                                              setIsTemplateModalOpen(true)
-                                            }
-                                            data-testid="configureTemplateButton"
-                                          >
-                                            Configure
-                                          </EuiSmallButton>
+                                          <>
+                                            {isEmpty(
+                                              getIn(
+                                                values,
+                                                `${inputMapFieldPath}.${idx}.value.value`
+                                              )
+                                            ) ? (
+                                              <EuiSmallButton
+                                                style={{ width: '100px' }}
+                                                fill={false}
+                                                onClick={() =>
+                                                  setIsTemplateModalOpen(true)
+                                                }
+                                                data-testid="configureTemplateButton"
+                                              >
+                                                Configure
+                                              </EuiSmallButton>
+                                            ) : (
+                                              <EuiFlexGroup
+                                                direction="row"
+                                                justifyContent="spaceAround"
+                                              >
+                                                <EuiFlexItem>
+                                                  <EuiText
+                                                    size="s"
+                                                    color="subdued"
+                                                    style={{
+                                                      marginTop: '4px',
+                                                      whiteSpace: 'nowrap',
+                                                      overflow: 'hidden',
+                                                    }}
+                                                  >
+                                                    {getCharacterLimitedString(
+                                                      getIn(
+                                                        values,
+                                                        `${inputMapFieldPath}.${idx}.value.value`
+                                                      ),
+                                                      15
+                                                    )}
+                                                  </EuiText>
+                                                </EuiFlexItem>
+                                                <EuiFlexItem grow={false}>
+                                                  <EuiSmallButtonIcon
+                                                    aria-label="edit"
+                                                    iconType="pencil"
+                                                    disabled={false}
+                                                    color={'primary'}
+                                                    onClick={() => {
+                                                      setIsTemplateModalOpen(
+                                                        true
+                                                      );
+                                                    }}
+                                                  />
+                                                </EuiFlexItem>
+                                              </EuiFlexGroup>
+                                            )}
+                                          </>
                                         ) : transformType ===
                                           TRANSFORM_TYPE.EXPRESSION ? (
-                                          <EuiSmallButton
-                                            style={{ width: '100px' }}
-                                            fill={false}
-                                            onClick={() =>
-                                              setIsExpressionModalOpen(true)
-                                            }
-                                            data-testid="configureExpressionButton"
-                                          >
-                                            Configure
-                                          </EuiSmallButton>
+                                          <>
+                                            {isEmpty(
+                                              getIn(
+                                                values,
+                                                `${inputMapFieldPath}.${idx}.value.value`
+                                              )
+                                            ) ? (
+                                              <EuiSmallButton
+                                                style={{ width: '100px' }}
+                                                fill={false}
+                                                onClick={() =>
+                                                  setIsExpressionModalOpen(true)
+                                                }
+                                                data-testid="configureExpressionButton"
+                                              >
+                                                Configure
+                                              </EuiSmallButton>
+                                            ) : (
+                                              <EuiFlexGroup
+                                                direction="row"
+                                                justifyContent="spaceAround"
+                                              >
+                                                <EuiFlexItem>
+                                                  <EuiText
+                                                    size="s"
+                                                    color="subdued"
+                                                    style={{
+                                                      marginTop: '4px',
+                                                      whiteSpace: 'nowrap',
+                                                      overflow: 'hidden',
+                                                    }}
+                                                  >
+                                                    {getCharacterLimitedString(
+                                                      getIn(
+                                                        values,
+                                                        `${inputMapFieldPath}.${idx}.value.value`
+                                                      ),
+                                                      15
+                                                    )}
+                                                  </EuiText>
+                                                </EuiFlexItem>
+                                                <EuiFlexItem grow={false}>
+                                                  <EuiSmallButtonIcon
+                                                    aria-label="edit"
+                                                    iconType="pencil"
+                                                    disabled={false}
+                                                    color={'primary'}
+                                                    onClick={() => {
+                                                      setIsExpressionModalOpen(
+                                                        true
+                                                      );
+                                                    }}
+                                                  />
+                                                </EuiFlexItem>
+                                              </EuiFlexGroup>
+                                            )}
+                                          </>
                                         ) : isEmpty(transformType) ||
                                           transformType ===
                                             TRANSFORM_TYPE.STRING ||
