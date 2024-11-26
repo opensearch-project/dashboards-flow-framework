@@ -5,7 +5,7 @@
 
 import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
-import { ObjectSchema } from 'yup';
+import { AnyObject, ArraySchema, ObjectSchema } from 'yup';
 import {
   COMPONENT_CLASS,
   PROCESSOR_TYPE,
@@ -103,7 +103,7 @@ export type MapFormValue = MapEntry[];
 
 export type MapArrayFormValue = MapFormValue[];
 
-export type TemplateVar = {
+export type ExpressionVar = {
   name: string;
   transform: string;
 };
@@ -113,7 +113,7 @@ export type Transform = {
   value?: string;
   // Templates may persist their own set of nested transforms
   // to be dynamically injected into the template
-  nestedVars?: TemplateVar[];
+  nestedVars?: ExpressionVar[];
 };
 
 export type InputMapEntry = {
@@ -173,6 +173,12 @@ export type ExpressionFormValues = {
   expression: string;
 };
 export type ExpressionSchema = WorkflowSchema;
+
+// Form / schema interfaces for the multi-expression/transform sub-form
+export type MultiExpressionFormValues = {
+  expressions: ExpressionVar[];
+};
+export type MultiExpressionSchema = ArraySchema<any, AnyObject, '', ''>;
 
 /**
  ********** WORKSPACE TYPES/INTERFACES **********

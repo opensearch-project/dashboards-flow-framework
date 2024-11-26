@@ -36,7 +36,7 @@ import {
   EuiSmallButtonIcon,
   EuiText,
 } from '@elastic/eui';
-import { ConfigureExpressionModal } from './modals';
+import { ConfigureMultiExpressionModal } from './modals';
 
 interface ModelOutputsProps {
   config: IProcessorConfig;
@@ -88,7 +88,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
   );
 
   // various modal states
-  const [isExpressionModalOpen, setIsExpressionModalOpen] = useState<boolean>(
+  const [isExpressionsModalOpen, setIsExpressionsModalOpen] = useState<boolean>(
     false
   );
 
@@ -291,8 +291,8 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                      * Conditionally render the value form component based on the transform type.
                                      * It may be a button, dropdown, or simply freeform text.
                                      */}
-                                    {isExpressionModalOpen && (
-                                      <ConfigureExpressionModal
+                                    {isExpressionsModalOpen && (
+                                      <ConfigureMultiExpressionModal
                                         config={props.config}
                                         baseConfigPath={props.baseConfigPath}
                                         uiConfig={props.uiConfig}
@@ -304,7 +304,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                           `${outputMapFieldPath}.${idx}.key`
                                         )}
                                         onClose={() =>
-                                          setIsExpressionModalOpen(false)
+                                          setIsExpressionsModalOpen(false)
                                         }
                                       />
                                     )}
@@ -323,9 +323,11 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                                 style={{ width: '100px' }}
                                                 fill={false}
                                                 onClick={() =>
-                                                  setIsExpressionModalOpen(true)
+                                                  setIsExpressionsModalOpen(
+                                                    true
+                                                  )
                                                 }
-                                                data-testid="configureExpressionButton"
+                                                data-testid="configureExpressionsButton"
                                               >
                                                 Configure
                                               </EuiSmallButton>
@@ -360,7 +362,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                                     disabled={false}
                                                     color={'primary'}
                                                     onClick={() => {
-                                                      setIsExpressionModalOpen(
+                                                      setIsExpressionsModalOpen(
                                                         true
                                                       );
                                                     }}

@@ -18,12 +18,8 @@ import {
   EuiModalHeaderTitle,
   EuiSmallButton,
   EuiText,
-  EuiPopover,
-  EuiContextMenu,
   EuiSmallButtonEmpty,
-  EuiSmallButtonIcon,
   EuiSpacer,
-  EuiCopy,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -31,16 +27,12 @@ import {
   InputMapEntry,
   IProcessorConfig,
   MAX_STRING_LENGTH,
-  MAX_TEMPLATE_STRING_LENGTH,
   ModelInterface,
+  MultiExpressionFormValues,
+  MultiExpressionSchema,
   PROCESSOR_CONTEXT,
-  PROMPT_PRESETS,
-  PromptPreset,
   SearchHit,
   SimulateIngestPipelineResponse,
-  TemplateFormValues,
-  TemplateSchema,
-  ExpressionVar,
   TRANSFORM_CONTEXT,
   WorkflowConfig,
   WorkflowFormValues,
@@ -50,7 +42,6 @@ import {
   generateArrayTransform,
   generateTransform,
   getDataSourceId,
-  getInitialValue,
   prepareDocsForSimulate,
   unwrapTransformedDocs,
 } from '../../../../../../utils';
@@ -62,29 +53,30 @@ import {
 } from '../../../../../../store';
 import { getCore } from '../../../../../../services';
 
-interface ConfigureTemplateModalProps {
+interface ConfigureMultiExpressionModalProps {
   uiConfig: WorkflowConfig;
   config: IProcessorConfig;
   context: PROCESSOR_CONTEXT;
   baseConfigPath: string;
-
+  modelInputFieldName: string;
   fieldPath: string;
   modelInterface: ModelInterface | undefined;
   onClose: () => void;
 }
 
 // Spacing between the input field columns
-const KEY_FLEX_RATIO = 4;
-const VALUE_FLEX_RATIO = 6;
+const KEY_FLEX_RATIO = 6;
+const VALUE_FLEX_RATIO = 4;
 
 // the max number of input docs we use to display & test transforms with (search response hits)
 const MAX_INPUT_DOCS = 10;
 
 /**
- * A modal to configure a prompt template. Can manually configure, include placeholder values
- * using other model inputs, and/or select from a presets library.
+ * A modal to configure multiple JSONPath expression / transforms.
  */
-export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
+export function ConfigureMultiExpressionModal(
+  props: ConfigureMultiExpressionModalProps
+) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
@@ -92,19 +84,13 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
   >();
 
   // sub-form values/schema
-  const templateFormValues = {
-    value: getInitialValue('string'),
-    nestedVars: [],
-  } as TemplateFormValues;
-  const templateFormSchema = yup.object({
-    value: yup
-      .string()
-      .trim()
-      .min(1, 'Too short')
-      .max(MAX_TEMPLATE_STRING_LENGTH, 'Too long')
-      .required('Required') as yup.Schema,
-    nestedVars: yup.array().of(
-      yup.object().shape({
+  const expressionsFormValues = {
+    expressions: [],
+  } as MultiExpressionFormValues;
+  const expressionsFormSchema = yup
+    .array()
+    .of(
+      yup.object({
         name: yup
           .string()
           .trim()
@@ -118,12 +104,11 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
           .max(MAX_STRING_LENGTH, 'Too long')
           .required('Required') as yup.Schema,
       })
-    ) as yup.Schema,
-  }) as TemplateSchema;
+    )
+    .min(1) as MultiExpressionSchema;
 
   // persist standalone values. update / initialize when it is first opened
-  const [tempTemplate, setTempTemplate] = useState<string>('');
-  const [tempNestedVars, setTempNestedVars] = useState<ExpressionVar[]>([]);
+  const [tempExpressions, setTempExpressions] = useState<string>('');
   const [tempErrors, setTempErrors] = useState<boolean>(false);
 
   // get some current form values
@@ -148,14 +133,8 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
       props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE) &&
     isEmpty(queryObj);
 
-  // transformed template state
-  const [transformedTemplate, setTransformedTemplate] = useState<string>('');
-
   // button updating state
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
-
-  // popover states
-  const [presetsPopoverOpen, setPresetsPopoverOpen] = useState<boolean>(false);
 
   // source input / transformed input state
   const [sourceInput, setSourceInput] = useState<string>('{}');
@@ -166,15 +145,15 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
-    const nestedVarsAsInputMap = tempNestedVars?.map((ExpressionVar) => {
-      return {
-        key: ExpressionVar.name,
+    const tempExpressionAsInputMap = [
+      {
+        key: props.modelInputFieldName,
         value: {
-          value: ExpressionVar.transform,
+          value: tempExpressions,
         },
-      } as InputMapEntry;
-    });
-    if (!isEmpty(nestedVarsAsInputMap) && !isEmpty(JSON.parse(sourceInput))) {
+      } as InputMapEntry,
+    ];
+    if (!isEmpty(tempExpressions) && !isEmpty(JSON.parse(sourceInput))) {
       let sampleSourceInput = {} as {} | [];
       try {
         sampleSourceInput = JSON.parse(sourceInput);
@@ -186,14 +165,14 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
           Array.isArray(sampleSourceInput)
             ? generateArrayTransform(
                 sampleSourceInput as [],
-                nestedVarsAsInputMap,
+                tempExpressionAsInputMap,
                 props.context,
                 TRANSFORM_CONTEXT.INPUT,
                 queryObj
               )
             : generateTransform(
                 sampleSourceInput,
-                nestedVarsAsInputMap,
+                tempExpressionAsInputMap,
                 props.context,
                 TRANSFORM_CONTEXT.INPUT,
                 queryObj
@@ -204,23 +183,13 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
     } else {
       setTransformedInput('{}');
     }
-  }, [tempNestedVars, sourceInput]);
-
-  // hook to set the transformed template, when the template
-  // and/or its injected variables are updated
-  useEffect(() => {
-    if (!isEmpty(tempTemplate)) {
-      setTransformedTemplate(
-        injectValuesIntoTemplate(tempTemplate, JSON.parse(transformedInput))
-      );
-    }
-  }, [tempTemplate, transformedInput]);
+  }, [tempExpressions, sourceInput]);
 
   // if updating, take the temp vars and assign it to the parent form
   function onUpdate() {
     setIsUpdating(true);
-    setFieldValue(`${props.fieldPath}.value`, tempTemplate);
-    setFieldValue(`${props.fieldPath}.nestedVars`, tempNestedVars);
+    console.log('setting nested vars to: ', tempExpressions);
+    setFieldValue(`${props.fieldPath}.nestedVars`, tempExpressions);
     setFieldTouched(props.fieldPath, true);
     props.onClose();
   }
@@ -228,8 +197,8 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
   return (
     <Formik
       enableReinitialize={false}
-      initialValues={templateFormValues}
-      validationSchema={templateFormSchema}
+      initialValues={expressionsFormValues}
+      validationSchema={expressionsFormSchema}
       onSubmit={(values) => {}}
       validate={(values) => {}}
     >
@@ -237,263 +206,68 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
         // override to parent form values when changes detected
         useEffect(() => {
           formikProps.setFieldValue(
-            'value',
-            getIn(values, `${props.fieldPath}.value`)
-          );
-          formikProps.setFieldValue(
-            'nestedVars',
+            'expressions',
             getIn(values, `${props.fieldPath}.nestedVars`)
           );
         }, [getIn(values, props.fieldPath)]);
 
         // update temp vars when form changes are detected
         useEffect(() => {
-          setTempTemplate(getIn(formikProps.values, 'value'));
-        }, [getIn(formikProps.values, 'value')]);
-        useEffect(() => {
-          setTempNestedVars(getIn(formikProps.values, 'nestedVars'));
-        }, [getIn(formikProps.values, 'nestedVars')]);
+          setTempExpressions(getIn(formikProps.values, 'expressions'));
+        }, [getIn(formikProps.values, 'expressions')]);
 
         // update tempErrors if errors detected
         useEffect(() => {
           setTempErrors(!isEmpty(formikProps.errors));
         }, [formikProps.errors]);
 
-        // Adding an input var to the end of the existing arr
-        function addInputVar(curInputVars: ExpressionVar[]): void {
-          const updatedInputVars = [
-            ...curInputVars,
-            { name: '', transform: '' } as ExpressionVar,
-          ];
-          formikProps.setFieldValue(`nestedVars`, updatedInputVars);
-          formikProps.setFieldTouched(`nestedVars`, true);
-        }
-
-        // Deleting an input var
-        function deleteInputVar(
-          curInputVars: ExpressionVar[],
-          idxToDelete: number
-        ): void {
-          const updatedInputVars = [...curInputVars];
-          updatedInputVars.splice(idxToDelete, 1);
-          formikProps.setFieldValue('nestedVars', updatedInputVars);
-          formikProps.setFieldTouched('nestedVars', true);
-        }
-
         return (
           <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>{`Configure prompt`}</p>
+                <p>{`Extract data with expression`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiModalBody style={{ height: '40vh' }}>
               <EuiFlexGroup direction="row">
-                <EuiFlexItem grow={6}>
+                <EuiFlexItem grow={5}>
                   <EuiFlexGroup direction="column" gutterSize="xs">
                     <EuiFlexItem grow={false}>
-                      <EuiFlexGroup
-                        direction="row"
-                        justifyContent="spaceAround"
-                      >
-                        <EuiFlexItem>
-                          <EuiText size="m">Prompt</EuiText>
-                        </EuiFlexItem>
-                        <EuiFlexItem>
-                          <EuiPopover
-                            button={
-                              <EuiSmallButton
-                                onClick={() =>
-                                  setPresetsPopoverOpen(!presetsPopoverOpen)
-                                }
-                                iconSide="right"
-                                iconType="arrowDown"
-                              >
-                                Choose from a preset
-                              </EuiSmallButton>
-                            }
-                            isOpen={presetsPopoverOpen}
-                            closePopover={() => setPresetsPopoverOpen(false)}
-                            anchorPosition="downLeft"
-                          >
-                            <EuiContextMenu
-                              size="s"
-                              initialPanelId={0}
-                              panels={[
-                                {
-                                  id: 0,
-                                  items: PROMPT_PRESETS.map(
-                                    (preset: PromptPreset) => ({
-                                      name: preset.name,
-                                      onClick: () => {
-                                        try {
-                                          formikProps.setFieldValue(
-                                            'value',
-                                            preset.prompt
-                                          );
-                                        } catch {}
-                                        formikProps.setFieldTouched(
-                                          'value',
-                                          true
-                                        );
-                                        setPresetsPopoverOpen(false);
-                                      },
-                                    })
-                                  ),
-                                },
-                              ]}
-                            />
-                          </EuiPopover>
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                    </EuiFlexItem>
-                    <EuiSpacer size="s" />
-                    <EuiFlexItem grow={false}>
-                      <EuiCodeEditor
-                        mode="json"
-                        theme="textmate"
-                        width="100%"
-                        height="15vh"
-                        value={tempTemplate}
-                        readOnly={false}
-                        setOptions={{
-                          fontSize: '12px',
-                          autoScrollEditorIntoView: true,
-                          showLineNumbers: false,
-                          showGutter: false,
-                          showPrintMargin: false,
-                          wrap: true,
-                        }}
-                        tabSize={2}
-                        onChange={(value) =>
-                          formikProps.setFieldValue('value', value)
-                        }
-                        onBlur={(e) => {
-                          formikProps.setFieldTouched('value');
-                        }}
-                      />
-                    </EuiFlexItem>
-                    <EuiSpacer size="s" />
-                    <EuiFlexItem grow={false}>
-                      <EuiText size="m">Input variables</EuiText>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiFlexGroup
-                        direction="row"
-                        justifyContent="spaceAround"
-                      >
+                      <EuiFlexGroup direction="row" gutterSize="m">
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
                           <EuiText size="s" color="subdued">
-                            {`Name`}
+                            {`Expressions`}
                           </EuiText>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiText size="s" color="subdued">
-                            {`Expression`}
+                            {`New document field`}
                           </EuiText>
                         </EuiFlexItem>
                       </EuiFlexGroup>
                       <EuiSpacer size="s" />
-                      {formikProps.values.nestedVars?.map(
-                        (ExpressionVar, idx) => {
-                          return (
-                            <div key={idx}>
-                              <EuiFlexGroup
-                                key={idx}
-                                direction="row"
-                                justifyContent="spaceAround"
-                                gutterSize="s"
-                              >
-                                <EuiFlexItem grow={KEY_FLEX_RATIO}>
-                                  <TextField
-                                    fullWidth={true}
-                                    fieldPath={`nestedVars.${idx}.name`}
-                                    placeholder={`Name`}
-                                    showError={true}
-                                  />
-                                </EuiFlexItem>
-                                <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                                  <EuiFlexGroup
-                                    direction="row"
-                                    justifyContent="spaceAround"
-                                    gutterSize="xs"
-                                  >
-                                    <EuiFlexItem>
-                                      <TextField
-                                        fullWidth={true}
-                                        fieldPath={`nestedVars.${idx}.transform`}
-                                        placeholder={`Transform`}
-                                        showError={true}
-                                      />
-                                    </EuiFlexItem>
-                                    <EuiFlexItem grow={false}>
-                                      <EuiCopy
-                                        textToCopy={getPlaceholderString(
-                                          getIn(
-                                            formikProps.values,
-                                            `nestedVars.${idx}.name`
-                                          )
-                                        )}
-                                      >
-                                        {(copy) => (
-                                          <EuiSmallButtonIcon
-                                            aria-label="Copy"
-                                            iconType="copy"
-                                            disabled={isEmpty(
-                                              getIn(
-                                                formikProps.values,
-                                                `nestedVars.${idx}.transform`
-                                              )
-                                            )}
-                                            color={
-                                              isEmpty(
-                                                getIn(
-                                                  formikProps.values,
-                                                  `nestedVars.${idx}.transform`
-                                                )
-                                              )
-                                                ? 'subdued'
-                                                : 'primary'
-                                            }
-                                            onClick={copy}
-                                          />
-                                        )}
-                                      </EuiCopy>
-                                    </EuiFlexItem>
-                                    <EuiFlexItem grow={false}>
-                                      <EuiSmallButtonIcon
-                                        iconType={'trash'}
-                                        color="danger"
-                                        aria-label="Delete"
-                                        onClick={() => {
-                                          deleteInputVar(
-                                            formikProps.values.nestedVars || [],
-                                            idx
-                                          );
-                                        }}
-                                      />
-                                    </EuiFlexItem>
-                                  </EuiFlexGroup>
-                                </EuiFlexItem>
-                              </EuiFlexGroup>
-                              <EuiSpacer size="s" />
-                            </div>
-                          );
-                        }
-                      )}
-                      <EuiSmallButtonEmpty
-                        style={{
-                          marginLeft: '-8px',
-                          width: '125px',
-                        }}
-                        iconType={'plusInCircle'}
-                        iconSide="left"
-                        onClick={() => {
-                          addInputVar(formikProps.values.nestedVars || []);
-                        }}
-                      >
-                        {`Add variable`}
-                      </EuiSmallButtonEmpty>
+                      <EuiFlexGroup direction="row" gutterSize="m">
+                        <EuiFlexItem grow={KEY_FLEX_RATIO}>
+                          {/**
+                           * TODO: change this to dynamic arr with minimum one entry
+                           */}
+                          <TextField
+                            fullWidth={true}
+                            fieldPath={`expressions.0.transform`}
+                            placeholder={`$.data`}
+                            showError={true}
+                          />
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={VALUE_FLEX_RATIO}>
+                          <TextField
+                            fullWidth={true}
+                            fieldPath={`expressions.0.name`}
+                            placeholder={`New document field`}
+                            showError={true}
+                          />
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                      <EuiSpacer size="s" />
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
@@ -505,7 +279,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         justifyContent="spaceAround"
                       >
                         <EuiFlexItem>
-                          <EuiText size="m">Prompt preview</EuiText>
+                          <EuiText size="m">Preview</EuiText>
                         </EuiFlexItem>
                         <EuiFlexItem>
                           <EuiSmallButton
@@ -681,7 +455,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                       />
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
-                      <EuiText size="s">Prompt</EuiText>
+                      <EuiText size="s">Extracted data</EuiText>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiCodeEditor
@@ -689,7 +463,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         theme="textmate"
                         width="100%"
                         height="15vh"
-                        value={transformedTemplate}
+                        value={transformedInput}
                         readOnly={true}
                         setOptions={{
                           fontSize: '12px',
@@ -737,39 +511,4 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
       }}
     </Formik>
   );
-}
-
-// small util fn to get the full placeholder string to be
-// inserted into the template. String conversion is required
-// if the input is an array, for example. Also, all values
-// should be prepended with "parameters.", as all inputs
-// will be nested under a base parameters obj.
-function getPlaceholderString(label: string, type?: string) {
-  return type === 'array'
-    ? `\$\{parameters.${label}.toString()\}`
-    : `\$\{parameters.${label}\}`;
-}
-
-function injectValuesIntoTemplate(
-  template: string,
-  parameters: { [key: string]: string }
-): string {
-  let finalTemplate = template;
-  // replace any parameter placeholders in the prompt with any values found in the
-  // parameters obj.
-  // we do 2 checks - one for the regular prompt, and one with "toString()" appended.
-  // this is required for parameters that have values as a list, for example.
-  Object.keys(parameters).forEach((parameterKey) => {
-    const parameterValue = parameters[parameterKey];
-    const regex = new RegExp(`\\$\\{parameters.${parameterKey}\\}`, 'g');
-    const regexWithToString = new RegExp(
-      `\\$\\{parameters.${parameterKey}.toString\\(\\)\\}`,
-      'g'
-    );
-    finalTemplate = finalTemplate
-      .replace(regex, parameterValue)
-      .replace(regexWithToString, parameterValue);
-  });
-
-  return finalTemplate;
 }
