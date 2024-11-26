@@ -10,6 +10,7 @@ import {
   COMPONENT_CLASS,
   PROCESSOR_TYPE,
   PROMPT_FIELD,
+  TRANSFORM_TYPE,
   WORKFLOW_TYPE,
 } from './constants';
 
@@ -35,7 +36,8 @@ export type ConfigFieldType =
   | 'map'
   | 'mapArray'
   | 'boolean'
-  | 'number';
+  | 'number'
+  | 'inputMapArray';
 
 export type ConfigFieldValue = string | {};
 
@@ -100,6 +102,28 @@ export type MapFormValue = MapEntry[];
 
 export type MapArrayFormValue = MapFormValue[];
 
+export type TemplateVar = {
+  name: string;
+  transform: string;
+};
+
+export type Transform = {
+  transformType: TRANSFORM_TYPE;
+  value: string;
+  // Templates may persist their own set of nested transforms
+  // to be dynamically injected into the template
+  nestedVars?: TemplateVar[];
+};
+
+export type InputMapEntry = {
+  key: string;
+  value: Transform;
+};
+
+export type InputMapFormValue = InputMapEntry[];
+
+export type InputMapArrayFormValue = InputMapFormValue[];
+
 export type WorkflowFormValues = {
   ingest: FormikValues;
   search: FormikValues;
@@ -124,7 +148,7 @@ export type RequestSchema = WorkflowSchema;
 
 // Form / schema interfaces for the input transform sub-form
 export type InputTransformFormValues = {
-  input_map: MapArrayFormValue;
+  input_map: InputMapArrayFormValue;
   one_to_one: ConfigFieldValue;
 };
 export type InputTransformSchema = WorkflowSchema;
@@ -135,6 +159,16 @@ export type OutputTransformFormValues = {
   full_response_path: ConfigFieldValue;
 };
 export type OutputTransformSchema = WorkflowSchema;
+
+// Form / schema interfaces for the template sub-form
+export type TemplateFormValues = Omit<Transform, 'transformType'>;
+export type TemplateSchema = WorkflowSchema;
+
+// Form / schema interfaces for the expression/transform sub-form
+export type ExpressionFormValues = {
+  expression: string;
+};
+export type ExpressionSchema = WorkflowSchema;
 
 /**
  ********** WORKSPACE TYPES/INTERFACES **********

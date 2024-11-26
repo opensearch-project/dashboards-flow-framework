@@ -13,6 +13,8 @@ interface SelectWithCustomOptionsProps {
   fieldPath: string;
   placeholder: string;
   options: { label: string }[];
+  allowCreate?: boolean;
+  onChange?: () => void;
 }
 
 /**
@@ -31,6 +33,8 @@ export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
     const formValue = getIn(values, props.fieldPath);
     if (!isEmpty(formValue)) {
       setSelectedOption([{ label: formValue }]);
+    } else {
+      setSelectedOption([]);
     }
   }, [getIn(values, props.fieldPath)]);
 
@@ -76,9 +80,14 @@ export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
       onChange={(options) => {
         setFieldTouched(props.fieldPath, true);
         setFieldValue(props.fieldPath, get(options, '0.label'));
+        if (props.onChange) {
+          props.onChange();
+        }
       }}
-      onCreateOption={onCreateOption}
-      customOptionText="Add {searchValue} as a custom option"
+      onCreateOption={props.allowCreate ? onCreateOption : undefined}
+      customOptionText={
+        props.allowCreate ? 'Add {searchValue} as a custom option' : undefined
+      }
     />
   );
 }

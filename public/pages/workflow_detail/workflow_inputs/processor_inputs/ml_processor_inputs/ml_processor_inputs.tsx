@@ -18,6 +18,7 @@ import {
   EuiText,
   EuiToolTip,
   EuiSmallButton,
+  EuiIconTip,
 } from '@elastic/eui';
 import {
   IProcessorConfig,
@@ -31,8 +32,15 @@ import {
   MapArrayFormValue,
   MapEntry,
   MapFormValue,
+  EMPTY_INPUT_MAP_ENTRY,
+  REQUEST_PREFIX,
+  REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
 } from '../../../../../../common';
 import { ModelField } from '../../input_fields';
+import {
+  InputMapFormValue,
+  InputMapArrayFormValue,
+} from '../../../../../../common';
 import {
   ConfigurePromptModal,
   InputTransformModal,
@@ -138,11 +146,11 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     const modelInputsAsForm = [
       parseModelInputs(newModelInterface).map((modelInput) => {
         return {
+          ...EMPTY_INPUT_MAP_ENTRY,
           key: modelInput.label,
-          value: '',
-        } as MapEntry;
-      }) as MapFormValue,
-    ] as MapArrayFormValue;
+        };
+      }) as InputMapFormValue,
+    ] as InputMapArrayFormValue;
     const modelOutputsAsForm = [
       parseModelOutputs(newModelInterface).map((modelOutput) => {
         return {
@@ -360,10 +368,29 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           )}
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
-              <EuiText
-                size="m"
-                style={{ marginTop: '4px' }}
-              >{`Inputs`}</EuiText>
+              <EuiFlexGroup direction="row" gutterSize="xs">
+                <EuiFlexItem grow={false}>
+                  <EuiText size="m">Inputs</EuiText>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiIconTip
+                    content={`Specify a ${
+                      props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                        ? 'query'
+                        : 'document'
+                    } field or define JSONPath to transform the ${
+                      props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                        ? 'query'
+                        : 'document'
+                    } to map to a model input field.${
+                      props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                        ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR}" - for example, "_request.query.match.my_field"`
+                        : ''
+                    }`}
+                    position="right"
+                  />
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiToolTip
@@ -389,6 +416,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           <ModelInputs
             config={props.config}
             baseConfigPath={props.baseConfigPath}
+            uiConfig={props.uiConfig}
             context={props.context}
           />
           <EuiSpacer size="l" />
