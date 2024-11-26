@@ -138,47 +138,48 @@ export type WorkflowSchemaObj = {
 };
 export type WorkflowSchema = ObjectSchema<WorkflowSchemaObj>;
 
-// Form / schema interfaces for the ingest docs sub-form
+/**
+ ********** MODAL SUB-FORM TYPES/INTERFACES **********
+ We persist sub-forms in the form modals s.t. data is only
+ saved back to the parent form if the user explicitly saves.
+
+ We define the structure of the forms here.
+ */
+
+// Ingest docs modal
 export type IngestDocsFormValues = {
   docs: FormikValues;
 };
-export type IngestDocsSchema = WorkflowSchema;
 
-// Form / schema interfaces for the request query sub-form
+// Search request modal
 export type RequestFormValues = {
   request: ConfigFieldValue;
 };
-export type RequestSchema = WorkflowSchema;
 
-// Form / schema interfaces for the input transform sub-form
+// Input transform modal
 export type InputTransformFormValues = {
   input_map: InputMapArrayFormValue;
   one_to_one: ConfigFieldValue;
 };
-export type InputTransformSchema = WorkflowSchema;
 
-// Form / schema interfaces for the output transform sub-form
+// Output transform modal
 export type OutputTransformFormValues = {
   output_map: MapArrayFormValue;
   full_response_path: ConfigFieldValue;
 };
-export type OutputTransformSchema = WorkflowSchema;
 
-// Form / schema interfaces for the template sub-form
+// Configure template modal
 export type TemplateFormValues = Omit<Transform, 'transformType'>;
-export type TemplateSchema = WorkflowSchema;
 
-// Form / schema interfaces for the expression/transform sub-form
+// Configure expression modal
 export type ExpressionFormValues = {
   expression: string;
 };
-export type ExpressionSchema = WorkflowSchema;
 
-// Form / schema interfaces for the multi-expression/transform sub-form
+// Configure multi-expression modal
 export type MultiExpressionFormValues = {
   expressions: ExpressionVar[];
 };
-export type MultiExpressionSchema = ArraySchema<any, AnyObject, '', ''>;
 
 /**
  ********** WORKSPACE TYPES/INTERFACES **********

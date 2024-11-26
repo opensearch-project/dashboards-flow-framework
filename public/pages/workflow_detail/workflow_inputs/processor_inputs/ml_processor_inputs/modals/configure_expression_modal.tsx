@@ -24,7 +24,6 @@ import {
 import {
   customStringify,
   ExpressionFormValues,
-  ExpressionSchema,
   IngestPipelineConfig,
   InputMapEntry,
   IProcessorConfig,
@@ -94,7 +93,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
       .min(1, 'Too short')
       .max(MAX_STRING_LENGTH, 'Too long')
       .required('Required') as yup.Schema,
-  }) as ExpressionSchema;
+  }) as yup.Schema;
 
   // persist standalone values. update / initialize when it is first opened
   const [tempExpression, setTempExpression] = useState<string>('');

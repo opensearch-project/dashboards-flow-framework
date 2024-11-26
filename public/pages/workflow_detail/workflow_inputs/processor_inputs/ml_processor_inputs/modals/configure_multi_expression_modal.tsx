@@ -30,7 +30,6 @@ import {
   MAX_STRING_LENGTH,
   ModelInterface,
   MultiExpressionFormValues,
-  MultiExpressionSchema,
   OutputMapEntry,
   PROCESSOR_CONTEXT,
   SearchHit,
@@ -89,25 +88,27 @@ export function ConfigureMultiExpressionModal(
   const expressionsFormValues = {
     expressions: [],
   } as MultiExpressionFormValues;
-  const expressionsFormSchema = yup
-    .array()
-    .of(
-      yup.object({
-        name: yup
-          .string()
-          .trim()
-          .min(1, 'Too short')
-          .max(MAX_STRING_LENGTH, 'Too long')
-          .required('Required') as yup.Schema,
-        transform: yup
-          .string()
-          .trim()
-          .min(1, 'Too short')
-          .max(MAX_STRING_LENGTH, 'Too long')
-          .required('Required') as yup.Schema,
-      })
-    )
-    .min(1) as MultiExpressionSchema;
+  const expressionsFormSchema = yup.object({
+    expressions: yup
+      .array()
+      .of(
+        yup.object({
+          name: yup
+            .string()
+            .trim()
+            .min(1, 'Too short')
+            .max(MAX_STRING_LENGTH, 'Too long')
+            .required('Required') as yup.Schema,
+          transform: yup
+            .string()
+            .trim()
+            .min(1, 'Too short')
+            .max(MAX_STRING_LENGTH, 'Too long')
+            .required('Required') as yup.Schema,
+        })
+      )
+      .min(1),
+  }) as yup.Schema;
 
   // persist standalone values. update / initialize when it is first opened
   const [tempExpressions, setTempExpressions] = useState<ExpressionVar[]>([]);
@@ -205,6 +206,7 @@ export function ConfigureMultiExpressionModal(
 
         // update tempErrors if errors detected
         useEffect(() => {
+          console.log('formik errors: ', formikProps.errors);
           setTempErrors(!isEmpty(formikProps.errors));
         }, [formikProps.errors]);
 

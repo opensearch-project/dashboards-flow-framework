@@ -37,7 +37,6 @@ import {
   MapFormValue,
   ModelInterface,
   OutputTransformFormValues,
-  OutputTransformSchema,
   PROCESSOR_CONTEXT,
   SearchHit,
   SearchPipelineConfig,
@@ -103,7 +102,7 @@ export function OutputTransformModal(props: OutputTransformModalProps) {
       } as IConfigField,
       true
     ),
-  }) as OutputTransformSchema;
+  }) as yup.Schema;
 
   // persist standalone values. update / initialize when it is first opened
   const [tempErrors, setTempErrors] = useState<boolean>(false);
