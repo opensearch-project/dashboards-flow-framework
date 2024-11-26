@@ -4,10 +4,21 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useFormikContext, getIn } from 'formik';
+import { useFormikContext, getIn, Field, FieldProps } from 'formik';
 import { isEmpty } from 'lodash';
 import { useSelector } from 'react-redux';
 import { flattie } from 'flattie';
+import {
+  EuiCompressedFormRow,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiIcon,
+  EuiPanel,
+  EuiSmallButton,
+  EuiSmallButtonEmpty,
+  EuiSmallButtonIcon,
+  EuiText,
+} from '@elastic/eui';
 import {
   IProcessorConfig,
   IConfigField,
@@ -15,22 +26,39 @@ import {
   WorkflowFormValues,
   ModelInterface,
   IndexMappings,
-  REQUEST_PREFIX,
-  REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
+  InputMapEntry,
+  InputMapFormValue,
+  TRANSFORM_TYPE,
+  EMPTY_INPUT_MAP_ENTRY,
+  WorkflowConfig,
+  getCharacterLimitedString,
 } from '../../../../../../common';
-import { MapArrayField } from '../../input_fields';
+import { TextField, SelectWithCustomOptions } from '../../input_fields';
 import { AppState, getMappings, useAppDispatch } from '../../../../../store';
 import {
   getDataSourceId,
   parseModelInputs,
   sanitizeJSONPath,
 } from '../../../../../utils';
+import { ConfigureExpressionModal, ConfigureTemplateModal } from './modals/';
 
 interface ModelInputsProps {
   config: IProcessorConfig;
   baseConfigPath: string;
+  uiConfig: WorkflowConfig;
   context: PROCESSOR_CONTEXT;
 }
+
+// Spacing between the input field columns
+const KEY_FLEX_RATIO = 3;
+const TYPE_FLEX_RATIO = 3;
+const VALUE_FLEX_RATIO = 4;
+
+const TRANSFORM_OPTIONS = Object.values(TRANSFORM_TYPE).map((type) => {
+  return {
+    label: type,
+  };
+});
 
 /**
  * Base component to configure ML inputs.
@@ -40,19 +68,33 @@ export function ModelInputs(props: ModelInputsProps) {
   const dataSourceId = getDataSourceId();
   const { models } = useSelector((state: AppState) => state.ml);
   const indices = useSelector((state: AppState) => state.opensearch.indices);
-  const { values } = useFormikContext<WorkflowFormValues>();
-
+  const {
+    setFieldValue,
+    setFieldTouched,
+    errors,
+    touched,
+    values,
+  } = useFormikContext<WorkflowFormValues>();
   // get some current form & config values
   const modelField = props.config.fields.find(
     (field) => field.type === 'model'
   ) as IConfigField;
   const modelFieldPath = `${props.baseConfigPath}.${props.config.id}.${modelField.id}`;
-  const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.input_map`;
+  // Assuming no more than one set of input map entries.
+  const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.input_map.0`;
 
   // model interface state
   const [modelInterface, setModelInterface] = useState<
     ModelInterface | undefined
   >(undefined);
+
+  // various modal states
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState<boolean>(
+    false
+  );
+  const [isExpressionModalOpen, setIsExpressionModalOpen] = useState<boolean>(
+    false
+  );
 
   // on initial load of the models, update model interface states
   useEffect(() => {
@@ -90,6 +132,8 @@ export function ModelInputs(props: ModelInputsProps) {
             };
           })
         );
+      } else {
+        setDocFields([]);
       }
     } catch {}
   }, [values?.ingest?.docs]);
@@ -115,6 +159,7 @@ export function ModelInputs(props: ModelInputsProps) {
       }
     } catch {}
   }, [values?.search?.request]);
+
   useEffect(() => {
     const indexName = values?.search?.index?.name as string | undefined;
     if (indexName !== undefined && indices[indexName] !== undefined) {
@@ -141,45 +186,416 @@ export function ModelInputs(props: ModelInputsProps) {
     }
   }, [values?.search?.index?.name]);
 
+  // Adding a map entry to the end of the existing arr
+  function addMapEntry(curEntries: InputMapFormValue): void {
+    const updatedEntries = [
+      ...curEntries,
+      {
+        key: '',
+        value: {
+          transformType: '' as TRANSFORM_TYPE,
+          value: '',
+        },
+      } as InputMapEntry,
+    ];
+    setFieldValue(inputMapFieldPath, updatedEntries);
+    setFieldTouched(inputMapFieldPath, true);
+  }
+
+  // Deleting a map entry
+  function deleteMapEntry(
+    curEntries: InputMapFormValue,
+    entryIndexToDelete: number
+  ): void {
+    const updatedEntries = [...curEntries];
+    updatedEntries.splice(entryIndexToDelete, 1);
+    setFieldValue(inputMapFieldPath, updatedEntries);
+    setFieldTouched(inputMapFieldPath, true);
+  }
+
+  // Defining constants for the key/value text vars, typically dependent on the different processor contexts.
+  const keyOptions = parseModelInputs(modelInterface);
+  const valueOptions =
+    props.context === PROCESSOR_CONTEXT.INGEST
+      ? docFields
+      : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+      ? queryFields
+      : indexMappingFields;
+
   return (
-    <MapArrayField
-      fieldPath={inputMapFieldPath}
-      keyTitle="Name"
-      keyPlaceholder="Name"
-      keyOptions={parseModelInputs(modelInterface)}
-      valueTitle={
-        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? 'Query field'
-          : 'Document field'
-      }
-      valuePlaceholder={
-        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? 'Specify a query field'
-          : 'Define a document field'
-      }
-      valueHelpText={`Specify a ${
-        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? 'query'
-          : 'document'
-      } field or define JSONPath to transform the ${
-        props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? 'query'
-          : 'document'
-      } to map to a model input field.${
-        props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
-          ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR}" - for example, "_request.query.match.my_field"`
-          : ''
-      }`}
-      valueOptions={
-        props.context === PROCESSOR_CONTEXT.INGEST
-          ? docFields
-          : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? queryFields
-          : indexMappingFields
-      }
-      addMapEntryButtonText="Add input"
-      addMapButtonText="Add input group (Advanced)"
-      mappingDirection="sortLeft"
-    />
+    <Field name={inputMapFieldPath} key={inputMapFieldPath}>
+      {({ field, form }: FieldProps) => {
+        const populatedMap = field.value?.length !== 0;
+        return (
+          <>
+            {populatedMap ? (
+              <EuiPanel>
+                <EuiCompressedFormRow
+                  fullWidth={true}
+                  key={inputMapFieldPath}
+                  error={
+                    getIn(errors, field.name) !== undefined &&
+                    getIn(errors, field.name).length > 0
+                      ? 'Invalid or missing mapping values'
+                      : false
+                  }
+                  isInvalid={
+                    getIn(errors, field.name) !== undefined &&
+                    getIn(errors, field.name).length > 0 &&
+                    getIn(touched, field.name) !== undefined &&
+                    getIn(touched, field.name).length > 0
+                  }
+                >
+                  <EuiFlexGroup direction="column">
+                    <EuiFlexItem style={{ marginBottom: '0px' }}>
+                      <EuiFlexGroup direction="row" gutterSize="xs">
+                        <EuiFlexItem grow={KEY_FLEX_RATIO}>
+                          <EuiFlexGroup direction="row" gutterSize="xs">
+                            <EuiFlexItem grow={false}>
+                              <EuiText size="s" color="subdued">
+                                {`Name`}
+                              </EuiText>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={TYPE_FLEX_RATIO}>
+                          <EuiFlexGroup direction="row" gutterSize="xs">
+                            <EuiFlexItem grow={false}>
+                              <EuiText size="s" color="subdued">
+                                {`Input type`}
+                              </EuiText>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={VALUE_FLEX_RATIO}>
+                          <EuiFlexGroup direction="row" gutterSize="xs">
+                            <EuiFlexItem grow={false}>
+                              <EuiText size="s" color="subdued">
+                                Value
+                              </EuiText>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                    {field.value?.map(
+                      (mapEntry: InputMapEntry, idx: number) => {
+                        const transformType = getIn(
+                          values,
+                          `${inputMapFieldPath}.${idx}.value.transformType`
+                        );
+                        return (
+                          <EuiFlexItem key={idx}>
+                            <EuiFlexGroup direction="row" gutterSize="xs">
+                              <EuiFlexItem grow={KEY_FLEX_RATIO}>
+                                <EuiFlexGroup direction="row" gutterSize="xs">
+                                  <>
+                                    <EuiFlexItem>
+                                      <>
+                                        {/**
+                                         * We determine if there is an interface based on if there are key options or not,
+                                         * as the options would be derived from the underlying interface.
+                                         * And if so, these values should be static.
+                                         * So, we only display the static text with no mechanism to change it's value.
+                                         * Note we still allow more entries, if a user wants to override / add custom
+                                         * keys if there is some gaps in the model interface.
+                                         */}
+                                        {!isEmpty(keyOptions) &&
+                                        !isEmpty(
+                                          getIn(
+                                            values,
+                                            `${inputMapFieldPath}.${idx}.key`
+                                          )
+                                        ) ? (
+                                          <EuiText
+                                            size="s"
+                                            style={{ marginTop: '4px' }}
+                                          >
+                                            {getIn(
+                                              values,
+                                              `${inputMapFieldPath}.${idx}.key`
+                                            )}
+                                          </EuiText>
+                                        ) : !isEmpty(keyOptions) ? (
+                                          <SelectWithCustomOptions
+                                            fieldPath={`${inputMapFieldPath}.${idx}.key`}
+                                            options={keyOptions as any[]}
+                                            placeholder={`Name`}
+                                            allowCreate={true}
+                                          />
+                                        ) : (
+                                          <TextField
+                                            fullWidth={true}
+                                            fieldPath={`${inputMapFieldPath}.${idx}.key`}
+                                            placeholder={`Name`}
+                                            showError={false}
+                                          />
+                                        )}
+                                      </>
+                                    </EuiFlexItem>
+                                    <EuiFlexItem
+                                      grow={false}
+                                      style={{ marginTop: '10px' }}
+                                    >
+                                      <EuiIcon type={'sortLeft'} />
+                                    </EuiFlexItem>
+                                  </>
+                                </EuiFlexGroup>
+                              </EuiFlexItem>
+                              <EuiFlexItem grow={TYPE_FLEX_RATIO}>
+                                <EuiFlexItem>
+                                  <SelectWithCustomOptions
+                                    fieldPath={`${inputMapFieldPath}.${idx}.value.transformType`}
+                                    options={TRANSFORM_OPTIONS}
+                                    placeholder={`Input type`}
+                                    allowCreate={false}
+                                    onChange={() => {
+                                      // If the transform type changes, clear any set value and/or nested vars,
+                                      // as it will likely not make sense under other types/contexts.
+                                      setFieldValue(
+                                        `${inputMapFieldPath}.${idx}.value.value`,
+                                        ''
+                                      );
+                                      setFieldValue(
+                                        `${inputMapFieldPath}.${idx}.value.nestedVars`,
+                                        []
+                                      );
+                                    }}
+                                  />
+                                </EuiFlexItem>
+                              </EuiFlexItem>
+                              <EuiFlexItem grow={VALUE_FLEX_RATIO}>
+                                <EuiFlexGroup direction="row" gutterSize="xs">
+                                  <>
+                                    {/**
+                                     * Conditionally render the value form component based on the transform type.
+                                     * It may be a button, dropdown, or simply freeform text.
+                                     */}
+                                    {isTemplateModalOpen && (
+                                      <ConfigureTemplateModal
+                                        config={props.config}
+                                        baseConfigPath={props.baseConfigPath}
+                                        uiConfig={props.uiConfig}
+                                        context={props.context}
+                                        fieldPath={`${inputMapFieldPath}.${idx}.value`}
+                                        modelInterface={modelInterface}
+                                        onClose={() =>
+                                          setIsTemplateModalOpen(false)
+                                        }
+                                      />
+                                    )}
+                                    {isExpressionModalOpen && (
+                                      <ConfigureExpressionModal
+                                        config={props.config}
+                                        baseConfigPath={props.baseConfigPath}
+                                        uiConfig={props.uiConfig}
+                                        context={props.context}
+                                        fieldPath={`${inputMapFieldPath}.${idx}.value`}
+                                        modelInterface={modelInterface}
+                                        modelInputFieldName={getIn(
+                                          values,
+                                          `${inputMapFieldPath}.${idx}.key`
+                                        )}
+                                        onClose={() =>
+                                          setIsExpressionModalOpen(false)
+                                        }
+                                      />
+                                    )}
+                                    <EuiFlexItem>
+                                      <>
+                                        {transformType ===
+                                        TRANSFORM_TYPE.TEMPLATE ? (
+                                          <>
+                                            {isEmpty(
+                                              getIn(
+                                                values,
+                                                `${inputMapFieldPath}.${idx}.value.value`
+                                              )
+                                            ) ? (
+                                              <EuiSmallButton
+                                                style={{ width: '100px' }}
+                                                fill={false}
+                                                onClick={() =>
+                                                  setIsTemplateModalOpen(true)
+                                                }
+                                                data-testid="configureTemplateButton"
+                                              >
+                                                Configure
+                                              </EuiSmallButton>
+                                            ) : (
+                                              <EuiFlexGroup
+                                                direction="row"
+                                                justifyContent="spaceAround"
+                                              >
+                                                <EuiFlexItem>
+                                                  <EuiText
+                                                    size="s"
+                                                    color="subdued"
+                                                    style={{
+                                                      marginTop: '4px',
+                                                      whiteSpace: 'nowrap',
+                                                      overflow: 'hidden',
+                                                    }}
+                                                  >
+                                                    {getCharacterLimitedString(
+                                                      getIn(
+                                                        values,
+                                                        `${inputMapFieldPath}.${idx}.value.value`
+                                                      ),
+                                                      15
+                                                    )}
+                                                  </EuiText>
+                                                </EuiFlexItem>
+                                                <EuiFlexItem grow={false}>
+                                                  <EuiSmallButtonIcon
+                                                    aria-label="edit"
+                                                    iconType="pencil"
+                                                    disabled={false}
+                                                    color={'primary'}
+                                                    onClick={() => {
+                                                      setIsTemplateModalOpen(
+                                                        true
+                                                      );
+                                                    }}
+                                                  />
+                                                </EuiFlexItem>
+                                              </EuiFlexGroup>
+                                            )}
+                                          </>
+                                        ) : transformType ===
+                                          TRANSFORM_TYPE.EXPRESSION ? (
+                                          <>
+                                            {isEmpty(
+                                              getIn(
+                                                values,
+                                                `${inputMapFieldPath}.${idx}.value.value`
+                                              )
+                                            ) ? (
+                                              <EuiSmallButton
+                                                style={{ width: '100px' }}
+                                                fill={false}
+                                                onClick={() =>
+                                                  setIsExpressionModalOpen(true)
+                                                }
+                                                data-testid="configureExpressionButton"
+                                              >
+                                                Configure
+                                              </EuiSmallButton>
+                                            ) : (
+                                              <EuiFlexGroup
+                                                direction="row"
+                                                justifyContent="spaceAround"
+                                              >
+                                                <EuiFlexItem>
+                                                  <EuiText
+                                                    size="s"
+                                                    color="subdued"
+                                                    style={{
+                                                      marginTop: '4px',
+                                                      whiteSpace: 'nowrap',
+                                                      overflow: 'hidden',
+                                                    }}
+                                                  >
+                                                    {getCharacterLimitedString(
+                                                      getIn(
+                                                        values,
+                                                        `${inputMapFieldPath}.${idx}.value.value`
+                                                      ),
+                                                      15
+                                                    )}
+                                                  </EuiText>
+                                                </EuiFlexItem>
+                                                <EuiFlexItem grow={false}>
+                                                  <EuiSmallButtonIcon
+                                                    aria-label="edit"
+                                                    iconType="pencil"
+                                                    disabled={false}
+                                                    color={'primary'}
+                                                    onClick={() => {
+                                                      setIsExpressionModalOpen(
+                                                        true
+                                                      );
+                                                    }}
+                                                  />
+                                                </EuiFlexItem>
+                                              </EuiFlexGroup>
+                                            )}
+                                          </>
+                                        ) : isEmpty(transformType) ||
+                                          transformType ===
+                                            TRANSFORM_TYPE.STRING ||
+                                          transformType ===
+                                            TRANSFORM_TYPE.TEMPLATE ||
+                                          isEmpty(valueOptions) ? (
+                                          <TextField
+                                            fullWidth={true}
+                                            fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
+                                            placeholder={`Value`}
+                                            showError={false}
+                                          />
+                                        ) : (
+                                          <SelectWithCustomOptions
+                                            fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
+                                            options={valueOptions || []}
+                                            placeholder={
+                                              props.context ===
+                                              PROCESSOR_CONTEXT.SEARCH_REQUEST
+                                                ? 'Query field'
+                                                : 'Document field'
+                                            }
+                                            allowCreate={true}
+                                          />
+                                        )}
+                                      </>
+                                    </EuiFlexItem>
+                                    <EuiFlexItem grow={false}>
+                                      <EuiSmallButtonIcon
+                                        iconType={'trash'}
+                                        color="danger"
+                                        aria-label="Delete"
+                                        onClick={() => {
+                                          deleteMapEntry(field.value, idx);
+                                        }}
+                                      />
+                                    </EuiFlexItem>
+                                  </>
+                                </EuiFlexGroup>
+                              </EuiFlexItem>
+                            </EuiFlexGroup>
+                          </EuiFlexItem>
+                        );
+                      }
+                    )}
+                    <EuiFlexItem grow={false}>
+                      <div>
+                        <EuiSmallButtonEmpty
+                          style={{ marginLeft: '-8px', marginTop: '0px' }}
+                          iconType={'plusInCircle'}
+                          iconSide="left"
+                          onClick={() => {
+                            addMapEntry(field.value);
+                          }}
+                        >
+                          {`Add input`}
+                        </EuiSmallButtonEmpty>
+                      </div>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiCompressedFormRow>
+              </EuiPanel>
+            ) : (
+              <EuiSmallButton
+                style={{ width: '100px' }}
+                onClick={() => {
+                  setFieldValue(field.name, [EMPTY_INPUT_MAP_ENTRY]);
+                }}
+              >
+                {'Configure'}
+              </EuiSmallButton>
+            )}
+          </>
+        );
+      }}
+    </Field>
   );
 }

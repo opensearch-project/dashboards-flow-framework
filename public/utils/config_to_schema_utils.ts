@@ -18,6 +18,7 @@ import {
   MAX_DOCS,
   MAX_STRING_LENGTH,
   MAX_JSON_STRING_LENGTH,
+  MAX_TEMPLATE_STRING_LENGTH,
 } from '../../common';
 
 /*
@@ -171,7 +172,6 @@ export function getFieldSchema(
             }
           }
         );
-
       break;
     }
     case 'jsonString': {
@@ -192,12 +192,38 @@ export function getFieldSchema(
       );
       break;
     }
+    // an array of an array of transforms.
+    // this format comes from the ML inference processor input map.
+    case 'inputMapArray': {
+      baseSchema = yup.array().of(
+        yup.array().of(
+          yup.object().shape({
+            key: defaultStringSchema.required(),
+            value: yup.object().shape({
+              transformType: defaultStringSchema.required(),
+              value: yup
+                .string()
+                .min(1, 'Too short')
+                .max(MAX_TEMPLATE_STRING_LENGTH, 'Too long'),
+              nestedVars: yup.array().of(
+                yup.object().shape({
+                  name: defaultStringSchema.required(),
+                  transform: defaultStringSchema.required(),
+                })
+              ),
+            }),
+          })
+        )
+      );
+      break;
+    }
     case 'boolean': {
       baseSchema = yup.boolean();
       break;
     }
     case 'number': {
       baseSchema = yup.number();
+      break;
     }
   }
 
