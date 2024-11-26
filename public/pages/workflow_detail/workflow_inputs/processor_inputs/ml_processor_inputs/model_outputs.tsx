@@ -20,6 +20,7 @@ import {
   getCharacterLimitedString,
   OutputMapFormValue,
   EMPTY_OUTPUT_MAP_ENTRY,
+  ExpressionVar,
 } from '../../../../../../common';
 import { SelectWithCustomOptions, TextField } from '../../input_fields';
 
@@ -318,7 +319,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                             {isEmpty(
                                               getIn(
                                                 values,
-                                                `${outputMapFieldPath}.${idx}.value.value`
+                                                `${outputMapFieldPath}.${idx}.value.nestedVars`
                                               )
                                             ) ? (
                                               <EuiSmallButton
@@ -344,16 +345,28 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                                     color="subdued"
                                                     style={{
                                                       marginTop: '4px',
-                                                      whiteSpace: 'nowrap',
-                                                      overflow: 'hidden',
+                                                      whiteSpace: 'pre-wrap',
                                                     }}
                                                   >
-                                                    {getCharacterLimitedString(
-                                                      getIn(
-                                                        values,
-                                                        `${outputMapFieldPath}.${idx}.value.value`
-                                                      ),
-                                                      15
+                                                    {(getIn(
+                                                      values,
+                                                      `${outputMapFieldPath}.${idx}.value.nestedVars`
+                                                    ) as ExpressionVar[]).map(
+                                                      (
+                                                        expression,
+                                                        idx,
+                                                        arr
+                                                      ) => {
+                                                        return `${getCharacterLimitedString(
+                                                          expression.transform ||
+                                                            '',
+                                                          15
+                                                        )}${
+                                                          idx !== arr.length - 1
+                                                            ? `,\n`
+                                                            : ''
+                                                        }`;
+                                                      }
                                                     )}
                                                   </EuiText>
                                                 </EuiFlexItem>

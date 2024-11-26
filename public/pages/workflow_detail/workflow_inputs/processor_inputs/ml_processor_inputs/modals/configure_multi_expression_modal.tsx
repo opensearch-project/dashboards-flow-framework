@@ -20,6 +20,7 @@ import {
   EuiText,
   EuiSmallButtonEmpty,
   EuiSpacer,
+  EuiSmallButtonIcon,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -205,6 +206,27 @@ export function ConfigureMultiExpressionModal(
           setTempErrors(!isEmpty(formikProps.errors));
         }, [formikProps.errors]);
 
+        // Adding an input var to the end of the existing arr
+        function addExpression(curExpressions: ExpressionVar[]): void {
+          const updatedExpressions = [
+            ...curExpressions,
+            { name: '', transform: '' } as ExpressionVar,
+          ];
+          formikProps.setFieldValue(`expressions`, updatedExpressions);
+          formikProps.setFieldTouched(`expressions`, true);
+        }
+
+        // Deleting an input var
+        function deleteExpression(
+          expressions: ExpressionVar[],
+          idxToDelete: number
+        ): void {
+          const updatedExpressions = [...expressions];
+          updatedExpressions.splice(idxToDelete, 1);
+          formikProps.setFieldValue('expressions', updatedExpressions);
+          formikProps.setFieldTouched('expressions', true);
+        }
+
         return (
           <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
             <EuiModalHeader>
@@ -217,7 +239,7 @@ export function ConfigureMultiExpressionModal(
                 <EuiFlexItem grow={5}>
                   <EuiFlexGroup direction="column" gutterSize="xs">
                     <EuiFlexItem grow={false}>
-                      <EuiFlexGroup direction="row" gutterSize="m">
+                      <EuiFlexGroup direction="row" gutterSize="s">
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
                           <EuiText size="s" color="subdued">
                             {`Expressions`}
@@ -230,27 +252,75 @@ export function ConfigureMultiExpressionModal(
                         </EuiFlexItem>
                       </EuiFlexGroup>
                       <EuiSpacer size="s" />
-                      <EuiFlexGroup direction="row" gutterSize="m">
-                        <EuiFlexItem grow={KEY_FLEX_RATIO}>
-                          {/**
-                           * TODO: change this to dynamic arr with minimum one entry
-                           */}
-                          <TextField
-                            fullWidth={true}
-                            fieldPath={`expressions.0.transform`}
-                            placeholder={`$.data`}
-                            showError={true}
-                          />
-                        </EuiFlexItem>
-                        <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                          <TextField
-                            fullWidth={true}
-                            fieldPath={`expressions.0.name`}
-                            placeholder={`New document field`}
-                            showError={true}
-                          />
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
+                      {formikProps.values.expressions?.map(
+                        (expression, idx) => {
+                          return (
+                            <div key={idx}>
+                              <EuiFlexGroup
+                                key={idx}
+                                direction="row"
+                                justifyContent="spaceAround"
+                                gutterSize="s"
+                              >
+                                <EuiFlexItem grow={KEY_FLEX_RATIO}>
+                                  <TextField
+                                    fullWidth={true}
+                                    fieldPath={`expressions.${idx}.transform`}
+                                    placeholder={`Transform`}
+                                    showError={true}
+                                  />
+                                </EuiFlexItem>
+                                <EuiFlexItem grow={VALUE_FLEX_RATIO}>
+                                  <EuiFlexGroup
+                                    direction="row"
+                                    justifyContent="spaceAround"
+                                    gutterSize="xs"
+                                  >
+                                    <EuiFlexItem>
+                                      <TextField
+                                        fullWidth={true}
+                                        fieldPath={`expressions.${idx}.name`}
+                                        placeholder={`New document field`}
+                                        showError={true}
+                                      />
+                                    </EuiFlexItem>
+                                    {idx > 0 && (
+                                      <EuiFlexItem grow={false}>
+                                        <EuiSmallButtonIcon
+                                          iconType={'trash'}
+                                          color="danger"
+                                          aria-label="Delete"
+                                          onClick={() => {
+                                            deleteExpression(
+                                              formikProps.values.expressions ||
+                                                [],
+                                              idx
+                                            );
+                                          }}
+                                        />
+                                      </EuiFlexItem>
+                                    )}
+                                  </EuiFlexGroup>
+                                </EuiFlexItem>
+                              </EuiFlexGroup>
+                              <EuiSpacer size="s" />
+                            </div>
+                          );
+                        }
+                      )}
+                      <EuiSmallButtonEmpty
+                        style={{
+                          marginLeft: '-8px',
+                          width: '125px',
+                        }}
+                        iconType={'plusInCircle'}
+                        iconSide="left"
+                        onClick={() => {
+                          addExpression(formikProps.values.expressions || []);
+                        }}
+                      >
+                        {`Add expression`}
+                      </EuiSmallButtonEmpty>
                       <EuiSpacer size="s" />
                     </EuiFlexItem>
                   </EuiFlexGroup>
