@@ -82,7 +82,8 @@ const MAX_INPUT_DOCS = 10;
 
 /**
  * A modal to configure a prompt template. Can manually configure, include placeholder values
- * using other model inputs, and/or select from a presets library.
+ * using other model inputs, and/or select from a presets library. Used for configuring model
+ * input transforms.
  */
 export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
   const dispatch = useAppDispatch();

@@ -74,7 +74,7 @@ const VALUE_FLEX_RATIO = 4;
 const MAX_INPUT_DOCS = 10;
 
 /**
- * A modal to configure a JSONPath expression / transform.
+ * A modal to configure a JSONPath expression / transform. Used for configuring model input transforms.
  */
 export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
   const dispatch = useAppDispatch();
