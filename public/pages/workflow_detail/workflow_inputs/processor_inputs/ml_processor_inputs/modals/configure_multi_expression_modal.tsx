@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useFormikContext, getIn, Formik } from 'formik';
-import { isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, set } from 'lodash';
 import * as yup from 'yup';
 import {
   EuiCodeEditor,
@@ -23,15 +23,17 @@ import {
 } from '@elastic/eui';
 import {
   customStringify,
+  ExpressionVar,
   IngestPipelineConfig,
-  InputMapEntry,
   IProcessorConfig,
   MAX_STRING_LENGTH,
   ModelInterface,
   MultiExpressionFormValues,
   MultiExpressionSchema,
+  OutputMapEntry,
   PROCESSOR_CONTEXT,
   SearchHit,
+  SearchPipelineConfig,
   SimulateIngestPipelineResponse,
   TRANSFORM_CONTEXT,
   WorkflowConfig,
@@ -39,7 +41,6 @@ import {
 } from '../../../../../../../common';
 import {
   formikToPartialPipeline,
-  generateArrayTransform,
   generateTransform,
   getDataSourceId,
   prepareDocsForSimulate,
@@ -61,15 +62,13 @@ interface ConfigureMultiExpressionModalProps {
   modelInputFieldName: string;
   fieldPath: string;
   modelInterface: ModelInterface | undefined;
+  outputMapFieldPath: string;
   onClose: () => void;
 }
 
 // Spacing between the input field columns
 const KEY_FLEX_RATIO = 6;
 const VALUE_FLEX_RATIO = 4;
-
-// the max number of input docs we use to display & test transforms with (search response hits)
-const MAX_INPUT_DOCS = 10;
 
 /**
  * A modal to configure multiple JSONPath expression / transforms.
@@ -108,14 +107,11 @@ export function ConfigureMultiExpressionModal(
     .min(1) as MultiExpressionSchema;
 
   // persist standalone values. update / initialize when it is first opened
-  const [tempExpressions, setTempExpressions] = useState<string>('');
+  const [tempExpressions, setTempExpressions] = useState<ExpressionVar[]>([]);
   const [tempErrors, setTempErrors] = useState<boolean>(false);
 
   // get some current form values
-  const oneToOne = getIn(
-    values,
-    `${props.baseConfigPath}.${props.config.id}.one_to_one`
-  );
+  const fullResponsePathPath = `${props.baseConfigPath}.${props.config.id}.full_response_path`;
   const docs = getIn(values, 'ingest.docs');
   let docObjs = [] as {}[] | undefined;
   try {
@@ -145,39 +141,28 @@ export function ConfigureMultiExpressionModal(
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
-    const tempExpressionAsInputMap = [
-      {
-        key: props.modelInputFieldName,
-        value: {
-          value: tempExpressions,
-        },
-      } as InputMapEntry,
-    ];
-    if (!isEmpty(tempExpressions) && !isEmpty(JSON.parse(sourceInput))) {
+    const tempExpressionsAsOutputMap = tempExpressions.map(
+      (expressionVar) =>
+        ({
+          key: expressionVar.name || '',
+          value: {
+            value: expressionVar.transform || '',
+          },
+        } as OutputMapEntry)
+    );
+    if (
+      !isEmpty(tempExpressionsAsOutputMap) &&
+      !isEmpty(JSON.parse(sourceInput))
+    ) {
       let sampleSourceInput = {} as {} | [];
       try {
         sampleSourceInput = JSON.parse(sourceInput);
-        const output =
-          // Edge case: users are collapsing input docs into a single input field when many-to-one is selected
-          // fo input transforms on search response processors.
-          oneToOne === false &&
-          props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE &&
-          Array.isArray(sampleSourceInput)
-            ? generateArrayTransform(
-                sampleSourceInput as [],
-                tempExpressionAsInputMap,
-                props.context,
-                TRANSFORM_CONTEXT.INPUT,
-                queryObj
-              )
-            : generateTransform(
-                sampleSourceInput,
-                tempExpressionAsInputMap,
-                props.context,
-                TRANSFORM_CONTEXT.INPUT,
-                queryObj
-              );
-
+        const output = generateTransform(
+          sampleSourceInput,
+          tempExpressionsAsOutputMap,
+          props.context,
+          TRANSFORM_CONTEXT.OUTPUT
+        );
         setTransformedInput(customStringify(output));
       } catch {}
     } else {
@@ -188,7 +173,6 @@ export function ConfigureMultiExpressionModal(
   // if updating, take the temp vars and assign it to the parent form
   function onUpdate() {
     setIsUpdating(true);
-    console.log('setting nested vars to: ', tempExpressions);
     setFieldValue(`${props.fieldPath}.nestedVars`, tempExpressions);
     setFieldTouched(props.fieldPath, true);
     props.onClose();
@@ -289,101 +273,109 @@ export function ConfigureMultiExpressionModal(
                             onClick={async () => {
                               setIsFetching(true);
                               switch (props.context) {
+                                // note we skip search request processor context. that is because empty output maps are not supported.
+                                // for more details, see comment in ml_processor_inputs.tsx
                                 case PROCESSOR_CONTEXT.INGEST: {
-                                  // get the current ingest pipeline up to, but not including, this processor
+                                  // get the current ingest pipeline up to, and including this processor.
+                                  // remove any currently-configured output map since we only want the transformation
+                                  // up to, and including, the input map transformations
+                                  const valuesWithoutOutputMapConfig = cloneDeep(
+                                    values
+                                  );
+                                  set(
+                                    valuesWithoutOutputMapConfig,
+                                    props.outputMapFieldPath,
+                                    []
+                                  );
+                                  set(
+                                    valuesWithoutOutputMapConfig,
+                                    fullResponsePathPath,
+                                    getIn(
+                                      formikProps.values,
+                                      'full_response_path'
+                                    )
+                                  );
                                   const curIngestPipeline = formikToPartialPipeline(
-                                    values,
+                                    valuesWithoutOutputMapConfig,
                                     props.uiConfig,
                                     props.config.id,
-                                    false,
+                                    true,
                                     PROCESSOR_CONTEXT.INGEST
+                                  ) as IngestPipelineConfig;
+                                  const curDocs = prepareDocsForSimulate(
+                                    values.ingest.docs,
+                                    values.ingest.index.name
                                   );
-                                  // if there are preceding processors, we need to simulate the partial ingest pipeline,
-                                  // in order to get the latest transformed version of the docs
-                                  if (curIngestPipeline !== undefined) {
-                                    const curDocs = prepareDocsForSimulate(
-                                      values.ingest.docs,
-                                      values.ingest.index.name
-                                    );
-                                    await dispatch(
-                                      simulatePipeline({
-                                        apiBody: {
-                                          pipeline: curIngestPipeline as IngestPipelineConfig,
-                                          docs: [curDocs[0]],
-                                        },
-                                        dataSourceId,
-                                      })
-                                    )
-                                      .unwrap()
-                                      .then(
-                                        (
-                                          resp: SimulateIngestPipelineResponse
-                                        ) => {
+                                  await dispatch(
+                                    simulatePipeline({
+                                      apiBody: {
+                                        pipeline: curIngestPipeline,
+                                        docs: [curDocs[0]],
+                                      },
+                                      dataSourceId,
+                                    })
+                                  )
+                                    .unwrap()
+                                    .then(
+                                      (
+                                        resp: SimulateIngestPipelineResponse
+                                      ) => {
+                                        try {
                                           const docObjs = unwrapTransformedDocs(
                                             resp
                                           );
                                           if (docObjs.length > 0) {
+                                            const sampleModelResult =
+                                              docObjs[0]?.inference_results ||
+                                              {};
                                             setSourceInput(
-                                              customStringify(docObjs[0])
+                                              customStringify(sampleModelResult)
                                             );
                                           }
-                                        }
-                                      )
-                                      .catch((error: any) => {
-                                        getCore().notifications.toasts.addDanger(
-                                          `Failed to fetch input data`
-                                        );
-                                      })
-                                      .finally(() => {
-                                        setIsFetching(false);
-                                      });
-                                  } else {
-                                    try {
-                                      const docObjs = JSON.parse(
-                                        values.ingest.docs
-                                      ) as {}[];
-                                      if (docObjs.length > 0) {
-                                        setSourceInput(
-                                          customStringify(docObjs[0])
-                                        );
+                                        } catch {}
                                       }
-                                    } catch {
-                                    } finally {
+                                    )
+                                    .catch((error: any) => {
+                                      getCore().notifications.toasts.addDanger(
+                                        `Failed to fetch input data`
+                                      );
+                                    })
+                                    .finally(() => {
                                       setIsFetching(false);
-                                    }
-                                  }
-                                  break;
-                                }
-                                case PROCESSOR_CONTEXT.SEARCH_REQUEST: {
-                                  // get the current search pipeline up to, but not including, this processor
-                                  const curSearchPipeline = formikToPartialPipeline(
-                                    values,
-                                    props.uiConfig,
-                                    props.config.id,
-                                    false,
-                                    PROCESSOR_CONTEXT.SEARCH_REQUEST
-                                  );
-                                  // if there are preceding processors, we cannot generate. The button to render
-                                  // this modal should be disabled if the search pipeline would be enabled. We add
-                                  // this if check as an extra layer of checking, and if mechanism for gating
-                                  // this is changed in the future.
-                                  if (curSearchPipeline === undefined) {
-                                    setSourceInput(values.search.request);
-                                  }
-                                  setIsFetching(false);
+                                    });
                                   break;
                                 }
                                 case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
-                                  // get the current search pipeline up to, but not including, this processor
+                                  // get the current search pipeline up to, and including this processor.
+                                  // remove any currently-configured output map since we only want the transformation
+                                  // up to, and including, the input map transformations
+                                  const valuesWithoutOutputMapConfig = cloneDeep(
+                                    values
+                                  );
+                                  set(
+                                    valuesWithoutOutputMapConfig,
+                                    props.outputMapFieldPath,
+                                    []
+                                  );
+                                  set(
+                                    valuesWithoutOutputMapConfig,
+                                    fullResponsePathPath,
+                                    getIn(
+                                      formikProps.values,
+                                      'full_response_path'
+                                    )
+                                  );
                                   const curSearchPipeline = formikToPartialPipeline(
-                                    values,
+                                    valuesWithoutOutputMapConfig,
                                     props.uiConfig,
                                     props.config.id,
-                                    false,
+                                    true,
                                     PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                                  );
-                                  // Execute search. If there are preceding processors, augment the existing query with
-                                  // the partial search pipeline (inline) to get the latest transformed version of the response.
+                                  ) as SearchPipelineConfig;
+
+                                  // Execute search. Augment the existing query with
+                                  // the partial search pipeline (inline) to get the latest transformed
+                                  // version of the request.
                                   dispatch(
                                     searchIndex({
                                       apiBody: {
@@ -401,16 +393,14 @@ export function ConfigureMultiExpressionModal(
                                   )
                                     .unwrap()
                                     .then(async (resp) => {
-                                      const hits = resp?.hits?.hits
-                                        ?.map((hit: SearchHit) => hit._source)
-                                        .slice(0, MAX_INPUT_DOCS);
+                                      const hits = resp?.hits?.hits?.map(
+                                        (hit: SearchHit) => hit._source
+                                      ) as any[];
                                       if (hits.length > 0) {
+                                        const sampleModelResult =
+                                          hits[0].inference_results || {};
                                         setSourceInput(
-                                          // if one-to-one, treat the source input as a single retrieved document
-                                          // else, treat it as all of the returned documents
-                                          customStringify(
-                                            oneToOne ? hits[0] : hits
-                                          )
+                                          customStringify(sampleModelResult)
                                         );
                                       }
                                     })
@@ -484,7 +474,7 @@ export function ConfigureMultiExpressionModal(
               <EuiSmallButtonEmpty
                 onClick={props.onClose}
                 color="primary"
-                data-testid="closeTemplateButton"
+                data-testid="closeMultiExpressionButton"
               >
                 Cancel
               </EuiSmallButtonEmpty>
@@ -501,7 +491,7 @@ export function ConfigureMultiExpressionModal(
                 isDisabled={tempErrors} // blocking update until valid input is given
                 fill={true}
                 color="primary"
-                data-testid="updateTemplateButton"
+                data-testid="updateMultiExpressionButton"
               >
                 Save
               </EuiSmallButton>

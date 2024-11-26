@@ -463,7 +463,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
               <EuiSmallButtonEmpty
                 onClick={props.onClose}
                 color="primary"
-                data-testid="closeTemplateButton"
+                data-testid="closeExpressionButton"
               >
                 Cancel
               </EuiSmallButtonEmpty>
@@ -480,7 +480,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                 isDisabled={tempErrors} // blocking update until valid input is given
                 fill={true}
                 color="primary"
-                data-testid="updateTemplateButton"
+                data-testid="updateExpressionButton"
               >
                 Save
               </EuiSmallButton>

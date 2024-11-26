@@ -166,11 +166,11 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
-    const nestedVarsAsInputMap = tempNestedVars?.map((ExpressionVar) => {
+    const nestedVarsAsInputMap = tempNestedVars?.map((expressionVar) => {
       return {
-        key: ExpressionVar.name,
+        key: expressionVar.name,
         value: {
-          value: ExpressionVar.transform,
+          value: expressionVar.transform,
         },
       } as InputMapEntry;
     });
@@ -198,7 +198,6 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                 TRANSFORM_CONTEXT.INPUT,
                 queryObj
               );
-
         setTransformedInput(customStringify(output));
       } catch {}
     } else {
@@ -395,7 +394,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                       </EuiFlexGroup>
                       <EuiSpacer size="s" />
                       {formikProps.values.nestedVars?.map(
-                        (ExpressionVar, idx) => {
+                        (expressionVar, idx) => {
                           return (
                             <div key={idx}>
                               <EuiFlexGroup

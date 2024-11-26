@@ -303,6 +303,8 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                           values,
                                           `${outputMapFieldPath}.${idx}.key`
                                         )}
+                                        // pass the full output map field path arr
+                                        outputMapFieldPath={`${props.baseConfigPath}.${props.config.id}.output_map`}
                                         onClose={() =>
                                           setIsExpressionsModalOpen(false)
                                         }
