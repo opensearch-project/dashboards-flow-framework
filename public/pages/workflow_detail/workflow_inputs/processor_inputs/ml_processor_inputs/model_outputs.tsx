@@ -44,6 +44,7 @@ interface ModelOutputsProps {
   baseConfigPath: string;
   uiConfig: WorkflowConfig;
   context: PROCESSOR_CONTEXT;
+  isDataFetchingAvailable: boolean;
 }
 
 // Spacing between the output field columns
@@ -191,7 +192,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                 {props.context ===
                                 PROCESSOR_CONTEXT.SEARCH_REQUEST
                                   ? 'Query field'
-                                  : 'New document field'}
+                                  : 'New document field(s)'}
                               </EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
@@ -306,6 +307,9 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                         )}
                                         // pass the full output map field path arr
                                         outputMapFieldPath={`${props.baseConfigPath}.${props.config.id}.output_map`}
+                                        isDataFetchingAvailable={
+                                          props.isDataFetchingAvailable
+                                        }
                                         onClose={() =>
                                           setIsExpressionsModalOpen(false)
                                         }

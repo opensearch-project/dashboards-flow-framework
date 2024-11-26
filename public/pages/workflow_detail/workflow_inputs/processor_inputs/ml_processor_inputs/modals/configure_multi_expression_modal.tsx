@@ -64,6 +64,7 @@ interface ConfigureMultiExpressionModalProps {
   fieldPath: string;
   modelInterface: ModelInterface | undefined;
   outputMapFieldPath: string;
+  isDataFetchingAvailable: boolean;
   onClose: () => void;
 }
 
@@ -72,7 +73,8 @@ const KEY_FLEX_RATIO = 6;
 const VALUE_FLEX_RATIO = 4;
 
 /**
- * A modal to configure multiple JSONPath expression / transforms.
+ * A modal to configure multiple JSONPath expression / transforms. Used for parsing out
+ * model outputs, which can be arbitrarily complex / nested.
  */
 export function ConfigureMultiExpressionModal(
   props: ConfigureMultiExpressionModalProps
@@ -247,7 +249,9 @@ export function ConfigureMultiExpressionModal(
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiText size="s" color="subdued">
-                            {`New document field`}
+                            {props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                              ? `New query field`
+                              : `New document field`}
                           </EuiText>
                         </EuiFlexItem>
                       </EuiFlexGroup>
@@ -280,7 +284,12 @@ export function ConfigureMultiExpressionModal(
                                       <TextField
                                         fullWidth={true}
                                         fieldPath={`expressions.${idx}.name`}
-                                        placeholder={`New document field`}
+                                        placeholder={
+                                          props.context ===
+                                          PROCESSOR_CONTEXT.SEARCH_REQUEST
+                                            ? `New query field`
+                                            : `New document field`
+                                        }
                                         showError={true}
                                       />
                                     </EuiFlexItem>
@@ -311,7 +320,7 @@ export function ConfigureMultiExpressionModal(
                       <EuiSmallButtonEmpty
                         style={{
                           marginLeft: '-8px',
-                          width: '125px',
+                          width: '150px',
                         }}
                         iconType={'plusInCircle'}
                         iconSide="left"
@@ -339,7 +348,11 @@ export function ConfigureMultiExpressionModal(
                           <EuiSmallButton
                             style={{ width: '100px' }}
                             isLoading={isFetching}
-                            disabled={onIngestAndNoDocs || onSearchAndNoQuery}
+                            disabled={
+                              onIngestAndNoDocs ||
+                              onSearchAndNoQuery ||
+                              !props.isDataFetchingAvailable
+                            }
                             onClick={async () => {
                               setIsFetching(true);
                               switch (props.context) {

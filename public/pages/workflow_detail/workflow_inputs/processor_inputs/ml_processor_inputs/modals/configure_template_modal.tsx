@@ -67,9 +67,9 @@ interface ConfigureTemplateModalProps {
   config: IProcessorConfig;
   context: PROCESSOR_CONTEXT;
   baseConfigPath: string;
-
   fieldPath: string;
   modelInterface: ModelInterface | undefined;
+  isDataFetchingAvailable: boolean;
   onClose: () => void;
 }
 
@@ -510,7 +510,11 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                           <EuiSmallButton
                             style={{ width: '100px' }}
                             isLoading={isFetching}
-                            disabled={onIngestAndNoDocs || onSearchAndNoQuery}
+                            disabled={
+                              onIngestAndNoDocs ||
+                              onSearchAndNoQuery ||
+                              !props.isDataFetchingAvailable
+                            }
                             onClick={async () => {
                               setIsFetching(true);
                               switch (props.context) {

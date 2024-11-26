@@ -419,6 +419,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             baseConfigPath={props.baseConfigPath}
             uiConfig={props.uiConfig}
             context={props.context}
+            isDataFetchingAvailable={isInputPreviewAvailable}
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -454,6 +455,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             baseConfigPath={props.baseConfigPath}
             uiConfig={props.uiConfig}
             context={props.context}
+            isDataFetchingAvailable={isOutputPreviewAvailable}
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&
