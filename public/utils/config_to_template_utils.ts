@@ -36,6 +36,7 @@ import {
   MapFormValue,
   TRANSFORM_TYPE,
   OutputMapFormValue,
+  NO_TRANSFORMATION,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
 import { sanitizeJSONPath } from './utils';
@@ -553,6 +554,14 @@ function processModelOutputs(mapFormValue: OutputMapFormValue): {} {
           ),
         };
       });
+      // If there is no transformation selected, just map the same output
+      // field name to the new field name
+      // @ts-ignore
+    } else if (mapEntry.value.transformType === NO_TRANSFORMATION) {
+      outputMap = {
+        ...outputMap,
+        [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(mapEntry.key),
+      };
       // Placeholder logic for future transform types
     } else {
     }

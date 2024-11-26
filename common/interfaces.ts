@@ -110,7 +110,7 @@ export type TemplateVar = {
 
 export type Transform = {
   transformType: TRANSFORM_TYPE;
-  value: string;
+  value?: string;
   // Templates may persist their own set of nested transforms
   // to be dynamically injected into the template
   nestedVars?: TemplateVar[];
