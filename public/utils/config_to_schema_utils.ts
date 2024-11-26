@@ -194,7 +194,8 @@ export function getFieldSchema(
     }
     // an array of an array of transforms.
     // this format comes from the ML inference processor input map.
-    case 'inputMapArray': {
+    case 'inputMapArray':
+    case 'outputMapArray': {
       baseSchema = yup.array().of(
         yup.array().of(
           yup.object().shape({

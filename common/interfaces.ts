@@ -37,7 +37,8 @@ export type ConfigFieldType =
   | 'mapArray'
   | 'boolean'
   | 'number'
-  | 'inputMapArray';
+  | 'inputMapArray'
+  | 'outputMapArray';
 
 export type ConfigFieldValue = string | {};
 
@@ -119,10 +120,13 @@ export type InputMapEntry = {
   key: string;
   value: Transform;
 };
+export type OutputMapEntry = InputMapEntry;
 
 export type InputMapFormValue = InputMapEntry[];
+export type OutputMapFormValue = OutputMapEntry[];
 
 export type InputMapArrayFormValue = InputMapFormValue[];
+export type OutputMapArrayFormValue = OutputMapFormValue[];
 
 export type WorkflowFormValues = {
   ingest: FormikValues;

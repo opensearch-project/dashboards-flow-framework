@@ -35,6 +35,7 @@ import {
   InputMapFormValue,
   MapFormValue,
   TRANSFORM_TYPE,
+  OutputMapFormValue,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
 import { sanitizeJSONPath } from './utils';
@@ -213,8 +214,8 @@ export function processorConfigsToTemplateProcessors(
 
         if (output_map?.length > 0) {
           processor.ml_inference.output_map = output_map.map(
-            (mapFormValue: MapFormValue) =>
-              mergeMapIntoSingleObj(mapFormValue, true) // we reverse the form inputs for the output map, so reverse back when converting back to the underlying template configuration
+            (outputMapFormValue: OutputMapFormValue) =>
+              processModelOutputs(outputMapFormValue)
           );
         }
 
@@ -523,6 +524,40 @@ function processModelInputs(
     inputMap,
     modelConfig,
   };
+}
+
+// Parse out the model outputs and any sub-expressions into a single, final output map
+function processModelOutputs(mapFormValue: OutputMapFormValue): {} {
+  let outputMap = {};
+  mapFormValue.forEach((mapEntry) => {
+    // field transform: just a rename
+    if (mapEntry.value.transformType === TRANSFORM_TYPE.FIELD) {
+      outputMap = {
+        ...outputMap,
+        [sanitizeJSONPath(mapEntry.value.value)]: sanitizeJSONPath(
+          mapEntry.key
+        ),
+      };
+      // expression transform: can have multiple nested expressions, since a user may want to parse
+      // out new sub-fields / sub-transforms based off of some model output field that contains nested
+      // data. Add the nested expressions as standalone output map entries
+    } else if (
+      mapEntry.value.transformType === TRANSFORM_TYPE.EXPRESSION &&
+      !isEmpty(mapEntry.value.nestedVars)
+    ) {
+      mapEntry.value.nestedVars?.forEach((nestedVar) => {
+        outputMap = {
+          ...outputMap,
+          [sanitizeJSONPath(nestedVar.name)]: sanitizeJSONPath(
+            nestedVar.transform
+          ),
+        };
+      });
+      // Placeholder logic for future transform types
+    } else {
+    }
+  });
+  return outputMap;
 }
 
 // utility fn used to build the final set of processor config fields, filtering
