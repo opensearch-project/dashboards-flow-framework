@@ -24,7 +24,6 @@ import {
 import {
   customStringify,
   ExpressionFormValues,
-  ExpressionSchema,
   IngestPipelineConfig,
   InputMapEntry,
   IProcessorConfig,
@@ -62,6 +61,7 @@ interface ConfigureExpressionModalProps {
   modelInputFieldName: string;
   fieldPath: string;
   modelInterface: ModelInterface | undefined;
+  isDataFetchingAvailable: boolean;
   onClose: () => void;
 }
 
@@ -73,7 +73,7 @@ const VALUE_FLEX_RATIO = 4;
 const MAX_INPUT_DOCS = 10;
 
 /**
- * A modal to configure a JSONPath expression / transform.
+ * A modal to configure a JSONPath expression / transform. Used for configuring model input transforms.
  */
 export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
   const dispatch = useAppDispatch();
@@ -93,7 +93,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
       .min(1, 'Too short')
       .max(MAX_STRING_LENGTH, 'Too long')
       .required('Required') as yup.Schema,
-  }) as ExpressionSchema;
+  }) as yup.Schema;
 
   // persist standalone values. update / initialize when it is first opened
   const [tempExpression, setTempExpression] = useState<string>('');
@@ -264,7 +264,11 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                           <EuiSmallButton
                             style={{ width: '100px' }}
                             isLoading={isFetching}
-                            disabled={onIngestAndNoDocs || onSearchAndNoQuery}
+                            disabled={
+                              onIngestAndNoDocs ||
+                              onSearchAndNoQuery ||
+                              !props.isDataFetchingAvailable
+                            }
                             onClick={async () => {
                               setIsFetching(true);
                               switch (props.context) {
@@ -463,7 +467,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
               <EuiSmallButtonEmpty
                 onClick={props.onClose}
                 color="primary"
-                data-testid="closeTemplateButton"
+                data-testid="closeExpressionButton"
               >
                 Cancel
               </EuiSmallButtonEmpty>
@@ -480,7 +484,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                 isDisabled={tempErrors} // blocking update until valid input is given
                 fill={true}
                 color="primary"
-                data-testid="updateTemplateButton"
+                data-testid="updateExpressionButton"
               >
                 Save
               </EuiSmallButton>

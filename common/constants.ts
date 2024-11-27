@@ -475,6 +475,7 @@ export enum TRANSFORM_TYPE {
   EXPRESSION = 'Expression',
   TEMPLATE = 'Template',
 }
+export const NO_TRANSFORMATION = 'No transformation';
 export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';
@@ -508,6 +509,7 @@ export const EMPTY_INPUT_MAP_ENTRY = {
     value: '',
   },
 } as InputMapEntry;
+export const EMPTY_OUTPUT_MAP_ENTRY = EMPTY_INPUT_MAP_ENTRY;
 export const MODEL_OUTPUT_SCHEMA_NESTED_PATH =
   'output.properties.inference_results.items.properties.output.items.properties.dataAsMap.properties';
 export const MODEL_OUTPUT_SCHEMA_FULL_PATH = 'output.properties';

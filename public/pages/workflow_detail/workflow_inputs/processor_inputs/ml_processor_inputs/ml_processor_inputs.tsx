@@ -29,12 +29,13 @@ import {
   ModelInterface,
   IndexMappings,
   PROMPT_FIELD,
-  MapArrayFormValue,
-  MapEntry,
-  MapFormValue,
   EMPTY_INPUT_MAP_ENTRY,
   REQUEST_PREFIX,
   REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
+  OutputMapEntry,
+  OutputMapFormValue,
+  OutputMapArrayFormValue,
+  EMPTY_OUTPUT_MAP_ENTRY,
 } from '../../../../../../common';
 import { ModelField } from '../../input_fields';
 import {
@@ -154,11 +155,11 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     const modelOutputsAsForm = [
       parseModelOutputs(newModelInterface).map((modelOutput) => {
         return {
+          ...EMPTY_OUTPUT_MAP_ENTRY,
           key: modelOutput.label,
-          value: '',
-        } as MapEntry;
-      }) as MapFormValue,
-    ] as MapArrayFormValue;
+        } as OutputMapEntry;
+      }) as OutputMapFormValue,
+    ] as OutputMapArrayFormValue;
 
     setFieldValue(inputMapFieldPath, modelInputsAsForm);
     setFieldValue(outputMapFieldPath, modelOutputsAsForm);
@@ -418,6 +419,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             baseConfigPath={props.baseConfigPath}
             uiConfig={props.uiConfig}
             context={props.context}
+            isDataFetchingAvailable={isInputPreviewAvailable}
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -451,7 +453,9 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           <ModelOutputs
             config={props.config}
             baseConfigPath={props.baseConfigPath}
+            uiConfig={props.uiConfig}
             context={props.context}
+            isDataFetchingAvailable={isOutputPreviewAvailable}
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&

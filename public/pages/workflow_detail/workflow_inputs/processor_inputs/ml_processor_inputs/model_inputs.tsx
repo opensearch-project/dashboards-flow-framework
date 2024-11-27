@@ -47,6 +47,7 @@ interface ModelInputsProps {
   baseConfigPath: string;
   uiConfig: WorkflowConfig;
   context: PROCESSOR_CONTEXT;
+  isDataFetchingAvailable: boolean;
 }
 
 // Spacing between the input field columns
@@ -379,6 +380,9 @@ export function ModelInputs(props: ModelInputsProps) {
                                         context={props.context}
                                         fieldPath={`${inputMapFieldPath}.${idx}.value`}
                                         modelInterface={modelInterface}
+                                        isDataFetchingAvailable={
+                                          props.isDataFetchingAvailable
+                                        }
                                         onClose={() =>
                                           setIsTemplateModalOpen(false)
                                         }
@@ -396,6 +400,9 @@ export function ModelInputs(props: ModelInputsProps) {
                                           values,
                                           `${inputMapFieldPath}.${idx}.key`
                                         )}
+                                        isDataFetchingAvailable={
+                                          props.isDataFetchingAvailable
+                                        }
                                         onClose={() =>
                                           setIsExpressionModalOpen(false)
                                         }

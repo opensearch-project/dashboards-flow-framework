@@ -36,7 +36,6 @@ import {
   IProcessorConfig,
   IngestPipelineConfig,
   InputTransformFormValues,
-  InputTransformSchema,
   MapArrayFormValue,
   ModelInterface,
   PROCESSOR_CONTEXT,
@@ -110,7 +109,7 @@ export function InputTransformModal(props: InputTransformModalProps) {
       } as IConfigField,
       true
     ),
-  }) as InputTransformSchema;
+  }) as yup.Schema;
 
   // persist standalone values. update / initialize when it is first opened
   const [tempErrors, setTempErrors] = useState<boolean>(false);

@@ -26,7 +26,7 @@ export abstract class MLProcessor extends Processor {
       },
       {
         id: 'output_map',
-        type: 'mapArray',
+        type: 'outputMapArray',
       },
     ];
     this.optionalFields = [

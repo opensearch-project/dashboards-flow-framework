@@ -5,6 +5,7 @@
 
 import { Schema, ObjectSchema } from 'yup';
 import * as yup from 'yup';
+import { getIn } from 'formik';
 import {
   WorkflowConfig,
   WorkflowSchema,
@@ -19,6 +20,7 @@ import {
   MAX_STRING_LENGTH,
   MAX_JSON_STRING_LENGTH,
   MAX_TEMPLATE_STRING_LENGTH,
+  TRANSFORM_TYPE,
 } from '../../common';
 
 /*
@@ -203,14 +205,78 @@ export function getFieldSchema(
               transformType: defaultStringSchema.required(),
               value: yup
                 .string()
-                .min(1, 'Too short')
-                .max(MAX_TEMPLATE_STRING_LENGTH, 'Too long'),
+                .when('transformType', (transformType, schema) => {
+                  const finalType = getIn(
+                    transformType,
+                    '0',
+                    TRANSFORM_TYPE.FIELD
+                  ) as TRANSFORM_TYPE;
+                  // accept longer string lengths if the input is a template
+                  if (finalType === TRANSFORM_TYPE.TEMPLATE) {
+                    return yup
+                      .string()
+                      .min(1, 'Too short')
+                      .max(MAX_TEMPLATE_STRING_LENGTH, 'Too long')
+                      .required();
+                  } else {
+                    return defaultStringSchema.required();
+                  }
+                }),
               nestedVars: yup.array().of(
                 yup.object().shape({
                   name: defaultStringSchema.required(),
                   transform: defaultStringSchema.required(),
                 })
               ),
+            }),
+          })
+        )
+      );
+      break;
+    }
+    case 'outputMapArray': {
+      baseSchema = yup.array().of(
+        yup.array().of(
+          yup.object().shape({
+            key: defaultStringSchema.required(),
+            value: yup.object().shape({
+              transformType: defaultStringSchema.required(),
+              // values are only required based on certain transform types
+              value: yup
+                .string()
+                .when('transformType', (transformType, schema) => {
+                  const finalType = getIn(
+                    transformType,
+                    '0',
+                    TRANSFORM_TYPE.FIELD
+                  ) as TRANSFORM_TYPE;
+                  if (finalType === TRANSFORM_TYPE.FIELD) {
+                    return defaultStringSchema.required();
+                  } else {
+                    return schema.optional();
+                  }
+                }),
+              nestedVars: yup
+                .array()
+                .when('transformType', (transformType, arraySchema) => {
+                  const finalType = getIn(
+                    transformType,
+                    '0',
+                    TRANSFORM_TYPE.FIELD
+                  ) as TRANSFORM_TYPE;
+                  const finalArraySchema = arraySchema.of(
+                    yup.object().shape({
+                      name: defaultStringSchema.required(),
+                      transform: defaultStringSchema.required(),
+                    })
+                  );
+                  // the expression type must contain a list of final expressions
+                  if (finalType === TRANSFORM_TYPE.EXPRESSION) {
+                    return finalArraySchema.min(1, 'No transforms defined');
+                  } else {
+                    return finalArraySchema;
+                  }
+                }),
             }),
           })
         )

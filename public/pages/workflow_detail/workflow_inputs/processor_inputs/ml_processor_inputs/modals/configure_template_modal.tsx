@@ -39,8 +39,7 @@ import {
   SearchHit,
   SimulateIngestPipelineResponse,
   TemplateFormValues,
-  TemplateSchema,
-  TemplateVar,
+  ExpressionVar,
   TRANSFORM_CONTEXT,
   WorkflowConfig,
   WorkflowFormValues,
@@ -67,9 +66,9 @@ interface ConfigureTemplateModalProps {
   config: IProcessorConfig;
   context: PROCESSOR_CONTEXT;
   baseConfigPath: string;
-
   fieldPath: string;
   modelInterface: ModelInterface | undefined;
+  isDataFetchingAvailable: boolean;
   onClose: () => void;
 }
 
@@ -82,7 +81,8 @@ const MAX_INPUT_DOCS = 10;
 
 /**
  * A modal to configure a prompt template. Can manually configure, include placeholder values
- * using other model inputs, and/or select from a presets library.
+ * using other model inputs, and/or select from a presets library. Used for configuring model
+ * input transforms.
  */
 export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
   const dispatch = useAppDispatch();
@@ -118,12 +118,12 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
           .max(MAX_STRING_LENGTH, 'Too long')
           .required('Required') as yup.Schema,
       })
-    ) as yup.Schema,
-  }) as TemplateSchema;
+    ),
+  }) as yup.Schema;
 
   // persist standalone values. update / initialize when it is first opened
   const [tempTemplate, setTempTemplate] = useState<string>('');
-  const [tempNestedVars, setTempNestedVars] = useState<TemplateVar[]>([]);
+  const [tempNestedVars, setTempNestedVars] = useState<ExpressionVar[]>([]);
   const [tempErrors, setTempErrors] = useState<boolean>(false);
 
   // get some current form values
@@ -166,11 +166,11 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
-    const nestedVarsAsInputMap = tempNestedVars?.map((templateVar) => {
+    const nestedVarsAsInputMap = tempNestedVars?.map((expressionVar) => {
       return {
-        key: templateVar.name,
+        key: expressionVar.name,
         value: {
-          value: templateVar.transform,
+          value: expressionVar.transform,
         },
       } as InputMapEntry;
     });
@@ -198,7 +198,6 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                 TRANSFORM_CONTEXT.INPUT,
                 queryObj
               );
-
         setTransformedInput(customStringify(output));
       } catch {}
     } else {
@@ -260,10 +259,10 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
         }, [formikProps.errors]);
 
         // Adding an input var to the end of the existing arr
-        function addInputVar(curInputVars: TemplateVar[]): void {
+        function addInputVar(curInputVars: ExpressionVar[]): void {
           const updatedInputVars = [
             ...curInputVars,
-            { name: '', transform: '' } as TemplateVar,
+            { name: '', transform: '' } as ExpressionVar,
           ];
           formikProps.setFieldValue(`nestedVars`, updatedInputVars);
           formikProps.setFieldTouched(`nestedVars`, true);
@@ -271,7 +270,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
         // Deleting an input var
         function deleteInputVar(
-          curInputVars: TemplateVar[],
+          curInputVars: ExpressionVar[],
           idxToDelete: number
         ): void {
           const updatedInputVars = [...curInputVars];
@@ -395,7 +394,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                       </EuiFlexGroup>
                       <EuiSpacer size="s" />
                       {formikProps.values.nestedVars?.map(
-                        (templateVar, idx) => {
+                        (expressionVar, idx) => {
                           return (
                             <div key={idx}>
                               <EuiFlexGroup
@@ -511,7 +510,11 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                           <EuiSmallButton
                             style={{ width: '100px' }}
                             isLoading={isFetching}
-                            disabled={onIngestAndNoDocs || onSearchAndNoQuery}
+                            disabled={
+                              onIngestAndNoDocs ||
+                              onSearchAndNoQuery ||
+                              !props.isDataFetchingAvailable
+                            }
                             onClick={async () => {
                               setIsFetching(true);
                               switch (props.context) {
@@ -741,13 +744,12 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
 // small util fn to get the full placeholder string to be
 // inserted into the template. String conversion is required
-// if the input is an array, for example. Also, all values
+// if the input is an array, so default to toString() for
+// all types. Also, all values
 // should be prepended with "parameters.", as all inputs
 // will be nested under a base parameters obj.
-function getPlaceholderString(label: string, type?: string) {
-  return type === 'array'
-    ? `\$\{parameters.${label}.toString()\}`
-    : `\$\{parameters.${label}\}`;
+function getPlaceholderString(label: string) {
+  return `\$\{parameters.${label}.toString()\}`;
 }
 
 function injectValuesIntoTemplate(
