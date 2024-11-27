@@ -361,15 +361,18 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                                         idx,
                                                         arr
                                                       ) => {
-                                                        return `${getCharacterLimitedString(
-                                                          expression.transform ||
-                                                            '',
-                                                          15
-                                                        )}${
-                                                          idx !== arr.length - 1
-                                                            ? `,\n`
-                                                            : ''
-                                                        }`;
+                                                        return idx < 2
+                                                          ? `${getCharacterLimitedString(
+                                                              expression.transform ||
+                                                                '',
+                                                              15
+                                                            )}${
+                                                              idx === 0 &&
+                                                              arr.length > 1
+                                                                ? `,\n`
+                                                                : ''
+                                                            }`
+                                                          : '';
                                                       }
                                                     )}
                                                   </EuiText>
