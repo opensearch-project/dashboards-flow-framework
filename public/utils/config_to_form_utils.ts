@@ -146,7 +146,9 @@ export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
     case 'jsonArray': {
       return '[]';
     }
-    case 'mapArray': {
+    case 'mapArray':
+    case 'inputMapArray':
+    case 'outputMapArray': {
       return [];
     }
     case 'boolean': {

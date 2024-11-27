@@ -9,7 +9,7 @@ import { ObjectSchema } from 'yup';
 import {
   COMPONENT_CLASS,
   PROCESSOR_TYPE,
-  PROMPT_FIELD,
+  TRANSFORM_TYPE,
   WORKFLOW_TYPE,
 } from './constants';
 
@@ -35,7 +35,9 @@ export type ConfigFieldType =
   | 'map'
   | 'mapArray'
   | 'boolean'
-  | 'number';
+  | 'number'
+  | 'inputMapArray'
+  | 'outputMapArray';
 
 export type ConfigFieldValue = string | {};
 
@@ -100,6 +102,31 @@ export type MapFormValue = MapEntry[];
 
 export type MapArrayFormValue = MapFormValue[];
 
+export type ExpressionVar = {
+  name: string;
+  transform: string;
+};
+
+export type Transform = {
+  transformType: TRANSFORM_TYPE;
+  value?: string;
+  // Templates may persist their own set of nested transforms
+  // to be dynamically injected into the template
+  nestedVars?: ExpressionVar[];
+};
+
+export type InputMapEntry = {
+  key: string;
+  value: Transform;
+};
+export type OutputMapEntry = InputMapEntry;
+
+export type InputMapFormValue = InputMapEntry[];
+export type OutputMapFormValue = OutputMapEntry[];
+
+export type InputMapArrayFormValue = InputMapFormValue[];
+export type OutputMapArrayFormValue = OutputMapFormValue[];
+
 export type WorkflowFormValues = {
   ingest: FormikValues;
   search: FormikValues;
@@ -110,31 +137,48 @@ export type WorkflowSchemaObj = {
 };
 export type WorkflowSchema = ObjectSchema<WorkflowSchemaObj>;
 
-// Form / schema interfaces for the ingest docs sub-form
+/**
+ ********** MODAL SUB-FORM TYPES/INTERFACES **********
+ We persist sub-forms in the form modals s.t. data is only
+ saved back to the parent form if the user explicitly saves.
+
+ We define the structure of the forms here.
+ */
+
+// Ingest docs modal
 export type IngestDocsFormValues = {
   docs: FormikValues;
 };
-export type IngestDocsSchema = WorkflowSchema;
 
-// Form / schema interfaces for the request query sub-form
+// Search request modal
 export type RequestFormValues = {
   request: ConfigFieldValue;
 };
-export type RequestSchema = WorkflowSchema;
 
-// Form / schema interfaces for the input transform sub-form
+// Input transform modal
 export type InputTransformFormValues = {
-  input_map: MapArrayFormValue;
+  input_map: InputMapArrayFormValue;
   one_to_one: ConfigFieldValue;
 };
-export type InputTransformSchema = WorkflowSchema;
 
-// Form / schema interfaces for the output transform sub-form
+// Output transform modal
 export type OutputTransformFormValues = {
   output_map: MapArrayFormValue;
   full_response_path: ConfigFieldValue;
 };
-export type OutputTransformSchema = WorkflowSchema;
+
+// Configure template modal
+export type TemplateFormValues = Omit<Transform, 'transformType'>;
+
+// Configure expression modal
+export type ExpressionFormValues = {
+  expression: string;
+};
+
+// Configure multi-expression modal
+export type MultiExpressionFormValues = {
+  expressions: ExpressionVar[];
+};
 
 /**
  ********** WORKSPACE TYPES/INTERFACES **********
@@ -429,7 +473,6 @@ export type ModelInterface = {
 export type ConnectorParameters = {
   model?: string;
   dimensions?: number;
-  [PROMPT_FIELD]?: string;
 };
 
 export type Model = {
