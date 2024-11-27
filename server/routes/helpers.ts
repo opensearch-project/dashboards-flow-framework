@@ -16,7 +16,6 @@ import {
   ModelInterface,
   ModelOutput,
   NO_MODIFICATIONS_FOUND_TEXT,
-  PROMPT_FIELD,
   SearchHit,
   WORKFLOW_RESOURCE_TYPE,
   WORKFLOW_STATE,
@@ -161,7 +160,6 @@ export function getConnectorsFromResponses(
       parameters: {
         model: connectorHit._source?.parameters?.model,
         dimensions: connectorHit._source?.parameters.dimensions,
-        [PROMPT_FIELD]: connectorHit?._source?.parameters[PROMPT_FIELD],
       },
     } as Connector;
   });

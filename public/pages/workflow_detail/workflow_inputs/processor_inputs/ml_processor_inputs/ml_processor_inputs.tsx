@@ -10,13 +10,11 @@ import { useSelector } from 'react-redux';
 import { flattie } from 'flattie';
 import {
   EuiAccordion,
-  EuiSmallButtonEmpty,
   EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
   EuiText,
-  EuiToolTip,
   EuiSmallButton,
   EuiIconTip,
 } from '@elastic/eui';
@@ -28,7 +26,6 @@ import {
   WorkflowFormValues,
   ModelInterface,
   IndexMappings,
-  PROMPT_FIELD,
   EMPTY_INPUT_MAP_ENTRY,
   REQUEST_PREFIX,
   REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
@@ -92,12 +89,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const inputMapValue = getIn(values, inputMapFieldPath);
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map`;
   const outputMapValue = getIn(values, outputMapFieldPath);
-
-  // contains a configurable prompt field or not. if so, expose some extra
-  // dedicated UI
-  const [containsPromptField, setContainsPromptField] = useState<boolean>(
-    false
-  );
 
   // preview availability states
   // if there are preceding search request processors, we cannot fetch and display the interim transformed query.
@@ -254,27 +245,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     }
   }, [values?.search?.index?.name]);
 
-  // Check if there is an exposed prompt field users can override. Need to navigate
-  // to the associated connector details to view the connector parameters list.
-  useEffect(() => {
-    const selectedModel = Object.values(models).find(
-      (model) => model.id === getIn(values, modelIdFieldPath)
-    );
-    if (selectedModel?.connectorId !== undefined) {
-      const connectorParameters =
-        connectors[selectedModel.connectorId]?.parameters;
-      if (connectorParameters !== undefined) {
-        if (connectorParameters[PROMPT_FIELD] !== undefined) {
-          setContainsPromptField(true);
-        } else {
-          setContainsPromptField(false);
-        }
-      } else {
-        setContainsPromptField(false);
-      }
-    }
-  }, [models, connectors, getIn(values, modelIdFieldPath)]);
-
   return (
     <>
       {isInputTransformModalOpen && (
@@ -349,24 +319,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <EuiSpacer size="l" />
             </>
           )}
-          {containsPromptField && (
-            <>
-              <EuiText
-                size="m"
-                style={{ marginTop: '4px' }}
-              >{`Configure prompt (Optional)`}</EuiText>
-              <EuiSpacer size="s" />
-              <EuiSmallButton
-                style={{ width: '100px' }}
-                fill={false}
-                onClick={() => setIsPromptModalOpen(true)}
-                data-testid="configurePromptButton"
-              >
-                Configure
-              </EuiSmallButton>
-              <EuiSpacer size="l" />
-            </>
-          )}
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
               <EuiFlexGroup direction="row" gutterSize="xs">
@@ -393,25 +345,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 </EuiFlexItem>
               </EuiFlexGroup>
             </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiToolTip
-                content={
-                  isInputPreviewAvailable
-                    ? 'Preview transformations to model inputs'
-                    : 'Preview is unavailable for multiple search request processors'
-                }
-              >
-                <EuiSmallButtonEmpty
-                  disabled={!isInputPreviewAvailable}
-                  style={{ paddingTop: '8px' }}
-                  onClick={() => {
-                    setIsInputTransformModalOpen(true);
-                  }}
-                >
-                  Preview inputs
-                </EuiSmallButtonEmpty>
-              </EuiToolTip>
-            </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
           <ModelInputs
@@ -428,25 +361,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 size="m"
                 style={{ marginTop: '4px' }}
               >{`Outputs`}</EuiText>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiToolTip
-                content={
-                  isOutputPreviewAvailable
-                    ? 'Preview transformations of model outputs'
-                    : 'Preview of model outputs is unavailable for search request processors'
-                }
-              >
-                <EuiSmallButtonEmpty
-                  disabled={!isOutputPreviewAvailable}
-                  style={{ paddingTop: '8px' }}
-                  onClick={() => {
-                    setIsOutputTransformModalOpen(true);
-                  }}
-                >
-                  Preview outputs
-                </EuiSmallButtonEmpty>
-              </EuiToolTip>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
