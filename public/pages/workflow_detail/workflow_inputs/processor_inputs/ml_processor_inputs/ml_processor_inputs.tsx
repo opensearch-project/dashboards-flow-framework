@@ -7,17 +7,15 @@ import React, { useState, useEffect } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import { useSelector } from 'react-redux';
-import { flattie } from 'flattie';
 import {
   EuiAccordion,
-  EuiSmallButtonEmpty,
   EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
   EuiText,
-  EuiToolTip,
   EuiSmallButton,
+  EuiIconTip,
 } from '@elastic/eui';
 import {
   IProcessorConfig,
@@ -26,27 +24,26 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
   ModelInterface,
-  IndexMappings,
-  PROMPT_FIELD,
-  MapArrayFormValue,
-  MapEntry,
-  MapFormValue,
+  EMPTY_INPUT_MAP_ENTRY,
+  REQUEST_PREFIX,
+  REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
+  OutputMapEntry,
+  OutputMapFormValue,
+  OutputMapArrayFormValue,
+  EMPTY_OUTPUT_MAP_ENTRY,
 } from '../../../../../../common';
 import { ModelField } from '../../input_fields';
 import {
-  ConfigurePromptModal,
-  InputTransformModal,
-  OutputTransformModal,
-  OverrideQueryModal,
-} from './modals';
+  InputMapFormValue,
+  InputMapArrayFormValue,
+} from '../../../../../../common';
+import { OverrideQueryModal } from './modals';
 import { ModelInputs } from './model_inputs';
-import { AppState, getMappings, useAppDispatch } from '../../../../../store';
+import { AppState } from '../../../../../store';
 import {
   formikToPartialPipeline,
-  getDataSourceId,
   parseModelInputs,
   parseModelOutputs,
-  sanitizeJSONPath,
 } from '../../../../../utils';
 import { ConfigFieldList } from '../../config_field_list';
 import { ModelOutputs } from './model_outputs';
@@ -65,10 +62,7 @@ interface MLProcessorInputsProps {
  * output map configuration forms, respectively.
  */
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
-  const dispatch = useAppDispatch();
-  const dataSourceId = getDataSourceId();
-  const { models, connectors } = useSelector((state: AppState) => state.ml);
-  const indices = useSelector((state: AppState) => state.opensearch.indices);
+  const { models } = useSelector((state: AppState) => state.ml);
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
@@ -83,12 +77,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const inputMapValue = getIn(values, inputMapFieldPath);
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map`;
   const outputMapValue = getIn(values, outputMapFieldPath);
-
-  // contains a configurable prompt field or not. if so, expose some extra
-  // dedicated UI
-  const [containsPromptField, setContainsPromptField] = useState<boolean>(
-    false
-  );
 
   // preview availability states
   // if there are preceding search request processors, we cannot fetch and display the interim transformed query.
@@ -115,13 +103,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   }, [props.uiConfig.search.enrichRequest.processors]);
 
   // various modal states
-  const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
-    boolean
-  >(false);
-  const [isOutputTransformModalOpen, setIsOutputTransformModalOpen] = useState<
-    boolean
-  >(false);
-  const [isPromptModalOpen, setIsPromptModalOpen] = useState<boolean>(false);
   const [isQueryModalOpen, setIsQueryModalOpen] = useState<boolean>(false);
 
   // model interface state
@@ -138,19 +119,19 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     const modelInputsAsForm = [
       parseModelInputs(newModelInterface).map((modelInput) => {
         return {
+          ...EMPTY_INPUT_MAP_ENTRY,
           key: modelInput.label,
-          value: '',
-        } as MapEntry;
-      }) as MapFormValue,
-    ] as MapArrayFormValue;
+        };
+      }) as InputMapFormValue,
+    ] as InputMapArrayFormValue;
     const modelOutputsAsForm = [
       parseModelOutputs(newModelInterface).map((modelOutput) => {
         return {
+          ...EMPTY_OUTPUT_MAP_ENTRY,
           key: modelOutput.label,
-          value: '',
-        } as MapEntry;
-      }) as MapFormValue,
-    ] as MapArrayFormValue;
+        } as OutputMapEntry;
+      }) as OutputMapFormValue,
+    ] as OutputMapArrayFormValue;
 
     setFieldValue(inputMapFieldPath, modelInputsAsForm);
     setFieldValue(outputMapFieldPath, modelOutputsAsForm);
@@ -168,143 +149,8 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     }
   }, [models]);
 
-  // persisting doc/query/index mapping fields to collect a list
-  // of options to display in the dropdowns when configuring input / output maps
-  const [docFields, setDocFields] = useState<{ label: string }[]>([]);
-  const [queryFields, setQueryFields] = useState<{ label: string }[]>([]);
-  const [indexMappingFields, setIndexMappingFields] = useState<
-    { label: string }[]
-  >([]);
-  useEffect(() => {
-    try {
-      const docObjKeys = Object.keys(
-        flattie((JSON.parse(values.ingest.docs) as {}[])[0])
-      );
-      if (docObjKeys.length > 0) {
-        setDocFields(
-          docObjKeys.map((key) => {
-            return {
-              label:
-                // ingest inputs can handle dot notation, and hence don't need
-                // sanitizing to handle JSONPath edge cases. The other contexts
-                // only support JSONPath, and hence need some post-processing/sanitizing.
-                props.context === PROCESSOR_CONTEXT.INGEST
-                  ? key
-                  : sanitizeJSONPath(key),
-            };
-          })
-        );
-      }
-    } catch {}
-  }, [values?.ingest?.docs]);
-  useEffect(() => {
-    try {
-      const queryObjKeys = Object.keys(
-        flattie(JSON.parse(values.search.request))
-      );
-      if (queryObjKeys.length > 0) {
-        setQueryFields(
-          queryObjKeys.map((key) => {
-            return {
-              label:
-                // ingest inputs can handle dot notation, and hence don't need
-                // sanitizing to handle JSONPath edge cases. The other contexts
-                // only support JSONPath, and hence need some post-processing/sanitizing.
-                props.context === PROCESSOR_CONTEXT.INGEST
-                  ? key
-                  : sanitizeJSONPath(key),
-            };
-          })
-        );
-      }
-    } catch {}
-  }, [values?.search?.request]);
-  useEffect(() => {
-    const indexName = values?.search?.index?.name as string | undefined;
-    if (indexName !== undefined && indices[indexName] !== undefined) {
-      dispatch(
-        getMappings({
-          index: indexName,
-          dataSourceId,
-        })
-      )
-        .unwrap()
-        .then((resp: IndexMappings) => {
-          const mappingsObjKeys = Object.keys(resp.properties);
-          if (mappingsObjKeys.length > 0) {
-            setIndexMappingFields(
-              mappingsObjKeys.map((key) => {
-                return {
-                  label: key,
-                  type: resp.properties[key]?.type,
-                };
-              })
-            );
-          }
-        });
-    }
-  }, [values?.search?.index?.name]);
-
-  // Check if there is an exposed prompt field users can override. Need to navigate
-  // to the associated connector details to view the connector parameters list.
-  useEffect(() => {
-    const selectedModel = Object.values(models).find(
-      (model) => model.id === getIn(values, modelIdFieldPath)
-    );
-    if (selectedModel?.connectorId !== undefined) {
-      const connectorParameters =
-        connectors[selectedModel.connectorId]?.parameters;
-      if (connectorParameters !== undefined) {
-        if (connectorParameters[PROMPT_FIELD] !== undefined) {
-          setContainsPromptField(true);
-        } else {
-          setContainsPromptField(false);
-        }
-      } else {
-        setContainsPromptField(false);
-      }
-    }
-  }, [models, connectors, getIn(values, modelIdFieldPath)]);
-
   return (
     <>
-      {isInputTransformModalOpen && (
-        <InputTransformModal
-          uiConfig={props.uiConfig}
-          config={props.config}
-          baseConfigPath={props.baseConfigPath}
-          context={props.context}
-          inputMapFieldPath={inputMapFieldPath}
-          modelInterface={modelInterface}
-          valueOptions={
-            props.context === PROCESSOR_CONTEXT.INGEST
-              ? docFields
-              : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-              ? queryFields
-              : indexMappingFields
-          }
-          onClose={() => setIsInputTransformModalOpen(false)}
-        />
-      )}
-      {isOutputTransformModalOpen && (
-        <OutputTransformModal
-          uiConfig={props.uiConfig}
-          config={props.config}
-          baseConfigPath={props.baseConfigPath}
-          context={props.context}
-          outputMapFieldPath={outputMapFieldPath}
-          modelInterface={modelInterface}
-          onClose={() => setIsOutputTransformModalOpen(false)}
-        />
-      )}
-      {isPromptModalOpen && (
-        <ConfigurePromptModal
-          config={props.config}
-          baseConfigPath={props.baseConfigPath}
-          modelInterface={modelInterface}
-          onClose={() => setIsPromptModalOpen(false)}
-        />
-      )}
       {isQueryModalOpen && (
         <OverrideQueryModal
           config={props.config}
@@ -340,56 +186,40 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <EuiSpacer size="l" />
             </>
           )}
-          {containsPromptField && (
-            <>
-              <EuiText
-                size="m"
-                style={{ marginTop: '4px' }}
-              >{`Configure prompt (Optional)`}</EuiText>
-              <EuiSpacer size="s" />
-              <EuiSmallButton
-                style={{ width: '100px' }}
-                fill={false}
-                onClick={() => setIsPromptModalOpen(true)}
-                data-testid="configurePromptButton"
-              >
-                Configure
-              </EuiSmallButton>
-              <EuiSpacer size="l" />
-            </>
-          )}
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
-              <EuiText
-                size="m"
-                style={{ marginTop: '4px' }}
-              >{`Inputs`}</EuiText>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiToolTip
-                content={
-                  isInputPreviewAvailable
-                    ? 'Preview transformations to model inputs'
-                    : 'Preview is unavailable for multiple search request processors'
-                }
-              >
-                <EuiSmallButtonEmpty
-                  disabled={!isInputPreviewAvailable}
-                  style={{ paddingTop: '8px' }}
-                  onClick={() => {
-                    setIsInputTransformModalOpen(true);
-                  }}
-                >
-                  Preview inputs
-                </EuiSmallButtonEmpty>
-              </EuiToolTip>
+              <EuiFlexGroup direction="row" gutterSize="xs">
+                <EuiFlexItem grow={false}>
+                  <EuiText size="m">Inputs</EuiText>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiIconTip
+                    content={`Specify a ${
+                      props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                        ? 'query'
+                        : 'document'
+                    } field or define JSONPath to transform the ${
+                      props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                        ? 'query'
+                        : 'document'
+                    } to map to a model input field.${
+                      props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                        ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR}" - for example, "_request.query.match.my_field"`
+                        : ''
+                    }`}
+                    position="right"
+                  />
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
           <ModelInputs
             config={props.config}
             baseConfigPath={props.baseConfigPath}
+            uiConfig={props.uiConfig}
             context={props.context}
+            isDataFetchingAvailable={isInputPreviewAvailable}
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -399,31 +229,14 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 style={{ marginTop: '4px' }}
               >{`Outputs`}</EuiText>
             </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiToolTip
-                content={
-                  isOutputPreviewAvailable
-                    ? 'Preview transformations of model outputs'
-                    : 'Preview of model outputs is unavailable for search request processors'
-                }
-              >
-                <EuiSmallButtonEmpty
-                  disabled={!isOutputPreviewAvailable}
-                  style={{ paddingTop: '8px' }}
-                  onClick={() => {
-                    setIsOutputTransformModalOpen(true);
-                  }}
-                >
-                  Preview outputs
-                </EuiSmallButtonEmpty>
-              </EuiToolTip>
-            </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
           <ModelOutputs
             config={props.config}
             baseConfigPath={props.baseConfigPath}
+            uiConfig={props.uiConfig}
             context={props.context}
+            isDataFetchingAvailable={isOutputPreviewAvailable}
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&

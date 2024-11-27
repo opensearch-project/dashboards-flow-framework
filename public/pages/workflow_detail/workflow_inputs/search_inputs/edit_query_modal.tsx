@@ -25,7 +25,6 @@ import {
   QUERY_PRESETS,
   QueryPreset,
   RequestFormValues,
-  RequestSchema,
   WorkflowFormValues,
 } from '../../../../../common';
 import { getFieldSchema, getInitialValue } from '../../../../utils';
@@ -48,7 +47,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
     request: getFieldSchema({
       type: 'json',
     } as IConfigField),
-  }) as RequestSchema;
+  }) as yup.Schema;
 
   // persist standalone values. update / initialize when it is first opened
   const [tempRequest, setTempRequest] = useState<string>('{}');
