@@ -39,7 +39,6 @@ import {
   SearchHit,
   SimulateIngestPipelineResponse,
   TemplateFormValues,
-  TemplateSchema,
   ExpressionVar,
   TRANSFORM_CONTEXT,
   WorkflowConfig,
@@ -119,8 +118,8 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
           .max(MAX_STRING_LENGTH, 'Too long')
           .required('Required') as yup.Schema,
       })
-    ) as yup.Schema,
-  }) as TemplateSchema;
+    ),
+  }) as yup.Schema;
 
   // persist standalone values. update / initialize when it is first opened
   const [tempTemplate, setTempTemplate] = useState<string>('');

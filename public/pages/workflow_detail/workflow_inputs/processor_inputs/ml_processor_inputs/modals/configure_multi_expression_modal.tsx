@@ -206,7 +206,6 @@ export function ConfigureMultiExpressionModal(
 
         // update tempErrors if errors detected
         useEffect(() => {
-          console.log('formik errors: ', formikProps.errors);
           setTempErrors(!isEmpty(formikProps.errors));
         }, [formikProps.errors]);
 
