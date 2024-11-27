@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { useFormikContext, getIn, Formik } from 'formik';
 import { isEmpty } from 'lodash';
 import * as yup from 'yup';
+import Ajv from 'ajv';
 import {
   EuiCodeEditor,
   EuiFlexGroup,
@@ -20,6 +21,7 @@ import {
   EuiText,
   EuiSmallButtonEmpty,
   EuiSpacer,
+  EuiIconTip,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -74,6 +76,7 @@ const MAX_INPUT_DOCS = 10;
 
 /**
  * A modal to configure a JSONPath expression / transform. Used for configuring model input transforms.
+ * Performs field-level validation, if the configured field is available in the model interface.
  */
 export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
   const dispatch = useAppDispatch();
@@ -124,6 +127,10 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
   // button updating state
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
+  // validation state utilizing the model interface, if applicable. undefined if
+  // there is no model interface and/or no source input
+  const [isValid, setIsValid] = useState<boolean | undefined>(undefined);
+
   // source input / transformed input state
   const [sourceInput, setSourceInput] = useState<string>('{}');
   const [transformedInput, setTransformedInput] = useState<string>('{}');
@@ -173,6 +180,47 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
     }
   }, [tempExpression, sourceInput]);
 
+  // hook to re-determine validity when the generated output changes
+  // utilize Ajv JSON schema validator library. For more info/examples, see
+  // https://www.npmjs.com/package/ajv
+  useEffect(() => {
+    if (
+      !isEmpty(JSON.parse(sourceInput)) &&
+      !isEmpty(props.modelInterface?.input?.properties?.parameters) &&
+      !isEmpty(
+        getIn(
+          props.modelInterface?.input?.properties?.parameters?.properties,
+          props.modelInputFieldName
+        )
+      )
+    ) {
+      // we customize the model interface JSON schema to just
+      // include the field we are transforming. Overriding any
+      // other config fields that could make this unnecessarily fail
+      // (required, additionalProperties, etc.)
+      try {
+        const customJSONSchema = {
+          ...props.modelInterface?.input?.properties?.parameters,
+          properties: {
+            [props.modelInputFieldName]: getIn(
+              props.modelInterface?.input?.properties?.parameters.properties,
+              props.modelInputFieldName
+            ),
+          },
+          required: [],
+          additionalProperties: true,
+        };
+
+        const validateFn = new Ajv().compile(customJSONSchema);
+        setIsValid(validateFn(JSON.parse(transformedInput)));
+      } catch {
+        setIsValid(undefined);
+      }
+    } else {
+      setIsValid(undefined);
+    }
+  }, [transformedInput]);
+
   // if updating, take the temp vars and assign it to the parent form
   function onUpdate() {
     setIsUpdating(true);
@@ -209,7 +257,11 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
         }, [formikProps.errors]);
 
         return (
-          <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
+          <EuiModal
+            onClose={props.onClose}
+            style={{ width: '70vw' }}
+            id={props.fieldPath}
+          >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
                 <p>{`Extract data with expression`}</p>
@@ -438,7 +490,31 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                       />
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
-                      <EuiText size="s">Extracted data</EuiText>
+                      <EuiFlexGroup direction="row" justifyContent="flexStart">
+                        <EuiFlexItem grow={false}>
+                          <EuiText size="s">Extracted data</EuiText>
+                        </EuiFlexItem>
+                        {isValid !== undefined && (
+                          <EuiFlexItem
+                            grow={false}
+                            style={{
+                              marginTop: '14px',
+                              marginLeft: '-4px',
+                            }}
+                          >
+                            <EuiIconTip
+                              type={isValid ? 'check' : 'cross'}
+                              color={isValid ? 'success' : 'danger'}
+                              size="m"
+                              content={
+                                isValid
+                                  ? 'Meets model interface requirements'
+                                  : 'Does not meet model interface requirements'
+                              }
+                            />
+                          </EuiFlexItem>
+                        )}
+                      </EuiFlexGroup>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiCodeEditor
