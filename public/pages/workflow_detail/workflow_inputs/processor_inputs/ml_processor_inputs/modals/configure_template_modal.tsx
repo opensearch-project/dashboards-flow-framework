@@ -24,6 +24,7 @@ import {
   EuiSmallButtonIcon,
   EuiSpacer,
   EuiCopy,
+  EuiIconTip,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -374,12 +375,24 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                     </EuiFlexItem>
                     <EuiSpacer size="s" />
                     <EuiFlexItem grow={false}>
-                      <EuiText size="m">Input variables</EuiText>
+                      <EuiFlexGroup direction="row" gutterSize="xs">
+                        <EuiFlexItem grow={false}>
+                          <EuiText size="m">Input variables</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiIconTip
+                            content={`Define input variables with JSONPath to extract out source data. 
+                              Inject into the prompt by clicking the "Copy" button and pasting into the prompt.`}
+                            position="right"
+                          />
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup
                         direction="row"
                         justifyContent="spaceAround"
+                        gutterSize="s"
                       >
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
                           <EuiText size="s" color="subdued">

@@ -155,18 +155,6 @@ export type RequestFormValues = {
   request: ConfigFieldValue;
 };
 
-// Input transform modal
-export type InputTransformFormValues = {
-  input_map: InputMapArrayFormValue;
-  one_to_one: ConfigFieldValue;
-};
-
-// Output transform modal
-export type OutputTransformFormValues = {
-  output_map: MapArrayFormValue;
-  full_response_path: ConfigFieldValue;
-};
-
 // Configure template modal
 export type TemplateFormValues = Omit<Transform, 'transformType'>;
 

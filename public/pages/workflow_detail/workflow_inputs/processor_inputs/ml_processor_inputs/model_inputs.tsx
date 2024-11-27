@@ -263,7 +263,7 @@ export function ModelInputs(props: ModelInputsProps) {
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
                               <EuiText size="s" color="subdued">
-                                {`Input type`}
+                                {`Transform type`}
                               </EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
@@ -348,7 +348,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                   <SelectWithCustomOptions
                                     fieldPath={`${inputMapFieldPath}.${idx}.value.transformType`}
                                     options={TRANSFORM_OPTIONS}
-                                    placeholder={`Input type`}
+                                    placeholder={`Transform type`}
                                     allowCreate={false}
                                     onChange={() => {
                                       // If the transform type changes, clear any set value and/or nested vars,

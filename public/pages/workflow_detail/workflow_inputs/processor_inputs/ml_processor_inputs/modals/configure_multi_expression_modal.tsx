@@ -21,6 +21,7 @@ import {
   EuiSmallButtonEmpty,
   EuiSpacer,
   EuiSmallButtonIcon,
+  EuiIconTip,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -244,9 +245,20 @@ export function ConfigureMultiExpressionModal(
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup direction="row" gutterSize="s">
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
-                          <EuiText size="s" color="subdued">
-                            {`Expressions`}
-                          </EuiText>
+                          <EuiFlexGroup direction="row" gutterSize="xs">
+                            <EuiFlexItem grow={false}>
+                              <EuiText size="s" color="subdued">
+                                {`Expression`}
+                              </EuiText>
+                            </EuiFlexItem>
+                            <EuiFlexItem grow={false}>
+                              <EuiIconTip
+                                content={`Define any number of JSONPath transforms to extract out parts of the model output's source data and 
+                              store in new document fields.`}
+                                position="right"
+                              />
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiText size="s" color="subdued">
