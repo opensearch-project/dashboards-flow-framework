@@ -180,7 +180,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
                               <EuiText size="s" color="subdued">
-                                {`Output transform`}
+                                {`Transform type`}
                               </EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
@@ -269,7 +269,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                   <SelectWithCustomOptions
                                     fieldPath={`${outputMapFieldPath}.${idx}.value.transformType`}
                                     options={TRANSFORM_OPTIONS}
-                                    placeholder={`Output transform`}
+                                    placeholder={`Transform type`}
                                     allowCreate={false}
                                     onChange={() => {
                                       // If the transform type changes, clear any set value and/or nested vars,

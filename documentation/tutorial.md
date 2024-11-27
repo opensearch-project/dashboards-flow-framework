@@ -1,6 +1,13 @@
-The following tutorial is an accurate representation of the experimental OpenSearch Flow OSD Plugin as of 11/18/2024, based on OSD 2.18.
+The following tutorial is an accurate representation of the experimental OpenSearch Flow OSD Plugin as of 11/27/2024, based on OSD 2.18.
+
+Changelog:
+
+- Initially created 11/18/2024
+- Updated on 11/27/2024 after input/output transform design was overhauled. See PR #504
 
 # Tutorial
+
+For an overview of the plugin, please see [README](../README.md)
 
 ## 1. Provision ML resources
 
@@ -58,24 +65,27 @@ You can now enrich your data by building out an ingest pipeline & chaining toget
 
 ![enrich-data](./images/enrich-data.png)
 
-Continuing with the semantic search example, we will now select and configure an ML inference processor to embed my input text. I have a deployed Amazon Bedrock Titan text embedding model. The model expects a single input called "inputText", and returns a single output called "embedding".
+Continuing with the semantic search example, you can now select and configure an ML inference processor to embed the input text. This cluster has a deployed Amazon Bedrock Titan text embedding model. The model has a defined interface, and expects a single input called `inputText`, and returns a single output called `embedding`.
+
+This is where you can now map data to and from the model inputs and outputs, respectively. "Inputs" allows selecting and transforming the data to conform to the expected model inputs. "Outputs" allows selecting and transforming the model outputs to new fields. There are different types of transformations you can do, including field-level mapping (extracting out a document field value), expressions (more complex transformations using [JSONPath](https://en.wikipedia.org/wiki/JSONPath)), and others. For this example, you can just select the `item_text` field to map to the `inputText` model input, and map the output `embedding` field to a new document field called `my_embedding`. _(Behind the scenes, this is configuring the "input_map" and "output_map" configuration settings for [ML inference ingest processors](https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/))_
 
 ![ml-config-ingest](./images/ml-config-ingest.png)
 
-This is where you can now flexibly configure your data via the "Inputs" and "Outputs" sections. "Inputs" allows you to select and transform your data to conform to the expected model inputs. "Outputs" allows you to select and transforms your model outputs to new document fields. You can either select a document field from the dropdown, or perform more detailed transformation using dot notation or [JSONPath](https://en.wikipedia.org/wiki/JSONPath). _(Behind the scenes, this is configuring the "input_map" and "output_map" configuration settings for [ML inference ingest processors](https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/))_
+Click "Save" to return to the form.
 
-For this example, we can just select the "item_text" field to map to the "inputText" model input, and creating a new document field called "my_embedding" to persist the returned generated embedding from the model:
+### Aside: advanced data transformations
 
-![input-config-ingest](./images/input-config-ingest.png)
-![output-config-ingest](./images/output-config-ingest.png)
+Continuing with the above example, let's suppose the input data (the document) is more complex, and a simple field-level mapping is not sufficient. Maybe you need to parse out some nested field's value. This can be done by changing the transform type to `Expression`
 
-For a more detailed look into these transformations, and to verify that they will be valid, you can click the associated "Preview inputs/output" button on the right-hand side. "Preview inputs" allows you to see how the input data (the source document) will be transformed. You can click "Fetch data" to fetch a sample document. There is some helpful visual elements to determine whether the transformed input meets the model interface requirements. You can also view the explicit [JSON Schema](https://json-schema.org/) input interface by clicking "Input schema" on the right-hand side. The top "Define transform" section allows you to edit the transformation directly. You can cancel or save & update the transformation after testing. "Preview outputs" is very similar - it allows you to fetch the model outputs (NOTE: this will execute actual model inference and incur costs - this should be run with caution), and see how it is transformed. You can also view the explicit output interface by clicking the "Output schema" button.
+![expression-ingest](./images/expression-ingest.png)
 
-The below images show how the transforms map the "item_text" field into an "inputText" field expected by the model, and how the "embedding" model output is saved as a new "my_embedding" field in the document.
+From there, click "Configure" to open the "Extract data with expression" modal. On the right-hand side, you can click "Run preview" to fetch the input data to this processor.
 
-![advanced-input-ingest](./images/advanced-input-ingest.png)
+![expression-modal-ingest](./images/expression-modal-ingest.png)
 
-![advanced-output-ingest](./images/advanced-output-ingest.png)
+On the left-hand side, you can define a [JSONPath](https://en.wikipedia.org/wiki/JSONPath) transform to parse out the data you want. Suppose it is the description, "red shoes". You can write some JSONPath to pull out this data - `$.item.description`. The transformed value will appear under the "Extracted data" box in the lower-right-hand corner as you define your JSONPath. For models with defined [JSON Schema](https://json-schema.org/) interfaces, you will see a marker indicating whether the transform is valid or invalid for that particular model field (in this case, `inputText`):
+
+![expression-modal-ingest-validated](./images/expression-modal-ingest-validated.png)
 
 ## 7. Ingest data
 
@@ -423,7 +433,7 @@ Ensure the index settings include `index.knn: true`, & mappings have a `knn_vect
 
 ### Ingest pipeline
 
-Single ML inference processor. Map your input text to the `inputText`model input field. Optionally map the output `embedding`to a new document field.
+Single ML inference processor. Map your input text to the `inputText` model input field. Optionally map the output `embedding` to a new document field.
 
 ### Search pipeline
 
@@ -431,7 +441,7 @@ An ML inference **search request** processor & normalization processor.
 
 **For the ML inference processor:**
 
-Map the query field containing the input text to the `inputText` model input field. Optionally map the output `embedding`to a new field. Override the query to a hybrid query. See example below. Ensure to set the `embedding_field`, `text_field`, & `text_field_input`:
+Map the query field containing the input text to the `inputText` model input field. Optionally map the output `embedding` to a new field. Override the query to a hybrid query. See example below. Ensure to set the `embedding_field`, `text_field`, & `text_field_input`:
 
 ```
 {
@@ -472,15 +482,13 @@ Configure weights for each sub-query. You may refer to the [hybrid search normal
 
 ## 3. Basic RAG (document summarization)
 
-NOTE: RAG UX is rapidly changing. Specifically, around prompt building. Current experience has basic logic to look for a `prompt` field in the connector details. The below example connector blueprint and model configuration will work smoothly. But, if you have a custom connector / model, and if there is no `prompt `field found, we do not display the "Configure prompt" button and associated dedicated modal for it. This will need to be manually configured under "Model config" advanced settings, under the ML inference processor. Example:
+NOTE: the below connector blueprint & model interface may change over time. The following example uses a connector blueprint that abstracts a lot of the complexity around the [Claude v1 messages API](https://docs.anthropic.com/en/api/getting-started#examples), exposing only a single `prompt` field as input in the model. An example input may look like the following, with placeholders containing dynamically-fetched results:
 
 ```
 {
   "prompt": "Human: You are a professional data analyist. You are given a list of document results. You will analyze the data and generate a human-readable summary of the results. If you don't know the answer, just say I don't know.\n\n Results: ${parameters.results.toString()}\n\n Human: Please summarize the results.\n\n Assistant:"
 }
 ```
-
-Future iterations of the UX will make this more generic and easily flexible to configure templates and map to any model input field you'd like. _Additionally, the sample connector and model blueprints may become more generic and aligned with the underlying service APIs (e.g., the Claude conversational API, which can accept an array of messages)._
 
 ### Connector (Bedrock Claude V3 model)
 
@@ -504,7 +512,6 @@ POST /_plugins/_ml/connectors/_create
         "max_tokens_to_sample": "8000",
         "anthropic_version": "bedrock-2023-05-31",
         "model": "anthropic.claude-3-sonnet-20240229-v1:0",
-        "results": "",
         "prompt": ""
     },
     "actions": [
@@ -538,14 +545,14 @@ POST /_plugins/_ml/models/_register
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "results": {
-                            "type": "array",
-                            "description": "The array of results."
+                        "prompt": {
+                            "type": "string",
+                            "description": "The prompt."
                         }
                     },
                     "additionalProperties": true,
                     "required": [
-                        "results"
+                        "prompt"
                     ]
                 }
             }
@@ -613,7 +620,7 @@ Nothing special needs to be configured.
 
 ### Search pipeline
 
-Single ML inference **search response** processor. Map the document field containing the details you want to summarize to the `results` model input field. For example, if you have documents containing a `review` field, and you want to summarize all of the reviews in the returned documents, select `review`. Leave `one_to_one` set to the default `false` value. This way, all of the `review` values are compiled into a single list and passed as one input to the LLM. Next, configure a prompt - you can choose the summarization preset for your convenience. Be sure to inject `results` (the model input) somewhere in the prompt to include at runtime.
+Single ML inference **search response** processor. Choose `Template` as the transform type for the `prompt` input field. Open up the template configuration by clicking "Configure". Select a preset to start with for your convenience. Then, create an input variable that parses out the list of reviews, something like `review`. Inject the variable into the prompt by copying and pasting it. Click "Run preview" to test that the final transformed prompt with sample dynamic data looks as expected. Click "Save" to save and exit.
 
 ---
 
