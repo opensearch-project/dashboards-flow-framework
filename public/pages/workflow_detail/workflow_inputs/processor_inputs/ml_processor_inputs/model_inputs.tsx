@@ -90,12 +90,12 @@ export function ModelInputs(props: ModelInputsProps) {
   >(undefined);
 
   // various modal states
-  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState<boolean>(
-    false
+  const [templateModalIdx, setTemplateModalIdx] = useState<number | undefined>(
+    undefined
   );
-  const [isExpressionModalOpen, setIsExpressionModalOpen] = useState<boolean>(
-    false
-  );
+  const [expressionModalIdx, setExpressionModalIdx] = useState<
+    number | undefined
+  >(undefined);
 
   // on initial load of the models, update model interface states
   useEffect(() => {
@@ -372,7 +372,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                      * Conditionally render the value form component based on the transform type.
                                      * It may be a button, dropdown, or simply freeform text.
                                      */}
-                                    {isTemplateModalOpen && (
+                                    {templateModalIdx === (idx as number) && (
                                       <ConfigureTemplateModal
                                         config={props.config}
                                         baseConfigPath={props.baseConfigPath}
@@ -384,11 +384,11 @@ export function ModelInputs(props: ModelInputsProps) {
                                           props.isDataFetchingAvailable
                                         }
                                         onClose={() =>
-                                          setIsTemplateModalOpen(false)
+                                          setTemplateModalIdx(undefined)
                                         }
                                       />
                                     )}
-                                    {isExpressionModalOpen && (
+                                    {expressionModalIdx === (idx as number) && (
                                       <ConfigureExpressionModal
                                         config={props.config}
                                         baseConfigPath={props.baseConfigPath}
@@ -404,7 +404,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                           props.isDataFetchingAvailable
                                         }
                                         onClose={() =>
-                                          setIsExpressionModalOpen(false)
+                                          setExpressionModalIdx(undefined)
                                         }
                                       />
                                     )}
@@ -423,7 +423,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                                 style={{ width: '100px' }}
                                                 fill={false}
                                                 onClick={() =>
-                                                  setIsTemplateModalOpen(true)
+                                                  setTemplateModalIdx(idx)
                                                 }
                                                 data-testid="configureTemplateButton"
                                               >
@@ -459,11 +459,9 @@ export function ModelInputs(props: ModelInputsProps) {
                                                     iconType="pencil"
                                                     disabled={false}
                                                     color={'primary'}
-                                                    onClick={() => {
-                                                      setIsTemplateModalOpen(
-                                                        true
-                                                      );
-                                                    }}
+                                                    onClick={() =>
+                                                      setTemplateModalIdx(idx)
+                                                    }
                                                   />
                                                 </EuiFlexItem>
                                               </EuiFlexGroup>
@@ -482,7 +480,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                                 style={{ width: '100px' }}
                                                 fill={false}
                                                 onClick={() =>
-                                                  setIsExpressionModalOpen(true)
+                                                  setExpressionModalIdx(idx)
                                                 }
                                                 data-testid="configureExpressionButton"
                                               >
@@ -518,11 +516,9 @@ export function ModelInputs(props: ModelInputsProps) {
                                                     iconType="pencil"
                                                     disabled={false}
                                                     color={'primary'}
-                                                    onClick={() => {
-                                                      setIsExpressionModalOpen(
-                                                        true
-                                                      );
-                                                    }}
+                                                    onClick={() =>
+                                                      setExpressionModalIdx(idx)
+                                                    }
                                                   />
                                                 </EuiFlexItem>
                                               </EuiFlexGroup>

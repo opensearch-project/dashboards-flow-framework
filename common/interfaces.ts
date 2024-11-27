@@ -9,7 +9,6 @@ import { ObjectSchema } from 'yup';
 import {
   COMPONENT_CLASS,
   PROCESSOR_TYPE,
-  PROMPT_FIELD,
   TRANSFORM_TYPE,
   WORKFLOW_TYPE,
 } from './constants';
@@ -474,7 +473,6 @@ export type ModelInterface = {
 export type ConnectorParameters = {
   model?: string;
   dimensions?: number;
-  [PROMPT_FIELD]?: string;
 };
 
 export type Model = {

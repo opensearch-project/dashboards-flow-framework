@@ -513,7 +513,6 @@ export const EMPTY_OUTPUT_MAP_ENTRY = EMPTY_INPUT_MAP_ENTRY;
 export const MODEL_OUTPUT_SCHEMA_NESTED_PATH =
   'output.properties.inference_results.items.properties.output.items.properties.dataAsMap.properties';
 export const MODEL_OUTPUT_SCHEMA_FULL_PATH = 'output.properties';
-export const PROMPT_FIELD = 'prompt'; // TODO: likely expand to support a pattern and/or multiple (e.g., "prompt", "prompt_template", etc.)
 export enum CONFIG_STEP {
   INGEST = 'Ingestion pipeline',
   SEARCH = 'Search pipeline',

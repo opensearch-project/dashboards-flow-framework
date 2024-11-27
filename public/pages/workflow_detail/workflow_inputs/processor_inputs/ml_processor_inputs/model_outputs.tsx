@@ -90,9 +90,9 @@ export function ModelOutputs(props: ModelOutputsProps) {
   );
 
   // various modal states
-  const [isExpressionsModalOpen, setIsExpressionsModalOpen] = useState<boolean>(
-    false
-  );
+  const [expressionsModalIdx, setExpressionsModalIdx] = useState<
+    number | undefined
+  >(undefined);
 
   // model interface state
   const [modelInterface, setModelInterface] = useState<
@@ -293,7 +293,8 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                      * Conditionally render the value form component based on the transform type.
                                      * It may be a button, dropdown, or simply freeform text.
                                      */}
-                                    {isExpressionsModalOpen && (
+                                    {expressionsModalIdx ===
+                                      (idx as number) && (
                                       <ConfigureMultiExpressionModal
                                         config={props.config}
                                         baseConfigPath={props.baseConfigPath}
@@ -311,7 +312,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                           props.isDataFetchingAvailable
                                         }
                                         onClose={() =>
-                                          setIsExpressionsModalOpen(false)
+                                          setExpressionsModalIdx(undefined)
                                         }
                                       />
                                     )}
@@ -330,9 +331,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                                 style={{ width: '100px' }}
                                                 fill={false}
                                                 onClick={() =>
-                                                  setIsExpressionsModalOpen(
-                                                    true
-                                                  )
+                                                  setExpressionsModalIdx(idx)
                                                 }
                                                 data-testid="configureExpressionsButton"
                                               >
@@ -384,8 +383,8 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                                     disabled={false}
                                                     color={'primary'}
                                                     onClick={() => {
-                                                      setIsExpressionsModalOpen(
-                                                        true
+                                                      setExpressionsModalIdx(
+                                                        idx
                                                       );
                                                     }}
                                                   />
