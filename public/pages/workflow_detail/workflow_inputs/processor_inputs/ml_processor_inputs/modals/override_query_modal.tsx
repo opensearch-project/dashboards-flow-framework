@@ -28,9 +28,9 @@ import {
   IMAGE_FIELD_PATTERN,
   IProcessorConfig,
   LABEL_FIELD_PATTERN,
-  MapEntry,
   MODEL_ID_PATTERN,
   ModelInterface,
+  OutputMapEntry,
   QUERY_IMAGE_PATTERN,
   QUERY_PRESETS,
   QUERY_TEXT_PATTERN,
@@ -66,10 +66,8 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
     values,
     `${props.baseConfigPath}.${props.config.id}.output_map`
   );
-  // TODO: should handle edge case of multiple output maps configured. Currently
-  // defaulting to prediction 0 / assuming not multiple predictions to track.
   const outputMapValues = getIn(outputMap, '0', []).map(
-    (mapEntry: MapEntry) => mapEntry.value
+    (mapEntry: OutputMapEntry) => mapEntry.value.value
   ) as string[];
   const finalModelOutputs =
     outputMapValues.length > 0

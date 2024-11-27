@@ -20,16 +20,21 @@ import {
   EuiCompressedFormRow,
 } from '@elastic/eui';
 import {
+  EMPTY_INPUT_MAP_ENTRY,
+  EMPTY_OUTPUT_MAP_ENTRY,
   IMAGE_FIELD_PATTERN,
   IndexMappings,
+  InputMapArrayFormValue,
+  InputMapFormValue,
   LABEL_FIELD_PATTERN,
   MODEL_ID_PATTERN,
-  MapArrayFormValue,
-  MapFormValue,
   ModelInterface,
+  OutputMapArrayFormValue,
+  OutputMapFormValue,
   PROCESSOR_TYPE,
   QuickConfigureFields,
   TEXT_FIELD_PATTERN,
+  TRANSFORM_TYPE,
   VECTOR,
   VECTOR_FIELD_PATTERN,
   WORKFLOW_NAME_REGEXP,
@@ -255,17 +260,23 @@ function updateIngestProcessors(
           field.value = { id: fields.modelId };
         }
         if (field.id === 'input_map') {
-          const inputMap = generateMapFromModelInputs(modelInterface);
+          const inputMap = generateInputMapFromModelInputs(modelInterface);
           if (fields.textField) {
             if (inputMap.length > 0) {
               inputMap[0] = {
                 ...inputMap[0],
-                value: fields.textField,
+                value: {
+                  transformType: TRANSFORM_TYPE.FIELD,
+                  value: fields.textField,
+                },
               };
             } else {
               inputMap.push({
                 key: '',
-                value: fields.textField,
+                value: {
+                  transformType: TRANSFORM_TYPE.FIELD,
+                  value: fields.textField,
+                },
               });
             }
           }
@@ -273,19 +284,25 @@ function updateIngestProcessors(
             if (inputMap.length > 1) {
               inputMap[1] = {
                 ...inputMap[1],
-                value: fields.imageField,
+                value: {
+                  transformType: TRANSFORM_TYPE.FIELD,
+                  value: fields.imageField,
+                },
               };
             } else {
               inputMap.push({
                 key: '',
-                value: fields.imageField,
+                value: {
+                  transformType: TRANSFORM_TYPE.FIELD,
+                  value: fields.imageField,
+                },
               });
             }
           }
-          field.value = [inputMap] as MapArrayFormValue;
+          field.value = [inputMap] as InputMapArrayFormValue;
         }
         if (field.id === 'output_map') {
-          const outputMap = generateMapFromModelOutputs(modelInterface);
+          const outputMap = generateOutputMapFromModelOutputs(modelInterface);
           const defaultField = isVectorSearchUseCase
             ? fields.vectorField
             : fields.labelField;
@@ -293,13 +310,22 @@ function updateIngestProcessors(
             if (outputMap.length > 0) {
               outputMap[0] = {
                 ...outputMap[0],
-                value: defaultField,
+                value: {
+                  transformType: TRANSFORM_TYPE.FIELD,
+                  value: defaultField,
+                },
               };
             } else {
-              outputMap.push({ key: '', value: defaultField });
+              outputMap.push({
+                key: '',
+                value: {
+                  transformType: TRANSFORM_TYPE.FIELD,
+                  value: defaultField,
+                },
+              });
             }
           }
-          field.value = [outputMap] as MapArrayFormValue;
+          field.value = [outputMap] as OutputMapArrayFormValue;
         }
       });
     }
@@ -328,37 +354,49 @@ function updateSearchRequestProcessors(
           field.value = { id: fields.modelId };
         }
         if (field.id === 'input_map') {
-          const inputMap = generateMapFromModelInputs(modelInterface);
+          const inputMap = generateInputMapFromModelInputs(modelInterface);
           if (inputMap.length > 0) {
             inputMap[0] = {
               ...inputMap[0],
-              value: defaultQueryValue,
+              value: {
+                transformType: TRANSFORM_TYPE.FIELD,
+                value: defaultQueryValue,
+              },
             };
           } else {
             inputMap.push({
               key: '',
-              value: defaultQueryValue,
+              value: {
+                transformType: TRANSFORM_TYPE.FIELD,
+                value: defaultQueryValue,
+              },
             });
           }
-          field.value = [inputMap] as MapArrayFormValue;
+          field.value = [inputMap] as InputMapArrayFormValue;
         }
         if (field.id === 'output_map') {
-          const outputMap = generateMapFromModelOutputs(modelInterface);
+          const outputMap = generateOutputMapFromModelOutputs(modelInterface);
           const defaultValue = isVectorSearchUseCase
             ? VECTOR
             : defaultQueryValue;
           if (outputMap.length > 0) {
             outputMap[0] = {
               ...outputMap[0],
-              value: defaultValue,
+              value: {
+                transformType: TRANSFORM_TYPE.FIELD,
+                value: defaultValue,
+              },
             };
           } else {
             outputMap.push({
               key: '',
-              value: defaultValue,
+              value: {
+                transformType: TRANSFORM_TYPE.FIELD,
+                value: defaultValue,
+              },
             });
           }
-          field.value = [outputMap] as MapArrayFormValue;
+          field.value = [outputMap] as OutputMapArrayFormValue;
         }
       });
       config.search.enrichRequest.processors[0].optionalFields = config.search.enrichRequest.processors[0].optionalFields?.map(
@@ -392,35 +430,50 @@ function updateSearchResponseProcessors(
           field.value = { id: fields.modelId };
         }
         if (field.id === 'input_map') {
-          const inputMap = generateMapFromModelInputs(modelInterface);
+          const inputMap = generateInputMapFromModelInputs(modelInterface);
           if (fields.textField) {
             if (inputMap.length > 0) {
               inputMap[0] = {
                 ...inputMap[0],
-                value: fields.textField,
+                value: {
+                  transformType: TRANSFORM_TYPE.FIELD,
+                  value: fields.textField,
+                },
               };
             } else {
               inputMap.push({
                 key: '',
-                value: fields.textField,
+                value: {
+                  transformType: TRANSFORM_TYPE.FIELD,
+                  value: fields.textField,
+                },
               });
             }
           }
-          field.value = [inputMap] as MapArrayFormValue;
+          field.value = [inputMap] as InputMapArrayFormValue;
         }
         if (field.id === 'output_map') {
-          const outputMap = generateMapFromModelOutputs(modelInterface);
+          const outputMap = generateOutputMapFromModelOutputs(modelInterface);
           if (fields.llmResponseField) {
             if (outputMap.length > 0) {
               outputMap[0] = {
                 ...outputMap[0],
-                value: fields.llmResponseField,
+                value: {
+                  transformType: TRANSFORM_TYPE.FIELD,
+                  value: fields.llmResponseField,
+                },
               };
             } else {
-              outputMap.push({ key: '', value: fields.llmResponseField });
+              outputMap.push({
+                key: '',
+                value: {
+                  transformType: TRANSFORM_TYPE.FIELD,
+                  value: fields.llmResponseField,
+                },
+              });
             }
           }
-          field.value = [outputMap] as MapArrayFormValue;
+          field.value = [outputMap] as OutputMapArrayFormValue;
         }
       });
     }
@@ -526,16 +579,16 @@ function injectPlaceholderValues(
 
 // generate a set of mappings s.t. each key is
 // a unique model input.
-function generateMapFromModelInputs(
+function generateInputMapFromModelInputs(
   modelInterface?: ModelInterface
-): MapFormValue {
-  const inputMap = [] as MapFormValue;
+): InputMapFormValue {
+  const inputMap = [] as InputMapFormValue;
   if (modelInterface) {
     const modelInputs = parseModelInputs(modelInterface);
     modelInputs.forEach((modelInput) => {
       inputMap.push({
+        ...EMPTY_INPUT_MAP_ENTRY,
         key: modelInput.label,
-        value: '',
       });
     });
   }
@@ -543,17 +596,17 @@ function generateMapFromModelInputs(
 }
 
 // generate a set of mappings s.t. each key is
-// a unique model output
-function generateMapFromModelOutputs(
+// a unique model output.
+function generateOutputMapFromModelOutputs(
   modelInterface?: ModelInterface
-): MapFormValue {
-  const outputMap = [] as MapFormValue;
+): OutputMapFormValue {
+  const outputMap = [] as OutputMapFormValue;
   if (modelInterface) {
     const modelOutputs = parseModelOutputs(modelInterface);
     modelOutputs.forEach((modelOutput) => {
       outputMap.push({
+        ...EMPTY_OUTPUT_MAP_ENTRY,
         key: modelOutput.label,
-        value: '',
       });
     });
   }

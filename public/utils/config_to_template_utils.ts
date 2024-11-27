@@ -25,7 +25,6 @@ import {
   SearchProcessor,
   IngestConfig,
   SearchConfig,
-  MapFormValue,
   MapEntry,
   TEXT_CHUNKING_ALGORITHM,
   SHARED_OPTIONAL_FIELDS,
@@ -33,6 +32,11 @@ import {
   DELIMITER_OPTIONAL_FIELDS,
   IngestPipelineConfig,
   SearchPipelineConfig,
+  InputMapFormValue,
+  MapFormValue,
+  TRANSFORM_TYPE,
+  OutputMapFormValue,
+  NO_TRANSFORMATION,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
 import { sanitizeJSONPath } from './utils';
@@ -181,17 +185,38 @@ export function processorConfigsToTemplateProcessors(
           },
         } as MLInferenceProcessor;
 
-        // process input/output maps
+        // process model config.
+        // TODO: this special handling, plus the special handling on index settings/mappings
+        // could be improved if the 'json' obj returned {} during the conversion instead
+        // of "{}". We may have future JSON fields which right now are going to require
+        // this manual parsing before adding to the template.
+        let modelConfig = {};
+        try {
+          // @ts-ignore
+          modelConfig = JSON.parse(model_config);
+        } catch (e) {}
+
+        // process input/output maps.
+        // if static values found in the input map, add to the model config
         if (input_map?.length > 0) {
           processor.ml_inference.input_map = input_map.map(
-            (mapFormValue: MapFormValue) => mergeMapIntoSingleObj(mapFormValue)
+            (inputMapFormValue: InputMapFormValue) => {
+              const res = processModelInputs(inputMapFormValue);
+              if (!isEmpty(res.modelConfig)) {
+                modelConfig = {
+                  ...modelConfig,
+                  ...res.modelConfig,
+                };
+              }
+              return res.inputMap;
+            }
           );
         }
 
         if (output_map?.length > 0) {
           processor.ml_inference.output_map = output_map.map(
-            (mapFormValue: MapFormValue) =>
-              mergeMapIntoSingleObj(mapFormValue, true) // we reverse the form inputs for the output map, so reverse back when converting back to the underlying template configuration
+            (outputMapFormValue: OutputMapFormValue) =>
+              processModelOutputs(outputMapFormValue)
           );
         }
 
@@ -206,21 +231,10 @@ export function processorConfigsToTemplateProcessors(
           );
         });
 
-        // process model config.
-        // TODO: this special handling, plus the special handling on index settings/mappings
-        // could be improved if the 'json' obj returned {} during the conversion instead
-        // of "{}". We may have future JSON fields which right now are going to require
-        // this manual parsing before adding to the template.
-        let finalModelConfig = {};
-        try {
-          // @ts-ignore
-          finalModelConfig = JSON.parse(model_config);
-        } catch (e) {}
-
         processor.ml_inference = {
           ...processor.ml_inference,
           ...additionalFormValues,
-          model_config: finalModelConfig,
+          model_config: modelConfig,
         };
 
         processorsList.push(processor);
@@ -442,7 +456,7 @@ export function reduceToTemplate(workflow: Workflow): WorkflowTemplate {
 
 // Helper fn to merge the form map (an arr of objs) into a single obj, such that each key
 // is an obj property, and each value is a property value. Used to format into the
-// expected inputs for input_maps and output_maps of the ML inference processors.
+// expected inputs for processor configurations
 function mergeMapIntoSingleObj(
   mapFormValue: MapFormValue,
   reverse: boolean = false
@@ -460,6 +474,99 @@ function mergeMapIntoSingleObj(
         };
   });
   return curMap;
+}
+
+// Bucket the model inputs configured on the UI as input map entries containing dynamic data,
+// or model config entries containing static data.
+function processModelInputs(
+  mapFormValue: InputMapFormValue
+): { inputMap: {}; modelConfig: {} } {
+  let inputMap = {};
+  let modelConfig = {};
+  mapFormValue.forEach((mapEntry) => {
+    // dynamic data
+    if (
+      mapEntry.value.transformType === TRANSFORM_TYPE.FIELD ||
+      mapEntry.value.transformType === TRANSFORM_TYPE.EXPRESSION
+    ) {
+      inputMap = {
+        ...inputMap,
+        [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(
+          mapEntry.value.value
+        ),
+      };
+      // template with dynamic nested vars. Add the nested vars as input map entries,
+      // and add the static template itself to the model config.
+    } else if (
+      mapEntry.value.transformType === TRANSFORM_TYPE.TEMPLATE &&
+      !isEmpty(mapEntry.value.nestedVars)
+    ) {
+      mapEntry.value.nestedVars?.forEach((nestedVar) => {
+        inputMap = {
+          ...inputMap,
+          [sanitizeJSONPath(nestedVar.name)]: sanitizeJSONPath(
+            nestedVar.transform
+          ),
+        };
+      });
+      modelConfig = {
+        ...modelConfig,
+        [mapEntry.key]: mapEntry.value.value,
+      };
+      // static data
+    } else {
+      modelConfig = {
+        ...modelConfig,
+        [mapEntry.key]: mapEntry.value.value,
+      };
+    }
+  });
+  return {
+    inputMap,
+    modelConfig,
+  };
+}
+
+// Parse out the model outputs and any sub-expressions into a single, final output map
+function processModelOutputs(mapFormValue: OutputMapFormValue): {} {
+  let outputMap = {};
+  mapFormValue.forEach((mapEntry) => {
+    // field transform: just a rename
+    if (mapEntry.value.transformType === TRANSFORM_TYPE.FIELD) {
+      outputMap = {
+        ...outputMap,
+        [sanitizeJSONPath(mapEntry.value.value)]: sanitizeJSONPath(
+          mapEntry.key
+        ),
+      };
+      // expression transform: can have multiple nested expressions, since a user may want to parse
+      // out new sub-fields / sub-transforms based off of some model output field that contains nested
+      // data. Add the nested expressions as standalone output map entries
+    } else if (
+      mapEntry.value.transformType === TRANSFORM_TYPE.EXPRESSION &&
+      !isEmpty(mapEntry.value.nestedVars)
+    ) {
+      mapEntry.value.nestedVars?.forEach((nestedVar) => {
+        outputMap = {
+          ...outputMap,
+          [sanitizeJSONPath(nestedVar.name)]: sanitizeJSONPath(
+            nestedVar.transform
+          ),
+        };
+      });
+      // If there is no transformation selected, just map the same output
+      // field name to the new field name
+      // @ts-ignore
+    } else if (mapEntry.value.transformType === NO_TRANSFORMATION) {
+      outputMap = {
+        ...outputMap,
+        [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(mapEntry.key),
+      };
+      // Placeholder logic for future transform types
+    } else {
+    }
+  });
+  return outputMap;
 }
 
 // utility fn used to build the final set of processor config fields, filtering

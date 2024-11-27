@@ -10,7 +10,6 @@ import {
   JSONPATH_ROOT_SELECTOR,
   MODEL_OUTPUT_SCHEMA_FULL_PATH,
   MODEL_OUTPUT_SCHEMA_NESTED_PATH,
-  MapFormValue,
   ModelInputFormField,
   ModelInterface,
   ModelOutput,
@@ -28,10 +27,11 @@ import {
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
 import {
+  InputMapEntry,
   MDSQueryParams,
-  MapEntry,
   ModelInputMap,
   ModelOutputMap,
+  OutputMapEntry,
 } from '../../common/interfaces';
 import queryString from 'query-string';
 import { useLocation } from 'react-router-dom';
@@ -188,7 +188,7 @@ export function unwrapTransformedDocs(
 // We follow the same logic here to generate consistent results.
 export function generateTransform(
   input: {} | [],
-  map: MapFormValue,
+  map: (InputMapEntry | OutputMapEntry)[],
   context: PROCESSOR_CONTEXT,
   transformContext: TRANSFORM_CONTEXT,
   queryContext?: {}
@@ -198,7 +198,7 @@ export function generateTransform(
     try {
       const transformedResult = getTransformedResult(
         input,
-        mapEntry.value,
+        mapEntry.value.value || '',
         context,
         transformContext,
         queryContext
@@ -218,7 +218,7 @@ export function generateTransform(
 // and the input is an array.
 export function generateArrayTransform(
   input: [],
-  map: MapFormValue,
+  map: (InputMapEntry | OutputMapEntry)[],
   context: PROCESSOR_CONTEXT,
   transformContext: TRANSFORM_CONTEXT,
   queryContext?: {}
@@ -230,8 +230,8 @@ export function generateArrayTransform(
       // prefix, parse the query context, instead of the other input.
       let transformedResult;
       if (
-        (mapEntry.value.startsWith(REQUEST_PREFIX) ||
-          mapEntry.value.startsWith(
+        (mapEntry.value.value?.startsWith(REQUEST_PREFIX) ||
+          mapEntry.value.value?.startsWith(
             REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR
           )) &&
         queryContext !== undefined &&
@@ -239,7 +239,7 @@ export function generateArrayTransform(
       ) {
         transformedResult = getTransformedResult(
           {},
-          mapEntry.value,
+          mapEntry.value.value,
           context,
           transformContext,
           queryContext
@@ -248,7 +248,7 @@ export function generateArrayTransform(
         transformedResult = input.map((inputEntry) =>
           getTransformedResult(
             inputEntry,
-            mapEntry.value,
+            mapEntry.value.value || '',
             context,
             transformContext,
             queryContext

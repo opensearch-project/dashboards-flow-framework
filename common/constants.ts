@@ -4,6 +4,7 @@
  */
 
 import {
+  InputMapEntry,
   MapEntry,
   PromptPreset,
   QueryPreset,
@@ -468,6 +469,13 @@ export enum TRANSFORM_CONTEXT {
   INPUT = 'input',
   OUTPUT = 'output',
 }
+export enum TRANSFORM_TYPE {
+  STRING = 'String',
+  FIELD = 'Field',
+  EXPRESSION = 'Expression',
+  TEMPLATE = 'Template',
+}
+export const NO_TRANSFORMATION = 'No transformation';
 export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';
@@ -490,13 +498,21 @@ export enum SORT_ORDER {
 export const MAX_DOCS = 1000;
 export const MAX_STRING_LENGTH = 100;
 export const MAX_JSON_STRING_LENGTH = 10000;
+export const MAX_TEMPLATE_STRING_LENGTH = 10000;
 export const MAX_WORKFLOW_NAME_TO_DISPLAY = 40;
 export const WORKFLOW_NAME_REGEXP = RegExp('^[a-zA-Z0-9_-]*$');
 export const EMPTY_MAP_ENTRY = { key: '', value: '' } as MapEntry;
+export const EMPTY_INPUT_MAP_ENTRY = {
+  key: '',
+  value: {
+    transformType: '' as TRANSFORM_TYPE,
+    value: '',
+  },
+} as InputMapEntry;
+export const EMPTY_OUTPUT_MAP_ENTRY = EMPTY_INPUT_MAP_ENTRY;
 export const MODEL_OUTPUT_SCHEMA_NESTED_PATH =
   'output.properties.inference_results.items.properties.output.items.properties.dataAsMap.properties';
 export const MODEL_OUTPUT_SCHEMA_FULL_PATH = 'output.properties';
-export const PROMPT_FIELD = 'prompt'; // TODO: likely expand to support a pattern and/or multiple (e.g., "prompt", "prompt_template", etc.)
 export enum CONFIG_STEP {
   INGEST = 'Ingestion pipeline',
   SEARCH = 'Search pipeline',

@@ -185,6 +185,7 @@ export function MapField(props: MapFieldProps) {
                                     placeholder={
                                       props.keyPlaceholder || 'Input'
                                     }
+                                    allowCreate={true}
                                   />
                                 ) : (
                                   <TextField
@@ -221,6 +222,7 @@ export function MapField(props: MapFieldProps) {
                                     placeholder={
                                       props.valuePlaceholder || 'Output'
                                     }
+                                    allowCreate={true}
                                   />
                                 ) : (
                                   <TextField
