@@ -5,7 +5,7 @@
 
 import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
-import { AnyObject, ArraySchema, ObjectSchema } from 'yup';
+import { ObjectSchema } from 'yup';
 import {
   COMPONENT_CLASS,
   PROCESSOR_TYPE,
