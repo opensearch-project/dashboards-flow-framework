@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import { useSelector } from 'react-redux';
-import { flattie } from 'flattie';
 import {
   EuiAccordion,
   EuiCallOut,
@@ -25,7 +24,6 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
   ModelInterface,
-  IndexMappings,
   EMPTY_INPUT_MAP_ENTRY,
   REQUEST_PREFIX,
   REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
@@ -39,20 +37,13 @@ import {
   InputMapFormValue,
   InputMapArrayFormValue,
 } from '../../../../../../common';
-import {
-  ConfigurePromptModal,
-  InputTransformModal,
-  OutputTransformModal,
-  OverrideQueryModal,
-} from './modals';
+import { OverrideQueryModal } from './modals';
 import { ModelInputs } from './model_inputs';
-import { AppState, getMappings, useAppDispatch } from '../../../../../store';
+import { AppState } from '../../../../../store';
 import {
   formikToPartialPipeline,
-  getDataSourceId,
   parseModelInputs,
   parseModelOutputs,
-  sanitizeJSONPath,
 } from '../../../../../utils';
 import { ConfigFieldList } from '../../config_field_list';
 import { ModelOutputs } from './model_outputs';
@@ -71,10 +62,7 @@ interface MLProcessorInputsProps {
  * output map configuration forms, respectively.
  */
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
-  const dispatch = useAppDispatch();
-  const dataSourceId = getDataSourceId();
-  const { models, connectors } = useSelector((state: AppState) => state.ml);
-  const indices = useSelector((state: AppState) => state.opensearch.indices);
+  const { models } = useSelector((state: AppState) => state.ml);
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
@@ -115,13 +103,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   }, [props.uiConfig.search.enrichRequest.processors]);
 
   // various modal states
-  const [isInputTransformModalOpen, setIsInputTransformModalOpen] = useState<
-    boolean
-  >(false);
-  const [isOutputTransformModalOpen, setIsOutputTransformModalOpen] = useState<
-    boolean
-  >(false);
-  const [isPromptModalOpen, setIsPromptModalOpen] = useState<boolean>(false);
   const [isQueryModalOpen, setIsQueryModalOpen] = useState<boolean>(false);
 
   // model interface state
@@ -168,122 +149,8 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     }
   }, [models]);
 
-  // persisting doc/query/index mapping fields to collect a list
-  // of options to display in the dropdowns when configuring input / output maps
-  const [docFields, setDocFields] = useState<{ label: string }[]>([]);
-  const [queryFields, setQueryFields] = useState<{ label: string }[]>([]);
-  const [indexMappingFields, setIndexMappingFields] = useState<
-    { label: string }[]
-  >([]);
-  useEffect(() => {
-    try {
-      const docObjKeys = Object.keys(
-        flattie((JSON.parse(values.ingest.docs) as {}[])[0])
-      );
-      if (docObjKeys.length > 0) {
-        setDocFields(
-          docObjKeys.map((key) => {
-            return {
-              label:
-                // ingest inputs can handle dot notation, and hence don't need
-                // sanitizing to handle JSONPath edge cases. The other contexts
-                // only support JSONPath, and hence need some post-processing/sanitizing.
-                props.context === PROCESSOR_CONTEXT.INGEST
-                  ? key
-                  : sanitizeJSONPath(key),
-            };
-          })
-        );
-      }
-    } catch {}
-  }, [values?.ingest?.docs]);
-  useEffect(() => {
-    try {
-      const queryObjKeys = Object.keys(
-        flattie(JSON.parse(values.search.request))
-      );
-      if (queryObjKeys.length > 0) {
-        setQueryFields(
-          queryObjKeys.map((key) => {
-            return {
-              label:
-                // ingest inputs can handle dot notation, and hence don't need
-                // sanitizing to handle JSONPath edge cases. The other contexts
-                // only support JSONPath, and hence need some post-processing/sanitizing.
-                props.context === PROCESSOR_CONTEXT.INGEST
-                  ? key
-                  : sanitizeJSONPath(key),
-            };
-          })
-        );
-      }
-    } catch {}
-  }, [values?.search?.request]);
-  useEffect(() => {
-    const indexName = values?.search?.index?.name as string | undefined;
-    if (indexName !== undefined && indices[indexName] !== undefined) {
-      dispatch(
-        getMappings({
-          index: indexName,
-          dataSourceId,
-        })
-      )
-        .unwrap()
-        .then((resp: IndexMappings) => {
-          const mappingsObjKeys = Object.keys(resp.properties);
-          if (mappingsObjKeys.length > 0) {
-            setIndexMappingFields(
-              mappingsObjKeys.map((key) => {
-                return {
-                  label: key,
-                  type: resp.properties[key]?.type,
-                };
-              })
-            );
-          }
-        });
-    }
-  }, [values?.search?.index?.name]);
-
   return (
     <>
-      {isInputTransformModalOpen && (
-        <InputTransformModal
-          uiConfig={props.uiConfig}
-          config={props.config}
-          baseConfigPath={props.baseConfigPath}
-          context={props.context}
-          inputMapFieldPath={inputMapFieldPath}
-          modelInterface={modelInterface}
-          valueOptions={
-            props.context === PROCESSOR_CONTEXT.INGEST
-              ? docFields
-              : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-              ? queryFields
-              : indexMappingFields
-          }
-          onClose={() => setIsInputTransformModalOpen(false)}
-        />
-      )}
-      {isOutputTransformModalOpen && (
-        <OutputTransformModal
-          uiConfig={props.uiConfig}
-          config={props.config}
-          baseConfigPath={props.baseConfigPath}
-          context={props.context}
-          outputMapFieldPath={outputMapFieldPath}
-          modelInterface={modelInterface}
-          onClose={() => setIsOutputTransformModalOpen(false)}
-        />
-      )}
-      {isPromptModalOpen && (
-        <ConfigurePromptModal
-          config={props.config}
-          baseConfigPath={props.baseConfigPath}
-          modelInterface={modelInterface}
-          onClose={() => setIsPromptModalOpen(false)}
-        />
-      )}
       {isQueryModalOpen && (
         <OverrideQueryModal
           config={props.config}
