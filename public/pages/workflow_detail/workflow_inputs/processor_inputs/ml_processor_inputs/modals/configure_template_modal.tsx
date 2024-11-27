@@ -744,13 +744,12 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
 // small util fn to get the full placeholder string to be
 // inserted into the template. String conversion is required
-// if the input is an array, for example. Also, all values
+// if the input is an array, so default to toString() for
+// all types. Also, all values
 // should be prepended with "parameters.", as all inputs
 // will be nested under a base parameters obj.
-function getPlaceholderString(label: string, type?: string) {
-  return type === 'array'
-    ? `\$\{parameters.${label}.toString()\}`
-    : `\$\{parameters.${label}\}`;
+function getPlaceholderString(label: string) {
+  return `\$\{parameters.${label}.toString()\}`;
 }
 
 function injectValuesIntoTemplate(
