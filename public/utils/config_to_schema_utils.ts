@@ -205,8 +205,23 @@ export function getFieldSchema(
               transformType: defaultStringSchema.required(),
               value: yup
                 .string()
-                .min(1, 'Too short')
-                .max(MAX_TEMPLATE_STRING_LENGTH, 'Too long'),
+                .when('transformType', (transformType, schema) => {
+                  const finalType = getIn(
+                    transformType,
+                    '0',
+                    TRANSFORM_TYPE.FIELD
+                  ) as TRANSFORM_TYPE;
+                  // accept longer string lengths if the input is a template
+                  if (finalType === TRANSFORM_TYPE.TEMPLATE) {
+                    return yup
+                      .string()
+                      .min(1, 'Too short')
+                      .max(MAX_TEMPLATE_STRING_LENGTH, 'Too long')
+                      .required();
+                  } else {
+                    return defaultStringSchema.required();
+                  }
+                }),
               nestedVars: yup.array().of(
                 yup.object().shape({
                   name: defaultStringSchema.required(),
