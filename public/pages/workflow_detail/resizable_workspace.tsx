@@ -209,6 +209,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                           workflow={props.workflow}
                           ingestResponse={ingestResponse}
                           queryResponse={queryResponse}
+                          setQueryResponse={setQueryResponse}
                           selectedTabId={selectedInspectorTabId}
                           setSelectedTabId={setSelectedInspectorTabId}
                         />

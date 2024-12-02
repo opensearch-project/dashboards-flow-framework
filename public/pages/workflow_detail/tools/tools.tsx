@@ -25,6 +25,7 @@ interface ToolsProps {
   workflow?: Workflow;
   ingestResponse: string;
   queryResponse: string;
+  setQueryResponse: (queryResponse: string) => void;
   selectedTabId: INSPECTOR_TAB_ID;
   setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
 }
@@ -121,7 +122,10 @@ export function Tools(props: ToolsProps) {
                   <Ingest ingestResponse={props.ingestResponse} />
                 )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.QUERY && (
-                  <Query queryResponse={props.queryResponse} />
+                  <Query
+                    queryResponse={props.queryResponse}
+                    setQueryResponse={props.setQueryResponse}
+                  />
                 )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.ERRORS && (
                   <Errors errorMessage={curErrorMessage} />
