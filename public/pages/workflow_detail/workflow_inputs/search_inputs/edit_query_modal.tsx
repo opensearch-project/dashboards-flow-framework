@@ -20,16 +20,26 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiText,
+  EuiCodeEditor,
+  EuiEmptyPrompt,
+  EuiCallOut,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
+  customStringify,
   IConfigField,
   QUERY_PRESETS,
   QueryPreset,
   RequestFormValues,
+  SearchHit,
   WorkflowFormValues,
 } from '../../../../../common';
-import { getFieldSchema, getInitialValue } from '../../../../utils';
+import {
+  getDataSourceId,
+  getFieldSchema,
+  getInitialValue,
+} from '../../../../utils';
+import { searchIndex, useAppDispatch } from '../../../../store';
 
 interface EditQueryModalProps {
   queryFieldPath: string;
@@ -41,6 +51,9 @@ interface EditQueryModalProps {
  * a set of pre-defined queries targeted for different use cases.
  */
 export function EditQueryModal(props: EditQueryModalProps) {
+  const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
+
   // sub-form values/schema
   const requestFormValues = {
     request: getInitialValue('json'),
@@ -62,6 +75,10 @@ export function EditQueryModal(props: EditQueryModalProps) {
 
   // popover state
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
+
+  // results state
+  const [tempResults, setTempResults] = useState<string>('');
+  const [tempResultsError, setTempResultsError] = useState<string>('');
 
   return (
     <Formik
@@ -178,7 +195,34 @@ export function EditQueryModal(props: EditQueryModalProps) {
                           <EuiSmallButton
                             fill={false}
                             onClick={() => {
-                              console.log('searching...');
+                              dispatch(
+                                searchIndex({
+                                  apiBody: {
+                                    index: values?.search?.index?.name,
+                                    body: tempRequest,
+                                    // Run the query independent of the pipeline inside this modal
+                                    searchPipeline: '_none',
+                                  },
+                                  dataSourceId,
+                                })
+                              )
+                                .unwrap()
+                                .then(async (resp) => {
+                                  setTempResults(
+                                    customStringify(
+                                      resp?.hits?.hits?.map(
+                                        (hit: SearchHit) => hit._source
+                                      )
+                                    )
+                                  );
+                                  setTempResultsError('');
+                                })
+                                .catch((error: any) => {
+                                  setTempResults('');
+                                  const errorMsg = `Error running query: ${error}`;
+                                  setTempResultsError(errorMsg);
+                                  console.error(errorMsg);
+                                });
                             }}
                           >
                             Search
@@ -187,7 +231,41 @@ export function EditQueryModal(props: EditQueryModalProps) {
                       </EuiFlexGroup>
                     </EuiFlexItem>
                     <EuiFlexItem>TODO add query parameters</EuiFlexItem>
-                    <EuiFlexItem>TODO add search results</EuiFlexItem>
+                    <EuiFlexItem>
+                      <>
+                        <EuiText size="s">Results</EuiText>
+                        {isEmpty(tempResults) && isEmpty(tempResultsError) ? (
+                          <EuiEmptyPrompt
+                            title={<h2>No results</h2>}
+                            titleSize="s"
+                            body={
+                              <>
+                                <EuiText size="s">
+                                  Run search to view results.
+                                </EuiText>
+                              </>
+                            }
+                          />
+                        ) : !isEmpty(tempResultsError) ? (
+                          <EuiCallOut color="danger" title={tempResultsError} />
+                        ) : (
+                          <EuiCodeEditor
+                            mode="json"
+                            theme="textmate"
+                            width="100%"
+                            height="100%"
+                            value={tempResults}
+                            readOnly={true}
+                            setOptions={{
+                              fontSize: '12px',
+                              autoScrollEditorIntoView: true,
+                              wrap: true,
+                            }}
+                            tabSize={2}
+                          />
+                        )}
+                      </>
+                    </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
               </EuiFlexGroup>
