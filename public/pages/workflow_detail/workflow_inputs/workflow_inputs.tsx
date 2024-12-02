@@ -106,9 +106,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // provisioned resources states
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
+  const [searchProvisioned, setSearchProvisioned] = useState<boolean>(false);
 
   // confirm modal state
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
   // last ingested state
   const [lastIngested, setLastIngested] = useState<number | undefined>(
@@ -120,6 +121,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const onSearch = props.selectedStep === CONFIG_STEP.SEARCH;
   const ingestEnabled = values?.ingest?.enabled || false;
   const onIngestAndProvisioned = onIngest && ingestProvisioned;
+  const onSearchAndProvisioned = onSearch && searchProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
   const isProposingNoSearchResources =
@@ -234,6 +236,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   useEffect(() => {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
+  }, [props.workflow]);
+  useEffect(() => {
+    setSearchProvisioned(hasProvisionedSearchResources(props.workflow));
   }, [props.workflow]);
 
   // maintain global states (button eligibility)
@@ -585,8 +590,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 },
               ]}
             />
-            {isModalOpen && (
-              <EuiModal onClose={() => setIsModalOpen(false)}>
+            {isDeleteModalOpen && (
+              <EuiModal onClose={() => setIsDeleteModalOpen(false)}>
                 <EuiModalHeader>
                   <EuiModalHeaderTitle>
                     <p>{`Delete resources for workflow ${getCharacterLimitedString(
@@ -602,7 +607,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   </EuiText>
                 </EuiModalBody>
                 <EuiModalFooter>
-                  <EuiSmallButtonEmpty onClick={() => setIsModalOpen(false)}>
+                  <EuiSmallButtonEmpty
+                    onClick={() => setIsDeleteModalOpen(false)}
+                  >
                     {' '}
                     Cancel
                   </EuiSmallButtonEmpty>
@@ -624,6 +631,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       )
                         .unwrap()
                         .then(async (result) => {
+                          props.setSelectedStep(CONFIG_STEP.INGEST);
                           setFieldValue('ingest.enabled', false);
                           // @ts-ignore
                           await dispatch(
@@ -635,7 +643,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         })
                         .catch((error: any) => {})
                         .finally(() => {
-                          setIsModalOpen(false);
+                          setIsDeleteModalOpen(false);
                           setIsRunningDelete(false);
                         });
                     }}
@@ -660,15 +668,17 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 <h2>
                   {onIngestAndUnprovisioned ? (
                     'Define ingest pipeline'
-                  ) : onIngestAndProvisioned ? (
+                  ) : onIngestAndProvisioned || onSearchAndProvisioned ? (
                     <EuiFlexGroup direction="row" justifyContent="spaceBetween">
                       <EuiFlexItem grow={false}>
-                        Edit ingest pipeline
+                        {onIngestAndProvisioned
+                          ? `Edit ingest pipeline`
+                          : `Edit search pipeline`}
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiSmallButtonEmpty
                           color="danger"
-                          onClick={() => setIsModalOpen(true)}
+                          onClick={() => setIsDeleteModalOpen(true)}
                         >
                           <EuiIcon type="trash" />
                           {`    `}Delete resources
