@@ -619,6 +619,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     onClick={async () => {
                       setIsRunningDelete(true);
                       await dispatch(
+                        // If in the future we want to start with a fresh/empty state after deleting resources,
+                        // will need to update the workflow with an empty UI config before re-fetching the workflow.
+                        // For now we still persist the config, just clean up / deprovision the resources.
                         deprovisionWorkflow({
                           apiBody: {
                             workflowId: props.workflow?.id as string,

@@ -27,6 +27,7 @@ import {
   VECTOR_PATTERN,
   KNN_QUERY,
   HYBRID_SEARCH_QUERY_MATCH_KNN,
+  WorkflowConfig,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 
@@ -74,63 +75,67 @@ export function enrichPresetWorkflowWithUiMetadata(
 export function fetchEmptyMetadata(): UIState {
   return {
     type: WORKFLOW_TYPE.CUSTOM,
-    config: {
-      ingest: {
-        enabled: {
-          id: 'enabled',
-          type: 'boolean',
-          value: true,
-        },
-        pipelineName: {
-          id: 'pipelineName',
+    config: fetchEmptyUIConfig(),
+  };
+}
+
+export function fetchEmptyUIConfig(): WorkflowConfig {
+  return {
+    ingest: {
+      enabled: {
+        id: 'enabled',
+        type: 'boolean',
+        value: true,
+      },
+      pipelineName: {
+        id: 'pipelineName',
+        type: 'string',
+        value: generateId('ingest_pipeline'),
+      },
+      enrich: {
+        processors: [],
+      },
+      index: {
+        name: {
+          id: 'indexName',
           type: 'string',
-          value: generateId('ingest_pipeline'),
+          value: generateId('my_index', 6),
         },
-        enrich: {
-          processors: [],
+        mappings: {
+          id: 'indexMappings',
+          type: 'json',
+          value: customStringify({
+            properties: {},
+          }),
         },
-        index: {
-          name: {
-            id: 'indexName',
-            type: 'string',
-            value: generateId('my_index', 6),
-          },
-          mappings: {
-            id: 'indexMappings',
-            type: 'json',
-            value: customStringify({
-              properties: {},
-            }),
-          },
-          settings: {
-            id: 'indexSettings',
-            type: 'json',
-          },
+        settings: {
+          id: 'indexSettings',
+          type: 'json',
         },
       },
-      search: {
-        request: {
-          id: 'request',
-          type: 'json',
-          value: customStringify(FETCH_ALL_QUERY),
-        },
-        pipelineName: {
-          id: 'pipelineName',
+    },
+    search: {
+      request: {
+        id: 'request',
+        type: 'json',
+        value: customStringify(FETCH_ALL_QUERY),
+      },
+      pipelineName: {
+        id: 'pipelineName',
+        type: 'string',
+        value: generateId('search_pipeline'),
+      },
+      index: {
+        name: {
+          id: 'indexName',
           type: 'string',
-          value: generateId('search_pipeline'),
         },
-        index: {
-          name: {
-            id: 'indexName',
-            type: 'string',
-          },
-        },
-        enrichRequest: {
-          processors: [],
-        },
-        enrichResponse: {
-          processors: [],
-        },
+      },
+      enrichRequest: {
+        processors: [],
+      },
+      enrichResponse: {
+        processors: [],
       },
     },
   };
