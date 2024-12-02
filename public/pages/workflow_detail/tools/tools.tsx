@@ -20,6 +20,7 @@ import { Resources } from './resources';
 import { Query } from './query';
 import { Ingest } from './ingest';
 import { Errors } from './errors';
+import { hasProvisionedSearchResources } from '../../../utils';
 
 interface ToolsProps {
   workflow?: Workflow;
@@ -125,6 +126,9 @@ export function Tools(props: ToolsProps) {
                   <Query
                     queryResponse={props.queryResponse}
                     setQueryResponse={props.setQueryResponse}
+                    hasSearchPipeline={hasProvisionedSearchResources(
+                      props.workflow
+                    )}
                   />
                 )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.ERRORS && (
