@@ -12,7 +12,6 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
-  EuiIcon,
   EuiLoadingSpinner,
   EuiModal,
   EuiModalBody,
@@ -57,9 +56,9 @@ import {
   generateId,
   sleep,
   getResourcesToBeForceDeleted,
+  getDataSourceId,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
-import { getDataSourceId } from '../../../utils/utils';
 
 // styling
 import '../workspace/workspace-styles.scss';
@@ -80,6 +79,7 @@ interface WorkflowInputsProps {
   setSelectedStep: (step: CONFIG_STEP) => void;
   setUnsavedIngestProcessors: (unsavedIngestProcessors: boolean) => void;
   setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
+  displaySearchPanel: () => void;
 }
 
 /**
@@ -676,13 +676,30 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           : `Edit search pipeline`}
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
-                        <EuiSmallButtonEmpty
-                          color="danger"
-                          onClick={() => setIsDeleteModalOpen(true)}
-                        >
-                          <EuiIcon type="trash" />
-                          {`    `}Delete resources
-                        </EuiSmallButtonEmpty>
+                        <EuiFlexGroup direction="row" gutterSize="s">
+                          <EuiFlexItem grow={false}>
+                            <EuiSmallButtonEmpty
+                              color="danger"
+                              onClick={() => setIsDeleteModalOpen(true)}
+                              iconType="trash"
+                              iconSide="left"
+                            >
+                              Delete resources
+                            </EuiSmallButtonEmpty>
+                          </EuiFlexItem>
+                          {onSearchAndProvisioned && (
+                            <EuiFlexItem grow={false}>
+                              <EuiSmallButton
+                                fill={false}
+                                onClick={() => {
+                                  props.displaySearchPanel();
+                                }}
+                              >
+                                Test pipeline
+                              </EuiSmallButton>
+                            </EuiFlexItem>
+                          )}
+                        </EuiFlexGroup>
                       </EuiFlexItem>
                     </EuiFlexGroup>
                   ) : (
