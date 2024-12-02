@@ -16,8 +16,10 @@ import {
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiPopover,
-  EuiSpacer,
   EuiSmallButtonEmpty,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiText,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
@@ -96,49 +98,99 @@ export function EditQueryModal(props: EditQueryModalProps) {
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>{`Edit query`}</p>
+                <p>{`Edit query definition`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiModalBody data-testid="editQueryModalBody">
-              <EuiPopover
-                button={
-                  <EuiSmallButton
-                    onClick={() => setPopoverOpen(!popoverOpen)}
-                    data-testid="searchQueryPresetButton"
-                    iconSide="right"
-                    iconType="arrowDown"
-                  >
-                    Choose from a preset
-                  </EuiSmallButton>
-                }
-                isOpen={popoverOpen}
-                closePopover={() => setPopoverOpen(false)}
-                anchorPosition="downLeft"
-              >
-                <EuiContextMenu
-                  size="s"
-                  initialPanelId={0}
-                  panels={[
-                    {
-                      id: 0,
-                      items: QUERY_PRESETS.map((preset: QueryPreset) => ({
-                        name: preset.name,
-                        onClick: () => {
-                          formikProps.setFieldValue('request', preset.query);
-                          setPopoverOpen(false);
-                        },
-                      })),
-                    },
-                  ]}
-                />
-              </EuiPopover>
-              <EuiSpacer size="s" />
-              <JsonField
-                label="Query"
-                fieldPath={'request'}
-                editorHeight="25vh"
-                readOnly={false}
-              />
+              <EuiFlexGroup direction="row">
+                <EuiFlexItem>
+                  <EuiFlexGroup direction="column">
+                    <EuiFlexItem grow={false}>
+                      <EuiFlexGroup
+                        direction="row"
+                        justifyContent="spaceBetween"
+                      >
+                        <EuiFlexItem grow={false}>
+                          <EuiText size="m">Query definition</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiPopover
+                            button={
+                              <EuiSmallButton
+                                onClick={() => setPopoverOpen(!popoverOpen)}
+                                data-testid="searchQueryPresetButton"
+                                iconSide="right"
+                                iconType="arrowDown"
+                              >
+                                Query samples
+                              </EuiSmallButton>
+                            }
+                            isOpen={popoverOpen}
+                            closePopover={() => setPopoverOpen(false)}
+                            anchorPosition="downLeft"
+                          >
+                            <EuiContextMenu
+                              size="s"
+                              initialPanelId={0}
+                              panels={[
+                                {
+                                  id: 0,
+                                  items: QUERY_PRESETS.map(
+                                    (preset: QueryPreset) => ({
+                                      name: preset.name,
+                                      onClick: () => {
+                                        formikProps.setFieldValue(
+                                          'request',
+                                          preset.query
+                                        );
+                                        setPopoverOpen(false);
+                                      },
+                                    })
+                                  ),
+                                },
+                              ]}
+                            />
+                          </EuiPopover>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <JsonField
+                        label="Query"
+                        fieldPath={'request'}
+                        editorHeight="25vh"
+                        readOnly={false}
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <EuiFlexGroup direction="column">
+                    <EuiFlexItem grow={false}>
+                      <EuiFlexGroup
+                        direction="row"
+                        justifyContent="spaceBetween"
+                      >
+                        <EuiFlexItem grow={false}>
+                          <EuiText size="m">Test query</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiSmallButton
+                            fill={false}
+                            onClick={() => {
+                              console.log('searching...');
+                            }}
+                          >
+                            Search
+                          </EuiSmallButton>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                    <EuiFlexItem>TODO add query parameters</EuiFlexItem>
+                    <EuiFlexItem>TODO add search results</EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiModalBody>
             <EuiModalFooter>
               <EuiSmallButtonEmpty
