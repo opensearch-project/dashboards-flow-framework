@@ -23,7 +23,6 @@ import {
   EuiCodeEditor,
   EuiEmptyPrompt,
   EuiCallOut,
-  EuiFieldText,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
@@ -45,6 +44,7 @@ import {
   injectParameters,
 } from '../../../../utils';
 import { searchIndex, useAppDispatch } from '../../../../store';
+import { QueryParamsList } from '../../../../general_components';
 
 interface EditQueryModalProps {
   queryFieldPath: string;
@@ -88,6 +88,11 @@ export function EditQueryModal(props: EditQueryModalProps) {
   // query/request params state. Re-generate when the request has been updated,
   // and if there are a new set of parameters
   const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
+
+  // Do a few things when the request is changed:
+  // 1. Check if there is a new set of query parameters, and if so,
+  //    reset the form.
+  // 2. Clear any persisted error
   useEffect(() => {
     const placeholders = getPlaceholdersFromQuery(tempRequest);
     if (
@@ -100,7 +105,13 @@ export function EditQueryModal(props: EditQueryModalProps) {
         placeholders.map((placeholder) => ({ name: placeholder, value: '' }))
       );
     }
+    setTempResultsError('');
   }, [tempRequest]);
+
+  // Clear any error if the parameters have been updated in any way
+  useEffect(() => {
+    setTempResultsError('');
+  }, [queryParams]);
 
   return (
     <Formik
@@ -255,60 +266,13 @@ export function EditQueryModal(props: EditQueryModalProps) {
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
-                    {queryParams?.length > 0 && (
-                      <EuiFlexItem>
-                        <EuiFlexGroup direction="column" gutterSize="xs">
-                          <EuiFlexItem grow={false}>
-                            <EuiFlexGroup direction="row" gutterSize="s">
-                              <EuiFlexItem grow={3}>
-                                <EuiText size="s" color="subdued">
-                                  Parameter
-                                </EuiText>
-                              </EuiFlexItem>
-                              <EuiFlexItem grow={7}>
-                                <EuiText size="s" color="subdued">
-                                  Value
-                                </EuiText>
-                              </EuiFlexItem>
-                            </EuiFlexGroup>
-                          </EuiFlexItem>
-                          {queryParams.map((queryParam, idx) => {
-                            return (
-                              <EuiFlexItem grow={false} key={idx}>
-                                <EuiFlexGroup direction="row" gutterSize="s">
-                                  <EuiFlexItem grow={3}>
-                                    <EuiText
-                                      size="s"
-                                      style={{ paddingTop: '4px' }}
-                                    >
-                                      {queryParam.name}
-                                    </EuiText>
-                                  </EuiFlexItem>
-                                  <EuiFlexItem grow={7}>
-                                    <EuiFieldText
-                                      compressed={true}
-                                      fullWidth={true}
-                                      placeholder={`Value`}
-                                      value={queryParam.value}
-                                      onChange={(e) => {
-                                        setQueryParams(
-                                          queryParams.map((qp, i) =>
-                                            i === idx
-                                              ? { ...qp, value: e.target.value }
-                                              : qp
-                                          )
-                                        );
-                                      }}
-                                    />
-                                  </EuiFlexItem>
-                                </EuiFlexGroup>
-                              </EuiFlexItem>
-                            );
-                          })}
-                        </EuiFlexGroup>
-                      </EuiFlexItem>
-                    )}
-
+                    {/**
+                     * Note: this may return nothing if the list of params are empty
+                     */}
+                    <QueryParamsList
+                      queryParams={queryParams}
+                      setQueryParams={setQueryParams}
+                    />
                     <EuiFlexItem>
                       <>
                         <EuiText size="s">Results</EuiText>
