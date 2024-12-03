@@ -23,21 +23,26 @@ import {
   EuiCodeEditor,
   EuiEmptyPrompt,
   EuiCallOut,
+  EuiFieldText,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
   customStringify,
   IConfigField,
   QUERY_PRESETS,
+  QueryParam,
   QueryPreset,
   RequestFormValues,
   SearchHit,
   WorkflowFormValues,
 } from '../../../../../common';
 import {
+  containsSameValues,
   getDataSourceId,
   getFieldSchema,
   getInitialValue,
+  getPlaceholdersFromQuery,
+  injectParameters,
 } from '../../../../utils';
 import { searchIndex, useAppDispatch } from '../../../../store';
 
@@ -79,6 +84,23 @@ export function EditQueryModal(props: EditQueryModalProps) {
   // results state
   const [tempResults, setTempResults] = useState<string>('');
   const [tempResultsError, setTempResultsError] = useState<string>('');
+
+  // query/request params state. Re-generate when the request has been updated,
+  // and if there are a new set of parameters
+  const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
+  useEffect(() => {
+    const placeholders = getPlaceholdersFromQuery(tempRequest);
+    if (
+      !containsSameValues(
+        placeholders,
+        queryParams.map((queryParam) => queryParam.name)
+      )
+    ) {
+      setQueryParams(
+        placeholders.map((placeholder) => ({ name: placeholder, value: '' }))
+      );
+    }
+  }, [tempRequest]);
 
   return (
     <Formik
@@ -199,7 +221,10 @@ export function EditQueryModal(props: EditQueryModalProps) {
                                 searchIndex({
                                   apiBody: {
                                     index: values?.search?.index?.name,
-                                    body: tempRequest,
+                                    body: injectParameters(
+                                      queryParams,
+                                      tempRequest
+                                    ),
                                     // Run the query independent of the pipeline inside this modal
                                     searchPipeline: '_none',
                                   },
@@ -230,7 +255,60 @@ export function EditQueryModal(props: EditQueryModalProps) {
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
-                    <EuiFlexItem>TODO add query parameters</EuiFlexItem>
+                    {queryParams?.length > 0 && (
+                      <EuiFlexItem>
+                        <EuiFlexGroup direction="column" gutterSize="xs">
+                          <EuiFlexItem grow={false}>
+                            <EuiFlexGroup direction="row" gutterSize="s">
+                              <EuiFlexItem grow={3}>
+                                <EuiText size="s" color="subdued">
+                                  Parameter
+                                </EuiText>
+                              </EuiFlexItem>
+                              <EuiFlexItem grow={7}>
+                                <EuiText size="s" color="subdued">
+                                  Value
+                                </EuiText>
+                              </EuiFlexItem>
+                            </EuiFlexGroup>
+                          </EuiFlexItem>
+                          {queryParams.map((queryParam, idx) => {
+                            return (
+                              <EuiFlexItem grow={false} key={idx}>
+                                <EuiFlexGroup direction="row" gutterSize="s">
+                                  <EuiFlexItem grow={3}>
+                                    <EuiText
+                                      size="s"
+                                      style={{ paddingTop: '4px' }}
+                                    >
+                                      {queryParam.name}
+                                    </EuiText>
+                                  </EuiFlexItem>
+                                  <EuiFlexItem grow={7}>
+                                    <EuiFieldText
+                                      compressed={true}
+                                      fullWidth={true}
+                                      placeholder={`Value`}
+                                      value={queryParam.value}
+                                      onChange={(e) => {
+                                        setQueryParams(
+                                          queryParams.map((qp, i) =>
+                                            i === idx
+                                              ? { ...qp, value: e.target.value }
+                                              : qp
+                                          )
+                                        );
+                                      }}
+                                    />
+                                  </EuiFlexItem>
+                                </EuiFlexGroup>
+                              </EuiFlexItem>
+                            );
+                          })}
+                        </EuiFlexGroup>
+                      </EuiFlexItem>
+                    )}
+
                     <EuiFlexItem>
                       <>
                         <EuiText size="s">Results</EuiText>
