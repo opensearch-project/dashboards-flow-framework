@@ -85,8 +85,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
   const [tempResults, setTempResults] = useState<string>('');
   const [tempResultsError, setTempResultsError] = useState<string>('');
 
-  // query/request params state. Re-generate when the request has been updated,
-  // and if there are a new set of parameters
+  // query/request params state
   const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
 
   // Do a few things when the request is changed:
@@ -208,7 +207,6 @@ export function EditQueryModal(props: EditQueryModalProps) {
                       <JsonField
                         label="Query"
                         fieldPath={'request'}
-                        editorHeight="25vh"
                         readOnly={false}
                       />
                     </EuiFlexItem>
@@ -267,7 +265,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
                       </EuiFlexGroup>
                     </EuiFlexItem>
                     {/**
-                     * Note: this may return nothing if the list of params are empty
+                     * This may return nothing if the list of params are empty
                      */}
                     <QueryParamsList
                       queryParams={queryParams}

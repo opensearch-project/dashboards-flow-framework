@@ -17,11 +17,18 @@ import {
 } from '@elastic/eui';
 import {
   customStringify,
+  QueryParam,
   SearchHit,
   WorkflowFormValues,
 } from '../../../../../common';
 import { searchIndex, useAppDispatch } from '../../../../store';
-import { getDataSourceId } from '../../../../utils';
+import {
+  containsSameValues,
+  getDataSourceId,
+  getPlaceholdersFromQuery,
+  injectParameters,
+} from '../../../../utils';
+import { QueryParamsList } from '../../../../general_components';
 
 interface QueryProps {
   queryResponse: string;
@@ -49,12 +56,36 @@ export function Query(props: QueryProps) {
   // Form state
   const { values } = useFormikContext<WorkflowFormValues>();
 
+  // Standalone / sandboxed search request state. Users can test things out
+  // without updating the base form / persisted value. We default to any
+  // set form value on initialization
+  // TODO: allow overriding the temp request with a sandboxed value.
+  const [tempRequest, setTempRequest] = useState<string>(
+    values?.search?.request || '{}'
+  );
+
   // state for if to execute search w/ or w/o any configured search pipeline.
   // default based on if there is an available search pipeline or not.
   const [includePipeline, setIncludePipeline] = useState<boolean>(false);
   useEffect(() => {
     setIncludePipeline(props.hasSearchPipeline);
   }, [props.hasSearchPipeline]);
+
+  // query/request params state, update when the request is changed/updated
+  const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
+  useEffect(() => {
+    const placeholders = getPlaceholdersFromQuery(tempRequest);
+    if (
+      !containsSameValues(
+        placeholders,
+        queryParams.map((queryParam) => queryParam.name)
+      )
+    ) {
+      setQueryParams(
+        placeholders.map((placeholder) => ({ name: placeholder, value: '' }))
+      );
+    }
+  }, [tempRequest]);
 
   // empty states
   const noSearchIndex = isEmpty(values?.search?.index?.name);
@@ -91,7 +122,7 @@ export function Query(props: QueryProps) {
                           searchIndex({
                             apiBody: {
                               index: values?.search?.index?.name,
-                              body: values?.search?.request,
+                              body: injectParameters(queryParams, tempRequest),
                               searchPipeline:
                                 props.hasSearchPipeline &&
                                 includePipeline &&
@@ -142,6 +173,15 @@ export function Query(props: QueryProps) {
                   onChange={(options) => {
                     setIncludePipeline(!includePipeline);
                   }}
+                />
+              </EuiFlexItem>
+              <EuiFlexItem>
+                {/**
+                 * This may return nothing if the list of params are empty
+                 */}
+                <QueryParamsList
+                  queryParams={queryParams}
+                  setQueryParams={setQueryParams}
                 />
               </EuiFlexItem>
             </EuiFlexGroup>
