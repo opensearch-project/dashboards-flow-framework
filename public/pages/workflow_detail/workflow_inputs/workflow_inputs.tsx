@@ -592,7 +592,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             />
             {isDeleteModalOpen && (
               <EuiModal
-                maxWidth={false}
                 style={{ width: '70vw' }}
                 onClose={() => setIsDeleteModalOpen(false)}
               >
