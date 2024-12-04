@@ -202,7 +202,7 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
     expect(queryEditButton).toBeInTheDocument();
     userEvent.click(queryEditButton);
     await waitFor(() => {
-      expect(getAllByText('Edit query').length).toBeGreaterThan(0);
+      expect(getAllByText('Edit query definition').length).toBeGreaterThan(0);
     });
     const searchQueryPresetButton = getByTestId('searchQueryPresetButton');
     expect(searchQueryPresetButton).toBeInTheDocument();
