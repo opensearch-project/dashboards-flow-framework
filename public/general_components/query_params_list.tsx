@@ -4,13 +4,35 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiText, EuiFieldText } from '@elastic/eui';
-import { QueryParam } from '../../common';
+import { get } from 'lodash';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiText,
+  EuiFieldText,
+  EuiComboBox,
+} from '@elastic/eui';
+import { QueryParam, QueryParamType } from '../../common';
 
 interface QueryParamsListProps {
   queryParams: QueryParam[];
   setQueryParams: (params: QueryParam[]) => void;
 }
+
+// The keys will be more static in general. Give more space for values where users
+// will typically be writing out more complex transforms/configuration (in the case of ML inference processors).
+const KEY_FLEX_RATIO = 3;
+const TYPE_FLEX_RATIO = 2;
+const VALUE_FLEX_RATIO = 5;
+
+const OPTIONS = [
+  {
+    label: 'Text' as QueryParamType,
+  },
+  {
+    label: 'Binary' as QueryParamType,
+  },
+];
 
 /**
  * Basic, reusable component for displaying a list of query parameters, and allowing
@@ -24,12 +46,17 @@ export function QueryParamsList(props: QueryParamsListProps) {
           <EuiFlexGroup direction="column" gutterSize="xs">
             <EuiFlexItem grow={false}>
               <EuiFlexGroup direction="row" gutterSize="s">
-                <EuiFlexItem grow={3}>
+                <EuiFlexItem grow={KEY_FLEX_RATIO}>
                   <EuiText size="s" color="subdued">
                     Parameter
                   </EuiText>
                 </EuiFlexItem>
-                <EuiFlexItem grow={7}>
+                <EuiFlexItem grow={TYPE_FLEX_RATIO}>
+                  <EuiText size="s" color="subdued">
+                    Type
+                  </EuiText>
+                </EuiFlexItem>
+                <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                   <EuiText size="s" color="subdued">
                     Value
                   </EuiText>
@@ -40,12 +67,32 @@ export function QueryParamsList(props: QueryParamsListProps) {
               return (
                 <EuiFlexItem grow={false} key={idx}>
                   <EuiFlexGroup direction="row" gutterSize="s">
-                    <EuiFlexItem grow={3}>
+                    <EuiFlexItem grow={KEY_FLEX_RATIO}>
                       <EuiText size="s" style={{ paddingTop: '4px' }}>
                         {queryParam.name}
                       </EuiText>
                     </EuiFlexItem>
-                    <EuiFlexItem grow={7}>
+                    <EuiFlexItem grow={TYPE_FLEX_RATIO}>
+                      <EuiComboBox
+                        fullWidth={true}
+                        compressed={true}
+                        placeholder={`Type`}
+                        singleSelection={{ asPlainText: true }}
+                        isClearable={false}
+                        options={OPTIONS}
+                        selectedOptions={[{ label: queryParam.type || 'Text' }]}
+                        onChange={(options) => {
+                          props.setQueryParams(
+                            props.queryParams.map((qp, i) =>
+                              i === idx
+                                ? { ...qp, type: get(options, '0.label') }
+                                : qp
+                            )
+                          );
+                        }}
+                      />
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                       <EuiFieldText
                         compressed={true}
                         fullWidth={true}

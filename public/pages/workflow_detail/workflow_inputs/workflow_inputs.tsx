@@ -591,7 +591,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               ]}
             />
             {isDeleteModalOpen && (
-              <EuiModal onClose={() => setIsDeleteModalOpen(false)}>
+              <EuiModal
+                maxWidth={false}
+                style={{ width: '70vw' }}
+                onClose={() => setIsDeleteModalOpen(false)}
+              >
                 <EuiModalHeader>
                   <EuiModalHeaderTitle>
                     <p>{`Delete resources for workflow ${getCharacterLimitedString(

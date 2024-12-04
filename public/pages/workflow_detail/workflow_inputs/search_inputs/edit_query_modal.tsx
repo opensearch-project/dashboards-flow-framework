@@ -144,6 +144,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
             onClose={() => props.setModalOpen(false)}
             style={{ width: '70vw' }}
             data-testid="editQueryModal"
+            maxWidth={false}
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
