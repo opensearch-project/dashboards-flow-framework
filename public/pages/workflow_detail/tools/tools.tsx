@@ -92,7 +92,7 @@ export function Tools(props: ToolsProps) {
       paddingSize="m"
       borderRadius="l"
       grow={true}
-      style={{ height: '100%' }}
+      style={{ minHeight: '100%' }}
     >
       <EuiFlexGroup
         direction="column"
