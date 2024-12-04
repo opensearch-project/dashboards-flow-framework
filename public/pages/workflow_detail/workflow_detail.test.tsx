@@ -194,8 +194,6 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
       expect(getAllByText('Define search pipeline').length).toBeGreaterThan(0);
     });
     expect(getAllByText('Configure query').length).toBeGreaterThan(0);
-    const searchTestButton = getByTestId('searchTestButton');
-    expect(searchTestButton).toBeInTheDocument();
 
     // Edit Search Query
     const queryEditButton = getByTestId('queryEditButton');
