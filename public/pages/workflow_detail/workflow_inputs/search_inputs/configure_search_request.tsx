@@ -17,13 +17,8 @@ import {
   EuiCodeBlock,
   EuiSmallButtonEmpty,
 } from '@elastic/eui';
-import {
-  SearchHit,
-  WorkflowFormValues,
-  customStringify,
-} from '../../../../../common';
-import { AppState, searchIndex, useAppDispatch } from '../../../../store';
-import { getDataSourceId } from '../../../../utils/utils';
+import { WorkflowFormValues } from '../../../../../common';
+import { AppState } from '../../../../store';
 import { EditQueryModal } from './edit_query_modal';
 
 interface ConfigureSearchRequestProps {
@@ -35,9 +30,6 @@ interface ConfigureSearchRequestProps {
  * Input component for configuring a search request
  */
 export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
-  const dispatch = useAppDispatch();
-  const dataSourceId = getDataSourceId();
-
   // Form state
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
@@ -131,43 +123,6 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                     iconSide="left"
                   >
                     Edit
-                  </EuiSmallButtonEmpty>
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  <EuiSmallButtonEmpty
-                    onClick={() => {
-                      // for this test query, we don't want to involve any configured search pipelines, if any exist
-                      // see https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/#disabling-the-default-pipeline-for-a-request
-                      dispatch(
-                        searchIndex({
-                          apiBody: {
-                            index: values.search.index.name,
-                            body: values.search.request,
-                            searchPipeline: '_none',
-                          },
-                          dataSourceId,
-                        })
-                      )
-                        .unwrap()
-                        .then(async (resp) => {
-                          props.setQueryResponse(
-                            customStringify(
-                              resp?.hits?.hits?.map(
-                                (hit: SearchHit) => hit._source
-                              )
-                            )
-                          );
-                        })
-                        .catch((error: any) => {
-                          props.setQueryResponse('');
-                          console.error('Error running query: ', error);
-                        });
-                    }}
-                    data-testid="searchTestButton"
-                    iconType="play"
-                    iconSide="left"
-                  >
-                    Test query
                   </EuiSmallButtonEmpty>
                 </EuiFlexItem>
               </EuiFlexGroup>
