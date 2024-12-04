@@ -11,6 +11,7 @@ import {
   EuiText,
   EuiFieldText,
   EuiComboBox,
+  EuiCompressedFilePicker,
 } from '@elastic/eui';
 import { QueryParam, QueryParamType } from '../../common';
 
@@ -93,19 +94,51 @@ export function QueryParamsList(props: QueryParamsListProps) {
                       />
                     </EuiFlexItem>
                     <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                      <EuiFieldText
-                        compressed={true}
-                        fullWidth={true}
-                        placeholder={`Value`}
-                        value={queryParam.value}
-                        onChange={(e) => {
-                          props.setQueryParams(
-                            props.queryParams.map((qp, i) =>
-                              i === idx ? { ...qp, value: e.target.value } : qp
-                            )
-                          );
-                        }}
-                      />
+                      {queryParam.type === 'Binary' ? (
+                        // For binary filetypes, accept images
+                        <EuiCompressedFilePicker
+                          accept="image/*"
+                          multiple={false}
+                          initialPromptText="Select or drag and drop an image"
+                          onChange={(files) => {
+                            if (files && files.length > 0) {
+                              const fileReader = new FileReader();
+                              fileReader.onload = (e) => {
+                                try {
+                                  const binaryData = e.target?.result as string;
+                                  const base64Str = binaryData.split(',')[1];
+                                  props.setQueryParams(
+                                    props.queryParams.map((qp, i) =>
+                                      i === idx
+                                        ? { ...qp, value: base64Str }
+                                        : qp
+                                    )
+                                  );
+                                } catch {}
+                              };
+                              fileReader.readAsDataURL(files[0]);
+                            }
+                          }}
+                          display="default"
+                        />
+                      ) : (
+                        // Default to freeform text input
+                        <EuiFieldText
+                          compressed={true}
+                          fullWidth={true}
+                          placeholder={`Value`}
+                          value={queryParam.value}
+                          onChange={(e) => {
+                            props.setQueryParams(
+                              props.queryParams.map((qp, i) =>
+                                i === idx
+                                  ? { ...qp, value: e?.target?.value }
+                                  : qp
+                              )
+                            );
+                          }}
+                        />
+                      )}
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
