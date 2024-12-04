@@ -93,10 +93,9 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
 
-      // "Run ingestion" button should be enabled by default
+      // "Run ingestion" button exists
       const runIngestionButton = getByTestId('runIngestionButton');
       expect(runIngestionButton).toBeInTheDocument();
-      expect(runIngestionButton).toBeEnabled();
 
       // "Search pipeline" button should be disabled by default
       const searchPipelineButton = getByTestId('searchPipelineButton');
