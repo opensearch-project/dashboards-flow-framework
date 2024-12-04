@@ -43,7 +43,7 @@ export function QueryParamsList(props: QueryParamsListProps) {
   return (
     <>
       {props.queryParams?.length > 0 && (
-        <EuiFlexItem>
+        <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="column" gutterSize="xs">
             <EuiFlexItem grow={false}>
               <EuiFlexGroup direction="row" gutterSize="s">

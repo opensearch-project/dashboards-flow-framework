@@ -80,8 +80,20 @@ export function Query(props: QueryProps) {
     setIncludePipeline(props.hasSearchPipeline);
   }, [props.hasSearchPipeline]);
 
-  // query/request params state, update when the request is changed/updated
+  // query params state
   const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
+
+  // listen for changes to the upstream / form query, and reset the default
+  useEffect(() => {
+    if (!isEmpty(values?.search?.request)) {
+      setTempRequest(values?.search?.request);
+    }
+  }, [values?.search?.request]);
+
+  // Do a few things when the request is changed:
+  // 1. Check if there is a new set of query parameters, and if so,
+  //    reset the form.
+  // 2. Clear any stale results
   useEffect(() => {
     const placeholders = getPlaceholdersFromQuery(tempRequest);
     if (
@@ -98,6 +110,7 @@ export function Query(props: QueryProps) {
         }))
       );
     }
+    props.setQueryResponse('');
   }, [tempRequest]);
 
   // empty states

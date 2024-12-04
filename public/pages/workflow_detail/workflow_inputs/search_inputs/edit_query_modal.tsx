@@ -93,6 +93,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
   // 1. Check if there is a new set of query parameters, and if so,
   //    reset the form.
   // 2. Clear any persisted error
+  // 3. Clear any stale results
   useEffect(() => {
     const placeholders = getPlaceholdersFromQuery(tempRequest);
     if (
@@ -110,6 +111,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
       );
     }
     setTempResultsError('');
+    setTempResults('');
   }, [tempRequest]);
 
   // Clear any error if the parameters have been updated in any way
@@ -147,7 +149,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
         return (
           <EuiModal
             onClose={() => props.setModalOpen(false)}
-            style={{ width: '70vw' }}
+            style={{ width: '70vw', height: '70vh' }}
             data-testid="editQueryModal"
             maxWidth={false}
           >
@@ -213,6 +215,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
                       <JsonField
                         label="Query"
                         fieldPath={'request'}
+                        editorHeight="50vh"
                         readOnly={false}
                       />
                     </EuiFlexItem>
