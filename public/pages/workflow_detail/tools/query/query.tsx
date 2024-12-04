@@ -13,10 +13,13 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiSmallButton,
+  EuiSwitch,
   EuiText,
 } from '@elastic/eui';
 import {
+  CONFIG_STEP,
   customStringify,
+  FETCH_ALL_QUERY,
   QueryParam,
   SearchHit,
   WorkflowFormValues,
@@ -34,6 +37,7 @@ interface QueryProps {
   queryResponse: string;
   setQueryResponse: (queryResponse: string) => void;
   hasSearchPipeline: boolean;
+  selectedStep: CONFIG_STEP;
 }
 
 const SEARCH_OPTIONS = [
@@ -56,12 +60,16 @@ export function Query(props: QueryProps) {
   // Form state
   const { values } = useFormikContext<WorkflowFormValues>();
 
+  // use custom query state
+  const [useCustomQuery, setUseCustomQuery] = useState<boolean>(false);
+
   // Standalone / sandboxed search request state. Users can test things out
-  // without updating the base form / persisted value. We default to any
-  // set form value on initialization
-  // TODO: allow overriding the temp request with a sandboxed value.
+  // without updating the base form / persisted value. We default to different values
+  // based on the context (ingest or search).
   const [tempRequest, setTempRequest] = useState<string>(
-    values?.search?.request || '{}'
+    props.selectedStep === CONFIG_STEP.INGEST
+      ? customStringify(FETCH_ALL_QUERY)
+      : values?.search?.request || '{}'
   );
 
   // state for if to execute search w/ or w/o any configured search pipeline.
@@ -126,6 +134,7 @@ export function Query(props: QueryProps) {
                               searchPipeline:
                                 props.hasSearchPipeline &&
                                 includePipeline &&
+                                props.selectedStep === CONFIG_STEP.SEARCH &&
                                 !isEmpty(values?.search?.pipelineName)
                                   ? values?.search?.pipelineName
                                   : '_none',
@@ -161,12 +170,15 @@ export function Query(props: QueryProps) {
                   singleSelection={{ asPlainText: true }}
                   isClearable={false}
                   options={
-                    props.hasSearchPipeline
+                    props.hasSearchPipeline &&
+                    props.selectedStep === CONFIG_STEP.SEARCH
                       ? SEARCH_OPTIONS
                       : [SEARCH_OPTIONS[1]]
                   }
                   selectedOptions={
-                    props.hasSearchPipeline && includePipeline
+                    props.hasSearchPipeline &&
+                    includePipeline &&
+                    props.selectedStep === CONFIG_STEP.SEARCH
                       ? [SEARCH_OPTIONS[0]]
                       : [SEARCH_OPTIONS[1]]
                   }
@@ -175,7 +187,46 @@ export function Query(props: QueryProps) {
                   }}
                 />
               </EuiFlexItem>
-              <EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiSwitch
+                  label={`Use custom query`}
+                  checked={useCustomQuery}
+                  onChange={(e) => setUseCustomQuery(!useCustomQuery)}
+                />
+              </EuiFlexItem>
+              {useCustomQuery && (
+                <EuiFlexItem grow={false}>
+                  <EuiCodeEditor
+                    mode="json"
+                    theme="textmate"
+                    width="100%"
+                    height={'15vh'}
+                    value={tempRequest}
+                    onChange={(input) => {
+                      setTempRequest(input);
+                    }}
+                    onBlur={() => {
+                      try {
+                        setTempRequest(
+                          customStringify(JSON.parse(tempRequest))
+                        );
+                      } catch (error) {}
+                    }}
+                    readOnly={false}
+                    setOptions={{
+                      fontSize: '14px',
+                      useWorker: true,
+                      highlightActiveLine: true,
+                      highlightSelectedWord: true,
+                      highlightGutterLine: true,
+                      wrap: true,
+                    }}
+                    aria-label="Code Editor"
+                    tabSize={2}
+                  />
+                </EuiFlexItem>
+              )}
+              <EuiFlexItem grow={false}>
                 {/**
                  * This may return nothing if the list of params are empty
                  */}

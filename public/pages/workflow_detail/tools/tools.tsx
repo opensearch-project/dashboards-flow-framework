@@ -15,7 +15,12 @@ import {
   EuiTabs,
   EuiText,
 } from '@elastic/eui';
-import { INSPECTOR_TAB_ID, INSPECTOR_TABS, Workflow } from '../../../../common';
+import {
+  CONFIG_STEP,
+  INSPECTOR_TAB_ID,
+  INSPECTOR_TABS,
+  Workflow,
+} from '../../../../common';
 import { Resources } from './resources';
 import { Query } from './query';
 import { Ingest } from './ingest';
@@ -29,6 +34,7 @@ interface ToolsProps {
   setQueryResponse: (queryResponse: string) => void;
   selectedTabId: INSPECTOR_TAB_ID;
   setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
+  selectedStep: CONFIG_STEP;
 }
 
 const PANEL_TITLE = 'Inspector';
@@ -129,6 +135,7 @@ export function Tools(props: ToolsProps) {
                     hasSearchPipeline={hasProvisionedSearchResources(
                       props.workflow
                     )}
+                    selectedStep={props.selectedStep}
                   />
                 )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.ERRORS && (

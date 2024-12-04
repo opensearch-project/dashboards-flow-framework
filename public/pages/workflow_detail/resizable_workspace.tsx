@@ -212,6 +212,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                           setQueryResponse={setQueryResponse}
                           selectedTabId={selectedInspectorTabId}
                           setSelectedTabId={setSelectedInspectorTabId}
+                          selectedStep={props.selectedStep}
                         />
                       </EuiResizablePanel>
                     </>
