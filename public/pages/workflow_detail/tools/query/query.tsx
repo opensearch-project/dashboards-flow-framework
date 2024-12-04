@@ -38,6 +38,7 @@ interface QueryProps {
   queryResponse: string;
   setQueryResponse: (queryResponse: string) => void;
   hasSearchPipeline: boolean;
+  hasIngestResources: boolean;
   selectedStep: CONFIG_STEP;
 }
 
@@ -116,17 +117,28 @@ export function Query(props: QueryProps) {
   // empty states
   const noSearchIndex = isEmpty(values?.search?.index?.name);
   const noSearchRequest = isEmpty(values?.search?.request);
+  const onIngestAndInvalid =
+    props.selectedStep === CONFIG_STEP.INGEST && !props.hasIngestResources;
+  const onSearchAndInvalid =
+    props.selectedStep === CONFIG_STEP.SEARCH &&
+    (noSearchIndex || noSearchRequest);
+  const indexToSearch =
+    props.selectedStep === CONFIG_STEP.INGEST
+      ? values?.ingest?.index?.name
+      : values?.search?.index?.name;
 
   return (
     <>
-      {noSearchIndex || noSearchRequest ? (
+      {onIngestAndInvalid || onSearchAndInvalid ? (
         <EuiEmptyPrompt
           title={<h2>Missing search configurations</h2>}
           titleSize="s"
           body={
             <>
               <EuiText size="s">
-                Configure a search request and an index to search against first.
+                {onIngestAndInvalid
+                  ? `Configure an index and ingest data first.`
+                  : `Configure a search request and an index to search against first.`}
               </EuiText>
             </>
           }
@@ -143,12 +155,15 @@ export function Query(props: QueryProps) {
                   <EuiFlexItem grow={false}>
                     <EuiSmallButton
                       fill={true}
-                      disabled={containsEmptyValues(queryParams)}
+                      disabled={
+                        containsEmptyValues(queryParams) ||
+                        isEmpty(indexToSearch)
+                      }
                       onClick={() => {
                         dispatch(
                           searchIndex({
                             apiBody: {
-                              index: values?.search?.index?.name,
+                              index: indexToSearch,
                               body: injectParameters(queryParams, tempRequest),
                               searchPipeline:
                                 props.hasSearchPipeline &&

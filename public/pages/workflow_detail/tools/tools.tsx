@@ -25,7 +25,10 @@ import { Resources } from './resources';
 import { Query } from './query';
 import { Ingest } from './ingest';
 import { Errors } from './errors';
-import { hasProvisionedSearchResources } from '../../../utils';
+import {
+  hasProvisionedIngestResources,
+  hasProvisionedSearchResources,
+} from '../../../utils';
 
 interface ToolsProps {
   workflow?: Workflow;
@@ -133,6 +136,9 @@ export function Tools(props: ToolsProps) {
                     queryResponse={props.queryResponse}
                     setQueryResponse={props.setQueryResponse}
                     hasSearchPipeline={hasProvisionedSearchResources(
+                      props.workflow
+                    )}
+                    hasIngestResources={hasProvisionedIngestResources(
                       props.workflow
                     )}
                     selectedStep={props.selectedStep}
