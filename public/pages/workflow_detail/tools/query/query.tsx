@@ -26,6 +26,7 @@ import {
 } from '../../../../../common';
 import { searchIndex, useAppDispatch } from '../../../../store';
 import {
+  containsEmptyValues,
   containsSameValues,
   getDataSourceId,
   getPlaceholdersFromQuery,
@@ -90,7 +91,11 @@ export function Query(props: QueryProps) {
       )
     ) {
       setQueryParams(
-        placeholders.map((placeholder) => ({ name: placeholder, value: '' }))
+        placeholders.map((placeholder) => ({
+          name: placeholder,
+          type: 'Text',
+          value: '',
+        }))
       );
     }
   }, [tempRequest]);
@@ -125,6 +130,7 @@ export function Query(props: QueryProps) {
                   <EuiFlexItem grow={false}>
                     <EuiSmallButton
                       fill={true}
+                      disabled={containsEmptyValues(queryParams)}
                       onClick={() => {
                         dispatch(
                           searchIndex({
@@ -166,6 +172,7 @@ export function Query(props: QueryProps) {
               <EuiFlexItem grow={false}>
                 <EuiComboBox
                   fullWidth={false}
+                  style={{ width: '250px' }}
                   compressed={true}
                   singleSelection={{ asPlainText: true }}
                   isClearable={false}

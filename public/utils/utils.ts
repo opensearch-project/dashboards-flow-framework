@@ -573,6 +573,18 @@ export function containsSameValues(arr1: string[], arr2: string[]) {
   return true;
 }
 
+// simple util fn to check for empty/missing query param values
+export function containsEmptyValues(params: QueryParam[]): boolean {
+  let containsEmpty = false;
+  params.forEach((param) => {
+    if (isEmpty(param.value)) {
+      containsEmpty = true;
+    }
+  });
+  return containsEmpty;
+}
+
+// simple util fn to inject parameters in the base query string with its associated value
 export function injectParameters(
   params: QueryParam[],
   queryString: string

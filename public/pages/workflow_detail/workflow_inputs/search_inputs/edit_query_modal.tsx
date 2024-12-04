@@ -36,6 +36,7 @@ import {
   WorkflowFormValues,
 } from '../../../../../common';
 import {
+  containsEmptyValues,
   containsSameValues,
   getDataSourceId,
   getFieldSchema,
@@ -101,7 +102,11 @@ export function EditQueryModal(props: EditQueryModalProps) {
       )
     ) {
       setQueryParams(
-        placeholders.map((placeholder) => ({ name: placeholder, value: '' }))
+        placeholders.map((placeholder) => ({
+          name: placeholder,
+          type: 'Text',
+          value: '',
+        }))
       );
     }
     setTempResultsError('');
@@ -226,6 +231,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
                         <EuiFlexItem grow={false}>
                           <EuiSmallButton
                             fill={false}
+                            disabled={containsEmptyValues(queryParams)}
                             onClick={() => {
                               dispatch(
                                 searchIndex({
