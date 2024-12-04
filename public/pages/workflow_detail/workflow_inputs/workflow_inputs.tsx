@@ -241,8 +241,18 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     setSearchProvisioned(hasProvisionedSearchResources(props.workflow));
   }, [props.workflow]);
 
+  // populated ingest docs state
+  const [docsPopulated, setDocsPopulated] = useState<boolean>(false);
+  useEffect(() => {
+    let parsedDocsObjs = [] as {}[];
+    try {
+      parsedDocsObjs = JSON.parse(props.ingestDocs);
+    } catch (e) {}
+    setDocsPopulated(parsedDocsObjs.length > 0 && !isEmpty(parsedDocsObjs[0]));
+  }, [props.ingestDocs]);
+
   // maintain global states (button eligibility)
-  const ingestRunButtonDisabled = !ingestTemplatesDifferent;
+  const ingestRunButtonDisabled = !ingestTemplatesDifferent || !docsPopulated;
   const ingestToSearchButtonDisabled =
     ingestTemplatesDifferent || props.isRunningIngest;
   const searchBackButtonDisabled =
