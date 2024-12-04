@@ -137,7 +137,7 @@ export function Query(props: QueryProps) {
             <>
               <EuiText size="s">
                 {onIngestAndInvalid
-                  ? `Configure an index and ingest data first.`
+                  ? `Create an index and ingest data first.`
                   : `Configure a search request and an index to search against first.`}
               </EuiText>
             </>
@@ -230,12 +230,12 @@ export function Query(props: QueryProps) {
                 />
               </EuiFlexItem>
               {useCustomQuery && (
-                <EuiFlexItem grow={false}>
+                <EuiFlexItem grow={true}>
                   <EuiCodeEditor
                     mode="json"
                     theme="textmate"
                     width="100%"
-                    height={'15vh'}
+                    height={'100%'}
                     value={tempRequest}
                     onChange={(input) => {
                       setTempRequest(input);

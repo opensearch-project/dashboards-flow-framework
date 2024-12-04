@@ -95,12 +95,14 @@ export function Tools(props: ToolsProps) {
       paddingSize="m"
       borderRadius="l"
       grow={true}
-      style={{ minHeight: '100%' }}
+      style={{ height: '100%' }}
     >
       <EuiFlexGroup
         direction="column"
+        gutterSize="s"
         style={{
           height: '100%',
+          overflow: 'scroll',
         }}
       >
         <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
