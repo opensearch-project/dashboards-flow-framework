@@ -188,7 +188,11 @@ export function SourceDataModal(props: SourceDataProps) {
         }, [formikProps.errors]);
 
         return (
-          <EuiModal onClose={() => onClose()} style={{ width: '70vw' }}>
+          <EuiModal
+            maxWidth={false}
+            onClose={() => onClose()}
+            style={{ width: '70vw' }}
+          >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
                 <p>{`Import data`}</p>

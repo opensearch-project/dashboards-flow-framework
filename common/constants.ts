@@ -522,3 +522,32 @@ export enum SOURCE_OPTIONS {
   UPLOAD = 'upload',
   EXISTING_INDEX = 'existing_index',
 }
+export enum INSPECTOR_TAB_ID {
+  INGEST = 'ingest',
+  QUERY = 'query',
+  ERRORS = 'errors',
+  RESOURCES = 'resources',
+}
+
+export const INSPECTOR_TABS = [
+  {
+    id: INSPECTOR_TAB_ID.INGEST,
+    name: 'Ingest response',
+    disabled: false,
+  },
+  {
+    id: INSPECTOR_TAB_ID.QUERY,
+    name: 'Search response',
+    disabled: false,
+  },
+  {
+    id: INSPECTOR_TAB_ID.ERRORS,
+    name: 'Errors',
+    disabled: false,
+  },
+  {
+    id: INSPECTOR_TAB_ID.RESOURCES,
+    name: 'Resources',
+    disabled: false,
+  },
+];

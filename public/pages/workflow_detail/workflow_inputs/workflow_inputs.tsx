@@ -12,7 +12,6 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
-  EuiIcon,
   EuiLoadingSpinner,
   EuiModal,
   EuiModalBody,
@@ -57,9 +56,9 @@ import {
   generateId,
   sleep,
   getResourcesToBeForceDeleted,
+  getDataSourceId,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
-import { getDataSourceId } from '../../../utils/utils';
 
 // styling
 import '../workspace/workspace-styles.scss';
@@ -80,6 +79,7 @@ interface WorkflowInputsProps {
   setSelectedStep: (step: CONFIG_STEP) => void;
   setUnsavedIngestProcessors: (unsavedIngestProcessors: boolean) => void;
   setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
+  displaySearchPanel: () => void;
 }
 
 /**
@@ -106,9 +106,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   // provisioned resources states
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
+  const [searchProvisioned, setSearchProvisioned] = useState<boolean>(false);
 
   // confirm modal state
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
   // last ingested state
   const [lastIngested, setLastIngested] = useState<number | undefined>(
@@ -120,6 +121,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const onSearch = props.selectedStep === CONFIG_STEP.SEARCH;
   const ingestEnabled = values?.ingest?.enabled || false;
   const onIngestAndProvisioned = onIngest && ingestProvisioned;
+  const onSearchAndProvisioned = onSearch && searchProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
   const isProposingNoSearchResources =
@@ -235,9 +237,22 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   useEffect(() => {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
   }, [props.workflow]);
+  useEffect(() => {
+    setSearchProvisioned(hasProvisionedSearchResources(props.workflow));
+  }, [props.workflow]);
+
+  // populated ingest docs state
+  const [docsPopulated, setDocsPopulated] = useState<boolean>(false);
+  useEffect(() => {
+    let parsedDocsObjs = [] as {}[];
+    try {
+      parsedDocsObjs = JSON.parse(props.ingestDocs);
+    } catch (e) {}
+    setDocsPopulated(parsedDocsObjs.length > 0 && !isEmpty(parsedDocsObjs[0]));
+  }, [props.ingestDocs]);
 
   // maintain global states (button eligibility)
-  const ingestRunButtonDisabled = !ingestTemplatesDifferent;
+  const ingestRunButtonDisabled = !ingestTemplatesDifferent || !docsPopulated;
   const ingestToSearchButtonDisabled =
     ingestTemplatesDifferent || props.isRunningIngest;
   const searchBackButtonDisabled =
@@ -585,8 +600,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 },
               ]}
             />
-            {isModalOpen && (
-              <EuiModal onClose={() => setIsModalOpen(false)}>
+            {isDeleteModalOpen && (
+              <EuiModal
+                style={{ width: '70vw' }}
+                onClose={() => setIsDeleteModalOpen(false)}
+              >
                 <EuiModalHeader>
                   <EuiModalHeaderTitle>
                     <p>{`Delete resources for workflow ${getCharacterLimitedString(
@@ -602,7 +620,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   </EuiText>
                 </EuiModalBody>
                 <EuiModalFooter>
-                  <EuiSmallButtonEmpty onClick={() => setIsModalOpen(false)}>
+                  <EuiSmallButtonEmpty
+                    onClick={() => setIsDeleteModalOpen(false)}
+                  >
                     {' '}
                     Cancel
                   </EuiSmallButtonEmpty>
@@ -612,6 +632,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     onClick={async () => {
                       setIsRunningDelete(true);
                       await dispatch(
+                        // If in the future we want to start with a fresh/empty state after deleting resources,
+                        // will need to update the workflow with an empty UI config before re-fetching the workflow.
+                        // For now we still persist the config, just clean up / deprovision the resources.
                         deprovisionWorkflow({
                           apiBody: {
                             workflowId: props.workflow?.id as string,
@@ -624,6 +647,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       )
                         .unwrap()
                         .then(async (result) => {
+                          props.setSelectedStep(CONFIG_STEP.INGEST);
                           setFieldValue('ingest.enabled', false);
                           // @ts-ignore
                           await dispatch(
@@ -635,7 +659,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         })
                         .catch((error: any) => {})
                         .finally(() => {
-                          setIsModalOpen(false);
+                          setIsDeleteModalOpen(false);
                           setIsRunningDelete(false);
                         });
                     }}
@@ -660,19 +684,38 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 <h2>
                   {onIngestAndUnprovisioned ? (
                     'Define ingest pipeline'
-                  ) : onIngestAndProvisioned ? (
+                  ) : onIngestAndProvisioned || onSearchAndProvisioned ? (
                     <EuiFlexGroup direction="row" justifyContent="spaceBetween">
                       <EuiFlexItem grow={false}>
-                        Edit ingest pipeline
+                        {onIngestAndProvisioned
+                          ? `Edit ingest pipeline`
+                          : `Edit search pipeline`}
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
-                        <EuiSmallButtonEmpty
-                          color="danger"
-                          onClick={() => setIsModalOpen(true)}
-                        >
-                          <EuiIcon type="trash" />
-                          {`    `}Delete resources
-                        </EuiSmallButtonEmpty>
+                        <EuiFlexGroup direction="row" gutterSize="s">
+                          <EuiFlexItem grow={false}>
+                            <EuiSmallButtonEmpty
+                              color="danger"
+                              onClick={() => setIsDeleteModalOpen(true)}
+                              iconType="trash"
+                              iconSide="left"
+                            >
+                              Delete resources
+                            </EuiSmallButtonEmpty>
+                          </EuiFlexItem>
+                          {onSearchAndProvisioned && (
+                            <EuiFlexItem grow={false}>
+                              <EuiSmallButton
+                                fill={false}
+                                onClick={() => {
+                                  props.displaySearchPanel();
+                                }}
+                              >
+                                Test pipeline
+                              </EuiSmallButton>
+                            </EuiFlexItem>
+                          )}
+                        </EuiFlexGroup>
                       </EuiFlexItem>
                     </EuiFlexGroup>
                   ) : (

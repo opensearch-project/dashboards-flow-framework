@@ -32,6 +32,7 @@ import {
   ModelInputMap,
   ModelOutputMap,
   OutputMapEntry,
+  QueryParam,
 } from '../../common/interfaces';
 import queryString from 'query-string';
 import { useLocation } from 'react-router-dom';
@@ -543,4 +544,57 @@ export function sanitizeJSONPath(path: string): string {
       return prevValue + '.' + curValue;
     }
   });
+}
+
+// given a stringified query, extract out all unique placeholder vars
+// that follow the pattern {{some-placeholder}}
+export function getPlaceholdersFromQuery(queryString: string): string[] {
+  const regex = /\{\{([^}]+)\}\}/g;
+  return [
+    // convert to set to collapse duplicate names
+    ...new Set([...queryString.matchAll(regex)].map((match) => match[1])),
+  ];
+}
+
+// simple fn to check if the values in an arr are the same. used for
+// checking if the same set of placeholders exists when a new query is selected,
+// or an existing query is updated.
+export function containsSameValues(arr1: string[], arr2: string[]) {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+  arr1.sort();
+  arr2.sort();
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// simple util fn to check for empty/missing query param values
+export function containsEmptyValues(params: QueryParam[]): boolean {
+  let containsEmpty = false;
+  params.forEach((param) => {
+    if (isEmpty(param.value)) {
+      containsEmpty = true;
+    }
+  });
+  return containsEmpty;
+}
+
+// simple util fn to inject parameters in the base query string with its associated value
+export function injectParameters(
+  params: QueryParam[],
+  queryString: string
+): string {
+  let finalQueryString = queryString;
+  params.forEach((param) => {
+    finalQueryString = finalQueryString.replace(
+      new RegExp(`{{${param.name}}}`, 'g'),
+      param.value
+    );
+  });
+  return finalQueryString;
 }

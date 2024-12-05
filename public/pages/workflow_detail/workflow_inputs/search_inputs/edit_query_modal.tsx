@@ -16,18 +16,36 @@ import {
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiPopover,
-  EuiSpacer,
   EuiSmallButtonEmpty,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiText,
+  EuiCodeEditor,
+  EuiEmptyPrompt,
+  EuiCallOut,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
+  customStringify,
   IConfigField,
   QUERY_PRESETS,
+  QueryParam,
   QueryPreset,
   RequestFormValues,
+  SearchHit,
   WorkflowFormValues,
 } from '../../../../../common';
-import { getFieldSchema, getInitialValue } from '../../../../utils';
+import {
+  containsEmptyValues,
+  containsSameValues,
+  getDataSourceId,
+  getFieldSchema,
+  getInitialValue,
+  getPlaceholdersFromQuery,
+  injectParameters,
+} from '../../../../utils';
+import { searchIndex, useAppDispatch } from '../../../../store';
+import { QueryParamsList } from '../../../../general_components';
 
 interface EditQueryModalProps {
   queryFieldPath: string;
@@ -39,6 +57,9 @@ interface EditQueryModalProps {
  * a set of pre-defined queries targeted for different use cases.
  */
 export function EditQueryModal(props: EditQueryModalProps) {
+  const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
+
   // sub-form values/schema
   const requestFormValues = {
     request: getInitialValue('json'),
@@ -60,6 +81,43 @@ export function EditQueryModal(props: EditQueryModalProps) {
 
   // popover state
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
+
+  // results state
+  const [tempResults, setTempResults] = useState<string>('');
+  const [tempResultsError, setTempResultsError] = useState<string>('');
+
+  // query/request params state
+  const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
+
+  // Do a few things when the request is changed:
+  // 1. Check if there is a new set of query parameters, and if so,
+  //    reset the form.
+  // 2. Clear any persisted error
+  // 3. Clear any stale results
+  useEffect(() => {
+    const placeholders = getPlaceholdersFromQuery(tempRequest);
+    if (
+      !containsSameValues(
+        placeholders,
+        queryParams.map((queryParam) => queryParam.name)
+      )
+    ) {
+      setQueryParams(
+        placeholders.map((placeholder) => ({
+          name: placeholder,
+          type: 'Text',
+          value: '',
+        }))
+      );
+    }
+    setTempResultsError('');
+    setTempResults('');
+  }, [tempRequest]);
+
+  // Clear any error if the parameters have been updated in any way
+  useEffect(() => {
+    setTempResultsError('');
+  }, [queryParams]);
 
   return (
     <Formik
@@ -91,54 +149,176 @@ export function EditQueryModal(props: EditQueryModalProps) {
         return (
           <EuiModal
             onClose={() => props.setModalOpen(false)}
-            style={{ width: '70vw' }}
+            style={{ width: '70vw', height: '70vh' }}
             data-testid="editQueryModal"
+            maxWidth={false}
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>{`Edit query`}</p>
+                <p>{`Edit query definition`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiModalBody data-testid="editQueryModalBody">
-              <EuiPopover
-                button={
-                  <EuiSmallButton
-                    onClick={() => setPopoverOpen(!popoverOpen)}
-                    data-testid="searchQueryPresetButton"
-                    iconSide="right"
-                    iconType="arrowDown"
-                  >
-                    Choose from a preset
-                  </EuiSmallButton>
-                }
-                isOpen={popoverOpen}
-                closePopover={() => setPopoverOpen(false)}
-                anchorPosition="downLeft"
-              >
-                <EuiContextMenu
-                  size="s"
-                  initialPanelId={0}
-                  panels={[
-                    {
-                      id: 0,
-                      items: QUERY_PRESETS.map((preset: QueryPreset) => ({
-                        name: preset.name,
-                        onClick: () => {
-                          formikProps.setFieldValue('request', preset.query);
-                          setPopoverOpen(false);
-                        },
-                      })),
-                    },
-                  ]}
-                />
-              </EuiPopover>
-              <EuiSpacer size="s" />
-              <JsonField
-                label="Query"
-                fieldPath={'request'}
-                editorHeight="25vh"
-                readOnly={false}
-              />
+              <EuiFlexGroup direction="row">
+                <EuiFlexItem>
+                  <EuiFlexGroup direction="column">
+                    <EuiFlexItem grow={false}>
+                      <EuiFlexGroup
+                        direction="row"
+                        justifyContent="spaceBetween"
+                      >
+                        <EuiFlexItem grow={false}>
+                          <EuiText size="m">Query definition</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiPopover
+                            button={
+                              <EuiSmallButton
+                                onClick={() => setPopoverOpen(!popoverOpen)}
+                                data-testid="searchQueryPresetButton"
+                                iconSide="right"
+                                iconType="arrowDown"
+                              >
+                                Query samples
+                              </EuiSmallButton>
+                            }
+                            isOpen={popoverOpen}
+                            closePopover={() => setPopoverOpen(false)}
+                            anchorPosition="downLeft"
+                          >
+                            <EuiContextMenu
+                              size="s"
+                              initialPanelId={0}
+                              panels={[
+                                {
+                                  id: 0,
+                                  items: QUERY_PRESETS.map(
+                                    (preset: QueryPreset) => ({
+                                      name: preset.name,
+                                      onClick: () => {
+                                        formikProps.setFieldValue(
+                                          'request',
+                                          preset.query
+                                        );
+                                        setPopoverOpen(false);
+                                      },
+                                    })
+                                  ),
+                                },
+                              ]}
+                            />
+                          </EuiPopover>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <JsonField
+                        label="Query"
+                        fieldPath={'request'}
+                        editorHeight="50vh"
+                        readOnly={false}
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <EuiFlexGroup direction="column">
+                    <EuiFlexItem grow={false}>
+                      <EuiFlexGroup
+                        direction="row"
+                        justifyContent="spaceBetween"
+                      >
+                        <EuiFlexItem grow={false}>
+                          <EuiText size="m">Test query</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiSmallButton
+                            fill={false}
+                            disabled={containsEmptyValues(queryParams)}
+                            onClick={() => {
+                              dispatch(
+                                searchIndex({
+                                  apiBody: {
+                                    index: values?.search?.index?.name,
+                                    body: injectParameters(
+                                      queryParams,
+                                      tempRequest
+                                    ),
+                                    // Run the query independent of the pipeline inside this modal
+                                    searchPipeline: '_none',
+                                  },
+                                  dataSourceId,
+                                })
+                              )
+                                .unwrap()
+                                .then(async (resp) => {
+                                  setTempResults(
+                                    customStringify(
+                                      resp?.hits?.hits?.map(
+                                        (hit: SearchHit) => hit._source
+                                      )
+                                    )
+                                  );
+                                  setTempResultsError('');
+                                })
+                                .catch((error: any) => {
+                                  setTempResults('');
+                                  const errorMsg = `Error running query: ${error}`;
+                                  setTempResultsError(errorMsg);
+                                  console.error(errorMsg);
+                                });
+                            }}
+                          >
+                            Search
+                          </EuiSmallButton>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                    {/**
+                     * This may return nothing if the list of params are empty
+                     */}
+                    <QueryParamsList
+                      queryParams={queryParams}
+                      setQueryParams={setQueryParams}
+                    />
+                    <EuiFlexItem>
+                      <>
+                        <EuiText size="s">Results</EuiText>
+                        {isEmpty(tempResults) && isEmpty(tempResultsError) ? (
+                          <EuiEmptyPrompt
+                            title={<h2>No results</h2>}
+                            titleSize="s"
+                            body={
+                              <>
+                                <EuiText size="s">
+                                  Run search to view results.
+                                </EuiText>
+                              </>
+                            }
+                          />
+                        ) : !isEmpty(tempResultsError) ? (
+                          <EuiCallOut color="danger" title={tempResultsError} />
+                        ) : (
+                          <EuiCodeEditor
+                            mode="json"
+                            theme="textmate"
+                            width="100%"
+                            height="100%"
+                            value={tempResults}
+                            readOnly={true}
+                            setOptions={{
+                              fontSize: '12px',
+                              autoScrollEditorIntoView: true,
+                              wrap: true,
+                            }}
+                            tabSize={2}
+                          />
+                        )}
+                      </>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiModalBody>
             <EuiModalFooter>
               <EuiSmallButtonEmpty

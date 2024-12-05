@@ -557,6 +557,14 @@ export type QuickConfigureFields = {
   llmResponseField?: string;
 };
 
+export type QueryParamType = 'Text' | 'Binary';
+
+export type QueryParam = {
+  name: string;
+  type: QueryParamType;
+  value: string;
+};
+
 /**
  ********** OPENSEARCH TYPES/INTERFACES ************
  */

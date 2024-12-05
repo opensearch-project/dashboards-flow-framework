@@ -260,6 +260,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
 
         return (
           <EuiModal
+            maxWidth={false}
             onClose={props.onClose}
             style={{ width: '70vw' }}
             id={props.fieldPath}
