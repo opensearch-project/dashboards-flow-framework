@@ -71,7 +71,11 @@ export function ExportModal(props: ExportModalProps) {
   }, [props.workflow, selectedOption]);
 
   return (
-    <EuiModal onClose={() => props.setIsExportModalOpen(false)}>
+    <EuiModal
+      maxWidth={false}
+      style={{ width: '70vw' }}
+      onClose={() => props.setIsExportModalOpen(false)}
+    >
       <EuiModalHeader>
         <EuiModalHeaderTitle>
           <p>{`Export ${getCharacterLimitedString(
