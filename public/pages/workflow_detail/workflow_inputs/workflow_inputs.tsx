@@ -53,9 +53,9 @@ import {
   getDataSourceId,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
-
 // styling
 import '../workspace/workspace-styles.scss';
+// import { getDataSourceEnabled } from '../../../services';
 
 interface WorkflowInputsProps {
   workflow: Workflow | undefined;
@@ -443,7 +443,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         };
         if (Object.keys(relevantValidationResults).length > 0) {
           getCore().notifications.toasts.addDanger('Missing or invalid fields');
-          console.error('Form invalid');
         } else {
           setTouched({});
           const updatedConfig = formikToUiConfig(

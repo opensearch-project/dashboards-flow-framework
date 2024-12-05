@@ -4,6 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import semver from 'semver';
+import { getEffectiveVersion } from '../../../pages/workflows/new_workflow/new_workflow';
 import {
   EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
@@ -20,6 +22,7 @@ import { useFormikContext } from 'formik';
 import {
   IProcessorConfig,
   PROCESSOR_CONTEXT,
+  PROCESSOR_TYPE,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../common';
@@ -38,11 +41,15 @@ import {
   TextChunkingIngestProcessor,
 } from '../../../configs';
 import { ProcessorInputs } from './processor_inputs';
+import { SavedObject } from '../../../../../../src/core/public';
+import { DataSourceAttributes } from '../../../../../../src/plugins/data_source/common/data_sources';
 
 interface ProcessorsListProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   context: PROCESSOR_CONTEXT;
+  dataSource?: SavedObject<DataSourceAttributes>;
+  onProcessorsChange?: (count: number) => void;
 }
 
 const PANEL_ID = 0;
@@ -57,25 +64,52 @@ export function ProcessorsList(props: ProcessorsListProps) {
   // processor is added, assuming users want to immediately configure it.
   const [processorAdded, setProcessorAdded] = useState<boolean>(false);
 
-  // Popover state when adding new processors
   const [isPopoverOpen, setPopover] = useState(false);
   const closePopover = () => {
     setPopover(false);
   };
 
-  // Current processors state
   const [processors, setProcessors] = useState<IProcessorConfig[]>([]);
+
   useEffect(() => {
-    if (props.uiConfig && props.context) {
-      setProcessors(
-        props.context === PROCESSOR_CONTEXT.INGEST
-          ? props.uiConfig.ingest.enrich.processors
-          : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? props.uiConfig.search.enrichRequest.processors
-          : props.uiConfig.search.enrichResponse.processors
-      );
-    }
-  }, [props.context, props.uiConfig]);
+    const loadProcessors = async () => {
+      if (props.uiConfig && props.context) {
+        let currentProcessors =
+          props.context === PROCESSOR_CONTEXT.INGEST
+            ? props.uiConfig.ingest.enrich.processors
+            : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+            ? props.uiConfig.search.enrichRequest.processors
+            : props.uiConfig.search.enrichResponse.processors;
+
+        if (currentProcessors && props.dataSource?.id) {
+          const version = await getEffectiveVersion(props.dataSource.id);
+
+          if (semver.eq(version, '2.17.0')) {
+            currentProcessors = currentProcessors.filter(
+              (processor) =>
+                !processor.name.toLowerCase().includes('ml inference')
+            );
+          } else if (semver.gte(version, '2.19.0')) {
+            currentProcessors = currentProcessors.filter(
+              (processor) =>
+                ![
+                  PROCESSOR_TYPE.TEXT_EMBEDDING,
+                  PROCESSOR_TYPE.TEXT_IMAGE_EMBEDDING,
+                  PROCESSOR_TYPE.NORMALIZATION,
+                ].includes(processor.type)
+            );
+          }
+        }
+
+        setProcessors(currentProcessors);
+        if (props.onProcessorsChange) {
+          props.onProcessorsChange(currentProcessors?.length || 0);
+        }
+      }
+    };
+
+    loadProcessors();
+  }, [props.context, props.uiConfig, props.dataSource]);
 
   // Adding a processor to the config. Fetch the existing one
   // (getting any updated/interim values along the way) and add to

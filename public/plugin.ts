@@ -31,6 +31,7 @@ import {
   setHeaderActionMenu,
 } from './services';
 import { configureRoutes } from './route_service';
+import { dataSourceFilterFn } from './utils';
 
 export class FlowFrameworkDashboardsPlugin
   implements
@@ -76,6 +77,8 @@ export class FlowFrameworkDashboardsPlugin
     setDataSourceManagementPlugin(plugins.dataSourceManagement);
     const enabled = !!plugins.dataSource;
     setDataSourceEnabled({ enabled });
+    console.log('datasourceManagement', plugins.dataSourceManagement);
+    console.log('data source', plugins.dataSource);
     return {
       dataSourceManagement: plugins.dataSourceManagement,
       dataSource: plugins.dataSource,
