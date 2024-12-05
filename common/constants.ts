@@ -428,7 +428,7 @@ export const QUERY_PRESETS = [
  * PROMPT PRESETS
  */
 export const SUMMARIZE_DOCS_PROMPT =
-  "Human: You are a professional data analyist. \
+  "Human: You are a professional data analyst. \
 You are given a list of document results. You will \
 analyze the data and generate a human-readable summary of the results. If you don't \
 know the answer, just say I don't know.\
@@ -437,7 +437,7 @@ know the answer, just say I don't know.\
 \n\n Assistant:";
 
 export const QA_WITH_DOCUMENTS_PROMPT =
-  "Human: You are a professional data analyist. \
+  "Human: You are a professional data analyst. \
 You are given a list of document results, along with a question. You will \
 analyze the results and generate a human-readable response to the question, \
 based on the results. If you don't know the answer, just say I don't know.\

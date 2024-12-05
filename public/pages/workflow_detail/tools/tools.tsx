@@ -102,7 +102,7 @@ export function Tools(props: ToolsProps) {
         gutterSize="s"
         style={{
           height: '100%',
-          overflow: 'scroll',
+          overflow: 'hidden',
         }}
       >
         <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
