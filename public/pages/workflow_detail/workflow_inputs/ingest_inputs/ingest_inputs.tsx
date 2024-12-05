@@ -36,7 +36,11 @@ export function IngestInputs(props: IngestInputsProps) {
         <EuiHorizontalRule margin="none" />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <EnrichData uiConfig={props.uiConfig} setUiConfig={props.setUiConfig} />
+        <EnrichData
+          uiConfig={props.uiConfig}
+          setUiConfig={props.setUiConfig}
+          dataSource={(props.workflow as any)?.dataSource}
+        />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiHorizontalRule margin="none" />

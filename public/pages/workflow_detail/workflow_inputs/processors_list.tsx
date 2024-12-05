@@ -4,6 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import semver from 'semver';
+import { getEffectiveVersion } from '../../../pages/workflows/new_workflow/new_workflow';
 import {
   EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
@@ -23,7 +25,8 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../common';
-import { formikToUiConfig } from '../../../utils';
+import { formikToUiConfig, getDataSourceFromURL } from '../../../utils';
+
 import {
   CollapseProcessor,
   MLIngestProcessor,
@@ -36,13 +39,20 @@ import {
   SplitIngestProcessor,
   SplitSearchResponseProcessor,
   TextChunkingIngestProcessor,
+  TextEmbeddingIngestProcessor,
+  TextImageEmbeddingIngestProcessor,
 } from '../../../configs';
 import { ProcessorInputs } from './processor_inputs';
+import { SavedObject } from '../../../../../../src/core/public';
+import { DataSourceAttributes } from '../../../../../../src/plugins/data_source/common/data_sources';
+import { useLocation } from 'react-router-dom';
 
 interface ProcessorsListProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   context: PROCESSOR_CONTEXT;
+  dataSource?: SavedObject<DataSourceAttributes>;
+  onProcessorsChange?: (count: number) => void;
 }
 
 const PANEL_ID = 0;
@@ -52,30 +62,188 @@ const PANEL_ID = 0;
  */
 export function ProcessorsList(props: ProcessorsListProps) {
   const { values } = useFormikContext<WorkflowFormValues>();
-
-  // Processor added state. Used to automatically open accordion when a new
-  // processor is added, assuming users want to immediately configure it.
+  const [version, setVersion] = useState<string>('');
+  const location = useLocation();
   const [processorAdded, setProcessorAdded] = useState<boolean>(false);
-
-  // Popover state when adding new processors
   const [isPopoverOpen, setPopover] = useState(false);
+  const [processors, setProcessors] = useState<IProcessorConfig[]>([]);
+
   const closePopover = () => {
     setPopover(false);
   };
 
-  // Current processors state
-  const [processors, setProcessors] = useState<IProcessorConfig[]>([]);
+  const handlePopoverClick = () => {
+    setPopover(!isPopoverOpen);
+  };
+
   useEffect(() => {
-    if (props.uiConfig && props.context) {
-      setProcessors(
-        props.context === PROCESSOR_CONTEXT.INGEST
-          ? props.uiConfig.ingest.enrich.processors
-          : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? props.uiConfig.search.enrichRequest.processors
-          : props.uiConfig.search.enrichResponse.processors
-      );
+    const dataSourceId = getDataSourceFromURL(location).dataSourceId;
+    if (dataSourceId) {
+      getEffectiveVersion(dataSourceId)
+        .then((ver) => {
+          setVersion(ver);
+        })
+        .catch(console.error);
     }
-  }, [props.context, props.uiConfig]);
+  }, [location]);
+
+  useEffect(() => {
+    const loadProcessors = async () => {
+      if (props.uiConfig && props.context) {
+        let currentProcessors =
+          props.context === PROCESSOR_CONTEXT.INGEST
+            ? props.uiConfig.ingest.enrich.processors
+            : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+            ? props.uiConfig.search.enrichRequest.processors
+            : props.uiConfig.search.enrichResponse.processors;
+
+        // If version is 2.17 or 2.18, filter out ML processors
+        if (
+          version &&
+          semver.gte(version, '2.17.0') &&
+          semver.lt(version, '2.19.0')
+        ) {
+          currentProcessors =
+            currentProcessors?.filter(
+              (processor) => processor.type !== 'ml_inference'
+            ) || [];
+        }
+        setProcessors(currentProcessors || []);
+        props.onProcessorsChange?.(currentProcessors?.length || 0);
+      }
+    };
+
+    loadProcessors();
+  }, [props.context, props.uiConfig, version]);
+
+  const getMenuItems = () => {
+    const isPreV219 =
+      semver.gte(version, '2.17.0') && semver.lt(version, '2.19.0');
+
+    const ingestProcessors = [
+      ...(isPreV219
+        ? [
+            {
+              name: 'Text Embedding Processor',
+              onClick: () => {
+                closePopover();
+                addProcessor(new TextEmbeddingIngestProcessor().toObj());
+              },
+            },
+            {
+              name: 'Text Image Embedding Processor',
+              onClick: () => {
+                closePopover();
+                addProcessor(new TextImageEmbeddingIngestProcessor().toObj());
+              },
+            },
+          ]
+        : [
+            {
+              name: 'ML Inference Processor',
+              onClick: () => {
+                closePopover();
+                addProcessor(new MLIngestProcessor().toObj());
+              },
+            },
+          ]),
+      {
+        name: 'Split Processor',
+        onClick: () => {
+          closePopover();
+          addProcessor(new SplitIngestProcessor().toObj());
+        },
+      },
+      {
+        name: 'Sort Processor',
+        onClick: () => {
+          closePopover();
+          addProcessor(new SortIngestProcessor().toObj());
+        },
+      },
+      {
+        name: 'Text Chunking Processor',
+        onClick: () => {
+          closePopover();
+          addProcessor(new TextChunkingIngestProcessor().toObj());
+        },
+      },
+    ];
+
+    const searchRequestProcessors = [
+      ...(!isPreV219
+        ? [
+            {
+              name: 'ML Inference Processor',
+              onClick: () => {
+                closePopover();
+                addProcessor(new MLSearchRequestProcessor().toObj());
+              },
+            },
+          ]
+        : []),
+    ];
+
+    const searchResponseProcessors = [
+      ...(!isPreV219
+        ? [
+            {
+              name: 'ML Inference Processor',
+              onClick: () => {
+                closePopover();
+                addProcessor(new MLSearchResponseProcessor().toObj());
+              },
+            },
+          ]
+        : []),
+      {
+        name: 'Rerank Processor',
+        onClick: () => {
+          closePopover();
+          addProcessor(new RerankProcessor().toObj());
+        },
+      },
+      {
+        name: 'Split Processor',
+        onClick: () => {
+          closePopover();
+          addProcessor(new SplitSearchResponseProcessor().toObj());
+        },
+      },
+      {
+        name: 'Sort Processor',
+        onClick: () => {
+          closePopover();
+          addProcessor(new SortSearchResponseProcessor().toObj());
+        },
+      },
+      {
+        name: 'Normalization Processor',
+        onClick: () => {
+          closePopover();
+          addProcessor(new NormalizationProcessor().toObj());
+        },
+      },
+      {
+        name: 'Collapse Processor',
+        onClick: () => {
+          closePopover();
+          addProcessor(new CollapseProcessor().toObj());
+        },
+      },
+    ];
+
+    switch (props.context) {
+      case PROCESSOR_CONTEXT.INGEST:
+        return ingestProcessors;
+      case PROCESSOR_CONTEXT.SEARCH_REQUEST:
+        return searchRequestProcessors;
+      case PROCESSOR_CONTEXT.SEARCH_RESPONSE:
+        return searchResponseProcessors;
+      default:
+        return [];
+    }
+  };
 
   // Adding a processor to the config. Fetch the existing one
   // (getting any updated/interim values along the way) and add to
@@ -197,9 +365,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
                   <EuiSmallButtonEmpty
                     iconType="plusInCircle"
                     iconSide="left"
-                    onClick={() => {
-                      setPopover(!isPopoverOpen);
-                    }}
+                    onClick={handlePopoverClick}
                     data-testid="addProcessorButton"
                   >
                     {`Add processor`}
@@ -210,118 +376,19 @@ export function ProcessorsList(props: ProcessorsListProps) {
                 panelPaddingSize="none"
                 anchorPosition="downLeft"
               >
-                <EuiContextMenu
-                  size="s"
-                  initialPanelId={PANEL_ID}
-                  panels={[
-                    {
-                      id: PANEL_ID,
-                      title: 'PROCESSORS',
-                      items:
-                        props.context === PROCESSOR_CONTEXT.INGEST
-                          ? [
-                              {
-                                name: 'ML Inference Processor',
-                                onClick: () => {
-                                  closePopover();
-                                  addProcessor(new MLIngestProcessor().toObj());
-                                },
-                              },
-                              {
-                                name: 'Split Processor',
-                                onClick: () => {
-                                  closePopover();
-                                  addProcessor(
-                                    new SplitIngestProcessor().toObj()
-                                  );
-                                },
-                              },
-                              {
-                                name: 'Sort Processor',
-                                onClick: () => {
-                                  closePopover();
-                                  addProcessor(
-                                    new SortIngestProcessor().toObj()
-                                  );
-                                },
-                              },
-                              {
-                                name: 'Text Chunking Processor',
-                                onClick: () => {
-                                  closePopover();
-                                  addProcessor(
-                                    new TextChunkingIngestProcessor().toObj()
-                                  );
-                                },
-                              },
-                            ]
-                          : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                          ? [
-                              {
-                                name: 'ML Inference Processor',
-                                onClick: () => {
-                                  closePopover();
-                                  addProcessor(
-                                    new MLSearchRequestProcessor().toObj()
-                                  );
-                                },
-                              },
-                            ]
-                          : [
-                              {
-                                name: 'ML Inference Processor',
-                                onClick: () => {
-                                  closePopover();
-                                  addProcessor(
-                                    new MLSearchResponseProcessor().toObj()
-                                  );
-                                },
-                              },
-                              {
-                                name: 'Rerank Processor',
-                                onClick: () => {
-                                  closePopover();
-                                  addProcessor(new RerankProcessor().toObj());
-                                },
-                              },
-                              {
-                                name: 'Split Processor',
-                                onClick: () => {
-                                  closePopover();
-                                  addProcessor(
-                                    new SplitSearchResponseProcessor().toObj()
-                                  );
-                                },
-                              },
-                              {
-                                name: 'Sort Processor',
-                                onClick: () => {
-                                  closePopover();
-                                  addProcessor(
-                                    new SortSearchResponseProcessor().toObj()
-                                  );
-                                },
-                              },
-                              {
-                                name: 'Normalization Processor',
-                                onClick: () => {
-                                  closePopover();
-                                  addProcessor(
-                                    new NormalizationProcessor().toObj()
-                                  );
-                                },
-                              },
-                              {
-                                name: 'Collapse Processor',
-                                onClick: () => {
-                                  closePopover();
-                                  addProcessor(new CollapseProcessor().toObj());
-                                },
-                              },
-                            ],
-                    },
-                  ]}
-                />
+                {version && (
+                  <EuiContextMenu
+                    size="s"
+                    initialPanelId={PANEL_ID}
+                    panels={[
+                      {
+                        id: PANEL_ID,
+                        title: getMenuItems().length > 0 ? 'PROCESSORS' : '',
+                        items: getMenuItems(),
+                      },
+                    ]}
+                  />
+                )}
               </EuiPopover>
             </EuiFlexItem>
           </EuiFlexGroup>

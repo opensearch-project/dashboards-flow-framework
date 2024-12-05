@@ -8,10 +8,13 @@ import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { ProcessorsTitle } from '../../../../general_components';
 import { PROCESSOR_CONTEXT, WorkflowConfig } from '../../../../../common';
 import { ProcessorsList } from '../processors_list';
+import { SavedObject } from '../../../../../../../src/core/public';
+import { DataSourceAttributes } from '../../../../../../../src/plugins/data_source/common/data_sources';
 
 interface EnrichSearchResponseProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
+  dataSource?: SavedObject<DataSourceAttributes>;
 }
 
 /**
@@ -32,6 +35,7 @@ export function EnrichSearchResponse(props: EnrichSearchResponseProps) {
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
           context={PROCESSOR_CONTEXT.SEARCH_RESPONSE}
+          dataSource={props.dataSource}
         />
       </EuiFlexItem>
     </EuiFlexGroup>

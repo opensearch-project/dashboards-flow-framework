@@ -8,10 +8,13 @@ import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { ProcessorsList } from '../processors_list';
 import { PROCESSOR_CONTEXT, WorkflowConfig } from '../../../../../common';
 import { ProcessorsTitle } from '../../../../general_components';
+import { SavedObject } from '../../../../../../../src/core/public';
+import { DataSourceAttributes } from '../../../../../../../src/plugins/data_source/common/data_sources';
 
 interface EnrichDataProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
+  dataSource?: SavedObject<DataSourceAttributes>;
 }
 
 /**
@@ -30,6 +33,7 @@ export function EnrichData(props: EnrichDataProps) {
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
           context={PROCESSOR_CONTEXT.INGEST}
+          dataSource={props.dataSource}
         />
       </EuiFlexItem>
     </EuiFlexGroup>
