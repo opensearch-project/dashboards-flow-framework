@@ -52,14 +52,23 @@ describe('NewWorkflow', () => {
     jest.spyOn(ReactReduxHooks, 'useAppDispatch').mockReturnValue(mockDispatch);
   });
 
-  test('renders the preset workflow names & descriptions', () => {
+  test('renders the preset workflow names & descriptions when version is before 2.17', () => {
     const presetWorkflows = loadPresetWorkflowTemplates();
+    const allowedPresets = [
+      'Semantic Search',
+      'Hybrid Search',
+      'Multimodal Search',
+    ];
     const { getByPlaceholderText, getAllByText } = renderWithRouter();
     expect(getByPlaceholderText('Search')).toBeInTheDocument();
-    presetWorkflows.forEach((workflow) => {
-      expect(getAllByText(workflow.name)).toHaveLength(1);
-      expect(getAllByText(workflow.description)).toHaveLength(1);
+    allowedPresets.forEach((workflowName) => {
+      expect(getAllByText(workflowName)).toHaveLength(1);
     });
+    presetWorkflows
+      .filter((workflow) => !allowedPresets.includes(workflow.name))
+      .forEach((workflow) => {
+        expect(() => getAllByText(workflow.name)).toThrow();
+      });
   });
 
   test('renders the quick configure for preset workflow templates', async () => {
