@@ -22,7 +22,7 @@ export type Index = {
  ********** WORKFLOW TYPES/INTERFACES **********
  */
 export type MDSQueryParams = {
-  dataSourceId?: string;
+  dataSourceId?: string | undefined;
 };
 
 export type ConfigFieldType =

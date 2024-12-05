@@ -180,6 +180,8 @@ export enum PROCESSOR_TYPE {
   NORMALIZATION = 'normalization-processor',
   COLLAPSE = 'collapse',
   RERANK = 'rerank',
+  TEXT_EMBEDDING = 'text_embedding',
+  TEXT_IMAGE_EMBEDDING = 'text_image_embedding',
 }
 
 export enum MODEL_TYPE {
@@ -311,7 +313,6 @@ export const SEMANTIC_SEARCH_QUERY_NEURAL = {
     neural: {
       [VECTOR_FIELD_PATTERN]: {
         query_text: QUERY_TEXT_PATTERN,
-        model_id: MODEL_ID_PATTERN,
         k: DEFAULT_K,
       },
     },
@@ -333,20 +334,16 @@ export const MULTIMODAL_SEARCH_QUERY_NEURAL = {
   },
 };
 export const MULTIMODAL_SEARCH_QUERY_BOOL = {
+  _source: {
+    excludes: [VECTOR_FIELD_PATTERN],
+  },
   query: {
-    bool: {
-      must: [
-        {
-          match: {
-            [TEXT_FIELD_PATTERN]: QUERY_TEXT_PATTERN,
-          },
-        },
-        {
-          match: {
-            [IMAGE_FIELD_PATTERN]: QUERY_IMAGE_PATTERN,
-          },
-        },
-      ],
+    neural: {
+      [VECTOR_FIELD_PATTERN]: {
+        query_text: QUERY_TEXT_PATTERN,
+        query_image: QUERY_IMAGE_PATTERN,
+        k: DEFAULT_K,
+      },
     },
   },
 };
@@ -394,7 +391,6 @@ export const HYBRID_SEARCH_QUERY_MATCH_NEURAL = {
           neural: {
             [VECTOR_FIELD_PATTERN]: {
               query_text: QUERY_TEXT_PATTERN,
-              model_id: MODEL_ID_PATTERN,
               k: DEFAULT_K,
             },
           },
