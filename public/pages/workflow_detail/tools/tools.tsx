@@ -15,49 +15,31 @@ import {
   EuiTabs,
   EuiText,
 } from '@elastic/eui';
-import { Workflow } from '../../../../common';
+import {
+  CONFIG_STEP,
+  INSPECTOR_TAB_ID,
+  INSPECTOR_TABS,
+  Workflow,
+} from '../../../../common';
 import { Resources } from './resources';
 import { Query } from './query';
 import { Ingest } from './ingest';
 import { Errors } from './errors';
+import {
+  hasProvisionedIngestResources,
+  hasProvisionedSearchResources,
+} from '../../../utils';
 
 interface ToolsProps {
   workflow?: Workflow;
   ingestResponse: string;
   queryResponse: string;
+  setQueryResponse: (queryResponse: string) => void;
+  selectedTabId: INSPECTOR_TAB_ID;
+  setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
+  selectedStep: CONFIG_STEP;
 }
 
-enum TAB_ID {
-  INGEST = 'ingest',
-  QUERY = 'query',
-  ERRORS = 'errors',
-  RESOURCES = 'resources',
-}
-
-const inputTabs = [
-  {
-    id: TAB_ID.INGEST,
-    name: 'Ingest response',
-    disabled: false,
-  },
-  {
-    id: TAB_ID.QUERY,
-    name: 'Search response',
-    disabled: false,
-  },
-  {
-    id: TAB_ID.ERRORS,
-    name: 'Errors',
-    disabled: false,
-  },
-  {
-    id: TAB_ID.RESOURCES,
-    name: 'Resources',
-    disabled: false,
-  },
-];
-
-// TODO: this may change in the future
 const PANEL_TITLE = 'Inspector';
 
 /**
@@ -70,9 +52,6 @@ export function Tools(props: ToolsProps) {
   const workflowsError = workflows.errorMessage;
   const [curErrorMessage, setCurErrorMessage] = useState<string>('');
 
-  // selected tab state
-  const [selectedTabId, setSelectedTabId] = useState<string>(TAB_ID.INGEST);
-
   // auto-navigate to errors tab if a new error has been set as a result of
   // executing OpenSearch or Flow Framework workflow APIs, or from the workflow state
   // (note that if provision/deprovision fails, there is no concrete exception returned at the API level -
@@ -80,34 +59,34 @@ export function Tools(props: ToolsProps) {
   useEffect(() => {
     setCurErrorMessage(opensearchError);
     if (!isEmpty(opensearchError)) {
-      setSelectedTabId(TAB_ID.ERRORS);
+      props.setSelectedTabId(INSPECTOR_TAB_ID.ERRORS);
     }
   }, [opensearchError]);
 
   useEffect(() => {
     setCurErrorMessage(workflowsError);
     if (!isEmpty(workflowsError)) {
-      setSelectedTabId(TAB_ID.ERRORS);
+      props.setSelectedTabId(INSPECTOR_TAB_ID.ERRORS);
     }
   }, [workflowsError]);
   useEffect(() => {
     setCurErrorMessage(props.workflow?.error || '');
     if (!isEmpty(props.workflow?.error)) {
-      setSelectedTabId(TAB_ID.ERRORS);
+      props.setSelectedTabId(INSPECTOR_TAB_ID.ERRORS);
     }
   }, [props.workflow?.error]);
 
   // auto-navigate to ingest tab if a populated value has been set, indicating ingest has been ran
   useEffect(() => {
     if (!isEmpty(props.ingestResponse)) {
-      setSelectedTabId(TAB_ID.INGEST);
+      props.setSelectedTabId(INSPECTOR_TAB_ID.INGEST);
     }
   }, [props.ingestResponse]);
 
   // auto-navigate to query tab if a populated value has been set, indicating search has been ran
   useEffect(() => {
     if (!isEmpty(props.queryResponse)) {
-      setSelectedTabId(TAB_ID.QUERY);
+      props.setSelectedTabId(INSPECTOR_TAB_ID.QUERY);
     }
   }, [props.queryResponse]);
 
@@ -120,8 +99,10 @@ export function Tools(props: ToolsProps) {
     >
       <EuiFlexGroup
         direction="column"
+        gutterSize="s"
         style={{
           height: '100%',
+          overflow: 'scroll',
         }}
       >
         <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
@@ -131,11 +112,11 @@ export function Tools(props: ToolsProps) {
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiTabs size="s" expand={false}>
-            {inputTabs.map((tab, idx) => {
+            {INSPECTOR_TABS.map((tab, idx) => {
               return (
                 <EuiTab
-                  onClick={() => setSelectedTabId(tab.id)}
-                  isSelected={tab.id === selectedTabId}
+                  onClick={() => props.setSelectedTabId(tab.id)}
+                  isSelected={tab.id === props.selectedTabId}
                   disabled={tab.disabled}
                   key={idx}
                 >
@@ -149,16 +130,26 @@ export function Tools(props: ToolsProps) {
           <EuiFlexGroup direction="column">
             <EuiFlexItem grow={true}>
               <>
-                {selectedTabId === TAB_ID.INGEST && (
+                {props.selectedTabId === INSPECTOR_TAB_ID.INGEST && (
                   <Ingest ingestResponse={props.ingestResponse} />
                 )}
-                {selectedTabId === TAB_ID.QUERY && (
-                  <Query queryResponse={props.queryResponse} />
+                {props.selectedTabId === INSPECTOR_TAB_ID.QUERY && (
+                  <Query
+                    queryResponse={props.queryResponse}
+                    setQueryResponse={props.setQueryResponse}
+                    hasSearchPipeline={hasProvisionedSearchResources(
+                      props.workflow
+                    )}
+                    hasIngestResources={hasProvisionedIngestResources(
+                      props.workflow
+                    )}
+                    selectedStep={props.selectedStep}
+                  />
                 )}
-                {selectedTabId === TAB_ID.ERRORS && (
+                {props.selectedTabId === INSPECTOR_TAB_ID.ERRORS && (
                   <Errors errorMessage={curErrorMessage} />
                 )}
-                {selectedTabId === TAB_ID.RESOURCES && (
+                {props.selectedTabId === INSPECTOR_TAB_ID.RESOURCES && (
                   <Resources workflow={props.workflow} />
                 )}
               </>

@@ -14,6 +14,7 @@ import {
 } from '@elastic/eui';
 import {
   CONFIG_STEP,
+  INSPECTOR_TAB_ID,
   Workflow,
   WorkflowConfig,
   customStringify,
@@ -78,9 +79,13 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     setIsToolsPanelOpen(!isToolsPanelOpen);
   };
 
-  // ingest / search response states to be populated in the Tools panel
+  // Inspector panel state vars. Actions taken in the form can update the Inspector panel,
+  // hence we keep top-level vars here to pass to both form and inspector components.
   const [ingestResponse, setIngestResponse] = useState<string>('');
   const [queryResponse, setQueryResponse] = useState<string>('');
+  const [selectedInspectorTabId, setSelectedInspectorTabId] = useState<
+    INSPECTOR_TAB_ID
+  >(INSPECTOR_TAB_ID.INGEST);
 
   // is valid workflow state, + associated hook to set it as such
   const [isValidWorkflow, setIsValidWorkflow] = useState<boolean>(true);
@@ -132,6 +137,12 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 setSelectedStep={props.setSelectedStep}
                 setUnsavedIngestProcessors={props.setUnsavedIngestProcessors}
                 setUnsavedSearchProcessors={props.setUnsavedSearchProcessors}
+                displaySearchPanel={() => {
+                  if (!isToolsPanelOpen) {
+                    onToggleToolsChange();
+                  }
+                  setSelectedInspectorTabId(INSPECTOR_TAB_ID.QUERY);
+                }}
               />
             </EuiResizablePanel>
             <EuiResizableButton />
@@ -198,6 +209,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                           workflow={props.workflow}
                           ingestResponse={ingestResponse}
                           queryResponse={queryResponse}
+                          setQueryResponse={setQueryResponse}
+                          selectedTabId={selectedInspectorTabId}
+                          setSelectedTabId={setSelectedInspectorTabId}
+                          selectedStep={props.selectedStep}
                         />
                       </EuiResizablePanel>
                     </>

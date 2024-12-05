@@ -82,7 +82,11 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
   const [presetsPopoverOpen, setPresetsPopoverOpen] = useState<boolean>(false);
 
   return (
-    <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
+    <EuiModal
+      maxWidth={false}
+      onClose={props.onClose}
+      style={{ width: '70vw' }}
+    >
       <EuiModalHeader>
         <EuiModalHeaderTitle>
           <p>{`Override query`}</p>

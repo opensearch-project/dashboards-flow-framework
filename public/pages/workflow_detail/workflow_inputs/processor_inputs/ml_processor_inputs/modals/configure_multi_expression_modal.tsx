@@ -232,7 +232,11 @@ export function ConfigureMultiExpressionModal(
         }
 
         return (
-          <EuiModal onClose={props.onClose} style={{ width: '70vw' }}>
+          <EuiModal
+            maxWidth={false}
+            onClose={props.onClose}
+            style={{ width: '70vw' }}
+          >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
                 <p>{`Extract data with expression`}</p>

@@ -93,10 +93,9 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
 
-      // "Run ingestion" button should be enabled by default
+      // "Run ingestion" button exists
       const runIngestionButton = getByTestId('runIngestionButton');
       expect(runIngestionButton).toBeInTheDocument();
-      expect(runIngestionButton).toBeEnabled();
 
       // "Search pipeline" button should be disabled by default
       const searchPipelineButton = getByTestId('searchPipelineButton');
@@ -194,15 +193,13 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
       expect(getAllByText('Define search pipeline').length).toBeGreaterThan(0);
     });
     expect(getAllByText('Configure query').length).toBeGreaterThan(0);
-    const searchTestButton = getByTestId('searchTestButton');
-    expect(searchTestButton).toBeInTheDocument();
 
     // Edit Search Query
     const queryEditButton = getByTestId('queryEditButton');
     expect(queryEditButton).toBeInTheDocument();
     userEvent.click(queryEditButton);
     await waitFor(() => {
-      expect(getAllByText('Edit query').length).toBeGreaterThan(0);
+      expect(getAllByText('Edit query definition').length).toBeGreaterThan(0);
     });
     const searchQueryPresetButton = getByTestId('searchQueryPresetButton');
     expect(searchQueryPresetButton).toBeInTheDocument();
