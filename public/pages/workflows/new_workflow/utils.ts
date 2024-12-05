@@ -30,6 +30,7 @@ import {
   WorkflowConfig,
 } from '../../../../common';
 import { generateId } from '../../../utils';
+import * as pluginManifest from '../../../../opensearch_dashboards.json';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
 export function enrichPresetWorkflowWithUiMetadata(
@@ -74,6 +75,7 @@ export function enrichPresetWorkflowWithUiMetadata(
 
 export function fetchEmptyMetadata(): UIState {
   return {
+    version: pluginManifest.version,
     type: WORKFLOW_TYPE.CUSTOM,
     config: fetchEmptyUIConfig(),
   };

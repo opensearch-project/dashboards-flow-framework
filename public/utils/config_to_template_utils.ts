@@ -47,7 +47,6 @@ import { sanitizeJSONPath } from './utils';
 
 export function configToTemplateFlows(config: WorkflowConfig): TemplateFlows {
   const provisionFlow = configToProvisionTemplateFlow(config);
-
   return {
     provision: provisionFlow,
   };
@@ -486,13 +485,14 @@ function processModelInputs(
   mapFormValue.forEach((mapEntry) => {
     // dynamic data
     if (
-      mapEntry.value.transformType === TRANSFORM_TYPE.FIELD ||
-      mapEntry.value.transformType === TRANSFORM_TYPE.EXPRESSION
+      (mapEntry.value.transformType === TRANSFORM_TYPE.FIELD ||
+        mapEntry.value.transformType === TRANSFORM_TYPE.EXPRESSION) &&
+      !isEmpty(mapEntry.value.value)
     ) {
       inputMap = {
         ...inputMap,
         [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(
-          mapEntry.value.value
+          mapEntry.value.value as string
         ),
       };
       // template with dynamic nested vars. Add the nested vars as input map entries,
@@ -532,10 +532,13 @@ function processModelOutputs(mapFormValue: OutputMapFormValue): {} {
   let outputMap = {};
   mapFormValue.forEach((mapEntry) => {
     // field transform: just a rename
-    if (mapEntry.value.transformType === TRANSFORM_TYPE.FIELD) {
+    if (
+      mapEntry.value.transformType === TRANSFORM_TYPE.FIELD &&
+      !isEmpty(mapEntry.value.value)
+    ) {
       outputMap = {
         ...outputMap,
-        [sanitizeJSONPath(mapEntry.value.value)]: sanitizeJSONPath(
+        [sanitizeJSONPath(mapEntry.value.value as string)]: sanitizeJSONPath(
           mapEntry.key
         ),
       };
