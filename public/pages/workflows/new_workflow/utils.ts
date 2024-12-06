@@ -28,6 +28,7 @@ import {
   KNN_QUERY,
   HYBRID_SEARCH_QUERY_MATCH_KNN,
   WorkflowConfig,
+  UI_METADATA_SCHEMA_VERSION,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 
@@ -74,6 +75,7 @@ export function enrichPresetWorkflowWithUiMetadata(
 
 export function fetchEmptyMetadata(): UIState {
   return {
+    schema_version: UI_METADATA_SCHEMA_VERSION,
     type: WORKFLOW_TYPE.CUSTOM,
     config: fetchEmptyUIConfig(),
   };
