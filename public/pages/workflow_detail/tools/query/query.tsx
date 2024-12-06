@@ -68,11 +68,14 @@ export function Query(props: QueryProps) {
   // Standalone / sandboxed search request state. Users can test things out
   // without updating the base form / persisted value. We default to different values
   // based on the context (ingest or search).
-  const [tempRequest, setTempRequest] = useState<string>(
-    props.selectedStep === CONFIG_STEP.INGEST
-      ? customStringify(FETCH_ALL_QUERY)
-      : values?.search?.request || '{}'
-  );
+  const [tempRequest, setTempRequest] = useState<string>('');
+  useEffect(() => {
+    setTempRequest(
+      props.selectedStep === CONFIG_STEP.INGEST
+        ? customStringify(FETCH_ALL_QUERY)
+        : values?.search?.request || '{}'
+    );
+  }, [props.selectedStep]);
 
   // state for if to execute search w/ or w/o any configured search pipeline.
   // default based on if there is an available search pipeline or not.

@@ -6,6 +6,9 @@
 import yaml from 'js-yaml';
 import jsonpath from 'jsonpath';
 import { escape, get, isEmpty } from 'lodash';
+import semver from 'semver';
+import queryString from 'query-string';
+import { useLocation } from 'react-router-dom';
 import {
   JSONPATH_ROOT_SELECTOR,
   MODEL_OUTPUT_SCHEMA_FULL_PATH,
@@ -34,12 +37,9 @@ import {
   OutputMapEntry,
   QueryParam,
 } from '../../common/interfaces';
-import queryString from 'query-string';
-import { useLocation } from 'react-router-dom';
 import * as pluginManifest from '../../opensearch_dashboards.json';
 import { DataSourceAttributes } from '../../../../src/plugins/data_source/common/data_sources';
 import { SavedObject } from '../../../../src/core/public';
-import semver from 'semver';
 
 // Generate a random ID. Optionally add a prefix. Optionally
 // override the default # characters to generate.
@@ -533,7 +533,7 @@ export const getErrorMessageForStepType = (
 // scenarios will succeed on the frontend and fail on the backend,
 // or vice versa.
 export function sanitizeJSONPath(path: string): string {
-  return path.split('.').reduce((prevValue, curValue, idx) => {
+  return path?.split('.').reduce((prevValue, curValue, idx) => {
     // Case 1: accessing array via dot notation. Fails on the backend.
     if (!isNaN(parseInt(curValue))) {
       return prevValue + `[${curValue}]`;
