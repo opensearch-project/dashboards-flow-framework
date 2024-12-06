@@ -63,6 +63,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                 <BooleanField
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={fieldPath}
+                  type="Checkbox"
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
