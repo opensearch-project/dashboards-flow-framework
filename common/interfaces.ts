@@ -242,7 +242,7 @@ type ReactFlowViewport = {
 };
 
 export type UIState = {
-  version: string;
+  schema_version: 1;
   config: WorkflowConfig;
   type: WORKFLOW_TYPE;
   // Will be used in future when changing from form-based to flow-based configs via drag-and-drop
