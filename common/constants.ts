@@ -108,6 +108,8 @@ export const BEDROCK_DIMENSIONS = {
  * Various constants pertaining to Workflow configs
  */
 
+export const UI_METADATA_SCHEMA_VERSION = 1;
+
 // frontend-specific workflow types, derived from the available preset templates
 export enum WORKFLOW_TYPE {
   SEMANTIC_SEARCH = 'Semantic search',

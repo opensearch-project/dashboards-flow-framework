@@ -28,9 +28,9 @@ import {
   KNN_QUERY,
   HYBRID_SEARCH_QUERY_MATCH_KNN,
   WorkflowConfig,
+  UI_METADATA_SCHEMA_VERSION,
 } from '../../../../common';
 import { generateId } from '../../../utils';
-import * as pluginManifest from '../../../../opensearch_dashboards.json';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
 export function enrichPresetWorkflowWithUiMetadata(
@@ -75,7 +75,7 @@ export function enrichPresetWorkflowWithUiMetadata(
 
 export function fetchEmptyMetadata(): UIState {
   return {
-    version: pluginManifest.version,
+    schema_version: UI_METADATA_SCHEMA_VERSION,
     type: WORKFLOW_TYPE.CUSTOM,
     config: fetchEmptyUIConfig(),
   };
