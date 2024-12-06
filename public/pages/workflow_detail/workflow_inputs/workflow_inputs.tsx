@@ -110,7 +110,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const onIngest = props.selectedStep === CONFIG_STEP.INGEST;
   const onSearch = props.selectedStep === CONFIG_STEP.SEARCH;
   const ingestEnabled = values?.ingest?.enabled || false;
-  const onSearchAndProvisioned = onSearch && searchProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
   const isProposingNoSearchResources =
@@ -565,18 +564,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     type="Switch"
                     helpText="Create a new ingest pipeline and index"
                   />
-                </EuiFlexItem>
-              )}
-              {onSearchAndProvisioned && (
-                <EuiFlexItem grow={false}>
-                  <EuiSmallButton
-                    fill={false}
-                    onClick={() => {
-                      props.displaySearchPanel();
-                    }}
-                  >
-                    Test pipeline
-                  </EuiSmallButton>
                 </EuiFlexItem>
               )}
             </EuiFlexGroup>
