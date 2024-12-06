@@ -62,7 +62,6 @@ interface WorkflowInputsProps {
   uiConfig: WorkflowConfig | undefined;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setIngestResponse: (ingestResponse: string) => void;
-  setQueryResponse: (queryResponse: string) => void;
   ingestDocs: string;
   setIngestDocs: (docs: string) => void;
   isRunningIngest: boolean;
@@ -93,9 +92,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
 
-  // query state
-  const [query, setQuery] = useState<string>('');
-
   // transient running states
   const [isUpdatingSearchPipeline, setIsUpdatingSearchPipeline] = useState<
     boolean
@@ -114,14 +110,16 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const onIngest = props.selectedStep === CONFIG_STEP.INGEST;
   const onSearch = props.selectedStep === CONFIG_STEP.SEARCH;
   const ingestEnabled = values?.ingest?.enabled || false;
-  const onIngestAndProvisioned = onIngest && ingestProvisioned;
   const onSearchAndProvisioned = onSearch && searchProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
-  const onSearchAndUnprovisioned = onSearch && !searchProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
   const isProposingNoSearchResources =
     isEmpty(getIn(values, 'search.enrichRequest')) &&
     isEmpty(getIn(values, 'search.enrichResponse'));
+  // fine-grained deprovisioning is not supported, hence once a search pipeline is created, it cannot
+  // be deleted without re-creating all of the resources, including ingest resources.
+  const searchUpdateDisabled =
+    searchProvisioned && isProposingNoSearchResources;
 
   // maintaining any fine-grained differences between the generated templates produced by the form,
   // produced by the current UI config, and the one persisted in the workflow itself. We enable/disable buttons
@@ -569,6 +567,18 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   />
                 </EuiFlexItem>
               )}
+              {onSearchAndProvisioned && (
+                <EuiFlexItem grow={false}>
+                  <EuiSmallButton
+                    fill={false}
+                    onClick={() => {
+                      props.displaySearchPanel();
+                    }}
+                  >
+                    Test pipeline
+                  </EuiSmallButton>
+                </EuiFlexItem>
+              )}
             </EuiFlexGroup>
           </EuiFlexItem>
           <EuiFlexItem
@@ -594,8 +604,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <SearchInputs
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
-                setQuery={setQuery}
-                setQueryResponse={props.setQueryResponse}
               />
             )}
           </EuiFlexItem>
@@ -741,9 +749,17 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       {showSearchBottomBar && (
         <EuiBottomBar position="sticky">
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-            <EuiFlexItem grow={false}>
-              <EuiText>You have pending changes</EuiText>
-            </EuiFlexItem>
+            {searchUpdateDisabled ? (
+              <EuiFlexItem grow={false}>
+                <EuiText color="danger">
+                  You must specify at least one processor
+                </EuiText>
+              </EuiFlexItem>
+            ) : (
+              <EuiFlexItem grow={false}>
+                <EuiText>You have pending changes</EuiText>
+              </EuiFlexItem>
+            )}
             <EuiFlexItem grow={false}>
               <EuiFlexGroup direction="row" gutterSize="s">
                 {!isUpdatingSearchPipeline && (
@@ -751,25 +767,34 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     <EuiSmallButtonEmpty
                       iconType="editorUndo"
                       iconSide="left"
-                      disabled={!dirty}
+                      disabled={searchUpdateDisabled ? false : !dirty}
                       onClick={() => revertUnsavedChanges()}
                     >
                       Discard changes
                     </EuiSmallButtonEmpty>
                   </EuiFlexItem>
                 )}
-                <EuiFlexItem grow={false}>
-                  <EuiSmallButton
-                    fill={true}
-                    iconType="check"
-                    iconSide="left"
-                    disabled={!searchTemplatesDifferent}
-                    isLoading={isUpdatingSearchPipeline}
-                    onClick={() => validateAndUpdateSearchResources()}
-                  >
-                    Update
-                  </EuiSmallButton>
-                </EuiFlexItem>
+                {!searchUpdateDisabled && (
+                  <EuiFlexItem grow={false}>
+                    <EuiSmallButton
+                      fill={true}
+                      iconType="check"
+                      iconSide="left"
+                      disabled={!searchTemplatesDifferent}
+                      isLoading={isUpdatingSearchPipeline}
+                      onClick={async () => {
+                        if (await validateAndUpdateSearchResources()) {
+                          getCore().notifications.toasts.addSuccess(
+                            'Search pipeline updated'
+                          );
+                          props.displaySearchPanel();
+                        }
+                      }}
+                    >
+                      Update
+                    </EuiSmallButton>
+                  </EuiFlexItem>
+                )}
               </EuiFlexGroup>
             </EuiFlexItem>
           </EuiFlexGroup>
