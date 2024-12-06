@@ -13,18 +13,15 @@ import {
   EuiFlexItem,
   EuiHorizontalRule,
   EuiLoadingSpinner,
-  EuiModal,
-  EuiModalBody,
-  EuiModalFooter,
-  EuiModalHeader,
-  EuiModalHeaderTitle,
   EuiPanel,
   EuiText,
+  EuiHealth,
+  EuiBottomBar,
+  EuiIconTip,
+  EuiSmallButtonIcon,
 } from '@elastic/eui';
 import {
   CONFIG_STEP,
-  MAX_WORKFLOW_NAME_TO_DISPLAY,
-  SearchHit,
   TemplateNode,
   WORKFLOW_STEP_TYPE,
   Workflow,
@@ -32,7 +29,6 @@ import {
   WorkflowFormValues,
   WorkflowTemplate,
   customStringify,
-  getCharacterLimitedString,
 } from '../../../../common';
 import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
@@ -41,7 +37,6 @@ import {
   deprovisionWorkflow,
   getWorkflow,
   provisionWorkflow,
-  searchIndex,
   updateWorkflow,
   useAppDispatch,
 } from '../../../store';
@@ -90,9 +85,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const {
     submitForm,
     validateForm,
-    setFieldValue,
+    resetForm,
     setTouched,
     values,
+    dirty,
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
@@ -101,14 +97,13 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const [query, setQuery] = useState<string>('');
 
   // transient running states
-  const [isRunningDelete, setIsRunningDelete] = useState<boolean>(false);
+  const [isUpdatingSearchPipeline, setIsUpdatingSearchPipeline] = useState<
+    boolean
+  >(false);
 
   // provisioned resources states
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
   const [searchProvisioned, setSearchProvisioned] = useState<boolean>(false);
-
-  // confirm modal state
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
   // last ingested state
   const [lastIngested, setLastIngested] = useState<number | undefined>(
@@ -122,6 +117,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const onIngestAndProvisioned = onIngest && ingestProvisioned;
   const onSearchAndProvisioned = onSearch && searchProvisioned;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
+  const onSearchAndUnprovisioned = onSearch && !searchProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
   const isProposingNoSearchResources =
     isEmpty(getIn(values, 'search.enrichRequest')) &&
@@ -250,19 +246,21 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     setDocsPopulated(parsedDocsObjs.length > 0 && !isEmpty(parsedDocsObjs[0]));
   }, [props.ingestDocs]);
 
-  // maintain global states (button eligibility)
-  const ingestRunButtonDisabled = !ingestTemplatesDifferent || !docsPopulated;
-  const ingestToSearchButtonDisabled =
-    ingestTemplatesDifferent || props.isRunningIngest;
-  const searchBackButtonDisabled =
-    props.isRunningSearch ||
-    (isProposingNoSearchResources || !ingestProvisioned
-      ? false
-      : searchTemplatesDifferent);
-  const searchRunButtonDisabled =
-    props.isRunningSearch ||
-    (isProposingNoSearchResources &&
-      hasProvisionedSearchResources(props.workflow));
+  // bottom bar eligibility
+  const showIngestBottomBar =
+    onIngest &&
+    docsPopulated &&
+    (ingestTemplatesDifferent || props.isRunningIngest);
+  const showSearchBottomBar =
+    onSearch && (searchTemplatesDifferent || isUpdatingSearchPipeline);
+
+  // Utility fn to revert any unsaved changes, reset the form
+  function revertUnsavedChanges(): void {
+    resetForm();
+    if (props.workflow?.ui_metadata?.config !== undefined) {
+      props.setUiConfig(props.workflow?.ui_metadata?.config);
+    }
+  }
 
   // Utility fn to update the workflow UI config only, based on the current form values.
   // A get workflow API call is subsequently run to fetch the updated state.
@@ -510,126 +508,28 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     return success;
   }
 
-  // Updating search. If existing ingest resources, run fine-grained provisioning to persist that
+  // Updating search-related resources. If existing ingest resources, run fine-grained provisioning to persist that
   // created index and any indexed data, and only update/re-create the search
   // pipeline, as well as adding that pipeline as the default pipeline for the existing index.
   // If no ingest resources (using user's existing index), run full
   // deprovision/update/provision, since we're just re-creating the search pipeline.
   // This logic is propagated by passing `reprovision=true/false` in the
   // validateAndUpdateWorkflow() fn calls below.
-  async function validateAndRunQuery(): Promise<boolean> {
-    props.setIsRunningSearch(true);
+  async function validateAndUpdateSearchResources(): Promise<boolean> {
+    setIsUpdatingSearchPipeline(true);
     let success = false;
     try {
-      let queryObj = {};
-      try {
-        queryObj = JSON.parse(query);
-      } catch (e) {}
-      if (!isEmpty(queryObj)) {
-        if (hasProvisionedIngestResources(props.workflow)) {
-          success = await validateAndUpdateWorkflow(true, false, true);
-        } else {
-          success = await validateAndUpdateWorkflow(false, false, true);
-        }
-
-        if (success) {
-          const indexName = values.search.index.name;
-          dispatch(
-            searchIndex({
-              apiBody: { index: indexName, body: query },
-              dataSourceId,
-            })
-          )
-            .unwrap()
-            .then(async (resp) => {
-              props.setQueryResponse(
-                customStringify(
-                  resp?.hits?.hits?.map((hit: SearchHit) => hit._source)
-                )
-              );
-            })
-            .catch((error: any) => {
-              props.setQueryResponse('');
-              throw error;
-            });
-        }
+      if (hasProvisionedIngestResources(props.workflow)) {
+        success = await validateAndUpdateWorkflow(true, false, true);
       } else {
-        getCore().notifications.toasts.addDanger('No valid query provided');
+        success = await validateAndUpdateWorkflow(false, false, true);
       }
     } catch (error) {
-      console.error('Error running query: ', error);
+      console.error('Error updating search pipeline: ', error);
     }
-    props.setIsRunningSearch(false);
+    setIsUpdatingSearchPipeline(false);
     return success;
   }
-
-  const deleteResourcesModal = (
-    <EuiModal
-      style={{ width: '70vw' }}
-      onClose={() => setIsDeleteModalOpen(false)}
-    >
-      <EuiModalHeader>
-        <EuiModalHeaderTitle>
-          <p>{`Delete resources for workflow ${getCharacterLimitedString(
-            props.workflow?.name || '',
-            MAX_WORKFLOW_NAME_TO_DISPLAY
-          )}?`}</p>
-        </EuiModalHeaderTitle>
-      </EuiModalHeader>
-      <EuiModalBody>
-        <EuiText size="s">
-          The resources for this workflow will be permanently deleted. This
-          action cannot be undone.
-        </EuiText>
-      </EuiModalBody>
-      <EuiModalFooter>
-        <EuiSmallButtonEmpty onClick={() => setIsDeleteModalOpen(false)}>
-          {' '}
-          Cancel
-        </EuiSmallButtonEmpty>
-        <EuiSmallButton
-          isLoading={isRunningDelete}
-          disabled={isRunningDelete}
-          onClick={async () => {
-            setIsRunningDelete(true);
-            await dispatch(
-              // If in the future we want to start with a fresh/empty state after deleting resources,
-              // will need to update the workflow with an empty UI config before re-fetching the workflow.
-              // For now we still persist the config, just clean up / deprovision the resources.
-              deprovisionWorkflow({
-                apiBody: {
-                  workflowId: props.workflow?.id as string,
-                  resourceIds: getResourcesToBeForceDeleted(props.workflow),
-                },
-                dataSourceId,
-              })
-            )
-              .unwrap()
-              .then(async (result) => {
-                props.setSelectedStep(CONFIG_STEP.INGEST);
-                setFieldValue('ingest.enabled', false);
-                // @ts-ignore
-                await dispatch(
-                  getWorkflow({
-                    workflowId: props.workflow?.id as string,
-                    dataSourceId,
-                  })
-                );
-              })
-              .catch((error: any) => {})
-              .finally(() => {
-                setIsDeleteModalOpen(false);
-                setIsRunningDelete(false);
-              });
-          }}
-          fill={true}
-          color="danger"
-        >
-          Delete resources
-        </EuiSmallButton>
-      </EuiModalFooter>
-    </EuiModal>
-  );
 
   return (
     <EuiPanel
@@ -638,7 +538,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       className="workspace-panel"
       borderRadius="l"
     >
-      {isDeleteModalOpen && deleteResourcesModal}
       {props.uiConfig === undefined ? (
         <EuiLoadingSpinner size="xl" />
       ) : (
@@ -706,79 +605,93 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 <EuiHorizontalRule margin="m" />
               </EuiFlexItem>
               <EuiFlexItem>
-                <EuiFlexGroup direction="row" justifyContent="flexEnd">
-                  {onIngest && !ingestEnabled ? (
-                    <EuiFlexItem grow={false}>
-                      <EuiSmallButton
-                        fill={true}
-                        disabled={false}
-                        onClick={() => {
-                          props.setSelectedStep(CONFIG_STEP.SEARCH);
-                        }}
-                        data-testid="searchPipelineButton"
-                        iconSide="right"
-                        iconType="arrowRight"
-                      >
-                        {`Search pipeline`}
-                      </EuiSmallButton>
-                    </EuiFlexItem>
-                  ) : onIngest ? (
+                <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                  {onIngest && (
                     <>
                       <EuiFlexItem grow={false}>
-                        <EuiSmallButton
-                          fill={false}
-                          onClick={() => {
-                            validateAndRunIngestion();
-                          }}
-                          data-testid="runIngestionButton"
-                          disabled={ingestRunButtonDisabled}
-                          isLoading={props.isRunningIngest}
+                        <EuiHealth
+                          color={ingestProvisioned ? 'primary' : 'subdued'}
                         >
-                          Build and run ingestion
-                        </EuiSmallButton>
+                          {ingestProvisioned
+                            ? 'Active ingestion resources'
+                            : 'No active ingestion resources'}
+                        </EuiHealth>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
-                        <EuiSmallButton
-                          fill={true}
-                          onClick={() => {
-                            props.setSelectedStep(CONFIG_STEP.SEARCH);
-                          }}
-                          data-testid="searchPipelineButton"
-                          disabled={ingestToSearchButtonDisabled}
-                          iconSide="right"
-                          iconType="arrowRight"
+                        <EuiFlexGroup
+                          direction="row"
+                          gutterSize="s"
+                          justifyContent="flexEnd"
                         >
-                          {`Search pipeline`}
-                        </EuiSmallButton>
+                          {ingestTemplatesDifferent && (
+                            <EuiFlexItem
+                              grow={false}
+                              style={{ marginTop: '8px' }}
+                            >
+                              <EuiIconTip
+                                content={`Resources need to be updated. Provide some sample data and ingest.`}
+                                position="right"
+                              />
+                            </EuiFlexItem>
+                          )}
+
+                          <EuiFlexItem
+                            grow={false}
+                            style={{ marginTop: '0px' }}
+                          >
+                            <EuiSmallButton
+                              fill={true}
+                              onClick={() => {
+                                props.setSelectedStep(CONFIG_STEP.SEARCH);
+                              }}
+                              data-testid="searchPipelineButton"
+                              disabled={ingestTemplatesDifferent}
+                              iconSide="right"
+                              iconType="arrowRight"
+                            >
+                              {`Next: Search pipeline`}
+                            </EuiSmallButton>
+                          </EuiFlexItem>
+                        </EuiFlexGroup>
                       </EuiFlexItem>
                     </>
-                  ) : (
+                  )}
+                  {onSearch && (
                     <>
                       <EuiFlexItem grow={false}>
-                        <EuiSmallButtonEmpty
-                          disabled={searchBackButtonDisabled}
-                          onClick={() =>
-                            props.setSelectedStep(CONFIG_STEP.INGEST)
-                          }
-                          data-testid="searchPipelineBackButton"
-                          iconSide="left"
-                          iconType="arrowLeft"
-                        >
-                          Ingest pipeline
-                        </EuiSmallButtonEmpty>
+                        <EuiFlexGroup direction="row" gutterSize="s">
+                          <EuiFlexItem grow={false}>
+                            <EuiSmallButtonIcon
+                              style={{ marginTop: '-4px' }}
+                              aria-label={'ingestBackButton'}
+                              iconType={'arrowLeft'}
+                              onClick={() =>
+                                props.setSelectedStep(CONFIG_STEP.INGEST)
+                              }
+                            />
+                          </EuiFlexItem>
+                          <EuiFlexItem
+                            grow={false}
+                            style={{ marginLeft: '8px' }}
+                          >
+                            <EuiHealth
+                              color={ingestProvisioned ? 'primary' : 'subdued'}
+                            >
+                              {ingestProvisioned
+                                ? 'Active ingestion resources'
+                                : 'No active ingestion resources'}
+                            </EuiHealth>
+                          </EuiFlexItem>
+                        </EuiFlexGroup>
                       </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiSmallButton
-                          disabled={searchRunButtonDisabled}
-                          isLoading={props.isRunningSearch}
-                          fill={false}
-                          onClick={() => {
-                            validateAndRunQuery();
-                          }}
-                          data-testid="runQueryButton"
+                      <EuiFlexItem grow={false} style={{ marginRight: '20px' }}>
+                        <EuiHealth
+                          color={searchProvisioned ? 'primary' : 'subdued'}
                         >
-                          Build and run query
-                        </EuiSmallButton>
+                          {searchProvisioned
+                            ? 'Active search pipeline'
+                            : 'No active search pipeline'}
+                        </EuiHealth>
                       </EuiFlexItem>
                     </>
                   )}
@@ -787,6 +700,80 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             </EuiFlexGroup>
           </EuiFlexItem>
         </EuiFlexGroup>
+      )}
+      {showIngestBottomBar && (
+        <EuiBottomBar position="sticky">
+          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+            <EuiFlexItem grow={false}>
+              <EuiText>You have pending changes</EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup direction="row" gutterSize="s">
+                {!props.isRunningIngest && (
+                  <EuiFlexItem grow={false}>
+                    <EuiSmallButtonEmpty
+                      iconType="editorUndo"
+                      iconSide="left"
+                      disabled={!dirty}
+                      onClick={() => revertUnsavedChanges()}
+                    >
+                      Discard changes
+                    </EuiSmallButtonEmpty>
+                  </EuiFlexItem>
+                )}
+                <EuiFlexItem grow={false}>
+                  <EuiSmallButton
+                    fill={true}
+                    iconType="check"
+                    iconSide="left"
+                    disabled={!ingestTemplatesDifferent}
+                    isLoading={props.isRunningIngest}
+                    onClick={() => validateAndRunIngestion()}
+                  >
+                    Update
+                  </EuiSmallButton>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiBottomBar>
+      )}
+      {showSearchBottomBar && (
+        <EuiBottomBar position="sticky">
+          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+            <EuiFlexItem grow={false}>
+              <EuiText>You have pending changes</EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup direction="row" gutterSize="s">
+                {!isUpdatingSearchPipeline && (
+                  <EuiFlexItem grow={false}>
+                    <EuiSmallButtonEmpty
+                      iconType="editorUndo"
+                      iconSide="left"
+                      disabled={!dirty}
+                      onClick={() => revertUnsavedChanges()}
+                    >
+                      Discard changes
+                    </EuiSmallButtonEmpty>
+                  </EuiFlexItem>
+                )}
+                <EuiFlexItem grow={false}>
+                  <EuiSmallButton
+                    fill={true}
+                    iconType="check"
+                    iconSide="left"
+                    disabled={!searchTemplatesDifferent}
+                    isLoading={isUpdatingSearchPipeline}
+                    onClick={() => validateAndUpdateSearchResources()}
+                  >
+                    Update
+                  </EuiSmallButton>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiBottomBar>
       )}
     </EuiPanel>
   );
