@@ -96,7 +96,7 @@ export function ExportModal(props: ExportModalProps) {
               <EuiCallOut
                 size="s"
                 title="Unsaved configurations detected. Ensure to save and update all resources before exporting."
-                iconType={'warn'}
+                iconType={'alert'}
                 color="warning"
               />
             </>
