@@ -119,6 +119,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // be deleted without re-creating all of the resources, including ingest resources.
   const searchUpdateDisabled =
     searchProvisioned && isProposingNoSearchResources;
+  // there is an edge case where search resources based on the form should be ignored:
+  // that is, when users first create a workflow and are setting up ingest for the first time,
+  // where there may be preset form values for search, but should be ignored during the initial ingestion provisioning steps.
+  const includeSearchDuringProvision =
+    onSearch || (onIngest && searchProvisioned);
 
   // maintaining any fine-grained differences between the generated templates produced by the form,
   // produced by the current UI config, and the one persisted in the workflow itself. We enable/disable buttons
@@ -163,7 +168,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         props.uiConfig &&
         props.workflow &&
         configToTemplateFlows(
-          formikToUiConfig(values, props.uiConfig as WorkflowConfig)
+          formikToUiConfig(values, props.uiConfig as WorkflowConfig),
+          true,
+          includeSearchDuringProvision
         ).provision.nodes) ||
         []
     );
@@ -449,7 +456,16 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               ...props.workflow?.ui_metadata,
               config: updatedConfig,
             },
-            workflows: configToTemplateFlows(updatedConfig),
+            // for updating the actual template to be provisioned, we need to handle few scenarios:
+            // for ingest, always set to "true", as we will always take into account any ingest config
+            // into the provisioning steps
+            // for search, we generally want to include, except for the edge case of initial workflow creation.
+            // see description where "includeSearchDuringProvision" is defined.
+            workflows: configToTemplateFlows(
+              updatedConfig,
+              true,
+              includeSearchDuringProvision
+            ),
           } as Workflow;
           success = await updateWorkflowAndResources(
             updatedWorkflow,
@@ -468,6 +484,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // to clean up any created resources and not have leftover / stale data in some index.
   // This is propagated by passing `reprovision=false` to validateAndUpdateWorkflow()
   async function validateAndRunIngestion(): Promise<boolean> {
+    console.log('running ingestion only');
     props.setIsRunningIngest(true);
     let success = false;
     try {
