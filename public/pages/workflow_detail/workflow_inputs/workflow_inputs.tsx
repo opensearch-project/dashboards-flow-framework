@@ -674,7 +674,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           <EuiFlexItem grow={false}>
                             <EuiSmallButtonIcon
                               style={{ marginTop: '-4px' }}
-                              aria-label={'ingestBackButton'}
+                              aria-label="searchPipelineBackButton"
+                              data-testid="searchPipelineBackButton"
                               iconType={'arrowLeft'}
                               onClick={() =>
                                 props.setSelectedStep(CONFIG_STEP.INGEST)
