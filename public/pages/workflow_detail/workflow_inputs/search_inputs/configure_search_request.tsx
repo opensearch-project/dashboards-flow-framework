@@ -21,10 +21,7 @@ import { WorkflowFormValues } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { EditQueryModal } from './edit_query_modal';
 
-interface ConfigureSearchRequestProps {
-  setQuery: (query: string) => void;
-  setQueryResponse: (queryResponse: string) => void;
-}
+interface ConfigureSearchRequestProps {}
 
 /**
  * Input component for configuring a search request
@@ -54,14 +51,6 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
 
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-
-  // Hook to listen when the query form value changes.
-  // Try to set the query request if possible
-  useEffect(() => {
-    if (values?.search?.request) {
-      props.setQuery(values.search.request);
-    }
-  }, [values?.search?.request]);
 
   return (
     <>
