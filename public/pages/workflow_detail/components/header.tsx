@@ -276,6 +276,8 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
       {isExportModalOpen && (
         <ExportModal
           workflow={props.workflow}
+          unsavedIngestProcessors={props.unsavedIngestProcessors}
+          unsavedSearchProcessors={props.unsavedSearchProcessors}
           setIsExportModalOpen={setIsExportModalOpen}
         />
       )}

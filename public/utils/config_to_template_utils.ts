@@ -45,21 +45,35 @@ import { sanitizeJSONPath } from './utils';
  **************** Config -> template utils **********************
  */
 
-export function configToTemplateFlows(config: WorkflowConfig): TemplateFlows {
-  const provisionFlow = configToProvisionTemplateFlow(config);
+export function configToTemplateFlows(
+  config: WorkflowConfig,
+  includeIngest: boolean = true,
+  includeSearch: boolean = true
+): TemplateFlows {
+  const provisionFlow = configToProvisionTemplateFlow(
+    config,
+    includeIngest,
+    includeSearch
+  );
   return {
     provision: provisionFlow,
   };
 }
 
-function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
+function configToProvisionTemplateFlow(
+  config: WorkflowConfig,
+  includeIngest: boolean = true,
+  includeSearch: boolean = true
+): TemplateFlow {
   const nodes = [] as TemplateNode[];
   const edges = [] as TemplateEdge[];
 
-  nodes.push(
-    ...ingestConfigToTemplateNodes(config.ingest),
-    ...searchConfigToTemplateNodes(config.search)
-  );
+  if (includeIngest) {
+    nodes.push(...ingestConfigToTemplateNodes(config.ingest));
+  }
+  if (includeSearch) {
+    nodes.push(...searchConfigToTemplateNodes(config.search));
+  }
 
   const createIngestPipelineNode = nodes.find(
     (node) => node.type === WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE
@@ -68,7 +82,7 @@ function configToProvisionTemplateFlow(config: WorkflowConfig): TemplateFlow {
     (node) => node.type === WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
   ) as CreateSearchPipelineNode;
 
-  if (config.ingest.enabled.value) {
+  if (config?.ingest?.enabled?.value && includeIngest) {
     nodes.push(
       indexConfigToTemplateNode(
         config.ingest.index,

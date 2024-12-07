@@ -67,7 +67,8 @@ export function Query(props: QueryProps) {
 
   // Standalone / sandboxed search request state. Users can test things out
   // without updating the base form / persisted value. We default to different values
-  // based on the context (ingest or search).
+  // based on the context (ingest or search), and update based on changes to the context
+  // (ingest v. search), or if the parent form values are changed.
   const [tempRequest, setTempRequest] = useState<string>('');
   useEffect(() => {
     setTempRequest(
@@ -76,6 +77,14 @@ export function Query(props: QueryProps) {
         : values?.search?.request || '{}'
     );
   }, [props.selectedStep]);
+  useEffect(() => {
+    if (
+      !isEmpty(values?.search?.request) &&
+      props.selectedStep === CONFIG_STEP.SEARCH
+    ) {
+      setTempRequest(values?.search?.request);
+    }
+  }, [values?.search?.request]);
 
   // state for if to execute search w/ or w/o any configured search pipeline.
   // default based on if there is an available search pipeline or not.
@@ -86,13 +95,6 @@ export function Query(props: QueryProps) {
 
   // query params state
   const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
-
-  // listen for changes to the upstream / form query, and reset the default
-  useEffect(() => {
-    if (!isEmpty(values?.search?.request)) {
-      setTempRequest(values?.search?.request);
-    }
-  }, [values?.search?.request]);
 
   // Do a few things when the request is changed:
   // 1. Check if there is a new set of query parameters, and if so,

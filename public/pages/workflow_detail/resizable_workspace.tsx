@@ -126,7 +126,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
                 setIngestResponse={setIngestResponse}
-                setQueryResponse={setQueryResponse}
                 ingestDocs={props.ingestDocs}
                 setIngestDocs={props.setIngestDocs}
                 isRunningIngest={props.isRunningIngest}

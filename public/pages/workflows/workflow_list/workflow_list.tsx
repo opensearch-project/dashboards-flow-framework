@@ -140,10 +140,10 @@ export function WorkflowList(props: WorkflowListProps) {
         >
           <EuiFlyoutHeader hasBorder={true}>
             <EuiText size="m">
-              <h2>{`Active resources with ${getCharacterLimitedString(
+              <h2>{`Active resources with '${getCharacterLimitedString(
                 selectedWorkflow.name,
                 MAX_WORKFLOW_NAME_TO_DISPLAY
-              )}`}</h2>
+              )}'`}</h2>
             </EuiText>
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
