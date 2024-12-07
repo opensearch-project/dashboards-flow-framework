@@ -83,7 +83,6 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       expect(
         getAllByText((content) => content.startsWith('Last updated:')).length
       ).toBeGreaterThan(0);
-      expect(getAllByText('Search pipeline').length).toBeGreaterThan(0);
       expect(getByText('Close')).toBeInTheDocument();
       expect(getByText('Export')).toBeInTheDocument();
       expect(getByText('Visual')).toBeInTheDocument();
@@ -92,10 +91,6 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       expect(getByRole('tab', { name: 'Search response' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
-
-      // "Run ingestion" button exists
-      const runIngestionButton = getByTestId('runIngestionButton');
-      expect(runIngestionButton).toBeInTheDocument();
 
       // "Search pipeline" button should be disabled by default
       const searchPipelineButton = getByTestId('searchPipelineButton');
@@ -119,7 +114,7 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
     // Export button opens the export component
     userEvent.click(getByTestId('exportButton'));
     await waitFor(() => {
-      expect(getByText(`Export ${workflowName}`)).toBeInTheDocument();
+      expect(getByText(`Export '${workflowName}'`)).toBeInTheDocument();
     });
 
     // Close the export component
@@ -179,8 +174,7 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
     );
 
     // Defining a new ingest pipeline & index is enabled by default
-    const enabledCheckbox = getByTestId('checkbox-ingest.enabled');
-    expect(enabledCheckbox).toBeChecked();
+    const enabledCheckbox = getByTestId('switch-ingest.enabled');
 
     // Skipping ingest pipeline and navigating to search
     userEvent.click(enabledCheckbox);
@@ -190,7 +184,7 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
 
     // Search pipeline
     await waitFor(() => {
-      expect(getAllByText('Define search pipeline').length).toBeGreaterThan(0);
+      expect(getAllByText('Define search flow').length).toBeGreaterThan(0);
     });
     expect(getAllByText('Configure query').length).toBeGreaterThan(0);
 
@@ -224,7 +218,6 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
     });
 
     // Build and Run query, Back buttons are present
-    expect(getByTestId('runQueryButton')).toBeInTheDocument();
     const searchPipelineBackButton = getByTestId('searchPipelineBackButton');
     userEvent.click(searchPipelineBackButton);
 

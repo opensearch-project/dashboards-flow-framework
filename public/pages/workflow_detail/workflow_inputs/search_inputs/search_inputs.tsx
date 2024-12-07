@@ -18,8 +18,6 @@ import { getDataSourceId } from '../../../../utils';
 interface SearchInputsProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
-  setQuery: (query: string) => void;
-  setQueryResponse: (queryResponse: string) => void;
 }
 
 /**
@@ -38,10 +36,7 @@ export function SearchInputs(props: SearchInputsProps) {
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
-        <ConfigureSearchRequest
-          setQuery={props.setQuery}
-          setQueryResponse={props.setQueryResponse}
-        />
+        <ConfigureSearchRequest />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiHorizontalRule margin="none" />
