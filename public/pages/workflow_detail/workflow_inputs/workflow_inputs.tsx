@@ -484,7 +484,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // to clean up any created resources and not have leftover / stale data in some index.
   // This is propagated by passing `reprovision=false` to validateAndUpdateWorkflow()
   async function validateAndRunIngestion(): Promise<boolean> {
-    console.log('running ingestion only');
     props.setIsRunningIngest(true);
     let success = false;
     try {
