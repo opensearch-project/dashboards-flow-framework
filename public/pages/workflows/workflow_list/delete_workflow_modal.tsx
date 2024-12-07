@@ -74,10 +74,10 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
     <EuiModal onClose={() => props.clearDeleteState()}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <p>{`Delete ${getCharacterLimitedString(
+          <p>{`Delete '${getCharacterLimitedString(
             props.workflow.name,
             MAX_WORKFLOW_NAME_TO_DISPLAY
-          )}?`}</p>
+          )}'?`}</p>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
