@@ -502,6 +502,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             .unwrap()
             .then(async (resp) => {
               props.setIngestResponse(customStringify(resp));
+              props.setIsRunningIngest(false);
               setLastIngested(Date.now());
             })
             .catch((error: any) => {
@@ -792,6 +793,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                             'Search pipeline updated'
                           );
                           props.displaySearchPanel();
+                          setSearchProvisioned(true);
                         }
                       }}
                     >
