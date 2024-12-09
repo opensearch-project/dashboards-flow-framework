@@ -82,6 +82,9 @@ export function EditQueryModal(props: EditQueryModalProps) {
   // popover state
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
+  // optional search panel state. allows searching within the modal
+  const [searchPanelOpen, setSearchPanelOpen] = useState<boolean>(false);
+
   // results state
   const [tempResults, setTempResults] = useState<string>('');
   const [tempResultsError, setTempResultsError] = useState<string>('');
@@ -171,43 +174,62 @@ export function EditQueryModal(props: EditQueryModalProps) {
                           <EuiText size="m">Query definition</EuiText>
                         </EuiFlexItem>
                         <EuiFlexItem grow={false}>
-                          <EuiPopover
-                            button={
-                              <EuiSmallButton
-                                onClick={() => setPopoverOpen(!popoverOpen)}
-                                data-testid="searchQueryPresetButton"
-                                iconSide="right"
-                                iconType="arrowDown"
+                          <EuiFlexGroup direction="row" gutterSize="s">
+                            <EuiFlexItem grow={false}>
+                              <EuiPopover
+                                button={
+                                  <EuiSmallButton
+                                    onClick={() => setPopoverOpen(!popoverOpen)}
+                                    data-testid="searchQueryPresetButton"
+                                    iconSide="right"
+                                    iconType="arrowDown"
+                                  >
+                                    Query samples
+                                  </EuiSmallButton>
+                                }
+                                isOpen={popoverOpen}
+                                closePopover={() => setPopoverOpen(false)}
+                                anchorPosition="downLeft"
                               >
-                                Query samples
+                                <EuiContextMenu
+                                  size="s"
+                                  initialPanelId={0}
+                                  panels={[
+                                    {
+                                      id: 0,
+                                      items: QUERY_PRESETS.map(
+                                        (preset: QueryPreset) => ({
+                                          name: preset.name,
+                                          onClick: () => {
+                                            formikProps.setFieldValue(
+                                              'request',
+                                              preset.query
+                                            );
+                                            setPopoverOpen(false);
+                                          },
+                                        })
+                                      ),
+                                    },
+                                  ]}
+                                />
+                              </EuiPopover>
+                            </EuiFlexItem>
+                            <EuiFlexItem grow={false}>
+                              <EuiSmallButton
+                                data-testid="showOrHideSearchPanelButton"
+                                fill={false}
+                                iconType={
+                                  searchPanelOpen ? 'menuLeft' : 'menuRight'
+                                }
+                                iconSide="right"
+                                onClick={() => {
+                                  setSearchPanelOpen(!searchPanelOpen);
+                                }}
+                              >
+                                Test query
                               </EuiSmallButton>
-                            }
-                            isOpen={popoverOpen}
-                            closePopover={() => setPopoverOpen(false)}
-                            anchorPosition="downLeft"
-                          >
-                            <EuiContextMenu
-                              size="s"
-                              initialPanelId={0}
-                              panels={[
-                                {
-                                  id: 0,
-                                  items: QUERY_PRESETS.map(
-                                    (preset: QueryPreset) => ({
-                                      name: preset.name,
-                                      onClick: () => {
-                                        formikProps.setFieldValue(
-                                          'request',
-                                          preset.query
-                                        );
-                                        setPopoverOpen(false);
-                                      },
-                                    })
-                                  ),
-                                },
-                              ]}
-                            />
-                          </EuiPopover>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
@@ -221,103 +243,108 @@ export function EditQueryModal(props: EditQueryModalProps) {
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
-                <EuiFlexItem>
-                  <EuiFlexGroup direction="column">
-                    <EuiFlexItem grow={false}>
-                      <EuiFlexGroup
-                        direction="row"
-                        justifyContent="spaceBetween"
-                      >
-                        <EuiFlexItem grow={false}>
-                          <EuiText size="m">Test query</EuiText>
-                        </EuiFlexItem>
-                        <EuiFlexItem grow={false}>
-                          <EuiSmallButton
-                            fill={false}
-                            disabled={containsEmptyValues(queryParams)}
-                            onClick={() => {
-                              dispatch(
-                                searchIndex({
-                                  apiBody: {
-                                    index: values?.search?.index?.name,
-                                    body: injectParameters(
-                                      queryParams,
-                                      tempRequest
-                                    ),
-                                    // Run the query independent of the pipeline inside this modal
-                                    searchPipeline: '_none',
-                                  },
-                                  dataSourceId,
-                                })
-                              )
-                                .unwrap()
-                                .then(async (resp) => {
-                                  setTempResults(
-                                    customStringify(
-                                      resp?.hits?.hits?.map(
-                                        (hit: SearchHit) => hit._source
+                {searchPanelOpen && (
+                  <EuiFlexItem>
+                    <EuiFlexGroup direction="column">
+                      <EuiFlexItem grow={false}>
+                        <EuiFlexGroup
+                          direction="row"
+                          justifyContent="spaceBetween"
+                        >
+                          <EuiFlexItem grow={false}>
+                            <EuiText size="m">Test query</EuiText>
+                          </EuiFlexItem>
+                          <EuiFlexItem grow={false}>
+                            <EuiSmallButton
+                              fill={false}
+                              disabled={containsEmptyValues(queryParams)}
+                              onClick={() => {
+                                dispatch(
+                                  searchIndex({
+                                    apiBody: {
+                                      index: values?.search?.index?.name,
+                                      body: injectParameters(
+                                        queryParams,
+                                        tempRequest
+                                      ),
+                                      // Run the query independent of the pipeline inside this modal
+                                      searchPipeline: '_none',
+                                    },
+                                    dataSourceId,
+                                  })
+                                )
+                                  .unwrap()
+                                  .then(async (resp) => {
+                                    setTempResults(
+                                      customStringify(
+                                        resp?.hits?.hits?.map(
+                                          (hit: SearchHit) => hit._source
+                                        )
                                       )
-                                    )
-                                  );
-                                  setTempResultsError('');
-                                })
-                                .catch((error: any) => {
-                                  setTempResults('');
-                                  const errorMsg = `Error running query: ${error}`;
-                                  setTempResultsError(errorMsg);
-                                  console.error(errorMsg);
-                                });
-                            }}
-                          >
-                            Search
-                          </EuiSmallButton>
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                    </EuiFlexItem>
-                    {/**
-                     * This may return nothing if the list of params are empty
-                     */}
-                    <QueryParamsList
-                      queryParams={queryParams}
-                      setQueryParams={setQueryParams}
-                    />
-                    <EuiFlexItem>
-                      <>
-                        <EuiText size="s">Results</EuiText>
-                        {isEmpty(tempResults) && isEmpty(tempResultsError) ? (
-                          <EuiEmptyPrompt
-                            title={<h2>No results</h2>}
-                            titleSize="s"
-                            body={
-                              <>
-                                <EuiText size="s">
-                                  Run search to view results.
-                                </EuiText>
-                              </>
-                            }
-                          />
-                        ) : !isEmpty(tempResultsError) ? (
-                          <EuiCallOut color="danger" title={tempResultsError} />
-                        ) : (
-                          <EuiCodeEditor
-                            mode="json"
-                            theme="textmate"
-                            width="100%"
-                            height="100%"
-                            value={tempResults}
-                            readOnly={true}
-                            setOptions={{
-                              fontSize: '12px',
-                              autoScrollEditorIntoView: true,
-                              wrap: true,
-                            }}
-                            tabSize={2}
-                          />
-                        )}
-                      </>
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
-                </EuiFlexItem>
+                                    );
+                                    setTempResultsError('');
+                                  })
+                                  .catch((error: any) => {
+                                    setTempResults('');
+                                    const errorMsg = `Error running query: ${error}`;
+                                    setTempResultsError(errorMsg);
+                                    console.error(errorMsg);
+                                  });
+                              }}
+                            >
+                              Search
+                            </EuiSmallButton>
+                          </EuiFlexItem>
+                        </EuiFlexGroup>
+                      </EuiFlexItem>
+                      {/**
+                       * This may return nothing if the list of params are empty
+                       */}
+                      <QueryParamsList
+                        queryParams={queryParams}
+                        setQueryParams={setQueryParams}
+                      />
+                      <EuiFlexItem>
+                        <>
+                          <EuiText size="s">Results</EuiText>
+                          {isEmpty(tempResults) && isEmpty(tempResultsError) ? (
+                            <EuiEmptyPrompt
+                              title={<h2>No results</h2>}
+                              titleSize="s"
+                              body={
+                                <>
+                                  <EuiText size="s">
+                                    Run search to view results.
+                                  </EuiText>
+                                </>
+                              }
+                            />
+                          ) : !isEmpty(tempResultsError) ? (
+                            <EuiCallOut
+                              color="danger"
+                              title={tempResultsError}
+                            />
+                          ) : (
+                            <EuiCodeEditor
+                              mode="json"
+                              theme="textmate"
+                              width="100%"
+                              height="100%"
+                              value={tempResults}
+                              readOnly={true}
+                              setOptions={{
+                                fontSize: '12px',
+                                autoScrollEditorIntoView: true,
+                                wrap: true,
+                              }}
+                              tabSize={2}
+                            />
+                          )}
+                        </>
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
+                  </EuiFlexItem>
+                )}
               </EuiFlexGroup>
             </EuiModalBody>
             <EuiModalFooter>
