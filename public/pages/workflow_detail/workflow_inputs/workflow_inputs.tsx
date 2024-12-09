@@ -171,10 +171,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           formikToUiConfig(values, props.uiConfig as WorkflowConfig),
           true,
           includeSearchDuringProvision
-        ).provision.nodes) ||
+        )?.provision?.nodes) ||
         []
     );
-  }, [values, props.uiConfig, props.workflow]);
+  }, [values, props.uiConfig, props.workflow, includeSearchDuringProvision]);
 
   // fetch the persisted template nodes for ingest & search
   useEffect(() => {
