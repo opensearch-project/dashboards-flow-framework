@@ -16,6 +16,7 @@ interface IngestInputsProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   workflow: Workflow | undefined;
   lastIngested: number | undefined;
+  beforeVersion217: boolean;
 }
 
 /**
@@ -36,7 +37,11 @@ export function IngestInputs(props: IngestInputsProps) {
         <EuiHorizontalRule margin="none" />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <EnrichData uiConfig={props.uiConfig} setUiConfig={props.setUiConfig} />
+        <EnrichData
+          uiConfig={props.uiConfig}
+          setUiConfig={props.setUiConfig}
+          beforeVersion217={props.beforeVersion217}
+        />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiHorizontalRule margin="none" />

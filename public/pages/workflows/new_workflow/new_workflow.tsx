@@ -67,15 +67,33 @@ export function NewWorkflow(props: NewWorkflowProps) {
 
   // initial hook to populate all workflows
   // enrich them with dynamically-generated UI flows based on use case
+
+  const beforeVersion217 = true;
   useEffect(() => {
     if (presetWorkflows) {
+      const ALLOWED_PRESETS_FOR_BEFORE_217 = [
+        'Semantic Search',
+        'Hybrid Search',
+        'Multimodal Search',
+      ];
+
+      let filteredPresets = presetWorkflows;
+
+      if (beforeVersion217) {
+        filteredPresets = presetWorkflows.filter(
+          (presetWorkflow) =>
+            presetWorkflow.name &&
+            ALLOWED_PRESETS_FOR_BEFORE_217.includes(presetWorkflow.name)
+        );
+      }
+
       setAllWorkflows(
-        presetWorkflows.map((presetWorkflow) =>
+        filteredPresets.map((presetWorkflow) =>
           enrichPresetWorkflowWithUiMetadata(presetWorkflow)
         )
       );
     }
-  }, [presetWorkflows]);
+  }, [presetWorkflows, beforeVersion217]);
 
   // initial hook to populate filtered workflows
   useEffect(() => {
