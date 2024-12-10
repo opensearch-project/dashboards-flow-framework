@@ -33,6 +33,7 @@ import {
   QueryPreset,
   RequestFormValues,
   SearchHit,
+  SearchResponse,
   WorkflowFormValues,
 } from '../../../../../common';
 import {
@@ -45,7 +46,7 @@ import {
   injectParameters,
 } from '../../../../utils';
 import { searchIndex, useAppDispatch } from '../../../../store';
-import { QueryParamsList } from '../../../../general_components';
+import { QueryParamsList, Results } from '../../../../general_components';
 
 interface EditQueryModalProps {
   queryFieldPath: string;
@@ -86,7 +87,9 @@ export function EditQueryModal(props: EditQueryModalProps) {
   const [searchPanelOpen, setSearchPanelOpen] = useState<boolean>(false);
 
   // results state
-  const [tempResults, setTempResults] = useState<string>('');
+  const [queryResponse, setQueryResponse] = useState<
+    SearchResponse | undefined
+  >(undefined);
   const [tempResultsError, setTempResultsError] = useState<string>('');
 
   // query/request params state
@@ -114,7 +117,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
       );
     }
     setTempResultsError('');
-    setTempResults('');
+    setQueryResponse(undefined);
   }, [tempRequest]);
 
   // Clear any error if the parameters have been updated in any way
@@ -274,18 +277,12 @@ export function EditQueryModal(props: EditQueryModalProps) {
                                   })
                                 )
                                   .unwrap()
-                                  .then(async (resp) => {
-                                    setTempResults(
-                                      customStringify(
-                                        resp?.hits?.hits?.map(
-                                          (hit: SearchHit) => hit._source
-                                        )
-                                      )
-                                    );
+                                  .then(async (resp: SearchResponse) => {
+                                    setQueryResponse(resp);
                                     setTempResultsError('');
                                   })
                                   .catch((error: any) => {
-                                    setTempResults('');
+                                    setQueryResponse(undefined);
                                     const errorMsg = `Error running query: ${error}`;
                                     setTempResultsError(errorMsg);
                                     console.error(errorMsg);
@@ -307,7 +304,9 @@ export function EditQueryModal(props: EditQueryModalProps) {
                       <EuiFlexItem>
                         <>
                           <EuiText size="s">Results</EuiText>
-                          {isEmpty(tempResults) && isEmpty(tempResultsError) ? (
+                          {(queryResponse === undefined ||
+                            isEmpty(queryResponse)) &&
+                          isEmpty(tempResultsError) ? (
                             <EuiEmptyPrompt
                               title={<h2>No results</h2>}
                               titleSize="s"
@@ -319,25 +318,16 @@ export function EditQueryModal(props: EditQueryModalProps) {
                                 </>
                               }
                             />
-                          ) : !isEmpty(tempResultsError) ? (
+                          ) : (queryResponse === undefined ||
+                              isEmpty(queryResponse)) &&
+                            !isEmpty(tempResultsError) ? (
                             <EuiCallOut
                               color="danger"
                               title={tempResultsError}
                             />
                           ) : (
-                            <EuiCodeEditor
-                              mode="json"
-                              theme="textmate"
-                              width="100%"
-                              height="100%"
-                              value={tempResults}
-                              readOnly={true}
-                              setOptions={{
-                                fontSize: '12px',
-                                autoScrollEditorIntoView: true,
-                                wrap: true,
-                              }}
-                              tabSize={2}
+                            <Results
+                              response={queryResponse as SearchResponse}
                             />
                           )}
                         </>
