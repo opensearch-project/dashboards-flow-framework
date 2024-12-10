@@ -12,8 +12,7 @@ interface ResultsJSONProps {
 }
 
 /**
- * Small component to render the raw search response. Grows to fill
- * the parent container by setting 100% width/height.
+ * Small component to render the raw search response.
  */
 export function ResultsJSON(props: ResultsJSONProps) {
   return (

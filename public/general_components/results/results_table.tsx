@@ -20,7 +20,7 @@ interface ResultsTableProps {
 
 /**
  * Small component to display a list of search results with pagination.
- * Wrapped in a flexible panel with overflow handling.
+ * Can expand each entry to view the full _source response
  */
 export function ResultsTable(props: ResultsTableProps) {
   const [itemIdToExpandedRowMap, setItemIdToExpandedRowMap] = useState<{
