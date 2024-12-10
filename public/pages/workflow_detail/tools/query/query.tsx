@@ -21,7 +21,7 @@ import {
   customStringify,
   FETCH_ALL_QUERY,
   QueryParam,
-  SearchHit,
+  SearchResponse,
   WorkflowFormValues,
 } from '../../../../../common';
 import { searchIndex, useAppDispatch } from '../../../../store';
@@ -32,11 +32,9 @@ import {
   getPlaceholdersFromQuery,
   injectParameters,
 } from '../../../../utils';
-import { QueryParamsList } from '../../../../general_components';
+import { QueryParamsList, Results } from '../../../../general_components';
 
 interface QueryProps {
-  queryResponse: string;
-  setQueryResponse: (queryResponse: string) => void;
   hasSearchPipeline: boolean;
   hasIngestResources: boolean;
   selectedStep: CONFIG_STEP;
@@ -64,6 +62,11 @@ export function Query(props: QueryProps) {
 
   // use custom query state
   const [useCustomQuery, setUseCustomQuery] = useState<boolean>(false);
+
+  // query response state
+  const [queryResponse, setQueryResponse] = useState<
+    SearchResponse | undefined
+  >(undefined);
 
   // Standalone / sandboxed search request state. Users can test things out
   // without updating the base form / persisted value. We default to different values
@@ -116,7 +119,7 @@ export function Query(props: QueryProps) {
         }))
       );
     }
-    props.setQueryResponse('');
+    setQueryResponse(undefined);
   }, [tempRequest]);
 
   // empty states
@@ -182,17 +185,11 @@ export function Query(props: QueryProps) {
                           })
                         )
                           .unwrap()
-                          .then(async (resp) => {
-                            props.setQueryResponse(
-                              customStringify(
-                                resp?.hits?.hits?.map(
-                                  (hit: SearchHit) => hit._source
-                                )
-                              )
-                            );
+                          .then(async (resp: SearchResponse) => {
+                            setQueryResponse(resp);
                           })
                           .catch((error: any) => {
-                            props.setQueryResponse('');
+                            setQueryResponse(undefined);
                             console.error('Error running query: ', error);
                           });
                       }}
@@ -283,7 +280,7 @@ export function Query(props: QueryProps) {
                 <EuiText size="m">Results</EuiText>
               </EuiFlexItem>
               <EuiFlexItem>
-                {isEmpty(props.queryResponse) ? (
+                {queryResponse === undefined || isEmpty(queryResponse) ? (
                   <EuiEmptyPrompt
                     title={<h2>No results</h2>}
                     titleSize="s"
@@ -294,23 +291,7 @@ export function Query(props: QueryProps) {
                     }
                   />
                 ) : (
-                  // Known issue with the editor where resizing the resizablecontainer does not
-                  // trigger vertical scroll updates. Updating the window, or reloading the component
-                  // by switching tabs etc. will refresh it correctly
-                  <EuiCodeEditor
-                    mode="json"
-                    theme="textmate"
-                    width="100%"
-                    height="100%"
-                    value={props.queryResponse}
-                    readOnly={true}
-                    setOptions={{
-                      fontSize: '12px',
-                      autoScrollEditorIntoView: true,
-                      wrap: true,
-                    }}
-                    tabSize={2}
-                  />
+                  <Results response={queryResponse} />
                 )}
               </EuiFlexItem>
             </EuiFlexGroup>

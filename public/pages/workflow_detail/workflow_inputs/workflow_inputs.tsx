@@ -171,10 +171,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           formikToUiConfig(values, props.uiConfig as WorkflowConfig),
           true,
           includeSearchDuringProvision
-        ).provision.nodes) ||
+        )?.provision?.nodes) ||
         []
     );
-  }, [values, props.uiConfig, props.workflow]);
+  }, [values, props.uiConfig, props.workflow, includeSearchDuringProvision]);
 
   // fetch the persisted template nodes for ingest & search
   useEffect(() => {
@@ -502,6 +502,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             .unwrap()
             .then(async (resp) => {
               props.setIngestResponse(customStringify(resp));
+              props.setIsRunningIngest(false);
               setLastIngested(Date.now());
             })
             .catch((error: any) => {
@@ -792,6 +793,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                             'Search pipeline updated'
                           );
                           props.displaySearchPanel();
+                          setSearchProvisioned(true);
                         }
                       }}
                     >

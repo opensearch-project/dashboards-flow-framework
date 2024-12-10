@@ -82,7 +82,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Inspector panel state vars. Actions taken in the form can update the Inspector panel,
   // hence we keep top-level vars here to pass to both form and inspector components.
   const [ingestResponse, setIngestResponse] = useState<string>('');
-  const [queryResponse, setQueryResponse] = useState<string>('');
   const [selectedInspectorTabId, setSelectedInspectorTabId] = useState<
     INSPECTOR_TAB_ID
   >(INSPECTOR_TAB_ID.INGEST);
@@ -207,8 +206,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                         <Tools
                           workflow={props.workflow}
                           ingestResponse={ingestResponse}
-                          queryResponse={queryResponse}
-                          setQueryResponse={setQueryResponse}
                           selectedTabId={selectedInspectorTabId}
                           setSelectedTabId={setSelectedInspectorTabId}
                           selectedStep={props.selectedStep}
