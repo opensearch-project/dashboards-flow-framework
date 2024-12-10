@@ -20,19 +20,16 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiText,
-  EuiCodeEditor,
   EuiEmptyPrompt,
   EuiCallOut,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
-  customStringify,
   IConfigField,
   QUERY_PRESETS,
   QueryParam,
   QueryPreset,
   RequestFormValues,
-  SearchHit,
   SearchResponse,
   WorkflowFormValues,
 } from '../../../../../common';

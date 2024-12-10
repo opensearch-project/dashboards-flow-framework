@@ -64,7 +64,6 @@ export function Query(props: QueryProps) {
   const [useCustomQuery, setUseCustomQuery] = useState<boolean>(false);
 
   // query response state
-  // TODO: clean up how/what responses we are persisting and where.
   const [queryResponse, setQueryResponse] = useState<
     SearchResponse | undefined
   >(undefined);
@@ -281,9 +280,6 @@ export function Query(props: QueryProps) {
                 <EuiText size="m">Results</EuiText>
               </EuiFlexItem>
               <EuiFlexItem>
-                {/**
-                 * TODO: clean up how/what responses we are persisting
-                 */}
                 {queryResponse === undefined || isEmpty(queryResponse) ? (
                   <EuiEmptyPrompt
                     title={<h2>No results</h2>}
