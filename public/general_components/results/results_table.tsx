@@ -9,6 +9,7 @@ import {
   EuiButtonIcon,
   RIGHT_ALIGNMENT,
   EuiInMemoryTable,
+  EuiCodeEditor,
   EuiPanel,
 } from '@elastic/eui';
 import { customStringify, SearchHit } from '../../../common';
@@ -32,56 +33,79 @@ export function ResultsTable(props: ResultsTableProps) {
       delete itemIdToExpandedRowMapValues[hit._id];
     } else {
       itemIdToExpandedRowMapValues[hit._id] = (
-        <EuiText>{customStringify(hit._source)}</EuiText>
+        <EuiPanel
+          style={{ height: '20vh' }}
+          hasShadow={false}
+          hasBorder={false}
+          paddingSize="none"
+        >
+          <EuiCodeEditor
+            mode="json"
+            theme="textmate"
+            width="100%"
+            height="100%"
+            value={customStringify(hit._source)}
+            readOnly={true}
+            setOptions={{
+              fontSize: '12px',
+              autoScrollEditorIntoView: true,
+              wrap: true,
+            }}
+            tabSize={2}
+          />
+        </EuiPanel>
       );
     }
     setItemIdToExpandedRowMap(itemIdToExpandedRowMapValues);
   };
 
   return (
-    <EuiPanel
-      hasBorder={false}
-      hasShadow={false}
-      paddingSize="none"
-      style={{ height: '10vh', overflowY: 'scroll' }}
-    >
-      <EuiInMemoryTable
-        itemId="_id"
-        itemIdToExpandedRowMap={itemIdToExpandedRowMap}
-        items={props.hits}
-        isExpandable={true}
-        compressed={true}
-        pagination={true}
-        tableLayout="auto"
-        columns={[
-          {
-            field: '_id',
-            name: '',
-            sortable: false,
-            render: (_, item: SearchHit) => {
-              return (
-                <EuiText size="s">{customStringify(item._source)}</EuiText>
-              );
-            },
+    <EuiInMemoryTable
+      itemId="_id"
+      itemIdToExpandedRowMap={itemIdToExpandedRowMap}
+      items={props.hits}
+      isExpandable={true}
+      compressed={true}
+      pagination={true}
+      tableLayout="auto"
+      columns={[
+        {
+          field: '_id',
+          name: '',
+          sortable: false,
+          render: (_, item: SearchHit) => {
+            return (
+              <EuiText
+                size="s"
+                color="subdued"
+                style={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  width: '20vw',
+                }}
+              >
+                {customStringify(item._source)}
+              </EuiText>
+            );
           },
-          {
-            align: RIGHT_ALIGNMENT,
-            width: '40px',
-            isExpander: true,
-            render: (item: SearchHit) => (
-              <EuiButtonIcon
-                onClick={() => toggleDetails(item)}
-                aria-label={
-                  itemIdToExpandedRowMap[item._id] ? 'Collapse' : 'Expand'
-                }
-                iconType={
-                  itemIdToExpandedRowMap[item._id] ? 'arrowUp' : 'arrowDown'
-                }
-              />
-            ),
-          },
-        ]}
-      />
-    </EuiPanel>
+        },
+        {
+          align: RIGHT_ALIGNMENT,
+          width: '40px',
+          isExpander: true,
+          render: (item: SearchHit) => (
+            <EuiButtonIcon
+              onClick={() => toggleDetails(item)}
+              aria-label={
+                itemIdToExpandedRowMap[item._id] ? 'Collapse' : 'Expand'
+              }
+              iconType={
+                itemIdToExpandedRowMap[item._id] ? 'arrowUp' : 'arrowDown'
+              }
+            />
+          ),
+        },
+      ]}
+    />
   );
 }

@@ -36,7 +36,7 @@ export function Results(props: ResultsProps) {
       hasBorder={false}
       hasShadow={false}
       paddingSize="none"
-      style={{ height: '10vh', overflowY: 'scroll' }}
+      style={{ height: '10vh', overflowY: 'scroll', overflowX: 'hidden' }}
     >
       <EuiFlexGroup
         direction="column"
