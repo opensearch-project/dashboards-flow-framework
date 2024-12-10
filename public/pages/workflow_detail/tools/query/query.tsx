@@ -21,7 +21,6 @@ import {
   customStringify,
   FETCH_ALL_QUERY,
   QueryParam,
-  SearchHit,
   SearchResponse,
   WorkflowFormValues,
 } from '../../../../../common';
@@ -36,8 +35,6 @@ import {
 import { QueryParamsList, Results } from '../../../../general_components';
 
 interface QueryProps {
-  queryResponse: string;
-  setQueryResponse: (queryResponse: string) => void;
   hasSearchPipeline: boolean;
   hasIngestResources: boolean;
   selectedStep: CONFIG_STEP;
@@ -68,9 +65,9 @@ export function Query(props: QueryProps) {
 
   // query response state
   // TODO: clean up how/what responses we are persisting and where.
-  const [tempResponse, setTempResponse] = useState<SearchResponse | undefined>(
-    undefined
-  );
+  const [queryResponse, setQueryResponse] = useState<
+    SearchResponse | undefined
+  >(undefined);
 
   // Standalone / sandboxed search request state. Users can test things out
   // without updating the base form / persisted value. We default to different values
@@ -123,7 +120,7 @@ export function Query(props: QueryProps) {
         }))
       );
     }
-    props.setQueryResponse('');
+    setQueryResponse(undefined);
   }, [tempRequest]);
 
   // empty states
@@ -190,17 +187,10 @@ export function Query(props: QueryProps) {
                         )
                           .unwrap()
                           .then(async (resp: SearchResponse) => {
-                            setTempResponse(resp);
-                            props.setQueryResponse(
-                              customStringify(
-                                resp?.hits?.hits?.map(
-                                  (hit: SearchHit) => hit._source
-                                ) || []
-                              )
-                            );
+                            setQueryResponse(resp);
                           })
                           .catch((error: any) => {
-                            props.setQueryResponse('');
+                            setQueryResponse(undefined);
                             console.error('Error running query: ', error);
                           });
                       }}
@@ -294,7 +284,7 @@ export function Query(props: QueryProps) {
                 {/**
                  * TODO: clean up how/what responses we are persisting
                  */}
-                {isEmpty(tempResponse) ? (
+                {queryResponse === undefined || isEmpty(queryResponse) ? (
                   <EuiEmptyPrompt
                     title={<h2>No results</h2>}
                     titleSize="s"
@@ -305,7 +295,7 @@ export function Query(props: QueryProps) {
                     }
                   />
                 ) : (
-                  <Results response={tempResponse as SearchResponse} />
+                  <Results response={queryResponse} />
                 )}
               </EuiFlexItem>
             </EuiFlexGroup>
