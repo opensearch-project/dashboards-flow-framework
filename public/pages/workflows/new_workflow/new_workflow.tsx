@@ -48,6 +48,10 @@ export const getEffectiveVersion = async (
       dataSourceId
     );
     const version = dataSource?.attributes?.dataSourceVersion || '2.17.0';
+    console.log(
+      'version from getversion function if datasource is valid',
+      version
+    );
 
     // We use backend 2.18 for now and set it to be 2.19 for frontend logic
     if (version === '2.17.0') {
@@ -73,6 +77,7 @@ const filterWorkflowsByVersion = async (
 
   try {
     const version = await getEffectiveVersion(dataSourceId);
+    console.log('this is the version from filter function', version);
 
     if (semver.gte(version, '2.19.0')) {
       return workflows;
@@ -149,9 +154,6 @@ export function NewWorkflow(props: NewWorkflowProps) {
 
   useEffect(() => {
     setFilteredWorkflows(allWorkflows);
-    return () => {
-      console.log('filteredWorkflows:', filteredWorkflows);
-    };
   }, [allWorkflows]);
 
   return (
