@@ -22,6 +22,7 @@ import {
   FETCH_ALL_QUERY,
   QueryParam,
   SearchHit,
+  SearchResponse,
   WorkflowFormValues,
 } from '../../../../../common';
 import { searchIndex, useAppDispatch } from '../../../../store';
@@ -32,7 +33,7 @@ import {
   getPlaceholdersFromQuery,
   injectParameters,
 } from '../../../../utils';
-import { QueryParamsList } from '../../../../general_components';
+import { QueryParamsList, Results } from '../../../../general_components';
 
 interface QueryProps {
   queryResponse: string;
@@ -64,6 +65,12 @@ export function Query(props: QueryProps) {
 
   // use custom query state
   const [useCustomQuery, setUseCustomQuery] = useState<boolean>(false);
+
+  // query response state
+  // TODO: clean up how/what responses we are persisting and where.
+  const [tempResponse, setTempResponse] = useState<SearchResponse | undefined>(
+    undefined
+  );
 
   // Standalone / sandboxed search request state. Users can test things out
   // without updating the base form / persisted value. We default to different values
@@ -182,12 +189,13 @@ export function Query(props: QueryProps) {
                           })
                         )
                           .unwrap()
-                          .then(async (resp) => {
+                          .then(async (resp: SearchResponse) => {
+                            setTempResponse(resp);
                             props.setQueryResponse(
                               customStringify(
                                 resp?.hits?.hits?.map(
                                   (hit: SearchHit) => hit._source
-                                )
+                                ) || []
                               )
                             );
                           })
@@ -283,7 +291,10 @@ export function Query(props: QueryProps) {
                 <EuiText size="m">Results</EuiText>
               </EuiFlexItem>
               <EuiFlexItem>
-                {isEmpty(props.queryResponse) ? (
+                {/**
+                 * TODO: clean up how/what responses we are persisting
+                 */}
+                {isEmpty(tempResponse) ? (
                   <EuiEmptyPrompt
                     title={<h2>No results</h2>}
                     titleSize="s"
@@ -294,23 +305,7 @@ export function Query(props: QueryProps) {
                     }
                   />
                 ) : (
-                  // Known issue with the editor where resizing the resizablecontainer does not
-                  // trigger vertical scroll updates. Updating the window, or reloading the component
-                  // by switching tabs etc. will refresh it correctly
-                  <EuiCodeEditor
-                    mode="json"
-                    theme="textmate"
-                    width="100%"
-                    height="100%"
-                    value={props.queryResponse}
-                    readOnly={true}
-                    setOptions={{
-                      fontSize: '12px',
-                      autoScrollEditorIntoView: true,
-                      wrap: true,
-                    }}
-                    tabSize={2}
-                  />
+                  <Results response={tempResponse as SearchResponse} />
                 )}
               </EuiFlexItem>
             </EuiFlexGroup>
