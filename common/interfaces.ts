@@ -605,7 +605,7 @@ export type SearchResponse = {
     skipped: number;
     failed: number;
   };
-  hits?: {
+  hits: {
     total: {
       value: number;
       relation: string;
@@ -614,7 +614,7 @@ export type SearchResponse = {
     hits: SearchHit[];
   };
   aggregations?: {};
-  ext: {};
+  ext?: {};
 };
 
 export type IndexResponse = {
