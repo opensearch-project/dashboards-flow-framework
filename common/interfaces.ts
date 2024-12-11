@@ -554,6 +554,7 @@ export type QuickConfigureFields = {
   textField?: string;
   imageField?: string;
   labelField?: string;
+  promptField?: string;
   embeddingLength?: number;
   llmResponseField?: string;
 };

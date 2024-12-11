@@ -25,11 +25,14 @@ import {
   DEFAULT_VECTOR_FIELD,
   MODEL_STATE,
   Model,
+  ModelInterface,
   OPENAI_DIMENSIONS,
   QuickConfigureFields,
   WORKFLOW_TYPE,
 } from '../../../../common';
 import { AppState } from '../../../store';
+import { parseModelInputs } from '../../../utils';
+import { get } from 'lodash';
 
 interface QuickConfigureInputsProps {
   workflowType?: WORKFLOW_TYPE;
@@ -43,6 +46,11 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
 
   // Deployed models state
   const [deployedModels, setDeployedModels] = useState<Model[]>([]);
+
+  // Selected model interface state
+  const [selectedModelInterface, setSelectedModelInterface] = useState<
+    ModelInterface | undefined
+  >(undefined);
 
   // Hook to update available deployed models
   useEffect(() => {
@@ -89,6 +97,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
       case WORKFLOW_TYPE.RAG: {
         defaultFieldValues = {
           textField: DEFAULT_TEXT_FIELD,
+          promptField: '',
           llmResponseField: DEFAULT_LLM_RESPONSE_FIELD,
         };
         break;
@@ -116,6 +125,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
     const selectedModel = deployedModels.find(
       (model) => model.id === fieldValues.modelId
     );
+    setSelectedModelInterface(selectedModel?.interface);
     if (selectedModel?.connectorId !== undefined) {
       const connector = connectors[selectedModel.connectorId];
       if (connector !== undefined) {
@@ -149,6 +159,19 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
       }
     }
   }, [fieldValues.modelId, deployedModels, connectors]);
+
+  // When the model interface is defined, set a default prompt field, if applicable.
+  useEffect(() => {
+    if (
+      props.workflowType === WORKFLOW_TYPE.RAG &&
+      selectedModelInterface !== undefined
+    ) {
+      setFieldValues({
+        ...fieldValues,
+        promptField: get(parseModelInputs(selectedModelInterface), '0.label'),
+      });
+    }
+  }, [selectedModelInterface]);
 
   return (
     <>
@@ -325,23 +348,65 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               </EuiCompressedFormRow>
             )}
             {props.workflowType === WORKFLOW_TYPE.RAG && (
-              <EuiCompressedFormRow
-                fullWidth={true}
-                label={'LLM response field'}
-                isInvalid={false}
-                helpText="The name of the field containing the large language model (LLM) response"
-              >
-                <EuiCompressedFieldText
+              <>
+                <EuiCompressedFormRow
                   fullWidth={true}
-                  value={fieldValues?.llmResponseField || ''}
-                  onChange={(e) => {
-                    setFieldValues({
-                      ...fieldValues,
-                      llmResponseField: e.target.value,
-                    });
-                  }}
-                />
-              </EuiCompressedFormRow>
+                  label={'Prompt field'}
+                  isInvalid={false}
+                  helpText={'The model input field representing the prompt'}
+                >
+                  <EuiCompressedSuperSelect
+                    data-testid="selectPromptField"
+                    fullWidth={true}
+                    options={parseModelInputs(selectedModelInterface).map(
+                      (option) =>
+                        ({
+                          value: option.label,
+                          inputDisplay: (
+                            <>
+                              <EuiText size="s">{option.label}</EuiText>
+                            </>
+                          ),
+                          dropdownDisplay: (
+                            <>
+                              <EuiText size="s">{option.label}</EuiText>
+                              <EuiText size="xs" color="subdued">
+                                {option.type}
+                              </EuiText>
+                            </>
+                          ),
+                          disabled: false,
+                        } as EuiSuperSelectOption<string>)
+                    )}
+                    valueOfSelected={fieldValues?.promptField || ''}
+                    onChange={(option: string) => {
+                      setFieldValues({
+                        ...fieldValues,
+                        promptField: option,
+                      });
+                    }}
+                    isInvalid={false}
+                  />
+                </EuiCompressedFormRow>
+                <EuiSpacer size="s" />
+                <EuiCompressedFormRow
+                  fullWidth={true}
+                  label={'LLM response field'}
+                  isInvalid={false}
+                  helpText="The name of the field containing the large language model (LLM) response"
+                >
+                  <EuiCompressedFieldText
+                    fullWidth={true}
+                    value={fieldValues?.llmResponseField || ''}
+                    onChange={(e) => {
+                      setFieldValues({
+                        ...fieldValues,
+                        llmResponseField: e.target.value,
+                      });
+                    }}
+                  />
+                </EuiCompressedFormRow>
+              </>
             )}
           </EuiAccordion>
         </>
