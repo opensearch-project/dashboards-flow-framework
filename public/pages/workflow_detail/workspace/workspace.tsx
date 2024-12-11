@@ -66,11 +66,11 @@ export function Workspace(props: WorkspaceProps) {
   >(TOGGLE_BUTTON_ID.VISUAL);
   const toggleButtons = [
     {
-      id: `workspaceVisualButton`,
+      id: TOGGLE_BUTTON_ID.VISUAL,
       label: 'Visual',
     },
     {
-      id: `workspaceJSONButton`,
+      id: TOGGLE_BUTTON_ID.JSON,
       label: 'JSON',
     },
   ];

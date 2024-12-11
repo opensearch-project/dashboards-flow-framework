@@ -596,6 +596,27 @@ export type SimulateIngestPipelineResponse = {
 
 export type SearchHit = SimulateIngestPipelineDoc;
 
+export type SearchResponse = {
+  took: number;
+  timed_out: boolean;
+  _shards: {
+    total: number;
+    successful: number;
+    skipped: number;
+    failed: number;
+  };
+  hits: {
+    total: {
+      value: number;
+      relation: string;
+    };
+    max_score: number;
+    hits: SearchHit[];
+  };
+  aggregations?: {};
+  ext?: {};
+};
+
 export type IndexResponse = {
   indexName: string;
   indexDetails: IndexConfiguration;
