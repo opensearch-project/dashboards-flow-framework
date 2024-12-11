@@ -33,8 +33,6 @@ import {
 interface ToolsProps {
   workflow?: Workflow;
   ingestResponse: string;
-  queryResponse: string;
-  setQueryResponse: (queryResponse: string) => void;
   selectedTabId: INSPECTOR_TAB_ID;
   setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
   selectedStep: CONFIG_STEP;
@@ -83,13 +81,6 @@ export function Tools(props: ToolsProps) {
     }
   }, [props.ingestResponse]);
 
-  // auto-navigate to query tab if a populated value has been set, indicating search has been ran
-  useEffect(() => {
-    if (!isEmpty(props.queryResponse)) {
-      props.setSelectedTabId(INSPECTOR_TAB_ID.QUERY);
-    }
-  }, [props.queryResponse]);
-
   return (
     <EuiPanel
       paddingSize="m"
@@ -135,8 +126,6 @@ export function Tools(props: ToolsProps) {
                 )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.QUERY && (
                   <Query
-                    queryResponse={props.queryResponse}
-                    setQueryResponse={props.setQueryResponse}
                     hasSearchPipeline={hasProvisionedSearchResources(
                       props.workflow
                     )}
