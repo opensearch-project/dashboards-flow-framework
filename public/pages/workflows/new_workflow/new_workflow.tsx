@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { DataSourceAttributes } from '../../../../../../src/plugins/data_source/common/data_sources';
 import React, { useState, useEffect } from 'react';
 import { debounce } from 'lodash';
 import {
@@ -28,8 +29,65 @@ import {
 } from '../../../store';
 import { enrichPresetWorkflowWithUiMetadata } from './utils';
 import { getDataSourceId } from '../../../utils';
+import { getSavedObjectsClient } from '../../../services';
+import semver from 'semver';
 
 interface NewWorkflowProps {}
+
+export const getEffectiveVersion = async (
+  dataSourceId: string | undefined
+): Promise<string> => {
+  try {
+    // Don't make the API call if no dataSourceId
+    if (dataSourceId === undefined) {
+      return '2.17.0';
+    }
+
+    const dataSource = await getSavedObjectsClient().get<DataSourceAttributes>(
+      'data-source',
+      dataSourceId
+    );
+    const version = dataSource?.attributes?.dataSourceVersion || '2.17.0';
+
+    // We use backend 2.18 for now and set it to be 2.19 for frontend logic
+    if (version === '2.17.0') {
+      return '2.17.0';
+    } else {
+      return '2.19.0';
+    }
+  } catch (error) {
+    console.error('Error getting version:', error);
+    return '2.17.0';
+  }
+};
+
+const filterWorkflowsByVersion = async (
+  workflows: WorkflowTemplate[],
+  dataSourceId: string
+): Promise<WorkflowTemplate[]> => {
+  const allowedPresetsFor217 = [
+    'Semantic Search',
+    'Multimodal Search',
+    'Hybrid Search',
+  ];
+
+  try {
+    const version = await getEffectiveVersion(dataSourceId);
+
+    if (semver.gte(version, '2.19.0')) {
+      return workflows;
+    }
+
+    return workflows.filter((workflow) =>
+      allowedPresetsFor217.includes(workflow.name)
+    );
+  } catch (error) {
+    // Default to showing only allowed presets if version check fails
+    return workflows.filter((workflow) =>
+      allowedPresetsFor217.includes(workflow.name)
+    );
+  }
+};
 
 /**
  * Contains the searchable library of templated workflows based
@@ -39,8 +97,6 @@ interface NewWorkflowProps {}
 export function NewWorkflow(props: NewWorkflowProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-
-  // workflows state
   const { presetWorkflows, loading } = useSelector(
     (state: AppState) => state.presets
   );
@@ -65,27 +121,38 @@ export function NewWorkflow(props: NewWorkflowProps) {
     dispatch(searchConnectors({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
   }, []);
 
-  // initial hook to populate all workflows
-  // enrich them with dynamically-generated UI flows based on use case
   useEffect(() => {
-    if (presetWorkflows) {
-      setAllWorkflows(
-        presetWorkflows.map((presetWorkflow) =>
-          enrichPresetWorkflowWithUiMetadata(presetWorkflow)
-        )
-      );
-    }
-  }, [presetWorkflows]);
+    const loadWorkflows = async () => {
+      if (presetWorkflows) {
+        const version = await getEffectiveVersion(dataSourceId);
+        const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
+          enrichPresetWorkflowWithUiMetadata(presetWorkflow, version)
+        );
 
-  // initial hook to populate filtered workflows
-  useEffect(() => {
-    setFilteredWorkflows(allWorkflows);
-  }, [allWorkflows]);
+        const versionFilteredWorkflows = await filterWorkflowsByVersion(
+          enrichedWorkflows,
+          dataSourceId!
+        );
+
+        setAllWorkflows(versionFilteredWorkflows);
+      }
+    };
+
+    loadWorkflows();
+  }, [presetWorkflows, dataSourceId]);
 
   // When search query updated, re-filter preset list
   useEffect(() => {
     setFilteredWorkflows(fetchFilteredWorkflows(allWorkflows, searchQuery));
+    console.log('filteredWorkflows:', filteredWorkflows);
   }, [searchQuery]);
+
+  useEffect(() => {
+    setFilteredWorkflows(allWorkflows);
+    return () => {
+      console.log('filteredWorkflows:', filteredWorkflows);
+    };
+  }, [allWorkflows]);
 
   return (
     <EuiFlexGroup direction="column">

@@ -131,6 +131,8 @@ export enum PROCESSOR_TYPE {
   NORMALIZATION = 'normalization-processor',
   COLLAPSE = 'collapse',
   RERANK = 'rerank',
+  TEXT_EMBEDDING = 'text_embedding-processor',
+  TEXT_IMAGE_EMBEDDING = 'text_image_embedding-processor',
 }
 
 export enum MODEL_TYPE {
