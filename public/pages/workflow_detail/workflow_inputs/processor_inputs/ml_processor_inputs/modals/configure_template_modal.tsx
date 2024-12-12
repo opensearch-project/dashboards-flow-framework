@@ -43,13 +43,18 @@ import {
   TRANSFORM_CONTEXT,
   WorkflowConfig,
   WorkflowFormValues,
+  QueryParam,
 } from '../../../../../../../common';
 import {
+  containsEmptyValues,
+  containsSameValues,
   formikToPartialPipeline,
   generateArrayTransform,
   generateTransform,
   getDataSourceId,
   getInitialValue,
+  getPlaceholdersFromQuery,
+  injectParameters,
   prepareDocsForSimulate,
   unwrapTransformedDocs,
 } from '../../../../../../utils';
@@ -60,6 +65,7 @@ import {
   useAppDispatch,
 } from '../../../../../../store';
 import { getCore } from '../../../../../../services';
+import { QueryParamsList } from '../../../../../../general_components';
 
 interface ConfigureTemplateModalProps {
   uiConfig: WorkflowConfig;
@@ -167,6 +173,29 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
   // fetching input data state
   const [isFetching, setIsFetching] = useState<boolean>(false);
+
+  // query params state, if applicable. Users cannot run preview if there are query parameters
+  // and the user is configuring something in a search context (search request/response)
+  const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
+  useEffect(() => {
+    if (props.context !== PROCESSOR_CONTEXT.INGEST && query !== undefined) {
+      const placeholders = getPlaceholdersFromQuery(query);
+      if (
+        !containsSameValues(
+          placeholders,
+          queryParams.map((queryParam) => queryParam.name)
+        )
+      ) {
+        setQueryParams(
+          placeholders.map((placeholder) => ({
+            name: placeholder,
+            type: 'Text',
+            value: '',
+          }))
+        );
+      }
+    }
+  }, [query]);
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
@@ -546,7 +575,9 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                             disabled={
                               onIngestAndNoDocs ||
                               onSearchAndNoQuery ||
-                              !props.isDataFetchingAvailable
+                              !props.isDataFetchingAvailable ||
+                              (props.context !== PROCESSOR_CONTEXT.INGEST &&
+                                containsEmptyValues(queryParams))
                             }
                             onClick={async () => {
                               setIsFetching(true);
@@ -630,7 +661,9 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                   // this if check as an extra layer of checking, and if mechanism for gating
                                   // this is changed in the future.
                                   if (curSearchPipeline === undefined) {
-                                    setSourceInput(values.search.request);
+                                    setSourceInput(
+                                      injectParameters(queryParams, query)
+                                    );
                                   }
                                   setIsFetching(false);
                                   break;
@@ -652,7 +685,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                         index: values.search.index.name,
                                         body: JSON.stringify({
                                           ...JSON.parse(
-                                            values.search.request as string
+                                            injectParameters(queryParams, query)
                                           ),
                                           search_pipeline:
                                             curSearchPipeline || {},
@@ -694,6 +727,15 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
+                    {props.context !== PROCESSOR_CONTEXT.INGEST &&
+                      !isEmpty(queryParams) && (
+                        <EuiFlexItem grow={false}>
+                          <QueryParamsList
+                            queryParams={queryParams}
+                            setQueryParams={setQueryParams}
+                          />
+                        </EuiFlexItem>
+                      )}
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">Source data</EuiText>
                     </EuiFlexItem>
