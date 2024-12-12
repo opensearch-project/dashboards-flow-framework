@@ -519,11 +519,18 @@ export const EMPTY_MAP_ENTRY = { key: '', value: '' } as MapEntry;
 export const EMPTY_INPUT_MAP_ENTRY = {
   key: '',
   value: {
-    transformType: '' as TRANSFORM_TYPE,
+    transformType: TRANSFORM_TYPE.FIELD,
     value: '',
   },
 } as InputMapEntry;
-export const EMPTY_OUTPUT_MAP_ENTRY = EMPTY_INPUT_MAP_ENTRY;
+
+export const EMPTY_OUTPUT_MAP_ENTRY = {
+  ...EMPTY_INPUT_MAP_ENTRY,
+  value: {
+    ...EMPTY_INPUT_MAP_ENTRY.value,
+    transformType: NO_TRANSFORMATION as TRANSFORM_TYPE,
+  },
+};
 export const MODEL_OUTPUT_SCHEMA_NESTED_PATH =
   'output.properties.inference_results.items.properties.output.items.properties.dataAsMap.properties';
 export const MODEL_OUTPUT_SCHEMA_FULL_PATH = 'output.properties';
