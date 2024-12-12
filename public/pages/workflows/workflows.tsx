@@ -102,6 +102,9 @@ export function Workflows(props: WorkflowsProps) {
     escape(tabFromUrl) as WORKFLOWS_TAB
   );
 
+  const isDataSourceReady =
+    !dataSourceEnabled || (dataSourceId && dataSourceId !== '');
+
   // If there is no selected tab or invalid tab, default to manage tab
   useEffect(() => {
     if (
@@ -117,7 +120,7 @@ export function Workflows(props: WorkflowsProps) {
   useEffect(() => {
     if (selectedTabId === WORKFLOWS_TAB.MANAGE) {
       // wait until selected data source is ready before doing dispatch calls if mds is enabled
-      if (!dataSourceEnabled || (dataSourceId && dataSourceId !== '')) {
+      if (isDataSourceReady) {
         dispatch(
           searchWorkflows({
             apiBody: FETCH_ALL_QUERY,
@@ -142,7 +145,7 @@ export function Workflows(props: WorkflowsProps) {
   // On initial render: fetch all workflows
   useEffect(() => {
     // wait until selected data source is ready before doing dispatch calls if mds is enabled
-    if (!dataSourceEnabled || (dataSourceId && dataSourceId !== '')) {
+    if (isDataSourceReady) {
       dispatch(
         searchWorkflows({
           apiBody: FETCH_ALL_QUERY,
@@ -165,7 +168,7 @@ export function Workflows(props: WorkflowsProps) {
       });
     }
     // wait until selected data source is ready before doing dispatch calls if mds is enabled
-    if (!dataSourceEnabled || (dataSourceId && dataSourceId !== '')) {
+    if (isDataSourceReady) {
       dispatch(
         searchWorkflows({
           apiBody: FETCH_ALL_QUERY,
