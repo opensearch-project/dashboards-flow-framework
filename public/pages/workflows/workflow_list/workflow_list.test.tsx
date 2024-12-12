@@ -162,7 +162,7 @@ describe('WorkflowList', () => {
     const viewResourcesButtons = getAllByLabelText('View resources');
     userEvent.click(viewResourcesButtons[0]);
     await waitFor(() => {
-      expect(getByText('No existing resources found')).toBeInTheDocument();
+      expect(getByText(/Active resources/)).toBeInTheDocument();
     });
   });
 
