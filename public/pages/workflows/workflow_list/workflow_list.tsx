@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { debounce } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 import {
   EuiInMemoryTable,
   Direction,
@@ -148,7 +148,9 @@ export function WorkflowList(props: WorkflowListProps) {
             </EuiText>
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
-            {selectedWorkflow?.ui_metadata?.type === WORKFLOW_TYPE.CUSTOM ? (
+            {selectedWorkflow?.ui_metadata === undefined ||
+            isEmpty(selectedWorkflow?.ui_metadata) ||
+            selectedWorkflow?.ui_metadata?.type === WORKFLOW_TYPE.CUSTOM ? (
               <EuiEmptyPrompt
                 title={<h2>Invalid workflow type</h2>}
                 titleSize="s"
