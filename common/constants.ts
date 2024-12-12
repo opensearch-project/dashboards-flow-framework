@@ -427,6 +427,12 @@ export const QUERY_PRESETS = [
 ] as QueryPreset[];
 
 /**
+ * DEFAULT TEMPLATE VAR NAMES
+ */
+export const DEFAULT_PROMPT_RESULTS_FIELD = 'results';
+export const DEFAULT_PROMPT_QUESTION_FIELD = 'question';
+
+/**
  * PROMPT PRESETS
  */
 export const SUMMARIZE_DOCS_PROMPT =
@@ -434,19 +440,25 @@ export const SUMMARIZE_DOCS_PROMPT =
 You are given a list of document results. You will \
 analyze the data and generate a human-readable summary of the results. If you don't \
 know the answer, just say I don't know.\
-\n\n Results: <provide some results> \
+\n\n Results: ${parameters." +
+  DEFAULT_PROMPT_RESULTS_FIELD +
+  '.toString()} \
 \n\n Human: Please summarize the results.\
-\n\n Assistant:";
+\n\n Assistant:';
 
 export const QA_WITH_DOCUMENTS_PROMPT =
   "Human: You are a professional data analyst. \
 You are given a list of document results, along with a question. You will \
 analyze the results and generate a human-readable response to the question, \
 based on the results. If you don't know the answer, just say I don't know.\
-\n\n Results: <provide some results> \
-\n\n Question: <provide some question> \
+\n\n Results: ${parameters." +
+  DEFAULT_PROMPT_RESULTS_FIELD +
+  '.toString()} \
+\n\n Question: ${parameters.' +
+  DEFAULT_PROMPT_QUESTION_FIELD +
+  '.toString()} \
 \n\n Human: Please answer the question using the provided results.\
-\n\n Assistant:";
+\n\n Assistant:';
 
 export const PROMPT_PRESETS = [
   {
@@ -507,11 +519,18 @@ export const EMPTY_MAP_ENTRY = { key: '', value: '' } as MapEntry;
 export const EMPTY_INPUT_MAP_ENTRY = {
   key: '',
   value: {
-    transformType: '' as TRANSFORM_TYPE,
+    transformType: TRANSFORM_TYPE.FIELD,
     value: '',
   },
 } as InputMapEntry;
-export const EMPTY_OUTPUT_MAP_ENTRY = EMPTY_INPUT_MAP_ENTRY;
+
+export const EMPTY_OUTPUT_MAP_ENTRY = {
+  ...EMPTY_INPUT_MAP_ENTRY,
+  value: {
+    ...EMPTY_INPUT_MAP_ENTRY.value,
+    transformType: NO_TRANSFORMATION as TRANSFORM_TYPE,
+  },
+};
 export const MODEL_OUTPUT_SCHEMA_NESTED_PATH =
   'output.properties.inference_results.items.properties.output.items.properties.dataAsMap.properties';
 export const MODEL_OUTPUT_SCHEMA_FULL_PATH = 'output.properties';

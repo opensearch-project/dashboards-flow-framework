@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useFormikContext, getIn, Formik } from 'formik';
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import * as yup from 'yup';
 import {
   EuiCodeEditor,
@@ -23,7 +23,6 @@ import {
   EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
   EuiSpacer,
-  EuiCopy,
   EuiIconTip,
 } from '@elastic/eui';
 import {
@@ -79,6 +78,10 @@ const VALUE_FLEX_RATIO = 6;
 
 // the max number of input docs we use to display & test transforms with (search response hits)
 const MAX_INPUT_DOCS = 10;
+
+// the prompt editor element ID. Used when fetching the element to perform functions on the
+// underlying ace editor (inserting template variables at the cursor position)
+const PROMPT_EDITOR_ID = 'promptEditor';
 
 /**
  * A modal to configure a prompt template. Can manually configure, include placeholder values
@@ -298,12 +301,12 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup
                         direction="row"
-                        justifyContent="spaceAround"
+                        justifyContent="spaceBetween"
                       >
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiText size="m">Prompt</EuiText>
                         </EuiFlexItem>
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiPopover
                             button={
                               <EuiSmallButton
@@ -352,7 +355,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                       </EuiFlexGroup>
                     </EuiFlexItem>
                     <EuiSpacer size="s" />
-                    <EuiFlexItem grow={false}>
+                    <EuiFlexItem grow={false} id={PROMPT_EDITOR_ID}>
                       <EuiCodeEditor
                         mode="json"
                         theme="textmate"
@@ -386,7 +389,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         <EuiFlexItem grow={false}>
                           <EuiIconTip
                             content={`Define input variables with JSONPath to extract out source data. 
-                              Inject into the prompt by clicking the "Copy" button and pasting into the prompt.`}
+                              Insert into the prompt by clicking the "Insert" button.`}
                             position="right"
                           />
                         </EuiFlexItem>
@@ -443,38 +446,51 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                       />
                                     </EuiFlexItem>
                                     <EuiFlexItem grow={false}>
-                                      <EuiCopy
-                                        textToCopy={getPlaceholderString(
+                                      <EuiSmallButtonEmpty
+                                        disabled={isEmpty(
                                           getIn(
                                             formikProps.values,
-                                            `nestedVars.${idx}.name`
+                                            `nestedVars.${idx}.transform`
                                           )
                                         )}
+                                        onClick={() => {
+                                          const promptEditorParentElement = document
+                                            .getElementById(PROMPT_EDITOR_ID)
+                                            ?.getElementsByClassName(
+                                              'ace_editor'
+                                            );
+                                          const promptEditor = get(
+                                            promptEditorParentElement,
+                                            '0.env.editor'
+                                          );
+                                          const promptEditorSession =
+                                            promptEditor?.session;
+                                          const cursorPosition = promptEditor?.getCursorPosition();
+                                          const valueToInsert = getPlaceholderString(
+                                            getIn(
+                                              formikProps.values,
+                                              `nestedVars.${idx}.name`
+                                            )
+                                          );
+                                          if (
+                                            promptEditorSession !== undefined &&
+                                            cursorPosition !== undefined &&
+                                            valueToInsert !== undefined &&
+                                            !isEmpty(valueToInsert)
+                                          ) {
+                                            promptEditorSession.insert(
+                                              cursorPosition,
+                                              valueToInsert
+                                            );
+                                          } else {
+                                            console.error(
+                                              'Value could not be inserted'
+                                            );
+                                          }
+                                        }}
                                       >
-                                        {(copy) => (
-                                          <EuiSmallButtonIcon
-                                            aria-label="Copy"
-                                            iconType="copy"
-                                            disabled={isEmpty(
-                                              getIn(
-                                                formikProps.values,
-                                                `nestedVars.${idx}.transform`
-                                              )
-                                            )}
-                                            color={
-                                              isEmpty(
-                                                getIn(
-                                                  formikProps.values,
-                                                  `nestedVars.${idx}.transform`
-                                                )
-                                              )
-                                                ? 'subdued'
-                                                : 'primary'
-                                            }
-                                            onClick={copy}
-                                          />
-                                        )}
-                                      </EuiCopy>
+                                        Insert
+                                      </EuiSmallButtonEmpty>
                                     </EuiFlexItem>
                                     <EuiFlexItem grow={false}>
                                       <EuiSmallButtonIcon
@@ -518,12 +534,12 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup
                         direction="row"
-                        justifyContent="spaceAround"
+                        justifyContent="spaceBetween"
                       >
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiText size="m">Prompt preview</EuiText>
                         </EuiFlexItem>
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiSmallButton
                             style={{ width: '100px' }}
                             isLoading={isFetching}
