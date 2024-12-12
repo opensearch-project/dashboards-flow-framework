@@ -18,6 +18,7 @@ import {
   EuiFlyoutHeader,
   EuiText,
   EuiFlyoutBody,
+  EuiEmptyPrompt,
 } from '@elastic/eui';
 import { AppState } from '../../../store';
 import {
@@ -93,7 +94,7 @@ export function WorkflowList(props: WorkflowListProps) {
   useEffect(() => {
     setFilteredWorkflows(
       fetchFilteredWorkflows(
-        Object.values(workflows),
+        Object.values(workflows || {}),
         selectedTypes,
         searchQuery
       )
@@ -147,7 +148,22 @@ export function WorkflowList(props: WorkflowListProps) {
             </EuiText>
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
-            <ResourceList workflow={selectedWorkflow} />
+            {selectedWorkflow?.ui_metadata?.type === WORKFLOW_TYPE.CUSTOM ? (
+              <EuiEmptyPrompt
+                title={<h2>Invalid workflow type</h2>}
+                titleSize="s"
+                body={
+                  <>
+                    <EuiText size="s">
+                      Displaying resources from custom workflows is not
+                      currently supported.
+                    </EuiText>
+                  </>
+                }
+              />
+            ) : (
+              <ResourceList workflow={selectedWorkflow} />
+            )}
           </EuiFlyoutBody>
         </EuiFlyout>
       )}
@@ -199,14 +215,21 @@ function fetchFilteredWorkflows(
   typeFilters: EuiFilterSelectItem[],
   searchQuery: string
 ): Workflow[] {
+  // A common use case for API users is to create workflows to register agents for
+  // things like chatbots. We specifically filter those out on the UI to prevent confusion.
+  const allWorkflowsExceptRegisterAgent = allWorkflows.filter(
+    (workflow) => workflow.use_case !== 'REGISTER_AGENT'
+  );
   // If missing/invalid ui metadata, add defaults
-  const allWorkflowsWithDefaults = allWorkflows.map((workflow) => ({
-    ...workflow,
-    ui_metadata: {
-      ...workflow.ui_metadata,
-      type: workflow.ui_metadata?.type || WORKFLOW_TYPE.UNKNOWN,
-    } as UIState,
-  }));
+  const allWorkflowsWithDefaults = allWorkflowsExceptRegisterAgent.map(
+    (workflow) => ({
+      ...workflow,
+      ui_metadata: {
+        ...workflow.ui_metadata,
+        type: workflow.ui_metadata?.type || WORKFLOW_TYPE.UNKNOWN,
+      } as UIState,
+    })
+  );
   // @ts-ignore
   const typeFilterStrings = typeFilters.map((filter) => filter.name);
   const filteredWorkflows = allWorkflowsWithDefaults.filter((workflow) =>

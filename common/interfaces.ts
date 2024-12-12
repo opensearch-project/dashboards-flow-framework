@@ -365,7 +365,7 @@ export type WorkflowTemplate = {
   // https://github.com/opensearch-project/flow-framework/issues/526
   version?: any;
   workflows?: TemplateFlows;
-  use_case?: USE_CASE;
+  use_case?: string;
   // UI state and any ReactFlow state may not exist if a workflow is created via API/backend-only.
   ui_metadata?: UIState;
 };
@@ -385,12 +385,6 @@ export type Workflow = WorkflowTemplate & {
   // won't exist until launched/provisioned in backend
   resourcesCreated?: WorkflowResource[];
 };
-
-export enum USE_CASE {
-  SEMANTIC_SEARCH = 'SEMANTIC_SEARCH',
-  NEURAL_SPARSE_SEARCH = 'NEURAL_SPARSE_SEARCH',
-  HYBRID_SEARCH = 'HYBRID_SEARCH',
-}
 
 /**
  ********** ML PLUGIN TYPES/INTERFACES **********
