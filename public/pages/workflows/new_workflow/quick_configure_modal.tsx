@@ -20,6 +20,7 @@ import {
   EuiCompressedFormRow,
 } from '@elastic/eui';
 import {
+  DEFAULT_PROMPT_RESULTS_FIELD,
   EMPTY_INPUT_MAP_ENTRY,
   EMPTY_OUTPUT_MAP_ENTRY,
   IMAGE_FIELD_PATTERN,
@@ -33,6 +34,7 @@ import {
   OutputMapFormValue,
   PROCESSOR_TYPE,
   QuickConfigureFields,
+  SUMMARIZE_DOCS_PROMPT,
   TEXT_FIELD_PATTERN,
   TRANSFORM_TYPE,
   VECTOR,
@@ -228,7 +230,7 @@ function injectQuickConfigureFields(
             workflow.ui_metadata.config,
             quickConfigureFields
           );
-          workflow.ui_metadata.config = updateSearchResponseProcessors(
+          workflow.ui_metadata.config = updateRAGSearchResponseProcessors(
             workflow.ui_metadata.config,
             quickConfigureFields,
             modelInterface
@@ -416,8 +418,8 @@ function updateSearchRequestProcessors(
   return config;
 }
 
-// prefill response processor configs, if applicable
-function updateSearchResponseProcessors(
+// prefill response processor configs for RAG use cases
+function updateRAGSearchResponseProcessors(
   config: WorkflowConfig,
   fields: QuickConfigureFields,
   modelInterface: ModelInterface | undefined
@@ -431,13 +433,19 @@ function updateSearchResponseProcessors(
         }
         if (field.id === 'input_map') {
           const inputMap = generateInputMapFromModelInputs(modelInterface);
-          if (fields.textField) {
+          if (fields.promptField && fields.textField) {
             if (inputMap.length > 0) {
               inputMap[0] = {
                 ...inputMap[0],
                 value: {
-                  transformType: TRANSFORM_TYPE.FIELD,
-                  value: fields.textField,
+                  transformType: TRANSFORM_TYPE.TEMPLATE,
+                  value: SUMMARIZE_DOCS_PROMPT,
+                  nestedVars: [
+                    {
+                      name: DEFAULT_PROMPT_RESULTS_FIELD,
+                      transform: fields.textField,
+                    },
+                  ],
                 },
               };
             } else {
@@ -445,7 +453,7 @@ function updateSearchResponseProcessors(
                 key: '',
                 value: {
                   transformType: TRANSFORM_TYPE.FIELD,
-                  value: fields.textField,
+                  value: '',
                 },
               });
             }
