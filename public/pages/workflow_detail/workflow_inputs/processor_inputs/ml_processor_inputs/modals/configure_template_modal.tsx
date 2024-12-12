@@ -301,12 +301,12 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup
                         direction="row"
-                        justifyContent="spaceAround"
+                        justifyContent="spaceBetween"
                       >
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiText size="m">Prompt</EuiText>
                         </EuiFlexItem>
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiPopover
                             button={
                               <EuiSmallButton
@@ -534,12 +534,12 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup
                         direction="row"
-                        justifyContent="spaceAround"
+                        justifyContent="spaceBetween"
                       >
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiText size="m">Prompt preview</EuiText>
                         </EuiFlexItem>
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiSmallButton
                             style={{ width: '100px' }}
                             isLoading={isFetching}
