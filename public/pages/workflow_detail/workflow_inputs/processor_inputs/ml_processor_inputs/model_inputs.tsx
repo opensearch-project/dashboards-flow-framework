@@ -32,6 +32,7 @@ import {
   EMPTY_INPUT_MAP_ENTRY,
   WorkflowConfig,
   getCharacterLimitedString,
+  ModelInputFormField,
 } from '../../../../../../common';
 import { TextField, SelectWithCustomOptions } from '../../input_fields';
 import { AppState, getMappings, useAppDispatch } from '../../../../../store';
@@ -214,8 +215,31 @@ export function ModelInputs(props: ModelInputsProps) {
     setFieldTouched(inputMapFieldPath, true);
   }
 
-  // Defining constants for the key/value text vars, typically dependent on the different processor contexts.
-  const keyOptions = parseModelInputs(modelInterface);
+  // The options for keys can change. We update what options are available, based
+  // on if there is a model interface found, and additionally filter out any
+  // options that are already being used in the input map, to discourage duplicate keys.
+  const [keyOptions, setKeyOptions] = useState<ModelInputFormField[]>([]);
+  useEffect(() => {
+    setKeyOptions(parseModelInputs(modelInterface));
+  }, [modelInterface]);
+  useEffect(() => {
+    if (modelInterface !== undefined) {
+      const modelInputs = parseModelInputs(modelInterface);
+      if (getIn(values, inputMapFieldPath) !== undefined) {
+        const existingKeys = getIn(values, inputMapFieldPath).map(
+          (inputMapEntry: InputMapEntry) => inputMapEntry.key
+        ) as string[];
+        setKeyOptions(
+          modelInputs.filter(
+            (modelInput) => !existingKeys.includes(modelInput.label)
+          )
+        );
+      } else {
+        setKeyOptions(modelInputs);
+      }
+    }
+  }, [getIn(values, inputMapFieldPath), modelInterface]);
+
   const valueOptions =
     props.context === PROCESSOR_CONTEXT.INGEST
       ? docFields
