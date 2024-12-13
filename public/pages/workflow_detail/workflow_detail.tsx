@@ -169,8 +169,8 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     }
   }, [uiConfig]);
 
-  return errorMessage.includes(ERROR_GETTING_WORKFLOW_MSG) ||
-    errorMessage.includes(NO_TEMPLATES_FOUND_MSG) ? (
+  return errorMessage?.includes(ERROR_GETTING_WORKFLOW_MSG) ||
+    errorMessage?.includes(NO_TEMPLATES_FOUND_MSG) ? (
     <EuiFlexGroup direction="column" alignItems="center">
       <EuiFlexItem grow={3}>
         <EuiEmptyPrompt
