@@ -23,6 +23,7 @@ export function EnrichData(props: EnrichDataProps) {
       <ProcessorsTitle
         title="Enrich data"
         processorCount={props.uiConfig.ingest.enrich.processors?.length || 0}
+        optional={true}
       />
       <EuiFlexItem>
         <ProcessorsList
