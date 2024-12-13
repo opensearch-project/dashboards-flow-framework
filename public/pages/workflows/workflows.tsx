@@ -129,7 +129,7 @@ export function Workflows(props: WorkflowsProps) {
         );
       }
     }
-  }, [selectedTabId]);
+  }, [selectedTabId, dataSourceId, dataSourceEnabled]);
 
   useEffect(() => {
     setBreadcrumbs(
