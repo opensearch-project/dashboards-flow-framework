@@ -422,43 +422,85 @@ export const QUERY_PRESETS = [
  */
 export const DEFAULT_PROMPT_RESULTS_FIELD = 'results';
 export const DEFAULT_PROMPT_QUESTION_FIELD = 'question';
+export const DEFAULT_PROMPT_TEXT_CATEGORY_FIELD = 'textCategory';
+export const DEFAULT_PROMPT_ROLE_FIELD = 'role';
 
 /**
- * PROMPT PRESETS
+ * PROMPT PRESETS. Based off of https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-templates-and-examples.html
  */
-export const SUMMARIZE_DOCS_PROMPT =
-  "Human: You are a professional data analyst. \
-You are given a list of document results. You will \
-analyze the data and generate a human-readable summary of the results. If you don't \
-know the answer, just say I don't know.\
-\n\n Results: ${parameters." +
+export const GENERAL_SUMMARIZE_PROMPT =
+  'Read the following text: \
+\n\n${parameters.' +
   DEFAULT_PROMPT_RESULTS_FIELD +
   '.toString()} \
-\n\n Human: Please summarize the results.\
-\n\n Assistant:';
+\n\nSummarize the text in one sentence.';
 
-export const QA_WITH_DOCUMENTS_PROMPT =
-  "Human: You are a professional data analyst. \
-You are given a list of document results, along with a question. You will \
-analyze the results and generate a human-readable response to the question, \
-based on the results. If you don't know the answer, just say I don't know.\
-\n\n Results: ${parameters." +
+export const GENERAL_QA_WITH_CONTEXT_PROMPT =
+  'Read the following text, and answer the question at the end: \
+\n\n${parameters.' +
   DEFAULT_PROMPT_RESULTS_FIELD +
   '.toString()} \
-\n\n Question: ${parameters.' +
+\n\n${parameters.' +
   DEFAULT_PROMPT_QUESTION_FIELD +
-  '.toString()} \
-\n\n Human: Please answer the question using the provided results.\
-\n\n Assistant:';
+  '.toString()}';
+
+export const GENERAL_QA_NO_CONTEXT_PROMPT =
+  'Answer the following question: \
+${parameters.' +
+  DEFAULT_PROMPT_QUESTION_FIELD +
+  '.toString()}';
+
+export const GENERAL_TEXT_GENERATION_PROMPT =
+  'Please write a ${parameters.' +
+  DEFAULT_PROMPT_TEXT_CATEGORY_FIELD +
+  '.toString()} in the voice of ${parameters.' +
+  DEFAULT_PROMPT_ROLE_FIELD +
+  '.toString()}';
+
+export const CLAUDE_SUMMARIZE_PROMPT =
+  'Human: read the following results inside the <text></text> XML tags:\n\n<text>\n\
+${parameters.' +
+  DEFAULT_PROMPT_RESULTS_FIELD +
+  ".toString()}\n</text>\n\n\
+Summarize the above results in one sentence. If you don't know the answer, just \
+say I don't know.\
+\n\nAssistant:";
+
+export const CLAUDE_QA_WITH_CONTEXT_PROMPT =
+  'Human: read the following results inside the <text></text> XML tags, and then answer the question:\
+\n\n<text>\n\
+${parameters.' +
+  DEFAULT_PROMPT_RESULTS_FIELD +
+  '.toString()}\n\
+</text>\n\n' +
+  '${parameters.' +
+  DEFAULT_PROMPT_QUESTION_FIELD +
+  '.toString()}\n\nAssistant:';
 
 export const PROMPT_PRESETS = [
   {
-    name: 'Summarize documents',
-    prompt: SUMMARIZE_DOCS_PROMPT,
+    name: 'Summarize text',
+    prompt: GENERAL_SUMMARIZE_PROMPT,
   },
   {
-    name: 'QA with documents',
-    prompt: QA_WITH_DOCUMENTS_PROMPT,
+    name: 'Question-answer, with context',
+    prompt: GENERAL_QA_WITH_CONTEXT_PROMPT,
+  },
+  {
+    name: 'Question-answer, without context',
+    prompt: GENERAL_QA_NO_CONTEXT_PROMPT,
+  },
+  {
+    name: 'Text generation',
+    prompt: GENERAL_TEXT_GENERATION_PROMPT,
+  },
+  {
+    name: 'Summarize text (Claude)',
+    prompt: CLAUDE_SUMMARIZE_PROMPT,
+  },
+  {
+    name: 'Question-answer, with context (Claude)',
+    prompt: CLAUDE_QA_WITH_CONTEXT_PROMPT,
   },
 ] as PromptPreset[];
 

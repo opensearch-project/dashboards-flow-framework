@@ -34,7 +34,7 @@ import {
   OutputMapFormValue,
   PROCESSOR_TYPE,
   QuickConfigureFields,
-  SUMMARIZE_DOCS_PROMPT,
+  CLAUDE_SUMMARIZE_PROMPT,
   TEXT_FIELD_PATTERN,
   TRANSFORM_TYPE,
   VECTOR,
@@ -438,7 +438,7 @@ function updateRAGSearchResponseProcessors(
                 ...inputMap[0],
                 value: {
                   transformType: TRANSFORM_TYPE.TEMPLATE,
-                  value: SUMMARIZE_DOCS_PROMPT,
+                  value: CLAUDE_SUMMARIZE_PROMPT,
                   nestedVars: [
                     {
                       name: DEFAULT_PROMPT_RESULTS_FIELD,
