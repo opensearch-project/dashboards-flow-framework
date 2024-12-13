@@ -102,6 +102,9 @@ export function Workflows(props: WorkflowsProps) {
     escape(tabFromUrl) as WORKFLOWS_TAB
   );
 
+  const isDataSourceReady =
+    !dataSourceEnabled || (dataSourceId && dataSourceId !== '');
+
   // If there is no selected tab or invalid tab, default to manage tab
   useEffect(() => {
     if (
@@ -116,14 +119,17 @@ export function Workflows(props: WorkflowsProps) {
   // If the user navigates back to the manage tab, re-fetch workflows
   useEffect(() => {
     if (selectedTabId === WORKFLOWS_TAB.MANAGE) {
-      dispatch(
-        searchWorkflows({
-          apiBody: FETCH_ALL_QUERY,
-          dataSourceId: dataSourceId,
-        })
-      );
+      // wait until selected data source is ready before doing dispatch calls if mds is enabled
+      if (isDataSourceReady) {
+        dispatch(
+          searchWorkflows({
+            apiBody: FETCH_ALL_QUERY,
+            dataSourceId: dataSourceId,
+          })
+        );
+      }
     }
-  }, [selectedTabId]);
+  }, [selectedTabId, dataSourceId, dataSourceEnabled]);
 
   useEffect(() => {
     setBreadcrumbs(
@@ -138,13 +144,16 @@ export function Workflows(props: WorkflowsProps) {
 
   // On initial render: fetch all workflows
   useEffect(() => {
-    dispatch(
-      searchWorkflows({
-        apiBody: FETCH_ALL_QUERY,
-        dataSourceId: dataSourceId,
-      })
-    );
-  }, []);
+    // wait until selected data source is ready before doing dispatch calls if mds is enabled
+    if (isDataSourceReady) {
+      dispatch(
+        searchWorkflows({
+          apiBody: FETCH_ALL_QUERY,
+          dataSourceId: dataSourceId,
+        })
+      );
+    }
+  }, [dataSourceId, dataSourceEnabled]);
 
   useEffect(() => {
     const { history, location } = props;
@@ -158,13 +167,16 @@ export function Workflows(props: WorkflowsProps) {
         search: queryString.stringify(updatedParams),
       });
     }
-    dispatch(
-      searchWorkflows({
-        apiBody: FETCH_ALL_QUERY,
-        dataSourceId: dataSourceId,
-      })
-    );
-  }, [dataSourceId, setDataSourceId]);
+    // wait until selected data source is ready before doing dispatch calls if mds is enabled
+    if (isDataSourceReady) {
+      dispatch(
+        searchWorkflows({
+          apiBody: FETCH_ALL_QUERY,
+          dataSourceId: dataSourceId,
+        })
+      );
+    }
+  }, [dataSourceId, setDataSourceId, dataSourceEnabled]);
 
   const handleDataSourceChange = ([event]: DataSourceOption[]) => {
     const dataSourceEventId = event?.id;
