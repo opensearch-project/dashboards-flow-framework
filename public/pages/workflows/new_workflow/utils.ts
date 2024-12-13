@@ -170,7 +170,7 @@ export function fetchMultimodalSearchMetadata(): UIState {
   baseState.config.search.enrichRequest.processors = [
     injectQueryTemplateInProcessor(
       new MLSearchRequestProcessor().toObj(),
-      MULTIMODAL_SEARCH_QUERY_BOOL
+      KNN_QUERY
     ),
   ];
   return baseState;
