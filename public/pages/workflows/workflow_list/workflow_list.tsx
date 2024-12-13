@@ -150,14 +150,14 @@ export function WorkflowList(props: WorkflowListProps) {
           <EuiFlyoutBody>
             {selectedWorkflow?.ui_metadata === undefined ||
             isEmpty(selectedWorkflow?.ui_metadata) ||
-            selectedWorkflow?.ui_metadata?.type === WORKFLOW_TYPE.CUSTOM ? (
+            selectedWorkflow?.ui_metadata?.type === WORKFLOW_TYPE.UNKNOWN ? (
               <EuiEmptyPrompt
                 title={<h2>Invalid workflow type</h2>}
                 titleSize="s"
                 body={
                   <>
                     <EuiText size="s">
-                      Displaying resources from custom workflows is not
+                      Displaying resources from workflows of unknown type is not
                       currently supported.
                     </EuiText>
                   </>

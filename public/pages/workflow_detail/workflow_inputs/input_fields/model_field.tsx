@@ -15,6 +15,7 @@ import {
   EuiCompressedSuperSelect,
   EuiSuperSelectOption,
   EuiText,
+  EuiSmallButton,
 } from '@elastic/eui';
 import {
   MODEL_STATE,
@@ -22,6 +23,7 @@ import {
   ModelFormValue,
   IConfigField,
   ML_CHOOSE_MODEL_LINK,
+  ML_REMOTE_MODEL_LINK,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 
@@ -45,6 +47,7 @@ export function ModelField(props: ModelFieldProps) {
   // re-fetch here as it could overload client-side if user clicks back and forth /
   // keeps re-rendering this component (and subsequently re-fetching data) as they're building flows
   const models = useSelector((state: AppState) => state.ml.models);
+  //const models = {};
 
   const { errors, touched, values } = useFormikContext<WorkflowFormValues>();
 
@@ -83,6 +86,31 @@ export function ModelField(props: ModelFieldProps) {
             <EuiSpacer size="s" />
           </>
         )}
+      {isEmpty(deployedModels) && (
+        <>
+          <EuiCallOut
+            size="s"
+            title="No deployed models found"
+            iconType={'alert'}
+            color="warning"
+          >
+            <EuiText size="s">
+              To create and deploy models and make them accessible in
+              OpenSearch, see documentation.
+            </EuiText>
+            <EuiSpacer size="s" />
+            <EuiSmallButton
+              target="_blank"
+              href={ML_REMOTE_MODEL_LINK}
+              iconSide="right"
+              iconType={'popout'}
+            >
+              Documentation
+            </EuiSmallButton>
+          </EuiCallOut>
+          <EuiSpacer size="s" />
+        </>
+      )}
       <Field name={props.fieldPath}>
         {({ field, form }: FieldProps) => {
           return (
@@ -98,6 +126,7 @@ export function ModelField(props: ModelFieldProps) {
               helpText={'The model ID.'}
             >
               <EuiCompressedSuperSelect
+                disabled={isEmpty(deployedModels)}
                 options={deployedModels.map(
                   (option) =>
                     ({
