@@ -115,7 +115,6 @@ export enum WORKFLOW_TYPE {
   SEMANTIC_SEARCH = 'Semantic search',
   MULTIMODAL_SEARCH = 'Multimodal search',
   HYBRID_SEARCH = 'Hybrid search',
-  SENTIMENT_ANALYSIS = 'Sentiment analysis',
   RAG = 'Retrieval-augmented generation',
   CUSTOM = 'Custom',
   UNKNOWN = 'Unknown',
@@ -208,7 +207,6 @@ export const SHARED_OPTIONAL_FIELDS = ['max_chunk_limit', 'description', 'tag'];
 export const DEFAULT_TEXT_FIELD = 'my_text';
 export const DEFAULT_VECTOR_FIELD = 'my_embedding';
 export const DEFAULT_IMAGE_FIELD = 'my_image';
-export const DEFAULT_LABEL_FIELD = 'label';
 export const DEFAULT_LLM_RESPONSE_FIELD = 'llm_response';
 
 /**
@@ -236,15 +234,6 @@ export const TERM_QUERY_TEXT = {
   query: {
     term: {
       [TEXT_FIELD_PATTERN]: {
-        value: QUERY_TEXT_PATTERN,
-      },
-    },
-  },
-};
-export const TERM_QUERY_LABEL = {
-  query: {
-    term: {
-      [LABEL_FIELD_PATTERN]: {
         value: QUERY_TEXT_PATTERN,
       },
     },
