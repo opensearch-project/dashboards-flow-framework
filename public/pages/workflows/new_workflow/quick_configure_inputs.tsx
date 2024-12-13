@@ -19,7 +19,6 @@ import {
   BEDROCK_DIMENSIONS,
   COHERE_DIMENSIONS,
   DEFAULT_IMAGE_FIELD,
-  DEFAULT_LABEL_FIELD,
   DEFAULT_LLM_RESPONSE_FIELD,
   DEFAULT_TEXT_FIELD,
   DEFAULT_VECTOR_FIELD,
@@ -84,13 +83,6 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
           textField: DEFAULT_TEXT_FIELD,
           vectorField: DEFAULT_VECTOR_FIELD,
           imageField: DEFAULT_IMAGE_FIELD,
-        };
-        break;
-      }
-      case WORKFLOW_TYPE.SENTIMENT_ANALYSIS: {
-        defaultFieldValues = {
-          textField: DEFAULT_TEXT_FIELD,
-          labelField: DEFAULT_LABEL_FIELD,
         };
         break;
       }
@@ -188,17 +180,13 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             <EuiCompressedFormRow
               fullWidth={true}
               label={
-                props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS
-                  ? 'Model'
-                  : props.workflowType === WORKFLOW_TYPE.RAG
+                props.workflowType === WORKFLOW_TYPE.RAG
                   ? 'Large language model'
                   : 'Embedding model'
               }
               isInvalid={false}
               helpText={
-                props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS
-                  ? 'The sentiment analysis model'
-                  : props.workflowType === WORKFLOW_TYPE.RAG
+                props.workflowType === WORKFLOW_TYPE.RAG
                   ? 'The large language model to generate user-friendly responses'
                   : 'The model to generate embeddings'
               }
@@ -245,9 +233,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               label={'Text field'}
               isInvalid={false}
               helpText={`The name of the text document field to be ${
-                props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS
-                  ? 'analyzed'
-                  : props.workflowType === WORKFLOW_TYPE.RAG
+                props.workflowType === WORKFLOW_TYPE.RAG
                   ? 'used as context to the large language model (LLM)'
                   : 'embedded'
               }`}
@@ -327,25 +313,6 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                   />
                 </EuiCompressedFormRow>
               </>
-            )}
-            {props.workflowType === WORKFLOW_TYPE.SENTIMENT_ANALYSIS && (
-              <EuiCompressedFormRow
-                fullWidth={true}
-                label={'Label field'}
-                isInvalid={false}
-                helpText="The name of the document field containing the sentiment label"
-              >
-                <EuiCompressedFieldText
-                  fullWidth={true}
-                  value={fieldValues?.labelField || ''}
-                  onChange={(e) => {
-                    setFieldValues({
-                      ...fieldValues,
-                      labelField: e.target.value,
-                    });
-                  }}
-                />
-              </EuiCompressedFormRow>
             )}
             {props.workflowType === WORKFLOW_TYPE.RAG && (
               <>
