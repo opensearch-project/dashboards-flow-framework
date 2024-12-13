@@ -33,6 +33,7 @@ import {
   MultiExpressionFormValues,
   OutputMapEntry,
   PROCESSOR_CONTEXT,
+  QueryParam,
   SearchHit,
   SearchPipelineConfig,
   SimulateIngestPipelineResponse,
@@ -41,9 +42,13 @@ import {
   WorkflowFormValues,
 } from '../../../../../../../common';
 import {
+  containsEmptyValues,
+  containsSameValues,
   formikToPartialPipeline,
   generateTransform,
   getDataSourceId,
+  getPlaceholdersFromQuery,
+  injectParameters,
   prepareDocsForSimulate,
   unwrapTransformedDocs,
 } from '../../../../../../utils';
@@ -54,6 +59,7 @@ import {
   useAppDispatch,
 } from '../../../../../../store';
 import { getCore } from '../../../../../../services';
+import { QueryParamsList } from '../../../../../../general_components';
 
 interface ConfigureMultiExpressionModalProps {
   uiConfig: WorkflowConfig;
@@ -143,6 +149,29 @@ export function ConfigureMultiExpressionModal(
 
   // fetching input data state
   const [isFetching, setIsFetching] = useState<boolean>(false);
+
+  // query params state, if applicable. Users cannot run preview if there are query parameters
+  // and the user is configuring something in a search context (search request/response)
+  const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
+  useEffect(() => {
+    if (props.context !== PROCESSOR_CONTEXT.INGEST && query !== undefined) {
+      const placeholders = getPlaceholdersFromQuery(query);
+      if (
+        !containsSameValues(
+          placeholders,
+          queryParams.map((queryParam) => queryParam.name)
+        )
+      ) {
+        setQueryParams(
+          placeholders.map((placeholder) => ({
+            name: placeholder,
+            type: 'Text',
+            value: '',
+          }))
+        );
+      }
+    }
+  }, [query]);
 
   // hook to re-generate the transform when any inputs to the transform are updated
   useEffect(() => {
@@ -356,19 +385,21 @@ export function ConfigureMultiExpressionModal(
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup
                         direction="row"
-                        justifyContent="spaceAround"
+                        justifyContent="spaceBetween"
                       >
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiText size="m">Preview</EuiText>
                         </EuiFlexItem>
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiSmallButton
                             style={{ width: '100px' }}
                             isLoading={isFetching}
                             disabled={
                               onIngestAndNoDocs ||
                               onSearchAndNoQuery ||
-                              !props.isDataFetchingAvailable
+                              !props.isDataFetchingAvailable ||
+                              (props.context !== PROCESSOR_CONTEXT.INGEST &&
+                                containsEmptyValues(queryParams))
                             }
                             onClick={async () => {
                               setIsFetching(true);
@@ -482,7 +513,7 @@ export function ConfigureMultiExpressionModal(
                                         index: values.search.index.name,
                                         body: JSON.stringify({
                                           ...JSON.parse(
-                                            values.search.request as string
+                                            injectParameters(queryParams, query)
                                           ),
                                           search_pipeline:
                                             curSearchPipeline || {},
@@ -522,6 +553,15 @@ export function ConfigureMultiExpressionModal(
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
+                    {props.context !== PROCESSOR_CONTEXT.INGEST &&
+                      !isEmpty(queryParams) && (
+                        <EuiFlexItem grow={false}>
+                          <QueryParamsList
+                            queryParams={queryParams}
+                            setQueryParams={setQueryParams}
+                          />
+                        </EuiFlexItem>
+                      )}
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">Source data</EuiText>
                     </EuiFlexItem>

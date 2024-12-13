@@ -21,6 +21,7 @@ import {
   OutputMapFormValue,
   EMPTY_OUTPUT_MAP_ENTRY,
   ExpressionVar,
+  ModelOutputFormField,
 } from '../../../../../../common';
 import { SelectWithCustomOptions, TextField } from '../../input_fields';
 
@@ -136,9 +137,30 @@ export function ModelOutputs(props: ModelOutputsProps) {
     setFieldTouched(outputMapFieldPath, true);
   }
 
-  const keyOptions = fullResponsePath
-    ? undefined
-    : parseModelOutputs(modelInterface, false);
+  // The options for keys can change. We update what options are available, based
+  // on if there is a model interface found, what full_response_path is, and additionally filter out any
+  // options that are already being used in the output map, to discourage duplicate keys.
+  const [keyOptions, setKeyOptions] = useState<ModelOutputFormField[]>([]);
+  useEffect(() => {
+    setKeyOptions(parseModelOutputs(modelInterface));
+  }, [modelInterface]);
+  useEffect(() => {
+    if (modelInterface !== undefined && fullResponsePath === false) {
+      const modelOutputs = parseModelOutputs(modelInterface);
+      if (getIn(values, outputMapFieldPath) !== undefined) {
+        const existingKeys = getIn(values, outputMapFieldPath).map(
+          (outputMapEntry: OutputMapEntry) => outputMapEntry.key
+        ) as string[];
+        setKeyOptions(
+          modelOutputs.filter(
+            (modelOutput) => !existingKeys.includes(modelOutput.label)
+          )
+        );
+      } else {
+        setKeyOptions(modelOutputs);
+      }
+    }
+  }, [getIn(values, outputMapFieldPath), modelInterface, fullResponsePath]);
 
   return (
     <Field name={outputMapFieldPath} key={outputMapFieldPath}>

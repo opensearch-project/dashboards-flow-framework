@@ -25,6 +25,7 @@ export function EnrichSearchRequest(props: EnrichSearchRequestProps) {
         processorCount={
           props.uiConfig.search.enrichRequest.processors?.length || 0
         }
+        optional={false}
       />
       <EuiFlexItem>
         <ProcessorsList

@@ -9,6 +9,7 @@ import { EuiFlexItem, EuiText } from '@elastic/eui';
 interface ProcessorsTitleProps {
   title: string;
   processorCount: number;
+  optional: boolean;
 }
 
 /**
@@ -24,11 +25,13 @@ export function ProcessorsTitle(props: ProcessorsTitleProps) {
         <>
           <h3
             style={{ display: 'inline-block' }}
-          >{`${props.title} (${props.processorCount}) -`}</h3>
+          >{`${props.title} (${props.processorCount})`}</h3>
           &nbsp;
-          <h3 style={{ display: 'inline-block', fontStyle: 'italic' }}>
-            optional
-          </h3>
+          {props.optional && (
+            <h3 style={{ display: 'inline-block', fontStyle: 'italic' }}>
+              - optional
+            </h3>
+          )}
         </>
       </EuiText>
     </EuiFlexItem>
