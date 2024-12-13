@@ -153,7 +153,7 @@ export function Workflows(props: WorkflowsProps) {
         })
       );
     }
-  }, []);
+  }, [dataSourceId, dataSourceEnabled]);
 
   useEffect(() => {
     const { history, location } = props;
@@ -176,7 +176,7 @@ export function Workflows(props: WorkflowsProps) {
         })
       );
     }
-  }, [dataSourceId, setDataSourceId]);
+  }, [dataSourceId, setDataSourceId, dataSourceEnabled]);
 
   const handleDataSourceChange = ([event]: DataSourceOption[]) => {
     const dataSourceEventId = event?.id;
