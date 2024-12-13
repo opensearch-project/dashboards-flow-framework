@@ -361,11 +361,23 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                   items: PROMPT_PRESETS.map(
                                     (preset: PromptPreset) => ({
                                       name: preset.name,
+                                      // If a new prompt is selected, update the prompt,
+                                      // and reset any nested vars.
                                       onClick: () => {
                                         try {
                                           formikProps.setFieldValue(
                                             'value',
                                             preset.prompt
+                                          );
+                                          formikProps.setFieldValue(
+                                            'nestedVars',
+                                            extractParametersFromTemplate(
+                                              preset.prompt
+                                            )
+                                          );
+                                          formikProps.setFieldTouched(
+                                            'nestedVars',
+                                            false
                                           );
                                         } catch {}
                                         formikProps.setFieldTouched(
@@ -849,4 +861,22 @@ function injectValuesIntoTemplate(
   });
 
   return finalTemplate;
+}
+
+function extractParametersFromTemplate(template: string): ExpressionVar[] {
+  const expressionVars = [] as ExpressionVar[];
+  const paramsFound = template.match(/\${([^}]+)}/g);
+  paramsFound?.forEach((param) => {
+    const curExpressionNames = expressionVars.map(
+      (expressionVar) => expressionVar.name
+    );
+    const curExpressionName = param.slice(2, -1).split('.')[1];
+    if (!curExpressionNames.includes(curExpressionName)) {
+      expressionVars.push({
+        name: curExpressionName,
+        transform: '',
+      });
+    }
+  });
+  return expressionVars;
 }
