@@ -100,8 +100,8 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   // fetching model interface if available. used to prefill some
   // of the input/output maps
   useEffect(() => {
-    setModelInterface(models[quickConfigureFields.modelId || '']?.interface);
-  }, [models, quickConfigureFields.modelId]);
+    setModelInterface(models[quickConfigureFields?.modelId || '']?.interface);
+  }, [models, quickConfigureFields?.modelId]);
 
   return (
     <EuiModal onClose={() => props.onClose()} style={{ width: '30vw' }}>
