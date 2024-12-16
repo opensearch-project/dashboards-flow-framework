@@ -27,7 +27,8 @@ import {
   searchConnectors,
 } from '../../../store';
 import { enrichPresetWorkflowWithUiMetadata } from './utils';
-import { getDataSourceId } from '../../../utils';
+import { getDataSourceId, isDataSourceReady } from '../../../utils';
+import { getDataSourceEnabled } from '../../../services';
 
 interface NewWorkflowProps {}
 
@@ -39,6 +40,7 @@ interface NewWorkflowProps {}
 export function NewWorkflow(props: NewWorkflowProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+  const dataSourceEnabled = getDataSourceEnabled().enabled;
 
   // workflows state
   const { presetWorkflows, loading } = useSelector(
@@ -61,9 +63,11 @@ export function NewWorkflow(props: NewWorkflowProps) {
   //    so we optimize by fetching once at the top-level here.
   useEffect(() => {
     dispatch(getWorkflowPresets());
-    dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
-    dispatch(searchConnectors({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
-  }, []);
+    if (isDataSourceReady(dataSourceId)) {
+      dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
+      dispatch(searchConnectors({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
+    }
+  }, [dataSourceId, dataSourceEnabled]);
 
   // initial hook to populate all workflows
   // enrich them with dynamically-generated UI flows based on use case
