@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { useFormikContext, getIn } from 'formik';
+import React, { useEffect, useState } from 'react';
+import { useFormikContext, getIn, Formik } from 'formik';
+import * as yup from 'yup';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -23,8 +24,10 @@ import {
   EuiCopy,
   EuiButtonIcon,
   EuiContextMenu,
+  EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import {
+  IConfigField,
   IMAGE_FIELD_PATTERN,
   IProcessorConfig,
   LABEL_FIELD_PATTERN,
@@ -35,6 +38,7 @@ import {
   QUERY_PRESETS,
   QUERY_TEXT_PATTERN,
   QueryPreset,
+  RequestFormValues,
   TEXT_FIELD_PATTERN,
   VECTOR_FIELD_PATTERN,
   VECTOR_PATTERN,
@@ -42,6 +46,7 @@ import {
 } from '../../../../../../../common';
 import { parseModelOutputs } from '../../../../../../utils/utils';
 import { JsonField } from '../../../input_fields';
+import { getFieldSchema, getInitialValue } from '../../../../../../utils';
 
 interface OverrideQueryModalProps {
   config: IProcessorConfig;
@@ -58,6 +63,19 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
+
+  // sub-form values/schema
+  const requestFormValues = {
+    request: getInitialValue('json'),
+  } as RequestFormValues;
+  const requestFormSchema = yup.object({
+    request: getFieldSchema({
+      type: 'json',
+    } as IConfigField),
+  }) as yup.Schema;
+
+  // persist standalone values. update / initialize when it is first opened
+  const [tempRequest, setTempRequest] = useState<string>('{}');
 
   // get some current form values
   const modelOutputs = parseModelOutputs(props.modelInterface);
@@ -82,145 +100,199 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
   const [presetsPopoverOpen, setPresetsPopoverOpen] = useState<boolean>(false);
 
   return (
-    <EuiModal
-      maxWidth={false}
-      onClose={props.onClose}
-      style={{ width: '70vw' }}
+    <Formik
+      enableReinitialize={false}
+      initialValues={requestFormValues}
+      validationSchema={requestFormSchema}
+      onSubmit={(values) => {}}
+      validate={(values) => {}}
     >
-      <EuiModalHeader>
-        <EuiModalHeaderTitle>
-          <p>{`Override query`}</p>
-        </EuiModalHeaderTitle>
-      </EuiModalHeader>
-      <EuiModalBody style={{ height: '40vh' }}>
-        <EuiText color="subdued">
-          Configure a custom query template to override the existing one.
-          Optionally inject dynamic model outputs into the new query.
-        </EuiText>
-        <EuiFlexGroup direction="column">
-          <EuiFlexItem>
-            <>
-              <EuiSpacer size="s" />
-              <EuiPopover
-                button={
-                  <EuiSmallButton
-                    onClick={() => setPresetsPopoverOpen(!presetsPopoverOpen)}
-                    iconSide="right"
-                    iconType="arrowDown"
-                  >
-                    Choose from a preset
-                  </EuiSmallButton>
-                }
-                isOpen={presetsPopoverOpen}
-                closePopover={() => setPresetsPopoverOpen(false)}
-                anchorPosition="downLeft"
-              >
-                <EuiContextMenu
-                  size="s"
-                  initialPanelId={0}
-                  panels={[
-                    {
-                      id: 0,
-                      items: QUERY_PRESETS.map((preset: QueryPreset) => ({
-                        name: preset.name,
-                        onClick: () => {
-                          setFieldValue(
-                            queryFieldPath,
-                            preset.query
-                              // sanitize the query preset string into valid template placeholder format, for
-                              // any placeholder values in the query.
-                              // for example, replacing `"{{vector}}"` with `${vector}`
-                              .replace(
-                                new RegExp(`"${VECTOR_FIELD_PATTERN}"`, 'g'),
-                                `\$\{vector_field\}`
-                              )
-                              .replace(
-                                new RegExp(`"${VECTOR_PATTERN}"`, 'g'),
-                                `\$\{vector\}`
-                              )
-                              .replace(
-                                new RegExp(`"${TEXT_FIELD_PATTERN}"`, 'g'),
-                                `\$\{text_field\}`
-                              )
-                              .replace(
-                                new RegExp(`"${IMAGE_FIELD_PATTERN}"`, 'g'),
-                                `\$\{image_field\}`
-                              )
-                              .replace(
-                                new RegExp(`"${LABEL_FIELD_PATTERN}"`, 'g'),
-                                `\$\{label_field\}`
-                              )
-                              .replace(
-                                new RegExp(`"${QUERY_TEXT_PATTERN}"`, 'g'),
-                                `\$\{query_text\}`
-                              )
-                              .replace(
-                                new RegExp(`"${QUERY_IMAGE_PATTERN}"`, 'g'),
-                                `\$\{query_image\}`
-                              )
-                              .replace(
-                                new RegExp(`"${MODEL_ID_PATTERN}"`, 'g'),
-                                `\$\{model_id\}`
-                              )
-                          );
-                          setFieldTouched(queryFieldPath, true);
-                          setPresetsPopoverOpen(false);
-                        },
-                      })),
-                    },
-                  ]}
-                />
-              </EuiPopover>
-              <EuiSpacer size="m" />
-              <JsonField
-                validate={false}
-                label={'Query template'}
-                fieldPath={queryFieldPath}
-              />
-              {finalModelOutputs.length > 0 && (
-                <>
-                  <EuiSpacer size="m" />
-                  <EuiAccordion
-                    id={`modelOutputsAccordion`}
-                    buttonContent="Model outputs"
-                    style={{ marginLeft: '-8px' }}
-                  >
-                    <>
-                      <EuiSpacer size="s" />
-                      <EuiText
-                        style={{ paddingLeft: '8px' }}
+      {(formikProps) => {
+        // override to parent form value when changes detected
+        useEffect(() => {
+          formikProps.setFieldValue('request', getIn(values, queryFieldPath));
+        }, [getIn(values, queryFieldPath)]);
+
+        // update tempRequest when form changes are detected
+        useEffect(() => {
+          setTempRequest(getIn(formikProps.values, 'request'));
+        }, [getIn(formikProps.values, 'request')]);
+
+        return (
+          <EuiModal
+            maxWidth={false}
+            onClose={props.onClose}
+            style={{ width: '70vw' }}
+          >
+            <EuiModalHeader>
+              <EuiModalHeaderTitle>
+                <p>{`Override query`}</p>
+              </EuiModalHeaderTitle>
+            </EuiModalHeader>
+            <EuiModalBody style={{ height: '40vh' }}>
+              <EuiText color="subdued">
+                Configure a custom query template to override the existing one.
+                Optionally inject dynamic model outputs into the new query.
+              </EuiText>
+              <EuiFlexGroup direction="column">
+                <EuiFlexItem>
+                  <>
+                    <EuiSpacer size="s" />
+                    <EuiPopover
+                      button={
+                        <EuiSmallButton
+                          onClick={() =>
+                            setPresetsPopoverOpen(!presetsPopoverOpen)
+                          }
+                          iconSide="right"
+                          iconType="arrowDown"
+                        >
+                          Choose from a preset
+                        </EuiSmallButton>
+                      }
+                      isOpen={presetsPopoverOpen}
+                      closePopover={() => setPresetsPopoverOpen(false)}
+                      anchorPosition="downLeft"
+                    >
+                      <EuiContextMenu
                         size="s"
-                        color="subdued"
-                      >
-                        To use any model outputs in the query template, copy the
-                        placeholder string directly.
-                      </EuiText>
-                      <EuiSpacer size="s" />
-                      <EuiBasicTable
-                        // @ts-ignore
-                        items={finalModelOutputs}
-                        columns={columns}
+                        initialPanelId={0}
+                        panels={[
+                          {
+                            id: 0,
+                            items: QUERY_PRESETS.map((preset: QueryPreset) => ({
+                              name: preset.name,
+                              onClick: () => {
+                                formikProps.setFieldValue(
+                                  'request',
+                                  preset.query
+                                    // sanitize the query preset string into valid template placeholder format, for
+                                    // any placeholder values in the query.
+                                    // for example, replacing `"{{vector}}"` with `${vector}`
+                                    .replace(
+                                      new RegExp(
+                                        `"${VECTOR_FIELD_PATTERN}"`,
+                                        'g'
+                                      ),
+                                      `\$\{vector_field\}`
+                                    )
+                                    .replace(
+                                      new RegExp(`"${VECTOR_PATTERN}"`, 'g'),
+                                      `\$\{vector\}`
+                                    )
+                                    .replace(
+                                      new RegExp(
+                                        `"${TEXT_FIELD_PATTERN}"`,
+                                        'g'
+                                      ),
+                                      `\$\{text_field\}`
+                                    )
+                                    .replace(
+                                      new RegExp(
+                                        `"${IMAGE_FIELD_PATTERN}"`,
+                                        'g'
+                                      ),
+                                      `\$\{image_field\}`
+                                    )
+                                    .replace(
+                                      new RegExp(
+                                        `"${LABEL_FIELD_PATTERN}"`,
+                                        'g'
+                                      ),
+                                      `\$\{label_field\}`
+                                    )
+                                    .replace(
+                                      new RegExp(
+                                        `"${QUERY_TEXT_PATTERN}"`,
+                                        'g'
+                                      ),
+                                      `\$\{query_text\}`
+                                    )
+                                    .replace(
+                                      new RegExp(
+                                        `"${QUERY_IMAGE_PATTERN}"`,
+                                        'g'
+                                      ),
+                                      `\$\{query_image\}`
+                                    )
+                                    .replace(
+                                      new RegExp(`"${MODEL_ID_PATTERN}"`, 'g'),
+                                      `\$\{model_id\}`
+                                    )
+                                );
+                                formikProps.setFieldTouched('request', true);
+                                setPresetsPopoverOpen(false);
+                              },
+                            })),
+                          },
+                        ]}
                       />
-                    </>
-                  </EuiAccordion>
-                  <EuiSpacer size="m" />
-                </>
-              )}
-            </>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-      </EuiModalBody>
-      <EuiModalFooter>
-        <EuiSmallButton
-          onClick={props.onClose}
-          fill={false}
-          color="primary"
-          data-testid="closeModalButton"
-        >
-          Close
-        </EuiSmallButton>
-      </EuiModalFooter>
-    </EuiModal>
+                    </EuiPopover>
+                    <EuiSpacer size="m" />
+                    <JsonField
+                      validate={false}
+                      label={'Query template'}
+                      fieldPath={'request'}
+                    />
+                    {finalModelOutputs.length > 0 && (
+                      <>
+                        <EuiSpacer size="m" />
+                        <EuiAccordion
+                          id={`modelOutputsAccordion`}
+                          buttonContent="Model outputs"
+                          style={{ marginLeft: '-8px' }}
+                        >
+                          <>
+                            <EuiSpacer size="s" />
+                            <EuiText
+                              style={{ paddingLeft: '8px' }}
+                              size="s"
+                              color="subdued"
+                            >
+                              To use any model outputs in the query template,
+                              copy the placeholder string directly.
+                            </EuiText>
+                            <EuiSpacer size="s" />
+                            <EuiBasicTable
+                              // @ts-ignore
+                              items={finalModelOutputs}
+                              columns={columns}
+                            />
+                          </>
+                        </EuiAccordion>
+                        <EuiSpacer size="m" />
+                      </>
+                    )}
+                  </>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiModalBody>
+            <EuiModalFooter>
+              <EuiSmallButtonEmpty
+                onClick={props.onClose}
+                color="primary"
+                data-testid="cancelOverrideQueryButton"
+              >
+                Cancel
+              </EuiSmallButtonEmpty>
+              <EuiSmallButton
+                onClick={() => {
+                  setFieldValue(queryFieldPath, tempRequest);
+                  setFieldTouched(queryFieldPath, true);
+                  props.onClose();
+                }}
+                isDisabled={false} // users can always save. we can't easily validate the JSON, as it can contain placeholders that isn't valid JSON.
+                fill={true}
+                color="primary"
+                data-testid="updateOverrideQueryButton"
+              >
+                Save
+              </EuiSmallButton>
+            </EuiModalFooter>
+          </EuiModal>
+        );
+      }}
+    </Formik>
   );
 }
 
