@@ -447,6 +447,11 @@ export const getDataSourceId = () => {
   return mdsQueryParams.dataSourceId;
 };
 
+export const isDataSourceReady = (dataSourceId?: string) => {
+  const dataSourceEnabled = getDataSourceEnabled().enabled;
+  return !dataSourceEnabled || (dataSourceId && dataSourceId !== '');
+};
+
 // converts camelCase to a space-delimited string with the first word capitalized.
 // useful for converting config IDs (in snake_case) to a formatted form title
 export function camelCaseToTitleString(snakeCaseString: string): string {
