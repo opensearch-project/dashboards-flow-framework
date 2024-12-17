@@ -21,6 +21,7 @@ import {
   MAX_JSON_STRING_LENGTH,
   MAX_TEMPLATE_STRING_LENGTH,
   TRANSFORM_TYPE,
+  MAX_BYTES,
 } from '../../common';
 
 /*
@@ -173,7 +174,15 @@ export function getFieldSchema(
               return false;
             }
           }
-        );
+        )
+        .test('jsonArray', `Too large`, (value) => {
+          try {
+            // @ts-ignore
+            return new TextEncoder().encode(value)?.length < MAX_BYTES;
+          } catch (error) {
+            return false;
+          }
+        });
       break;
     }
     case 'jsonString': {
