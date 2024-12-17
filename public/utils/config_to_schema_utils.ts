@@ -175,14 +175,18 @@ export function getFieldSchema(
             }
           }
         )
-        .test('jsonArray', `Too large`, (value) => {
-          try {
-            // @ts-ignore
-            return new TextEncoder().encode(value)?.length < MAX_BYTES;
-          } catch (error) {
-            return false;
+        .test(
+          'jsonArray',
+          `Too large. Exceeds OpenSearch Dashboards limit of ${MAX_BYTES} bytes.`,
+          (value) => {
+            try {
+              // @ts-ignore
+              return new TextEncoder().encode(value)?.length < MAX_BYTES;
+            } catch (error) {
+              return false;
+            }
           }
-        });
+        );
       break;
     }
     case 'jsonString': {
