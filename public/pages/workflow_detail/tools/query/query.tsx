@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { isEmpty } from 'lodash';
 import { useFormikContext } from 'formik';
 import {
@@ -13,7 +14,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiSmallButton,
-  EuiSwitch,
+  EuiSmallButtonEmpty,
   EuiText,
 } from '@elastic/eui';
 import {
@@ -24,7 +25,7 @@ import {
   SearchResponse,
   WorkflowFormValues,
 } from '../../../../../common';
-import { searchIndex, useAppDispatch } from '../../../../store';
+import { AppState, searchIndex, useAppDispatch } from '../../../../store';
 import {
   containsEmptyValues,
   containsSameValues,
@@ -57,11 +58,10 @@ export function Query(props: QueryProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
 
+  const { loading } = useSelector((state: AppState) => state.opensearch);
+
   // Form state
   const { values } = useFormikContext<WorkflowFormValues>();
-
-  // use custom query state
-  const [useCustomQuery, setUseCustomQuery] = useState<boolean>(false);
 
   // query response state
   const [queryResponse, setQueryResponse] = useState<
@@ -158,11 +158,41 @@ export function Query(props: QueryProps) {
               <EuiFlexItem grow={false}>
                 <EuiFlexGroup direction="row" justifyContent="spaceBetween">
                   <EuiFlexItem grow={false}>
-                    <EuiText size="m">Search</EuiText>
+                    <EuiFlexGroup direction="row" justifyContent="flexStart">
+                      <EuiFlexItem grow={false}>
+                        <EuiText size="m">Search</EuiText>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiComboBox
+                          fullWidth={false}
+                          style={{ width: '250px' }}
+                          compressed={true}
+                          singleSelection={{ asPlainText: true }}
+                          isClearable={false}
+                          options={
+                            props.hasSearchPipeline &&
+                            props.selectedStep === CONFIG_STEP.SEARCH
+                              ? SEARCH_OPTIONS
+                              : [SEARCH_OPTIONS[1]]
+                          }
+                          selectedOptions={
+                            props.hasSearchPipeline &&
+                            includePipeline &&
+                            props.selectedStep === CONFIG_STEP.SEARCH
+                              ? [SEARCH_OPTIONS[0]]
+                              : [SEARCH_OPTIONS[1]]
+                          }
+                          onChange={(options) => {
+                            setIncludePipeline(!includePipeline);
+                          }}
+                        />
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiSmallButton
                       fill={true}
+                      isLoading={loading}
                       disabled={
                         containsEmptyValues(queryParams) ||
                         isEmpty(indexToSearch)
@@ -200,69 +230,54 @@ export function Query(props: QueryProps) {
                 </EuiFlexGroup>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
-                <EuiComboBox
-                  fullWidth={false}
-                  style={{ width: '250px' }}
-                  compressed={true}
-                  singleSelection={{ asPlainText: true }}
-                  isClearable={false}
-                  options={
-                    props.hasSearchPipeline &&
-                    props.selectedStep === CONFIG_STEP.SEARCH
-                      ? SEARCH_OPTIONS
-                      : [SEARCH_OPTIONS[1]]
-                  }
-                  selectedOptions={
-                    props.hasSearchPipeline &&
-                    includePipeline &&
-                    props.selectedStep === CONFIG_STEP.SEARCH
-                      ? [SEARCH_OPTIONS[0]]
-                      : [SEARCH_OPTIONS[1]]
-                  }
-                  onChange={(options) => {
-                    setIncludePipeline(!includePipeline);
+                <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                  <EuiFlexItem grow={false}>
+                    <EuiText size="s">Query</EuiText>
+                  </EuiFlexItem>
+                  {props.selectedStep === CONFIG_STEP.SEARCH &&
+                    !isEmpty(values?.search?.request) &&
+                    values?.search?.request !== tempRequest && (
+                      <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
+                        <EuiSmallButtonEmpty
+                          disabled={false}
+                          onClick={() => {
+                            setTempRequest(values?.search?.request);
+                          }}
+                        >
+                          Revert to query definition
+                        </EuiSmallButtonEmpty>
+                      </EuiFlexItem>
+                    )}
+                </EuiFlexGroup>
+              </EuiFlexItem>
+              <EuiFlexItem grow={true}>
+                <EuiCodeEditor
+                  mode="json"
+                  theme="textmate"
+                  width="100%"
+                  height={'100%'}
+                  value={tempRequest}
+                  onChange={(input) => {
+                    setTempRequest(input);
                   }}
+                  onBlur={() => {
+                    try {
+                      setTempRequest(customStringify(JSON.parse(tempRequest)));
+                    } catch (error) {}
+                  }}
+                  readOnly={false}
+                  setOptions={{
+                    fontSize: '14px',
+                    useWorker: true,
+                    highlightActiveLine: true,
+                    highlightSelectedWord: true,
+                    highlightGutterLine: true,
+                    wrap: true,
+                  }}
+                  aria-label="Code Editor"
+                  tabSize={2}
                 />
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiSwitch
-                  label={`Use custom query`}
-                  checked={useCustomQuery}
-                  onChange={(e) => setUseCustomQuery(!useCustomQuery)}
-                />
-              </EuiFlexItem>
-              {useCustomQuery && (
-                <EuiFlexItem grow={true}>
-                  <EuiCodeEditor
-                    mode="json"
-                    theme="textmate"
-                    width="100%"
-                    height={'100%'}
-                    value={tempRequest}
-                    onChange={(input) => {
-                      setTempRequest(input);
-                    }}
-                    onBlur={() => {
-                      try {
-                        setTempRequest(
-                          customStringify(JSON.parse(tempRequest))
-                        );
-                      } catch (error) {}
-                    }}
-                    readOnly={false}
-                    setOptions={{
-                      fontSize: '14px',
-                      useWorker: true,
-                      highlightActiveLine: true,
-                      highlightSelectedWord: true,
-                      highlightGutterLine: true,
-                      wrap: true,
-                    }}
-                    aria-label="Code Editor"
-                    tabSize={2}
-                  />
-                </EuiFlexItem>
-              )}
               <EuiFlexItem grow={false}>
                 {/**
                  * This may return nothing if the list of params are empty
