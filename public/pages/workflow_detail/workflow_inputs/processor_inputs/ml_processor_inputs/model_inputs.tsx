@@ -190,16 +190,7 @@ export function ModelInputs(props: ModelInputsProps) {
 
   // Adding a map entry to the end of the existing arr
   function addMapEntry(curEntries: InputMapFormValue): void {
-    const updatedEntries = [
-      ...curEntries,
-      {
-        key: '',
-        value: {
-          transformType: '' as TRANSFORM_TYPE,
-          value: '',
-        },
-      } as InputMapEntry,
-    ];
+    const updatedEntries = [...curEntries, EMPTY_INPUT_MAP_ENTRY];
     setFieldValue(inputMapFieldPath, updatedEntries);
     setFieldTouched(inputMapFieldPath, true);
   }

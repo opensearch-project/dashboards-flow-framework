@@ -546,6 +546,7 @@ export const MAX_DOCS = 1000;
 export const MAX_STRING_LENGTH = 100;
 export const MAX_JSON_STRING_LENGTH = 10000;
 export const MAX_TEMPLATE_STRING_LENGTH = 10000;
+export const MAX_BYTES = 1048576; // OSD REST request payload size limit
 export const MAX_WORKFLOW_NAME_TO_DISPLAY = 40;
 export const WORKFLOW_NAME_REGEXP = RegExp('^[a-zA-Z0-9_-]*$');
 export const EMPTY_MAP_ENTRY = { key: '', value: '' } as MapEntry;

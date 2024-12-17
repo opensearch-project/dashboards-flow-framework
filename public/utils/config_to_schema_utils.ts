@@ -21,6 +21,7 @@ import {
   MAX_JSON_STRING_LENGTH,
   MAX_TEMPLATE_STRING_LENGTH,
   TRANSFORM_TYPE,
+  MAX_BYTES,
 } from '../../common';
 
 /*
@@ -169,6 +170,18 @@ export function getFieldSchema(
             try {
               // @ts-ignore
               return JSON.parse(value).length <= MAX_DOCS;
+            } catch (error) {
+              return false;
+            }
+          }
+        )
+        .test(
+          'jsonArray',
+          `Too large. Exceeds OpenSearch Dashboards limit of ${MAX_BYTES} bytes.`,
+          (value) => {
+            try {
+              // @ts-ignore
+              return new TextEncoder().encode(value)?.length < MAX_BYTES;
             } catch (error) {
               return false;
             }
