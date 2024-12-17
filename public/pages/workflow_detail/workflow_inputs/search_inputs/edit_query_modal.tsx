@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Formik, getIn, useFormikContext } from 'formik';
 import * as yup from 'yup';
 import { isEmpty } from 'lodash';
@@ -42,7 +43,7 @@ import {
   getPlaceholdersFromQuery,
   injectParameters,
 } from '../../../../utils';
-import { searchIndex, useAppDispatch } from '../../../../store';
+import { AppState, searchIndex, useAppDispatch } from '../../../../store';
 import { QueryParamsList, Results } from '../../../../general_components';
 
 interface EditQueryModalProps {
@@ -57,6 +58,7 @@ interface EditQueryModalProps {
 export function EditQueryModal(props: EditQueryModalProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+  const { loading } = useSelector((state: AppState) => state.opensearch);
 
   // sub-form values/schema
   const requestFormValues = {
@@ -257,6 +259,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
                           <EuiFlexItem grow={false}>
                             <EuiSmallButton
                               fill={false}
+                              isLoading={loading}
                               disabled={containsEmptyValues(queryParams)}
                               onClick={() => {
                                 dispatch(

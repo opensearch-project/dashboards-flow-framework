@@ -112,16 +112,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
 
   // Adding a map entry to the end of the existing arr
   function addMapEntry(curEntries: OutputMapFormValue): void {
-    const updatedEntries = [
-      ...curEntries,
-      {
-        key: '',
-        value: {
-          transformType: '' as TRANSFORM_TYPE,
-          value: '',
-        },
-      } as OutputMapEntry,
-    ];
+    const updatedEntries = [...curEntries, EMPTY_OUTPUT_MAP_ENTRY];
     setFieldValue(outputMapFieldPath, updatedEntries);
     setFieldTouched(outputMapFieldPath, true);
   }
@@ -427,6 +418,9 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                             }
                                             showError={false}
                                           />
+                                        ) : transformType ===
+                                          NO_TRANSFORMATION ? (
+                                          <EuiText>-</EuiText>
                                         ) : undefined}
                                       </>
                                     </EuiFlexItem>
