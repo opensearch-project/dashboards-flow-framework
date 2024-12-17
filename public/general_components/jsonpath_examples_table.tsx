@@ -4,9 +4,18 @@
  */
 
 import React from 'react';
-import { EuiInMemoryTable, EuiCode, EuiText } from '@elastic/eui';
+import { isEmpty } from 'lodash';
+import {
+  EuiInMemoryTable,
+  EuiCode,
+  EuiText,
+  EuiFlexGroup,
+  EuiFlexItem,
+} from '@elastic/eui';
 
-interface JsonPathExamplesTableProps {}
+interface JsonPathExamplesTableProps {
+  headerText?: string;
+}
 
 type JSONPathExample = {
   expression: string;
@@ -47,16 +56,28 @@ const columns = [
 ];
 
 /**
- * A stateless component containing JSONPath examples in a table.
+ * A stateless component containing JSONPath examples in a table. Optionally takes in
+ * a header text for some more contextual information.
  */
 export function JsonPathExamplesTable(props: JsonPathExamplesTableProps) {
   return (
-    <EuiInMemoryTable<JSONPathExample>
-      items={examples}
-      columns={columns}
-      pagination={false}
-      sorting={false}
-      hasActions={false}
-    />
+    <EuiFlexItem style={{ width: '20vw' }}>
+      <EuiFlexGroup direction="column" gutterSize="xs">
+        {!isEmpty(props.headerText) && (
+          <EuiFlexItem grow={false}>
+            <EuiText size="s">{props.headerText}</EuiText>
+          </EuiFlexItem>
+        )}
+        <EuiFlexItem>
+          <EuiInMemoryTable<JSONPathExample>
+            items={examples}
+            columns={columns}
+            pagination={false}
+            sorting={false}
+            hasActions={false}
+          />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiFlexItem>
   );
 }
