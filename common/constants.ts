@@ -185,6 +185,7 @@ export const NORMALIZATION_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/normalization-processor/';
 export const GITHUB_FEEDBACK_LINK =
   'https://github.com/opensearch-project/dashboards-flow-framework/issues/new/choose';
+export const JSONPATH_DOCS_LINK = 'https://www.npmjs.com/package/jsonpath';
 
 /**
  * Text chunking algorithm constants
