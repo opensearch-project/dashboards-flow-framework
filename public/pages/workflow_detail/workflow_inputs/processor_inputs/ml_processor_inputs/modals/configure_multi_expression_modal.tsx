@@ -21,7 +21,7 @@ import {
   EuiSmallButtonEmpty,
   EuiSpacer,
   EuiSmallButtonIcon,
-  EuiIconTip,
+  EuiPopover,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -59,7 +59,10 @@ import {
   useAppDispatch,
 } from '../../../../../../store';
 import { getCore } from '../../../../../../services';
-import { QueryParamsList } from '../../../../../../general_components';
+import {
+  JsonPathExamplesTable,
+  QueryParamsList,
+} from '../../../../../../general_components';
 
 interface ConfigureMultiExpressionModalProps {
   uiConfig: WorkflowConfig;
@@ -142,6 +145,9 @@ export function ConfigureMultiExpressionModal(
 
   // button updating state
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
+
+  // JSONPath details popover state
+  const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
   // source input / transformed input state
   const [sourceInput, setSourceInput] = useState<string>('{}');
@@ -278,18 +284,39 @@ export function ConfigureMultiExpressionModal(
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup direction="row" gutterSize="s">
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
-                          <EuiFlexGroup direction="row" gutterSize="xs">
+                          <EuiFlexGroup
+                            direction="row"
+                            justifyContent="spaceBetween"
+                          >
                             <EuiFlexItem grow={false}>
                               <EuiText size="s" color="subdued">
                                 {`Expression`}
                               </EuiText>
                             </EuiFlexItem>
                             <EuiFlexItem grow={false}>
-                              <EuiIconTip
-                                content={`Define any number of JSONPath transforms to extract out parts of the model output's source data and 
-                              store in new document fields.`}
-                                position="right"
-                              />
+                              <EuiPopover
+                                isOpen={popoverOpen}
+                                initialFocus={false}
+                                anchorPosition="downCenter"
+                                closePopover={() => setPopoverOpen(false)}
+                                button={
+                                  <EuiSmallButtonEmpty
+                                    style={{ marginTop: '-4px' }}
+                                    onClick={() => setPopoverOpen(!popoverOpen)}
+                                  >
+                                    Learn more
+                                  </EuiSmallButtonEmpty>
+                                }
+                              >
+                                <JsonPathExamplesTable
+                                  headerText={`Define JSONPath to transform your model outputs to new ${
+                                    props.context ===
+                                    PROCESSOR_CONTEXT.SEARCH_REQUEST
+                                      ? 'query'
+                                      : 'document'
+                                  } fields.`}
+                                />
+                              </EuiPopover>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>

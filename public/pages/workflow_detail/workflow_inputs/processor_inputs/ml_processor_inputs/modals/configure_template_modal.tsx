@@ -65,7 +65,10 @@ import {
   useAppDispatch,
 } from '../../../../../../store';
 import { getCore } from '../../../../../../services';
-import { QueryParamsList } from '../../../../../../general_components';
+import {
+  JsonPathExamplesTable,
+  QueryParamsList,
+} from '../../../../../../general_components';
 
 interface ConfigureTemplateModalProps {
   uiConfig: WorkflowConfig;
@@ -166,6 +169,9 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
   // popover states
   const [presetsPopoverOpen, setPresetsPopoverOpen] = useState<boolean>(false);
+  const [jsonPathPopoverOpen, setJsonPathPopoverOpen] = useState<boolean>(
+    false
+  );
 
   // source input / transformed input state
   const [sourceInput, setSourceInput] = useState<string>('{}');
@@ -448,9 +454,47 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                           </EuiText>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                          <EuiText size="s" color="subdued">
-                            {`Expression`}
-                          </EuiText>
+                          <EuiFlexGroup
+                            direction="row"
+                            justifyContent="spaceBetween"
+                          >
+                            <EuiFlexItem grow={false}>
+                              <EuiText size="s" color="subdued">
+                                {`Expression`}
+                              </EuiText>
+                            </EuiFlexItem>
+                            <EuiFlexItem grow={false}>
+                              <EuiPopover
+                                isOpen={jsonPathPopoverOpen}
+                                initialFocus={false}
+                                anchorPosition="downCenter"
+                                closePopover={() =>
+                                  setJsonPathPopoverOpen(false)
+                                }
+                                button={
+                                  <EuiSmallButtonEmpty
+                                    style={{ marginTop: '-4px' }}
+                                    onClick={() =>
+                                      setJsonPathPopoverOpen(
+                                        !jsonPathPopoverOpen
+                                      )
+                                    }
+                                  >
+                                    Learn more
+                                  </EuiSmallButtonEmpty>
+                                }
+                              >
+                                <JsonPathExamplesTable
+                                  headerText={`Define JSONPath to transform your input ${
+                                    props.context ===
+                                    PROCESSOR_CONTEXT.SEARCH_REQUEST
+                                      ? 'query'
+                                      : 'documents'
+                                  } to map to input variables that can be dynamically injected in your template.`}
+                                />
+                              </EuiPopover>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
                         </EuiFlexItem>
                       </EuiFlexGroup>
                       <EuiSpacer size="s" />

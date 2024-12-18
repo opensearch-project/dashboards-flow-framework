@@ -11,7 +11,10 @@ import {
   EuiText,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiLink,
+  EuiSpacer,
 } from '@elastic/eui';
+import { JSONPATH_DOCS_LINK } from '../../common';
 
 interface JsonPathExamplesTableProps {
   headerText?: string;
@@ -25,9 +28,55 @@ type JSONPathExample = {
 
 const examples = [
   {
-    expression: '$.data',
-    meaning: 'The entire input',
-    example: '$.data',
+    expression: '$',
+    meaning: 'The root object / element',
+    example: '$.my_field',
+  },
+  {
+    expression: '.',
+    meaning: 'Child member operator',
+    example: 'my_field.my_sub_field',
+  },
+  {
+    expression: '..',
+    meaning:
+      'Recursive descendant operator, to specify an object field in an array of objects',
+    example: '$..my_field',
+  },
+  {
+    expression: '*',
+    meaning: 'Wildcard matching all objects',
+    example: 'my_array.*',
+  },
+  {
+    expression: '[]',
+    meaning: 'Subscript operator',
+    example: 'my_array[0]',
+  },
+  {
+    expression: '[,]',
+    meaning: 'Union operator for alternate names or array indices as a set',
+    example: 'my_array[0,1]',
+  },
+  {
+    expression: '[start:end:step]',
+    meaning: 'Array slice operator borrowed from ES4 / Python',
+    example: 'my_array[0:5]',
+  },
+  {
+    expression: '@',
+    meaning: 'The current object / element in an array',
+    example: 'my_array[?(@.price<10)]',
+  },
+  {
+    expression: '()',
+    meaning: 'Script expression via static evaluation',
+    example: 'my_array[?(@.price<10)]',
+  },
+  {
+    expression: '?()',
+    meaning: 'Applies a filter (script) expression via static evaluation',
+    example: 'my_array[?(@.price<10)]',
   },
 ] as JSONPathExample[];
 
@@ -61,7 +110,7 @@ const columns = [
  */
 export function JsonPathExamplesTable(props: JsonPathExamplesTableProps) {
   return (
-    <EuiFlexItem style={{ width: '20vw' }}>
+    <EuiFlexItem style={{ width: '40vw' }}>
       <EuiFlexGroup direction="column" gutterSize="xs">
         {!isEmpty(props.headerText) && (
           <EuiFlexItem grow={false}>
@@ -76,6 +125,12 @@ export function JsonPathExamplesTable(props: JsonPathExamplesTableProps) {
             sorting={false}
             hasActions={false}
           />
+        </EuiFlexItem>
+        <EuiSpacer size="s" />
+        <EuiFlexItem grow={false}>
+          <EuiLink href={JSONPATH_DOCS_LINK} target="_blank">
+            More examples & documentation
+          </EuiLink>
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiFlexItem>

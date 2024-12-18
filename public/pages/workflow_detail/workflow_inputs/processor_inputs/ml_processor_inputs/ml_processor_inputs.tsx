@@ -194,19 +194,11 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 </EuiFlexItem>
                 <EuiFlexItem grow={false}>
                   <EuiIconTip
-                    content={`Specify a ${
+                    content={`Specify how to transform your input ${
                       props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                         ? 'query'
-                        : 'document'
-                    } field or define JSONPath to transform the ${
-                      props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                        ? 'query'
-                        : 'document'
-                    } to map to a model input field.${
-                      props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                        ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR}" - for example, "_request.query.match.my_field"`
-                        : ''
-                    }`}
+                        : 'documents'
+                    } and map to your model input fields`}
                     position="right"
                   />
                 </EuiFlexItem>
@@ -222,12 +214,22 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             isDataFetchingAvailable={isInputPreviewAvailable}
           />
           <EuiSpacer size="l" />
-          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+          <EuiFlexGroup direction="row" gutterSize="xs">
             <EuiFlexItem grow={false}>
               <EuiText
                 size="m"
                 style={{ marginTop: '4px' }}
               >{`Outputs`}</EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiIconTip
+                content={`Specify how to transform your model outputs to new ${
+                  props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                    ? 'query'
+                    : 'document'
+                } fields`}
+                position="right"
+              />
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />

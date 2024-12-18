@@ -177,7 +177,7 @@ export function getFieldSchema(
         )
         .test(
           'jsonArray',
-          `Too large. Exceeds OpenSearch Dashboards limit of ${MAX_BYTES} bytes.`,
+          `The data size exceeds the limit of ${MAX_BYTES} bytes`,
           (value) => {
             try {
               // @ts-ignore
