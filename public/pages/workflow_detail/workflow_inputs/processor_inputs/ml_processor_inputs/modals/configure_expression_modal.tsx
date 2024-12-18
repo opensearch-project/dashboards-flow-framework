@@ -22,6 +22,7 @@ import {
   EuiSmallButtonEmpty,
   EuiSpacer,
   EuiIconTip,
+  EuiPopover,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -38,7 +39,6 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
   REQUEST_PREFIX,
-  REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
   QueryParam,
 } from '../../../../../../../common';
 import {
@@ -61,7 +61,10 @@ import {
   useAppDispatch,
 } from '../../../../../../store';
 import { getCore } from '../../../../../../services';
-import { QueryParamsList } from '../../../../../../general_components';
+import {
+  JsonPathExamplesTable,
+  QueryParamsList,
+} from '../../../../../../general_components';
 
 interface ConfigureExpressionModalProps {
   uiConfig: WorkflowConfig;
@@ -134,6 +137,9 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
 
   // button updating state
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
+
+  // JSONPath details popover state
+  const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
   // validation state utilizing the model interface, if applicable. undefined if
   // there is no model interface and/or no source input
@@ -306,27 +312,39 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup direction="row" gutterSize="m">
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
-                          <EuiFlexGroup direction="row" gutterSize="none">
+                          <EuiFlexGroup
+                            direction="row"
+                            justifyContent="spaceBetween"
+                          >
                             <EuiFlexItem grow={false}>
-                              <EuiText size="xs" color="subdued">
+                              <EuiText size="s" color="subdued">
                                 {`Expression`}
                               </EuiText>
                             </EuiFlexItem>
                             <EuiFlexItem grow={false}>
-                              <EuiIconTip
-                                content={`Define JSONPath to transform the ${
-                                  props.context ===
-                                  PROCESSOR_CONTEXT.SEARCH_REQUEST
-                                    ? 'query'
-                                    : 'document'
-                                } to map to a model input field.${
-                                  props.context ===
-                                  PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                                    ? ` Or, if you'd like to include data from the the original query request, prefix your mapping with "${REQUEST_PREFIX}" or "${REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR}" - for example, "_request.query.match.my_field"`
-                                    : ''
-                                }`}
-                                position="right"
-                              />
+                              <EuiPopover
+                                isOpen={popoverOpen}
+                                initialFocus={false}
+                                anchorPosition="downCenter"
+                                closePopover={() => setPopoverOpen(false)}
+                                button={
+                                  <EuiSmallButtonEmpty
+                                    style={{ marginTop: '-4px' }}
+                                    onClick={() => setPopoverOpen(!popoverOpen)}
+                                  >
+                                    Learn more
+                                  </EuiSmallButtonEmpty>
+                                }
+                              >
+                                <JsonPathExamplesTable
+                                  headerText={`Define JSONPath to transform your input ${
+                                    props.context ===
+                                    PROCESSOR_CONTEXT.SEARCH_REQUEST
+                                      ? 'query'
+                                      : 'documents'
+                                  } to map to a model input field.`}
+                                />
+                              </EuiPopover>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
@@ -339,18 +357,29 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                       <EuiSpacer size="s" />
                       <EuiFlexGroup direction="row" gutterSize="m">
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
-                          <TextField
-                            fullWidth={true}
-                            fieldPath={`expression`}
-                            placeholder={`$.data`}
-                            showError={true}
-                          />
+                          <EuiFlexGroup direction="column" gutterSize="xs">
+                            <EuiFlexItem grow={false}>
+                              <TextField
+                                fullWidth={true}
+                                fieldPath={`expression`}
+                                placeholder={`$.data`}
+                                showError={true}
+                              />
+                            </EuiFlexItem>
+                            {props.context ===
+                              PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+                              <EuiFlexItem grow={false}>
+                                <EuiText size="xs" color="subdued">
+                                  {`Tip: to include data from the the original query request, prefix your expression with "${REQUEST_PREFIX}" - for example, "_request.query.match.my_field"`}
+                                </EuiText>
+                              </EuiFlexItem>
+                            )}
+                          </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiText>{props.modelInputFieldName}</EuiText>
                         </EuiFlexItem>
                       </EuiFlexGroup>
-                      <EuiSpacer size="s" />
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
