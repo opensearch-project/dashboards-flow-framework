@@ -119,6 +119,8 @@ export enum WORKFLOW_TYPE {
   CUSTOM = 'Custom',
   UNKNOWN = 'Unknown',
 }
+// If no datasource version is found, we default to 2.17.0
+export const MIN_SUPPORTED_VERSION = '2.17.0';
 
 // the names should be consistent with the underlying implementation. used when generating the
 // final ingest/search pipeline configurations.
@@ -292,6 +294,7 @@ export const MULTIMODAL_SEARCH_QUERY_BOOL = {
       [VECTOR_FIELD_PATTERN]: {
         query_text: QUERY_TEXT_PATTERN,
         query_image: QUERY_IMAGE_PATTERN,
+        model_id: MODEL_ID_PATTERN,
         k: DEFAULT_K,
       },
     },
@@ -341,6 +344,7 @@ export const HYBRID_SEARCH_QUERY_MATCH_NEURAL = {
           neural: {
             [VECTOR_FIELD_PATTERN]: {
               query_text: QUERY_TEXT_PATTERN,
+              model_id: MODEL_ID_PATTERN,
               k: DEFAULT_K,
             },
           },

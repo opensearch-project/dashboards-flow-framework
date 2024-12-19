@@ -33,7 +33,6 @@ export function EnrichData(props: EnrichDataProps) {
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
           context={PROCESSOR_CONTEXT.INGEST}
-          dataSource={props.dataSource}
         />
       </EuiFlexItem>
     </EuiFlexGroup>

@@ -115,7 +115,7 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
     await waitFor(() => {
       expect(getByText(`Export '${workflowName}'`)).toBeInTheDocument();
     });
-
+    // Close the export component
     userEvent.click(getByTestId('exportCloseButton'));
 
     getByTestId('visualJSONToggleButtonGroup');
