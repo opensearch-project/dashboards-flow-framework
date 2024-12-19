@@ -125,7 +125,6 @@ export function ConfigureMultiExpressionModal(
   const [tempErrors, setTempErrors] = useState<boolean>(false);
 
   // get some current form values
-  const fullResponsePathPath = `${props.baseConfigPath}.${props.config.id}.full_response_path`;
   const docs = getIn(values, 'ingest.docs');
   let docObjs = [] as {}[] | undefined;
   try {
@@ -445,14 +444,6 @@ export function ConfigureMultiExpressionModal(
                                     props.outputMapFieldPath,
                                     []
                                   );
-                                  set(
-                                    valuesWithoutOutputMapConfig,
-                                    fullResponsePathPath,
-                                    getIn(
-                                      formikProps.values,
-                                      'full_response_path'
-                                    )
-                                  );
                                   const curIngestPipeline = formikToPartialPipeline(
                                     valuesWithoutOutputMapConfig,
                                     props.uiConfig,
@@ -514,14 +505,6 @@ export function ConfigureMultiExpressionModal(
                                     valuesWithoutOutputMapConfig,
                                     props.outputMapFieldPath,
                                     []
-                                  );
-                                  set(
-                                    valuesWithoutOutputMapConfig,
-                                    fullResponsePathPath,
-                                    getIn(
-                                      formikProps.values,
-                                      'full_response_path'
-                                    )
                                   );
                                   const curSearchPipeline = formikToPartialPipeline(
                                     valuesWithoutOutputMapConfig,
