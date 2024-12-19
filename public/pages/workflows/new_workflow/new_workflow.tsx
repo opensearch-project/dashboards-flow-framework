@@ -32,6 +32,10 @@ import { getDataSourceEnabled } from '../../../services';
 import semver from 'semver';
 import { DataSourceAttributes } from '../../../../../../src/plugins/data_source/common/data_sources';
 import { getSavedObjectsClient } from '../../../../public/services';
+import {
+  WORKFLOW_TYPE,
+  MIN_SUPPORTED_VERSION,
+} from '../../../../common/constants';
 
 interface NewWorkflowProps {}
 
@@ -39,7 +43,6 @@ export const getEffectiveVersion = async (
   dataSourceId: string | undefined
 ): Promise<string> => {
   try {
-    // Don't make the API call if no dataSourceId
     if (dataSourceId === undefined) {
       console.log('cannot find data source');
       throw new Error('Data source is required');
@@ -49,22 +52,23 @@ export const getEffectiveVersion = async (
       'data-source',
       dataSourceId
     );
-    const version = dataSource?.attributes?.dataSourceVersion || '2.17.0';
+    const version =
+      dataSource?.attributes?.dataSourceVersion || MIN_SUPPORTED_VERSION;
     return version;
   } catch (error) {
     console.error('Error getting version:', error);
-    return '2.17.0';
+    return MIN_SUPPORTED_VERSION;
   }
 };
 
-const filterWorkflowsByVersion = async (
+const filterPresetsByVersion = async (
   workflows: WorkflowTemplate[],
   dataSourceId: string
 ): Promise<WorkflowTemplate[]> => {
   const allowedPresetsFor217 = [
-    'Semantic Search',
-    'Multimodal Search',
-    'Hybrid Search',
+    WORKFLOW_TYPE.SEMANTIC_SEARCH,
+    WORKFLOW_TYPE.MULTIMODAL_SEARCH,
+    WORKFLOW_TYPE.HYBRID_SEARCH,
   ];
 
   try {
@@ -78,16 +82,19 @@ const filterWorkflowsByVersion = async (
     }
 
     if (semver.gte(version, '2.17.0') && semver.lt(version, '2.19.0')) {
-      return workflows.filter((workflow) =>
-        allowedPresetsFor217.includes(workflow.name)
-      );
+      return workflows.filter((workflow) => {
+        const workflowType =
+          workflow.ui_metadata?.type ?? WORKFLOW_TYPE.UNKNOWN;
+        return allowedPresetsFor217.includes(workflowType as WORKFLOW_TYPE);
+      });
     }
 
     return workflows;
   } catch (error) {
-    return workflows.filter((workflow) =>
-      allowedPresetsFor217.includes(workflow.name)
-    );
+    return workflows.filter((workflow) => {
+      const workflowType = workflow.ui_metadata?.type ?? WORKFLOW_TYPE.UNKNOWN;
+      return allowedPresetsFor217.includes(workflowType as WORKFLOW_TYPE);
+    });
   }
 };
 
@@ -128,6 +135,8 @@ export function NewWorkflow(props: NewWorkflowProps) {
     }
   }, [dataSourceId, dataSourceEnabled]);
 
+  // initial hook to populate all workflows
+  // enrich them with dynamically-generated UI flows based on use case
   useEffect(() => {
     const loadWorkflows = async () => {
       if (!presetWorkflows) return;
@@ -138,7 +147,7 @@ export function NewWorkflow(props: NewWorkflowProps) {
         enrichPresetWorkflowWithUiMetadata(presetWorkflow, version)
       );
 
-      const versionFilteredWorkflows = await filterWorkflowsByVersion(
+      const versionFilteredWorkflows = await filterPresetsByVersion(
         enrichedWorkflows,
         dataSourceId
       );

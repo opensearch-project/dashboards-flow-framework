@@ -35,7 +35,6 @@ export function EnrichSearchResponse(props: EnrichSearchResponseProps) {
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
           context={PROCESSOR_CONTEXT.SEARCH_RESPONSE}
-          dataSource={props.dataSource}
         />
       </EuiFlexItem>
     </EuiFlexGroup>

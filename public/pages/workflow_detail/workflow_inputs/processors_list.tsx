@@ -43,15 +43,12 @@ import {
   TextImageEmbeddingIngestProcessor,
 } from '../../../configs';
 import { ProcessorInputs } from './processor_inputs';
-import { SavedObject } from '../../../../../../src/core/public';
-import { DataSourceAttributes } from '../../../../../../src/plugins/data_source/common/data_sources';
 import { useLocation } from 'react-router-dom';
 
 interface ProcessorsListProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   context: PROCESSOR_CONTEXT;
-  dataSource?: SavedObject<DataSourceAttributes>;
   onProcessorsChange?: (count: number) => void;
 }
 
@@ -97,24 +94,13 @@ export function ProcessorsList(props: ProcessorsListProps) {
             ? props.uiConfig.search.enrichRequest.processors
             : props.uiConfig.search.enrichResponse.processors;
 
-        // If version is 2.17 or 2.18, filter out ML processors
-        if (
-          version &&
-          semver.gte(version, '2.17.0') &&
-          semver.lt(version, '2.19.0')
-        ) {
-          currentProcessors =
-            currentProcessors?.filter(
-              (processor) => processor.type !== 'ml_inference'
-            ) || [];
-        }
         setProcessors(currentProcessors || []);
         props.onProcessorsChange?.(currentProcessors?.length || 0);
       }
     };
 
     loadProcessors();
-  }, [props.context, props.uiConfig, version]);
+  }, [props.context, props.uiConfig]);
 
   const getMenuItems = () => {
     const isPreV219 =
