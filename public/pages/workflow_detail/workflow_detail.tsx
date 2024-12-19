@@ -126,7 +126,9 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   }, [USE_NEW_HOME_PAGE, dataSourceEnabled, dataSourceId, workflowName]);
 
   // form state
-  const [formValues, setFormValues] = useState<WorkflowFormValues>({});
+  const [formValues, setFormValues] = useState<WorkflowFormValues>(
+    {} as WorkflowFormValues
+  );
   const [formSchema, setFormSchema] = useState<WorkflowSchema>(yup.object({}));
 
   // ingest docs state. we need to persist here to update the form values.

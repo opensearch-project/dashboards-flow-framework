@@ -28,12 +28,15 @@ import {
   HYBRID_SEARCH_QUERY_MATCH_KNN,
   WorkflowConfig,
   UI_METADATA_SCHEMA_VERSION,
+  PROCESSOR_TYPE,
 } from '../../../../common';
 import { generateId } from '../../../utils';
+import semver from 'semver';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
 export function enrichPresetWorkflowWithUiMetadata(
-  presetWorkflow: Partial<WorkflowTemplate>
+  presetWorkflow: Partial<WorkflowTemplate>,
+  version: string
 ): WorkflowTemplate {
   let uiMetadata = {} as UIState;
   switch (presetWorkflow.ui_metadata?.type || WORKFLOW_TYPE.CUSTOM) {
@@ -57,6 +60,39 @@ export function enrichPresetWorkflowWithUiMetadata(
       uiMetadata = fetchEmptyMetadata();
       break;
     }
+  }
+
+  if (semver.gte(version, '2.17.0') && semver.lt(version, '2.19.0')) {
+    uiMetadata.config.ingest.enrich.processors = uiMetadata.config.ingest.enrich.processors.filter(
+      (p) => p.type !== PROCESSOR_TYPE.ML
+    );
+    uiMetadata.config.search.enrichRequest.processors = uiMetadata.config.search.enrichRequest.processors.filter(
+      (p) => p.type !== PROCESSOR_TYPE.ML
+    );
+    uiMetadata.config.search.enrichResponse.processors = uiMetadata.config.search.enrichResponse.processors.filter(
+      (p) => p.type !== PROCESSOR_TYPE.ML
+    );
+  }
+
+  if (semver.eq(version, '2.19.0')) {
+    uiMetadata.config.ingest.enrich.processors = uiMetadata.config.ingest.enrich.processors.filter(
+      (p) =>
+        p.type !== PROCESSOR_TYPE.TEXT_EMBEDDING &&
+        p.type !== PROCESSOR_TYPE.TEXT_IMAGE_EMBEDDING &&
+        p.type !== PROCESSOR_TYPE.NORMALIZATION
+    );
+    uiMetadata.config.search.enrichRequest.processors = uiMetadata.config.search.enrichRequest.processors.filter(
+      (p) =>
+        p.type !== PROCESSOR_TYPE.TEXT_EMBEDDING &&
+        p.type !== PROCESSOR_TYPE.TEXT_IMAGE_EMBEDDING &&
+        p.type !== PROCESSOR_TYPE.NORMALIZATION
+    );
+    uiMetadata.config.search.enrichResponse.processors = uiMetadata.config.search.enrichResponse.processors.filter(
+      (p) =>
+        p.type !== PROCESSOR_TYPE.TEXT_EMBEDDING &&
+        p.type !== PROCESSOR_TYPE.TEXT_IMAGE_EMBEDDING &&
+        p.type !== PROCESSOR_TYPE.NORMALIZATION
+    );
   }
 
   return {

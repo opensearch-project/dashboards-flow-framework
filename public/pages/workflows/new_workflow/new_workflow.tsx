@@ -29,8 +29,74 @@ import {
 import { enrichPresetWorkflowWithUiMetadata } from './utils';
 import { getDataSourceId, isDataSourceReady } from '../../../utils';
 import { getDataSourceEnabled } from '../../../services';
+import semver from 'semver';
+import { DataSourceAttributes } from '../../../../../../src/plugins/data_source/common/data_sources';
+import { getSavedObjectsClient } from '../../../../public/services';
+import {
+  WORKFLOW_TYPE,
+  MIN_SUPPORTED_VERSION,
+} from '../../../../common/constants';
 
 interface NewWorkflowProps {}
+
+export const getEffectiveVersion = async (
+  dataSourceId: string | undefined
+): Promise<string> => {
+  try {
+    if (dataSourceId === undefined) {
+      console.log('cannot find data source');
+      throw new Error('Data source is required');
+    }
+
+    const dataSource = await getSavedObjectsClient().get<DataSourceAttributes>(
+      'data-source',
+      dataSourceId
+    );
+    const version =
+      dataSource?.attributes?.dataSourceVersion || MIN_SUPPORTED_VERSION;
+    return version;
+  } catch (error) {
+    console.error('Error getting version:', error);
+    return MIN_SUPPORTED_VERSION;
+  }
+};
+
+const filterPresetsByVersion = async (
+  workflows: WorkflowTemplate[],
+  dataSourceId: string
+): Promise<WorkflowTemplate[]> => {
+  const allowedPresetsFor217 = [
+    WORKFLOW_TYPE.SEMANTIC_SEARCH,
+    WORKFLOW_TYPE.MULTIMODAL_SEARCH,
+    WORKFLOW_TYPE.HYBRID_SEARCH,
+  ];
+
+  try {
+    const version = await getEffectiveVersion(dataSourceId);
+    if (version === undefined) {
+      return [];
+    }
+
+    if (semver.lt(version, '2.17.0')) {
+      return [];
+    }
+
+    if (semver.gte(version, '2.17.0') && semver.lt(version, '2.19.0')) {
+      return workflows.filter((workflow) => {
+        const workflowType =
+          workflow.ui_metadata?.type ?? WORKFLOW_TYPE.UNKNOWN;
+        return allowedPresetsFor217.includes(workflowType as WORKFLOW_TYPE);
+      });
+    }
+
+    return workflows;
+  } catch (error) {
+    return workflows.filter((workflow) => {
+      const workflowType = workflow.ui_metadata?.type ?? WORKFLOW_TYPE.UNKNOWN;
+      return allowedPresetsFor217.includes(workflowType as WORKFLOW_TYPE);
+    });
+  }
+};
 
 /**
  * Contains the searchable library of templated workflows based
@@ -72,24 +138,34 @@ export function NewWorkflow(props: NewWorkflowProps) {
   // initial hook to populate all workflows
   // enrich them with dynamically-generated UI flows based on use case
   useEffect(() => {
-    if (presetWorkflows) {
-      setAllWorkflows(
-        presetWorkflows.map((presetWorkflow) =>
-          enrichPresetWorkflowWithUiMetadata(presetWorkflow)
-        )
-      );
-    }
-  }, [presetWorkflows]);
+    const loadWorkflows = async () => {
+      if (!presetWorkflows) return;
+      if (!dataSourceId) return;
 
-  // initial hook to populate filtered workflows
-  useEffect(() => {
-    setFilteredWorkflows(allWorkflows);
-  }, [allWorkflows]);
+      const version = await getEffectiveVersion(dataSourceId);
+      const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
+        enrichPresetWorkflowWithUiMetadata(presetWorkflow, version)
+      );
+
+      const versionFilteredWorkflows = await filterPresetsByVersion(
+        enrichedWorkflows,
+        dataSourceId
+      );
+
+      setAllWorkflows(versionFilteredWorkflows);
+    };
+
+    loadWorkflows();
+  }, [presetWorkflows, dataSourceId]);
 
   // When search query updated, re-filter preset list
   useEffect(() => {
     setFilteredWorkflows(fetchFilteredWorkflows(allWorkflows, searchQuery));
   }, [searchQuery]);
+
+  useEffect(() => {
+    setFilteredWorkflows(allWorkflows);
+  }, [allWorkflows]);
 
   return (
     <EuiFlexGroup direction="column">
@@ -101,8 +177,16 @@ export function NewWorkflow(props: NewWorkflowProps) {
         />
       </EuiFlexItem>
       <EuiFlexItem>
-        {loading ? (
-          <EuiLoadingSpinner size="xl" />
+        {!dataSourceId || loading ? (
+          <EuiFlexGroup
+            justifyContent="center"
+            alignItems="center"
+            style={{ minHeight: '400px' }}
+          >
+            <EuiFlexItem grow={false}>
+              <EuiLoadingSpinner size="xl" />
+            </EuiFlexItem>
+          </EuiFlexGroup>
         ) : (
           <EuiFlexGrid columns={3} gutterSize="l">
             {filteredWorkflows.map((workflow: Workflow, index) => {
