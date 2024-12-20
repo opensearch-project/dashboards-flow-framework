@@ -44,6 +44,7 @@ import {
 } from '../../../configs';
 import { ProcessorInputs } from './processor_inputs';
 import { useLocation } from 'react-router-dom';
+import { getDataSourceEnabled } from '../../../../public/services';
 
 interface ProcessorsListProps {
   uiConfig: WorkflowConfig;
@@ -74,9 +75,19 @@ export function ProcessorsList(props: ProcessorsListProps) {
 
   useEffect(() => {
     const dataSourceId = getDataSourceFromURL(location).dataSourceId;
+    console.log('DataSourceId:', dataSourceId);
+
+    const enabled = getDataSourceEnabled().enabled;
+    if (!enabled) {
+      console.log('MDS disabled, setting version to 2.19.0');
+      setVersion('2.19.0');
+      return;
+    }
+
     if (dataSourceId) {
       getEffectiveVersion(dataSourceId)
         .then((ver) => {
+          console.log('Current version:', ver);
           setVersion(ver);
         })
         .catch(console.error);
@@ -103,7 +114,8 @@ export function ProcessorsList(props: ProcessorsListProps) {
   const getMenuItems = () => {
     const isPreV219 =
       semver.gte(version, '2.17.0') && semver.lt(version, '2.19.0');
-
+    console.log('Version:', version);
+    console.log('Is pre-2.19:', isPreV219);
     const ingestProcessors = [
       ...(isPreV219
         ? [
@@ -368,7 +380,11 @@ export function ProcessorsList(props: ProcessorsListProps) {
                       {
                         id: PANEL_ID,
                         title: getMenuItems().length > 0 ? 'PROCESSORS' : '',
-                        items: getMenuItems(),
+                        items: (() => {
+                          const items = getMenuItems();
+                          console.log('Menu items:', items);
+                          return items;
+                        })(),
                       },
                     ]}
                   />

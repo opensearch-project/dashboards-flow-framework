@@ -42,6 +42,16 @@ interface NewWorkflowProps {}
 export const getEffectiveVersion = async (
   dataSourceId: string | undefined
 ): Promise<string> => {
+  // console.log('Checking data source enabled status...');
+  // const dataSourceEnabled = getDataSourceEnabled().enabled;
+  // console.log('Data source enabled:', dataSourceEnabled);
+
+  // // If MDS is disabled, return a default version
+  // if (!dataSourceEnabled) {
+  //   console.log('MDS is disabled, returning latest version');
+  //   return '2.19.0';
+  // }
+
   try {
     if (dataSourceId === undefined) {
       console.log('cannot find data source');
@@ -52,9 +62,10 @@ export const getEffectiveVersion = async (
       'data-source',
       dataSourceId
     );
-    const version =
-      dataSource?.attributes?.dataSourceVersion || MIN_SUPPORTED_VERSION;
-    return version;
+    // const version =
+    //   dataSource?.attributes?.dataSourceVersion || MIN_SUPPORTED_VERSION;
+    // return version;
+    return '2.19.0';
   } catch (error) {
     console.error('Error getting version:', error);
     return MIN_SUPPORTED_VERSION;
@@ -65,11 +76,19 @@ const filterPresetsByVersion = async (
   workflows: WorkflowTemplate[],
   dataSourceId: string | undefined
 ): Promise<WorkflowTemplate[]> => {
+  console.log('Initial workflows count:', workflows.length);
   // if MDS is disabled, skip the version check and assume it is version 2.19+
   const dataSourceEnabled = getDataSourceEnabled().enabled;
+  console.log('MDS enabled:', dataSourceEnabled);
   if (!dataSourceEnabled) {
+    console.log('MDS is disabled, returning all workflows');
     return workflows;
   }
+
+  if (!dataSourceId) {
+    return [];
+  }
+
   const allowedPresetsFor217 = [
     WORKFLOW_TYPE.SEMANTIC_SEARCH,
     WORKFLOW_TYPE.MULTIMODAL_SEARCH,
@@ -77,14 +96,7 @@ const filterPresetsByVersion = async (
   ];
 
   try {
-    if (!dataSourceId) {
-      return [];
-    }
-
     const version = await getEffectiveVersion(dataSourceId);
-    if (version === undefined) {
-      return [];
-    }
 
     if (semver.lt(version, '2.17.0')) {
       return [];
@@ -117,6 +129,8 @@ export function NewWorkflow(props: NewWorkflowProps) {
   const dataSourceId = getDataSourceId();
   const dataSourceEnabled = getDataSourceEnabled().enabled;
 
+  console.log('Initial render:', { dataSourceId, dataSourceEnabled });
+
   // workflows state
   const { presetWorkflows, loading } = useSelector(
     (state: AppState) => state.presets
@@ -125,6 +139,7 @@ export function NewWorkflow(props: NewWorkflowProps) {
   const [filteredWorkflows, setFilteredWorkflows] = useState<
     WorkflowTemplate[]
   >([]);
+  const [isVersionLoading, setIsVersionLoading] = useState(false);
 
   // search bar state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -144,29 +159,111 @@ export function NewWorkflow(props: NewWorkflowProps) {
     }
   }, [dataSourceId, dataSourceEnabled]);
 
+  useEffect(() => {
+    console.log('State changed:', {
+      loading,
+      isVersionLoading,
+      presetWorkflowsLength: presetWorkflows?.length,
+      allWorkflowsLength: allWorkflows.length,
+      filteredWorkflowsLength: filteredWorkflows.length,
+    });
+  }, [
+    loading,
+    isVersionLoading,
+    presetWorkflows,
+    allWorkflows,
+    filteredWorkflows,
+  ]);
+
   // initial hook to populate all workflows
   // enrich them with dynamically-generated UI flows based on use case
   useEffect(() => {
     const loadWorkflows = async () => {
-      if (!presetWorkflows) return;
+      console.log('loadWorkflows called:', {
+        hasPresetWorkflows: Boolean(presetWorkflows?.length),
+        dataSourceId,
+      });
+
+      if (!presetWorkflows || presetWorkflows.length === 0) {
+        console.log('No preset workflows, returning early');
+
+        return;
+      }
+
       const dataSourceEnabled = getDataSourceEnabled().enabled;
-      if (dataSourceEnabled && !dataSourceId) return;
+      console.log('MDS enabled:', dataSourceEnabled);
 
-      const version = await getEffectiveVersion(dataSourceId);
-      const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
-        enrichPresetWorkflowWithUiMetadata(presetWorkflow, version)
-      );
+      if (!dataSourceEnabled) {
+        console.log('MDS disabled, setting all workflows');
 
-      const versionFilteredWorkflows = await filterPresetsByVersion(
-        enrichedWorkflows,
-        dataSourceId
-      );
+        const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
+          enrichPresetWorkflowWithUiMetadata(presetWorkflow, '2.19.0')
+        );
+        setAllWorkflows(enrichedWorkflows);
+        setFilteredWorkflows(enrichedWorkflows);
+        setIsVersionLoading(false);
+        return;
+      }
 
-      setAllWorkflows(versionFilteredWorkflows);
+      if (!dataSourceId) {
+        console.log('No datasource ID, clearing workflows and setting loading');
+
+        setAllWorkflows([]);
+        setFilteredWorkflows([]);
+        setIsVersionLoading(true);
+        return;
+      }
+      console.log('Starting version check');
+
+      setIsVersionLoading(true);
+
+      //   const version = await getEffectiveVersion(dataSourceId);
+      //   const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
+      //     enrichPresetWorkflowWithUiMetadata(presetWorkflow, version)
+      //   );
+
+      //   const versionFilteredWorkflows = await filterPresetsByVersion(
+      //     enrichedWorkflows,
+      //     dataSourceId
+      //   );
+
+      //   setAllWorkflows(versionFilteredWorkflows);
+      //   setFilteredWorkflows(versionFilteredWorkflows);
+      // };
+      try {
+        const version = await getEffectiveVersion(dataSourceId);
+        console.log('Got version:', version);
+
+        const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
+          enrichPresetWorkflowWithUiMetadata(presetWorkflow, version)
+        );
+
+        const versionFilteredWorkflows = await filterPresetsByVersion(
+          enrichedWorkflows,
+          dataSourceId
+        );
+        console.log(
+          'Setting filtered workflows:',
+          versionFilteredWorkflows.length
+        );
+
+        setAllWorkflows(versionFilteredWorkflows);
+        setFilteredWorkflows(versionFilteredWorkflows);
+        setIsVersionLoading(false);
+      } catch (error) {
+        console.error('Error loading workflows:', error);
+        setAllWorkflows([]);
+        setFilteredWorkflows([]);
+        if (dataSourceId) {
+          setIsVersionLoading(false);
+        }
+      }
     };
 
     loadWorkflows();
-  }, [presetWorkflows, dataSourceId]);
+  }, [presetWorkflows, dataSourceId, dataSourceEnabled]);
+
+  console.log('Render - loading states:', { loading, isVersionLoading });
 
   // When search query updated, re-filter preset list
   useEffect(() => {
@@ -187,7 +284,7 @@ export function NewWorkflow(props: NewWorkflowProps) {
         />
       </EuiFlexItem>
       <EuiFlexItem>
-        {!dataSourceId || loading ? (
+        {loading || isVersionLoading ? (
           <EuiFlexGroup
             justifyContent="center"
             alignItems="center"
