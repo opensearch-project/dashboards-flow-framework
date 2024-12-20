@@ -63,8 +63,13 @@ export const getEffectiveVersion = async (
 
 const filterPresetsByVersion = async (
   workflows: WorkflowTemplate[],
-  dataSourceId: string
+  dataSourceId: string | undefined
 ): Promise<WorkflowTemplate[]> => {
+  // if MDS is disabled, skip the version check and assume it is version 2.19+
+  const dataSourceEnabled = getDataSourceEnabled().enabled;
+  if (!dataSourceEnabled) {
+    return workflows;
+  }
   const allowedPresetsFor217 = [
     WORKFLOW_TYPE.SEMANTIC_SEARCH,
     WORKFLOW_TYPE.MULTIMODAL_SEARCH,
@@ -72,6 +77,10 @@ const filterPresetsByVersion = async (
   ];
 
   try {
+    if (!dataSourceId) {
+      return [];
+    }
+
     const version = await getEffectiveVersion(dataSourceId);
     if (version === undefined) {
       return [];
@@ -140,7 +149,8 @@ export function NewWorkflow(props: NewWorkflowProps) {
   useEffect(() => {
     const loadWorkflows = async () => {
       if (!presetWorkflows) return;
-      if (!dataSourceId) return;
+      const dataSourceEnabled = getDataSourceEnabled().enabled;
+      if (dataSourceEnabled && !dataSourceId) return;
 
       const version = await getEffectiveVersion(dataSourceId);
       const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>

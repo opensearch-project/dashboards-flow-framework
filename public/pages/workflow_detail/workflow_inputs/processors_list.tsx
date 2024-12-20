@@ -49,7 +49,6 @@ interface ProcessorsListProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   context: PROCESSOR_CONTEXT;
-  onProcessorsChange?: (count: number) => void;
 }
 
 const PANEL_ID = 0;
@@ -95,7 +94,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
             : props.uiConfig.search.enrichResponse.processors;
 
         setProcessors(currentProcessors || []);
-        props.onProcessorsChange?.(currentProcessors?.length || 0);
       }
     };
 

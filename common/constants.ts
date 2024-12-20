@@ -315,6 +315,7 @@ export const SEMANTIC_SEARCH_QUERY_NEURAL = {
     neural: {
       [VECTOR_FIELD_PATTERN]: {
         query_text: QUERY_TEXT_PATTERN,
+        model_id: MODEL_ID_PATTERN,
         k: DEFAULT_K,
       },
     },
@@ -336,17 +337,20 @@ export const MULTIMODAL_SEARCH_QUERY_NEURAL = {
   },
 };
 export const MULTIMODAL_SEARCH_QUERY_BOOL = {
-  _source: {
-    excludes: [VECTOR_FIELD_PATTERN],
-  },
   query: {
-    neural: {
-      [VECTOR_FIELD_PATTERN]: {
-        query_text: QUERY_TEXT_PATTERN,
-        query_image: QUERY_IMAGE_PATTERN,
-        model_id: MODEL_ID_PATTERN,
-        k: DEFAULT_K,
-      },
+    bool: {
+      must: [
+        {
+          match: {
+            [TEXT_FIELD_PATTERN]: QUERY_TEXT_PATTERN,
+          },
+        },
+        {
+          match: {
+            [IMAGE_FIELD_PATTERN]: QUERY_IMAGE_PATTERN,
+          },
+        },
+      ],
     },
   },
 };

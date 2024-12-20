@@ -31,7 +31,6 @@ import {
   setHeaderActionMenu,
 } from './services';
 import { configureRoutes } from './route_service';
-import { dataSourceFilterFn } from './utils';
 
 export class FlowFrameworkDashboardsPlugin
   implements

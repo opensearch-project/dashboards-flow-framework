@@ -14,13 +14,10 @@ import {
 } from '../../../../../common';
 import { catIndices, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
-import { SavedObject } from '../../../../../../../src/core/public';
-import { DataSourceAttributes } from '../../../../../../../src/plugins/data_source/common/data_sources';
 
 interface SearchInputsProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
-  dataSource?: SavedObject<DataSourceAttributes>;
 }
 
 /**
@@ -48,7 +45,6 @@ export function SearchInputs(props: SearchInputsProps) {
         <EnrichSearchRequest
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
-          dataSource={props.dataSource}
         />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
@@ -58,7 +54,6 @@ export function SearchInputs(props: SearchInputsProps) {
         <EnrichSearchResponse
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
-          dataSource={props.dataSource}
         />
       </EuiFlexItem>
     </EuiFlexGroup>
