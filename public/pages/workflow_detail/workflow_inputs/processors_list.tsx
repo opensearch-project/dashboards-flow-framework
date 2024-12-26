@@ -75,11 +75,9 @@ export function ProcessorsList(props: ProcessorsListProps) {
 
   useEffect(() => {
     const dataSourceId = getDataSourceFromURL(location).dataSourceId;
-    console.log('DataSourceId:', dataSourceId);
 
     const enabled = getDataSourceEnabled().enabled;
     if (!enabled) {
-      console.log('MDS disabled, setting version to 2.19.0');
       setVersion('2.19.0');
       return;
     }
@@ -87,7 +85,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
     if (dataSourceId) {
       getEffectiveVersion(dataSourceId)
         .then((ver) => {
-          console.log('Current version:', ver);
           setVersion(ver);
         })
         .catch(console.error);
@@ -114,8 +111,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
   const getMenuItems = () => {
     const isPreV219 =
       semver.gte(version, '2.17.0') && semver.lt(version, '2.19.0');
-    console.log('Version:', version);
-    console.log('Is pre-2.19:', isPreV219);
     const ingestProcessors = [
       ...(isPreV219
         ? [
