@@ -17,9 +17,12 @@ import { getIn, useFormikContext } from 'formik';
 import { WorkflowFormValues } from '../../../../../common';
 import { AppState } from '../../../../store';
 import {
-  getEmbeddingDimensions,
+  getEmbeddingField,
+  getEmbeddingModelDimensions,
+  getUpdatedIndexMappings,
   getUpdatedIndexSettings,
   isKnnIndex,
+  removeVectorFieldFromIndexMappings,
 } from '../../../../utils';
 
 interface AdvancedSettingsProps {}
@@ -30,8 +33,10 @@ interface AdvancedSettingsProps {}
 export function AdvancedSettings(props: AdvancedSettingsProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   const { models, connectors } = useSelector((state: AppState) => state.ml);
-  const ingestProcessors = Object.values(values?.ingest?.enrich) as [];
-  const ingestProcessorModelIds = ingestProcessors
+  const ingestMLProcessors = (Object.values(
+    values?.ingest?.enrich
+  ) as any[]).filter((ingestProcessor) => ingestProcessor?.model !== undefined);
+  const ingestProcessorModelIds = ingestMLProcessors
     .map((ingestProcessor) => ingestProcessor?.model?.id as string | undefined)
     .filter((modelId) => !isEmpty(modelId));
   const indexMappingsPath = 'ingest.index.mappings';
@@ -40,7 +45,7 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
   const curSettings = getIn(values, indexSettingsPath);
 
   // listen on when processor with models are added / removed. dynamically update index
-  // mappings and settings, if applicable.
+  // settings to be knn-enabled or knn-disabled.
   useEffect(() => {
     if (ingestProcessorModelIds.length > 0) {
       ingestProcessorModelIds.forEach((ingestProcessorModelId) => {
@@ -49,9 +54,11 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
         );
         if (processorModel?.connectorId !== undefined) {
           const processorConnector = connectors[processorModel?.connectorId];
-          const dimension = getEmbeddingDimensions(processorConnector);
+          const dimension = getEmbeddingModelDimensions(processorConnector);
+
+          // If a dimension is found, it is a known embedding model.
+          // Ensure the index is configured to be knn-enabled.
           if (dimension !== undefined) {
-            // TODO: update mappings
             if (!isKnnIndex(curSettings)) {
               setFieldValue(
                 indexSettingsPath,
@@ -62,7 +69,6 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
         }
       });
     } else {
-      // TODO: update mappings
       if (isKnnIndex(curSettings)) {
         setFieldValue(
           indexSettingsPath,
@@ -71,6 +77,43 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
       }
     }
   }, [ingestProcessorModelIds.length]);
+
+  // listener on when there are updates to any ingest processors. Try to update
+  // any index mappings accordingly, such as setting the knn_vector mappings
+  // for models that output vector embeddings, or removing any mappings, if no ML
+  // processor defined.
+  useEffect(() => {
+    if (ingestMLProcessors.length > 0) {
+      ingestMLProcessors.forEach((ingestMLProcessor) => {
+        const processorModel = Object.values(models).find(
+          (model) => model.id === ingestMLProcessor?.model?.id
+        );
+        if (processorModel?.connectorId !== undefined) {
+          const processorConnector = connectors[processorModel?.connectorId];
+          const dimension = getEmbeddingModelDimensions(processorConnector);
+          const embeddingFieldName = getEmbeddingField(
+            processorConnector,
+            ingestMLProcessor
+          );
+          if (embeddingFieldName !== undefined && dimension !== undefined) {
+            setFieldValue(
+              indexMappingsPath,
+              getUpdatedIndexMappings(
+                curMappings,
+                embeddingFieldName,
+                dimension
+              )
+            );
+          }
+        }
+      });
+    } else {
+      setFieldValue(
+        indexMappingsPath,
+        removeVectorFieldFromIndexMappings(curMappings)
+      );
+    }
+  }, [getIn(values, 'ingest.enrich')]);
 
   return (
     <EuiFlexGroup direction="column">

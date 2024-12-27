@@ -27,7 +27,7 @@ import {
   WORKFLOW_TYPE,
 } from '../../../../common';
 import { AppState } from '../../../store';
-import { getEmbeddingDimensions, parseModelInputs } from '../../../utils';
+import { getEmbeddingModelDimensions, parseModelInputs } from '../../../utils';
 import { get } from 'lodash';
 
 interface QuickConfigureInputsProps {
@@ -120,7 +120,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
       if (connector !== undefined) {
         setFieldValues({
           ...fieldValues,
-          embeddingLength: getEmbeddingDimensions(connector),
+          embeddingLength: getEmbeddingModelDimensions(connector),
         });
       }
     }

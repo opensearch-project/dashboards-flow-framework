@@ -5,7 +5,7 @@
 
 import yaml from 'js-yaml';
 import jsonpath from 'jsonpath';
-import { escape, get, isEmpty, set } from 'lodash';
+import { escape, findKey, get, isEmpty, set, unset } from 'lodash';
 import semver from 'semver';
 import queryString from 'query-string';
 import { useLocation } from 'react-router-dom';
@@ -27,10 +27,12 @@ import {
   WORKFLOW_STEP_TYPE,
   Workflow,
   WorkflowResource,
-  BEDROCK_DIMENSIONS,
-  COHERE_DIMENSIONS,
-  OPENAI_DIMENSIONS,
+  BEDROCK_CONFIGS,
+  COHERE_CONFIGS,
+  OPENAI_CONFIGS,
   customStringify,
+  NO_TRANSFORMATION,
+  TRANSFORM_TYPE,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
 import {
@@ -40,6 +42,7 @@ import {
   ModelInputMap,
   ModelOutputMap,
   OutputMapEntry,
+  OutputMapFormValue,
   QueryParam,
 } from '../../common/interfaces';
 import * as pluginManifest from '../../opensearch_dashboards.json';
@@ -610,7 +613,7 @@ export function injectParameters(
 }
 
 // Fetch embedding dimensions, if the selected model is a known one
-export function getEmbeddingDimensions(
+export function getEmbeddingModelDimensions(
   connector: Connector
 ): number | undefined {
   // some APIs allow specifically setting the dimensions at runtime,
@@ -620,11 +623,11 @@ export function getEmbeddingDimensions(
   } else if (connector.parameters?.model !== undefined) {
     return (
       // @ts-ignore
-      COHERE_DIMENSIONS[connector.parameters?.model] ||
+      COHERE_CONFIGS[connector.parameters?.model]?.dimension ||
       // @ts-ignore
-      OPENAI_DIMENSIONS[connector.parameters?.model] ||
+      OPENAI_CONFIGS[connector.parameters?.model]?.dimension ||
       // @ts-ignore
-      BEDROCK_DIMENSIONS[connector.parameters?.model]
+      BEDROCK_CONFIGS[connector.parameters?.model]?.dimension
     );
   } else {
     return undefined;
@@ -653,5 +656,120 @@ export function getUpdatedIndexSettings(
     );
   } catch {
     return existingSettings;
+  }
+}
+
+// Get any embedding fields, if a known embedding model
+function getEmbeddingFieldFromConnector(
+  connector: Connector
+): string | undefined {
+  if (connector.parameters?.model !== undefined) {
+    return (
+      // @ts-ignore
+      COHERE_CONFIGS[connector.parameters?.model]?.fieldName ||
+      // @ts-ignore
+      OPENAI_CONFIGS[connector.parameters?.model]?.fieldName ||
+      // @ts-ignore
+      BEDROCK_CONFIGS[connector.parameters?.model]?.fieldName
+    );
+  } else {
+    return undefined;
+  }
+}
+
+// Try to determine the embedding field based on the processor config.
+// First check if it is a known model, then make a best guess based on
+// the output map configuration, if there is any transformations made
+export function getEmbeddingField(
+  connector: Connector,
+  processorConfig: any
+): string | undefined {
+  let embeddingField = getEmbeddingFieldFromConnector(connector);
+  const outputMap = processorConfig?.output_map as OutputMapFormValue;
+  if (
+    outputMap !== undefined &&
+    outputMap[0] !== undefined &&
+    Array.isArray(outputMap[0]) &&
+    outputMap[0].length > 0
+  ) {
+    const relevantOutputMapEntry =
+      embeddingField !== undefined
+        ? outputMap[0].find(
+            (outputMapEntry) => outputMapEntry.key === embeddingField
+          )
+        : outputMap[0][0];
+    switch (relevantOutputMapEntry?.value?.transformType) {
+      case TRANSFORM_TYPE.FIELD: {
+        embeddingField = relevantOutputMapEntry?.value?.value;
+        break;
+      }
+      case TRANSFORM_TYPE.EXPRESSION: {
+        embeddingField = get(relevantOutputMapEntry, 'value.nestedVars.0.name');
+        break;
+      }
+      case NO_TRANSFORMATION:
+      case undefined:
+      default: {
+        embeddingField = relevantOutputMapEntry?.key;
+        break;
+      }
+    }
+    // if (relevantOutputMapEntry?.value?.transformType === NO_TRANSFORMATION) {
+    //   embeddingField = relevantOutputMapEntry?.key;
+    // } else if (
+    //   relevantOutputMapEntry?.value?.transformType === TRANSFORM_TYPE.FIELD
+    // ) {
+    //   embeddingField = relevantOutputMapEntry?.value?.value;
+    // } else if (
+    //   relevantOutputMapEntry?.value?.transformType === TRANSFORM_TYPE.EXPRESSION
+    // ) {
+    //   embeddingField = get(relevantOutputMapEntry, 'value.nestedVars.0.name');
+    // }
+  }
+  return embeddingField;
+}
+
+// Update the index mappings based on parameters passed.
+// Currently used for updating the knn_vector field configuration, & removing
+// any old/existing knn_vector field in the process.
+export function getUpdatedIndexMappings(
+  existingMappings: string,
+  embeddingFieldName: string,
+  dimension: number
+): string {
+  try {
+    const mappingsWithRemovedVectorField = removeVectorFieldFromIndexMappings(
+      existingMappings
+    );
+    return customStringify(
+      set(
+        JSON.parse(mappingsWithRemovedVectorField),
+        `properties.${embeddingFieldName}`,
+        {
+          type: 'knn_vector',
+          dimension,
+        }
+      )
+    );
+  } catch {
+    return existingMappings;
+  }
+}
+
+export function removeVectorFieldFromIndexMappings(
+  existingMappings: string
+): string {
+  try {
+    let existingMappingsObj = JSON.parse(existingMappings);
+    const existingEmbeddingField = findKey(
+      existingMappingsObj?.properties,
+      (field) => field.type === 'knn_vector'
+    );
+    if (existingEmbeddingField !== undefined) {
+      unset(existingMappingsObj?.properties, existingEmbeddingField);
+    }
+    return customStringify(existingMappingsObj);
+  } catch {
+    return existingMappings;
   }
 }
