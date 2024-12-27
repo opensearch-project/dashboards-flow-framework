@@ -27,9 +27,13 @@ import {
   WORKFLOW_STEP_TYPE,
   Workflow,
   WorkflowResource,
+  BEDROCK_DIMENSIONS,
+  COHERE_DIMENSIONS,
+  OPENAI_DIMENSIONS,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
 import {
+  Connector,
   InputMapEntry,
   MDSQueryParams,
   ModelInputMap,
@@ -602,4 +606,26 @@ export function injectParameters(
     );
   });
   return finalQueryString;
+}
+
+// fetch embedding dimensions, if the selected model is a known one
+export function getEmbeddingDimensions(
+  connector: Connector
+): number | undefined {
+  // some APIs allow specifically setting the dimensions at runtime,
+  // so we check for that first.
+  if (connector.parameters?.dimensions !== undefined) {
+    return connector.parameters?.dimensions;
+  } else if (connector.parameters?.model !== undefined) {
+    return (
+      // @ts-ignore
+      COHERE_DIMENSIONS[connector.parameters?.model] ||
+      // @ts-ignore
+      OPENAI_DIMENSIONS[connector.parameters?.model] ||
+      // @ts-ignore
+      BEDROCK_DIMENSIONS[connector.parameters?.model]
+    );
+  } else {
+    return undefined;
+  }
 }
