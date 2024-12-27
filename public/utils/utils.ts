@@ -5,7 +5,7 @@
 
 import yaml from 'js-yaml';
 import jsonpath from 'jsonpath';
-import { escape, get, isEmpty } from 'lodash';
+import { escape, get, isEmpty, set } from 'lodash';
 import semver from 'semver';
 import queryString from 'query-string';
 import { useLocation } from 'react-router-dom';
@@ -30,6 +30,7 @@ import {
   BEDROCK_DIMENSIONS,
   COHERE_DIMENSIONS,
   OPENAI_DIMENSIONS,
+  customStringify,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
 import {
@@ -608,7 +609,7 @@ export function injectParameters(
   return finalQueryString;
 }
 
-// fetch embedding dimensions, if the selected model is a known one
+// Fetch embedding dimensions, if the selected model is a known one
 export function getEmbeddingDimensions(
   connector: Connector
 ): number | undefined {
@@ -627,5 +628,30 @@ export function getEmbeddingDimensions(
     );
   } else {
     return undefined;
+  }
+}
+
+// Check if an index is a knn index
+export function isKnnIndex(existingSettings: string): boolean {
+  try {
+    return get(JSON.parse(existingSettings), 'index.knn', false);
+  } catch (error) {
+    console.error('Could not parse index settings: ', error);
+    return false;
+  }
+}
+
+// Update the index settings based on parameters passed.
+// Currently just used for updating the `knn` flag.
+export function getUpdatedIndexSettings(
+  existingSettings: string,
+  knnBool: boolean
+): string {
+  try {
+    return customStringify(
+      set(JSON.parse(existingSettings), 'index.knn', knnBool)
+    );
+  } catch {
+    return existingSettings;
   }
 }
