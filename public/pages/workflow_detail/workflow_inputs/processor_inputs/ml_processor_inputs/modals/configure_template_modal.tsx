@@ -24,6 +24,7 @@ import {
   EuiSmallButtonIcon,
   EuiSpacer,
   EuiIconTip,
+  EuiBadge,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -622,7 +623,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         justifyContent="spaceBetween"
                       >
                         <EuiFlexItem grow={false}>
-                          <EuiText size="m">Prompt preview</EuiText>
+                          <EuiText size="m">Preview</EuiText>
                         </EuiFlexItem>
                         <EuiFlexItem grow={false}>
                           <EuiSmallButton
@@ -793,7 +794,20 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         </EuiFlexItem>
                       )}
                     <EuiFlexItem grow={false}>
-                      <EuiText size="s">Source data</EuiText>
+                      <EuiFlexGroup
+                        direction="row"
+                        gutterSize="s"
+                        justifyContent="flexStart"
+                      >
+                        <EuiFlexItem grow={false}>
+                          <EuiText size="s">Sample of source data</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiBadge>{`${
+                            oneToOne ? 'One' : 'Many'
+                          } to one processing`}</EuiBadge>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiCodeEditor

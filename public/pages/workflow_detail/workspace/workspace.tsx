@@ -47,6 +47,8 @@ interface WorkspaceProps {
   uiConfig?: WorkflowConfig;
 }
 
+const PANEL_TITLE = 'Preview pipeline';
+
 const nodeTypes = {
   custom: WorkspaceComponent,
   ingestGroup: IngestGroupComponent,
@@ -140,7 +142,7 @@ export function Workspace(props: WorkspaceProps) {
           <EuiFlexGroup direction="row" style={{ padding: '12px' }}>
             <EuiFlexItem grow={false}>
               <EuiText size="s">
-                <h2>Preview</h2>
+                <h3>{PANEL_TITLE}</h3>
               </EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>

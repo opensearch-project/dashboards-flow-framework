@@ -23,6 +23,7 @@ import {
   EuiSpacer,
   EuiIconTip,
   EuiPopover,
+  EuiBadge,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -562,7 +563,20 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                         </EuiFlexItem>
                       )}
                     <EuiFlexItem grow={false}>
-                      <EuiText size="s">Source data</EuiText>
+                      <EuiFlexGroup
+                        direction="row"
+                        gutterSize="s"
+                        justifyContent="flexStart"
+                      >
+                        <EuiFlexItem grow={false}>
+                          <EuiText size="s">Sample of source data</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiBadge>{`${
+                            oneToOne ? 'One' : 'Many'
+                          } to one processing`}</EuiBadge>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiCodeEditor
