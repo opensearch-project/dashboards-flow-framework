@@ -714,17 +714,6 @@ export function getEmbeddingField(
         break;
       }
     }
-    // if (relevantOutputMapEntry?.value?.transformType === NO_TRANSFORMATION) {
-    //   embeddingField = relevantOutputMapEntry?.key;
-    // } else if (
-    //   relevantOutputMapEntry?.value?.transformType === TRANSFORM_TYPE.FIELD
-    // ) {
-    //   embeddingField = relevantOutputMapEntry?.value?.value;
-    // } else if (
-    //   relevantOutputMapEntry?.value?.transformType === TRANSFORM_TYPE.EXPRESSION
-    // ) {
-    //   embeddingField = get(relevantOutputMapEntry, 'value.nestedVars.0.name');
-    // }
   }
   return embeddingField;
 }
