@@ -108,10 +108,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
     };
   }, [setHeaderVariant, USE_NEW_HOME_PAGE]);
 
-  const onExportButtonClick = () => {
-    setIsExportModalOpen(true);
-  };
-
   const onExitButtonClick = () => {
     history.replace(
       constructUrlWithParams(APP_PATH.WORKFLOWS, undefined, dataSourceId)
@@ -303,13 +299,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 disabled: saveDisabled,
               } as TopNavMenuIconData,
               {
-                iconType: 'exportAction',
-                tooltip: 'Export',
-                ariaLabel: 'Export',
-                run: onExportButtonClick,
-                controlType: 'icon',
-              } as TopNavMenuIconData,
-              {
                 iconType: 'exit',
                 tooltip: 'Return to projects',
                 ariaLabel: 'Exit',
@@ -353,10 +342,23 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 ),
               },
               {
-                text: `Last updated: ${workflowLastUpdated}`,
+                text: `Last saved: ${workflowLastUpdated}`,
                 color: 'subdued',
                 className: 'workflow-detail-last-updated',
               } as TopNavControlData,
+              {
+                renderComponent: (
+                  <EuiSmallButton
+                    fill={true}
+                    onClick={() => {
+                      setIsExportModalOpen(true);
+                    }}
+                    data-testid="exportButton"
+                  >
+                    Export
+                  </EuiSmallButton>
+                ),
+              },
             ]}
           />
         </>
@@ -411,7 +413,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 }}
               />,
               <EuiText color="subdued" size="s">
-                {`Last updated: ${workflowLastUpdated}`}
+                {`Last saved: ${workflowLastUpdated}`}
               </EuiText>,
               <ExperimentalBadge
                 popoverEnabled={true}

@@ -38,7 +38,7 @@ interface ToolsProps {
   selectedStep: CONFIG_STEP;
 }
 
-const PANEL_TITLE = 'Inspector';
+const PANEL_TITLE = 'Inspect pipeline';
 
 /**
  * The base Tools component for performing ingest and search, viewing resources, and debugging.
@@ -98,7 +98,7 @@ export function Tools(props: ToolsProps) {
       >
         <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
           <EuiText size="s">
-            <h2>{PANEL_TITLE}</h2>
+            <h3>{PANEL_TITLE}</h3>
           </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>

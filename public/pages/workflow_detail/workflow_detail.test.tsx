@@ -78,10 +78,10 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       } = renderWithRouter(workflowId, workflowName, type);
 
       expect(getAllByText(workflowName).length).toBeGreaterThan(0);
-      expect(getAllByText('Inspector').length).toBeGreaterThan(0);
-      expect(getAllByText('Preview').length).toBeGreaterThan(0);
+      expect(getAllByText('Inspect pipeline').length).toBeGreaterThan(0);
+      expect(getAllByText('Preview pipeline').length).toBeGreaterThan(0);
       expect(
-        getAllByText((content) => content.startsWith('Last updated:')).length
+        getAllByText((content) => content.startsWith('Last saved:')).length
       ).toBeGreaterThan(0);
       expect(getByText('Close')).toBeInTheDocument();
       expect(getByText('Export')).toBeInTheDocument();
