@@ -573,7 +573,7 @@ export function ConfigureMultiExpressionModal(
                         </EuiFlexItem>
                       )}
                     <EuiFlexItem grow={false}>
-                      <EuiText size="s">Source data</EuiText>
+                      <EuiText size="s">Sample of model output</EuiText>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiCodeEditor
