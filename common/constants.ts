@@ -77,31 +77,81 @@ export const SEARCH_CONNECTORS_NODE_API_PATH = `${BASE_CONNECTOR_NODE_API_PATH}/
  * based on the specified remote model from a remote service, if found
  */
 
+interface RemoteEmbeddingModelConfig {
+  dimension: number;
+  fieldName: string;
+}
+
+// Amazon BedRock
+export const BEDROCK_CONFIGS = {
+  [`amazon.titan-embed-text-v1`]: {
+    dimension: 1536,
+    fieldName: 'embedding',
+  } as RemoteEmbeddingModelConfig,
+  [`amazon.titan-embed-text-v2`]: {
+    dimension: 1024,
+    fieldName: 'embedding',
+  } as RemoteEmbeddingModelConfig,
+  [`amazon.titan-embed-image-v1`]: {
+    dimension: 1024,
+    fieldName: 'embedding',
+  } as RemoteEmbeddingModelConfig,
+  [`cohere.embed-english-v3`]: {
+    dimension: 1024,
+    fieldName: 'embeddings',
+  } as RemoteEmbeddingModelConfig,
+  [`cohere.embed-multilingual-v3`]: {
+    dimension: 1024,
+    fieldName: 'embeddings',
+  } as RemoteEmbeddingModelConfig,
+};
+
 // Cohere
-export const COHERE_DIMENSIONS = {
-  [`embed-english-v3.0`]: 1024,
-  [`embed-english-light-v3.0`]: 384,
-  [`embed-multilingual-v3.0`]: 1024,
-  [`embed-multilingual-light-v3.0`]: 384,
-  [`embed-english-v2.0`]: 4096,
-  [`embed-english-light-v2.0`]: 1024,
-  [`embed-multilingual-v2.0`]: 768,
+export const COHERE_CONFIGS = {
+  [`embed-english-v3.0`]: {
+    dimension: 1024,
+    fieldName: 'embeddings',
+  } as RemoteEmbeddingModelConfig,
+  [`embed-english-light-v3.0`]: {
+    dimension: 384,
+    fieldName: 'embeddings',
+  } as RemoteEmbeddingModelConfig,
+  [`embed-multilingual-v3.0`]: {
+    dimension: 1024,
+    fieldName: 'embeddings',
+  } as RemoteEmbeddingModelConfig,
+  [`embed-multilingual-light-v3.0`]: {
+    dimension: 384,
+    fieldName: 'embeddings',
+  } as RemoteEmbeddingModelConfig,
+  [`embed-english-v2.0`]: {
+    dimension: 4096,
+    fieldName: 'embeddings',
+  } as RemoteEmbeddingModelConfig,
+  [`embed-english-light-v2.0`]: {
+    dimension: 1024,
+    fieldName: 'embeddings',
+  } as RemoteEmbeddingModelConfig,
+  [`embed-multilingual-v2.0`]: {
+    dimension: 768,
+    fieldName: 'embeddings',
+  } as RemoteEmbeddingModelConfig,
 };
 
 // OpenAI
-export const OPENAI_DIMENSIONS = {
-  [`text-embedding-3-small`]: 1536,
-  [`text-embedding-3-large`]: 3072,
-  [`text-embedding-ada-002`]: 1536,
-};
-
-// Amazon BedRock
-export const BEDROCK_DIMENSIONS = {
-  [`amazon.titan-embed-text-v1`]: 1536,
-  [`amazon.titan-embed-text-v2`]: 1024,
-  [`amazon.titan-embed-image-v1`]: 1024,
-  [`cohere.embed-english-v3`]: 1024, // same as Cohere directly
-  [`cohere.embed-multilingual-v3`]: 1024, // same as Cohere directly
+export const OPENAI_CONFIGS = {
+  [`text-embedding-3-small`]: {
+    dimension: 1536,
+    fieldName: 'embedding',
+  } as RemoteEmbeddingModelConfig,
+  [`text-embedding-3-large`]: {
+    dimension: 3072,
+    fieldName: 'embedding',
+  } as RemoteEmbeddingModelConfig,
+  [`text-embedding-ada-002`]: {
+    dimension: 1536,
+    fieldName: 'embedding',
+  } as RemoteEmbeddingModelConfig,
 };
 
 /**
