@@ -45,6 +45,10 @@ import {
 import { ProcessorInputs } from './processor_inputs';
 import { useLocation } from 'react-router-dom';
 import { getDataSourceEnabled } from '../../../../public/services';
+import {
+  MIN_SUPPORTED_VERSION,
+  MINIMUM_FULL_SUPPORTED_VERSION,
+} from '../../../../common';
 
 interface ProcessorsListProps {
   uiConfig: WorkflowConfig;
@@ -78,7 +82,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
 
     const enabled = getDataSourceEnabled().enabled;
     if (!enabled) {
-      setVersion('2.19.0');
+      setVersion(MINIMUM_FULL_SUPPORTED_VERSION);
       return;
     }
 
@@ -110,7 +114,8 @@ export function ProcessorsList(props: ProcessorsListProps) {
 
   const getMenuItems = () => {
     const isPreV219 =
-      semver.gte(version, '2.17.0') && semver.lt(version, '2.19.0');
+      semver.gte(version, MIN_SUPPORTED_VERSION) &&
+      semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
     const ingestProcessors = [
       ...(isPreV219
         ? [
@@ -377,7 +382,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
                         title: getMenuItems().length > 0 ? 'PROCESSORS' : '',
                         items: (() => {
                           const items = getMenuItems();
-                          console.log('Menu items:', items);
                           return items;
                         })(),
                       },

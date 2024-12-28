@@ -171,6 +171,8 @@ export enum WORKFLOW_TYPE {
 }
 // If no datasource version is found, we default to 2.17.0
 export const MIN_SUPPORTED_VERSION = '2.17.0';
+// Min version to support ML processors
+export const MINIMUM_FULL_SUPPORTED_VERSION = '2.19.0';
 
 // the names should be consistent with the underlying implementation. used when generating the
 // final ingest/search pipeline configurations.

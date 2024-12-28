@@ -35,6 +35,7 @@ import { getSavedObjectsClient } from '../../../../public/services';
 import {
   WORKFLOW_TYPE,
   MIN_SUPPORTED_VERSION,
+  MINIMUM_FULL_SUPPORTED_VERSION,
 } from '../../../../common/constants';
 
 interface NewWorkflowProps {}
@@ -64,7 +65,6 @@ const filterPresetsByVersion = async (
   workflows: WorkflowTemplate[],
   dataSourceId: string | undefined
 ): Promise<WorkflowTemplate[]> => {
-  console.log('Initial workflows count:', workflows.length);
   // if MDS is disabled, skip the version check and assume it is version 2.19+
   const dataSourceEnabled = getDataSourceEnabled().enabled;
   if (!dataSourceEnabled) {
@@ -84,11 +84,14 @@ const filterPresetsByVersion = async (
   try {
     const version = await getEffectiveVersion(dataSourceId);
 
-    if (semver.lt(version, '2.17.0')) {
+    if (semver.lt(version, MIN_SUPPORTED_VERSION)) {
       return [];
     }
 
-    if (semver.gte(version, '2.17.0') && semver.lt(version, '2.19.0')) {
+    if (
+      semver.gte(version, MIN_SUPPORTED_VERSION) &&
+      semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION)
+    ) {
       return workflows.filter((workflow) => {
         const workflowType =
           workflow.ui_metadata?.type ?? WORKFLOW_TYPE.UNKNOWN;
@@ -154,7 +157,10 @@ export function NewWorkflow(props: NewWorkflowProps) {
 
       if (!dataSourceEnabled) {
         const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
-          enrichPresetWorkflowWithUiMetadata(presetWorkflow, '2.19.0')
+          enrichPresetWorkflowWithUiMetadata(
+            presetWorkflow,
+            MINIMUM_FULL_SUPPORTED_VERSION
+          )
         );
         setAllWorkflows(enrichedWorkflows);
         setFilteredWorkflows(enrichedWorkflows);

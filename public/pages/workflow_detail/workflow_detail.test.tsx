@@ -110,28 +110,28 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
       workflowName,
       WORKFLOW_TYPE.CUSTOM
     );
-
+    // Export button opens the export component
     userEvent.click(getByTestId('exportButton'));
     await waitFor(() => {
       expect(getByText(`Export '${workflowName}'`)).toBeInTheDocument();
     });
     // Close the export component
     userEvent.click(getByTestId('exportCloseButton'));
-
+    // Check workspace button group exists (Visual and JSON)
     getByTestId('visualJSONToggleButtonGroup');
-
+    // Tools panel should collapse and expand the toggle
     const toolsPanel = container.querySelector('#tools_panel_id');
     expect(toolsPanel).toBeVisible();
 
     const toggleButton = toolsPanel?.querySelector('button[type="button"]');
     expect(toggleButton).toBeInTheDocument();
     userEvent.click(toggleButton!);
-
+    // Tools panel after collapsing
     const collapsedToolsPanel = container.querySelector('#tools_panel_id');
     await waitFor(() => {
       expect(collapsedToolsPanel).toHaveClass('euiResizablePanel-isCollapsed');
     });
-
+    // Tools panel after expanding
     userEvent.click(toggleButton!);
     const expandedToolsPanel = container.querySelector('#tools_panel_id');
     await waitFor(() => {
@@ -147,7 +147,7 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
       workflowName,
       WORKFLOW_TYPE.CUSTOM
     );
-
+    // The WorkflowDetail Page Close button should navigate back to the workflows list
     userEvent.click(getByTestId('closeButton'));
     await waitFor(() => {
       expect(history.location.pathname).toBe('/workflows');
@@ -166,20 +166,20 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
       workflowName,
       WORKFLOW_TYPE.HYBRID_SEARCH
     );
-
+    // Defining a new ingest pipeline & index is enabled by default
     const enabledCheckbox = getByTestId('switch-ingest.enabled');
-
+    // Skipping ingest pipeline and navigating to search
     userEvent.click(enabledCheckbox);
     await waitFor(() => {});
 
     const searchPipelineButton = getByTestId('searchPipelineButton');
     userEvent.click(searchPipelineButton);
-
+    // Search pipeline
     await waitFor(() => {
       expect(getAllByText('Define search flow').length).toBeGreaterThan(0);
     });
     expect(getAllByText('Configure query').length).toBeGreaterThan(0);
-
+    // Edit Search Query
     const queryEditButton = getByTestId('queryEditButton');
     expect(queryEditButton).toBeInTheDocument();
     userEvent.click(queryEditButton);
@@ -193,7 +193,7 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
     const updateSearchQueryButton = getByTestId('updateSearchQueryButton');
     expect(updateSearchQueryButton).toBeInTheDocument();
     userEvent.click(updateSearchQueryButton);
-
+    // Add request processor
     const addRequestProcessorButton = await waitFor(
       () => getAllByTestId('addProcessorButton')[0]
     );
@@ -203,14 +203,14 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
       const popoverPanel = document.querySelector('.euiPopover__panel');
       expect(popoverPanel).toBeTruthy();
     });
-
+    // Add response processor
     const addResponseProcessorButton = getAllByTestId('addProcessorButton')[1];
     userEvent.click(addResponseProcessorButton);
     await waitFor(() => {
       const popoverPanel = document.querySelector('.euiPopover__panel');
       expect(popoverPanel).toBeTruthy();
     });
-
+    // Build and Run query, Back buttons are present
     const searchPipelineBackButton = getByTestId('searchPipelineBackButton');
     userEvent.click(searchPipelineBackButton);
 

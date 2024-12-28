@@ -10,6 +10,8 @@ import {
   MLSearchRequestProcessor,
   MLSearchResponseProcessor,
   NormalizationProcessor,
+  TextEmbeddingIngestProcessor,
+  TextImageEmbeddingIngestProcessor,
 } from '../../../configs';
 import {
   WorkflowTemplate,
@@ -19,7 +21,6 @@ import {
   WORKFLOW_TYPE,
   FETCH_ALL_QUERY,
   customStringify,
-  TERM_QUERY_TEXT,
   MULTIMODAL_SEARCH_QUERY_BOOL,
   IProcessorConfig,
   VECTOR_TEMPLATE_PLACEHOLDER,
@@ -28,10 +29,13 @@ import {
   HYBRID_SEARCH_QUERY_MATCH_KNN,
   WorkflowConfig,
   UI_METADATA_SCHEMA_VERSION,
-  PROCESSOR_TYPE,
+  SEMANTIC_SEARCH_QUERY_NEURAL,
+  MULTIMODAL_SEARCH_QUERY_NEURAL,
+  HYBRID_SEARCH_QUERY_MATCH_NEURAL,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 import semver from 'semver';
+import { MINIMUM_FULL_SUPPORTED_VERSION } from '../../../../common';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
 export function enrichPresetWorkflowWithUiMetadata(
@@ -41,58 +45,25 @@ export function enrichPresetWorkflowWithUiMetadata(
   let uiMetadata = {} as UIState;
   switch (presetWorkflow.ui_metadata?.type || WORKFLOW_TYPE.CUSTOM) {
     case WORKFLOW_TYPE.SEMANTIC_SEARCH: {
-      uiMetadata = fetchSemanticSearchMetadata();
+      uiMetadata = fetchSemanticSearchMetadata(version);
       break;
     }
     case WORKFLOW_TYPE.MULTIMODAL_SEARCH: {
-      uiMetadata = fetchMultimodalSearchMetadata();
+      uiMetadata = fetchMultimodalSearchMetadata(version);
       break;
     }
     case WORKFLOW_TYPE.HYBRID_SEARCH: {
-      uiMetadata = fetchHybridSearchMetadata();
+      uiMetadata = fetchHybridSearchMetadata(version);
       break;
     }
     case WORKFLOW_TYPE.RAG: {
-      uiMetadata = fetchRAGMetadata();
+      uiMetadata = fetchRAGMetadata(version);
       break;
     }
     default: {
       uiMetadata = fetchEmptyMetadata();
       break;
     }
-  }
-
-  if (semver.gte(version, '2.17.0') && semver.lt(version, '2.19.0')) {
-    uiMetadata.config.ingest.enrich.processors = uiMetadata.config.ingest.enrich.processors.filter(
-      (p) => p.type !== PROCESSOR_TYPE.ML
-    );
-    uiMetadata.config.search.enrichRequest.processors = uiMetadata.config.search.enrichRequest.processors.filter(
-      (p) => p.type !== PROCESSOR_TYPE.ML
-    );
-    uiMetadata.config.search.enrichResponse.processors = uiMetadata.config.search.enrichResponse.processors.filter(
-      (p) => p.type !== PROCESSOR_TYPE.ML
-    );
-  }
-
-  if (semver.eq(version, '2.19.0')) {
-    uiMetadata.config.ingest.enrich.processors = uiMetadata.config.ingest.enrich.processors.filter(
-      (p) =>
-        p.type !== PROCESSOR_TYPE.TEXT_EMBEDDING &&
-        p.type !== PROCESSOR_TYPE.TEXT_IMAGE_EMBEDDING &&
-        p.type !== PROCESSOR_TYPE.NORMALIZATION
-    );
-    uiMetadata.config.search.enrichRequest.processors = uiMetadata.config.search.enrichRequest.processors.filter(
-      (p) =>
-        p.type !== PROCESSOR_TYPE.TEXT_EMBEDDING &&
-        p.type !== PROCESSOR_TYPE.TEXT_IMAGE_EMBEDDING &&
-        p.type !== PROCESSOR_TYPE.NORMALIZATION
-    );
-    uiMetadata.config.search.enrichResponse.processors = uiMetadata.config.search.enrichResponse.processors.filter(
-      (p) =>
-        p.type !== PROCESSOR_TYPE.TEXT_EMBEDDING &&
-        p.type !== PROCESSOR_TYPE.TEXT_IMAGE_EMBEDDING &&
-        p.type !== PROCESSOR_TYPE.NORMALIZATION
-    );
   }
 
   return {
@@ -174,68 +145,113 @@ export function fetchEmptyUIConfig(): WorkflowConfig {
   };
 }
 
-export function fetchSemanticSearchMetadata(): UIState {
+export function fetchSemanticSearchMetadata(version: string): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.SEMANTIC_SEARCH;
-  baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
+  const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
+
+  baseState.config.ingest.enrich.processors = isPreV219
+    ? [
+        new TextEmbeddingIngestProcessor().toObj(),
+        new TextImageEmbeddingIngestProcessor().toObj(),
+      ]
+    : [new MLIngestProcessor().toObj()];
+
   baseState.config.ingest.index.name.value = generateId('knn_index', 6);
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
-  baseState.config.search.request.value = customStringify(TERM_QUERY_TEXT);
-  baseState.config.search.enrichRequest.processors = [
-    injectQueryTemplateInProcessor(
-      new MLSearchRequestProcessor().toObj(),
-      KNN_QUERY
-    ),
-  ];
+
+  baseState.config.search.request.value = customStringify(
+    isPreV219 ? SEMANTIC_SEARCH_QUERY_NEURAL : KNN_QUERY
+  );
+
+  baseState.config.search.enrichRequest.processors = isPreV219
+    ? []
+    : [
+        injectQueryTemplateInProcessor(
+          new MLSearchRequestProcessor().toObj(),
+          KNN_QUERY
+        ),
+      ];
+
   return baseState;
 }
 
-export function fetchMultimodalSearchMetadata(): UIState {
+export function fetchMultimodalSearchMetadata(version: string): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.MULTIMODAL_SEARCH;
-  baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
+
+  const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
+
+  baseState.config.ingest.enrich.processors = isPreV219
+    ? [
+        new TextEmbeddingIngestProcessor().toObj(),
+        new TextImageEmbeddingIngestProcessor().toObj(),
+      ]
+    : [new MLIngestProcessor().toObj()];
+
   baseState.config.ingest.index.name.value = generateId('knn_index', 6);
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
+
   baseState.config.search.request.value = customStringify(
-    MULTIMODAL_SEARCH_QUERY_BOOL
+    isPreV219 ? MULTIMODAL_SEARCH_QUERY_NEURAL : MULTIMODAL_SEARCH_QUERY_BOOL
   );
-  baseState.config.search.enrichRequest.processors = [
-    injectQueryTemplateInProcessor(
-      new MLSearchRequestProcessor().toObj(),
-      KNN_QUERY
-    ),
-  ];
+
+  baseState.config.search.enrichRequest.processors = isPreV219
+    ? []
+    : [
+        injectQueryTemplateInProcessor(
+          new MLSearchRequestProcessor().toObj(),
+          KNN_QUERY
+        ),
+      ];
+
   return baseState;
 }
 
-export function fetchHybridSearchMetadata(): UIState {
+export function fetchHybridSearchMetadata(version: string): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.HYBRID_SEARCH;
-  baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
+  const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
+
+  baseState.config.ingest.enrich.processors = isPreV219
+    ? [
+        new TextEmbeddingIngestProcessor().toObj(),
+        new TextImageEmbeddingIngestProcessor().toObj(),
+      ]
+    : [new MLIngestProcessor().toObj()];
+
   baseState.config.ingest.index.name.value = generateId('knn_index', 6);
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
-  baseState.config.search.request.value = customStringify(TERM_QUERY_TEXT);
+
+  baseState.config.search.request.value = customStringify(
+    isPreV219 ? HYBRID_SEARCH_QUERY_MATCH_NEURAL : HYBRID_SEARCH_QUERY_MATCH_KNN
+  );
+
   baseState.config.search.enrichResponse.processors = [
     injectDefaultWeightsInNormalizationProcessor(
       new NormalizationProcessor().toObj()
     ),
   ];
-  baseState.config.search.enrichRequest.processors = [
-    injectQueryTemplateInProcessor(
-      new MLSearchRequestProcessor().toObj(),
-      HYBRID_SEARCH_QUERY_MATCH_KNN
-    ),
-  ];
+
+  baseState.config.search.enrichRequest.processors = isPreV219
+    ? []
+    : [
+        injectQueryTemplateInProcessor(
+          new MLSearchRequestProcessor().toObj(),
+          HYBRID_SEARCH_QUERY_MATCH_KNN
+        ),
+      ];
+
   return baseState;
 }
 
-export function fetchRAGMetadata(): UIState {
+export function fetchRAGMetadata(version: string): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.RAG;
   baseState.config.ingest.index.name.value = generateId('my_index', 6);
