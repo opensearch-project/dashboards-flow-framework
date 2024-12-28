@@ -13,7 +13,7 @@ import { WorkflowDetailRouterProps } from '../../pages';
 import '@testing-library/jest-dom';
 import { mockStore, resizeObserverMock } from '../../../test/utils';
 import { createMemoryHistory } from 'history';
-import { WORKFLOW_TYPE } from '../../../common';
+import { MINIMUM_FULL_SUPPORTED_VERSION, WORKFLOW_TYPE } from '../../../common';
 
 jest.mock('../../services', () => {
   const { mockCoreServices } = require('../../../test');
@@ -39,6 +39,12 @@ const renderWithRouter = (
     initialEntries: [`/workflow/${workflowId}`],
   });
 
+  const needsVersion = [
+    WORKFLOW_TYPE.SEMANTIC_SEARCH,
+    WORKFLOW_TYPE.MULTIMODAL_SEARCH,
+    WORKFLOW_TYPE.HYBRID_SEARCH,
+  ].includes(workflowType);
+
   return {
     ...render(
       <Provider
@@ -46,6 +52,7 @@ const renderWithRouter = (
           id: workflowId,
           name: workflowName,
           type: workflowType,
+          version: needsVersion ? MINIMUM_FULL_SUPPORTED_VERSION : undefined,
         })}
       >
         <Router history={history}>
@@ -68,6 +75,7 @@ describe('WorkflowDetail Page with create ingestion option', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   Object.values(WORKFLOW_TYPE).forEach((type) => {
     test(`renders the WorkflowDetail page with ${type} type`, async () => {
       const {

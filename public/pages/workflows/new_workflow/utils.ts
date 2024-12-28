@@ -146,6 +146,11 @@ export function fetchEmptyUIConfig(): WorkflowConfig {
 }
 
 export function fetchSemanticSearchMetadata(version: string): UIState {
+  if (!version) {
+    throw new Error(
+      'Version parameter is required for fetchSemanticSearchMetadata'
+    );
+  }
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.SEMANTIC_SEARCH;
   const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
@@ -179,6 +184,12 @@ export function fetchSemanticSearchMetadata(version: string): UIState {
 }
 
 export function fetchMultimodalSearchMetadata(version: string): UIState {
+  if (!version) {
+    throw new Error(
+      'Version parameter is required for fetchSemanticSearchMetadata'
+    );
+  }
+
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.MULTIMODAL_SEARCH;
 
@@ -213,6 +224,12 @@ export function fetchMultimodalSearchMetadata(version: string): UIState {
 }
 
 export function fetchHybridSearchMetadata(version: string): UIState {
+  if (!version) {
+    throw new Error(
+      'Version parameter is required for fetchSemanticSearchMetadata'
+    );
+  }
+
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.HYBRID_SEARCH;
   const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
@@ -252,6 +269,12 @@ export function fetchHybridSearchMetadata(version: string): UIState {
 }
 
 export function fetchRAGMetadata(version: string): UIState {
+  if (!version) {
+    throw new Error(
+      'Version parameter is required for fetchSemanticSearchMetadata'
+    );
+  }
+
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.RAG;
   baseState.config.ingest.index.name.value = generateId('my_index', 6);
