@@ -16,8 +16,6 @@ import {
   EuiCompressedFieldNumber,
 } from '@elastic/eui';
 import {
-  BEDROCK_DIMENSIONS,
-  COHERE_DIMENSIONS,
   DEFAULT_IMAGE_FIELD,
   DEFAULT_LLM_RESPONSE_FIELD,
   DEFAULT_TEXT_FIELD,
@@ -25,12 +23,11 @@ import {
   MODEL_STATE,
   Model,
   ModelInterface,
-  OPENAI_DIMENSIONS,
   QuickConfigureFields,
   WORKFLOW_TYPE,
 } from '../../../../common';
 import { AppState } from '../../../store';
-import { parseModelInputs } from '../../../utils';
+import { getEmbeddingModelDimensions, parseModelInputs } from '../../../utils';
 import { get } from 'lodash';
 
 interface QuickConfigureInputsProps {
@@ -121,33 +118,10 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
     if (selectedModel?.connectorId !== undefined) {
       const connector = connectors[selectedModel.connectorId];
       if (connector !== undefined) {
-        // some APIs allow specifically setting the dimensions at runtime,
-        // so we check for that first.
-        if (connector.parameters?.dimensions !== undefined) {
-          setFieldValues({
-            ...fieldValues,
-            embeddingLength: connector.parameters?.dimensions,
-          });
-        } else if (connector.parameters?.model !== undefined) {
-          const dimensions =
-            // @ts-ignore
-            COHERE_DIMENSIONS[connector.parameters?.model] ||
-            // @ts-ignore
-            OPENAI_DIMENSIONS[connector.parameters?.model] ||
-            // @ts-ignore
-            BEDROCK_DIMENSIONS[connector.parameters?.model];
-          if (dimensions !== undefined) {
-            setFieldValues({
-              ...fieldValues,
-              embeddingLength: dimensions,
-            });
-          }
-        } else {
-          setFieldValues({
-            ...fieldValues,
-            embeddingLength: undefined,
-          });
-        }
+        setFieldValues({
+          ...fieldValues,
+          embeddingLength: getEmbeddingModelDimensions(connector),
+        });
       }
     }
   }, [fieldValues.modelId, deployedModels, connectors]);
