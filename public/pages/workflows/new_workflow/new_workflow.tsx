@@ -81,31 +81,23 @@ const filterPresetsByVersion = async (
     WORKFLOW_TYPE.HYBRID_SEARCH,
   ];
 
-  try {
-    const version = await getEffectiveVersion(dataSourceId);
+  const version = await getEffectiveVersion(dataSourceId);
 
-    if (semver.lt(version, MIN_SUPPORTED_VERSION)) {
-      return [];
-    }
+  if (semver.lt(version, MIN_SUPPORTED_VERSION)) {
+    return [];
+  }
 
-    if (
-      semver.gte(version, MIN_SUPPORTED_VERSION) &&
-      semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION)
-    ) {
-      return workflows.filter((workflow) => {
-        const workflowType =
-          workflow.ui_metadata?.type ?? WORKFLOW_TYPE.UNKNOWN;
-        return allowedPresetsFor217.includes(workflowType as WORKFLOW_TYPE);
-      });
-    }
-
-    return workflows;
-  } catch (error) {
+  if (
+    semver.gte(version, MIN_SUPPORTED_VERSION) &&
+    semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION)
+  ) {
     return workflows.filter((workflow) => {
       const workflowType = workflow.ui_metadata?.type ?? WORKFLOW_TYPE.UNKNOWN;
       return allowedPresetsFor217.includes(workflowType as WORKFLOW_TYPE);
     });
   }
+
+  return workflows;
 };
 
 /**
@@ -177,29 +169,20 @@ export function NewWorkflow(props: NewWorkflowProps) {
 
       setIsVersionLoading(true);
 
-      try {
-        const version = await getEffectiveVersion(dataSourceId);
+      const version = await getEffectiveVersion(dataSourceId);
 
-        const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
-          enrichPresetWorkflowWithUiMetadata(presetWorkflow, version)
-        );
+      const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
+        enrichPresetWorkflowWithUiMetadata(presetWorkflow, version)
+      );
 
-        const versionFilteredWorkflows = await filterPresetsByVersion(
-          enrichedWorkflows,
-          dataSourceId
-        );
+      const versionFilteredWorkflows = await filterPresetsByVersion(
+        enrichedWorkflows,
+        dataSourceId
+      );
 
-        setAllWorkflows(versionFilteredWorkflows);
-        setFilteredWorkflows(versionFilteredWorkflows);
-        setIsVersionLoading(false);
-      } catch (error) {
-        console.error('Error loading workflows:', error);
-        setAllWorkflows([]);
-        setFilteredWorkflows([]);
-        if (dataSourceId) {
-          setIsVersionLoading(false);
-        }
-      }
+      setAllWorkflows(versionFilteredWorkflows);
+      setFilteredWorkflows(versionFilteredWorkflows);
+      setIsVersionLoading(false);
     };
 
     loadWorkflows();

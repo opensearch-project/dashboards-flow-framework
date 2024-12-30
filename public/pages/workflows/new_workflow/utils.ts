@@ -42,22 +42,25 @@ export function enrichPresetWorkflowWithUiMetadata(
   presetWorkflow: Partial<WorkflowTemplate>,
   version: string
 ): WorkflowTemplate {
+  const defaultVersion = MINIMUM_FULL_SUPPORTED_VERSION;
+  const workflowVersion = version ?? defaultVersion;
+
   let uiMetadata = {} as UIState;
   switch (presetWorkflow.ui_metadata?.type || WORKFLOW_TYPE.CUSTOM) {
     case WORKFLOW_TYPE.SEMANTIC_SEARCH: {
-      uiMetadata = fetchSemanticSearchMetadata(version);
+      uiMetadata = fetchSemanticSearchMetadata(workflowVersion);
       break;
     }
     case WORKFLOW_TYPE.MULTIMODAL_SEARCH: {
-      uiMetadata = fetchMultimodalSearchMetadata(version);
+      uiMetadata = fetchMultimodalSearchMetadata(workflowVersion);
       break;
     }
     case WORKFLOW_TYPE.HYBRID_SEARCH: {
-      uiMetadata = fetchHybridSearchMetadata(version);
+      uiMetadata = fetchHybridSearchMetadata(workflowVersion);
       break;
     }
     case WORKFLOW_TYPE.RAG: {
-      uiMetadata = fetchRAGMetadata(version);
+      uiMetadata = fetchRAGMetadata(workflowVersion);
       break;
     }
     default: {
@@ -146,20 +149,12 @@ export function fetchEmptyUIConfig(): WorkflowConfig {
 }
 
 export function fetchSemanticSearchMetadata(version: string): UIState {
-  if (!version) {
-    throw new Error(
-      'Version parameter is required for fetchSemanticSearchMetadata'
-    );
-  }
+  const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.SEMANTIC_SEARCH;
-  const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
 
   baseState.config.ingest.enrich.processors = isPreV219
-    ? [
-        new TextEmbeddingIngestProcessor().toObj(),
-        new TextImageEmbeddingIngestProcessor().toObj(),
-      ]
+    ? [new TextEmbeddingIngestProcessor().toObj()]
     : [new MLIngestProcessor().toObj()];
 
   baseState.config.ingest.index.name.value = generateId('knn_index', 6);
@@ -184,22 +179,12 @@ export function fetchSemanticSearchMetadata(version: string): UIState {
 }
 
 export function fetchMultimodalSearchMetadata(version: string): UIState {
-  if (!version) {
-    throw new Error(
-      'Version parameter is required for fetchSemanticSearchMetadata'
-    );
-  }
-
+  const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.MULTIMODAL_SEARCH;
 
-  const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
-
   baseState.config.ingest.enrich.processors = isPreV219
-    ? [
-        new TextEmbeddingIngestProcessor().toObj(),
-        new TextImageEmbeddingIngestProcessor().toObj(),
-      ]
+    ? [new TextImageEmbeddingIngestProcessor().toObj()]
     : [new MLIngestProcessor().toObj()];
 
   baseState.config.ingest.index.name.value = generateId('knn_index', 6);
@@ -224,21 +209,12 @@ export function fetchMultimodalSearchMetadata(version: string): UIState {
 }
 
 export function fetchHybridSearchMetadata(version: string): UIState {
-  if (!version) {
-    throw new Error(
-      'Version parameter is required for fetchSemanticSearchMetadata'
-    );
-  }
-
+  const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.HYBRID_SEARCH;
-  const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
 
   baseState.config.ingest.enrich.processors = isPreV219
-    ? [
-        new TextEmbeddingIngestProcessor().toObj(),
-        new TextImageEmbeddingIngestProcessor().toObj(),
-      ]
+    ? [new TextEmbeddingIngestProcessor().toObj()]
     : [new MLIngestProcessor().toObj()];
 
   baseState.config.ingest.index.name.value = generateId('knn_index', 6);
@@ -269,12 +245,6 @@ export function fetchHybridSearchMetadata(version: string): UIState {
 }
 
 export function fetchRAGMetadata(version: string): UIState {
-  if (!version) {
-    throw new Error(
-      'Version parameter is required for fetchSemanticSearchMetadata'
-    );
-  }
-
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.RAG;
   baseState.config.ingest.index.name.value = generateId('my_index', 6);

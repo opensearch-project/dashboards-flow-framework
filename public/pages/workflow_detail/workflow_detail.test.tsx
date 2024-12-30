@@ -39,22 +39,22 @@ const renderWithRouter = (
     initialEntries: [`/workflow/${workflowId}`],
   });
 
-  const needsVersion = [
-    WORKFLOW_TYPE.SEMANTIC_SEARCH,
-    WORKFLOW_TYPE.MULTIMODAL_SEARCH,
-    WORKFLOW_TYPE.HYBRID_SEARCH,
-  ].includes(workflowType);
+  const mockInput = {
+    id: workflowId,
+    name: workflowName,
+    type: workflowType,
+    version: [
+      WORKFLOW_TYPE.SEMANTIC_SEARCH,
+      WORKFLOW_TYPE.MULTIMODAL_SEARCH,
+      WORKFLOW_TYPE.HYBRID_SEARCH,
+    ].includes(workflowType)
+      ? MINIMUM_FULL_SUPPORTED_VERSION
+      : undefined,
+  };
 
   return {
     ...render(
-      <Provider
-        store={mockStore({
-          id: workflowId,
-          name: workflowName,
-          type: workflowType,
-          version: needsVersion ? MINIMUM_FULL_SUPPORTED_VERSION : undefined,
-        })}
-      >
+      <Provider store={mockStore(mockInput)}>
         <Router history={history}>
           <Switch>
             <Route
