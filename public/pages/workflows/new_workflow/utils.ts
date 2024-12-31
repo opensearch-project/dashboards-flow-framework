@@ -32,6 +32,7 @@ import {
   SEMANTIC_SEARCH_QUERY_NEURAL,
   MULTIMODAL_SEARCH_QUERY_NEURAL,
   HYBRID_SEARCH_QUERY_MATCH_NEURAL,
+  TERM_QUERY_TEXT,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 import semver from 'semver';
@@ -163,7 +164,7 @@ export function fetchSemanticSearchMetadata(version: string): UIState {
   });
 
   baseState.config.search.request.value = customStringify(
-    isPreV219 ? SEMANTIC_SEARCH_QUERY_NEURAL : KNN_QUERY
+    isPreV219 ? SEMANTIC_SEARCH_QUERY_NEURAL : TERM_QUERY_TEXT
   );
 
   baseState.config.search.enrichRequest.processors = isPreV219
@@ -223,7 +224,7 @@ export function fetchHybridSearchMetadata(version: string): UIState {
   });
 
   baseState.config.search.request.value = customStringify(
-    isPreV219 ? HYBRID_SEARCH_QUERY_MATCH_NEURAL : HYBRID_SEARCH_QUERY_MATCH_KNN
+    isPreV219 ? HYBRID_SEARCH_QUERY_MATCH_NEURAL : TERM_QUERY_TEXT
   );
 
   baseState.config.search.enrichResponse.processors = [
