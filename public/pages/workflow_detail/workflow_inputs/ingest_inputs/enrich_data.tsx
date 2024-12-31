@@ -8,7 +8,6 @@ import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { ProcessorsList } from '../processors_list';
 import { PROCESSOR_CONTEXT, WorkflowConfig } from '../../../../../common';
 import { ProcessorsTitle } from '../../../../general_components';
-
 interface EnrichDataProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
