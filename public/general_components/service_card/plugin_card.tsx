@@ -16,7 +16,6 @@ import { PLUGIN_ID } from '../../../common';
 import { ContentManagementPluginStart } from '../../../../../src/plugins/content_management/public';
 import { CoreStart } from '../../../../../src/core/public';
 import pluginIcon from './icon.svg';
-import { ExperimentalBadge } from '../experimental_badge';
 
 const HEADER_TEXT = 'Design and test your search solutions with ease';
 const DESCRIPTION_TEXT =
@@ -66,12 +65,6 @@ export const registerPluginCard = (
                   )}
                 </h3>
               </EuiTitle>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <ExperimentalBadge
-                popoverEnabled={true}
-                popoverAnchorPosition="upLeft"
-              />
             </EuiFlexItem>
           </EuiFlexGroup>
         );

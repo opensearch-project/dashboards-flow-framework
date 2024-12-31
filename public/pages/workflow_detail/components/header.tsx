@@ -54,7 +54,6 @@ import { MountPoint } from '../../../../../../src/core/public';
 import { getWorkflow, updateWorkflow, useAppDispatch } from '../../../store';
 import { useFormikContext } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
-import { ExperimentalBadge } from '../../../general_components';
 
 interface WorkflowDetailHeaderProps {
   workflow?: Workflow;
@@ -334,14 +333,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
             setMountPoint={setAppRightControls}
             controls={[
               {
-                renderComponent: (
-                  <ExperimentalBadge
-                    popoverEnabled={true}
-                    popoverAnchorPosition="downLeft"
-                  />
-                ),
-              },
-              {
                 text: `Last saved: ${workflowLastUpdated}`,
                 color: 'subdued',
                 className: 'workflow-detail-last-updated',
@@ -415,10 +406,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
               <EuiText color="subdued" size="s">
                 {`Last saved: ${workflowLastUpdated}`}
               </EuiText>,
-              <ExperimentalBadge
-                popoverEnabled={true}
-                popoverAnchorPosition="downLeft"
-              />,
             ]}
             bottomBorder={false}
             rightSideGroupProps={{

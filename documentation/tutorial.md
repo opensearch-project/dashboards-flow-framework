@@ -1,4 +1,4 @@
-The following tutorial is an accurate representation of the experimental OpenSearch Flow OSD Plugin as of 11/27/2024, based on OSD 2.18.
+The following tutorial is an accurate representation of the OpenSearch Flow OSD Plugin as of 12/30/2024, based on OSD 2.18.
 
 Changelog:
 
