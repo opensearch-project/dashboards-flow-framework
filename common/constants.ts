@@ -443,16 +443,8 @@ export const QUERY_PRESETS = [
     query: customStringify(KNN_QUERY),
   },
   {
-    name: `${WORKFLOW_TYPE.SEMANTIC_SEARCH} (neural)`,
-    query: customStringify(SEMANTIC_SEARCH_QUERY_NEURAL),
-  },
-  {
     name: WORKFLOW_TYPE.MULTIMODAL_SEARCH,
     query: customStringify(MULTIMODAL_SEARCH_QUERY_BOOL),
-  },
-  {
-    name: `${WORKFLOW_TYPE.MULTIMODAL_SEARCH} (neural)`,
-    query: customStringify(MULTIMODAL_SEARCH_QUERY_NEURAL),
   },
   {
     name: `Hybrid search (match & k-NN queries)`,
@@ -461,10 +453,6 @@ export const QUERY_PRESETS = [
   {
     name: `Hybrid search (match & term queries)`,
     query: customStringify(HYBRID_SEARCH_QUERY_MATCH_TERM),
-  },
-  {
-    name: `Hybrid search (match & neural queries)`,
-    query: customStringify(HYBRID_SEARCH_QUERY_MATCH_NEURAL),
   },
 ] as QueryPreset[];
 
