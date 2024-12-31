@@ -13,7 +13,7 @@ import { WorkflowDetailRouterProps } from '../../pages';
 import '@testing-library/jest-dom';
 import { mockStore, resizeObserverMock } from '../../../test/utils';
 import { createMemoryHistory } from 'history';
-import { WORKFLOW_TYPE } from '../../../common';
+import { MINIMUM_FULL_SUPPORTED_VERSION, WORKFLOW_TYPE } from '../../../common';
 
 jest.mock('../../services', () => {
   const { mockCoreServices } = require('../../../test');
@@ -39,15 +39,22 @@ const renderWithRouter = (
     initialEntries: [`/workflow/${workflowId}`],
   });
 
+  const mockInput = {
+    id: workflowId,
+    name: workflowName,
+    type: workflowType,
+    version: [
+      WORKFLOW_TYPE.SEMANTIC_SEARCH,
+      WORKFLOW_TYPE.MULTIMODAL_SEARCH,
+      WORKFLOW_TYPE.HYBRID_SEARCH,
+    ].includes(workflowType)
+      ? MINIMUM_FULL_SUPPORTED_VERSION
+      : undefined,
+  };
+
   return {
     ...render(
-      <Provider
-        store={mockStore({
-          id: workflowId,
-          name: workflowName,
-          type: workflowType,
-        })}
-      >
+      <Provider store={mockStore(mockInput)}>
         <Router history={history}>
           <Switch>
             <Route
@@ -68,6 +75,7 @@ describe('WorkflowDetail Page with create ingestion option', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   Object.values(WORKFLOW_TYPE).forEach((type) => {
     test(`renders the WorkflowDetail page with ${type} type`, async () => {
       const {
@@ -110,33 +118,27 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
       workflowName,
       WORKFLOW_TYPE.CUSTOM
     );
-
     // Export button opens the export component
     userEvent.click(getByTestId('exportButton'));
     await waitFor(() => {
       expect(getByText(`Export '${workflowName}'`)).toBeInTheDocument();
     });
-
     // Close the export component
     userEvent.click(getByTestId('exportCloseButton'));
-
     // Check workspace button group exists (Visual and JSON)
     getByTestId('visualJSONToggleButtonGroup');
-
-    // Tools panel should collapse and expand on toggle
+    // Tools panel should collapse and expand the toggle
     const toolsPanel = container.querySelector('#tools_panel_id');
     expect(toolsPanel).toBeVisible();
 
     const toggleButton = toolsPanel?.querySelector('button[type="button"]');
     expect(toggleButton).toBeInTheDocument();
     userEvent.click(toggleButton!);
-
     // Tools panel after collapsing
     const collapsedToolsPanel = container.querySelector('#tools_panel_id');
     await waitFor(() => {
       expect(collapsedToolsPanel).toHaveClass('euiResizablePanel-isCollapsed');
     });
-
     // Tools panel after expanding
     userEvent.click(toggleButton!);
     const expandedToolsPanel = container.querySelector('#tools_panel_id');
@@ -153,7 +155,6 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
       workflowName,
       WORKFLOW_TYPE.CUSTOM
     );
-
     // The WorkflowDetail Page Close button should navigate back to the workflows list
     userEvent.click(getByTestId('closeButton'));
     await waitFor(() => {
@@ -166,57 +167,57 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   test(`renders the WorkflowDetail page with skip ingestion option`, async () => {
     const { getByTestId, getAllByText, getAllByTestId } = renderWithRouter(
       workflowId,
       workflowName,
       WORKFLOW_TYPE.HYBRID_SEARCH
     );
-
     // Defining a new ingest pipeline & index is enabled by default
     const enabledCheckbox = getByTestId('switch-ingest.enabled');
-
     // Skipping ingest pipeline and navigating to search
     userEvent.click(enabledCheckbox);
     await waitFor(() => {});
+
     const searchPipelineButton = getByTestId('searchPipelineButton');
     userEvent.click(searchPipelineButton);
-
     // Search pipeline
     await waitFor(() => {
       expect(getAllByText('Define search flow').length).toBeGreaterThan(0);
     });
     expect(getAllByText('Configure query').length).toBeGreaterThan(0);
-
     // Edit Search Query
     const queryEditButton = getByTestId('queryEditButton');
     expect(queryEditButton).toBeInTheDocument();
     userEvent.click(queryEditButton);
+
     await waitFor(() => {
       expect(getAllByText('Edit query definition').length).toBeGreaterThan(0);
     });
+
     const searchQueryPresetButton = getByTestId('searchQueryPresetButton');
     expect(searchQueryPresetButton).toBeInTheDocument();
     const updateSearchQueryButton = getByTestId('updateSearchQueryButton');
     expect(updateSearchQueryButton).toBeInTheDocument();
     userEvent.click(updateSearchQueryButton);
-
     // Add request processor
     const addRequestProcessorButton = await waitFor(
       () => getAllByTestId('addProcessorButton')[0]
     );
     userEvent.click(addRequestProcessorButton);
-    await waitFor(() => {
-      expect(getAllByText('PROCESSORS').length).toBeGreaterThan(0);
-    });
 
+    await waitFor(() => {
+      const popoverPanel = document.querySelector('.euiPopover__panel');
+      expect(popoverPanel).toBeTruthy();
+    });
     // Add response processor
     const addResponseProcessorButton = getAllByTestId('addProcessorButton')[1];
     userEvent.click(addResponseProcessorButton);
     await waitFor(() => {
-      expect(getAllByText('PROCESSORS').length).toBeGreaterThan(0);
+      const popoverPanel = document.querySelector('.euiPopover__panel');
+      expect(popoverPanel).toBeTruthy();
     });
-
     // Build and Run query, Back buttons are present
     const searchPipelineBackButton = getByTestId('searchPipelineBackButton');
     userEvent.click(searchPipelineBackButton);

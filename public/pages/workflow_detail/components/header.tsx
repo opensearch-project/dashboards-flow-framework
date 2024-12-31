@@ -115,7 +115,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
 
   // get & render the data source component, if applicable
   let DataSourceComponent: ReactElement | null = null;
-  if (dataSourceEnabled && getDataSourceManagementPlugin()) {
+  if (dataSourceEnabled && getDataSourceManagementPlugin() && dataSourceId) {
     const DataSourceMenu = getDataSourceManagementPlugin().ui.getDataSourceMenu<
       DataSourceViewConfig
     >();

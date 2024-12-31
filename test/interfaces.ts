@@ -9,4 +9,5 @@ export type WorkflowInput = {
   id: string;
   name: string;
   type: WORKFLOW_TYPE;
+  version?: string;
 };

@@ -10,7 +10,10 @@ import {
   INITIAL_WORKFLOWS_STATE,
 } from '../public/store';
 import { WorkflowInput } from '../test/interfaces';
-import { WORKFLOW_TYPE } from '../common/constants';
+import {
+  MINIMUM_FULL_SUPPORTED_VERSION,
+  WORKFLOW_TYPE,
+} from '../common/constants';
 import { UIState, Workflow, WorkflowDict } from '../common/interfaces';
 import {
   fetchEmptyMetadata,
@@ -44,27 +47,42 @@ export function mockStore(...workflowSets: WorkflowInput[]) {
 }
 
 function generateWorkflow({ id, name, type }: WorkflowInput): Workflow {
+  const isSearchWorkflow = [
+    WORKFLOW_TYPE.SEMANTIC_SEARCH,
+    WORKFLOW_TYPE.MULTIMODAL_SEARCH,
+    WORKFLOW_TYPE.HYBRID_SEARCH,
+  ].includes(type);
+
+  const version = {
+    template: '1.0.0',
+    compatibility: isSearchWorkflow
+      ? [MINIMUM_FULL_SUPPORTED_VERSION]
+      : ['2.18.0', '3.0.0'],
+  };
+
   return {
     id,
     name,
-    version: { template: '1.0.0', compatibility: ['2.18.0', '3.0.0'] },
-    ui_metadata: getConfig(type),
+    version,
+    ui_metadata: getConfig(type, version.compatibility[0]),
   };
 }
 
-function getConfig(workflowType: WORKFLOW_TYPE) {
+function getConfig(workflowType: WORKFLOW_TYPE, version?: string) {
   let uiMetadata = {} as UIState;
+  const searchVersion = version || MINIMUM_FULL_SUPPORTED_VERSION;
+
   switch (workflowType) {
     case WORKFLOW_TYPE.SEMANTIC_SEARCH: {
-      uiMetadata = fetchSemanticSearchMetadata();
+      uiMetadata = fetchSemanticSearchMetadata(searchVersion);
       break;
     }
     case WORKFLOW_TYPE.MULTIMODAL_SEARCH: {
-      uiMetadata = fetchMultimodalSearchMetadata();
+      uiMetadata = fetchMultimodalSearchMetadata(searchVersion);
       break;
     }
     case WORKFLOW_TYPE.HYBRID_SEARCH: {
-      uiMetadata = fetchHybridSearchMetadata();
+      uiMetadata = fetchHybridSearchMetadata(searchVersion);
       break;
     }
     default: {
