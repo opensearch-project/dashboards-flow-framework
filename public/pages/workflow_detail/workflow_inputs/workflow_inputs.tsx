@@ -53,8 +53,6 @@ import {
   getDataSourceId,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
-
-// styling
 import '../workspace/workspace-styles.scss';
 
 interface WorkflowInputsProps {

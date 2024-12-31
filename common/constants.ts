@@ -169,6 +169,10 @@ export enum WORKFLOW_TYPE {
   CUSTOM = 'Custom',
   UNKNOWN = 'Unknown',
 }
+// If no datasource version is found, we default to 2.17.0
+export const MIN_SUPPORTED_VERSION = '2.17.0';
+// Min version to support ML processors
+export const MINIMUM_FULL_SUPPORTED_VERSION = '2.19.0';
 
 // the names should be consistent with the underlying implementation. used when generating the
 // final ingest/search pipeline configurations.
@@ -180,6 +184,8 @@ export enum PROCESSOR_TYPE {
   NORMALIZATION = 'normalization-processor',
   COLLAPSE = 'collapse',
   RERANK = 'rerank',
+  TEXT_EMBEDDING = 'text_embedding',
+  TEXT_IMAGE_EMBEDDING = 'text_image_embedding',
 }
 
 export enum MODEL_TYPE {
