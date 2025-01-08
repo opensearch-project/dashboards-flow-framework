@@ -96,7 +96,7 @@ export function ConfigureMultiExpressionModal(
 
   // sub-form values/schema
   const expressionsFormValues = {
-    expressions: [],
+    expressions: [{ name: '', transform: '' } as ExpressionVar],
   } as MultiExpressionFormValues;
   const expressionsFormSchema = yup.object({
     expressions: yup
@@ -226,12 +226,14 @@ export function ConfigureMultiExpressionModal(
       validate={(values) => {}}
     >
       {(formikProps) => {
-        // override to parent form values when changes detected
+        // override to parent form values when changes detected (when non-empty)
         useEffect(() => {
-          formikProps.setFieldValue(
-            'expressions',
-            getIn(values, `${props.fieldPath}.nestedVars`)
-          );
+          if (!isEmpty(getIn(values, `${props.fieldPath}.nestedVars`))) {
+            formikProps.setFieldValue(
+              'expressions',
+              getIn(values, `${props.fieldPath}.nestedVars`)
+            );
+          }
         }, [getIn(values, props.fieldPath)]);
 
         // update temp vars when form changes are detected
