@@ -155,6 +155,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     boolean
   >(false);
 
+  // If a workflow is imported, but not yet provisioned, the template nodes will exist, but the resources themselves won't be created.
+  // We persist this to ensure that the update search button is enabled to allow provisioning on the UI.
+  const isProposingSearchResourcesButNotProvisioned =
+    !isEmpty(persistedSearchTemplateNodes) && !searchProvisioned;
+
   // fetch the total template nodes
   useEffect(() => {
     setPersistedTemplateNodes(
@@ -254,7 +259,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     docsPopulated &&
     (ingestTemplatesDifferent || props.isRunningIngest);
   const showSearchBottomBar =
-    onSearch && (searchTemplatesDifferent || isUpdatingSearchPipeline);
+    onSearch &&
+    (searchTemplatesDifferent ||
+      isUpdatingSearchPipeline ||
+      isProposingSearchResourcesButNotProvisioned);
 
   // Utility fn to revert any unsaved changes, reset the form
   function revertUnsavedChanges(): void {
@@ -655,7 +663,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                                 props.setSelectedStep(CONFIG_STEP.SEARCH);
                               }}
                               data-testid="searchPipelineButton"
-                              disabled={ingestTemplatesDifferent}
+                              disabled={
+                                !ingestEnabled
+                                  ? false
+                                  : ingestTemplatesDifferent
+                              }
                               iconSide="right"
                               iconType="arrowRight"
                             >
@@ -783,7 +795,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       fill={true}
                       iconType="check"
                       iconSide="left"
-                      disabled={!searchTemplatesDifferent}
+                      disabled={
+                        isProposingSearchResourcesButNotProvisioned
+                          ? false
+                          : !searchTemplatesDifferent
+                      }
                       isLoading={isUpdatingSearchPipeline}
                       onClick={async () => {
                         if (await validateAndUpdateSearchResources()) {
