@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
-import { EuiAccordion, EuiCallOut, EuiSpacer } from '@elastic/eui';
+import { EuiAccordion, EuiCallOut, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import {
   IProcessorConfig,
   IConfigField,
@@ -102,21 +102,23 @@ export function TextChunkingProcessorInputs(
         buttonContent="Advanced settings"
         paddingSize="none"
       >
-        <EuiSpacer size="s" />
-        <ConfigFieldList
-          configId={props.config.id}
-          // construct the final set of optional fields by combining the current
-          // algorithm's set of optional fields, with the commonly shared fields
-          configFields={[
-            ...(props.config.optionalFields?.filter((optionalField) =>
-              algorithmOptionalFields.includes(optionalField.id)
-            ) || []),
-            ...(props.config.optionalFields?.filter((optionalField) =>
-              SHARED_OPTIONAL_FIELDS.includes(optionalField.id)
-            ) || []),
-          ]}
-          baseConfigPath={props.baseConfigPath}
-        />
+        <EuiFlexItem style={{ marginLeft: '28px' }}>
+          <EuiSpacer size="s" />
+          <ConfigFieldList
+            configId={props.config.id}
+            // construct the final set of optional fields by combining the current
+            // algorithm's set of optional fields, with the commonly shared fields
+            configFields={[
+              ...(props.config.optionalFields?.filter((optionalField) =>
+                algorithmOptionalFields.includes(optionalField.id)
+              ) || []),
+              ...(props.config.optionalFields?.filter((optionalField) =>
+                SHARED_OPTIONAL_FIELDS.includes(optionalField.id)
+              ) || []),
+            ]}
+            baseConfigPath={props.baseConfigPath}
+          />
+        </EuiFlexItem>
       </EuiAccordion>
     </>
   );
