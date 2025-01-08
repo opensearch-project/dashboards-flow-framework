@@ -374,7 +374,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                          <EuiText>{props.modelInputFieldName}</EuiText>
+                          <EuiText>{props.modelInputFieldName || '-'}</EuiText>
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
