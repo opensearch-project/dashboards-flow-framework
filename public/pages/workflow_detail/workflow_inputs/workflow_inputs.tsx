@@ -585,7 +585,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     fieldPath="ingest.enabled"
                     label="Enable ingestion"
                     type="Switch"
-                    helpText="Create a new ingest pipeline and index"
                   />
                 </EuiFlexItem>
               )}
