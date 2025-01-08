@@ -13,6 +13,7 @@ import {
   EuiSmallButtonEmpty,
   EuiSmallButton,
   EuiSmallButtonIcon,
+  EuiButtonIcon,
 } from '@elastic/eui';
 import {
   PLUGIN_ID,
@@ -54,6 +55,7 @@ import { MountPoint } from '../../../../../../src/core/public';
 import { getWorkflow, updateWorkflow, useAppDispatch } from '../../../store';
 import { useFormikContext } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
+import { EditWorkflowMetadataModal } from './edit_workflow_metadata_modal';
 
 interface WorkflowDetailHeaderProps {
   workflow?: Workflow;
@@ -86,8 +88,11 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
     props.workflow?.lastUpdated
   ).toString();
 
-  // export modal state
+  // modal states
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
+  const [isEditWorkflowModalOpen, setIsEditWorkflowModalOpen] = useState<
+    boolean
+  >(false);
 
   const dataSourceEnabled = getDataSourceEnabled().enabled;
   const dataSourceId = getDataSourceId();
@@ -276,6 +281,12 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           setIsExportModalOpen={setIsExportModalOpen}
         />
       )}
+      {isEditWorkflowModalOpen && (
+        <EditWorkflowMetadataModal
+          workflow={props.workflow}
+          setIsModalOpen={setIsEditWorkflowModalOpen}
+        />
+      )}
       {USE_NEW_HOME_PAGE ? (
         <>
           <TopNavMenu
@@ -358,8 +369,17 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           {dataSourceEnabled && DataSourceComponent}
           <EuiPageHeader
             pageTitle={
-              <EuiFlexGroup direction="row" alignItems="flexEnd" gutterSize="m">
+              <EuiFlexGroup direction="row" gutterSize="s">
                 <EuiFlexItem grow={false}>{workflowName}</EuiFlexItem>
+                <EuiFlexItem grow={false} style={{ marginTop: '18px' }}>
+                  <EuiButtonIcon
+                    iconType={'gear'}
+                    aria-label="editWorkflowMetadata"
+                    onClick={() => {
+                      setIsEditWorkflowModalOpen(true);
+                    }}
+                  />
+                </EuiFlexItem>
               </EuiFlexGroup>
             }
             rightSideItems={[
