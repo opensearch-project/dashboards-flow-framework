@@ -450,9 +450,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         gutterSize="s"
                       >
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
-                          <EuiText size="s" color="subdued">
-                            {`Name`}
-                          </EuiText>
+                          <EuiText size="s">{`Name`}</EuiText>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiFlexGroup
@@ -460,9 +458,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                             justifyContent="spaceBetween"
                           >
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
-                                {`Expression`}
-                              </EuiText>
+                              <EuiText size="s">{`Expression`}</EuiText>
                             </EuiFlexItem>
                             <EuiFlexItem grow={false}>
                               <EuiPopover

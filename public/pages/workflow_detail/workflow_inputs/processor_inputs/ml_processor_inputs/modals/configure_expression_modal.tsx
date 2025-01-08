@@ -318,9 +318,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                             justifyContent="spaceBetween"
                           >
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
-                                {`Expression`}
-                              </EuiText>
+                              <EuiText size="s">{`Expression`}</EuiText>
                             </EuiFlexItem>
                             <EuiFlexItem grow={false}>
                               <EuiPopover
@@ -350,9 +348,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                          <EuiText size="s" color="subdued">
-                            {`Model input name`}
-                          </EuiText>
+                          <EuiText size="s">{`Model input name`}</EuiText>
                         </EuiFlexItem>
                       </EuiFlexGroup>
                       <EuiSpacer size="s" />
@@ -370,7 +366,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                             {props.context ===
                               PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
                               <EuiFlexItem grow={false}>
-                                <EuiText size="xs" color="subdued">
+                                <EuiText size="xs">
                                   {`Tip: to include data from the the original query request, prefix your expression with "${REQUEST_PREFIX}" - for example, "_request.query.match.my_field"`}
                                 </EuiText>
                               </EuiFlexItem>

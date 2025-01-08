@@ -290,9 +290,7 @@ export function ConfigureMultiExpressionModal(
                             justifyContent="spaceBetween"
                           >
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
-                                {`Expression`}
-                              </EuiText>
+                              <EuiText size="s">{`Expression`}</EuiText>
                             </EuiFlexItem>
                             <EuiFlexItem grow={false}>
                               <EuiPopover
@@ -322,7 +320,7 @@ export function ConfigureMultiExpressionModal(
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                          <EuiText size="s" color="subdued">
+                          <EuiText size="s">
                             {props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                               ? `New query field`
                               : `New document field`}
