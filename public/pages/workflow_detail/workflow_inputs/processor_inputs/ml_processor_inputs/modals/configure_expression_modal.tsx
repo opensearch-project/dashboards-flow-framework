@@ -23,7 +23,6 @@ import {
   EuiSpacer,
   EuiIconTip,
   EuiPopover,
-  EuiBadge,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -64,6 +63,7 @@ import {
 import { getCore } from '../../../../../../services';
 import {
   JsonPathExamplesTable,
+  ProcessingBadge,
   QueryParamsList,
 } from '../../../../../../general_components';
 
@@ -567,11 +567,10 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                         <EuiFlexItem grow={false}>
                           <EuiText size="s">Sample of source data</EuiText>
                         </EuiFlexItem>
-                        <EuiFlexItem grow={false}>
-                          <EuiBadge>{`${
-                            oneToOne ? 'One' : 'Many'
-                          } to one processing`}</EuiBadge>
-                        </EuiFlexItem>
+                        <ProcessingBadge
+                          context={props.context}
+                          oneToOne={oneToOne}
+                        />
                       </EuiFlexGroup>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
