@@ -283,7 +283,10 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             <EuiSpacer size="s" />
             <ConfigFieldList
               configId={props.config.id}
-              configFields={props.config.optionalFields || []}
+              configFields={(props.config.optionalFields || []).filter(
+                // we specially render the one_to_one field in <ModelInputs/>, hence we discard it here to prevent confusion.
+                (optionalField) => optionalField.id !== 'one_to_one'
+              )}
               baseConfigPath={props.baseConfigPath}
             />
           </EuiAccordion>
