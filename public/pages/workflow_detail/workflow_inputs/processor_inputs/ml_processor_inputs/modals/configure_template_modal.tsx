@@ -895,7 +895,7 @@ function getPlaceholderString(label: string) {
 
 function injectValuesIntoTemplate(
   template: string,
-  parameters: { [key: string]: string }
+  parameters: { [key: string]: any }
 ): string {
   let finalTemplate = template;
   // replace any parameter placeholders in the prompt with any values found in the
@@ -903,7 +903,7 @@ function injectValuesIntoTemplate(
   // we do 2 checks - one for the regular prompt, and one with "toString()" appended.
   // this is required for parameters that have values as a list, for example.
   Object.keys(parameters).forEach((parameterKey) => {
-    const parameterValue = parameters[parameterKey];
+    const parameterValue = JSON.stringify(parameters[parameterKey]);
     const regex = new RegExp(`\\$\\{parameters.${parameterKey}\\}`, 'g');
     const regexWithToString = new RegExp(
       `\\$\\{parameters.${parameterKey}.toString\\(\\)\\}`,
