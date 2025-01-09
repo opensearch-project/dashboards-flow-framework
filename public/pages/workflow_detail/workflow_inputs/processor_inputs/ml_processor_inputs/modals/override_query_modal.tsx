@@ -47,6 +47,7 @@ import {
 import { parseModelOutputs } from '../../../../../../utils/utils';
 import { JsonField } from '../../../input_fields';
 import { getFieldSchema, getInitialValue } from '../../../../../../utils';
+import '../../../../../../global-styles.scss';
 
 interface OverrideQueryModalProps {
   config: IProcessorConfig;
@@ -122,7 +123,7 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
           <EuiModal
             maxWidth={false}
             onClose={props.onClose}
-            style={{ width: '70vw' }}
+            className="configuration-modal"
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>

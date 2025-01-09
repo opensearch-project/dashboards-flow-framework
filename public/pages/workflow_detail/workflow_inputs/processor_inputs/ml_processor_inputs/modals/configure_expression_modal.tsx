@@ -23,7 +23,6 @@ import {
   EuiSpacer,
   EuiIconTip,
   EuiPopover,
-  EuiBadge,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -64,8 +63,10 @@ import {
 import { getCore } from '../../../../../../services';
 import {
   JsonPathExamplesTable,
+  ProcessingBadge,
   QueryParamsList,
 } from '../../../../../../general_components';
+import '../../../../../../global-styles.scss';
 
 interface ConfigureExpressionModalProps {
   uiConfig: WorkflowConfig;
@@ -298,7 +299,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
           <EuiModal
             maxWidth={false}
             onClose={props.onClose}
-            style={{ width: '70vw' }}
+            className="configuration-modal"
             id={props.fieldPath}
           >
             <EuiModalHeader>
@@ -318,9 +319,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                             justifyContent="spaceBetween"
                           >
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
-                                {`Expression`}
-                              </EuiText>
+                              <EuiText size="s">{`Expression`}</EuiText>
                             </EuiFlexItem>
                             <EuiFlexItem grow={false}>
                               <EuiPopover
@@ -350,9 +349,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                          <EuiText size="s" color="subdued">
-                            {`Model input name`}
-                          </EuiText>
+                          <EuiText size="s">{`Model input name`}</EuiText>
                         </EuiFlexItem>
                       </EuiFlexGroup>
                       <EuiSpacer size="s" />
@@ -370,7 +367,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                             {props.context ===
                               PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
                               <EuiFlexItem grow={false}>
-                                <EuiText size="xs" color="subdued">
+                                <EuiText size="xs">
                                   {`Tip: to include data from the the original query request, prefix your expression with "${REQUEST_PREFIX}" - for example, "_request.query.match.my_field"`}
                                 </EuiText>
                               </EuiFlexItem>
@@ -378,7 +375,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                          <EuiText>{props.modelInputFieldName}</EuiText>
+                          <EuiText>{props.modelInputFieldName || '-'}</EuiText>
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
@@ -571,11 +568,10 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                         <EuiFlexItem grow={false}>
                           <EuiText size="s">Sample of source data</EuiText>
                         </EuiFlexItem>
-                        <EuiFlexItem grow={false}>
-                          <EuiBadge>{`${
-                            oneToOne ? 'One' : 'Many'
-                          } to one processing`}</EuiBadge>
-                        </EuiFlexItem>
+                        <ProcessingBadge
+                          context={props.context}
+                          oneToOne={oneToOne}
+                        />
                       </EuiFlexGroup>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>

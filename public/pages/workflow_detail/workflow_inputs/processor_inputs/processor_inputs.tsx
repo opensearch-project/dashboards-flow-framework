@@ -95,11 +95,13 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                       paddingSize="none"
                     >
                       <EuiSpacer size="s" />
-                      <ConfigFieldList
-                        configId={props.config.id}
-                        configFields={props.config.optionalFields || []}
-                        baseConfigPath={props.baseConfigPath}
-                      />
+                      <EuiFlexItem style={{ marginLeft: '28px' }}>
+                        <ConfigFieldList
+                          configId={props.config.id}
+                          configFields={props.config.optionalFields || []}
+                          baseConfigPath={props.baseConfigPath}
+                        />
+                      </EuiFlexItem>
                     </EuiAccordion>
                   )}
                 </>

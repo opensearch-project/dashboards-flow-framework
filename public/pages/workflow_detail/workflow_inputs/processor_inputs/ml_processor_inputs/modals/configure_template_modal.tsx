@@ -24,7 +24,6 @@ import {
   EuiSmallButtonIcon,
   EuiSpacer,
   EuiIconTip,
-  EuiBadge,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -68,8 +67,10 @@ import {
 import { getCore } from '../../../../../../services';
 import {
   JsonPathExamplesTable,
+  ProcessingBadge,
   QueryParamsList,
 } from '../../../../../../general_components';
+import '../../../../../../global-styles.scss';
 
 interface ConfigureTemplateModalProps {
   uiConfig: WorkflowConfig;
@@ -323,7 +324,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
           <EuiModal
             maxWidth={false}
             onClose={props.onClose}
-            style={{ width: '70vw' }}
+            className="configuration-modal"
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
@@ -450,9 +451,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         gutterSize="s"
                       >
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
-                          <EuiText size="s" color="subdued">
-                            {`Name`}
-                          </EuiText>
+                          <EuiText size="s">{`Name`}</EuiText>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiFlexGroup
@@ -460,9 +459,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                             justifyContent="spaceBetween"
                           >
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
-                                {`Expression`}
-                              </EuiText>
+                              <EuiText size="s">{`Expression`}</EuiText>
                             </EuiFlexItem>
                             <EuiFlexItem grow={false}>
                               <EuiPopover
@@ -802,11 +799,10 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         <EuiFlexItem grow={false}>
                           <EuiText size="s">Sample of source data</EuiText>
                         </EuiFlexItem>
-                        <EuiFlexItem grow={false}>
-                          <EuiBadge>{`${
-                            oneToOne ? 'One' : 'Many'
-                          } to one processing`}</EuiBadge>
-                        </EuiFlexItem>
+                        <ProcessingBadge
+                          context={props.context}
+                          oneToOne={oneToOne}
+                        />
                       </EuiFlexGroup>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
@@ -899,7 +895,7 @@ function getPlaceholderString(label: string) {
 
 function injectValuesIntoTemplate(
   template: string,
-  parameters: { [key: string]: string }
+  parameters: { [key: string]: any }
 ): string {
   let finalTemplate = template;
   // replace any parameter placeholders in the prompt with any values found in the
@@ -907,7 +903,7 @@ function injectValuesIntoTemplate(
   // we do 2 checks - one for the regular prompt, and one with "toString()" appended.
   // this is required for parameters that have values as a list, for example.
   Object.keys(parameters).forEach((parameterKey) => {
-    const parameterValue = parameters[parameterKey];
+    const parameterValue = JSON.stringify(parameters[parameterKey]);
     const regex = new RegExp(`\\$\\{parameters.${parameterKey}\\}`, 'g');
     const regexWithToString = new RegExp(
       `\\$\\{parameters.${parameterKey}.toString\\(\\)\\}`,

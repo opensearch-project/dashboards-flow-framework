@@ -44,22 +44,24 @@ export function NormalizationProcessorInputs(
       buttonContent="Advanced settings"
       paddingSize="none"
     >
-      <EuiSpacer size="s" />
-      <EuiFlexItem>
-        <TextField
-          label={'Weights'}
-          helpText={`A comma-separated array of floating-point values specifying the weight for each query. For example: '0.8, 0.2'`}
-          helpLink={NORMALIZATION_PROCESSOR_LINK}
-          fieldPath={weightsFieldPath}
-          showError={true}
+      <EuiFlexItem style={{ marginLeft: '28px' }}>
+        <EuiSpacer size="s" />
+        <EuiFlexItem>
+          <TextField
+            label={'Weights'}
+            helpText={`A comma-separated array of floating-point values specifying the weight for each query. For example: '0.8, 0.2'`}
+            helpLink={NORMALIZATION_PROCESSOR_LINK}
+            fieldPath={weightsFieldPath}
+            showError={true}
+          />
+        </EuiFlexItem>
+        <EuiSpacer size="s" />
+        <ConfigFieldList
+          configId={props.config.id}
+          configFields={optionalFieldsWithoutWeights}
+          baseConfigPath={props.baseConfigPath}
         />
       </EuiFlexItem>
-      <EuiSpacer size="s" />
-      <ConfigFieldList
-        configId={props.config.id}
-        configFields={optionalFieldsWithoutWeights}
-        baseConfigPath={props.baseConfigPath}
-      />
     </EuiAccordion>
   );
 }
