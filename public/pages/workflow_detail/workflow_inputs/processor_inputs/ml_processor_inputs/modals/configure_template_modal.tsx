@@ -70,6 +70,7 @@ import {
   ProcessingBadge,
   QueryParamsList,
 } from '../../../../../../general_components';
+import '../../../../../../global-styles.scss';
 
 interface ConfigureTemplateModalProps {
   uiConfig: WorkflowConfig;
@@ -323,7 +324,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
           <EuiModal
             maxWidth={false}
             onClose={props.onClose}
-            style={{ width: '70vw' }}
+            className="configuration-modal"
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>

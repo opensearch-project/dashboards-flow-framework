@@ -63,6 +63,7 @@ import {
   JsonPathExamplesTable,
   QueryParamsList,
 } from '../../../../../../general_components';
+import '../../../../../../global-styles.scss';
 
 interface ConfigureMultiExpressionModalProps {
   uiConfig: WorkflowConfig;
@@ -271,7 +272,7 @@ export function ConfigureMultiExpressionModal(
           <EuiModal
             maxWidth={false}
             onClose={props.onClose}
-            style={{ width: '70vw' }}
+            className="configuration-modal"
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>

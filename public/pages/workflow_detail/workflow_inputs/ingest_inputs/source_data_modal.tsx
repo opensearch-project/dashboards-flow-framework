@@ -50,6 +50,7 @@ import {
   getInitialValue,
 } from '../../../../utils';
 import { getProcessorInfo } from './source_data';
+import '../../../../global-styles.scss';
 
 interface SourceDataProps {
   workflow: Workflow | undefined;
@@ -191,7 +192,7 @@ export function SourceDataModal(props: SourceDataProps) {
           <EuiModal
             maxWidth={false}
             onClose={() => onClose()}
-            style={{ width: '70vw' }}
+            className="configuration-modal"
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>

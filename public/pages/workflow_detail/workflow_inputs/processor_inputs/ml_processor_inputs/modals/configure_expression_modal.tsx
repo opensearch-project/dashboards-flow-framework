@@ -66,6 +66,7 @@ import {
   ProcessingBadge,
   QueryParamsList,
 } from '../../../../../../general_components';
+import '../../../../../../global-styles.scss';
 
 interface ConfigureExpressionModalProps {
   uiConfig: WorkflowConfig;
@@ -298,7 +299,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
           <EuiModal
             maxWidth={false}
             onClose={props.onClose}
-            style={{ width: '70vw' }}
+            className="configuration-modal"
             id={props.fieldPath}
           >
             <EuiModalHeader>
