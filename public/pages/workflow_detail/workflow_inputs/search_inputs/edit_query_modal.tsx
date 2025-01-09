@@ -45,6 +45,7 @@ import {
 } from '../../../../utils';
 import { AppState, searchIndex, useAppDispatch } from '../../../../store';
 import { QueryParamsList, Results } from '../../../../general_components';
+import '../../../../global-styles.scss';
 
 interface EditQueryModalProps {
   queryFieldPath: string;
@@ -154,7 +155,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
         return (
           <EuiModal
             onClose={() => props.setModalOpen(false)}
-            style={{ width: '70vw', height: '70vh' }}
+            className="configuration-modal"
             data-testid="editQueryModal"
             maxWidth={false}
           >

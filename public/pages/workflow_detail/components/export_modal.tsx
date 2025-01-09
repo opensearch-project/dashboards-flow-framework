@@ -28,6 +28,7 @@ import {
   getCharacterLimitedString,
 } from '../../../../common';
 import { reduceToTemplate } from '../../../utils';
+import '../../../global-styles.scss';
 
 interface ExportModalProps {
   workflow?: Workflow;
@@ -77,7 +78,7 @@ export function ExportModal(props: ExportModalProps) {
   return (
     <EuiModal
       maxWidth={false}
-      style={{ width: '70vw' }}
+      className="configuration-modal"
       onClose={() => props.setIsExportModalOpen(false)}
     >
       <EuiModalHeader>

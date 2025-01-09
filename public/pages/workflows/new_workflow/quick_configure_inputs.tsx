@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { get, isEmpty } from 'lodash';
 import {
   EuiCompressedFormRow,
   EuiText,
@@ -14,12 +15,15 @@ import {
   EuiAccordion,
   EuiCompressedFieldText,
   EuiCompressedFieldNumber,
+  EuiCallOut,
+  EuiLink,
 } from '@elastic/eui';
 import {
   DEFAULT_IMAGE_FIELD,
   DEFAULT_LLM_RESPONSE_FIELD,
   DEFAULT_TEXT_FIELD,
   DEFAULT_VECTOR_FIELD,
+  ML_REMOTE_MODEL_LINK,
   MODEL_STATE,
   Model,
   ModelInterface,
@@ -28,7 +32,6 @@ import {
 } from '../../../../common';
 import { AppState } from '../../../store';
 import { getEmbeddingModelDimensions, parseModelInputs } from '../../../utils';
-import { get } from 'lodash';
 
 interface QuickConfigureInputsProps {
   workflowType?: WORKFLOW_TYPE;
@@ -160,46 +163,62 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               }
               isInvalid={false}
               helpText={
-                props.workflowType === WORKFLOW_TYPE.RAG
+                isEmpty(deployedModels)
+                  ? undefined
+                  : props.workflowType === WORKFLOW_TYPE.RAG
                   ? 'The large language model to generate user-friendly responses'
                   : 'The model to generate embeddings'
               }
             >
-              <EuiCompressedSuperSelect
-                data-testid="selectDeployedModel"
-                fullWidth={true}
-                options={deployedModels.map(
-                  (option) =>
-                    ({
-                      value: option.id,
-                      inputDisplay: (
-                        <>
-                          <EuiText size="s">{option.name}</EuiText>
-                        </>
-                      ),
-                      dropdownDisplay: (
-                        <>
-                          <EuiText size="s">{option.name}</EuiText>
-                          <EuiText size="xs" color="subdued">
-                            Deployed
-                          </EuiText>
-                          <EuiText size="xs" color="subdued">
-                            {option.algorithm}
-                          </EuiText>
-                        </>
-                      ),
-                      disabled: false,
-                    } as EuiSuperSelectOption<string>)
-                )}
-                valueOfSelected={fieldValues?.modelId || ''}
-                onChange={(option: string) => {
-                  setFieldValues({
-                    ...fieldValues,
-                    modelId: option,
-                  });
-                }}
-                isInvalid={false}
-              />
+              {isEmpty(deployedModels) ? (
+                <EuiCallOut
+                  color="primary"
+                  size="s"
+                  title={
+                    <EuiText size="s">
+                      You have no model currently set up yet,{' '}
+                      <EuiLink href={ML_REMOTE_MODEL_LINK}>Learn more</EuiLink>{' '}
+                      to understand how to integrate ML models.
+                    </EuiText>
+                  }
+                />
+              ) : (
+                <EuiCompressedSuperSelect
+                  data-testid="selectDeployedModel"
+                  fullWidth={true}
+                  options={deployedModels.map(
+                    (option) =>
+                      ({
+                        value: option.id,
+                        inputDisplay: (
+                          <>
+                            <EuiText size="s">{option.name}</EuiText>
+                          </>
+                        ),
+                        dropdownDisplay: (
+                          <>
+                            <EuiText size="s">{option.name}</EuiText>
+                            <EuiText size="xs" color="subdued">
+                              Deployed
+                            </EuiText>
+                            <EuiText size="xs" color="subdued">
+                              {option.algorithm}
+                            </EuiText>
+                          </>
+                        ),
+                        disabled: false,
+                      } as EuiSuperSelectOption<string>)
+                  )}
+                  valueOfSelected={fieldValues?.modelId || ''}
+                  onChange={(option: string) => {
+                    setFieldValues({
+                      ...fieldValues,
+                      modelId: option,
+                    });
+                  }}
+                  isInvalid={false}
+                />
+              )}
             </EuiCompressedFormRow>
             <EuiSpacer size="s" />
             <EuiCompressedFormRow

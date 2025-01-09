@@ -9,7 +9,6 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiCard,
-  EuiHorizontalRule,
   EuiSmallButton,
 } from '@elastic/eui';
 import { Workflow } from '../../../../common';
@@ -39,14 +38,10 @@ export function UseCase(props: UseCaseProps) {
         }
         titleSize="s"
         paddingSize="l"
-        layout="horizontal"
-      >
-        <EuiFlexGroup direction="column" gutterSize="l">
-          <EuiHorizontalRule size="full" margin="m" />
-          <EuiFlexItem grow={true}>
-            <EuiText size="s">{props.workflow.description}</EuiText>
-          </EuiFlexItem>
-          <EuiFlexGroup direction="column" alignItems="center">
+        textAlign="left"
+        description={props.workflow?.description || ''}
+        footer={
+          <EuiFlexGroup justifyContent="flexEnd">
             <EuiFlexItem grow={false}>
               <EuiSmallButton
                 disabled={false}
@@ -56,12 +51,12 @@ export function UseCase(props: UseCaseProps) {
                 }}
                 data-testid="goButton"
               >
-                Go
+                Create
               </EuiSmallButton>
             </EuiFlexItem>
           </EuiFlexGroup>
-        </EuiFlexGroup>
-      </EuiCard>
+        }
+      ></EuiCard>
     </>
   );
 }

@@ -16,6 +16,7 @@ import {
   EuiText,
   EuiSmallButton,
   EuiIconTip,
+  EuiLink,
 } from '@elastic/eui';
 import {
   IProcessorConfig,
@@ -25,12 +26,11 @@ import {
   WorkflowFormValues,
   ModelInterface,
   EMPTY_INPUT_MAP_ENTRY,
-  REQUEST_PREFIX,
-  REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR,
   OutputMapEntry,
   OutputMapFormValue,
   OutputMapArrayFormValue,
   EMPTY_OUTPUT_MAP_ENTRY,
+  ML_REMOTE_MODEL_LINK,
 } from '../../../../../../common';
 import { ModelField } from '../../input_fields';
 import {
@@ -159,12 +159,26 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           onClose={() => setIsQueryModalOpen(false)}
         />
       )}
-      <ModelField
-        field={modelField}
-        fieldPath={modelFieldPath}
-        hasModelInterface={modelInterface !== undefined}
-        onModelChange={onModelChange}
-      />
+      {isEmpty(models) ? (
+        <EuiCallOut
+          color="primary"
+          size="s"
+          title={
+            <EuiText size="s">
+              You have no model currently set up yet,{' '}
+              <EuiLink href={ML_REMOTE_MODEL_LINK}>Learn more</EuiLink> to
+              understand how to integrate ML models.
+            </EuiText>
+          }
+        />
+      ) : (
+        <ModelField
+          field={modelField}
+          fieldPath={modelFieldPath}
+          hasModelInterface={modelInterface !== undefined}
+          onModelChange={onModelChange}
+        />
+      )}
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
         <>
           <EuiSpacer size="s" />
@@ -267,11 +281,16 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             paddingSize="none"
           >
             <EuiSpacer size="s" />
-            <ConfigFieldList
-              configId={props.config.id}
-              configFields={props.config.optionalFields || []}
-              baseConfigPath={props.baseConfigPath}
-            />
+            <EuiFlexItem style={{ marginLeft: '28px' }}>
+              <ConfigFieldList
+                configId={props.config.id}
+                configFields={(props.config.optionalFields || []).filter(
+                  // we specially render the one_to_one field in <ModelInputs/>, hence we discard it here to prevent confusion.
+                  (optionalField) => optionalField.id !== 'one_to_one'
+                )}
+                baseConfigPath={props.baseConfigPath}
+              />
+            </EuiFlexItem>
           </EuiAccordion>
         </>
       )}

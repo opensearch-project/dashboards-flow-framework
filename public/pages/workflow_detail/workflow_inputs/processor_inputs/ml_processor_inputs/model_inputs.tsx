@@ -5,18 +5,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { useFormikContext, getIn, Field, FieldProps } from 'formik';
-import { isEmpty } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import { useSelector } from 'react-redux';
 import { flattie } from 'flattie';
 import {
+  EuiCallOut,
   EuiCompressedFormRow,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiIcon,
   EuiPanel,
   EuiSmallButton,
   EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
+  EuiSpacer,
   EuiText,
 } from '@elastic/eui';
 import {
@@ -34,7 +35,11 @@ import {
   getCharacterLimitedString,
   ModelInputFormField,
 } from '../../../../../../common';
-import { TextField, SelectWithCustomOptions } from '../../input_fields';
+import {
+  TextField,
+  SelectWithCustomOptions,
+  BooleanField,
+} from '../../input_fields';
 import { AppState, getMappings, useAppDispatch } from '../../../../../store';
 import {
   getDataSourceId,
@@ -76,12 +81,19 @@ export function ModelInputs(props: ModelInputsProps) {
     errors,
     touched,
     values,
+    initialValues,
   } = useFormikContext<WorkflowFormValues>();
   // get some current form & config values
   const modelField = props.config.fields.find(
     (field) => field.type === 'model'
   ) as IConfigField;
   const modelFieldPath = `${props.baseConfigPath}.${props.config.id}.${modelField.id}`;
+  const oneToOnePath = `${props.baseConfigPath}.${props.config.id}.one_to_one`;
+  const oneToOneChanged = !isEqual(
+    getIn(values, oneToOnePath),
+    getIn(initialValues, oneToOnePath)
+  );
+
   // Assuming no more than one set of input map entries.
   const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.input_map.0`;
 
@@ -244,8 +256,37 @@ export function ModelInputs(props: ModelInputsProps) {
         const populatedMap = field.value?.length !== 0;
         return (
           <>
-            {populatedMap ? (
-              <EuiPanel>
+            <EuiPanel>
+              {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+                <>
+                  <BooleanField
+                    fieldPath={oneToOnePath}
+                    label="Merge input data"
+                    type="Switch"
+                    inverse={true}
+                    helpText="Combine source data into a single document for model inference. To process only one document of the source data, turn off merge input data."
+                  />
+                  <EuiSpacer size="s" />
+                  {oneToOneChanged && (
+                    <>
+                      <EuiCallOut
+                        size="s"
+                        color="warning"
+                        iconType={'alert'}
+                        title={
+                          <EuiText size="s">
+                            You have changed how source data will be processed.
+                            You may need to update any existing input values to
+                            reflect the updated data structure.
+                          </EuiText>
+                        }
+                      />
+                      <EuiSpacer size="s" />
+                    </>
+                  )}
+                </>
+              )}
+              {populatedMap ? (
                 <EuiCompressedFormRow
                   fullWidth={true}
                   key={inputMapFieldPath}
@@ -268,27 +309,21 @@ export function ModelInputs(props: ModelInputsProps) {
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
-                                {`Name`}
-                              </EuiText>
+                              <EuiText size="s">{`Name`}</EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={TYPE_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
-                                {`Transform type`}
-                              </EuiText>
+                              <EuiText size="s">{`Transform type`}</EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
-                                Value
-                              </EuiText>
+                              <EuiText size="s">Value</EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
@@ -348,12 +383,6 @@ export function ModelInputs(props: ModelInputsProps) {
                                           />
                                         )}
                                       </>
-                                    </EuiFlexItem>
-                                    <EuiFlexItem
-                                      grow={false}
-                                      style={{ marginTop: '10px' }}
-                                    >
-                                      <EuiIcon type={'sortLeft'} />
                                     </EuiFlexItem>
                                   </>
                                 </EuiFlexGroup>
@@ -600,17 +629,17 @@ export function ModelInputs(props: ModelInputsProps) {
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiCompressedFormRow>
-              </EuiPanel>
-            ) : (
-              <EuiSmallButton
-                style={{ width: '100px' }}
-                onClick={() => {
-                  setFieldValue(field.name, [EMPTY_INPUT_MAP_ENTRY]);
-                }}
-              >
-                {'Configure'}
-              </EuiSmallButton>
-            )}
+              ) : (
+                <EuiSmallButton
+                  style={{ width: '100px' }}
+                  onClick={() => {
+                    setFieldValue(field.name, [EMPTY_INPUT_MAP_ENTRY]);
+                  }}
+                >
+                  {'Configure'}
+                </EuiSmallButton>
+              )}
+            </EuiPanel>
           </>
         );
       }}
