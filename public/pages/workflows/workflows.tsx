@@ -42,7 +42,6 @@ import {
 } from '../../services';
 import { prettifyErrorMessage } from '../../../common/utils';
 import { DataSourceOption } from '../../../../../src/plugins/data_source_management/public/components/data_source_menu/types';
-import { TopNavControlData } from '../../../../../src/plugins/navigation/public';
 
 export interface WorkflowsRouterProps {}
 
@@ -92,7 +91,7 @@ export function Workflows(props: WorkflowsProps) {
     chrome: { setBreadcrumbs },
   } = getCore();
   const { HeaderControl } = getNavigationUI();
-  const { setAppDescriptionControls, setAppCenterControls } = getApplication();
+  const { setAppDescriptionControls } = getApplication();
 
   // import modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
@@ -279,7 +278,7 @@ export function Workflows(props: WorkflowsProps) {
             bottomBorder={true}
           />
 
-          <EuiPageContent>
+          <EuiPageContent grow={false}>
             <EuiPageHeader
               style={{ marginTop: '-8px' }}
               pageTitle={

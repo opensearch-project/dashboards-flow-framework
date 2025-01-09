@@ -31,7 +31,6 @@ import {
   EuiCompressedFormRow,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiIcon,
   EuiPanel,
   EuiSmallButton,
   EuiSmallButtonEmpty,
@@ -183,25 +182,21 @@ export function ModelOutputs(props: ModelOutputsProps) {
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
-                                {`Name`}
-                              </EuiText>
+                              <EuiText size="s">{`Name`}</EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={TYPE_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
-                                {`Transform type`}
-                              </EuiText>
+                              <EuiText size="s">{`Transform type`}</EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
+                              <EuiText size="s">
                                 {props.context ===
                                 PROCESSOR_CONTEXT.SEARCH_REQUEST
                                   ? 'Query field'
@@ -267,12 +262,6 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                           />
                                         )}
                                       </>
-                                    </EuiFlexItem>
-                                    <EuiFlexItem
-                                      grow={false}
-                                      style={{ marginTop: '10px' }}
-                                    >
-                                      <EuiIcon type={'sortLeft'} />
                                     </EuiFlexItem>
                                   </>
                                 </EuiFlexGroup>

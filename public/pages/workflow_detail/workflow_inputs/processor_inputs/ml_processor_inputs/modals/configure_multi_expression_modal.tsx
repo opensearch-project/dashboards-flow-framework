@@ -63,6 +63,7 @@ import {
   JsonPathExamplesTable,
   QueryParamsList,
 } from '../../../../../../general_components';
+import '../../../../../../global-styles.scss';
 
 interface ConfigureMultiExpressionModalProps {
   uiConfig: WorkflowConfig;
@@ -96,7 +97,7 @@ export function ConfigureMultiExpressionModal(
 
   // sub-form values/schema
   const expressionsFormValues = {
-    expressions: [],
+    expressions: [{ name: '', transform: '' } as ExpressionVar],
   } as MultiExpressionFormValues;
   const expressionsFormSchema = yup.object({
     expressions: yup
@@ -226,12 +227,14 @@ export function ConfigureMultiExpressionModal(
       validate={(values) => {}}
     >
       {(formikProps) => {
-        // override to parent form values when changes detected
+        // override to parent form values when changes detected (when non-empty)
         useEffect(() => {
-          formikProps.setFieldValue(
-            'expressions',
-            getIn(values, `${props.fieldPath}.nestedVars`)
-          );
+          if (!isEmpty(getIn(values, `${props.fieldPath}.nestedVars`))) {
+            formikProps.setFieldValue(
+              'expressions',
+              getIn(values, `${props.fieldPath}.nestedVars`)
+            );
+          }
         }, [getIn(values, props.fieldPath)]);
 
         // update temp vars when form changes are detected
@@ -269,7 +272,7 @@ export function ConfigureMultiExpressionModal(
           <EuiModal
             maxWidth={false}
             onClose={props.onClose}
-            style={{ width: '70vw' }}
+            className="configuration-modal"
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
@@ -288,9 +291,7 @@ export function ConfigureMultiExpressionModal(
                             justifyContent="spaceBetween"
                           >
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s" color="subdued">
-                                {`Expression`}
-                              </EuiText>
+                              <EuiText size="s">{`Expression`}</EuiText>
                             </EuiFlexItem>
                             <EuiFlexItem grow={false}>
                               <EuiPopover
@@ -320,7 +321,7 @@ export function ConfigureMultiExpressionModal(
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                          <EuiText size="s" color="subdued">
+                          <EuiText size="s">
                             {props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
                               ? `New query field`
                               : `New document field`}
