@@ -28,10 +28,10 @@ $handle-color-invalid: $euiColorDanger;
   border: 'none';
 
   &__ingest {
-    background: rgba($euiColorDarkShade, 0.3);
+    background: rgba($euiColorLightShade, 0.3);
   }
   &__search {
-    background: rgba($euiColorDarkShade, 0.3);
+    background: rgba($euiColorLightShade, 0.3);
   }
 }
 
