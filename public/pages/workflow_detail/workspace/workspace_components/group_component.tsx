@@ -4,7 +4,8 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiBadge } from '@elastic/eui';
+import { PARENT_NODE_HEIGHT } from '../../../../utils';
 
 interface GroupComponentProps {
   data: { label: string };
@@ -16,15 +17,14 @@ interface GroupComponentProps {
  */
 export function GroupComponent(props: GroupComponentProps) {
   return (
-    // TODO: investigate having custom bounds of child nodes to prevent
-    // overlapping the group node title
-    <EuiFlexGroup direction="column">
-      <EuiFlexItem style={{ backgroundColor: 'transparent' }}>
-        <EuiText size="s">
-          <h2 style={{ marginLeft: '8px' }}>{props.data.label}</h2>
-        </EuiText>
-      </EuiFlexItem>
-      <EuiFlexItem></EuiFlexItem>
-    </EuiFlexGroup>
+    <EuiFlexItem
+      style={{ paddingTop: `${PARENT_NODE_HEIGHT - 40}px`, paddingLeft: 20 }}
+    >
+      <EuiFlexGroup style={{ backgroundColor: 'transparent' }}>
+        <EuiFlexItem grow={false} style={{ backgroundColor: 'transparent' }}>
+          <EuiBadge>{props.data.label}</EuiBadge>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiFlexItem>
   );
 }

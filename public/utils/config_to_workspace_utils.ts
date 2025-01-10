@@ -34,7 +34,7 @@ import { generateId } from './utils';
  **************** Config -> workspace utils **********************
  */
 
-const PARENT_NODE_HEIGHT = 325;
+export const PARENT_NODE_HEIGHT = 325;
 const NODE_HEIGHT_Y = 70;
 const NODE_WIDTH = 300; // based off of the value set in reactflow-styles.scss
 const NODE_SPACING = 100; // the margin (in # pixels) between the components
@@ -527,7 +527,7 @@ function generateReactFlowEdge(
 }
 // Adding any instance metadata. Converting the base IComponent obj into
 // an instance-specific IComponentData obj.
-export function initComponentData(
+function initComponentData(
   data: IComponent,
   componentId: string
 ): IComponentData {
