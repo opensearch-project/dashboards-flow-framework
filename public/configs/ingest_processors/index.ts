@@ -9,3 +9,4 @@ export * from './sort_ingest_processor';
 export * from './text_chunking_ingest_processor';
 export * from './text_embedding_ingest_processor';
 export * from './text_image_embedding_ingest_processor';
+export * from './copy_ingest_processor';

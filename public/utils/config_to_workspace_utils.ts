@@ -332,6 +332,14 @@ function processorsConfigToWorkspaceFlow(
         );
         break;
       }
+      case PROCESSOR_TYPE.COPY: {
+        transformer = new BaseTransformer(
+          processorConfig.name,
+          'Copy an entire object in an existing field to another field',
+          context
+        );
+        break;
+      }
       case PROCESSOR_TYPE.NORMALIZATION: {
         transformer = new BaseTransformer(
           processorConfig.name,
