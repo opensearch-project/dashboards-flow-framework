@@ -186,6 +186,7 @@ export enum PROCESSOR_TYPE {
   RERANK = 'rerank',
   TEXT_EMBEDDING = 'text_embedding',
   TEXT_IMAGE_EMBEDDING = 'text_image_embedding',
+  COPY = 'copy',
 }
 
 export enum MODEL_TYPE {

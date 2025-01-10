@@ -29,6 +29,7 @@ import { formikToUiConfig, getDataSourceFromURL } from '../../../utils';
 
 import {
   CollapseProcessor,
+  CopyIngestProcessor,
   MLIngestProcessor,
   MLSearchRequestProcessor,
   MLSearchResponseProcessor,
@@ -162,6 +163,13 @@ export function ProcessorsList(props: ProcessorsListProps) {
         onClick: () => {
           closePopover();
           addProcessor(new TextChunkingIngestProcessor().toObj());
+        },
+      },
+      {
+        name: 'Copy Processor',
+        onClick: () => {
+          closePopover();
+          addProcessor(new CopyIngestProcessor().toObj());
         },
       },
     ];
