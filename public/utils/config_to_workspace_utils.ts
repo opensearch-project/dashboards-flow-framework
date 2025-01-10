@@ -197,7 +197,7 @@ function searchConfigToWorkspaceFlow(
   // Parent search node
   const parentNode = {
     id: searchConfig.pipelineName.value,
-    position: { x: 400, y: 800 },
+    position: { x: 400, y: 700 },
     type: NODE_CATEGORY.SEARCH_GROUP,
     data: { label: COMPONENT_CATEGORY.SEARCH },
     style: {
