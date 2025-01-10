@@ -34,10 +34,9 @@ import { generateId } from './utils';
  **************** Config -> workspace utils **********************
  */
 
-export const PARENT_NODE_HEIGHT = 325;
-const NODE_HEIGHT_Y = 70;
+export const PARENT_NODE_HEIGHT = 275;
 const NODE_WIDTH = 300; // based off of the value set in reactflow-styles.scss
-const NODE_SPACING = 100; // the margin (in # pixels) between the components
+export const NODE_SPACING = 40; // the margin (in # pixels) between the components
 
 export function uiConfigToWorkspaceFlow(
   config: WorkflowConfig
@@ -106,7 +105,7 @@ function ingestConfigToWorkspaceFlow(
   const docNodeId = generateId(COMPONENT_CLASS.DOCUMENT);
   const docNode = {
     id: docNodeId,
-    position: { x: 100, y: 70 },
+    position: { x: NODE_SPACING, y: NODE_SPACING },
     data: initComponentData(new Document().toObj(), docNodeId),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
@@ -117,7 +116,7 @@ function ingestConfigToWorkspaceFlow(
     id: indexNodeId,
     position: {
       x: parentNode?.style?.width - (NODE_WIDTH + NODE_SPACING),
-      y: NODE_HEIGHT_Y,
+      y: NODE_SPACING,
     },
     data: initComponentData(
       new BaseIndex(COMPONENT_CATEGORY.INGEST).toObj(),
@@ -224,7 +223,7 @@ function searchConfigToWorkspaceFlow(
   const searchRequestNodeId = generateId(COMPONENT_CLASS.SEARCH_REQUEST);
   const searchRequestNode = {
     id: searchRequestNodeId,
-    position: { x: 100, y: 70 },
+    position: { x: NODE_SPACING, y: NODE_SPACING },
     data: initComponentData(new SearchRequest().toObj(), searchRequestNodeId),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
@@ -238,7 +237,7 @@ function searchConfigToWorkspaceFlow(
         parentNode?.style?.width -
         (NODE_WIDTH + NODE_SPACING) *
           (enrichResponseWorkspaceFlow.nodes.length + 2),
-      y: NODE_HEIGHT_Y,
+      y: NODE_SPACING,
     },
     data: initComponentData(
       new BaseIndex(COMPONENT_CATEGORY.SEARCH).toObj(),
@@ -253,7 +252,7 @@ function searchConfigToWorkspaceFlow(
     id: searchResponseNodeId,
     position: {
       x: parentNode?.style?.width - (NODE_WIDTH + NODE_SPACING),
-      y: NODE_HEIGHT_Y,
+      y: NODE_SPACING,
     },
     data: initComponentData(new SearchResponse().toObj(), searchResponseNodeId),
     type: NODE_CATEGORY.CUSTOM,
@@ -365,7 +364,7 @@ function processorsConfigToWorkspaceFlow(
     const transformerNodeId = generateId(transformer.type);
     nodes.push({
       id: transformerNodeId,
-      position: { x: xPosition, y: NODE_HEIGHT_Y },
+      position: { x: xPosition, y: NODE_SPACING },
       data: initComponentData(transformer, transformerNodeId),
       type: NODE_CATEGORY.CUSTOM,
       parentNode: parentNodeId,

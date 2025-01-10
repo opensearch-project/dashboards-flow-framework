@@ -5,10 +5,11 @@
 
 import React from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiBadge } from '@elastic/eui';
-import { PARENT_NODE_HEIGHT } from '../../../../utils';
+import { NODE_SPACING, PARENT_NODE_HEIGHT } from '../../../../utils';
 
 interface GroupComponentProps {
   data: { label: string };
+  color: string;
 }
 
 /**
@@ -18,11 +19,14 @@ interface GroupComponentProps {
 export function GroupComponent(props: GroupComponentProps) {
   return (
     <EuiFlexItem
-      style={{ paddingTop: `${PARENT_NODE_HEIGHT - 40}px`, paddingLeft: 20 }}
+      style={{
+        paddingTop: `${PARENT_NODE_HEIGHT - NODE_SPACING - 10}px`,
+        paddingLeft: NODE_SPACING,
+      }}
     >
       <EuiFlexGroup style={{ backgroundColor: 'transparent' }}>
         <EuiFlexItem grow={false} style={{ backgroundColor: 'transparent' }}>
-          <EuiBadge>{props.data.label}</EuiBadge>
+          <EuiBadge color={props.color}>{props.data.label}</EuiBadge>
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiFlexItem>
