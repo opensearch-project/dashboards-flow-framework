@@ -34,10 +34,9 @@ import { generateId } from './utils';
  **************** Config -> workspace utils **********************
  */
 
-const PARENT_NODE_HEIGHT = 325;
-const NODE_HEIGHT_Y = 70;
-const NODE_WIDTH = 300; // based off of the value set in reactflow-styles.scss
-const NODE_SPACING = 100; // the margin (in # pixels) between the components
+export const PARENT_NODE_HEIGHT = 275;
+const NODE_WIDTH = 250; // based off of the value set in reactflow-styles.scss
+export const NODE_SPACING = 40; // the margin (in # pixels) between the components, and the parent component's edges.
 
 export function uiConfigToWorkspaceFlow(
   config: WorkflowConfig
@@ -106,8 +105,11 @@ function ingestConfigToWorkspaceFlow(
   const docNodeId = generateId(COMPONENT_CLASS.DOCUMENT);
   const docNode = {
     id: docNodeId,
-    position: { x: 100, y: 70 },
-    data: initComponentData(new Document().toObj(), docNodeId),
+    position: { x: NODE_SPACING, y: NODE_SPACING },
+    data: initComponentData(
+      { ...new Document().toObj(), iconType: 'document' },
+      docNodeId
+    ),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
@@ -117,10 +119,13 @@ function ingestConfigToWorkspaceFlow(
     id: indexNodeId,
     position: {
       x: parentNode?.style?.width - (NODE_WIDTH + NODE_SPACING),
-      y: NODE_HEIGHT_Y,
+      y: NODE_SPACING,
     },
     data: initComponentData(
-      new BaseIndex(COMPONENT_CATEGORY.INGEST).toObj(),
+      {
+        ...new BaseIndex(COMPONENT_CATEGORY.INGEST).toObj(),
+        iconType: 'indexSettings',
+      },
       indexNodeId
     ),
     type: NODE_CATEGORY.CUSTOM,
@@ -192,7 +197,7 @@ function searchConfigToWorkspaceFlow(
   // Parent search node
   const parentNode = {
     id: searchConfig.pipelineName.value,
-    position: { x: 400, y: 800 },
+    position: { x: 400, y: 700 },
     type: NODE_CATEGORY.SEARCH_GROUP,
     data: { label: COMPONENT_CATEGORY.SEARCH },
     style: {
@@ -224,8 +229,11 @@ function searchConfigToWorkspaceFlow(
   const searchRequestNodeId = generateId(COMPONENT_CLASS.SEARCH_REQUEST);
   const searchRequestNode = {
     id: searchRequestNodeId,
-    position: { x: 100, y: 70 },
-    data: initComponentData(new SearchRequest().toObj(), searchRequestNodeId),
+    position: { x: NODE_SPACING, y: NODE_SPACING },
+    data: initComponentData(
+      { ...new SearchRequest().toObj(), iconType: 'editorCodeBlock' },
+      searchRequestNodeId
+    ),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
@@ -238,10 +246,13 @@ function searchConfigToWorkspaceFlow(
         parentNode?.style?.width -
         (NODE_WIDTH + NODE_SPACING) *
           (enrichResponseWorkspaceFlow.nodes.length + 2),
-      y: NODE_HEIGHT_Y,
+      y: NODE_SPACING,
     },
     data: initComponentData(
-      new BaseIndex(COMPONENT_CATEGORY.SEARCH).toObj(),
+      {
+        ...new BaseIndex(COMPONENT_CATEGORY.SEARCH).toObj(),
+        iconType: 'indexSettings',
+      },
       indexNodeId
     ),
     type: NODE_CATEGORY.CUSTOM,
@@ -253,9 +264,12 @@ function searchConfigToWorkspaceFlow(
     id: searchResponseNodeId,
     position: {
       x: parentNode?.style?.width - (NODE_WIDTH + NODE_SPACING),
-      y: NODE_HEIGHT_Y,
+      y: NODE_SPACING,
     },
-    data: initComponentData(new SearchResponse().toObj(), searchResponseNodeId),
+    data: initComponentData(
+      { ...new SearchResponse().toObj(), iconType: 'inspect' },
+      searchResponseNodeId
+    ),
     type: NODE_CATEGORY.CUSTOM,
     parentNode: parentNode.id,
     extent: 'parent',
@@ -302,14 +316,23 @@ function processorsConfigToWorkspaceFlow(
   let prevNodeId = undefined as string | undefined;
 
   processorsConfig.processors.forEach((processorConfig) => {
-    let transformer = {} as BaseTransformer;
+    let componentData = {} as IComponent;
     switch (processorConfig.type) {
       case PROCESSOR_TYPE.ML: {
-        transformer = new MLTransformer(context);
+        componentData = {
+          ...new MLTransformer(context),
+          iconType: 'compute',
+          description:
+            context === PROCESSOR_CONTEXT.INGEST
+              ? 'Ingestion processor'
+              : context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+              ? 'Search request processor'
+              : 'Search response processor',
+        };
         break;
       }
       case PROCESSOR_TYPE.SPLIT: {
-        transformer = new BaseTransformer(
+        componentData = new BaseTransformer(
           processorConfig.name,
           'Split a string field into an array of substrings',
           context
@@ -317,7 +340,7 @@ function processorsConfigToWorkspaceFlow(
         break;
       }
       case PROCESSOR_TYPE.SORT: {
-        transformer = new BaseTransformer(
+        componentData = new BaseTransformer(
           processorConfig.name,
           'Sort an array of items in either ascending or descending order',
           context
@@ -325,7 +348,7 @@ function processorsConfigToWorkspaceFlow(
         break;
       }
       case PROCESSOR_TYPE.TEXT_CHUNKING: {
-        transformer = new BaseTransformer(
+        componentData = new BaseTransformer(
           processorConfig.name,
           'Split long documents into shorter passages',
           context
@@ -333,7 +356,7 @@ function processorsConfigToWorkspaceFlow(
         break;
       }
       case PROCESSOR_TYPE.NORMALIZATION: {
-        transformer = new BaseTransformer(
+        componentData = new BaseTransformer(
           processorConfig.name,
           'Normalize and combine document scores from different query clauses',
           context
@@ -341,7 +364,7 @@ function processorsConfigToWorkspaceFlow(
         break;
       }
       case PROCESSOR_TYPE.COLLAPSE: {
-        transformer = new BaseTransformer(
+        componentData = new BaseTransformer(
           processorConfig.name,
           'Discard hits with duplicate values',
           context
@@ -349,7 +372,7 @@ function processorsConfigToWorkspaceFlow(
         break;
       }
       case PROCESSOR_TYPE.RERANK: {
-        transformer = new BaseTransformer(
+        componentData = new BaseTransformer(
           processorConfig.name,
           'Rerank results by a document field',
           context
@@ -357,16 +380,16 @@ function processorsConfigToWorkspaceFlow(
         break;
       }
       default: {
-        transformer = new BaseTransformer(processorConfig.name, '', context);
+        componentData = new BaseTransformer(processorConfig.name, '', context);
         break;
       }
     }
 
-    const transformerNodeId = generateId(transformer.type);
+    const transformerNodeId = generateId(componentData.type);
     nodes.push({
       id: transformerNodeId,
-      position: { x: xPosition, y: NODE_HEIGHT_Y },
-      data: initComponentData(transformer, transformerNodeId),
+      position: { x: xPosition, y: NODE_SPACING },
+      data: initComponentData(componentData, transformerNodeId),
       type: NODE_CATEGORY.CUSTOM,
       parentNode: parentNodeId,
       extent: 'parent',
@@ -527,7 +550,7 @@ function generateReactFlowEdge(
 }
 // Adding any instance metadata. Converting the base IComponent obj into
 // an instance-specific IComponentData obj.
-export function initComponentData(
+function initComponentData(
   data: IComponent,
   componentId: string
 ): IComponentData {
