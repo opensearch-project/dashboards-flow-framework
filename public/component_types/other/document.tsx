@@ -15,11 +15,10 @@ export class Document extends BaseComponent {
     super();
     this.type = COMPONENT_CLASS.DOCUMENT;
     this.label = 'Document';
-    this.description = 'A document to be ingested';
     this.outputs = [
       {
         id: 'document',
-        label: 'Document',
+        label: '',
       },
     ];
   }

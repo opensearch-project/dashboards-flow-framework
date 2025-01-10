@@ -5,7 +5,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Connection, Handle, Position, useReactFlow } from 'reactflow';
-import { EuiText } from '@elastic/eui';
+import { isEmpty } from 'lodash';
+import { EuiBadge, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { IComponent, IComponentOutput } from '../../../../../common';
 import { calculateHandlePosition, isValidConnection } from './utils';
 
@@ -18,6 +19,8 @@ export function OutputHandle(props: OutputHandleProps) {
   const ref = useRef(null);
   const reactFlowInstance = useReactFlow();
   const [position, setPosition] = useState<number>(0);
+  const hasLabel =
+    props.output.label !== undefined && !isEmpty(props.output.label);
 
   useEffect(() => {
     setPosition(calculateHandlePosition(ref));
@@ -26,7 +29,13 @@ export function OutputHandle(props: OutputHandleProps) {
   return (
     <div ref={ref}>
       <>
-        <EuiText textAlign="right">{props.output.label}</EuiText>
+        {hasLabel && (
+          <EuiFlexGroup direction="row" justifyContent="flexEnd">
+            <EuiFlexItem grow={false}>
+              <EuiBadge color="hollow">{props.output.label}</EuiBadge>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        )}
         <Handle
           type="source"
           id={props.output.id}
@@ -35,9 +44,13 @@ export function OutputHandle(props: OutputHandleProps) {
             // @ts-ignore
             isValidConnection(connection, reactFlowInstance)
           }
-          style={{
-            top: position,
-          }}
+          style={
+            hasLabel
+              ? {
+                  top: position,
+                }
+              : {}
+          }
         />
       </>
     </div>

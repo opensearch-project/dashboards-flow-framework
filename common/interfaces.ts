@@ -214,7 +214,8 @@ export interface IComponentField {
 export interface IComponent {
   type: COMPONENT_CLASS;
   label: string;
-  description: string;
+  iconType?: string;
+  description?: string;
   inputs?: IComponentInput[];
   outputs?: IComponentOutput[];
 }

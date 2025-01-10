@@ -1,4 +1,4 @@
-$handle-color: $euiColorDarkestShade;
+$handle-color: $euiColorLightShade;
 $handle-color-valid: $euiColorSuccess;
 $handle-color-invalid: $euiColorDanger;
 
@@ -18,8 +18,8 @@ $handle-color-invalid: $euiColorDanger;
 }
 
 .reactflow-workspace .react-flow__node {
-  width: 300px;
-  min-height: 100px;
+  width: 250px;
+  min-height: 25px;
 }
 
 .reactflow__group-node {
@@ -28,10 +28,10 @@ $handle-color-invalid: $euiColorDanger;
   border: 'none';
 
   &__ingest {
-    background: rgba($euiColorVis0, 0.3);
+    background: rgba($euiColorLightShade, 0.3);
   }
   &__search {
-    background: rgba($euiColorVis1, 0.3);
+    background: rgba($euiColorLightShade, 0.3);
   }
 }
 

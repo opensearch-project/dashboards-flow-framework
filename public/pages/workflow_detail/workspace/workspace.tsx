@@ -6,11 +6,9 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react';
 import ReactFlow, {
   Controls,
-  Background,
   useNodesState,
   useEdgesState,
   addEdge,
-  BackgroundVariant,
   MarkerType,
 } from 'reactflow';
 import {
@@ -202,10 +200,6 @@ export function Workspace(props: WorkspaceProps) {
                   showZoom={false}
                   showInteractive={false}
                   position="top-left"
-                ></Controls>
-                <Background
-                  color="#343741"
-                  variant={'dots' as BackgroundVariant}
                 />
               </ReactFlow>
             ) : (
