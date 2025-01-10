@@ -14,12 +14,12 @@ export class SearchRequest extends BaseComponent {
   constructor() {
     super();
     this.type = COMPONENT_CLASS.SEARCH_REQUEST;
-    this.label = 'Search Request';
-    this.description = 'An OpenSearch search request';
+    this.label = 'Query';
+    this.description = 'Search request';
     this.outputs = [
       {
         id: 'search_request',
-        label: this.label,
+        label: '',
       },
     ];
   }

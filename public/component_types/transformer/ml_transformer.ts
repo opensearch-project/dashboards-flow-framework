@@ -12,7 +12,7 @@ import { BaseTransformer } from './base_transformer';
  */
 export class MLTransformer extends BaseTransformer {
   constructor(context: PROCESSOR_CONTEXT) {
-    super('ML Processor', 'A general ML processor', context);
+    super('ML Inference', 'A general ML processor', context);
     this.type = COMPONENT_CLASS.ML_TRANSFORMER;
   }
 }

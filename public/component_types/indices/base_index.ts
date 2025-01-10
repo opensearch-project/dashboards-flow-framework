@@ -15,17 +15,17 @@ export class BaseIndex extends BaseComponent {
     super();
     this.type = COMPONENT_CLASS.INDEX;
     this.label = 'Index';
-    this.description = 'An OpenSearch index';
+    this.description =
+      category === COMPONENT_CATEGORY.INGEST
+        ? 'Ingest index'
+        : 'Retrieval index';
     this.inputs = [
       {
         id:
           category === COMPONENT_CATEGORY.INGEST
             ? 'document'
             : 'search_request',
-        label:
-          category === COMPONENT_CATEGORY.INGEST
-            ? 'Document'
-            : 'Search Request',
+        label: category === COMPONENT_CATEGORY.INGEST ? '' : 'Search Request',
         acceptMultiple: false,
       },
     ];
