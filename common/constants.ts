@@ -281,12 +281,13 @@ export const VECTOR = 'vector';
 export const VECTOR_PATTERN = `{{${VECTOR}}}`;
 export const VECTOR_TEMPLATE_PLACEHOLDER = `\$\{${VECTOR}\}`;
 export const DEFAULT_K = 10;
+export const DEFAULT_FETCH_SIZE = 10;
 
 export const FETCH_ALL_QUERY = {
   query: {
     match_all: {},
   },
-  size: 1000,
+  size: DEFAULT_FETCH_SIZE,
 };
 export const TERM_QUERY_TEXT = {
   query: {
