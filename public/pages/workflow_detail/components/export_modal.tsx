@@ -5,11 +5,11 @@
 
 import React, { useEffect, useState } from 'react';
 import yaml from 'js-yaml';
+import { isEmpty, toLower } from 'lodash';
 import {
   EuiCodeBlock,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiCompressedRadioGroup,
   EuiText,
   EuiLink,
   EuiModal,
@@ -20,6 +20,7 @@ import {
   EuiSmallButtonEmpty,
   EuiCallOut,
   EuiSpacer,
+  EuiSmallButtonGroup,
 } from '@elastic/eui';
 import {
   CREATE_WORKFLOW_LINK,
@@ -38,20 +39,9 @@ interface ExportModalProps {
 }
 
 enum EXPORT_OPTION {
-  JSON = 'json',
-  YAML = 'yaml',
+  JSON = 'JSON',
+  YAML = 'YAML',
 }
-
-const exportOptions = [
-  {
-    id: EXPORT_OPTION.JSON,
-    label: 'JSON',
-  },
-  {
-    id: EXPORT_OPTION.YAML,
-    label: 'YAML',
-  },
-];
 
 /**
  * Modal containing all of the export options
@@ -74,6 +64,18 @@ export function ExportModal(props: ExportModalProps) {
       }
     }
   }, [props.workflow, selectedOption]);
+
+  // client-side file to be downloaded if the user so chooses. Generate a file
+  // and its corresponding URL.
+  const [formattedConfigHref, setFormattedConfigHref] = useState<string>('');
+  useEffect(() => {
+    if (!isEmpty(formattedConfig)) {
+      const formattedConfigFile = new Blob([formattedConfig], {
+        type: `text/${toLower(selectedOption)}`,
+      });
+      setFormattedConfigHref(URL.createObjectURL(formattedConfigFile));
+    }
+  }, [formattedConfig]);
 
   return (
     <EuiModal
@@ -115,19 +117,45 @@ export function ExportModal(props: ExportModalProps) {
             >{`Note: certain resource IDs in the template, such as model IDs, may be cluster-specific and not work out-of-the-box 
             in other environments. Ensure these values are updated before attempting to provision in other environments.`}</EuiText>
           </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiCompressedRadioGroup
-              options={exportOptions}
-              idSelected={selectedOption}
-              onChange={(option) => {
-                setSelectedOption(option as EXPORT_OPTION);
-              }}
-            />
+          <EuiFlexItem>
+            <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+              <EuiFlexItem grow={false}>
+                <EuiSmallButtonGroup
+                  legend="Choose how to view your workflow"
+                  options={[
+                    {
+                      id: EXPORT_OPTION.JSON,
+                      label: EXPORT_OPTION.JSON,
+                    },
+                    {
+                      id: EXPORT_OPTION.YAML,
+                      label: EXPORT_OPTION.YAML,
+                    },
+                  ]}
+                  idSelected={selectedOption}
+                  onChange={(id) => setSelectedOption(id as EXPORT_OPTION)}
+                  data-testid="exportDataToggleButtonGroup"
+                />
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiSmallButtonEmpty
+                  iconType="download"
+                  iconSide="right"
+                  href={formattedConfigHref}
+                  download={`${props.workflow?.name}.${toLower(
+                    selectedOption
+                  )}`}
+                  onClick={() => {}}
+                >
+                  {`Download ${selectedOption} file`}
+                </EuiSmallButtonEmpty>
+              </EuiFlexItem>
+            </EuiFlexGroup>
           </EuiFlexItem>
           {props.workflow !== undefined && (
             <EuiFlexItem grow={false}>
               <EuiCodeBlock
-                language={selectedOption}
+                language={toLower(selectedOption)}
                 fontSize="m"
                 isCopyable={true}
               >
