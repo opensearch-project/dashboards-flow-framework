@@ -51,7 +51,6 @@ import {
   sleep,
   getResourcesToBeForceDeleted,
   getDataSourceId,
-  parseErrorsFromIngestResponse,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
@@ -508,12 +507,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           dispatch(bulk({ apiBody: { body: bulkBody }, dataSourceId }))
             .unwrap()
             .then(async (resp: any) => {
-              // Ingest errors may be hidden within a 2xx / success response.
-              // But, we want to propagate them more, so we surface it as if it was a server-side error
-              const ingestErr = parseErrorsFromIngestResponse(resp);
-              if (ingestErr !== undefined) {
-                // TODO: propagate to redux store or somehow to Tools component
-              }
               props.setIngestResponse(customStringify(resp));
               props.setIsRunningIngest(false);
               setLastIngested(Date.now());
