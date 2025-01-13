@@ -8,6 +8,7 @@ import {
   ConnectorDict,
   DEFAULT_NEW_WORKFLOW_STATE_TYPE,
   INDEX_NOT_FOUND_EXCEPTION,
+  INVALID_DATASOURCE_MSG,
   MODEL_ALGORITHM,
   MODEL_STATE,
   Model,
@@ -27,6 +28,14 @@ import {
 // OSD does not provide an interface for this response, but this is following the suggested
 // implementations. To prevent typescript complaining, leaving as loosely-typed 'any'
 export function generateCustomError(res: any, err: any) {
+  if (isDatasourceError(err)) {
+    return res.customError({
+      statusCode: 404,
+      body: {
+        message: 'Data source not found',
+      },
+    });
+  }
   return res.customError({
     statusCode: err.statusCode || 500,
     body: {
@@ -36,6 +45,12 @@ export function generateCustomError(res: any, err: any) {
       },
     },
   });
+}
+
+function isDatasourceError(err: any) {
+  if (err.message !== undefined && typeof err.message === 'string') {
+    return err.message.includes(INVALID_DATASOURCE_MSG);
+  }
 }
 
 // Helper fn to filter out backend errors that we don't want to propagate on the frontend.
