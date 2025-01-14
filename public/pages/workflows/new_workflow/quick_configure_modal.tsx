@@ -71,10 +71,13 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const history = useHistory();
   const { models } = useSelector((state: AppState) => state.ml);
 
-  // model interface state
-  const [modelInterface, setModelInterface] = useState<
+  // model interface states
+  const [embeddingModelInterface, setEmbeddingModelInterface] = useState<
     ModelInterface | undefined
   >(undefined);
+  const [llmInterface, setLLMInterface] = useState<ModelInterface | undefined>(
+    undefined
+  );
 
   // workflow name state
   const [workflowName, setWorkflowName] = useState<string>(
@@ -100,8 +103,13 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   // fetching model interface if available. used to prefill some
   // of the input/output maps
   useEffect(() => {
-    setModelInterface(models[quickConfigureFields?.modelId || '']?.interface);
-  }, [models, quickConfigureFields?.modelId]);
+    setEmbeddingModelInterface(
+      models[quickConfigureFields?.embeddingModelId || '']?.interface
+    );
+  }, [models, quickConfigureFields?.embeddingModelId]);
+  useEffect(() => {
+    setLLMInterface(models[quickConfigureFields?.llmId || '']?.interface);
+  }, [models, quickConfigureFields?.llmId]);
 
   return (
     <EuiModal onClose={() => props.onClose()} style={{ width: '30vw' }}>
@@ -151,7 +159,8 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
               workflowToCreate = injectQuickConfigureFields(
                 workflowToCreate,
                 quickConfigureFields,
-                modelInterface
+                embeddingModelInterface,
+                llmInterface
               );
             }
             dispatch(
@@ -192,7 +201,8 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
 function injectQuickConfigureFields(
   workflow: Workflow,
   quickConfigureFields: QuickConfigureFields,
-  modelInterface: ModelInterface | undefined
+  embeddingModelInterface: ModelInterface | undefined,
+  llmInterface: ModelInterface | undefined
 ): Workflow {
   if (workflow.ui_metadata?.type) {
     switch (workflow.ui_metadata?.type) {
@@ -203,7 +213,7 @@ function injectQuickConfigureFields(
           workflow.ui_metadata.config = updateIngestProcessors(
             workflow.ui_metadata.config,
             quickConfigureFields,
-            modelInterface,
+            embeddingModelInterface,
             isVectorSearchUseCase(workflow)
           );
           workflow.ui_metadata.config = updateIndexConfig(
@@ -217,7 +227,7 @@ function injectQuickConfigureFields(
           workflow.ui_metadata.config = updateSearchRequestProcessors(
             workflow.ui_metadata.config,
             quickConfigureFields,
-            modelInterface,
+            embeddingModelInterface,
             isVectorSearchUseCase(workflow)
           );
         }
@@ -232,7 +242,37 @@ function injectQuickConfigureFields(
           workflow.ui_metadata.config = updateRAGSearchResponseProcessors(
             workflow.ui_metadata.config,
             quickConfigureFields,
-            modelInterface
+            llmInterface
+          );
+        }
+        break;
+      }
+      case WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG: {
+        if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
+          workflow.ui_metadata.config = updateIngestProcessors(
+            workflow.ui_metadata.config,
+            quickConfigureFields,
+            embeddingModelInterface,
+            isVectorSearchUseCase(workflow)
+          );
+          workflow.ui_metadata.config = updateIndexConfig(
+            workflow.ui_metadata.config,
+            quickConfigureFields
+          );
+          workflow.ui_metadata.config.search.request.value = injectPlaceholderValues(
+            (workflow.ui_metadata.config.search.request.value || '') as string,
+            quickConfigureFields
+          );
+          workflow.ui_metadata.config = updateSearchRequestProcessors(
+            workflow.ui_metadata.config,
+            quickConfigureFields,
+            embeddingModelInterface,
+            isVectorSearchUseCase(workflow)
+          );
+          workflow.ui_metadata.config = updateRAGSearchResponseProcessors(
+            workflow.ui_metadata.config,
+            quickConfigureFields,
+            llmInterface
           );
         }
         break;
@@ -250,18 +290,20 @@ function injectQuickConfigureFields(
 function updateIngestProcessors(
   config: WorkflowConfig,
   fields: QuickConfigureFields,
-  modelInterface: ModelInterface | undefined,
+  embeddingModelInterface: ModelInterface | undefined,
   isVectorSearchUseCase: boolean
 ): WorkflowConfig {
   config.ingest.enrich.processors.forEach((processor, idx) => {
     // prefill ML inference
     if (processor.type === PROCESSOR_TYPE.ML) {
       config.ingest.enrich.processors[idx].fields.forEach((field) => {
-        if (field.id === 'model' && fields.modelId) {
-          field.value = { id: fields.modelId };
+        if (field.id === 'model' && fields.embeddingModelId) {
+          field.value = { id: fields.embeddingModelId };
         }
         if (field.id === 'input_map') {
-          const inputMap = generateInputMapFromModelInputs(modelInterface);
+          const inputMap = generateInputMapFromModelInputs(
+            embeddingModelInterface
+          );
           if (fields.textField) {
             if (inputMap.length > 0) {
               inputMap[0] = {
@@ -303,7 +345,9 @@ function updateIngestProcessors(
           field.value = [inputMap] as InputMapArrayFormValue;
         }
         if (field.id === 'output_map') {
-          const outputMap = generateOutputMapFromModelOutputs(modelInterface);
+          const outputMap = generateOutputMapFromModelOutputs(
+            embeddingModelInterface
+          );
           const defaultField = isVectorSearchUseCase
             ? fields.vectorField
             : fields.labelField;
@@ -338,7 +382,7 @@ function updateIngestProcessors(
 function updateSearchRequestProcessors(
   config: WorkflowConfig,
   fields: QuickConfigureFields,
-  modelInterface: ModelInterface | undefined,
+  embeddingModelInterface: ModelInterface | undefined,
   isVectorSearchUseCase: boolean
 ): WorkflowConfig {
   config.search.enrichRequest.processors.forEach((processor, idx) => {
@@ -351,11 +395,13 @@ function updateSearchRequestProcessors(
         )[0];
       } catch {}
       config.search.enrichRequest.processors[idx].fields.forEach((field) => {
-        if (field.id === 'model' && fields.modelId) {
-          field.value = { id: fields.modelId };
+        if (field.id === 'model' && fields.embeddingModelId) {
+          field.value = { id: fields.embeddingModelId };
         }
         if (field.id === 'input_map') {
-          const inputMap = generateInputMapFromModelInputs(modelInterface);
+          const inputMap = generateInputMapFromModelInputs(
+            embeddingModelInterface
+          );
           if (inputMap.length > 0) {
             inputMap[0] = {
               ...inputMap[0],
@@ -376,7 +422,9 @@ function updateSearchRequestProcessors(
           field.value = [inputMap] as InputMapArrayFormValue;
         }
         if (field.id === 'output_map') {
-          const outputMap = generateOutputMapFromModelOutputs(modelInterface);
+          const outputMap = generateOutputMapFromModelOutputs(
+            embeddingModelInterface
+          );
           const defaultValue = isVectorSearchUseCase
             ? VECTOR
             : defaultQueryValue;
@@ -421,17 +469,17 @@ function updateSearchRequestProcessors(
 function updateRAGSearchResponseProcessors(
   config: WorkflowConfig,
   fields: QuickConfigureFields,
-  modelInterface: ModelInterface | undefined
+  llmInterface: ModelInterface | undefined
 ): WorkflowConfig {
   config.search.enrichResponse.processors.forEach((processor, idx) => {
     // prefill ML inference
     if (processor.type === PROCESSOR_TYPE.ML) {
       config.search.enrichResponse.processors[idx].fields.forEach((field) => {
-        if (field.id === 'model' && fields.modelId) {
-          field.value = { id: fields.modelId };
+        if (field.id === 'model' && fields.llmId) {
+          field.value = { id: fields.llmId };
         }
         if (field.id === 'input_map') {
-          const inputMap = generateInputMapFromModelInputs(modelInterface);
+          const inputMap = generateInputMapFromModelInputs(llmInterface);
           if (fields.promptField && fields.textField) {
             if (inputMap.length > 0) {
               inputMap[0] = {
@@ -460,7 +508,7 @@ function updateRAGSearchResponseProcessors(
           field.value = [inputMap] as InputMapArrayFormValue;
         }
         if (field.id === 'output_map') {
-          const outputMap = generateOutputMapFromModelOutputs(modelInterface);
+          const outputMap = generateOutputMapFromModelOutputs(llmInterface);
           if (fields.llmResponseField) {
             if (outputMap.length > 0) {
               outputMap[0] = {
@@ -551,10 +599,10 @@ function injectPlaceholderValues(
   fields: QuickConfigureFields
 ): string {
   let finalRequestString = requestString;
-  if (fields.modelId) {
+  if (fields.embeddingModelId) {
     finalRequestString = finalRequestString.replace(
       new RegExp(MODEL_ID_PATTERN, 'g'),
-      fields.modelId
+      fields.embeddingModelId
     );
   }
   if (fields.textField) {

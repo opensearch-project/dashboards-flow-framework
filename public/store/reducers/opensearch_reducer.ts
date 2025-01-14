@@ -17,6 +17,7 @@ import {
   SimulateIngestPipelineDoc,
 } from '../../../common';
 import { HttpFetchError } from '../../../../../src/core/public';
+import { parseErrorsFromIngestResponse } from '../../utils';
 
 export const INITIAL_OPENSEARCH_STATE = {
   loading: false,
@@ -176,6 +177,12 @@ export const bulk = createAsyncThunk(
       dataSourceId,
       ingestPipeline,
     });
+    // Ingest errors may be hidden within a 2xx / success response.
+    // But, we want to propagate them more, so we surface it as if it was a normal, server-side error
+    const ingestErr = parseErrorsFromIngestResponse(response);
+    if (ingestErr !== undefined) {
+      return rejectWithValue('Error performing bulk: ' + ingestErr);
+    }
     if (response instanceof HttpFetchError) {
       return rejectWithValue('Error performing bulk: ' + response.body.message);
     } else {
@@ -363,6 +370,10 @@ const opensearchSlice = createSlice({
         state.loading = false;
         state.errorMessage = '';
       })
+      .addCase(bulk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.errorMessage = '';
+      })
       .addCase(catIndices.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
@@ -388,6 +399,10 @@ const opensearchSlice = createSlice({
         state.loading = false;
       })
       .addCase(ingest.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(bulk.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       });
