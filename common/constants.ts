@@ -166,6 +166,7 @@ export enum WORKFLOW_TYPE {
   MULTIMODAL_SEARCH = 'Multimodal search',
   HYBRID_SEARCH = 'Hybrid search',
   RAG = 'Retrieval-augmented generation',
+  VECTOR_SEARCH_WITH_RAG = 'Vector search with retrieval-augmented generation',
   CUSTOM = 'Custom',
   UNKNOWN = 'Unknown',
 }

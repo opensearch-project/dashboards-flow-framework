@@ -47,6 +47,7 @@ export function isVectorSearchUseCase(workflow: Workflow | undefined): boolean {
       WORKFLOW_TYPE.HYBRID_SEARCH,
       WORKFLOW_TYPE.MULTIMODAL_SEARCH,
       WORKFLOW_TYPE.SEMANTIC_SEARCH,
+      WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG,
     ].includes(workflow?.ui_metadata?.type)
   );
 }
