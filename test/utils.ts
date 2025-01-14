@@ -57,7 +57,7 @@ function generateWorkflow({ id, name, type }: WorkflowInput): Workflow {
     template: '1.0.0',
     compatibility: isSearchWorkflow
       ? [MINIMUM_FULL_SUPPORTED_VERSION]
-      : ['2.18.0', '3.0.0'],
+      : ['2.19.0', '3.0.0'],
   };
 
   return {

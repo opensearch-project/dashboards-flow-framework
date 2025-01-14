@@ -79,6 +79,7 @@ export function JsonField(props: JsonFieldProps) {
               value={jsonStr}
               onChange={(input) => {
                 setJsonStr(input);
+                form.setFieldValue(field.name, input);
               }}
               onBlur={() => {
                 try {

@@ -544,7 +544,8 @@ export type PromptPreset = {
 };
 
 export type QuickConfigureFields = {
-  modelId?: string;
+  embeddingModelId?: string;
+  llmId?: string;
   vectorField?: string;
   textField?: string;
   imageField?: string;

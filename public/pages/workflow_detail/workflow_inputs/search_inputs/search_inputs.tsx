@@ -39,7 +39,7 @@ export function SearchInputs(props: SearchInputsProps) {
         <ConfigureSearchRequest />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <EuiHorizontalRule margin="none" />
+        <EuiHorizontalRule margin="m" />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EnrichSearchRequest
@@ -48,7 +48,7 @@ export function SearchInputs(props: SearchInputsProps) {
         />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <EuiHorizontalRule margin="none" />
+        <EuiHorizontalRule margin="m" />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EnrichSearchResponse

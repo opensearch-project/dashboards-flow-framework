@@ -4,6 +4,9 @@
   "use_case": "CUSTOM",
   "version": {
     "template": "1.0.0",
-    "compatibility": ["2.18.0", "3.0.0"]
+    "compatibility": [
+      "2.19.0",
+      "3.0.0"
+    ]
   }
 }
