@@ -762,3 +762,17 @@ export function removeVectorFieldFromIndexMappings(
     return existingMappings;
   }
 }
+
+// Parse out any hidden errors within a 2xx ingest response
+export function parseErrorsFromIngestResponse(
+  ingestResponse: any
+): string | undefined {
+  if (get(ingestResponse, 'errors', false)) {
+    return get(
+      ingestResponse,
+      'items.0.index.error.reason',
+      'Error ingesting documents'
+    );
+  }
+  return;
+}

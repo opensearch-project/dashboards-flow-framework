@@ -1,0 +1,14 @@
+{
+    "name": "Vector search with RAG",
+    "description": "A basic workflow containing the index and search pipeline configurations for performing vector search with retrieval-augmented generation (RAG)",
+    "version": {
+        "template": "1.0.0",
+        "compatibility": [
+            "2.19.0",
+            "3.0.0"
+        ]
+    },
+    "ui_metadata": {
+        "type": "Vector search with retrieval-augmented generation"
+    }
+}

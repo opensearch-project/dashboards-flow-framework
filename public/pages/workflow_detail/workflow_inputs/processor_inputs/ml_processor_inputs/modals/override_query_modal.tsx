@@ -234,6 +234,7 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
                       validate={false}
                       label={'Query template'}
                       fieldPath={'request'}
+                      editorHeight="30vh"
                     />
                     {finalModelOutputs.length > 0 && (
                       <>

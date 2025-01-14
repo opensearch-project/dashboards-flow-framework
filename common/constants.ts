@@ -166,6 +166,7 @@ export enum WORKFLOW_TYPE {
   MULTIMODAL_SEARCH = 'Multimodal search',
   HYBRID_SEARCH = 'Hybrid search',
   RAG = 'Retrieval-augmented generation',
+  VECTOR_SEARCH_WITH_RAG = 'Vector search with retrieval-augmented generation',
   CUSTOM = 'Custom',
   UNKNOWN = 'Unknown',
 }
@@ -281,12 +282,13 @@ export const VECTOR = 'vector';
 export const VECTOR_PATTERN = `{{${VECTOR}}}`;
 export const VECTOR_TEMPLATE_PLACEHOLDER = `\$\{${VECTOR}\}`;
 export const DEFAULT_K = 10;
+export const DEFAULT_FETCH_SIZE = 10;
 
 export const FETCH_ALL_QUERY = {
   query: {
     match_all: {},
   },
-  size: 1000,
+  size: DEFAULT_FETCH_SIZE,
 };
 export const TERM_QUERY_TEXT = {
   query: {
@@ -578,6 +580,7 @@ export const EMPTY_FIELD_STRING = '--';
 export const OMIT_SYSTEM_INDEX_PATTERN = '*,-.*';
 export const INDEX_NOT_FOUND_EXCEPTION = 'index_not_found_exception';
 export const ERROR_GETTING_WORKFLOW_MSG = 'Failed to retrieve template';
+export const INVALID_DATASOURCE_MSG = 'No Living connections';
 export const NO_TEMPLATES_FOUND_MSG = 'There are no templates';
 export const NO_MODIFICATIONS_FOUND_TEXT =
   'Template does not contain any modifications';

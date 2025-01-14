@@ -113,6 +113,7 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
     jest.clearAllMocks();
   });
   test('tests Export button, Tools panel toggling, and Workspace preview', async () => {
+    global.URL.createObjectURL = jest.fn();
     const { getByText, container, getByTestId } = renderWithRouter(
       workflowId,
       workflowName,

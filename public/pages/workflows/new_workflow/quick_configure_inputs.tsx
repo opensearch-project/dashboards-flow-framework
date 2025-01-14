@@ -46,8 +46,9 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
   // Deployed models state
   const [deployedModels, setDeployedModels] = useState<Model[]>([]);
 
-  // Selected model interface state
-  const [selectedModelInterface, setSelectedModelInterface] = useState<
+  // Selected LLM interface state. Used for exposing a dropdown
+  // of available model inputs to select from.
+  const [selectedLLMInterface, setSelectedLLMInterface] = useState<
     ModelInterface | undefined
   >(undefined);
 
@@ -94,15 +95,18 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
         };
         break;
       }
+      case WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG: {
+        defaultFieldValues = {
+          textField: DEFAULT_TEXT_FIELD,
+          vectorField: DEFAULT_VECTOR_FIELD,
+          promptField: '',
+          llmResponseField: DEFAULT_LLM_RESPONSE_FIELD,
+        };
+        break;
+      }
       case WORKFLOW_TYPE.CUSTOM:
       default:
         break;
-    }
-    if (deployedModels.length > 0) {
-      defaultFieldValues = {
-        ...defaultFieldValues,
-        modelId: deployedModels[0].id,
-      };
     }
     setFieldValues(defaultFieldValues);
   }, [deployedModels]);
@@ -112,12 +116,11 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
     props.setFields(fieldValues);
   }, [fieldValues]);
 
-  // Try to pre-fill the dimensions based on the chosen model
+  // Try to pre-fill the dimensions based on the chosen embedding model
   useEffect(() => {
     const selectedModel = deployedModels.find(
-      (model) => model.id === fieldValues.modelId
+      (model) => model.id === fieldValues.embeddingModelId
     );
-    setSelectedModelInterface(selectedModel?.interface);
     if (selectedModel?.connectorId !== undefined) {
       const connector = connectors[selectedModel.connectorId];
       if (connector !== undefined) {
@@ -127,24 +130,35 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
         });
       }
     }
-  }, [fieldValues.modelId, deployedModels, connectors]);
+  }, [fieldValues.embeddingModelId, deployedModels, connectors]);
 
-  // When the model interface is defined, set a default prompt field, if applicable.
+  // Set the LLM interface if an LLM is defined
+  useEffect(() => {
+    const selectedModel = deployedModels.find(
+      (model) => model.id === fieldValues.llmId
+    );
+    setSelectedLLMInterface(selectedModel?.interface);
+  }, [fieldValues.llmId, deployedModels, connectors]);
+
+  // If an LLM interface is defined, set a default prompt field, if applicable.
   useEffect(() => {
     if (
-      props.workflowType === WORKFLOW_TYPE.RAG &&
-      selectedModelInterface !== undefined
+      (props.workflowType === WORKFLOW_TYPE.RAG ||
+        props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) &&
+      selectedLLMInterface !== undefined
     ) {
       setFieldValues({
         ...fieldValues,
-        promptField: get(parseModelInputs(selectedModelInterface), '0.label'),
+        promptField: get(parseModelInputs(selectedLLMInterface), '0.label'),
       });
     }
-  }, [selectedModelInterface]);
+  }, [selectedLLMInterface]);
 
   return (
     <>
       {props.workflowType !== WORKFLOW_TYPE.CUSTOM ? (
+        // Always include some model selection. For anything other than the vanilla RAG type,
+        // we will always have a selectable embedding model.
         <>
           <EuiSpacer size="m" />
           <EuiAccordion
@@ -209,18 +223,99 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                         disabled: false,
                       } as EuiSuperSelectOption<string>)
                   )}
-                  valueOfSelected={fieldValues?.modelId || ''}
+                  valueOfSelected={
+                    props.workflowType === WORKFLOW_TYPE.RAG
+                      ? fieldValues?.llmId
+                      : fieldValues?.embeddingModelId || ''
+                  }
                   onChange={(option: string) => {
-                    setFieldValues({
-                      ...fieldValues,
-                      modelId: option,
-                    });
+                    if (props.workflowType === WORKFLOW_TYPE.RAG) {
+                      setFieldValues({
+                        ...fieldValues,
+                        llmId: option,
+                      });
+                    } else {
+                      setFieldValues({
+                        ...fieldValues,
+                        embeddingModelId: option,
+                      });
+                    }
                   }}
                   isInvalid={false}
                 />
               )}
             </EuiCompressedFormRow>
             <EuiSpacer size="s" />
+            {
+              // For vector search + RAG, include the LLM model selection as well
+              props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG && (
+                <>
+                  <EuiCompressedFormRow
+                    fullWidth={true}
+                    label={'Large language model'}
+                    isInvalid={false}
+                    helpText={
+                      isEmpty(deployedModels)
+                        ? undefined
+                        : 'The large language model to generate user-friendly responses'
+                    }
+                  >
+                    {isEmpty(deployedModels) ? (
+                      <EuiCallOut
+                        color="primary"
+                        size="s"
+                        title={
+                          <EuiText size="s">
+                            You have no model currently set up yet,{' '}
+                            <EuiLink href={ML_REMOTE_MODEL_LINK}>
+                              Learn more
+                            </EuiLink>{' '}
+                            to understand how to integrate ML models.
+                          </EuiText>
+                        }
+                      />
+                    ) : (
+                      <EuiCompressedSuperSelect
+                        data-testid="selectDeployedModelLLM"
+                        fullWidth={true}
+                        options={deployedModels.map(
+                          (option) =>
+                            ({
+                              value: option.id,
+                              inputDisplay: (
+                                <>
+                                  <EuiText size="s">{option.name}</EuiText>
+                                </>
+                              ),
+                              dropdownDisplay: (
+                                <>
+                                  <EuiText size="s">{option.name}</EuiText>
+                                  <EuiText size="xs" color="subdued">
+                                    Deployed
+                                  </EuiText>
+                                  <EuiText size="xs" color="subdued">
+                                    {option.algorithm}
+                                  </EuiText>
+                                </>
+                              ),
+                              disabled: false,
+                            } as EuiSuperSelectOption<string>)
+                        )}
+                        valueOfSelected={fieldValues?.llmId || ''}
+                        onChange={(option: string) => {
+                          setFieldValues({
+                            ...fieldValues,
+                            llmId: option,
+                          });
+                        }}
+                        isInvalid={false}
+                      />
+                    )}
+                  </EuiCompressedFormRow>
+                  <EuiSpacer size="s" />
+                </>
+              )
+            }
             <EuiCompressedFormRow
               fullWidth={true}
               label={'Text field'}
@@ -268,7 +363,8 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             )}
             {(props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
               props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
-              props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH) && (
+              props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH ||
+              props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) && (
               <>
                 <EuiCompressedFormRow
                   fullWidth={true}
@@ -307,7 +403,8 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                 </EuiCompressedFormRow>
               </>
             )}
-            {props.workflowType === WORKFLOW_TYPE.RAG && (
+            {(props.workflowType === WORKFLOW_TYPE.RAG ||
+              props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) && (
               <>
                 <EuiCompressedFormRow
                   fullWidth={true}
@@ -318,7 +415,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                   <EuiCompressedSuperSelect
                     data-testid="selectPromptField"
                     fullWidth={true}
-                    options={parseModelInputs(selectedModelInterface).map(
+                    options={parseModelInputs(selectedLLMInterface).map(
                       (option) =>
                         ({
                           value: option.label,

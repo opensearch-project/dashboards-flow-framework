@@ -506,7 +506,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           );
           dispatch(bulk({ apiBody: { body: bulkBody }, dataSourceId }))
             .unwrap()
-            .then(async (resp) => {
+            .then(async (resp: any) => {
               props.setIngestResponse(customStringify(resp));
               props.setIsRunningIngest(false);
               setLastIngested(Date.now());
