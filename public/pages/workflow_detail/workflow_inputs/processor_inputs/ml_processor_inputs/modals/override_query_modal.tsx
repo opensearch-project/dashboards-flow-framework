@@ -175,7 +175,7 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
                           iconSide="right"
                           iconType="arrowDown"
                         >
-                          Choose from a preset
+                          Query samples
                         </EuiSmallButton>
                       }
                       isOpen={presetsPopoverOpen}
