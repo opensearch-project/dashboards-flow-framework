@@ -73,13 +73,17 @@ export function EditWorkflowMetadataModal(
           WORKFLOW_NAME_REGEXP.test(name) === false
         );
       })
-      .test('workflowName', 'Workflow name exists', (name) => {
-        return !(
-          Object.values(workflows)
-            .map((workflow) => workflow.name)
-            .includes(name || '') && name !== props.workflow?.name
-        );
-      })
+      .test(
+        'workflowName',
+        'This workflow name is already in use. Use a different name',
+        (name) => {
+          return !(
+            Object.values(workflows)
+              .map((workflow) => workflow.name)
+              .includes(name || '') && name !== props.workflow?.name
+          );
+        }
+      )
       .required('Required') as yup.Schema,
     desription: yup
       .string()

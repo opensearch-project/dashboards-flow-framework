@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { isEmpty, snakeCase } from 'lodash';
+import { isEmpty } from 'lodash';
 import { useSelector } from 'react-redux';
 import { flattie } from 'flattie';
 import {
@@ -129,14 +129,14 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
           label={'Name'}
           error={
             workflowNameExists
-              ? 'Workflow name already exists'
+              ? 'This workflow name is already in use. Use a different name'
               : 'Invalid workflow name'
           }
           isInvalid={workflowNameTouched && isInvalidName(workflowName)}
         >
           <EuiCompressedFieldText
             fullWidth={true}
-            placeholder={snakeCase(props.workflow.name)}
+            placeholder={'Enter a name for this workflow'}
             value={workflowName}
             onChange={(e) => {
               setWorkflowNameTouched(true);
