@@ -571,7 +571,6 @@ export enum TRANSFORM_TYPE {
   TEMPLATE = 'Template',
 }
 export const NO_TRANSFORMATION = 'No transformation';
-export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';
 export const DEFAULT_NEW_WORKFLOW_STATE_TYPE = ('NOT_STARTED' as any) as typeof WORKFLOW_STATE;

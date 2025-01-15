@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { isEmpty } from 'lodash';
+import { isEmpty, snakeCase } from 'lodash';
 import { useSelector } from 'react-redux';
 import { flattie } from 'flattie';
 import {
@@ -47,7 +47,6 @@ import {
   isVectorSearchUseCase,
 } from '../../../../common';
 import { APP_PATH } from '../../../utils';
-import { processWorkflowName } from './utils';
 import { AppState, createWorkflow, useAppDispatch } from '../../../store';
 import {
   constructUrlWithParams,
@@ -80,8 +79,9 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   );
 
   // workflow name state
-  const [workflowName, setWorkflowName] = useState<string>(
-    processWorkflowName(props.workflow.name)
+  const [workflowName, setWorkflowName] = useState<string>('');
+  const [workflowNameTouched, setWorkflowNameTouched] = useState<boolean>(
+    false
   );
 
   const [quickConfigureFields, setQuickConfigureFields] = useState<
@@ -123,15 +123,16 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
           fullWidth={true}
           label={'Name'}
           error={'Invalid name'}
-          isInvalid={isInvalidName(workflowName)}
+          isInvalid={workflowNameTouched && isInvalidName(workflowName)}
         >
           <EuiCompressedFieldText
             fullWidth={true}
-            placeholder={processWorkflowName(props.workflow.name)}
+            placeholder={snakeCase(props.workflow.name)}
             value={workflowName}
             onChange={(e) => {
               setWorkflowName(e.target.value);
             }}
+            onBlur={() => setWorkflowNameTouched(true)}
           />
         </EuiCompressedFormRow>
         <QuickConfigureInputs
