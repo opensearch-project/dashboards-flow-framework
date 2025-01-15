@@ -196,7 +196,7 @@ export function SourceDataModal(props: SourceDataProps) {
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>{`Import data`}</p>
+                <p>{`Import sample data`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiModalBody>
@@ -236,7 +236,7 @@ export function SourceDataModal(props: SourceDataProps) {
                     }
                     data-testid="selectIndexSourceDataButton"
                   >
-                    Existing index
+                    From existing index
                   </EuiSmallFilterButton>
                 </EuiFilterGroup>
                 <EuiSpacer size="m" />
