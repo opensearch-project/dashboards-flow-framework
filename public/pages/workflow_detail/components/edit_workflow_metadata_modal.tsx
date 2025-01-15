@@ -14,7 +14,6 @@ import {
   EuiModal,
   EuiModalHeader,
   EuiModalHeaderTitle,
-  EuiModalBody,
   EuiModalFooter,
   EuiSmallButtonEmpty,
   EuiSmallButton,
@@ -201,7 +200,7 @@ export function EditWorkflowMetadataModal(
                 <p>Update workflow metadata</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
-            <EuiModalBody>
+            <EuiFlexItem style={{ paddingLeft: '24px', paddingRight: '24px' }}>
               <EuiFlexGroup direction="column">
                 <EuiFlexItem>
                   <TextField
@@ -220,7 +219,7 @@ export function EditWorkflowMetadataModal(
                   />
                 </EuiFlexItem>
               </EuiFlexGroup>
-            </EuiModalBody>
+            </EuiFlexItem>
             <EuiModalFooter>
               <EuiSmallButtonEmpty
                 onClick={() => props.setIsModalOpen(false)}
