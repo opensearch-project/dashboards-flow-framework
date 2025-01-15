@@ -123,7 +123,7 @@ export function Workflows(props: WorkflowsProps) {
         dispatch(
           searchWorkflows({
             apiBody: FETCH_ALL_QUERY,
-            dataSourceId: dataSourceId,
+            dataSourceId,
           })
         );
       }
@@ -148,7 +148,7 @@ export function Workflows(props: WorkflowsProps) {
       dispatch(
         searchWorkflows({
           apiBody: FETCH_ALL_QUERY,
-          dataSourceId: dataSourceId,
+          dataSourceId,
         })
       );
     }
@@ -171,7 +171,7 @@ export function Workflows(props: WorkflowsProps) {
       dispatch(
         searchWorkflows({
           apiBody: FETCH_ALL_QUERY,
-          dataSourceId: dataSourceId,
+          dataSourceId,
         })
       );
     }

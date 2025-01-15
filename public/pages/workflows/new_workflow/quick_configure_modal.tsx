@@ -69,6 +69,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const dataSourceId = getDataSourceId();
   const history = useHistory();
   const { models } = useSelector((state: AppState) => state.ml);
+  const { workflows } = useSelector((state: AppState) => state.workflows);
 
   // model interface states
   const [embeddingModelInterface, setEmbeddingModelInterface] = useState<
@@ -83,6 +84,9 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const [workflowNameTouched, setWorkflowNameTouched] = useState<boolean>(
     false
   );
+  const workflowNameExists = Object.values(workflows)
+    .map((workflow) => workflow.name)
+    .includes(workflowName);
 
   const [quickConfigureFields, setQuickConfigureFields] = useState<
     QuickConfigureFields
@@ -96,7 +100,8 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
     return (
       name === '' ||
       name.length > 100 ||
-      WORKFLOW_NAME_REGEXP.test(name) === false
+      WORKFLOW_NAME_REGEXP.test(name) === false ||
+      workflowNameExists
     );
   }
 
@@ -122,7 +127,11 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
         <EuiCompressedFormRow
           fullWidth={true}
           label={'Name'}
-          error={'Invalid name'}
+          error={
+            workflowNameExists
+              ? 'Workflow name already exists'
+              : 'Invalid workflow name'
+          }
           isInvalid={workflowNameTouched && isInvalidName(workflowName)}
         >
           <EuiCompressedFieldText
@@ -130,6 +139,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
             placeholder={snakeCase(props.workflow.name)}
             value={workflowName}
             onChange={(e) => {
+              setWorkflowNameTouched(true);
               setWorkflowName(e.target.value);
             }}
             onBlur={() => setWorkflowNameTouched(true)}

@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import * as yup from 'yup';
 import { Formik, getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
@@ -19,6 +20,7 @@ import {
   EuiSmallButton,
 } from '@elastic/eui';
 import {
+  FETCH_ALL_QUERY,
   MAX_STRING_LENGTH,
   Workflow,
   WORKFLOW_NAME_REGEXP,
@@ -32,7 +34,13 @@ import {
   getInitialValue,
 } from '../../../utils';
 import { TextField } from '../workflow_inputs/input_fields';
-import { getWorkflow, updateWorkflow, useAppDispatch } from '../../../store';
+import {
+  AppState,
+  getWorkflow,
+  searchWorkflows,
+  updateWorkflow,
+  useAppDispatch,
+} from '../../../store';
 
 interface EditWorkflowMetadataModalProps {
   workflow?: Workflow;
@@ -47,6 +55,7 @@ export function EditWorkflowMetadataModal(
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
+  const { workflows } = useSelector((state: AppState) => state.workflows);
 
   // sub-form values/schema
   const metadataFormValues = {
@@ -62,6 +71,13 @@ export function EditWorkflowMetadataModal(
           name === '' ||
           name.length > 100 ||
           WORKFLOW_NAME_REGEXP.test(name) === false
+        );
+      })
+      .test('workflowName', 'Workflow name exists', (name) => {
+        return !(
+          Object.values(workflows)
+            .map((workflow) => workflow.name)
+            .includes(name || '') && name !== props.workflow?.name
         );
       })
       .required('Required') as yup.Schema,
@@ -82,6 +98,17 @@ export function EditWorkflowMetadataModal(
 
   // button updating state
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
+
+  // On initial render: fetch all workflows. Used for preventing users from updating name
+  // to an existing workflow
+  useEffect(() => {
+    dispatch(
+      searchWorkflows({
+        apiBody: FETCH_ALL_QUERY,
+        dataSourceId,
+      })
+    );
+  }, []);
 
   // if saving, take the updated name/description (along with any other unsaved form values)
   // and execute the update.
