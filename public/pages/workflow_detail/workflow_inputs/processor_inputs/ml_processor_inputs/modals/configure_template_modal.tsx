@@ -353,7 +353,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                 iconSide="right"
                                 iconType="arrowDown"
                               >
-                                Choose from a preset
+                                Query samples
                               </EuiSmallButton>
                             }
                             isOpen={presetsPopoverOpen}

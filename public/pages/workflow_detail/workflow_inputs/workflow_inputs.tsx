@@ -439,7 +439,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     // Ideally we handle Promise accept/rejects with submitForm(), but there is
     // open issues for that - see https://github.com/jaredpalmer/formik/issues/2057
     // The workaround is to additionally execute validateForm() which will return any errors found.
-    submitForm();
+    await submitForm();
     await validateForm()
       .then(async (validationResults: { ingest?: {}; search?: {} }) => {
         const { ingest, search } = validationResults;

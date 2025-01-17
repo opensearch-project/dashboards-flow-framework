@@ -14,6 +14,7 @@ interface SelectWithCustomOptionsProps {
   placeholder: string;
   options: { label: string }[];
   allowCreate?: boolean;
+  showInvalid?: boolean;
   onChange?: () => void;
 }
 
@@ -21,9 +22,18 @@ interface SelectWithCustomOptionsProps {
  * A generic select field from a list of preconfigured options, and the functionality to add more options
  */
 export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
-  const { values, setFieldTouched, setFieldValue } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const {
+    values,
+    errors,
+    touched,
+    setFieldTouched,
+    setFieldValue,
+  } = useFormikContext<WorkflowFormValues>();
+
+  const isInvalid =
+    (props.showInvalid ?? true) &&
+    getIn(errors, props.fieldPath) &&
+    getIn(touched, props.fieldPath);
 
   // selected option state
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
@@ -88,6 +98,7 @@ export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
       customOptionText={
         props.allowCreate ? 'Add {searchValue} as a custom option' : undefined
       }
+      isInvalid={isInvalid}
     />
   );
 }

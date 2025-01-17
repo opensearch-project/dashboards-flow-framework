@@ -161,310 +161,315 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
         // we will always have a selectable embedding model.
         <>
           <EuiSpacer size="m" />
+          <EuiCompressedFormRow
+            fullWidth={true}
+            label={
+              props.workflowType === WORKFLOW_TYPE.RAG
+                ? 'Large language model'
+                : 'Embedding model'
+            }
+            isInvalid={false}
+            helpText={
+              isEmpty(deployedModels)
+                ? undefined
+                : props.workflowType === WORKFLOW_TYPE.RAG
+                ? 'The large language model to generate user-friendly responses'
+                : 'The model to generate embeddings'
+            }
+          >
+            {isEmpty(deployedModels) ? (
+              <EuiCallOut
+                color="primary"
+                size="s"
+                title={
+                  <EuiText size="s">
+                    You have no model currently set up yet,{' '}
+                    <EuiLink href={ML_REMOTE_MODEL_LINK}>Learn more</EuiLink> to
+                    understand how to integrate ML models.
+                  </EuiText>
+                }
+              />
+            ) : (
+              <EuiCompressedSuperSelect
+                data-testid="selectDeployedModel"
+                fullWidth={true}
+                options={deployedModels.map(
+                  (option) =>
+                    ({
+                      value: option.id,
+                      inputDisplay: (
+                        <>
+                          <EuiText size="s">{option.name}</EuiText>
+                        </>
+                      ),
+                      dropdownDisplay: (
+                        <>
+                          <EuiText size="s">{option.name}</EuiText>
+                          <EuiText size="xs" color="subdued">
+                            Deployed
+                          </EuiText>
+                          <EuiText size="xs" color="subdued">
+                            {option.algorithm}
+                          </EuiText>
+                        </>
+                      ),
+                      disabled: false,
+                    } as EuiSuperSelectOption<string>)
+                )}
+                valueOfSelected={
+                  props.workflowType === WORKFLOW_TYPE.RAG
+                    ? fieldValues?.llmId
+                    : fieldValues?.embeddingModelId || ''
+                }
+                onChange={(option: string) => {
+                  if (props.workflowType === WORKFLOW_TYPE.RAG) {
+                    setFieldValues({
+                      ...fieldValues,
+                      llmId: option,
+                    });
+                  } else {
+                    setFieldValues({
+                      ...fieldValues,
+                      embeddingModelId: option,
+                    });
+                  }
+                }}
+                isInvalid={false}
+              />
+            )}
+          </EuiCompressedFormRow>
+          <EuiSpacer size="s" />
+          {
+            // For vector search + RAG, include the LLM model selection as well
+            props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG && (
+              <>
+                <EuiCompressedFormRow
+                  fullWidth={true}
+                  label={'Large language model'}
+                  isInvalid={false}
+                  helpText={
+                    isEmpty(deployedModels)
+                      ? undefined
+                      : 'The large language model to generate user-friendly responses'
+                  }
+                >
+                  {isEmpty(deployedModels) ? (
+                    <EuiCallOut
+                      color="primary"
+                      size="s"
+                      title={
+                        <EuiText size="s">
+                          You have no model currently set up yet,{' '}
+                          <EuiLink href={ML_REMOTE_MODEL_LINK}>
+                            Learn more
+                          </EuiLink>{' '}
+                          to understand how to integrate ML models.
+                        </EuiText>
+                      }
+                    />
+                  ) : (
+                    <EuiCompressedSuperSelect
+                      data-testid="selectDeployedModelLLM"
+                      fullWidth={true}
+                      options={deployedModels.map(
+                        (option) =>
+                          ({
+                            value: option.id,
+                            inputDisplay: (
+                              <>
+                                <EuiText size="s">{option.name}</EuiText>
+                              </>
+                            ),
+                            dropdownDisplay: (
+                              <>
+                                <EuiText size="s">{option.name}</EuiText>
+                                <EuiText size="xs" color="subdued">
+                                  Deployed
+                                </EuiText>
+                                <EuiText size="xs" color="subdued">
+                                  {option.algorithm}
+                                </EuiText>
+                              </>
+                            ),
+                            disabled: false,
+                          } as EuiSuperSelectOption<string>)
+                      )}
+                      valueOfSelected={fieldValues?.llmId || ''}
+                      onChange={(option: string) => {
+                        setFieldValues({
+                          ...fieldValues,
+                          llmId: option,
+                        });
+                      }}
+                      isInvalid={false}
+                    />
+                  )}
+                </EuiCompressedFormRow>
+                <EuiSpacer size="s" />
+              </>
+            )
+          }
+          <EuiSpacer size="s" />
           <EuiAccordion
             id="optionalConfiguration"
             buttonContent="Optional configuration"
             initialIsOpen={false}
             data-testid="optionalConfigurationButton"
           >
-            <EuiSpacer size="m" />
-            <EuiCompressedFormRow
-              fullWidth={true}
-              label={
-                props.workflowType === WORKFLOW_TYPE.RAG
-                  ? 'Large language model'
-                  : 'Embedding model'
-              }
-              isInvalid={false}
-              helpText={
-                isEmpty(deployedModels)
-                  ? undefined
-                  : props.workflowType === WORKFLOW_TYPE.RAG
-                  ? 'The large language model to generate user-friendly responses'
-                  : 'The model to generate embeddings'
-              }
-            >
-              {isEmpty(deployedModels) ? (
-                <EuiCallOut
-                  color="primary"
-                  size="s"
-                  title={
-                    <EuiText size="s">
-                      You have no model currently set up yet,{' '}
-                      <EuiLink href={ML_REMOTE_MODEL_LINK}>Learn more</EuiLink>{' '}
-                      to understand how to integrate ML models.
-                    </EuiText>
-                  }
-                />
-              ) : (
-                <EuiCompressedSuperSelect
-                  data-testid="selectDeployedModel"
+            <>
+              <EuiSpacer size="s" />
+              <EuiCompressedFormRow
+                fullWidth={true}
+                label={'Text field'}
+                isInvalid={false}
+                helpText={`The name of the text document field to be ${
+                  props.workflowType === WORKFLOW_TYPE.RAG
+                    ? 'used as context to the large language model (LLM)'
+                    : 'embedded'
+                }`}
+              >
+                <EuiCompressedFieldText
+                  data-testid="textFieldQuickConfigure"
                   fullWidth={true}
-                  options={deployedModels.map(
-                    (option) =>
-                      ({
-                        value: option.id,
-                        inputDisplay: (
-                          <>
-                            <EuiText size="s">{option.name}</EuiText>
-                          </>
-                        ),
-                        dropdownDisplay: (
-                          <>
-                            <EuiText size="s">{option.name}</EuiText>
-                            <EuiText size="xs" color="subdued">
-                              Deployed
-                            </EuiText>
-                            <EuiText size="xs" color="subdued">
-                              {option.algorithm}
-                            </EuiText>
-                          </>
-                        ),
-                        disabled: false,
-                      } as EuiSuperSelectOption<string>)
-                  )}
-                  valueOfSelected={
-                    props.workflowType === WORKFLOW_TYPE.RAG
-                      ? fieldValues?.llmId
-                      : fieldValues?.embeddingModelId || ''
-                  }
-                  onChange={(option: string) => {
-                    if (props.workflowType === WORKFLOW_TYPE.RAG) {
-                      setFieldValues({
-                        ...fieldValues,
-                        llmId: option,
-                      });
-                    } else {
-                      setFieldValues({
-                        ...fieldValues,
-                        embeddingModelId: option,
-                      });
-                    }
+                  value={fieldValues?.textField || ''}
+                  onChange={(e) => {
+                    setFieldValues({
+                      ...fieldValues,
+                      textField: e.target.value,
+                    });
                   }}
-                  isInvalid={false}
                 />
-              )}
-            </EuiCompressedFormRow>
-            <EuiSpacer size="s" />
-            {
-              // For vector search + RAG, include the LLM model selection as well
-              props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG && (
+              </EuiCompressedFormRow>
+              <EuiSpacer size="s" />
+              {props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH && (
                 <>
                   <EuiCompressedFormRow
                     fullWidth={true}
-                    label={'Large language model'}
+                    label={'Image field'}
                     isInvalid={false}
-                    helpText={
-                      isEmpty(deployedModels)
-                        ? undefined
-                        : 'The large language model to generate user-friendly responses'
-                    }
+                    helpText="The name of the document field containing the image binary"
                   >
-                    {isEmpty(deployedModels) ? (
-                      <EuiCallOut
-                        color="primary"
-                        size="s"
-                        title={
-                          <EuiText size="s">
-                            You have no model currently set up yet,{' '}
-                            <EuiLink href={ML_REMOTE_MODEL_LINK}>
-                              Learn more
-                            </EuiLink>{' '}
-                            to understand how to integrate ML models.
-                          </EuiText>
-                        }
-                      />
-                    ) : (
-                      <EuiCompressedSuperSelect
-                        data-testid="selectDeployedModelLLM"
-                        fullWidth={true}
-                        options={deployedModels.map(
-                          (option) =>
-                            ({
-                              value: option.id,
-                              inputDisplay: (
-                                <>
-                                  <EuiText size="s">{option.name}</EuiText>
-                                </>
-                              ),
-                              dropdownDisplay: (
-                                <>
-                                  <EuiText size="s">{option.name}</EuiText>
-                                  <EuiText size="xs" color="subdued">
-                                    Deployed
-                                  </EuiText>
-                                  <EuiText size="xs" color="subdued">
-                                    {option.algorithm}
-                                  </EuiText>
-                                </>
-                              ),
-                              disabled: false,
-                            } as EuiSuperSelectOption<string>)
-                        )}
-                        valueOfSelected={fieldValues?.llmId || ''}
-                        onChange={(option: string) => {
-                          setFieldValues({
-                            ...fieldValues,
-                            llmId: option,
-                          });
-                        }}
-                        isInvalid={false}
-                      />
-                    )}
+                    <EuiCompressedFieldText
+                      fullWidth={true}
+                      value={fieldValues?.imageField || ''}
+                      onChange={(e) => {
+                        setFieldValues({
+                          ...fieldValues,
+                          imageField: e.target.value,
+                        });
+                      }}
+                    />
                   </EuiCompressedFormRow>
                   <EuiSpacer size="s" />
                 </>
-              )
-            }
-            <EuiCompressedFormRow
-              fullWidth={true}
-              label={'Text field'}
-              isInvalid={false}
-              helpText={`The name of the text document field to be ${
-                props.workflowType === WORKFLOW_TYPE.RAG
-                  ? 'used as context to the large language model (LLM)'
-                  : 'embedded'
-              }`}
-            >
-              <EuiCompressedFieldText
-                data-testid="textFieldQuickConfigure"
-                fullWidth={true}
-                value={fieldValues?.textField || ''}
-                onChange={(e) => {
-                  setFieldValues({
-                    ...fieldValues,
-                    textField: e.target.value,
-                  });
-                }}
-              />
-            </EuiCompressedFormRow>
-            <EuiSpacer size="s" />
-            {props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH && (
-              <>
-                <EuiCompressedFormRow
-                  fullWidth={true}
-                  label={'Image field'}
-                  isInvalid={false}
-                  helpText="The name of the document field containing the image binary"
-                >
-                  <EuiCompressedFieldText
+              )}
+              {(props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
+                props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
+                props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH ||
+                props.workflowType ===
+                  WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) && (
+                <>
+                  <EuiCompressedFormRow
                     fullWidth={true}
-                    value={fieldValues?.imageField || ''}
-                    onChange={(e) => {
-                      setFieldValues({
-                        ...fieldValues,
-                        imageField: e.target.value,
-                      });
-                    }}
-                  />
-                </EuiCompressedFormRow>
-                <EuiSpacer size="s" />
-              </>
-            )}
-            {(props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
-              props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
-              props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH ||
-              props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) && (
-              <>
-                <EuiCompressedFormRow
-                  fullWidth={true}
-                  label={'Vector field'}
-                  isInvalid={false}
-                  helpText="The name of the document field containing the vector embedding"
-                >
-                  <EuiCompressedFieldText
-                    fullWidth={true}
-                    value={fieldValues?.vectorField || ''}
-                    onChange={(e) => {
-                      setFieldValues({
-                        ...fieldValues,
-                        vectorField: e.target.value,
-                      });
-                    }}
-                  />
-                </EuiCompressedFormRow>
-                <EuiSpacer size="s" />
-                <EuiCompressedFormRow
-                  fullWidth={true}
-                  label={'Embedding length'}
-                  isInvalid={false}
-                  helpText="The length / dimension of the generated vector embeddings. Autofilled values may be inaccurate."
-                >
-                  <EuiCompressedFieldNumber
-                    fullWidth={true}
-                    value={fieldValues?.embeddingLength || ''}
-                    onChange={(e) => {
-                      setFieldValues({
-                        ...fieldValues,
-                        embeddingLength: Number(e.target.value),
-                      });
-                    }}
-                  />
-                </EuiCompressedFormRow>
-              </>
-            )}
-            {(props.workflowType === WORKFLOW_TYPE.RAG ||
-              props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) && (
-              <>
-                <EuiCompressedFormRow
-                  fullWidth={true}
-                  label={'Prompt field'}
-                  isInvalid={false}
-                  helpText={'The model input field representing the prompt'}
-                >
-                  <EuiCompressedSuperSelect
-                    data-testid="selectPromptField"
-                    fullWidth={true}
-                    options={parseModelInputs(selectedLLMInterface).map(
-                      (option) =>
-                        ({
-                          value: option.label,
-                          inputDisplay: (
-                            <>
-                              <EuiText size="s">{option.label}</EuiText>
-                            </>
-                          ),
-                          dropdownDisplay: (
-                            <>
-                              <EuiText size="s">{option.label}</EuiText>
-                              <EuiText size="xs" color="subdued">
-                                {option.type}
-                              </EuiText>
-                            </>
-                          ),
-                          disabled: false,
-                        } as EuiSuperSelectOption<string>)
-                    )}
-                    valueOfSelected={fieldValues?.promptField || ''}
-                    onChange={(option: string) => {
-                      setFieldValues({
-                        ...fieldValues,
-                        promptField: option,
-                      });
-                    }}
+                    label={'Vector field'}
                     isInvalid={false}
-                  />
-                </EuiCompressedFormRow>
-                <EuiSpacer size="s" />
-                <EuiCompressedFormRow
-                  fullWidth={true}
-                  label={'LLM response field'}
-                  isInvalid={false}
-                  helpText="The name of the field containing the large language model (LLM) response"
-                >
-                  <EuiCompressedFieldText
+                    helpText="The name of the document field containing the vector embedding"
+                  >
+                    <EuiCompressedFieldText
+                      fullWidth={true}
+                      value={fieldValues?.vectorField || ''}
+                      onChange={(e) => {
+                        setFieldValues({
+                          ...fieldValues,
+                          vectorField: e.target.value,
+                        });
+                      }}
+                    />
+                  </EuiCompressedFormRow>
+                  <EuiSpacer size="s" />
+                  <EuiCompressedFormRow
                     fullWidth={true}
-                    value={fieldValues?.llmResponseField || ''}
-                    onChange={(e) => {
-                      setFieldValues({
-                        ...fieldValues,
-                        llmResponseField: e.target.value,
-                      });
-                    }}
-                  />
-                </EuiCompressedFormRow>
-              </>
-            )}
+                    label={'Embedding length'}
+                    isInvalid={false}
+                    helpText="The length / dimension of the generated vector embeddings. Autofilled values may be inaccurate."
+                  >
+                    <EuiCompressedFieldNumber
+                      fullWidth={true}
+                      value={fieldValues?.embeddingLength || ''}
+                      onChange={(e) => {
+                        setFieldValues({
+                          ...fieldValues,
+                          embeddingLength: Number(e.target.value),
+                        });
+                      }}
+                    />
+                  </EuiCompressedFormRow>
+                </>
+              )}
+              {(props.workflowType === WORKFLOW_TYPE.RAG ||
+                props.workflowType ===
+                  WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) && (
+                <>
+                  <EuiCompressedFormRow
+                    fullWidth={true}
+                    label={'Prompt field'}
+                    isInvalid={false}
+                    helpText={'The model input field representing the prompt'}
+                  >
+                    <EuiCompressedSuperSelect
+                      data-testid="selectPromptField"
+                      fullWidth={true}
+                      options={parseModelInputs(selectedLLMInterface).map(
+                        (option) =>
+                          ({
+                            value: option.label,
+                            inputDisplay: (
+                              <>
+                                <EuiText size="s">{option.label}</EuiText>
+                              </>
+                            ),
+                            dropdownDisplay: (
+                              <>
+                                <EuiText size="s">{option.label}</EuiText>
+                                <EuiText size="xs" color="subdued">
+                                  {option.type}
+                                </EuiText>
+                              </>
+                            ),
+                            disabled: false,
+                          } as EuiSuperSelectOption<string>)
+                      )}
+                      valueOfSelected={fieldValues?.promptField || ''}
+                      onChange={(option: string) => {
+                        setFieldValues({
+                          ...fieldValues,
+                          promptField: option,
+                        });
+                      }}
+                      isInvalid={false}
+                    />
+                  </EuiCompressedFormRow>
+                  <EuiSpacer size="s" />
+                  <EuiCompressedFormRow
+                    fullWidth={true}
+                    label={'LLM response field'}
+                    isInvalid={false}
+                    helpText="The name of the field containing the large language model (LLM) response"
+                  >
+                    <EuiCompressedFieldText
+                      fullWidth={true}
+                      value={fieldValues?.llmResponseField || ''}
+                      onChange={(e) => {
+                        setFieldValues({
+                          ...fieldValues,
+                          llmResponseField: e.target.value,
+                        });
+                      }}
+                    />
+                  </EuiCompressedFormRow>
+                </>
+              )}
+            </>
           </EuiAccordion>
         </>
       ) : undefined}
