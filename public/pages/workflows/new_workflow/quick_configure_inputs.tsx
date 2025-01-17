@@ -66,6 +66,11 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
   // Local field values state
   const [fieldValues, setFieldValues] = useState<QuickConfigureFields>({});
 
+  // Advanced config accordion state
+  const [accordionState, setAccordionState] = useState<'open' | 'closed'>(
+    'closed'
+  );
+
   // on initial load, and when there are any deployed models found, set
   // defaults for the field values for certain workflow types
   useEffect(() => {
@@ -117,6 +122,11 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
   }, [fieldValues]);
 
   // Try to pre-fill the dimensions based on the chosen embedding model
+  // If not found, we display a helper callout, and automatically
+  // open the accordion to guide the user.
+  const [unknownEmbeddingLength, setUnknownEmbeddingLength] = useState<boolean>(
+    false
+  );
   useEffect(() => {
     const selectedModel = deployedModels.find(
       (model) => model.id === fieldValues.embeddingModelId
@@ -124,6 +134,12 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
     if (selectedModel?.connectorId !== undefined) {
       const connector = connectors[selectedModel.connectorId];
       if (connector !== undefined) {
+        const dimensions = getEmbeddingModelDimensions(connector);
+        if (dimensions === undefined) {
+          setUnknownEmbeddingLength(true);
+          setAccordionState('open');
+        }
+        setUnknownEmbeddingLength(dimensions === undefined);
         setFieldValues({
           ...fieldValues,
           embeddingLength: getEmbeddingModelDimensions(connector),
@@ -161,6 +177,16 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
         // we will always have a selectable embedding model.
         <>
           <EuiSpacer size="m" />
+          {unknownEmbeddingLength && (
+            <>
+              <EuiCallOut
+                size="s"
+                title="No embedding length found. Make sure to manually configure"
+                color="warning"
+              />
+              <EuiSpacer size="s" />
+            </>
+          )}
           <EuiCompressedFormRow
             fullWidth={true}
             label={
@@ -313,8 +339,13 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
           <EuiAccordion
             id="optionalConfiguration"
             buttonContent="Optional configuration"
-            initialIsOpen={false}
+            forceState={accordionState}
             data-testid="optionalConfigurationButton"
+            onToggle={() =>
+              accordionState === 'open'
+                ? setAccordionState('closed')
+                : setAccordionState('open')
+            }
           >
             <>
               <EuiSpacer size="s" />
