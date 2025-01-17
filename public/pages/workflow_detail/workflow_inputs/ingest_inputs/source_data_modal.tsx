@@ -18,11 +18,9 @@ import {
   EuiModalHeaderTitle,
   EuiSpacer,
   EuiText,
-  EuiFilterGroup,
-  EuiSmallFilterButton,
-  EuiSuperSelectOption,
-  EuiCompressedSuperSelect,
   EuiSmallButtonEmpty,
+  EuiButtonGroup,
+  EuiCompressedComboBox,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
@@ -32,6 +30,8 @@ import {
   IndexMappings,
   IngestDocsFormValues,
   isVectorSearchUseCase,
+  MAX_BYTES,
+  MAX_DOCS_TO_IMPORT,
   SearchHit,
   SOURCE_OPTIONS,
   Workflow,
@@ -176,7 +176,7 @@ export function SourceDataModal(props: SourceDataProps) {
               .unwrap()
               .then((resp) => {
                 const docObjs = resp?.hits?.hits
-                  ?.slice(0, 5)
+                  ?.slice(0, MAX_DOCS_TO_IMPORT)
                   ?.map((hit: SearchHit) => hit?._source);
                 formikProps.setFieldValue('docs', customStringify(docObjs));
               });
@@ -196,49 +196,40 @@ export function SourceDataModal(props: SourceDataProps) {
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>{`Import data`}</p>
+                <p>{`Import sample data`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiModalBody>
               <>
-                <EuiFilterGroup>
-                  <EuiSmallFilterButton
-                    id={SOURCE_OPTIONS.MANUAL}
-                    hasActiveFilters={
-                      props.selectedOption === SOURCE_OPTIONS.MANUAL
-                    }
-                    onClick={() =>
-                      props.setSelectedOption(SOURCE_OPTIONS.MANUAL)
-                    }
-                    data-testid="manualEditSourceDataButton"
-                  >
-                    Manual
-                  </EuiSmallFilterButton>
-                  <EuiSmallFilterButton
-                    id={SOURCE_OPTIONS.UPLOAD}
-                    hasActiveFilters={
-                      props.selectedOption === SOURCE_OPTIONS.UPLOAD
-                    }
-                    onClick={() =>
-                      props.setSelectedOption(SOURCE_OPTIONS.UPLOAD)
-                    }
-                    data-testid="uploadSourceDataButton"
-                  >
-                    Upload
-                  </EuiSmallFilterButton>
-                  <EuiSmallFilterButton
-                    id={SOURCE_OPTIONS.EXISTING_INDEX}
-                    hasActiveFilters={
-                      props.selectedOption === SOURCE_OPTIONS.EXISTING_INDEX
-                    }
-                    onClick={() =>
-                      props.setSelectedOption(SOURCE_OPTIONS.EXISTING_INDEX)
-                    }
-                    data-testid="selectIndexSourceDataButton"
-                  >
-                    Existing index
-                  </EuiSmallFilterButton>
-                </EuiFilterGroup>
+                <EuiText size="s" color="subdued">
+                  Import a sample of your data to help you start configuring
+                  your ingestion flow. You may ingest the full set of data with
+                  the bulk API after configuring the ingestion flow.
+                </EuiText>
+                <EuiSpacer size="s" />
+                <EuiButtonGroup
+                  legend="Import options"
+                  buttonSize="compressed"
+                  idSelected={props.selectedOption}
+                  options={[
+                    {
+                      id: SOURCE_OPTIONS.MANUAL,
+                      label: 'Manual',
+                    },
+
+                    {
+                      id: SOURCE_OPTIONS.UPLOAD,
+                      label: 'Upload file',
+                    },
+                    {
+                      id: SOURCE_OPTIONS.EXISTING_INDEX,
+                      label: 'From existing index',
+                    },
+                  ]}
+                  onChange={(id) =>
+                    props.setSelectedOption(id as SOURCE_OPTIONS)
+                  }
+                />
                 <EuiSpacer size="m" />
                 {props.selectedOption === SOURCE_OPTIONS.UPLOAD && (
                   <>
@@ -263,32 +254,35 @@ export function SourceDataModal(props: SourceDataProps) {
                       }}
                       display="default"
                     />
+                    <EuiText
+                      size="xs"
+                      color="subdued"
+                    >{`File size must not exceed ${MAX_BYTES} bytes.`}</EuiText>
                     <EuiSpacer size="s" />
                   </>
                 )}
                 {props.selectedOption === SOURCE_OPTIONS.EXISTING_INDEX && (
                   <>
-                    <EuiText color="subdued" size="s">
-                      Up to 5 sample documents will be automatically populated.
-                    </EuiText>
-                    <EuiSpacer size="s" />
-                    <EuiCompressedSuperSelect
-                      options={Object.values(indices).map(
-                        (option) =>
-                          ({
-                            value: option.name,
-                            inputDisplay: (
-                              <EuiText size="s">{option.name}</EuiText>
-                            ),
-                            disabled: false,
-                          } as EuiSuperSelectOption<string>)
-                      )}
-                      valueOfSelected={selectedIndex}
-                      onChange={(option) => {
-                        setSelectedIndex(option);
+                    <EuiCompressedComboBox
+                      placeholder="Select an index"
+                      singleSelection={{ asPlainText: true }}
+                      options={Object.values(indices).map((option) => {
+                        return { label: option.name };
+                      })}
+                      onChange={(options) => {
+                        setSelectedIndex(getIn(options, '0.label'));
                       }}
-                      isInvalid={false}
+                      selectedOptions={
+                        selectedIndex !== undefined
+                          ? [{ label: selectedIndex }]
+                          : []
+                      }
+                      isClearable={true}
                     />
+                    <EuiText
+                      size="xs"
+                      color="subdued"
+                    >{`Only the top ${MAX_DOCS_TO_IMPORT} documents will be imported.`}</EuiText>
                     <EuiSpacer size="xs" />
                   </>
                 )}
@@ -296,7 +290,7 @@ export function SourceDataModal(props: SourceDataProps) {
                   label="Documents to be imported"
                   fieldPath={'docs'}
                   helpText="Documents should be formatted as a valid JSON array."
-                  editorHeight="25vh"
+                  editorHeight="40vh"
                   readOnly={false}
                 />
               </>

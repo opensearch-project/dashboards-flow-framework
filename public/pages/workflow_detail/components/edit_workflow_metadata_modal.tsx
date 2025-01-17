@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import * as yup from 'yup';
 import { Formik, getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
@@ -13,12 +14,12 @@ import {
   EuiModal,
   EuiModalHeader,
   EuiModalHeaderTitle,
-  EuiModalBody,
   EuiModalFooter,
   EuiSmallButtonEmpty,
   EuiSmallButton,
 } from '@elastic/eui';
 import {
+  FETCH_ALL_QUERY,
   MAX_STRING_LENGTH,
   Workflow,
   WORKFLOW_NAME_REGEXP,
@@ -32,7 +33,13 @@ import {
   getInitialValue,
 } from '../../../utils';
 import { TextField } from '../workflow_inputs/input_fields';
-import { getWorkflow, updateWorkflow, useAppDispatch } from '../../../store';
+import {
+  AppState,
+  getWorkflow,
+  searchWorkflows,
+  updateWorkflow,
+  useAppDispatch,
+} from '../../../store';
 
 interface EditWorkflowMetadataModalProps {
   workflow?: Workflow;
@@ -47,6 +54,7 @@ export function EditWorkflowMetadataModal(
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
+  const { workflows } = useSelector((state: AppState) => state.workflows);
 
   // sub-form values/schema
   const metadataFormValues = {
@@ -64,6 +72,17 @@ export function EditWorkflowMetadataModal(
           WORKFLOW_NAME_REGEXP.test(name) === false
         );
       })
+      .test(
+        'workflowName',
+        'This workflow name is already in use. Use a different name',
+        (name) => {
+          return !(
+            Object.values(workflows)
+              .map((workflow) => workflow.name)
+              .includes(name || '') && name !== props.workflow?.name
+          );
+        }
+      )
       .required('Required') as yup.Schema,
     desription: yup
       .string()
@@ -82,6 +101,17 @@ export function EditWorkflowMetadataModal(
 
   // button updating state
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
+
+  // On initial render: fetch all workflows. Used for preventing users from updating name
+  // to an existing workflow
+  useEffect(() => {
+    dispatch(
+      searchWorkflows({
+        apiBody: FETCH_ALL_QUERY,
+        dataSourceId,
+      })
+    );
+  }, []);
 
   // if saving, take the updated name/description (along with any other unsaved form values)
   // and execute the update.
@@ -162,19 +192,19 @@ export function EditWorkflowMetadataModal(
         return (
           <EuiModal
             maxWidth={false}
-            style={{ width: '50vw' }}
+            style={{ width: '30vw' }}
             onClose={() => props.setIsModalOpen(false)}
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>Update workflow metadata</p>
+                <p>Workflow settings</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
-            <EuiModalBody>
+            <EuiFlexItem style={{ paddingLeft: '24px', paddingRight: '24px' }}>
               <EuiFlexGroup direction="column">
                 <EuiFlexItem>
                   <TextField
-                    label="Workflow name"
+                    label="Name"
                     fullWidth={false}
                     fieldPath={`name`}
                     showError={true}
@@ -182,14 +212,16 @@ export function EditWorkflowMetadataModal(
                 </EuiFlexItem>
                 <EuiFlexItem>
                   <TextField
-                    label="Workflow description"
-                    fullWidth={true}
+                    label="Description - optional"
+                    fullWidth={false}
                     fieldPath={`description`}
                     showError={true}
+                    placeholder="Provide a description for identifying this workflow."
+                    textArea={true}
                   />
                 </EuiFlexItem>
               </EuiFlexGroup>
-            </EuiModalBody>
+            </EuiFlexItem>
             <EuiModalFooter>
               <EuiSmallButtonEmpty
                 onClick={() => props.setIsModalOpen(false)}

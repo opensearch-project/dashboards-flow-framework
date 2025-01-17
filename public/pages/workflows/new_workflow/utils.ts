@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { snakeCase } from 'lodash';
 import {
   CollapseProcessor,
   MLIngestProcessor,
@@ -15,8 +14,6 @@ import {
 } from '../../../configs';
 import {
   WorkflowTemplate,
-  START_FROM_SCRATCH_WORKFLOW_NAME,
-  DEFAULT_NEW_WORKFLOW_NAME,
   UIState,
   WORKFLOW_TYPE,
   FETCH_ALL_QUERY,
@@ -284,15 +281,6 @@ export function fetchVectorSearchWithRAGMetadata(version: string): UIState {
     new CollapseProcessor().toObj(),
   ];
   return baseState;
-}
-
-// Utility fn to process workflow names from their presentable/readable titles
-// on the UI, to a valid name format.
-// This leads to less friction if users decide to save the name later on.
-export function processWorkflowName(workflowName: string): string {
-  return workflowName === START_FROM_SCRATCH_WORKFLOW_NAME
-    ? DEFAULT_NEW_WORKFLOW_NAME
-    : snakeCase(workflowName);
 }
 
 // populate the `query_template` config value with a given query template

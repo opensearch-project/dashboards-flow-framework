@@ -47,7 +47,6 @@ import {
   isVectorSearchUseCase,
 } from '../../../../common';
 import { APP_PATH } from '../../../utils';
-import { processWorkflowName } from './utils';
 import { AppState, createWorkflow, useAppDispatch } from '../../../store';
 import {
   constructUrlWithParams,
@@ -70,6 +69,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const dataSourceId = getDataSourceId();
   const history = useHistory();
   const { models } = useSelector((state: AppState) => state.ml);
+  const { workflows } = useSelector((state: AppState) => state.workflows);
 
   // model interface states
   const [embeddingModelInterface, setEmbeddingModelInterface] = useState<
@@ -80,9 +80,13 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   );
 
   // workflow name state
-  const [workflowName, setWorkflowName] = useState<string>(
-    processWorkflowName(props.workflow.name)
+  const [workflowName, setWorkflowName] = useState<string>('');
+  const [workflowNameTouched, setWorkflowNameTouched] = useState<boolean>(
+    false
   );
+  const workflowNameExists = Object.values(workflows)
+    .map((workflow) => workflow.name)
+    .includes(workflowName);
 
   const [quickConfigureFields, setQuickConfigureFields] = useState<
     QuickConfigureFields
@@ -96,7 +100,8 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
     return (
       name === '' ||
       name.length > 100 ||
-      WORKFLOW_NAME_REGEXP.test(name) === false
+      WORKFLOW_NAME_REGEXP.test(name) === false ||
+      workflowNameExists
     );
   }
 
@@ -122,16 +127,22 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
         <EuiCompressedFormRow
           fullWidth={true}
           label={'Name'}
-          error={'Invalid name'}
-          isInvalid={isInvalidName(workflowName)}
+          error={
+            workflowNameExists
+              ? 'This workflow name is already in use. Use a different name'
+              : 'Invalid workflow name'
+          }
+          isInvalid={workflowNameTouched && isInvalidName(workflowName)}
         >
           <EuiCompressedFieldText
             fullWidth={true}
-            placeholder={processWorkflowName(props.workflow.name)}
+            placeholder={'Enter a name for this workflow'}
             value={workflowName}
             onChange={(e) => {
+              setWorkflowNameTouched(true);
               setWorkflowName(e.target.value);
             }}
+            onBlur={() => setWorkflowNameTouched(true)}
           />
         </EuiCompressedFormRow>
         <QuickConfigureInputs

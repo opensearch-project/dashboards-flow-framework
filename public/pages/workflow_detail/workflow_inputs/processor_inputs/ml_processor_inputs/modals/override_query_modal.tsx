@@ -33,6 +33,7 @@ import {
   LABEL_FIELD_PATTERN,
   MODEL_ID_PATTERN,
   ModelInterface,
+  NO_TRANSFORMATION,
   OutputMapEntry,
   QUERY_IMAGE_PATTERN,
   QUERY_PRESETS,
@@ -40,6 +41,7 @@ import {
   QueryPreset,
   RequestFormValues,
   TEXT_FIELD_PATTERN,
+  TRANSFORM_TYPE,
   VECTOR_FIELD_PATTERN,
   VECTOR_PATTERN,
   WorkflowFormValues,
@@ -81,13 +83,37 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
   // get some current form values
   const modelOutputs = parseModelOutputs(props.modelInterface);
   const queryFieldPath = `${props.baseConfigPath}.${props.config.id}.query_template`;
+
+  // compile all of the different output map values that can be injected into the query rewrite.
+  // need special logic to process each transform type (e.g., transform type may add multiple outputs per entry)
   const outputMap = getIn(
     values,
     `${props.baseConfigPath}.${props.config.id}.output_map`
   );
-  const outputMapValues = getIn(outputMap, '0', []).map(
-    (mapEntry: OutputMapEntry) => mapEntry.value.value
-  ) as string[];
+  let outputMapNoTransformValues = [] as string[];
+  let outputMapFieldValues = [] as string[];
+  let outputMapExpressionValues = [] as string[];
+
+  getIn(outputMap, '0', []).forEach((mapEntry: OutputMapEntry) => {
+    // @ts-ignore
+    if (mapEntry.value.transformType === NO_TRANSFORMATION) {
+      outputMapNoTransformValues.push(mapEntry.key);
+    } else if (mapEntry.value.transformType === TRANSFORM_TYPE.FIELD) {
+      outputMapFieldValues.push(mapEntry.value?.value as string);
+    } else {
+      outputMapExpressionValues = [
+        ...outputMapExpressionValues,
+        ...(mapEntry.value.nestedVars
+          ? mapEntry.value.nestedVars.map((nestedVar) => nestedVar.name)
+          : []),
+      ];
+    }
+  });
+  const outputMapValues = [
+    ...outputMapNoTransformValues,
+    ...outputMapFieldValues,
+    ...outputMapExpressionValues,
+  ];
   const finalModelOutputs =
     outputMapValues.length > 0
       ? outputMapValues.map((outputMapValue) => {
@@ -127,13 +153,14 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>{`Override query`}</p>
+                <p>{`Rewrite query`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiModalBody style={{ height: '40vh' }}>
               <EuiText color="subdued">
-                Configure a custom query template to override the existing one.
-                Optionally inject dynamic model outputs into the new query.
+                Rewrite the existing query definition by defining a query
+                template. You can also inject dynamic model inputs into the
+                query template.
               </EuiText>
               <EuiFlexGroup direction="column">
                 <EuiFlexItem>
@@ -148,7 +175,7 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
                           iconSide="right"
                           iconType="arrowDown"
                         >
-                          Choose from a preset
+                          Query samples
                         </EuiSmallButton>
                       }
                       isOpen={presetsPopoverOpen}

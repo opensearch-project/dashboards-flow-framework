@@ -13,6 +13,7 @@ import {
   EuiText,
   EuiCodeBlock,
   EuiSmallButtonEmpty,
+  EuiEmptyPrompt,
 } from '@elastic/eui';
 import {
   MapEntry,
@@ -103,11 +104,11 @@ export function SourceData(props: SourceDataProps) {
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
               <EuiText size="s">
-                <h3>Import data</h3>
+                <h3>Import sample data</h3>
               </EuiText>
             </EuiFlexItem>
-            {docsPopulated && (
-              <EuiFlexItem grow={false}>
+            <EuiFlexItem grow={false}>
+              {docsPopulated ? (
                 <EuiSmallButtonEmpty
                   onClick={() => setIsEditModalOpen(true)}
                   data-testid="editSourceDataButton"
@@ -116,8 +117,19 @@ export function SourceData(props: SourceDataProps) {
                 >
                   Edit
                 </EuiSmallButtonEmpty>
-              </EuiFlexItem>
-            )}
+              ) : (
+                <EuiSmallButton
+                  fill={false}
+                  style={{ width: '75px' }}
+                  onClick={() => setIsEditModalOpen(true)}
+                  data-testid="selectDataToImportButton"
+                  iconType="plus"
+                  iconSide="left"
+                >
+                  {`Import`}
+                </EuiSmallButton>
+              )}
+            </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
         {props.lastIngested !== undefined && (
@@ -127,21 +139,7 @@ export function SourceData(props: SourceDataProps) {
             </EuiText>
           </EuiFlexItem>
         )}
-
-        {!docsPopulated && (
-          <EuiFlexItem grow={false}>
-            <EuiSmallButton
-              fill={false}
-              style={{ width: '100px' }}
-              onClick={() => setIsEditModalOpen(true)}
-              data-testid="selectDataToImportButton"
-            >
-              {`Select data`}
-            </EuiSmallButton>
-          </EuiFlexItem>
-        )}
-
-        {docsPopulated && (
+        {docsPopulated ? (
           <>
             <EuiSpacer size="s" />
             <EuiFlexItem grow={true}>
@@ -157,6 +155,20 @@ export function SourceData(props: SourceDataProps) {
               </EuiCodeBlock>
             </EuiFlexItem>
           </>
+        ) : (
+          <EuiEmptyPrompt
+            iconType="document"
+            title={<h2>No data imported</h2>}
+            titleSize="s"
+            body={
+              <>
+                <EuiText size="s">
+                  Import a sample of your data to begin configuring your
+                  ingestion flow.
+                </EuiText>
+              </>
+            }
+          />
         )}
       </EuiFlexGroup>
     </>
