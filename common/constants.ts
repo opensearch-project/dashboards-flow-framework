@@ -643,7 +643,7 @@ export const INSPECTOR_TABS = [
   },
   {
     id: INSPECTOR_TAB_ID.QUERY,
-    name: 'Search response',
+    name: 'Search tool',
     disabled: false,
   },
   {

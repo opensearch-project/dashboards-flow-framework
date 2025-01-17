@@ -540,6 +540,33 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               props.setIngestResponse(customStringify(resp));
               props.setIsRunningIngest(false);
               setLastIngested(Date.now());
+              getCore().notifications.toasts.add({
+                iconType: 'check',
+                color: 'success',
+                title: 'Ingest flow has been updated',
+                // @ts-ignore
+                text: (
+                  <EuiFlexGroup direction="column">
+                    <EuiFlexItem grow={false}>
+                      <EuiText size="s">
+                        Validate your ingest flow with the search tool
+                      </EuiText>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <EuiFlexGroup direction="row" justifyContent="flexEnd">
+                        <EuiFlexItem grow={false}>
+                          <EuiSmallButton
+                            fill={false}
+                            onClick={() => props.displaySearchPanel()}
+                          >
+                            Open Search tool
+                          </EuiSmallButton>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                ),
+              });
             })
             .catch((error: any) => {
               props.setIngestResponse('');
