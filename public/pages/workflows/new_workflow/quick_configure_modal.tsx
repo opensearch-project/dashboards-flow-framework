@@ -117,7 +117,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   }, [models, quickConfigureFields?.llmId]);
 
   return (
-    <EuiModal onClose={() => props.onClose()} style={{ width: '30vw' }}>
+    <EuiModal onClose={() => props.onClose()} style={{ width: '40vw' }}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
           <p>{`Quick configure`}</p>

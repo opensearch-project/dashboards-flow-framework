@@ -19,13 +19,16 @@ import { AppState } from '../../../../store';
 import {
   getEmbeddingField,
   getEmbeddingModelDimensions,
+  getFieldValue,
   getUpdatedIndexMappings,
   getUpdatedIndexSettings,
   isKnnIndex,
   removeVectorFieldFromIndexMappings,
 } from '../../../../utils';
 
-interface AdvancedSettingsProps {}
+interface AdvancedSettingsProps {
+  setHasInvalidDimensions: (hasInvalidDimensions: boolean) => void;
+}
 
 /**
  * Input component for configuring ingest-side advanced settings
@@ -54,7 +57,10 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
         );
         if (processorModel?.connectorId !== undefined) {
           const processorConnector = connectors[processorModel?.connectorId];
-          const dimension = getEmbeddingModelDimensions(processorConnector);
+          const dimension =
+            processorConnector !== undefined
+              ? getEmbeddingModelDimensions(processorConnector)
+              : undefined;
 
           // If a dimension is found, it is a known embedding model.
           // Ensure the index is configured to be knn-enabled.
@@ -114,6 +120,17 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
       );
     }
   }, [getIn(values, 'ingest.enrich')]);
+
+  // listener to check if there is a dimension value set, and if so, check its validity
+  useEffect(() => {
+    try {
+      const mappingsObj = JSON.parse(getIn(values, indexMappingsPath));
+      const dimensionVal = getFieldValue(mappingsObj, 'dimension');
+      props.setHasInvalidDimensions(
+        dimensionVal !== undefined && typeof dimensionVal !== 'number'
+      );
+    } catch (e) {}
+  }, [getIn(values, indexMappingsPath)]);
 
   return (
     <EuiFlexGroup direction="column">

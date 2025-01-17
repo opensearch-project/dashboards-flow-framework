@@ -388,6 +388,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               props.setUnsavedIngestProcessors(false);
               props.setUnsavedSearchProcessors(false);
               await dispatch(
+                // TODO: update to be synchronous provisioning, to prevent
+                // having to wait/sleep before performing next actions.
+                // https://github.com/opensearch-project/flow-framework/pull/1009
                 provisionWorkflow({
                   workflowId: updatedWorkflow.id as string,
                   dataSourceId,
@@ -396,20 +399,47 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 .unwrap()
                 .then(async (result) => {
                   await sleep(1000);
-                  success = true;
-                  // Kicking off an async task to re-fetch the workflow details
-                  // after some amount of time. Provisioning will finish in an indeterminate
-                  // amount of time and may be long and expensive; we add this single
-                  // auto-fetching to cover the majority of provisioning updates which
-                  // are inexpensive and will finish within milliseconds.
-                  setTimeout(async () => {
-                    dispatch(
-                      getWorkflow({
-                        workflowId: updatedWorkflow.id as string,
-                        dataSourceId,
-                      })
-                    );
-                  }, 1000);
+
+                  await dispatch(
+                    getWorkflow({
+                      workflowId: updatedWorkflow.id as string,
+                      dataSourceId,
+                    })
+                  )
+                    .unwrap()
+                    .then(async (result: any) => {
+                      const resultWorkflow = result.workflow as Workflow;
+                      if (isEmpty(resultWorkflow.error)) {
+                        success = true;
+                      } else {
+                        success = false;
+                        getCore().notifications.toasts.addDanger(
+                          `Error creating all resources, rolling back: ${resultWorkflow.error}`
+                        );
+                        await dispatch(
+                          deprovisionWorkflow({
+                            apiBody: {
+                              workflowId: resultWorkflow?.id as string,
+                              resourceIds: getResourcesToBeForceDeleted(
+                                resultWorkflow
+                              ),
+                            },
+                            dataSourceId,
+                          })
+                        )
+                          .unwrap()
+                          .then(async (result) => {
+                            setTimeout(async () => {
+                              await dispatch(
+                                getWorkflow({
+                                  workflowId: updatedWorkflow.id as string,
+                                  dataSourceId,
+                                })
+                              );
+                            }, 1000);
+                          });
+                      }
+                    });
                 })
                 .catch((error: any) => {
                   console.error('Error provisioning updated workflow: ', error);
