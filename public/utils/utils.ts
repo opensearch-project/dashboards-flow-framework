@@ -33,6 +33,12 @@ import {
   customStringify,
   NO_TRANSFORMATION,
   TRANSFORM_TYPE,
+  VECTOR_FIELD_PATTERN,
+  VECTOR_PATTERN,
+  TEXT_FIELD_PATTERN,
+  IMAGE_FIELD_PATTERN,
+  LABEL_FIELD_PATTERN,
+  MODEL_ID_PATTERN,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
 import {
@@ -775,4 +781,16 @@ export function parseErrorsFromIngestResponse(
     );
   }
   return;
+}
+
+// Update the target query string placeholders into valid placeholder format. Used to disambiguate
+// placeholders (${text_field}) vs. dynamic parameters (e.g., "{{query_text}}")
+export function injectPlaceholdersInQueryString(query: string): string {
+  return query
+    .replace(new RegExp(`"${VECTOR_FIELD_PATTERN}"`, 'g'), `\$\{vector_field\}`)
+    .replace(new RegExp(`"${VECTOR_PATTERN}"`, 'g'), `\$\{vector\}`)
+    .replace(new RegExp(`"${TEXT_FIELD_PATTERN}"`, 'g'), `\$\{text_field\}`)
+    .replace(new RegExp(`"${IMAGE_FIELD_PATTERN}"`, 'g'), `\$\{image_field\}`)
+    .replace(new RegExp(`"${LABEL_FIELD_PATTERN}"`, 'g'), `\$\{label_field\}`)
+    .replace(new RegExp(`"${MODEL_ID_PATTERN}"`, 'g'), `\$\{model_id\}`);
 }
