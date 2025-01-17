@@ -28,25 +28,20 @@ import {
 } from '@elastic/eui';
 import {
   IConfigField,
-  IMAGE_FIELD_PATTERN,
   IProcessorConfig,
-  LABEL_FIELD_PATTERN,
-  MODEL_ID_PATTERN,
   ModelInterface,
   NO_TRANSFORMATION,
   OutputMapEntry,
-  QUERY_IMAGE_PATTERN,
   QUERY_PRESETS,
-  QUERY_TEXT_PATTERN,
   QueryPreset,
   RequestFormValues,
-  TEXT_FIELD_PATTERN,
   TRANSFORM_TYPE,
-  VECTOR_FIELD_PATTERN,
-  VECTOR_PATTERN,
   WorkflowFormValues,
 } from '../../../../../../../common';
-import { parseModelOutputs } from '../../../../../../utils/utils';
+import {
+  injectPlaceholdersInQueryString,
+  parseModelOutputs,
+} from '../../../../../../utils/utils';
 import { JsonField } from '../../../input_fields';
 import { getFieldSchema, getInitialValue } from '../../../../../../utils';
 import '../../../../../../global-styles.scss';
@@ -193,60 +188,7 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
                               onClick: () => {
                                 formikProps.setFieldValue(
                                   'request',
-                                  preset.query
-                                    // sanitize the query preset string into valid template placeholder format, for
-                                    // any placeholder values in the query.
-                                    // for example, replacing `"{{vector}}"` with `${vector}`
-                                    .replace(
-                                      new RegExp(
-                                        `"${VECTOR_FIELD_PATTERN}"`,
-                                        'g'
-                                      ),
-                                      `\$\{vector_field\}`
-                                    )
-                                    .replace(
-                                      new RegExp(`"${VECTOR_PATTERN}"`, 'g'),
-                                      `\$\{vector\}`
-                                    )
-                                    .replace(
-                                      new RegExp(
-                                        `"${TEXT_FIELD_PATTERN}"`,
-                                        'g'
-                                      ),
-                                      `\$\{text_field\}`
-                                    )
-                                    .replace(
-                                      new RegExp(
-                                        `"${IMAGE_FIELD_PATTERN}"`,
-                                        'g'
-                                      ),
-                                      `\$\{image_field\}`
-                                    )
-                                    .replace(
-                                      new RegExp(
-                                        `"${LABEL_FIELD_PATTERN}"`,
-                                        'g'
-                                      ),
-                                      `\$\{label_field\}`
-                                    )
-                                    .replace(
-                                      new RegExp(
-                                        `"${QUERY_TEXT_PATTERN}"`,
-                                        'g'
-                                      ),
-                                      `\$\{query_text\}`
-                                    )
-                                    .replace(
-                                      new RegExp(
-                                        `"${QUERY_IMAGE_PATTERN}"`,
-                                        'g'
-                                      ),
-                                      `\$\{query_image\}`
-                                    )
-                                    .replace(
-                                      new RegExp(`"${MODEL_ID_PATTERN}"`, 'g'),
-                                      `\$\{model_id\}`
-                                    )
+                                  injectPlaceholdersInQueryString(preset.query)
                                 );
                                 formikProps.setFieldTouched('request', true);
                                 setPresetsPopoverOpen(false);

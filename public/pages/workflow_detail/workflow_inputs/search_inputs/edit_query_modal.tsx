@@ -42,6 +42,7 @@ import {
   getInitialValue,
   getPlaceholdersFromQuery,
   injectParameters,
+  injectPlaceholdersInQueryString,
 } from '../../../../utils';
 import { AppState, searchIndex, useAppDispatch } from '../../../../store';
 import { QueryParamsList, Results } from '../../../../general_components';
@@ -206,7 +207,9 @@ export function EditQueryModal(props: EditQueryModalProps) {
                                           onClick: () => {
                                             formikProps.setFieldValue(
                                               'request',
-                                              preset.query
+                                              injectPlaceholdersInQueryString(
+                                                preset.query
+                                              )
                                             );
                                             setPopoverOpen(false);
                                           },
