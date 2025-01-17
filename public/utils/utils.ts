@@ -33,6 +33,12 @@ import {
   customStringify,
   NO_TRANSFORMATION,
   TRANSFORM_TYPE,
+  VECTOR_FIELD_PATTERN,
+  VECTOR_PATTERN,
+  TEXT_FIELD_PATTERN,
+  IMAGE_FIELD_PATTERN,
+  LABEL_FIELD_PATTERN,
+  MODEL_ID_PATTERN,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
 import {
@@ -618,7 +624,7 @@ export function getEmbeddingModelDimensions(
 ): number | undefined {
   // some APIs allow specifically setting the dimensions at runtime,
   // so we check for that first.
-  if (connector.parameters?.dimensions !== undefined) {
+  if (connector?.parameters?.dimensions !== undefined) {
     return connector.parameters?.dimensions;
   } else if (connector.parameters?.model !== undefined) {
     return (
@@ -775,4 +781,32 @@ export function parseErrorsFromIngestResponse(
     );
   }
   return;
+}
+
+// Update the target query string placeholders into valid placeholder format. Used to disambiguate
+// placeholders (${text_field}) vs. dynamic parameters (e.g., "{{query_text}}")
+export function injectPlaceholdersInQueryString(query: string): string {
+  return query
+    .replace(new RegExp(`"${VECTOR_FIELD_PATTERN}"`, 'g'), `\$\{vector_field\}`)
+    .replace(new RegExp(`"${VECTOR_PATTERN}"`, 'g'), `\$\{vector\}`)
+    .replace(new RegExp(`"${TEXT_FIELD_PATTERN}"`, 'g'), `\$\{text_field\}`)
+    .replace(new RegExp(`"${IMAGE_FIELD_PATTERN}"`, 'g'), `\$\{image_field\}`)
+    .replace(new RegExp(`"${LABEL_FIELD_PATTERN}"`, 'g'), `\$\{label_field\}`)
+    .replace(new RegExp(`"${MODEL_ID_PATTERN}"`, 'g'), `\$\{model_id\}`);
+}
+
+// Utility fn to parse out a JSON obj and find some value for a given field.
+// Primarily used to traverse index mappings and check that values are valid.
+export function getFieldValue(jsonObj: {}, fieldName: string): any | undefined {
+  if (typeof jsonObj !== 'object' || jsonObj === undefined) return undefined;
+  if (fieldName in jsonObj) {
+    return get(jsonObj, fieldName) as any;
+  }
+  for (const key in jsonObj) {
+    const result = getFieldValue(get(jsonObj, key), fieldName);
+    if (result !== undefined) {
+      return result;
+    }
+  }
+  return undefined;
 }

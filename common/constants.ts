@@ -244,6 +244,8 @@ export const NORMALIZATION_PROCESSOR_LINK =
 export const GITHUB_FEEDBACK_LINK =
   'https://github.com/opensearch-project/dashboards-flow-framework/issues/new/choose';
 export const JSONPATH_DOCS_LINK = 'https://www.npmjs.com/package/jsonpath';
+export const KNN_VECTOR_DOCS_LINK =
+  'https://opensearch.org/docs/latest/field-types/supported-field-types/knn-vector/';
 
 /**
  * Text chunking algorithm constants
