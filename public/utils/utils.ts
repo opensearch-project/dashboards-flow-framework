@@ -794,3 +794,19 @@ export function injectPlaceholdersInQueryString(query: string): string {
     .replace(new RegExp(`"${LABEL_FIELD_PATTERN}"`, 'g'), `\$\{label_field\}`)
     .replace(new RegExp(`"${MODEL_ID_PATTERN}"`, 'g'), `\$\{model_id\}`);
 }
+
+// Utility fn to parse out a JSON obj and find some value for a given field.
+// Primarily used to traverse index mappings and check that values are valid.
+export function getFieldValue(jsonObj: {}, fieldName: string): any | undefined {
+  if (typeof jsonObj !== 'object' || jsonObj === undefined) return undefined;
+  if (fieldName in jsonObj) {
+    return get(jsonObj, fieldName) as any;
+  }
+  for (const key in jsonObj) {
+    const result = getFieldValue(get(jsonObj, key), fieldName);
+    if (result !== undefined) {
+      return result;
+    }
+  }
+  return undefined;
+}
