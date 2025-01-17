@@ -192,19 +192,19 @@ export function EditWorkflowMetadataModal(
         return (
           <EuiModal
             maxWidth={false}
-            style={{ width: '50vw' }}
+            style={{ width: '30vw' }}
             onClose={() => props.setIsModalOpen(false)}
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>Update workflow metadata</p>
+                <p>Workflow settings</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiFlexItem style={{ paddingLeft: '24px', paddingRight: '24px' }}>
               <EuiFlexGroup direction="column">
                 <EuiFlexItem>
                   <TextField
-                    label="Workflow name"
+                    label="Name"
                     fullWidth={false}
                     fieldPath={`name`}
                     showError={true}
@@ -212,10 +212,12 @@ export function EditWorkflowMetadataModal(
                 </EuiFlexItem>
                 <EuiFlexItem>
                   <TextField
-                    label="Workflow description"
-                    fullWidth={true}
+                    label="Description - optional"
+                    fullWidth={false}
                     fieldPath={`description`}
                     showError={true}
+                    placeholder="Provide a description for identifying this workflow."
+                    textArea={true}
                   />
                 </EuiFlexItem>
               </EuiFlexGroup>

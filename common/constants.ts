@@ -591,6 +591,7 @@ export enum SORT_ORDER {
   DESC = 'desc',
 }
 export const MAX_DOCS = 1000;
+export const MAX_DOCS_TO_IMPORT = 100;
 export const MAX_STRING_LENGTH = 100;
 export const MAX_JSON_STRING_LENGTH = 10000;
 export const MAX_TEMPLATE_STRING_LENGTH = 10000;

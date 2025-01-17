@@ -8,6 +8,7 @@ import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
   EuiCompressedFieldText,
   EuiCompressedFormRow,
+  EuiCompressedTextArea,
   EuiLink,
   EuiText,
 } from '@elastic/eui';
@@ -23,6 +24,7 @@ interface TextFieldProps {
   showError?: boolean;
   showInvalid?: boolean;
   fullWidth?: boolean;
+  textArea?: boolean;
 }
 
 /**
@@ -56,16 +58,29 @@ export function TextField(props: TextFieldProps) {
             error={props.showError && getIn(errors, field.name)}
             isInvalid={isInvalid}
           >
-            <EuiCompressedFieldText
-              fullWidth={props.fullWidth}
-              {...field}
-              placeholder={props.placeholder || ''}
-              value={field.value || getInitialValue('string')}
-              onChange={(e) => {
-                form.setFieldValue(props.fieldPath, e.target.value);
-              }}
-              isInvalid={isInvalid}
-            />
+            {props.textArea ? (
+              <EuiCompressedTextArea
+                fullWidth={props.fullWidth}
+                {...field}
+                placeholder={props.placeholder || ''}
+                value={field.value || getInitialValue('string')}
+                onChange={(e) => {
+                  form.setFieldValue(props.fieldPath, e.target.value);
+                }}
+                isInvalid={isInvalid}
+              />
+            ) : (
+              <EuiCompressedFieldText
+                fullWidth={props.fullWidth}
+                {...field}
+                placeholder={props.placeholder || ''}
+                value={field.value || getInitialValue('string')}
+                onChange={(e) => {
+                  form.setFieldValue(props.fieldPath, e.target.value);
+                }}
+                isInvalid={isInvalid}
+              />
+            )}
           </EuiCompressedFormRow>
         );
       }}

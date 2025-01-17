@@ -120,11 +120,13 @@ export function SourceData(props: SourceDataProps) {
               ) : (
                 <EuiSmallButton
                   fill={false}
-                  style={{ width: '100px' }}
+                  style={{ width: '75px' }}
                   onClick={() => setIsEditModalOpen(true)}
                   data-testid="selectDataToImportButton"
+                  iconType="plus"
+                  iconSide="left"
                 >
-                  {`Select data`}
+                  {`Import`}
                 </EuiSmallButton>
               )}
             </EuiFlexItem>
@@ -155,11 +157,15 @@ export function SourceData(props: SourceDataProps) {
           </>
         ) : (
           <EuiEmptyPrompt
-            title={<h2>No data selected</h2>}
+            iconType="document"
+            title={<h2>No data imported</h2>}
             titleSize="s"
             body={
               <>
-                <EuiText size="s">Select some sample data to import.</EuiText>
+                <EuiText size="s">
+                  Import a sample of your data to begin configuring your
+                  ingestion flow.
+                </EuiText>
               </>
             }
           />
