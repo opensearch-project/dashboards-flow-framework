@@ -618,7 +618,7 @@ export function getEmbeddingModelDimensions(
 ): number | undefined {
   // some APIs allow specifically setting the dimensions at runtime,
   // so we check for that first.
-  if (connector.parameters?.dimensions !== undefined) {
+  if (connector?.parameters?.dimensions !== undefined) {
     return connector.parameters?.dimensions;
   } else if (connector.parameters?.model !== undefined) {
     return (

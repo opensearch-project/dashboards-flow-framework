@@ -54,7 +54,10 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
         );
         if (processorModel?.connectorId !== undefined) {
           const processorConnector = connectors[processorModel?.connectorId];
-          const dimension = getEmbeddingModelDimensions(processorConnector);
+          const dimension =
+            processorConnector !== undefined
+              ? getEmbeddingModelDimensions(processorConnector)
+              : undefined;
 
           // If a dimension is found, it is a known embedding model.
           // Ensure the index is configured to be knn-enabled.

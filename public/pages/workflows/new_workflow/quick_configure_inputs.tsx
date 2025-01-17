@@ -181,7 +181,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
             <>
               <EuiCallOut
                 size="s"
-                title="No embedding length found. Make sure to manually configure"
+                title="No embedding length found. Make sure to manually configure below."
                 color="warning"
               />
               <EuiSpacer size="s" />
