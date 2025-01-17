@@ -182,24 +182,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
         <>
           <EuiSpacer size="s" />
-          {props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST && (
-            <>
-              <EuiText
-                size="m"
-                style={{ marginTop: '4px' }}
-              >{`Override query (Optional)`}</EuiText>
-              <EuiSpacer size="s" />
-              <EuiSmallButton
-                style={{ width: '100px' }}
-                fill={false}
-                onClick={() => setIsQueryModalOpen(true)}
-                data-testid="overrideQueryButton"
-              >
-                Override
-              </EuiSmallButton>
-              <EuiSpacer size="l" />
-            </>
-          )}
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
               <EuiFlexGroup direction="row" gutterSize="xs">
@@ -275,6 +257,24 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               />
             )}
           <EuiSpacer size="s" />
+          {props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST && (
+            <>
+              <EuiText
+                size="m"
+                style={{ marginTop: '4px' }}
+              >{`Rewrite query`}</EuiText>
+              <EuiSpacer size="s" />
+              <EuiSmallButton
+                style={{ width: '100px' }}
+                fill={false}
+                onClick={() => setIsQueryModalOpen(true)}
+                data-testid="overrideQueryButton"
+              >
+                Rewrite
+              </EuiSmallButton>
+              <EuiSpacer size="l" />
+            </>
+          )}
           <EuiAccordion
             id={`advancedSettings${props.config.id}`}
             buttonContent="Advanced settings"

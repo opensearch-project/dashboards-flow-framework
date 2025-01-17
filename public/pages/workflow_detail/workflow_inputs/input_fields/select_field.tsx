@@ -18,6 +18,7 @@ interface SelectFieldProps {
   field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onSelectChange?: (option: string) => void;
+  showInvalid?: boolean;
 }
 
 /**
@@ -29,8 +30,15 @@ export function SelectField(props: SelectFieldProps) {
   return (
     <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
+        const isInvalid =
+          (props.showInvalid ?? true) &&
+          getIn(errors, field.name) &&
+          getIn(touched, field.name);
         return (
-          <EuiCompressedFormRow label={camelCaseToTitleString(props.field.id)}>
+          <EuiCompressedFormRow
+            label={camelCaseToTitleString(props.field.id)}
+            isInvalid={isInvalid}
+          >
             <EuiCompressedSuperSelect
               options={
                 props.field.selectOptions
@@ -57,11 +65,7 @@ export function SelectField(props: SelectFieldProps) {
                   props.onSelectChange(option);
                 }
               }}
-              isInvalid={
-                getIn(errors, field.name) && getIn(touched, field.name)
-                  ? true
-                  : undefined
-              }
+              isInvalid={isInvalid}
             />
           </EuiCompressedFormRow>
         );

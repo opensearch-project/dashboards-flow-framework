@@ -14,7 +14,10 @@ import configureStore from 'redux-mock-store';
 import * as ReactReduxHooks from '../../../store/store';
 import '@testing-library/jest-dom';
 import { loadPresetWorkflowTemplates } from '../../../../test/utils';
-import { INITIAL_ML_STATE } from '../../../../public/store';
+import {
+  INITIAL_ML_STATE,
+  INITIAL_WORKFLOWS_STATE,
+} from '../../../../public/store';
 
 jest.mock('../../../utils', () => ({
   ...jest.requireActual('../../../utils'),
@@ -36,6 +39,7 @@ const initialState = {
     loading: false,
     presetWorkflows: loadPresetWorkflowTemplates(),
   },
+  workflows: INITIAL_WORKFLOWS_STATE,
 };
 
 const mockDispatch = jest.fn();

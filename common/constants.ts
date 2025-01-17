@@ -571,7 +571,6 @@ export enum TRANSFORM_TYPE {
   TEMPLATE = 'Template',
 }
 export const NO_TRANSFORMATION = 'No transformation';
-export const START_FROM_SCRATCH_WORKFLOW_NAME = 'Start From Scratch';
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';
 export const DEFAULT_NEW_WORKFLOW_STATE_TYPE = ('NOT_STARTED' as any) as typeof WORKFLOW_STATE;
@@ -592,6 +591,7 @@ export enum SORT_ORDER {
   DESC = 'desc',
 }
 export const MAX_DOCS = 1000;
+export const MAX_DOCS_TO_IMPORT = 100;
 export const MAX_STRING_LENGTH = 100;
 export const MAX_JSON_STRING_LENGTH = 10000;
 export const MAX_TEMPLATE_STRING_LENGTH = 10000;
