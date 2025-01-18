@@ -30,7 +30,7 @@ import {
   searchWorkflows,
   useAppDispatch,
 } from '../../../store';
-import { FETCH_ALL_QUERY, Workflow } from '../../../../common';
+import { FETCH_ALL_QUERY_LARGE, Workflow } from '../../../../common';
 import { WORKFLOWS_TAB } from '../workflows';
 import { getDataSourceId } from '../../../utils/utils';
 
@@ -156,7 +156,7 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
                 const { workflow } = result;
                 dispatch(
                   searchWorkflows({
-                    apiBody: FETCH_ALL_QUERY,
+                    apiBody: FETCH_ALL_QUERY_LARGE,
                     dataSourceId,
                   })
                 );

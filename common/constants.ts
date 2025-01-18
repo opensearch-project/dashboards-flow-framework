@@ -292,6 +292,12 @@ export const FETCH_ALL_QUERY = {
   },
   size: DEFAULT_FETCH_SIZE,
 };
+export const FETCH_ALL_QUERY_LARGE = {
+  query: {
+    match_all: {},
+  },
+  size: 1000,
+};
 export const TERM_QUERY_TEXT = {
   query: {
     term: {
