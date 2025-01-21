@@ -97,6 +97,8 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     (state: AppState) => state.workflows
   );
 
+  const { indices } = useSelector((state: AppState) => state.opensearch);
+
   // selected workflow state
   const workflowId = escape(props.match?.params?.workflowId);
   const workflow = workflows[workflowId];
@@ -167,7 +169,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   useEffect(() => {
     if (uiConfig) {
       const initFormValues = uiConfigToFormik(uiConfig, ingestDocs);
-      const initFormSchema = uiConfigToSchema(uiConfig);
+      const initFormSchema = uiConfigToSchema(uiConfig, indices);
       setFormValues(initFormValues);
       setFormSchema(initFormSchema);
     }
