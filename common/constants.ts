@@ -246,6 +246,10 @@ export const GITHUB_FEEDBACK_LINK =
 export const JSONPATH_DOCS_LINK = 'https://www.npmjs.com/package/jsonpath';
 export const KNN_VECTOR_DOCS_LINK =
   'https://opensearch.org/docs/latest/field-types/supported-field-types/knn-vector/';
+export const BULK_API_DOCS_LINK =
+  'https://opensearch.org/docs/latest/api-reference/document-apis/bulk/';
+export const SEARCH_PIPELINE_DOCS_LINK =
+  'https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/';
 
 /**
  * Text chunking algorithm constants
