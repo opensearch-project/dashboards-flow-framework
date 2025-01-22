@@ -15,7 +15,7 @@ import {
 import { useSelector } from 'react-redux';
 import { UseCase } from './use_case';
 import {
-  FETCH_ALL_QUERY,
+  FETCH_ALL_QUERY_LARGE,
   Workflow,
   WorkflowTemplate,
 } from '../../../../common';
@@ -132,8 +132,10 @@ export function NewWorkflow(props: NewWorkflowProps) {
   useEffect(() => {
     dispatch(getWorkflowPresets());
     if (isDataSourceReady(dataSourceId)) {
-      dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
-      dispatch(searchConnectors({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
+      dispatch(searchModels({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId }));
+      dispatch(
+        searchConnectors({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId })
+      );
     }
   }, [dataSourceId, dataSourceEnabled]);
 
