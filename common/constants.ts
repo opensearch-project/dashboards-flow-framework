@@ -598,6 +598,8 @@ export const NO_MODIFICATIONS_FOUND_TEXT =
 export const JSONPATH_ROOT_SELECTOR = '$';
 export const REQUEST_PREFIX = '_request.';
 export const REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR = '$._request.';
+export const WORKFLOW_NAME_RESTRICTIONS =
+  'Invalid workflow name. Valid characters are a-z, A-Z, 0-9, -(hyphen), _(underscore).';
 export enum SORT_ORDER {
   ASC = 'asc',
   DESC = 'desc',
