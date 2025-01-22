@@ -39,7 +39,7 @@ import { ResizableWorkspace } from './resizable_workspace';
 import {
   CONFIG_STEP,
   ERROR_GETTING_WORKFLOW_MSG,
-  FETCH_ALL_QUERY,
+  FETCH_ALL_QUERY_LARGE,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
   NO_TEMPLATES_FOUND_MSG,
   OMIT_SYSTEM_INDEX_PATTERN,
@@ -83,8 +83,10 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   // - fetch all indices
   useEffect(() => {
     dispatch(getWorkflow({ workflowId, dataSourceId }));
-    dispatch(searchModels({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
-    dispatch(searchConnectors({ apiBody: FETCH_ALL_QUERY, dataSourceId }));
+    dispatch(searchModels({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId }));
+    dispatch(
+      searchConnectors({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId })
+    );
     dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
   }, []);
 
@@ -94,6 +96,8 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   const { workflows, errorMessage } = useSelector(
     (state: AppState) => state.workflows
   );
+
+  const { indices } = useSelector((state: AppState) => state.opensearch);
 
   // selected workflow state
   const workflowId = escape(props.match?.params?.workflowId);
@@ -165,7 +169,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   useEffect(() => {
     if (uiConfig) {
       const initFormValues = uiConfigToFormik(uiConfig, ingestDocs);
-      const initFormSchema = uiConfigToSchema(uiConfig);
+      const initFormSchema = uiConfigToSchema(uiConfig, indices);
       setFormValues(initFormValues);
       setFormSchema(initFormSchema);
     }

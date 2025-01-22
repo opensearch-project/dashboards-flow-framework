@@ -25,7 +25,7 @@ import {
 import { JsonField } from '../input_fields';
 import {
   customStringify,
-  FETCH_ALL_QUERY,
+  FETCH_ALL_QUERY_LARGE,
   IConfigField,
   IndexMappings,
   IngestDocsFormValues,
@@ -167,7 +167,7 @@ export function SourceDataModal(props: SourceDataProps) {
               searchIndex({
                 apiBody: {
                   index: selectedIndex,
-                  body: FETCH_ALL_QUERY,
+                  body: FETCH_ALL_QUERY_LARGE,
                   searchPipeline: '_none',
                 },
                 dataSourceId,

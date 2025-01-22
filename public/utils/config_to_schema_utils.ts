@@ -22,21 +22,27 @@ import {
   MAX_TEMPLATE_STRING_LENGTH,
   TRANSFORM_TYPE,
   MAX_BYTES,
+  INDEX_NAME_REGEXP,
+  Index,
 } from '../../common';
 
 /*
  **************** Schema / validation utils **********************
  */
 
-export function uiConfigToSchema(config: WorkflowConfig): WorkflowSchema {
+export function uiConfigToSchema(
+  config: WorkflowConfig,
+  indices: { [key: string]: Index }
+) {
   const schemaObj = {} as WorkflowSchemaObj;
-  schemaObj['ingest'] = ingestConfigToSchema(config.ingest);
+  schemaObj['ingest'] = ingestConfigToSchema(config.ingest, indices);
   schemaObj['search'] = searchConfigToSchema(config.search);
   return yup.object(schemaObj) as WorkflowSchema;
 }
 
 function ingestConfigToSchema(
-  ingestConfig: IngestConfig | undefined
+  ingestConfig: IngestConfig | undefined,
+  indices: { [key: string]: Index }
 ): ObjectSchema<any> {
   const ingestSchemaObj = {} as { [key: string]: Schema };
   if (ingestConfig?.enabled) {
@@ -45,14 +51,38 @@ function ingestConfigToSchema(
     } as IConfigField);
     ingestSchemaObj['pipelineName'] = getFieldSchema(ingestConfig.pipelineName);
     ingestSchemaObj['enrich'] = processorsConfigToSchema(ingestConfig.enrich);
-    ingestSchemaObj['index'] = indexConfigToSchema(ingestConfig.index);
+    ingestSchemaObj['index'] = indexConfigToSchema(ingestConfig.index, indices);
   }
   return yup.object(ingestSchemaObj);
 }
 
-function indexConfigToSchema(indexConfig: IndexConfig): Schema {
+function indexConfigToSchema(
+  indexConfig: IndexConfig,
+  indices: { [key: string]: Index }
+): Schema {
   const indexSchemaObj = {} as { [key: string]: Schema };
-  indexSchemaObj['name'] = getFieldSchema(indexConfig.name);
+  // Do a deeper check on the index name. Ensure the name is of valid format,
+  // and that it doesn't name clash with an existing index.
+  indexSchemaObj['name'] = yup
+    .string()
+    .test('name', 'Invalid index name', (name) => {
+      return !(
+        name === undefined ||
+        name === '' ||
+        name.length > 100 ||
+        INDEX_NAME_REGEXP.test(name) === false
+      );
+    })
+    .test(
+      'name',
+      'This index name is already in use. Use a different name',
+      (name) => {
+        return !Object.values(indices)
+          .map((index) => index.name)
+          .includes(name || '');
+      }
+    )
+    .required('Required') as yup.Schema;
   indexSchemaObj['mappings'] = getFieldSchema(indexConfig.mappings);
   indexSchemaObj['settings'] = getFieldSchema(indexConfig.settings);
   return yup.object(indexSchemaObj);
