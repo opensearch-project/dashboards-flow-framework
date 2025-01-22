@@ -19,7 +19,7 @@ import {
   EuiSmallButton,
 } from '@elastic/eui';
 import {
-  FETCH_ALL_QUERY,
+  FETCH_ALL_QUERY_LARGE,
   MAX_STRING_LENGTH,
   Workflow,
   WORKFLOW_NAME_REGEXP,
@@ -107,7 +107,7 @@ export function EditWorkflowMetadataModal(
   useEffect(() => {
     dispatch(
       searchWorkflows({
-        apiBody: FETCH_ALL_QUERY,
+        apiBody: FETCH_ALL_QUERY_LARGE,
         dataSourceId,
       })
     );

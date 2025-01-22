@@ -292,6 +292,12 @@ export const FETCH_ALL_QUERY = {
   },
   size: DEFAULT_FETCH_SIZE,
 };
+export const FETCH_ALL_QUERY_LARGE = {
+  query: {
+    match_all: {},
+  },
+  size: 1000,
+};
 export const TERM_QUERY_TEXT = {
   query: {
     term: {
@@ -600,6 +606,7 @@ export const MAX_TEMPLATE_STRING_LENGTH = 10000;
 export const MAX_BYTES = 1048576; // OSD REST request payload size limit
 export const MAX_WORKFLOW_NAME_TO_DISPLAY = 40;
 export const WORKFLOW_NAME_REGEXP = RegExp('^[a-zA-Z0-9_-]*$');
+export const INDEX_NAME_REGEXP = WORKFLOW_NAME_REGEXP;
 export const EMPTY_MAP_ENTRY = { key: '', value: '' } as MapEntry;
 export const EMPTY_INPUT_MAP_ENTRY = {
   key: '',
@@ -643,7 +650,7 @@ export const INSPECTOR_TABS = [
   },
   {
     id: INSPECTOR_TAB_ID.QUERY,
-    name: 'Search response',
+    name: 'Search tool',
     disabled: false,
   },
   {

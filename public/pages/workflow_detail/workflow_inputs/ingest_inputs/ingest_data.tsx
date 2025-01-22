@@ -47,7 +47,11 @@ export function IngestData(props: IngestDataProps) {
         />
       )}
       <EuiFlexItem>
-        <TextField label="Index name" fieldPath={'ingest.index.name'} />
+        <TextField
+          label="Index name"
+          fieldPath={'ingest.index.name'}
+          showError={true}
+        />
       </EuiFlexItem>
       <EuiFlexItem>
         <AdvancedSettings setHasInvalidDimensions={setHasInvalidDimensions} />
