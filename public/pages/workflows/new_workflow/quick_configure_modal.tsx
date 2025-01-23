@@ -45,6 +45,7 @@ import {
   WorkflowConfig,
   customStringify,
   isVectorSearchUseCase,
+  WORKFLOW_NAME_RESTRICTIONS,
 } from '../../../../common';
 import { APP_PATH } from '../../../utils';
 import { AppState, createWorkflow, useAppDispatch } from '../../../store';
@@ -130,7 +131,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
           error={
             workflowNameExists
               ? 'This workflow name is already in use. Use a different name'
-              : 'Invalid workflow name'
+              : WORKFLOW_NAME_RESTRICTIONS
           }
           isInvalid={workflowNameTouched && isInvalidName(workflowName)}
         >
@@ -140,7 +141,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
             value={workflowName}
             onChange={(e) => {
               setWorkflowNameTouched(true);
-              setWorkflowName(e.target.value);
+              setWorkflowName(e.target.value?.trim());
             }}
             onBlur={() => setWorkflowNameTouched(true)}
           />

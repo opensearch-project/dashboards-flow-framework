@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Direction,
   EuiCodeBlock,
@@ -37,7 +38,6 @@ import {
   getErrorMessageForStepType,
 } from '../../../../utils';
 import { columns } from './columns';
-import { useSelector } from 'react-redux';
 
 interface ResourceListFlyoutProps {
   workflow?: Workflow;
