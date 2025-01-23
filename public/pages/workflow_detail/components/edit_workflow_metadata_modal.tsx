@@ -23,6 +23,7 @@ import {
   MAX_STRING_LENGTH,
   Workflow,
   WORKFLOW_NAME_REGEXP,
+  WORKFLOW_NAME_RESTRICTIONS,
   WorkflowConfig,
   WorkflowFormValues,
   WorkflowTemplate,
@@ -64,7 +65,7 @@ export function EditWorkflowMetadataModal(
   const metadataFormSchema = yup.object({
     name: yup
       .string()
-      .test('workflowName', 'Invalid workflow name', (name) => {
+      .test('workflowName', WORKFLOW_NAME_RESTRICTIONS, (name) => {
         return !(
           name === undefined ||
           name === '' ||

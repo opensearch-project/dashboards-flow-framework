@@ -246,6 +246,10 @@ export const GITHUB_FEEDBACK_LINK =
 export const JSONPATH_DOCS_LINK = 'https://www.npmjs.com/package/jsonpath';
 export const KNN_VECTOR_DOCS_LINK =
   'https://opensearch.org/docs/latest/field-types/supported-field-types/knn-vector/';
+export const BULK_API_DOCS_LINK =
+  'https://opensearch.org/docs/latest/api-reference/document-apis/bulk/';
+export const SEARCH_PIPELINE_DOCS_LINK =
+  'https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/';
 
 /**
  * Text chunking algorithm constants
@@ -319,6 +323,7 @@ export const KNN_QUERY = {
       },
     },
   },
+  size: 10,
 };
 export const SEMANTIC_SEARCH_QUERY_NEURAL = {
   _source: {
@@ -594,6 +599,8 @@ export const NO_MODIFICATIONS_FOUND_TEXT =
 export const JSONPATH_ROOT_SELECTOR = '$';
 export const REQUEST_PREFIX = '_request.';
 export const REQUEST_PREFIX_WITH_JSONPATH_ROOT_SELECTOR = '$._request.';
+export const WORKFLOW_NAME_RESTRICTIONS =
+  'Invalid workflow name. Valid characters are a-z, A-Z, 0-9, -(hyphen), _(underscore).';
 export enum SORT_ORDER {
   ASC = 'asc',
   DESC = 'desc',
