@@ -802,6 +802,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 )}
                 <EuiFlexItem grow={false}>
                   <EuiSmallButton
+                    data-test-subj="updateAndRunIngestButton"
                     fill={true}
                     iconType="check"
                     iconSide="left"
@@ -848,6 +849,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 {!searchUpdateDisabled && (
                   <EuiFlexItem grow={false}>
                     <EuiSmallButton
+                      data-test-subj="updateSearchButton"
                       fill={true}
                       iconType="check"
                       iconSide="left"
