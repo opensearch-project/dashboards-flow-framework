@@ -437,10 +437,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                   revertUnsavedChanges();
                 }}
               />,
-              <EuiText color="subdued" size="s">
-                {`Last saved: ${workflowLastUpdated}`}
-              </EuiText>,
-              // TODO: placement may change for this
               <EuiSmallButtonEmpty
                 disabled={false}
                 onClick={() => {
@@ -449,6 +445,9 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
               >
                 {`How it works`}
               </EuiSmallButtonEmpty>,
+              <EuiText color="subdued" size="s">
+                {`Last saved: ${workflowLastUpdated}`}
+              </EuiText>,
             ]}
             bottomBorder={false}
             rightSideGroupProps={{
