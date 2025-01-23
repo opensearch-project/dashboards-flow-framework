@@ -56,6 +56,7 @@ import { getWorkflow, updateWorkflow, useAppDispatch } from '../../../store';
 import { useFormikContext } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
 import { EditWorkflowMetadataModal } from './edit_workflow_metadata_modal';
+import { IntroFlyout } from './intro_flyout';
 
 interface WorkflowDetailHeaderProps {
   workflow?: Workflow;
@@ -87,6 +88,9 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
     // @ts-ignore
     props.workflow?.lastUpdated
   ).toString();
+
+  // intro flyout state
+  const [introFlyoutOpened, setIntroFlyoutOpened] = useState<boolean>(false);
 
   // modal states
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
@@ -273,6 +277,9 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
 
   return (
     <>
+      {introFlyoutOpened && (
+        <IntroFlyout onClose={() => setIntroFlyoutOpened(false)} />
+      )}
       {isExportModalOpen && (
         <ExportModal
           workflow={props.workflow}
@@ -313,6 +320,13 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 tooltip: 'Return to projects',
                 ariaLabel: 'Exit',
                 run: onExitButtonClick,
+                controlType: 'icon',
+              } as TopNavMenuIconData,
+              {
+                iconType: 'iInCircle',
+                tooltip: 'How it works',
+                ariaLabel: 'How it works',
+                run: () => setIntroFlyoutOpened(true),
                 controlType: 'icon',
               } as TopNavMenuIconData,
             ]}
@@ -426,6 +440,15 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
               <EuiText color="subdued" size="s">
                 {`Last saved: ${workflowLastUpdated}`}
               </EuiText>,
+              // TODO: placement may change for this
+              <EuiSmallButtonEmpty
+                disabled={false}
+                onClick={() => {
+                  setIntroFlyoutOpened(true);
+                }}
+              >
+                {`How it works`}
+              </EuiSmallButtonEmpty>,
             ]}
             bottomBorder={false}
             rightSideGroupProps={{

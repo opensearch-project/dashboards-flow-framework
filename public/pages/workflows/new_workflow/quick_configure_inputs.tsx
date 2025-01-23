@@ -199,8 +199,8 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               isEmpty(deployedModels)
                 ? undefined
                 : props.workflowType === WORKFLOW_TYPE.RAG
-                ? 'The large language model to generate user-friendly responses'
-                : 'The model to generate embeddings'
+                ? 'The large language model to generate user-friendly responses.'
+                : 'The model to generate embeddings.'
             }
           >
             {isEmpty(deployedModels) ? (
@@ -276,7 +276,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                   helpText={
                     isEmpty(deployedModels)
                       ? undefined
-                      : 'The large language model to generate user-friendly responses'
+                      : 'The large language model to generate user-friendly responses.'
                   }
                 >
                   {isEmpty(deployedModels) ? (
@@ -355,8 +355,8 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                 isInvalid={false}
                 helpText={`The name of the text document field to be ${
                   props.workflowType === WORKFLOW_TYPE.RAG
-                    ? 'used as context to the large language model (LLM)'
-                    : 'embedded'
+                    ? 'used as context to the large language model (LLM).'
+                    : 'embedded.'
                 }`}
               >
                 <EuiCompressedFieldText
@@ -378,7 +378,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                     fullWidth={true}
                     label={'Image field'}
                     isInvalid={false}
-                    helpText="The name of the document field containing the image binary"
+                    helpText="The name of the document field containing the image binary."
                   >
                     <EuiCompressedFieldText
                       fullWidth={true}
@@ -404,7 +404,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                     fullWidth={true}
                     label={'Vector field'}
                     isInvalid={false}
-                    helpText="The name of the document field containing the vector embedding"
+                    helpText="The name of the document field containing the vector embedding."
                   >
                     <EuiCompressedFieldText
                       fullWidth={true}
@@ -445,7 +445,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                     fullWidth={true}
                     label={'Prompt field'}
                     isInvalid={false}
-                    helpText={'The model input field representing the prompt'}
+                    helpText={'The model input field representing the prompt.'}
                   >
                     <EuiCompressedSuperSelect
                       data-testid="selectPromptField"
@@ -485,7 +485,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                     fullWidth={true}
                     label={'LLM response field'}
                     isInvalid={false}
-                    helpText="The name of the field containing the large language model (LLM) response"
+                    helpText="The name of the field containing the large language model (LLM) response."
                   >
                     <EuiCompressedFieldText
                       fullWidth={true}
