@@ -20,7 +20,7 @@ import {
 } from '@elastic/eui';
 import {
   FETCH_ALL_QUERY_LARGE,
-  MAX_STRING_LENGTH,
+  MAX_DESCRIPTION_LENGTH,
   Workflow,
   WORKFLOW_NAME_REGEXP,
   WORKFLOW_NAME_RESTRICTIONS,
@@ -89,7 +89,7 @@ export function EditWorkflowMetadataModal(
       .string()
       .trim()
       .min(0)
-      .max(MAX_STRING_LENGTH, 'Too long')
+      .max(MAX_DESCRIPTION_LENGTH, 'Too long')
       .optional() as yup.Schema,
   }) as yup.Schema;
 

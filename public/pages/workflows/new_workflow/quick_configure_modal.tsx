@@ -18,6 +18,7 @@ import {
   EuiSmallButtonEmpty,
   EuiCompressedFieldText,
   EuiCompressedFormRow,
+  EuiCompressedTextArea,
 } from '@elastic/eui';
 import {
   DEFAULT_PROMPT_RESULTS_FIELD,
@@ -46,6 +47,7 @@ import {
   customStringify,
   isVectorSearchUseCase,
   WORKFLOW_NAME_RESTRICTIONS,
+  MAX_DESCRIPTION_LENGTH,
 } from '../../../../common';
 import { APP_PATH } from '../../../utils';
 import { AppState, createWorkflow, useAppDispatch } from '../../../store';
@@ -89,6 +91,11 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
     .map((workflow) => workflow.name)
     .includes(workflowName);
 
+  // workflow description state
+  const [workflowDescription, setWorkflowDescription] = useState<string>(
+    props.workflow?.description || ''
+  );
+
   const [quickConfigureFields, setQuickConfigureFields] = useState<
     QuickConfigureFields
   >({});
@@ -104,6 +111,11 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
       WORKFLOW_NAME_REGEXP.test(name) === false ||
       workflowNameExists
     );
+  }
+
+  // custom sanitization on workflow description
+  function isInvalidDescription(description: string): boolean {
+    return description.length > MAX_DESCRIPTION_LENGTH;
   }
 
   // fetching model interface if available. used to prefill some
@@ -146,6 +158,20 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
             onBlur={() => setWorkflowNameTouched(true)}
           />
         </EuiCompressedFormRow>
+        <EuiCompressedFormRow
+          fullWidth={true}
+          label={'Description'}
+          error={'Too long'}
+          isInvalid={isInvalidDescription(workflowDescription)}
+        >
+          <EuiCompressedTextArea
+            fullWidth={true}
+            value={workflowDescription}
+            onChange={(e) => {
+              setWorkflowDescription(e.target.value?.trim());
+            }}
+          />
+        </EuiCompressedFormRow>
         <QuickConfigureInputs
           workflowType={props.workflow.ui_metadata?.type}
           setFields={setQuickConfigureFields}
@@ -166,7 +192,8 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
             let workflowToCreate = {
               ...props.workflow,
               name: workflowName,
-            };
+              description: workflowDescription,
+            } as Workflow;
             if (!isEmpty(quickConfigureFields)) {
               workflowToCreate = injectQuickConfigureFields(
                 workflowToCreate,
