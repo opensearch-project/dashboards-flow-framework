@@ -191,6 +191,7 @@ export function Query(props: QueryProps) {
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiSmallButton
+                      data-test-subj="searchButton"
                       fill={true}
                       isLoading={loading}
                       disabled={
