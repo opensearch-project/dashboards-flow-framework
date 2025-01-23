@@ -323,6 +323,7 @@ export const KNN_QUERY = {
       },
     },
   },
+  size: 10,
 };
 export const SEMANTIC_SEARCH_QUERY_NEURAL = {
   _source: {
