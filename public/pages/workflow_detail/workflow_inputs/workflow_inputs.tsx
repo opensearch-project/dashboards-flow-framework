@@ -22,6 +22,7 @@ import {
 } from '@elastic/eui';
 import {
   CONFIG_STEP,
+  CachedFormikState,
   TemplateNode,
   WORKFLOW_STEP_TYPE,
   Workflow,
@@ -71,6 +72,7 @@ interface WorkflowInputsProps {
   setUnsavedIngestProcessors: (unsavedIngestProcessors: boolean) => void;
   setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
   displaySearchPanel: () => void;
+  setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
 }
 
 /**
@@ -663,6 +665,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     setUiConfig={props.setUiConfig}
                     workflow={props.workflow}
                     lastIngested={lastIngested}
+                    setCachedFormikState={props.setCachedFormikState}
                   />
                 )}
               </>
@@ -670,6 +673,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <SearchInputs
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
+                setCachedFormikState={props.setCachedFormikState}
               />
             )}
           </EuiFlexItem>

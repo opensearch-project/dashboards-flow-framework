@@ -563,6 +563,11 @@ export type QueryParam = {
   value: string;
 };
 
+export type CachedFormikState = {
+  errors?: {};
+  touched?: {};
+};
+
 /**
  ********** OPENSEARCH TYPES/INTERFACES ************
  */

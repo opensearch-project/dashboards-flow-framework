@@ -76,7 +76,6 @@ export function TextField(props: TextFieldProps) {
                 placeholder={props.placeholder || ''}
                 value={field.value || getInitialValue('string')}
                 onChange={(e) => {
-                  console.log('value: ', e.target.value);
                   form.setFieldValue(props.fieldPath, e.target.value?.trim());
                 }}
                 isInvalid={isInvalid}

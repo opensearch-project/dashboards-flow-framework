@@ -6,11 +6,16 @@
 import React from 'react';
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { ProcessorsList } from '../processors_list';
-import { PROCESSOR_CONTEXT, WorkflowConfig } from '../../../../../common';
+import {
+  CachedFormikState,
+  PROCESSOR_CONTEXT,
+  WorkflowConfig,
+} from '../../../../../common';
 import { ProcessorsTitle } from '../../../../general_components';
 interface EnrichDataProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
+  setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
 }
 
 /**
@@ -29,6 +34,7 @@ export function EnrichData(props: EnrichDataProps) {
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
           context={PROCESSOR_CONTEXT.INGEST}
+          setCachedFormikState={props.setCachedFormikState}
         />
       </EuiFlexItem>
     </EuiFlexGroup>
