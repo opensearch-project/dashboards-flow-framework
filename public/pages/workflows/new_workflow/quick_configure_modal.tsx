@@ -92,9 +92,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
     .includes(workflowName);
 
   // workflow description state
-  const [workflowDescription, setWorkflowDescription] = useState<string>(
-    props.workflow?.description || ''
-  );
+  const [workflowDescription, setWorkflowDescription] = useState<string>('');
 
   const [quickConfigureFields, setQuickConfigureFields] = useState<
     QuickConfigureFields
@@ -166,6 +164,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
         >
           <EuiCompressedTextArea
             fullWidth={true}
+            placeholder="Enter a description for your workflow"
             value={workflowDescription}
             onChange={(e) => {
               setWorkflowDescription(e.target.value);
