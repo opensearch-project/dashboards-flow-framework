@@ -40,7 +40,9 @@ export function IngestData(props: IngestDataProps) {
             <EuiText size="s">
               Invalid dimension detected for a vector field mapping. Ensure the
               dimension value is set correctly.{' '}
-              <EuiLink href={KNN_VECTOR_DOCS_LINK}>Learn more</EuiLink>
+              <EuiLink target="_blank" href={KNN_VECTOR_DOCS_LINK}>
+                Learn more
+              </EuiLink>
             </EuiText>
           }
           color="warning"
