@@ -168,7 +168,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
             fullWidth={true}
             value={workflowDescription}
             onChange={(e) => {
-              setWorkflowDescription(e.target.value?.trim());
+              setWorkflowDescription(e.target.value);
             }}
           />
         </EuiCompressedFormRow>
