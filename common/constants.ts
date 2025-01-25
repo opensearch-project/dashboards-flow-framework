@@ -581,8 +581,8 @@ export enum TRANSFORM_CONTEXT {
 export enum TRANSFORM_TYPE {
   STRING = 'String',
   FIELD = 'Field',
-  EXPRESSION = 'Expression',
-  TEMPLATE = 'Template',
+  EXPRESSION = 'JSONPath Expression',
+  TEMPLATE = 'Prompt',
 }
 
 export const INPUT_TRANSFORM_OPTIONS = [
