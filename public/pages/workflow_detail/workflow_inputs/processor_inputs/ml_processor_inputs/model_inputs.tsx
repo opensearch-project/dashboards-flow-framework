@@ -11,6 +11,7 @@ import { flattie } from 'flattie';
 import {
   EuiCallOut,
   EuiCompressedFormRow,
+  EuiCompressedSuperSelect,
   EuiFlexGroup,
   EuiFlexItem,
   EuiPanel,
@@ -18,6 +19,7 @@ import {
   EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
   EuiSpacer,
+  EuiSuperSelectOption,
   EuiText,
 } from '@elastic/eui';
 import {
@@ -34,6 +36,7 @@ import {
   WorkflowConfig,
   getCharacterLimitedString,
   ModelInputFormField,
+  INPUT_TRANSFORM_OPTIONS,
 } from '../../../../../../common';
 import {
   TextField,
@@ -60,12 +63,6 @@ interface ModelInputsProps {
 const KEY_FLEX_RATIO = 3;
 const TYPE_FLEX_RATIO = 3;
 const VALUE_FLEX_RATIO = 4;
-
-const TRANSFORM_OPTIONS = Object.values(TRANSFORM_TYPE).map((type) => {
-  return {
-    label: type,
-  };
-});
 
 /**
  * Base component to configure ML inputs.
@@ -389,12 +386,46 @@ export function ModelInputs(props: ModelInputsProps) {
                               </EuiFlexItem>
                               <EuiFlexItem grow={TYPE_FLEX_RATIO}>
                                 <EuiFlexItem>
-                                  <SelectWithCustomOptions
-                                    fieldPath={`${inputMapFieldPath}.${idx}.value.transformType`}
-                                    options={TRANSFORM_OPTIONS}
-                                    placeholder={`Transform type`}
-                                    allowCreate={false}
-                                    onChange={() => {
+                                  <EuiCompressedSuperSelect
+                                    disabled={false}
+                                    options={INPUT_TRANSFORM_OPTIONS.map(
+                                      (option) =>
+                                        ({
+                                          value: option.id,
+                                          inputDisplay: (
+                                            <>
+                                              <EuiText size="s">
+                                                {option.id}
+                                              </EuiText>
+                                            </>
+                                          ),
+                                          dropdownDisplay: (
+                                            <>
+                                              <EuiText size="s">
+                                                {option.id}
+                                              </EuiText>
+                                              <EuiText
+                                                size="xs"
+                                                color="subdued"
+                                              >
+                                                {option.description}
+                                              </EuiText>
+                                            </>
+                                          ),
+                                          disabled: false,
+                                        } as EuiSuperSelectOption<string>)
+                                    )}
+                                    valueOfSelected={
+                                      getIn(
+                                        values,
+                                        `${inputMapFieldPath}.${idx}.value.transformType`
+                                      ) || ''
+                                    }
+                                    onChange={(option) => {
+                                      setFieldValue(
+                                        `${inputMapFieldPath}.${idx}.value.transformType`,
+                                        option
+                                      );
                                       // If the transform type changes, clear any set value and/or nested vars,
                                       // as it will likely not make sense under other types/contexts.
                                       setFieldValue(
