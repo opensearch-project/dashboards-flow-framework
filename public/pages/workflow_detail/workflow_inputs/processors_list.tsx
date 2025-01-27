@@ -16,10 +16,13 @@ import {
   EuiPopover,
   EuiAccordion,
   EuiSpacer,
+  EuiText,
+  EuiIconTip,
 } from '@elastic/eui';
-import { cloneDeep } from 'lodash';
-import { useFormikContext } from 'formik';
+import { cloneDeep, isEmpty } from 'lodash';
+import { getIn, useFormikContext } from 'formik';
 import {
+  CachedFormikState,
   IProcessorConfig,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
@@ -55,6 +58,7 @@ interface ProcessorsListProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   context: PROCESSOR_CONTEXT;
+  setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
 }
 
 const PANEL_ID = 0;
@@ -63,7 +67,7 @@ const PANEL_ID = 0;
  * General component for configuring pipeline processors (ingest / search request / search response)
  */
 export function ProcessorsList(props: ProcessorsListProps) {
-  const { values } = useFormikContext<WorkflowFormValues>();
+  const { values, errors, touched } = useFormikContext<WorkflowFormValues>();
   const [version, setVersion] = useState<string>('');
   const location = useLocation();
   const [processorAdded, setProcessorAdded] = useState<boolean>(false);
@@ -251,8 +255,13 @@ export function ProcessorsList(props: ProcessorsListProps) {
 
   // Adding a processor to the config. Fetch the existing one
   // (getting any updated/interim values along the way) and add to
-  // the list of processors
+  // the list of processors. Additionally, persist any current form state
+  // (touched, errors) so they are re-initialized when the form is reset.
   function addProcessor(processor: IProcessorConfig): void {
+    props.setCachedFormikState({
+      errors,
+      touched,
+    });
     setProcessorAdded(true);
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
     let newConfig = formikToUiConfig(values, existingConfig);
@@ -315,6 +324,23 @@ export function ProcessorsList(props: ProcessorsListProps) {
   return (
     <EuiFlexGroup direction="column" gutterSize="s">
       {processors.map((processor: IProcessorConfig, processorIndex) => {
+        const baseConfigPath =
+          props.context === PROCESSOR_CONTEXT.INGEST
+            ? 'ingest.enrich'
+            : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+            ? 'search.enrichRequest'
+            : 'search.enrichResponse';
+        const processorPath = `${baseConfigPath}.${processor.id}`;
+        const hasErrors = !isEmpty(getIn(errors, processorPath));
+        let allTouched = false;
+        try {
+          if (touched !== undefined && values !== undefined) {
+            allTouched =
+              Object.keys(getIn(touched, processorPath)).length ===
+              Object.keys(getIn(values, processorPath)).length;
+          }
+        } catch (e) {}
+
         return (
           <EuiFlexItem key={processorIndex}>
             <EuiPanel paddingSize="s">
@@ -323,7 +349,25 @@ export function ProcessorsList(props: ProcessorsListProps) {
                   processorAdded && processorIndex === processors.length - 1
                 }
                 id={`accordion${processor.id}`}
-                buttonContent={`${processor.name || 'Processor'}`}
+                buttonContent={
+                  <EuiFlexGroup direction="row">
+                    <EuiFlexItem grow={false}>
+                      <EuiText>{`${processor.name || 'Processor'}`}</EuiText>
+                    </EuiFlexItem>
+                    {hasErrors && allTouched && (
+                      <EuiFlexItem grow={false}>
+                        <EuiIconTip
+                          aria-label="Warning"
+                          size="m"
+                          type="alert"
+                          color="danger"
+                          content="Invalid or missing fields detected"
+                          position="right"
+                        />
+                      </EuiFlexItem>
+                    )}
+                  </EuiFlexGroup>
+                }
                 extraAction={
                   <EuiSmallButtonIcon
                     iconType={'trash'}
@@ -340,13 +384,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
                   <ProcessorInputs
                     uiConfig={props.uiConfig}
                     config={processor}
-                    baseConfigPath={
-                      props.context === PROCESSOR_CONTEXT.INGEST
-                        ? 'ingest.enrich'
-                        : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                        ? 'search.enrichRequest'
-                        : 'search.enrichResponse'
-                    }
+                    baseConfigPath={baseConfigPath}
                     context={props.context}
                   />
                 </EuiFlexItem>

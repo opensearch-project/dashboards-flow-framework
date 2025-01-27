@@ -22,6 +22,7 @@ import {
   EMPTY_OUTPUT_MAP_ENTRY,
   ExpressionVar,
   ModelOutputFormField,
+  OUTPUT_TRANSFORM_OPTIONS,
 } from '../../../../../../common';
 import { SelectWithCustomOptions, TextField } from '../../input_fields';
 
@@ -29,12 +30,14 @@ import { AppState } from '../../../../../store';
 import { parseModelOutputs } from '../../../../../utils';
 import {
   EuiCompressedFormRow,
+  EuiCompressedSuperSelect,
   EuiFlexGroup,
   EuiFlexItem,
   EuiPanel,
   EuiSmallButton,
   EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
+  EuiSuperSelectOption,
   EuiText,
 } from '@elastic/eui';
 import { ConfigureMultiExpressionModal } from './modals';
@@ -51,18 +54,6 @@ interface ModelOutputsProps {
 const KEY_FLEX_RATIO = 3;
 const TYPE_FLEX_RATIO = 3;
 const VALUE_FLEX_RATIO = 4;
-
-const TRANSFORM_OPTIONS = [
-  {
-    label: TRANSFORM_TYPE.FIELD,
-  },
-  {
-    label: TRANSFORM_TYPE.EXPRESSION,
-  },
-  {
-    label: NO_TRANSFORMATION,
-  },
-];
 
 /**
  * Base component to configure ML outputs.
@@ -268,12 +259,64 @@ export function ModelOutputs(props: ModelOutputsProps) {
                               </EuiFlexItem>
                               <EuiFlexItem grow={TYPE_FLEX_RATIO}>
                                 <EuiFlexItem>
-                                  <SelectWithCustomOptions
+                                  {/* <SelectWithCustomOptions
                                     fieldPath={`${outputMapFieldPath}.${idx}.value.transformType`}
                                     options={TRANSFORM_OPTIONS}
                                     placeholder={`Transform type`}
                                     allowCreate={false}
                                     onChange={() => {
+                                      // If the transform type changes, clear any set value and/or nested vars,
+                                      // as it will likely not make sense under other types/contexts.
+                                      setFieldValue(
+                                        `${outputMapFieldPath}.${idx}.value.value`,
+                                        ''
+                                      );
+                                      setFieldValue(
+                                        `${outputMapFieldPath}.${idx}.value.nestedVars`,
+                                        []
+                                      );
+                                    }}
+                                  /> */}
+                                  <EuiCompressedSuperSelect
+                                    disabled={false}
+                                    options={OUTPUT_TRANSFORM_OPTIONS.map(
+                                      (option) =>
+                                        ({
+                                          value: option.id,
+                                          inputDisplay: (
+                                            <>
+                                              <EuiText size="s">
+                                                {option.id}
+                                              </EuiText>
+                                            </>
+                                          ),
+                                          dropdownDisplay: (
+                                            <>
+                                              <EuiText size="s">
+                                                {option.id}
+                                              </EuiText>
+                                              <EuiText
+                                                size="xs"
+                                                color="subdued"
+                                              >
+                                                {option.description}
+                                              </EuiText>
+                                            </>
+                                          ),
+                                          disabled: false,
+                                        } as EuiSuperSelectOption<string>)
+                                    )}
+                                    valueOfSelected={
+                                      getIn(
+                                        values,
+                                        `${outputMapFieldPath}.${idx}.value.transformType`
+                                      ) || ''
+                                    }
+                                    onChange={(option) => {
+                                      setFieldValue(
+                                        `${outputMapFieldPath}.${idx}.value.transformType`,
+                                        option
+                                      );
                                       // If the transform type changes, clear any set value and/or nested vars,
                                       // as it will likely not make sense under other types/contexts.
                                       setFieldValue(

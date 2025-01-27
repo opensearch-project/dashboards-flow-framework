@@ -38,6 +38,7 @@ import {
 import { ResizableWorkspace } from './resizable_workspace';
 import {
   CONFIG_STEP,
+  CachedFormikState,
   ERROR_GETTING_WORKFLOW_MSG,
   FETCH_ALL_QUERY_LARGE,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
@@ -144,6 +145,13 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     undefined
   );
 
+  // We persist some cached formik state we may want to save, even when the form is reset. For example,
+  // when adding a processor, the form needs to be re-generated. But, we should persist any known
+  // values that are touched or have errors.
+  const [cachedFormikState, setCachedFormikState] = useState<
+    CachedFormikState | undefined
+  >(undefined);
+
   // various form-related states. persisted here to pass down to the child's form and header components, particularly
   // to have consistency on the button states (enabled/disabled)
   const [isRunningIngest, setIsRunningIngest] = useState<boolean>(false);
@@ -199,6 +207,8 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     <Formik
       enableReinitialize={true}
       initialValues={formValues}
+      initialTouched={cachedFormikState?.touched}
+      initialErrors={cachedFormikState?.errors}
       validationSchema={formSchema}
       onSubmit={(values) => {}}
       validate={(values) => {}}
@@ -233,6 +243,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
               setSelectedStep={setSelectedStep}
               setUnsavedIngestProcessors={setUnsavedIngestProcessors}
               setUnsavedSearchProcessors={setUnsavedSearchProcessors}
+              setCachedFormikState={setCachedFormikState}
             />
           </EuiPageBody>
         </EuiPage>

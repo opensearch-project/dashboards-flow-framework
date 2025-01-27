@@ -14,6 +14,7 @@ import {
 } from '@elastic/eui';
 import {
   CONFIG_STEP,
+  CachedFormikState,
   INSPECTOR_TAB_ID,
   Workflow,
   WorkflowConfig,
@@ -46,6 +47,7 @@ interface ResizableWorkspaceProps {
   setSelectedStep: (step: CONFIG_STEP) => void;
   setUnsavedIngestProcessors: (unsavedIngestProcessors: boolean) => void;
   setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
+  setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
 }
 
 const WORKFLOW_INPUTS_PANEL_ID = 'workflow_inputs_panel_id';
@@ -141,6 +143,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   }
                   setSelectedInspectorTabId(INSPECTOR_TAB_ID.QUERY);
                 }}
+                setCachedFormikState={props.setCachedFormikState}
               />
             </EuiResizablePanel>
             <EuiResizableButton />
