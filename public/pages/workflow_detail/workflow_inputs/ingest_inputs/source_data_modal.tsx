@@ -282,7 +282,7 @@ export function SourceDataModal(props: SourceDataProps) {
                     <EuiText
                       size="xs"
                       color="subdued"
-                    >{`Only the top ${MAX_DOCS_TO_IMPORT} documents will be imported.`}</EuiText>
+                    >{`Only the first ${MAX_DOCS_TO_IMPORT} documents will be imported.`}</EuiText>
                     <EuiSpacer size="xs" />
                   </>
                 )}
