@@ -23,6 +23,7 @@ import {
   DEFAULT_LLM_RESPONSE_FIELD,
   DEFAULT_TEXT_FIELD,
   DEFAULT_VECTOR_FIELD,
+  ML_CHOOSE_MODEL_LINK,
   ML_REMOTE_MODEL_LINK,
   MODEL_STATE,
   Model,
@@ -193,6 +194,14 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
               props.workflowType === WORKFLOW_TYPE.RAG
                 ? 'Large language model'
                 : 'Embedding model'
+            }
+            labelAppend={
+              // TODO: update to be a popover with more content.
+              <EuiText size="xs">
+                <EuiLink href={ML_CHOOSE_MODEL_LINK} target="_blank">
+                  Learn more
+                </EuiLink>
+              </EuiText>
             }
             isInvalid={false}
             helpText={

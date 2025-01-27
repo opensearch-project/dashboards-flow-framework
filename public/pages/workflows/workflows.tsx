@@ -42,6 +42,7 @@ import {
 } from '../../services';
 import { prettifyErrorMessage } from '../../../common/utils';
 import { DataSourceOption } from '../../../../../src/plugins/data_source_management/public/components/data_source_menu/types';
+import { GetStartedAccordion } from './get_started_accordion';
 
 export interface WorkflowsRouterProps {}
 
@@ -238,6 +239,8 @@ export function Workflows(props: WorkflowsProps) {
         </EuiFlexItem>
       </EuiFlexGroup>
       <EuiText color="subdued">{DESCRIPTION}</EuiText>
+      <EuiSpacer size="l" />
+      <GetStartedAccordion />
     </EuiFlexGroup>
   );
 
