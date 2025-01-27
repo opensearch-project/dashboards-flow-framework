@@ -6,12 +6,17 @@
 import React from 'react';
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { ProcessorsTitle } from '../../../../general_components';
-import { PROCESSOR_CONTEXT, WorkflowConfig } from '../../../../../common';
+import {
+  CachedFormikState,
+  PROCESSOR_CONTEXT,
+  WorkflowConfig,
+} from '../../../../../common';
 import { ProcessorsList } from '../processors_list';
 
 interface EnrichSearchRequestProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
+  setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
 }
 
 /**
@@ -32,6 +37,7 @@ export function EnrichSearchRequest(props: EnrichSearchRequestProps) {
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
           context={PROCESSOR_CONTEXT.SEARCH_REQUEST}
+          setCachedFormikState={props.setCachedFormikState}
         />
       </EuiFlexItem>
     </EuiFlexGroup>

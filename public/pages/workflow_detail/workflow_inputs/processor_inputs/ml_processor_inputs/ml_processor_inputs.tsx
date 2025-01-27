@@ -77,6 +77,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const inputMapValue = getIn(values, inputMapFieldPath);
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map`;
   const outputMapValue = getIn(values, outputMapFieldPath);
+  const [modelNotFound, setModelNotFound] = useState<boolean>(false);
 
   // preview availability states
   // if there are preceding search request processors, we cannot fetch and display the interim transformed query.
@@ -139,18 +140,44 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     setFieldTouched(outputMapFieldPath, false);
   }
 
-  // on initial load of the models, update model interface states
+  // Listener to detect on changes that could affect the model details, such as
+  // any defined model interface, or if the model is not found.
   useEffect(() => {
     if (!isEmpty(models)) {
       const modelId = getIn(values, modelIdFieldPath);
-      if (modelId) {
+      if (modelId && models[modelId]) {
         setModelInterface(models[modelId]?.interface);
+        setModelNotFound(false);
+        // Edge case: model ID found, but no matching deployed model found in the cluster.
+        // If so, persist a model-not-found state, and touch all fields to trigger UI elements
+        // indicating errors for this particular processor.
+      } else if (modelId) {
+        setModelNotFound(true);
+        setFieldValue(modelIdFieldPath, '');
+        try {
+          const processorConfigPath = `${props.baseConfigPath}.${props.config.id}`;
+          Object.keys(
+            getIn(values, `${props.baseConfigPath}.${props.config.id}`)
+          ).forEach((modelFieldPath) => {
+            setFieldTouched(`${processorConfigPath}.${modelFieldPath}`, true);
+          });
+        } catch (e) {}
       }
     }
-  }, [models]);
+  }, [models, getIn(values, modelIdFieldPath), props.uiConfig]);
 
   return (
     <>
+      {modelNotFound && (
+        <>
+          <EuiCallOut
+            color="danger"
+            size="s"
+            title={<EuiText size="s">Model not found</EuiText>}
+          />
+          <EuiSpacer size="s" />
+        </>
+      )}
       {isQueryModalOpen && (
         <OverrideQueryModal
           config={props.config}

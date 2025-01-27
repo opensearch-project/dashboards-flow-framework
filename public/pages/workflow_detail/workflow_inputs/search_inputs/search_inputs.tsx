@@ -9,6 +9,7 @@ import { ConfigureSearchRequest } from './configure_search_request';
 import { EnrichSearchRequest } from './enrich_search_request';
 import { EnrichSearchResponse } from './enrich_search_response';
 import {
+  CachedFormikState,
   OMIT_SYSTEM_INDEX_PATTERN,
   WorkflowConfig,
 } from '../../../../../common';
@@ -18,6 +19,7 @@ import { getDataSourceId } from '../../../../utils';
 interface SearchInputsProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
+  setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
 }
 
 /**
@@ -45,6 +47,7 @@ export function SearchInputs(props: SearchInputsProps) {
         <EnrichSearchRequest
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
+          setCachedFormikState={props.setCachedFormikState}
         />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
@@ -54,6 +57,7 @@ export function SearchInputs(props: SearchInputsProps) {
         <EnrichSearchResponse
           uiConfig={props.uiConfig}
           setUiConfig={props.setUiConfig}
+          setCachedFormikState={props.setCachedFormikState}
         />
       </EuiFlexItem>
     </EuiFlexGroup>
