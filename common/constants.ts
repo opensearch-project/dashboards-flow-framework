@@ -591,12 +591,12 @@ export const INPUT_TRANSFORM_OPTIONS = [
     description: 'Map an existing field from your data.',
   },
   {
-    id: TRANSFORM_TYPE.TEMPLATE,
-    description: 'Configure a prompt and map to the input field.',
-  },
-  {
     id: TRANSFORM_TYPE.EXPRESSION,
     description: 'Extract data before mapping to the input field.',
+  },
+  {
+    id: TRANSFORM_TYPE.TEMPLATE,
+    description: 'Configure a prompt and map to the input field.',
   },
   {
     id: TRANSFORM_TYPE.STRING,
