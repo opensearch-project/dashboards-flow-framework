@@ -591,12 +591,12 @@ export const INPUT_TRANSFORM_OPTIONS = [
     description: 'Map an existing field from your data.',
   },
   {
-    id: TRANSFORM_TYPE.TEMPLATE,
-    description: 'Configure a prompt and map to the input field.',
-  },
-  {
     id: TRANSFORM_TYPE.EXPRESSION,
     description: 'Extract data before mapping to the input field.',
+  },
+  {
+    id: TRANSFORM_TYPE.TEMPLATE,
+    description: 'Configure a prompt and map to the input field.',
   },
   {
     id: TRANSFORM_TYPE.STRING,
@@ -679,21 +679,21 @@ export enum SOURCE_OPTIONS {
   EXISTING_INDEX = 'existing_index',
 }
 export enum INSPECTOR_TAB_ID {
+  TEST = 'test',
   INGEST = 'ingest',
-  QUERY = 'query',
   ERRORS = 'errors',
   RESOURCES = 'resources',
 }
 
 export const INSPECTOR_TABS = [
   {
-    id: INSPECTOR_TAB_ID.INGEST,
-    name: 'Ingest response',
+    id: INSPECTOR_TAB_ID.TEST,
+    name: 'Test flow',
     disabled: false,
   },
   {
-    id: INSPECTOR_TAB_ID.QUERY,
-    name: 'Search tool',
+    id: INSPECTOR_TAB_ID.INGEST,
+    name: 'Ingest response',
     disabled: false,
   },
   {

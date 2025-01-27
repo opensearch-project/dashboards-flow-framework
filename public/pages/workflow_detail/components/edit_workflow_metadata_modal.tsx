@@ -205,7 +205,7 @@ export function EditWorkflowMetadataModal(
                 <EuiFlexItem>
                   <TextField
                     label="Name"
-                    fullWidth={false}
+                    fullWidth={true}
                     fieldPath={`name`}
                     showError={true}
                   />
@@ -213,7 +213,7 @@ export function EditWorkflowMetadataModal(
                 <EuiFlexItem>
                   <TextField
                     label="Description - optional"
-                    fullWidth={false}
+                    fullWidth={true}
                     fieldPath={`description`}
                     showError={true}
                     placeholder="Provide a description for identifying this workflow."

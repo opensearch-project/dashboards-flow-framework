@@ -124,7 +124,7 @@ export function Tools(props: ToolsProps) {
                 {props.selectedTabId === INSPECTOR_TAB_ID.INGEST && (
                   <Ingest ingestResponse={props.ingestResponse} />
                 )}
-                {props.selectedTabId === INSPECTOR_TAB_ID.QUERY && (
+                {props.selectedTabId === INSPECTOR_TAB_ID.TEST && (
                   <Query
                     hasSearchPipeline={hasProvisionedSearchResources(
                       props.workflow

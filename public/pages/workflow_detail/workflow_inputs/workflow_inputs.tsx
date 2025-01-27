@@ -550,9 +550,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 text: (
                   <EuiFlexGroup direction="column">
                     <EuiFlexItem grow={false}>
-                      <EuiText size="s">
-                        Validate your ingest flow with the search tool
-                      </EuiText>
+                      <EuiText size="s">Validate your ingest flow</EuiText>
                     </EuiFlexItem>
                     <EuiFlexItem>
                       <EuiFlexGroup direction="row" justifyContent="flexEnd">
@@ -561,7 +559,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                             fill={false}
                             onClick={() => props.displaySearchPanel()}
                           >
-                            Open Search tool
+                            Test flow
                           </EuiSmallButton>
                         </EuiFlexItem>
                       </EuiFlexGroup>
