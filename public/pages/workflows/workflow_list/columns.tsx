@@ -24,7 +24,7 @@ export const columns = (actions: any[]) => {
     {
       field: 'name',
       name: 'Name',
-      width: '35%',
+      width: '25%',
       sortable: true,
       render: (name: string, workflow: Workflow) => (
         <EuiLink
@@ -40,13 +40,19 @@ export const columns = (actions: any[]) => {
     {
       field: 'ui_metadata.type',
       name: 'Type',
-      width: '20%',
+      width: '25%',
       sortable: true,
+    },
+    {
+      field: 'description',
+      name: 'Description',
+      width: '35%',
+      sortable: false,
     },
     {
       field: 'lastUpdated',
       name: 'Last saved',
-      width: '35%',
+      width: '15%',
       sortable: true,
       render: (lastUpdated: number) =>
         lastUpdated !== undefined

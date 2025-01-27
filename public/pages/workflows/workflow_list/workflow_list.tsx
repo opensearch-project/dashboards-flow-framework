@@ -22,6 +22,7 @@ import {
 } from '@elastic/eui';
 import { AppState } from '../../../store';
 import {
+  EMPTY_FIELD_STRING,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
   UIState,
   WORKFLOW_TYPE,
@@ -222,10 +223,11 @@ function fetchFilteredWorkflows(
   const allWorkflowsExceptRegisterAgent = allWorkflows.filter(
     (workflow) => workflow.use_case !== 'REGISTER_AGENT'
   );
-  // If missing/invalid ui metadata, add defaults
+  // If missing/invalid fields for each workflow, add defaults
   const allWorkflowsWithDefaults = allWorkflowsExceptRegisterAgent.map(
     (workflow) => ({
       ...workflow,
+      description: workflow.description || EMPTY_FIELD_STRING,
       ui_metadata: {
         ...workflow.ui_metadata,
         type: workflow.ui_metadata?.type || WORKFLOW_TYPE.UNKNOWN,
