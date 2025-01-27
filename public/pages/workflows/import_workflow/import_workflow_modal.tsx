@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import {
   EuiSpacer,
   EuiFlexGroup,
@@ -18,6 +19,9 @@ import {
   EuiCompressedFilePicker,
   EuiCallOut,
   EuiFlexItem,
+  EuiCompressedFieldText,
+  EuiCompressedFormRow,
+  EuiCompressedTextArea,
 } from '@elastic/eui';
 import {
   getObjFromJsonOrYamlString,
@@ -26,11 +30,18 @@ import {
 } from '../../../utils';
 import { getCore } from '../../../services';
 import {
+  AppState,
   createWorkflow,
   searchWorkflows,
   useAppDispatch,
 } from '../../../store';
-import { FETCH_ALL_QUERY_LARGE, Workflow } from '../../../../common';
+import {
+  FETCH_ALL_QUERY_LARGE,
+  MAX_DESCRIPTION_LENGTH,
+  Workflow,
+  WORKFLOW_NAME_REGEXP,
+  WORKFLOW_NAME_RESTRICTIONS,
+} from '../../../../common';
 import { WORKFLOWS_TAB } from '../workflows';
 import { getDataSourceId } from '../../../utils/utils';
 
@@ -50,6 +61,30 @@ interface ImportWorkflowModalProps {
 export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+  const { workflows } = useSelector((state: AppState) => state.workflows);
+
+  // workflow name state
+  const [workflowName, setWorkflowName] = useState<string>('');
+  const [workflowNameTouched, setWorkflowNameTouched] = useState<boolean>(
+    false
+  );
+  function isInvalidName(name: string): boolean {
+    return (
+      name === '' ||
+      name.length > 100 ||
+      WORKFLOW_NAME_REGEXP.test(name) === false ||
+      workflowNameExists
+    );
+  }
+  const workflowNameExists = Object.values(workflows)
+    .map((workflow) => workflow.name)
+    .includes(workflowName);
+
+  // workflow description state
+  const [workflowDescription, setWorkflowDescription] = useState<string>('');
+  function isInvalidDescription(description: string): boolean {
+    return description.length > MAX_DESCRIPTION_LENGTH;
+  }
 
   // transient importing state for button state
   const [isImporting, setIsImporting] = useState<boolean>(false);
@@ -71,6 +106,15 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
     }
   };
 
+  useEffect(() => {
+    if (isValidWorkflow(fileObj)) {
+      const parsedWorkflow = fileObj as Workflow;
+      setWorkflowNameTouched(true);
+      setWorkflowName(parsedWorkflow?.name || '');
+      setWorkflowDescription(parsedWorkflow?.description || '');
+    }
+  }, [fileObj]);
+
   function onModalClose(): void {
     props.setIsImportModalOpen(false);
     setFileContents(undefined);
@@ -78,14 +122,14 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
   }
 
   return (
-    <EuiModal onClose={() => onModalClose()} style={{ width: '40vw' }}>
+    <EuiModal onClose={() => onModalClose()} style={{ width: '60vw' }}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
           <p>{`Import a workflow (JSON/YAML)`}</p>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
-        <EuiFlexGroup direction="column">
+        <EuiFlexGroup direction="column" gutterSize="s">
           {fileContents !== undefined && !isValidWorkflow(fileObj) && (
             <>
               <EuiFlexItem>
@@ -131,6 +175,49 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
               Must be in JSON or YAML format.
             </EuiText>
           </EuiFlexItem>
+          {isValidWorkflow(fileObj) && (
+            <>
+              <EuiFlexItem grow={false}>
+                <EuiCompressedFormRow
+                  fullWidth={true}
+                  label={'Name'}
+                  error={
+                    workflowNameExists
+                      ? 'This workflow name is already in use. Use a different name'
+                      : WORKFLOW_NAME_RESTRICTIONS
+                  }
+                  isInvalid={workflowNameTouched && isInvalidName(workflowName)}
+                >
+                  <EuiCompressedFieldText
+                    fullWidth={true}
+                    placeholder={'Enter a name for this workflow'}
+                    value={workflowName}
+                    onChange={(e) => {
+                      setWorkflowNameTouched(true);
+                      setWorkflowName(e.target.value?.trim());
+                    }}
+                    onBlur={() => setWorkflowNameTouched(true)}
+                  />
+                </EuiCompressedFormRow>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiCompressedFormRow
+                  fullWidth={true}
+                  label={'Description'}
+                  error={'Too long'}
+                  isInvalid={isInvalidDescription(workflowDescription)}
+                >
+                  <EuiCompressedTextArea
+                    fullWidth={true}
+                    value={workflowDescription}
+                    onChange={(e) => {
+                      setWorkflowDescription(e.target.value);
+                    }}
+                  />
+                </EuiCompressedFormRow>
+              </EuiFlexItem>
+            </>
+          )}
         </EuiFlexGroup>
       </EuiModalBody>
       <EuiModalFooter>
@@ -141,13 +228,22 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
           Cancel
         </EuiSmallButtonEmpty>
         <EuiSmallButton
-          disabled={!isValidWorkflow(fileObj) || isImporting}
+          disabled={
+            !isValidWorkflow(fileObj) ||
+            isImporting ||
+            isInvalidName(workflowName) ||
+            isInvalidDescription(workflowDescription)
+          }
           isLoading={isImporting}
           onClick={() => {
             setIsImporting(true);
             dispatch(
               createWorkflow({
-                apiBody: fileObj as Workflow,
+                apiBody: {
+                  ...(fileObj as Workflow),
+                  name: workflowName,
+                  description: workflowDescription,
+                },
                 dataSourceId,
               })
             )

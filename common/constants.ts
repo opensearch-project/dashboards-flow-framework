@@ -573,6 +573,7 @@ export enum PROCESSOR_CONTEXT {
   SEARCH_REQUEST = 'search_request',
   SEARCH_RESPONSE = 'search_response',
 }
+export const NO_TRANSFORMATION = 'No transformation';
 export enum TRANSFORM_CONTEXT {
   INPUT = 'input',
   OUTPUT = 'output',
@@ -580,10 +581,44 @@ export enum TRANSFORM_CONTEXT {
 export enum TRANSFORM_TYPE {
   STRING = 'String',
   FIELD = 'Field',
-  EXPRESSION = 'Expression',
-  TEMPLATE = 'Template',
+  EXPRESSION = 'JSONPath Expression',
+  TEMPLATE = 'Prompt',
 }
-export const NO_TRANSFORMATION = 'No transformation';
+
+export const INPUT_TRANSFORM_OPTIONS = [
+  {
+    id: TRANSFORM_TYPE.FIELD,
+    description: 'Map an existing field from your data.',
+  },
+  {
+    id: TRANSFORM_TYPE.TEMPLATE,
+    description: 'Configure a prompt and map to the input field.',
+  },
+  {
+    id: TRANSFORM_TYPE.EXPRESSION,
+    description: 'Extract data before mapping to the input field.',
+  },
+  {
+    id: TRANSFORM_TYPE.STRING,
+    description: 'Declare a string to the input field.',
+  },
+];
+
+export const OUTPUT_TRANSFORM_OPTIONS = [
+  {
+    id: TRANSFORM_TYPE.FIELD,
+    description: 'Map an existing field from your data.',
+  },
+  {
+    id: TRANSFORM_TYPE.EXPRESSION,
+    description: 'Extract data before mapping to the input field.',
+  },
+  {
+    id: NO_TRANSFORMATION,
+    description: 'Leave the output field as-is.',
+  },
+];
+
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';
 export const DEFAULT_NEW_WORKFLOW_STATE_TYPE = ('NOT_STARTED' as any) as typeof WORKFLOW_STATE;
@@ -608,6 +643,7 @@ export enum SORT_ORDER {
 export const MAX_DOCS = 1000;
 export const MAX_DOCS_TO_IMPORT = 100;
 export const MAX_STRING_LENGTH = 100;
+export const MAX_DESCRIPTION_LENGTH = 1000;
 export const MAX_JSON_STRING_LENGTH = 10000;
 export const MAX_TEMPLATE_STRING_LENGTH = 10000;
 export const MAX_BYTES = 1048576; // OSD REST request payload size limit
