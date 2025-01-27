@@ -164,7 +164,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
         >
           <EuiCompressedTextArea
             fullWidth={true}
-            placeholder="Enter a description for your workflow"
+            placeholder="Enter a description for this workflow"
             value={workflowDescription}
             onChange={(e) => {
               setWorkflowDescription(e.target.value);

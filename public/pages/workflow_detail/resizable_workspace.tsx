@@ -86,7 +86,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [ingestResponse, setIngestResponse] = useState<string>('');
   const [selectedInspectorTabId, setSelectedInspectorTabId] = useState<
     INSPECTOR_TAB_ID
-  >(INSPECTOR_TAB_ID.INGEST);
+  >(INSPECTOR_TAB_ID.TEST);
 
   // is valid workflow state, + associated hook to set it as such
   const [isValidWorkflow, setIsValidWorkflow] = useState<boolean>(true);
@@ -141,7 +141,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   if (!isToolsPanelOpen) {
                     onToggleToolsChange();
                   }
-                  setSelectedInspectorTabId(INSPECTOR_TAB_ID.QUERY);
+                  setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
                 }}
                 setCachedFormikState={props.setCachedFormikState}
               />
