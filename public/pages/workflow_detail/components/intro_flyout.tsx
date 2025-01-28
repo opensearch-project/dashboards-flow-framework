@@ -117,7 +117,7 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="s">
-                        <h4>2. Build ingest flow</h4>
+                        <h4>2. Build an ingest flow</h4>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
@@ -128,8 +128,8 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                           then add processors to enrich your data.
                         </p>
                         <p style={{ marginTop: '-16px' }}>
-                          If you are using an existing index with data, you can
-                          skip this step.
+                          If you are using an existing index containing data,
+                          you can skip this step.
                         </p>
                       </EuiText>
                     </EuiFlexItem>
@@ -183,8 +183,8 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                           add processors to enrich your data.
                         </p>
                         <p style={{ marginTop: '-16px' }}>
-                          If you are using an existing index with data, you can
-                          skip this step.
+                          If you are using an existing index containing data,
+                          you can skip this step.
                         </p>
                       </EuiText>
                     </EuiFlexItem>

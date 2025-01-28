@@ -1,6 +1,6 @@
 {
-    "name": "Vector Search with RAG",
-    "description": "Build a search application that uses RAG to retrieve semantically similar documents using vector search, pass them to large language models, and synthesize answers.",
+    "name": "RAG with Vector Retrieval",
+    "description": "Build a search application that uses retrieval-augmented generation (RAG) to retrieve semantically similar documents using vector search, pass them to large language models, and synthesize answers.",
     "version": {
         "template": "1.0.0",
         "compatibility": [
@@ -9,6 +9,6 @@
         ]
     },
     "ui_metadata": {
-        "type": "Vector Search with RAG"
+        "type": "RAG with Vector Retrieval"
     }
 }

@@ -165,8 +165,8 @@ export enum WORKFLOW_TYPE {
   SEMANTIC_SEARCH = 'Semantic Search',
   MULTIMODAL_SEARCH = 'Multimodal Search',
   HYBRID_SEARCH = 'Hybrid Search',
-  RAG = 'Lexical Search with RAG',
-  VECTOR_SEARCH_WITH_RAG = 'Vector Search with RAG',
+  RAG = 'RAG with Lexical Retrieval',
+  VECTOR_SEARCH_WITH_RAG = 'RAG with Vector Retrieval',
   CUSTOM = 'Custom Search',
   UNKNOWN = 'Unknown',
 }
