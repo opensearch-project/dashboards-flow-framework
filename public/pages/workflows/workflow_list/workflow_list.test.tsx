@@ -97,7 +97,7 @@ describe('WorkflowList', () => {
     expect(sortButtons[1]).toBeInTheDocument();
     userEvent.click(sortButtons[1]!);
     await waitFor(() => {
-      expect(getAllByText('Custom').length).toBeGreaterThan(0);
+      expect(getAllByText('Custom Search').length).toBeGreaterThan(0);
     });
     expect(queryByText('Unknown')).toBeNull();
 
@@ -105,7 +105,7 @@ describe('WorkflowList', () => {
     await waitFor(() => {
       expect(queryByText('Unknown')).toBeNull();
     });
-    expect(getAllByText('Custom').length).toBeGreaterThan(0);
+    expect(getAllByText('Custom Search').length).toBeGreaterThan(0);
   });
 
   test('pagination functionality', async () => {
