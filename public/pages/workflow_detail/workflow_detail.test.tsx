@@ -187,7 +187,7 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
     await waitFor(() => {
       expect(getAllByText('Search flow').length).toBeGreaterThan(0);
     });
-    expect(getAllByText('Configure query').length).toBeGreaterThan(0);
+    expect(getAllByText('Configure query interface').length).toBeGreaterThan(0);
     // Edit Search Query
     const queryEditButton = getByTestId('queryEditButton');
     expect(queryEditButton).toBeInTheDocument();

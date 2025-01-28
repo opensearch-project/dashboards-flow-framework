@@ -106,7 +106,7 @@ export function ExportModal(props: ExportModalProps) {
           )}
           <EuiFlexItem grow={false}>
             <EuiText size="s">
-              {`To build out identical resources in other environments, create and provision a workflow using the below template.`}{' '}
+              {`To build identical resources in other environments, create and provision a workflow following the below template.`}{' '}
               <EuiLink href={CREATE_WORKFLOW_LINK} target="_blank">
                 Learn more
               </EuiLink>

@@ -63,11 +63,11 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
           <EuiText size="s">
-            <h3>Configure query</h3>
+            <h3>Configure query interface</h3>
           </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiCompressedFormRow label="Index name">
+          <EuiCompressedFormRow label="Index">
             {ingestEnabled ? (
               <EuiCompressedFieldText
                 value={values?.ingest?.index?.name}
@@ -97,9 +97,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
         <EuiFlexItem>
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
-              <EuiText size="s">
-                <h4>Query definition</h4>
-              </EuiText>
+              <EuiText size="xs">Query</EuiText>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiFlexGroup direction="row" gutterSize="none">

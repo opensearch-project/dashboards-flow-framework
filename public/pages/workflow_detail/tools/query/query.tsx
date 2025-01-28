@@ -235,7 +235,7 @@ export function Query(props: QueryProps) {
                             setTempRequest(values?.search?.request);
                           }}
                         >
-                          Revert to query definition
+                          Revert to original query
                         </EuiSmallButtonEmpty>
                       </EuiFlexItem>
                     )}
