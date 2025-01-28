@@ -579,9 +579,9 @@ export enum TRANSFORM_CONTEXT {
   OUTPUT = 'output',
 }
 export enum TRANSFORM_TYPE {
-  STRING = 'String',
-  FIELD = 'Field',
-  EXPRESSION = 'JSONPath Expression',
+  STRING = 'Custom string',
+  FIELD = 'Data field',
+  EXPRESSION = 'JSONPath expression',
   TEMPLATE = 'Prompt',
 }
 

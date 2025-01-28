@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import {
+  EuiCodeBlock,
   EuiFlexGroup,
   EuiFlexItem,
   EuiFlyout,
@@ -108,7 +109,7 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                           available in your OpenSearch cluster.
                         </p>
                         <p style={{ marginTop: '-16px' }}>
-                          <EuiLink href={ML_REMOTE_MODEL_LINK}>
+                          <EuiLink href={ML_REMOTE_MODEL_LINK} target="_blank">
                             Learn more about setting up models
                           </EuiLink>
                         </p>
@@ -211,13 +212,23 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                         <p>
                           You can ingest additional data into your index using
                           the Bulk API.{' '}
-                        </p>
-                        <p style={{ marginTop: '-16px' }}>
-                          <EuiLink href={BULK_API_DOCS_LINK}>
+                          <EuiLink href={BULK_API_DOCS_LINK} target="_blank">
                             Learn more
                           </EuiLink>
                         </p>
                       </EuiText>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiCodeBlock fontSize="m" isCopyable={true}>
+                        {`POST _bulk
+{ "delete": { "_index": "movies", "_id": "tt2229499" } }
+{ "index": { "_index": "movies", "_id": "tt1979320" } }
+{ "title": "Rush", "year": 2013 }
+{ "create": { "_index": "movies", "_id": "tt1392214" } }
+{ "title": "Prisoners", "year": 2013 }
+{ "update": { "_index": "movies", "_id": "tt0816711" } }
+{ "doc" : { "title": "World War Z" } }`}
+                      </EuiCodeBlock>
                     </EuiFlexItem>
                   </>
                 )}
@@ -264,14 +275,29 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                       <EuiText size="s">
                         <p>
                           You can invoke the search pipeline API in your
-                          applications.
-                        </p>
-                        <p style={{ marginTop: '-16px' }}>
-                          <EuiLink href={SEARCH_PIPELINE_DOCS_LINK}>
+                          applications.{' '}
+                          <EuiLink
+                            href={SEARCH_PIPELINE_DOCS_LINK}
+                            target="_blank"
+                          >
                             Learn more
                           </EuiLink>
                         </p>
                       </EuiText>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiCodeBlock fontSize="m" isCopyable={true}>
+                        {`GET /my_index/_search?search_pipeline=my_pipeline
+{
+  "query": {
+    "term": {
+      "item_text": {
+        "value": "{{query_text}}"
+      }
+    }
+  }
+}`}
+                      </EuiCodeBlock>
                     </EuiFlexItem>
                   </>
                 )}
@@ -315,7 +341,7 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                           cluster.
                         </p>
                         <p style={{ marginTop: '-16px' }}>
-                          <EuiLink href={CREATE_WORKFLOW_LINK}>
+                          <EuiLink href={CREATE_WORKFLOW_LINK} target="_blank">
                             Learn more
                           </EuiLink>
                         </p>

@@ -173,7 +173,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s">{`Name`}</EuiText>
+                              <EuiText size="s">{`Model output`}</EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
