@@ -45,7 +45,7 @@ interface WorkspaceProps {
   uiConfig?: WorkflowConfig;
 }
 
-const PANEL_TITLE = 'Preview pipeline';
+const PANEL_TITLE = 'Preview flows';
 
 const nodeTypes = {
   custom: WorkspaceComponent,

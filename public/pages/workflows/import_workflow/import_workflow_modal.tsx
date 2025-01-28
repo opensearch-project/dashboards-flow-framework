@@ -146,7 +146,7 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
             <>
               <EuiFlexItem>
                 <EuiCallOut
-                  title="The uploaded file may not be compatible with OpenSearch Flow. You may not be able to edit or run this file with OpenSearch Flow."
+                  title="This project is not compatible with OpenSearch Flow. You may not be able to edit or run it."
                   iconType={'help'}
                   color="warning"
                 />

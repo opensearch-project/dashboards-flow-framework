@@ -163,8 +163,7 @@ export function SourceData(props: SourceDataProps) {
             body={
               <>
                 <EuiText size="s">
-                  Import a sample of your data to begin configuring your
-                  ingestion flow.
+                  Import a data sample to start configuring your ingest flow.
                 </EuiText>
               </>
             }
