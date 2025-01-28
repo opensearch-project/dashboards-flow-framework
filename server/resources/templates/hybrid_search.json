@@ -1,6 +1,6 @@
 {
   "name": "Hybrid Search",
-  "description": "A basic workflow containing the ingest pipeline, search pipeline, and index configurations for performing hybrid search",
+  "description": "Build an application that searches using a combination of vector and lexical search.",
   "version": {
     "template": "1.0.0",
     "compatibility": [
@@ -9,6 +9,6 @@
     ]
   },
   "ui_metadata": {
-    "type": "Hybrid search"
+    "type": "Hybrid Search"
   }
 }

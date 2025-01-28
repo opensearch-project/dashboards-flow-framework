@@ -153,9 +153,8 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
             </EuiModalHeader>
             <EuiModalBody style={{ height: '40vh' }}>
               <EuiText color="subdued">
-                Rewrite the existing query definition by defining a query
-                template. You can also inject dynamic model inputs into the
-                query template.
+                Rewrite the existing query by defining a query template. You can
+                also inject dynamic model inputs into the query template.
               </EuiText>
               <EuiFlexGroup direction="column">
                 <EuiFlexItem>

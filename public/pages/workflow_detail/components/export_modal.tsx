@@ -106,7 +106,7 @@ export function ExportModal(props: ExportModalProps) {
           )}
           <EuiFlexItem grow={false}>
             <EuiText size="s">
-              {`To build out identical resources in other environments, create and provision a workflow using the below template.`}{' '}
+              {`To build identical resources in other environments, create and provision a workflow following the below template.`}{' '}
               <EuiLink href={CREATE_WORKFLOW_LINK} target="_blank">
                 Learn more
               </EuiLink>
@@ -114,8 +114,8 @@ export function ExportModal(props: ExportModalProps) {
             <EuiText
               size="s"
               color="subdued"
-            >{`Note: certain resource IDs in the template, such as model IDs, may be cluster-specific and not work out-of-the-box 
-            in other environments. Ensure these values are updated before attempting to provision in other environments.`}</EuiText>
+            >{`Note: Certain resource IDs in the template, such as model IDs, may be specific to a cluster and not function properly 
+            in other clusters. Make sure to update these values before provisioning the workflow in a new cluster.`}</EuiText>
           </EuiFlexItem>
           <EuiFlexItem>
             <EuiFlexGroup direction="row" justifyContent="spaceBetween">

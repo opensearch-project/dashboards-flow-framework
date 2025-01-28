@@ -30,7 +30,7 @@ import {
   IndexMappings,
   IngestDocsFormValues,
   isVectorSearchUseCase,
-  MAX_BYTES,
+  MAX_BYTES_FORMATTED,
   MAX_DOCS_TO_IMPORT,
   SearchHit,
   SOURCE_OPTIONS,
@@ -202,9 +202,9 @@ export function SourceDataModal(props: SourceDataProps) {
             <EuiModalBody>
               <>
                 <EuiText size="s" color="subdued">
-                  Import a sample of your data to help you start configuring
-                  your ingestion flow. You may ingest the full set of data with
-                  the bulk API after configuring the ingestion flow.
+                  To start configuring an ingest flow, import a sample of your
+                  data. You may ingest additional data using the Bulk API after
+                  configuring the ingest flow.
                 </EuiText>
                 <EuiSpacer size="s" />
                 <EuiButtonGroup
@@ -214,16 +214,16 @@ export function SourceDataModal(props: SourceDataProps) {
                   options={[
                     {
                       id: SOURCE_OPTIONS.MANUAL,
-                      label: 'Manual',
+                      label: 'Enter manually',
                     },
 
                     {
                       id: SOURCE_OPTIONS.UPLOAD,
-                      label: 'Upload file',
+                      label: 'Upload a file',
                     },
                     {
                       id: SOURCE_OPTIONS.EXISTING_INDEX,
-                      label: 'From existing index',
+                      label: 'Upload from an existing index',
                     },
                   ]}
                   onChange={(id) =>
@@ -257,7 +257,7 @@ export function SourceDataModal(props: SourceDataProps) {
                     <EuiText
                       size="xs"
                       color="subdued"
-                    >{`File size must not exceed ${MAX_BYTES} bytes.`}</EuiText>
+                    >{`The file size must be ${MAX_BYTES_FORMATTED} bytes or less.`}</EuiText>
                     <EuiSpacer size="s" />
                   </>
                 )}
@@ -289,7 +289,7 @@ export function SourceDataModal(props: SourceDataProps) {
                 <JsonField
                   label="Documents to be imported"
                   fieldPath={'docs'}
-                  helpText="Documents should be formatted as a valid JSON array."
+                  helpText="Documents must be in a JSON array format."
                   editorHeight="40vh"
                   readOnly={false}
                 />
