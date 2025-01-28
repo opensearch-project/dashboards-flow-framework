@@ -705,7 +705,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                               style={{ marginTop: '8px' }}
                             >
                               <EuiIconTip
-                                content={`Resources need to be updated. Provide some sample data and ingest.`}
+                                content={`To edit your search pipeline, finish building an ingest pipeline by providing some sample data.`}
                                 position="right"
                               />
                             </EuiFlexItem>

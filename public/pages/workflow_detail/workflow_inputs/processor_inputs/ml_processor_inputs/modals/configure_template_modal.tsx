@@ -448,8 +448,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         </EuiFlexItem>
                         <EuiFlexItem grow={false}>
                           <EuiIconTip
-                            content={`Define input variables with JSONPath to extract out source data. 
-                              Insert into the prompt by clicking the "Insert" button.`}
+                            content={`Define variables in the prompt. Populate the variables with data extracted from the input data using JSONPath expressions. Insert into the prompt by clicking the insert button.`}
                             position="right"
                           />
                         </EuiFlexItem>
