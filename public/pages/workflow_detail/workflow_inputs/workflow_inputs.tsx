@@ -545,12 +545,14 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               getCore().notifications.toasts.add({
                 iconType: 'check',
                 color: 'success',
-                title: 'Ingest flow has been updated',
+                title: 'Ingest flow updated',
                 // @ts-ignore
                 text: (
                   <EuiFlexGroup direction="column">
                     <EuiFlexItem grow={false}>
-                      <EuiText size="s">Validate your ingest flow</EuiText>
+                      <EuiText size="s">
+                        Validate your ingest flow using Test flow
+                      </EuiText>
                     </EuiFlexItem>
                     <EuiFlexItem>
                       <EuiFlexGroup direction="row" justifyContent="flexEnd">
@@ -631,16 +633,14 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             <EuiFlexGroup direction="row" justifyContent="spaceBetween">
               <EuiFlexItem grow={false}>
                 <EuiText size="s">
-                  <h2>
-                    {onIngest ? 'Define ingestion flow' : 'Define search flow'}
-                  </h2>
+                  <h2>{onIngest ? 'Ingest flow' : 'Search flow'}</h2>
                 </EuiText>
               </EuiFlexItem>
               {onIngestAndUnprovisioned && (
                 <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
                   <BooleanField
                     fieldPath="ingest.enabled"
-                    label="Enable ingestion"
+                    label="Enable ingest flow"
                     type="Switch"
                   />
                 </EuiFlexItem>
@@ -689,8 +689,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           color={ingestProvisioned ? 'primary' : 'subdued'}
                         >
                           {ingestProvisioned
-                            ? 'Active ingestion resources'
-                            : 'No active ingestion resources'}
+                            ? 'Active ingest resources'
+                            : 'No active ingest resources'}
                         </EuiHealth>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
@@ -729,7 +729,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                               iconSide="right"
                               iconType="arrowRight"
                             >
-                              {`Next: Search pipeline`}
+                              {`Next: Search flow`}
                             </EuiSmallButton>
                           </EuiFlexItem>
                         </EuiFlexGroup>
@@ -759,8 +759,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                               color={ingestProvisioned ? 'primary' : 'subdued'}
                             >
                               {ingestProvisioned
-                                ? 'Active ingestion resources'
-                                : 'No active ingestion resources'}
+                                ? 'Active ingest resources'
+                                : 'No active ingest resources'}
                             </EuiHealth>
                           </EuiFlexItem>
                         </EuiFlexGroup>
@@ -770,8 +770,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           color={searchProvisioned ? 'primary' : 'subdued'}
                         >
                           {searchProvisioned
-                            ? 'Active search pipeline'
-                            : 'No active search pipeline'}
+                            ? 'Active search resources'
+                            : 'No active search resources'}
                         </EuiHealth>
                       </EuiFlexItem>
                     </>
@@ -863,10 +863,38 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       isLoading={isUpdatingSearchPipeline}
                       onClick={async () => {
                         if (await validateAndUpdateSearchResources()) {
-                          getCore().notifications.toasts.addSuccess(
-                            'Search pipeline updated'
-                          );
-                          props.displaySearchPanel();
+                          getCore().notifications.toasts.add({
+                            iconType: 'check',
+                            color: 'success',
+                            title: 'Search flow updated',
+                            // @ts-ignore
+                            text: (
+                              <EuiFlexGroup direction="column">
+                                <EuiFlexItem grow={false}>
+                                  <EuiText size="s">
+                                    Validate your search flow using Test flow
+                                  </EuiText>
+                                </EuiFlexItem>
+                                <EuiFlexItem>
+                                  <EuiFlexGroup
+                                    direction="row"
+                                    justifyContent="flexEnd"
+                                  >
+                                    <EuiFlexItem grow={false}>
+                                      <EuiSmallButton
+                                        fill={false}
+                                        onClick={() =>
+                                          props.displaySearchPanel()
+                                        }
+                                      >
+                                        Test flow
+                                      </EuiSmallButton>
+                                    </EuiFlexItem>
+                                  </EuiFlexGroup>
+                                </EuiFlexItem>
+                              </EuiFlexGroup>
+                            ),
+                          });
                           setSearchProvisioned(true);
                         }
                       }}

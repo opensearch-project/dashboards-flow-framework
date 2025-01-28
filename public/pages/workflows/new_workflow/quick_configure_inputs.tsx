@@ -218,9 +218,9 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                 size="s"
                 title={
                   <EuiText size="s">
-                    You have no model currently set up yet,{' '}
-                    <EuiLink href={ML_REMOTE_MODEL_LINK}>Learn more</EuiLink> to
-                    understand how to integrate ML models.
+                    You have no models registered in your cluster.{' '}
+                    <EuiLink href={ML_REMOTE_MODEL_LINK}>Learn more</EuiLink>{' '}
+                    about integrating ML models.
                   </EuiText>
                 }
               />
@@ -294,11 +294,11 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                       size="s"
                       title={
                         <EuiText size="s">
-                          You have no model currently set up yet,{' '}
+                          You have no models registered in your cluster.{' '}
                           <EuiLink href={ML_REMOTE_MODEL_LINK}>
                             Learn more
                           </EuiLink>{' '}
-                          to understand how to integrate ML models.
+                          about integrating ML models.
                         </EuiText>
                       }
                     />

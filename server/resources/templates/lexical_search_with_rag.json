@@ -1,0 +1,14 @@
+{
+  "name": "Lexical Search with RAG",
+  "description": "Build a search application that uses RAG to retrieve keyword-matched documents using lexical search, pass them to large language models, and synthesize answers.",
+  "version": {
+    "template": "1.0.0",
+    "compatibility": [
+      "2.19.0",
+      "3.0.0"
+    ]
+  },
+  "ui_metadata": {
+    "type": "Lexical Search with RAG"
+  }
+}

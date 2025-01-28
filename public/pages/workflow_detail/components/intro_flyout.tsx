@@ -5,7 +5,6 @@
 
 import React, { useState } from 'react';
 import {
-  EuiCodeBlock,
   EuiFlexGroup,
   EuiFlexItem,
   EuiFlyout,
@@ -19,6 +18,7 @@ import {
 } from '@elastic/eui';
 import {
   BULK_API_DOCS_LINK,
+  CREATE_WORKFLOW_LINK,
   ML_REMOTE_MODEL_LINK,
   SEARCH_PIPELINE_DOCS_LINK,
 } from '../../../../common';
@@ -93,67 +93,70 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                   <>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="m">
-                        <h3>Follow the steps below to build your workflow</h3>
+                        <h3>Following the steps to build your workflow</h3>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="s">
-                        <h4>Set up models</h4>
-                      </EuiTitle>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiText size="s">
-                        If your use case involves integrating with ML models,
-                        ensure you have accessible remote models in your
-                        cluster.&nbsp;
-                        <EuiLink href={ML_REMOTE_MODEL_LINK}>
-                          Learn more
-                        </EuiLink>
-                      </EuiText>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiTitle size="s">
-                        <h4>Build ingest flow</h4>
+                        <h4>1. Set up models</h4>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">
                         <p>
-                          Define your ingest flow to enrich and ingest your data
-                          into OpenSearch. Start with importing a sample of your
-                          data and add processors to enrich your data.
+                          Connect to an externally hosted model and make it
+                          available in your OpenSearch cluster.
                         </p>
-                        <p>
-                          If you already have an existing index with data, you
-                          can skip defining an ingest flow.
+                        <p style={{ marginTop: '-16px' }}>
+                          <EuiLink href={ML_REMOTE_MODEL_LINK}>
+                            Learn more about setting up models
+                          </EuiLink>
                         </p>
                       </EuiText>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="s">
-                        <h4>Build search flow</h4>
+                        <h4>2. Build ingest flow</h4>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">
                         <p>
-                          Start with defining a query interface, then enrich
-                          your query with processors. You can also enhance the
-                          query results with additional processors.
+                          Define an ingest flow to enrich your data and ingest
+                          it into OpenSearch. Start by importing a data sample,
+                          then add processors to enrich your data.
+                        </p>
+                        <p style={{ marginTop: '-16px' }}>
+                          If you are using an existing index with data, you can
+                          skip this step.
                         </p>
                       </EuiText>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="s">
-                        <h4>Export and deploy</h4>
+                        <h4>3. Build a search flow</h4>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">
                         <p>
-                          Export your workflow as a last step. To build out
-                          identical resources in other environments, create and
-                          provision a workflow using the templates.
+                          Define a query interface, then enrich the query using
+                          processors. You can also enhance the query results
+                          using additional processors.
+                        </p>
+                      </EuiText>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiTitle size="s">
+                        <h4>4. Export and deploy the workflow</h4>
+                      </EuiTitle>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiText size="s">
+                        <p>
+                          Export your workflow template to replicate resources
+                          and provision the workflow in other OpenSearch
+                          clusters.
                         </p>
                       </EuiText>
                     </EuiFlexItem>
@@ -163,24 +166,24 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                   <>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="m">
-                        <h3>Using ingest flow</h3>
+                        <h3>Ingesting data</h3>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="s">
-                        <h4>Define ingest flow</h4>
+                        <h4>Define an ingest flow</h4>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">
                         <p>
-                          Define your ingest flow to enrich and ingest your data
-                          into OpenSearch. Start with importing a sample of your
-                          data and add processors to enrich your data.
+                          Define an ingest flow to enrich your data and ingest
+                          it into OpenSearch. Start by importing a sample, then
+                          add processors to enrich your data.
                         </p>
-                        <p>
-                          If you already have an existing index with data, you
-                          can skip defining an ingest flow.
+                        <p style={{ marginTop: '-16px' }}>
+                          If you are using an existing index with data, you can
+                          skip this step.
                         </p>
                       </EuiText>
                     </EuiFlexItem>
@@ -193,37 +196,28 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                       <EuiText size="s">
                         <p>
                           Once you have updated your flow, run a search on the
-                          index to validate your ingested data.
+                          index to validate your ingested data using the testing
+                          tool.
                         </p>
                       </EuiText>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="s">
-                        <h4>Ingest more data with the bulk API</h4>
+                        <h4>Ingest additional data using the Bulk API</h4>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">
                         <p>
-                          You can ingest larger amounts of data with your ingest
-                          pipeline using the bulk API.{' '}
+                          You can ingest additional data into your index using
+                          the Bulk API.{' '}
+                        </p>
+                        <p style={{ marginTop: '-16px' }}>
                           <EuiLink href={BULK_API_DOCS_LINK}>
                             Learn more
                           </EuiLink>
                         </p>
                       </EuiText>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiCodeBlock fontSize="m" isCopyable={true}>
-                        {`POST _bulk
-{ "delete": { "_index": "movies", "_id": "tt2229499" } }
-{ "index": { "_index": "movies", "_id": "tt1979320" } }
-{ "title": "Rush", "year": 2013 }
-{ "create": { "_index": "movies", "_id": "tt1392214" } }
-{ "title": "Prisoners", "year": 2013 }
-{ "update": { "_index": "movies", "_id": "tt0816711" } }
-{ "doc" : { "title": "World War Z" } }`}
-                      </EuiCodeBlock>
                     </EuiFlexItem>
                   </>
                 )}
@@ -231,62 +225,53 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                   <>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="m">
-                        <h3>Using search pipeline</h3>
+                        <h3>Searching data</h3>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="s">
-                        <h4>Define search pipeline</h4>
+                        <h4>Define search flow</h4>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">
                         <p>
-                          Start with defining a query interface, then enrich
-                          your query with processors. You can also enhance the
-                          query results with additional processors.
+                          Define a query interface, then enrich the query using
+                          processors. You can also enhance the query results
+                          using additional processors.
                         </p>
                       </EuiText>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="s">
-                        <h4>Validate pipeline</h4>
+                        <h4>Validate the flow</h4>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">
-                        <p>Test your pipeline by running a search.</p>
+                        <p>
+                          Test your search flow by running a search using the
+                          testing tool.
+                        </p>
                       </EuiText>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="s">
-                        <h4>Apply search pipeline to your applications</h4>
+                        <h4>Apply the search flow</h4>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">
                         <p>
                           You can invoke the search pipeline API in your
-                          applications.{' '}
+                          applications.
+                        </p>
+                        <p style={{ marginTop: '-16px' }}>
                           <EuiLink href={SEARCH_PIPELINE_DOCS_LINK}>
                             Learn more
                           </EuiLink>
                         </p>
                       </EuiText>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiCodeBlock fontSize="m" isCopyable={true}>
-                        {`GET /my_index/_search?search_pipeline=my_pipeline
-{
-  "query": {
-    "term": {
-      "item_text": {
-        "value": "{{query_text}}"
-      }
-    }
-  }
-}`}
-                      </EuiCodeBlock>
                     </EuiFlexItem>
                   </>
                 )}
@@ -294,7 +279,7 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                   <>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="m">
-                        <h3>Exporting and using workflow</h3>
+                        <h3>Exporting and using a workflow</h3>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
@@ -305,9 +290,9 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">
                         <p>
-                          Once you are finished building the flow, download the
-                          file using the export button on the top-right corner.
-                          You can choose between JSON and YAML.
+                          Once you are finished building the workflow, download
+                          the workflow template by selecting the Export button.
+                          You can choose JSON or YAML format.
                         </p>
                       </EuiText>
                     </EuiFlexItem>
@@ -319,15 +304,20 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                     <EuiFlexItem grow={false}>
                       <EuiText size="s">
                         <p>
-                          Create and provision a workflow using the downloaded
+                          Create and provision the workflow using the downloaded
                           file.
                         </p>
-                        <p>
+                        <p style={{ marginTop: '-16px' }}>
                           Certain resource IDs in the template, such as model
-                          IDs, may be cluster-specific and not work
-                          out-of-the-box in other environments. Ensure these
-                          values are updated before attempting to provision in
-                          other environments.
+                          IDs, may be specific to a cluster and not function
+                          correctly in other clusters. Make sure to update these
+                          values before provisioning the workflow in a new
+                          cluster.
+                        </p>
+                        <p style={{ marginTop: '-16px' }}>
+                          <EuiLink href={CREATE_WORKFLOW_LINK}>
+                            Learn more
+                          </EuiLink>
                         </p>
                       </EuiText>
                     </EuiFlexItem>

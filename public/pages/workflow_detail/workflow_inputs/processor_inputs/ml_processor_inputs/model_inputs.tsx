@@ -306,14 +306,14 @@ export function ModelInputs(props: ModelInputsProps) {
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s">{`Name`}</EuiText>
+                              <EuiText size="s">{`Expected model input`}</EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
                         <EuiFlexItem grow={TYPE_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s">{`Transform type`}</EuiText>
+                              <EuiText size="s">{`Transformation type`}</EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>

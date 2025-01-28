@@ -1,6 +1,6 @@
 {
-    "name": "Vector search with RAG",
-    "description": "A basic workflow containing the index and search pipeline configurations for performing vector search with retrieval-augmented generation (RAG)",
+    "name": "Vector Search with RAG",
+    "description": "Build a search application that uses RAG to retrieve semantically similar documents using vector search, pass them to large language models, and synthesize answers.",
     "version": {
         "template": "1.0.0",
         "compatibility": [
@@ -9,6 +9,6 @@
         ]
     },
     "ui_metadata": {
-        "type": "Vector search with retrieval-augmented generation"
+        "type": "Vector Search with RAG"
     }
 }

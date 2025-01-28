@@ -67,7 +67,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
           </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiCompressedFormRow label="Retrieval index">
+          <EuiCompressedFormRow label="Index name">
             {ingestEnabled ? (
               <EuiCompressedFieldText
                 value={values?.ingest?.index?.name}

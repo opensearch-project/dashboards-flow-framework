@@ -216,9 +216,8 @@ export function Workflows(props: WorkflowsProps) {
     }, [getSavedObjectsClient, getNotifications(), props.setActionMenu]);
   }
 
-  const DESCRIPTION = `Design, experiment, and prototype your solutions with ${PLUGIN_NAME}. Build your search and last mile 
-  ingestion flows with a visual interface. Experiment with different configurations with prototyping tools and launch them 
-  into your environment.`;
+  const DESCRIPTION = `Design, prototype, and experiment with solutions using ${PLUGIN_NAME}. Use the visual interface to build
+  ingest and search flows, test different configurations, and deploy them to your environment.`;
 
   const pageTitleAndDescription = USE_NEW_HOME_PAGE ? (
     <HeaderControl
@@ -289,7 +288,7 @@ export function Workflows(props: WorkflowsProps) {
                   <h2>
                     {selectedTabId === WORKFLOWS_TAB.MANAGE
                       ? 'Workflows'
-                      : 'Create from a template'}
+                      : 'Create a workflow using a template'}
                   </h2>
                 </EuiText>
               }

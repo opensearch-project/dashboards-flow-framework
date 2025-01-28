@@ -1,6 +1,6 @@
 {
   "name": "Semantic Search",
-  "description": "A basic workflow containing the ingest pipeline, search pipeline, and index configurations for performing semantic search",
+  "description": "Build an application that interprets the meaning and context of user queries to deliver more relevant and accurate search results.",
   "version": {
     "template": "1.0.0",
     "compatibility": [
@@ -9,6 +9,6 @@
     ]
   },
   "ui_metadata": {
-    "type": "Semantic search"
+    "type": "Semantic Search"
   }
 }

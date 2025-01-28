@@ -17,7 +17,7 @@ export class BaseIndex extends BaseComponent {
     this.label = 'Index';
     this.description =
       category === COMPONENT_CATEGORY.INGEST
-        ? 'Ingest index'
+        ? 'Index for ingesting data'
         : 'Retrieval index';
     this.inputs = [
       {

@@ -38,7 +38,7 @@ interface ToolsProps {
   selectedStep: CONFIG_STEP;
 }
 
-const PANEL_TITLE = 'Inspect pipeline';
+const PANEL_TITLE = 'Inspect flows';
 
 /**
  * The base Tools component for performing ingest and search, viewing resources, and debugging.

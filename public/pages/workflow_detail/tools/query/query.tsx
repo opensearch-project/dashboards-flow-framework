@@ -43,7 +43,7 @@ interface QueryProps {
 
 const SEARCH_OPTIONS = [
   {
-    label: 'FULL search pipeline',
+    label: 'Apply search pipeline',
   },
   {
     label: 'No search pipeline',
@@ -292,7 +292,9 @@ export function Query(props: QueryProps) {
                     titleSize="s"
                     body={
                       <>
-                        <EuiText size="s">Run search to view results.</EuiText>
+                        <EuiText size="s">
+                          Run a search to view results.
+                        </EuiText>
                       </>
                     }
                   />

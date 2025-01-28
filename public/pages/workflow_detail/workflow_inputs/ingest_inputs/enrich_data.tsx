@@ -25,7 +25,7 @@ export function EnrichData(props: EnrichDataProps) {
   return (
     <EuiFlexGroup direction="column">
       <ProcessorsTitle
-        title="Enrich data"
+        title="Transform data"
         processorCount={props.uiConfig.ingest.enrich.processors?.length || 0}
         optional={true}
       />

@@ -1,6 +1,6 @@
 {
   "name": "Custom",
-  "description": "A blank workflow with no preset configurations",
+  "description": "Build a custom workflow tailored to your specific use case without using a template.",
   "use_case": "CUSTOM",
   "version": {
     "template": "1.0.0",

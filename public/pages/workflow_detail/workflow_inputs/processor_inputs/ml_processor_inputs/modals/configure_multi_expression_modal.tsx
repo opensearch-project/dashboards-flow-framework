@@ -275,9 +275,19 @@ export function ConfigureMultiExpressionModal(
             className="configuration-modal"
           >
             <EuiModalHeader>
-              <EuiModalHeaderTitle>
-                <p>{`Extract data with expression`}</p>
-              </EuiModalHeaderTitle>
+              <EuiFlexGroup direction="column">
+                <EuiFlexItem grow={false}>
+                  <EuiModalHeaderTitle>
+                    <p>{`Configure JSONPath expression`}</p>
+                  </EuiModalHeaderTitle>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiText color="subdued">
+                    Use a JSONPath expression to extract specific data from a
+                    JSON structure and map it to the model input field.
+                  </EuiText>
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiModalHeader>
             <EuiModalBody style={{ height: '40vh' }}>
               <EuiFlexGroup direction="row">
@@ -304,7 +314,7 @@ export function ConfigureMultiExpressionModal(
                                     style={{ marginTop: '-4px' }}
                                     onClick={() => setPopoverOpen(!popoverOpen)}
                                   >
-                                    Learn more
+                                    Using JSONPath
                                   </EuiSmallButtonEmpty>
                                 }
                               >
@@ -574,7 +584,7 @@ export function ConfigureMultiExpressionModal(
                         </EuiFlexItem>
                       )}
                     <EuiFlexItem grow={false}>
-                      <EuiText size="s">Sample of model output</EuiText>
+                      <EuiText size="s">Output data source</EuiText>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
                       <EuiCodeEditor

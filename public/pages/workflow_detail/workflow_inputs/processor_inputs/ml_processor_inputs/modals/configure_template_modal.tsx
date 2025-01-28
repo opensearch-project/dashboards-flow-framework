@@ -327,9 +327,20 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
             className="configuration-modal"
           >
             <EuiModalHeader>
-              <EuiModalHeaderTitle>
-                <p>{`Configure prompt`}</p>
-              </EuiModalHeaderTitle>
+              <EuiFlexGroup direction="column">
+                <EuiFlexItem grow={false}>
+                  <EuiModalHeaderTitle>
+                    <p>{`Configure prompt`}</p>
+                  </EuiModalHeaderTitle>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiText color="subdued">
+                    Configure a prompt to provide instructions to the model. You
+                    can define variables in the prompt and populate them with
+                    data extracted from the input source.
+                  </EuiText>
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiModalHeader>
             <EuiModalBody style={{ height: '40vh' }}>
               <EuiFlexGroup direction="row">
@@ -478,7 +489,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                       )
                                     }
                                   >
-                                    Learn more
+                                    Using JSONPath
                                   </EuiSmallButtonEmpty>
                                 }
                               >
@@ -797,7 +808,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                         justifyContent="flexStart"
                       >
                         <EuiFlexItem grow={false}>
-                          <EuiText size="s">Sample of source data</EuiText>
+                          <EuiText size="s">Input data source</EuiText>
                         </EuiFlexItem>
                         <ProcessingBadge
                           context={props.context}

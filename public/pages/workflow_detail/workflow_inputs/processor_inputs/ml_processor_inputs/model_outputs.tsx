@@ -180,7 +180,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                         <EuiFlexItem grow={TYPE_FLEX_RATIO}>
                           <EuiFlexGroup direction="row" gutterSize="xs">
                             <EuiFlexItem grow={false}>
-                              <EuiText size="s">{`Transform type`}</EuiText>
+                              <EuiText size="s">{`Transformation type`}</EuiText>
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
@@ -259,24 +259,6 @@ export function ModelOutputs(props: ModelOutputsProps) {
                               </EuiFlexItem>
                               <EuiFlexItem grow={TYPE_FLEX_RATIO}>
                                 <EuiFlexItem>
-                                  {/* <SelectWithCustomOptions
-                                    fieldPath={`${outputMapFieldPath}.${idx}.value.transformType`}
-                                    options={TRANSFORM_OPTIONS}
-                                    placeholder={`Transform type`}
-                                    allowCreate={false}
-                                    onChange={() => {
-                                      // If the transform type changes, clear any set value and/or nested vars,
-                                      // as it will likely not make sense under other types/contexts.
-                                      setFieldValue(
-                                        `${outputMapFieldPath}.${idx}.value.value`,
-                                        ''
-                                      );
-                                      setFieldValue(
-                                        `${outputMapFieldPath}.${idx}.value.nestedVars`,
-                                        []
-                                      );
-                                    }}
-                                  /> */}
                                   <EuiCompressedSuperSelect
                                     disabled={false}
                                     options={OUTPUT_TRANSFORM_OPTIONS.map(

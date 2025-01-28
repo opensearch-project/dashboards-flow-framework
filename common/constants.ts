@@ -162,11 +162,11 @@ export const UI_METADATA_SCHEMA_VERSION = 1;
 
 // frontend-specific workflow types, derived from the available preset templates
 export enum WORKFLOW_TYPE {
-  SEMANTIC_SEARCH = 'Semantic search',
-  MULTIMODAL_SEARCH = 'Multimodal search',
-  HYBRID_SEARCH = 'Hybrid search',
-  RAG = 'Retrieval-augmented generation',
-  VECTOR_SEARCH_WITH_RAG = 'Vector search with retrieval-augmented generation',
+  SEMANTIC_SEARCH = 'Semantic Search',
+  MULTIMODAL_SEARCH = 'Multimodal Search',
+  HYBRID_SEARCH = 'Hybrid Search',
+  RAG = 'Lexical Search with RAG',
+  VECTOR_SEARCH_WITH_RAG = 'Vector Search with RAG',
   CUSTOM = 'Custom',
   UNKNOWN = 'Unknown',
 }
@@ -588,34 +588,37 @@ export enum TRANSFORM_TYPE {
 export const INPUT_TRANSFORM_OPTIONS = [
   {
     id: TRANSFORM_TYPE.FIELD,
-    description: 'Map an existing field from your data.',
+    description:
+      'Use an existing field from your data as the model input field.',
   },
   {
     id: TRANSFORM_TYPE.EXPRESSION,
-    description: 'Extract data before mapping to the input field.',
+    description:
+      'Extract data from a JSON structure and map the extracted data to the model input field.',
   },
   {
     id: TRANSFORM_TYPE.TEMPLATE,
-    description: 'Configure a prompt and map to the input field.',
+    description: 'Configure a prompt to map data to the model input field.',
   },
   {
     id: TRANSFORM_TYPE.STRING,
-    description: 'Declare a string to the input field.',
+    description: 'Use a custom string in the model input field.',
   },
 ];
 
 export const OUTPUT_TRANSFORM_OPTIONS = [
   {
+    id: NO_TRANSFORMATION,
+    description: '',
+  },
+  {
     id: TRANSFORM_TYPE.FIELD,
-    description: 'Map an existing field from your data.',
+    description: 'Copy the model output into a new document field.',
   },
   {
     id: TRANSFORM_TYPE.EXPRESSION,
-    description: 'Extract data before mapping to the input field.',
-  },
-  {
-    id: NO_TRANSFORMATION,
-    description: 'Leave the output field as-is.',
+    description:
+      'Extract data from a JSON structure and map the extracted data to a new document field.',
   },
 ];
 
@@ -647,6 +650,7 @@ export const MAX_DESCRIPTION_LENGTH = 1000;
 export const MAX_JSON_STRING_LENGTH = 10000;
 export const MAX_TEMPLATE_STRING_LENGTH = 10000;
 export const MAX_BYTES = 1048576; // OSD REST request payload size limit
+export const MAX_BYTES_FORMATTED = '1,048,576';
 export const MAX_WORKFLOW_NAME_TO_DISPLAY = 40;
 export const WORKFLOW_NAME_REGEXP = RegExp('^[a-zA-Z0-9_-]*$');
 export const INDEX_NAME_REGEXP = WORKFLOW_NAME_REGEXP;
@@ -670,7 +674,7 @@ export const MODEL_OUTPUT_SCHEMA_NESTED_PATH =
   'output.properties.inference_results.items.properties.output.items.properties.dataAsMap.properties';
 export const MODEL_OUTPUT_SCHEMA_FULL_PATH = 'output.properties';
 export enum CONFIG_STEP {
-  INGEST = 'Ingestion pipeline',
+  INGEST = 'Ingest pipeline',
   SEARCH = 'Search pipeline',
 }
 export enum SOURCE_OPTIONS {
