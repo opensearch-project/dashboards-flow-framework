@@ -283,6 +283,14 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
                 <EuiCompressedFormRow
                   fullWidth={true}
                   label={'Large language model'}
+                  labelAppend={
+                    // TODO: update to be a popover with more content.
+                    <EuiText size="xs">
+                      <EuiLink href={ML_CHOOSE_MODEL_LINK} target="_blank">
+                        Learn more
+                      </EuiLink>
+                    </EuiText>
+                  }
                   isInvalid={false}
                   helpText={
                     isEmpty(deployedModels)
