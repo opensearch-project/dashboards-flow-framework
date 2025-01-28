@@ -216,7 +216,7 @@ export function EditWorkflowMetadataModal(
                     fullWidth={true}
                     fieldPath={`description`}
                     showError={true}
-                    placeholder="Provide a description for identifying this workflow."
+                    placeholder="Provide a description for this workflow."
                     textArea={true}
                   />
                 </EuiFlexItem>

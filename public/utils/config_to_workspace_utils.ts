@@ -324,7 +324,7 @@ function processorsConfigToWorkspaceFlow(
           iconType: 'compute',
           description:
             context === PROCESSOR_CONTEXT.INGEST
-              ? 'Ingestion processor'
+              ? 'Ingest processor'
               : context === PROCESSOR_CONTEXT.SEARCH_REQUEST
               ? 'Search request processor'
               : 'Search response processor',

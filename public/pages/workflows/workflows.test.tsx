@@ -77,7 +77,9 @@ describe('Workflows', () => {
     expect(createWorkflowButton).toBeInTheDocument();
     userEvent.click(createWorkflowButton);
     await waitFor(() => {
-      expect(getAllByText('Create from a template').length).toBeGreaterThan(0);
+      expect(
+        getAllByText('Create a workflow using a template').length
+      ).toBeGreaterThan(0);
     });
   });
 });

@@ -192,9 +192,9 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           size="s"
           title={
             <EuiText size="s">
-              You have no model currently set up yet,{' '}
-              <EuiLink href={ML_REMOTE_MODEL_LINK}>Learn more</EuiLink> to
-              understand how to integrate ML models.
+              You have no models registered in your cluster.{' '}
+              <EuiLink href={ML_REMOTE_MODEL_LINK}>Learn more</EuiLink> about
+              integrating ML models.
             </EuiText>
           }
         />
@@ -217,11 +217,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 </EuiFlexItem>
                 <EuiFlexItem grow={false}>
                   <EuiIconTip
-                    content={`Specify how to transform your input ${
-                      props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                        ? 'query'
-                        : 'documents'
-                    } and map to your model input fields`}
+                    content={`Specify how to transform your input data into the input fields expected by the model.`}
                     position="right"
                   />
                 </EuiFlexItem>

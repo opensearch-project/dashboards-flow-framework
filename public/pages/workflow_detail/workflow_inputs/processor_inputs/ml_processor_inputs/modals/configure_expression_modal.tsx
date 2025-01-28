@@ -81,8 +81,8 @@ interface ConfigureExpressionModalProps {
 }
 
 // Spacing between the input field columns
-const KEY_FLEX_RATIO = 7;
-const VALUE_FLEX_RATIO = 4;
+const KEY_FLEX_RATIO = 4;
+const VALUE_FLEX_RATIO = 7;
 
 // the max number of input docs we use to display & test transforms with (search response hits)
 const MAX_INPUT_DOCS = 10;
@@ -303,9 +303,19 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
             id={props.fieldPath}
           >
             <EuiModalHeader>
-              <EuiModalHeaderTitle>
-                <p>{`Extract data with expression`}</p>
-              </EuiModalHeaderTitle>
+              <EuiFlexGroup direction="column">
+                <EuiFlexItem grow={false}>
+                  <EuiModalHeaderTitle>
+                    <p>{`Configure JSONPath expression`}</p>
+                  </EuiModalHeaderTitle>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiText color="subdued">
+                    Use a JSONPath expression to extract specific data from a
+                    JSON structure and map it to the model input field.
+                  </EuiText>
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiModalHeader>
             <EuiModalBody style={{ height: '40vh' }}>
               <EuiFlexGroup direction="row">
@@ -314,6 +324,9 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                     <EuiFlexItem grow={false}>
                       <EuiFlexGroup direction="row" gutterSize="m">
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
+                          <EuiText size="s">{`Expected model input`}</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiFlexGroup
                             direction="row"
                             justifyContent="spaceBetween"
@@ -332,7 +345,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                                     style={{ marginTop: '-4px' }}
                                     onClick={() => setPopoverOpen(!popoverOpen)}
                                   >
-                                    Learn more
+                                    Using JSONPath
                                   </EuiSmallButtonEmpty>
                                 }
                               >
@@ -348,13 +361,13 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                             </EuiFlexItem>
                           </EuiFlexGroup>
                         </EuiFlexItem>
-                        <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                          <EuiText size="s">{`Model input name`}</EuiText>
-                        </EuiFlexItem>
                       </EuiFlexGroup>
                       <EuiSpacer size="s" />
                       <EuiFlexGroup direction="row" gutterSize="m">
                         <EuiFlexItem grow={KEY_FLEX_RATIO}>
+                          <EuiText>{props.modelInputFieldName || '-'}</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={VALUE_FLEX_RATIO}>
                           <EuiFlexGroup direction="column" gutterSize="xs">
                             <EuiFlexItem grow={false}>
                               <TextField
@@ -373,9 +386,6 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                               </EuiFlexItem>
                             )}
                           </EuiFlexGroup>
-                        </EuiFlexItem>
-                        <EuiFlexItem grow={VALUE_FLEX_RATIO}>
-                          <EuiText>{props.modelInputFieldName || '-'}</EuiText>
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiFlexItem>
@@ -566,7 +576,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                         justifyContent="flexStart"
                       >
                         <EuiFlexItem grow={false}>
-                          <EuiText size="s">Sample of source data</EuiText>
+                          <EuiText size="s">Input data source</EuiText>
                         </EuiFlexItem>
                         <ProcessingBadge
                           context={props.context}

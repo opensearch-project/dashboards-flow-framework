@@ -43,10 +43,10 @@ interface QueryProps {
 
 const SEARCH_OPTIONS = [
   {
-    label: 'FULL search pipeline',
+    label: 'With search pipeline',
   },
   {
-    label: 'No search pipeline',
+    label: 'Without search pipeline',
   },
 ];
 
@@ -235,7 +235,7 @@ export function Query(props: QueryProps) {
                             setTempRequest(values?.search?.request);
                           }}
                         >
-                          Revert to query definition
+                          Revert to original query
                         </EuiSmallButtonEmpty>
                       </EuiFlexItem>
                     )}
@@ -292,7 +292,9 @@ export function Query(props: QueryProps) {
                     titleSize="s"
                     body={
                       <>
-                        <EuiText size="s">Run search to view results.</EuiText>
+                        <EuiText size="s">
+                          Run a search to view results.
+                        </EuiText>
                       </>
                     }
                   />

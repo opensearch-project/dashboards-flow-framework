@@ -75,11 +75,11 @@ Click "Save" to return to the form.
 
 ### Aside: advanced data transformations
 
-Continuing with the above example, let's suppose the input data (the document) is more complex, and a simple field-level mapping is not sufficient. Maybe you need to parse out some nested field's value. This can be done by changing the transform type to `Expression`
+Continuing with the above example, let's suppose the input data (the document) is more complex, and a simple field-level mapping is not sufficient. Maybe you need to parse out some nested field's value. This can be done by changing the transformation type to `Expression`
 
 ![expression-ingest](./images/expression-ingest.png)
 
-From there, click "Configure" to open the "Extract data with expression" modal. On the right-hand side, you can click "Run preview" to fetch the input data to this processor.
+From there, click "Configure" to open the "Configure JSONPath expression" modal. On the right-hand side, you can click "Run preview" to fetch the input data to this processor.
 
 ![expression-modal-ingest](./images/expression-modal-ingest.png)
 
@@ -282,7 +282,7 @@ Nothing special needs to be configured.
 
 ### Search pipeline
 
-Single ML inference **search response** processor. Choose `Template` as the transform type for the `prompt` input field. Open up the template configuration by clicking "Configure". Select a preset to start with for your convenience. Then, create an input variable that parses out the list of reviews, something like `review`. Inject the variable into the prompt by copying and pasting it. Click "Run preview" to test that the final transformed prompt with sample dynamic data looks as expected. Click "Save" to save and exit.
+Single ML inference **search response** processor. Choose `Template` as the transformation type for the `prompt` input field. Open up the template configuration by clicking "Configure". Select a preset to start with for your convenience. Then, create an input variable that parses out the list of reviews, something like `review`. Inject the variable into the prompt by copying and pasting it. Click "Run preview" to test that the final transformed prompt with sample dynamic data looks as expected. Click "Save" to save and exit.
 
 ---
 

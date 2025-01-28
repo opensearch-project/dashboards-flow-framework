@@ -86,8 +86,8 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       } = renderWithRouter(workflowId, workflowName, type);
 
       expect(getAllByText(workflowName).length).toBeGreaterThan(0);
-      expect(getAllByText('Inspect pipeline').length).toBeGreaterThan(0);
-      expect(getAllByText('Preview pipeline').length).toBeGreaterThan(0);
+      expect(getAllByText('Inspect flows').length).toBeGreaterThan(0);
+      expect(getAllByText('Preview flows').length).toBeGreaterThan(0);
       expect(
         getAllByText((content) => content.startsWith('Last saved:')).length
       ).toBeGreaterThan(0);
@@ -185,16 +185,16 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
     userEvent.click(searchPipelineButton);
     // Search pipeline
     await waitFor(() => {
-      expect(getAllByText('Define search flow').length).toBeGreaterThan(0);
+      expect(getAllByText('Search flow').length).toBeGreaterThan(0);
     });
-    expect(getAllByText('Configure query').length).toBeGreaterThan(0);
+    expect(getAllByText('Configure query interface').length).toBeGreaterThan(0);
     // Edit Search Query
     const queryEditButton = getByTestId('queryEditButton');
     expect(queryEditButton).toBeInTheDocument();
     userEvent.click(queryEditButton);
 
     await waitFor(() => {
-      expect(getAllByText('Edit query definition').length).toBeGreaterThan(0);
+      expect(getAllByText('Define query').length).toBeGreaterThan(0);
     });
 
     const searchQueryPresetButton = getByTestId('searchQueryPresetButton');

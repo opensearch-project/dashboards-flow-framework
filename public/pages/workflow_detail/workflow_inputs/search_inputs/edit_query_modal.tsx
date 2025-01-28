@@ -162,7 +162,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
-                <p>{`Edit query definition`}</p>
+                <p>{`Define query`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
             <EuiModalBody data-testid="editQueryModalBody">
@@ -317,7 +317,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
                               body={
                                 <>
                                   <EuiText size="s">
-                                    Run search to view results.
+                                    Run a search to view results.
                                   </EuiText>
                                 </>
                               }

@@ -1,6 +1,6 @@
 {
   "name": "Multimodal Search",
-  "description": "A basic workflow containing the ingest pipeline, search pipeline, and index configurations for performing multimodal search",
+  "description": "Build an application that searches both text and image data using multimodal embedding models.",
   "version": {
     "template": "1.0.0",
     "compatibility": [
@@ -9,6 +9,6 @@
     ]
   },
   "ui_metadata": {
-    "type": "Multimodal search"
+    "type": "Multimodal Search"
   }
 }
