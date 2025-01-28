@@ -258,10 +258,10 @@ export function ModelInputs(props: ModelInputsProps) {
                 <>
                   <BooleanField
                     fieldPath={oneToOnePath}
-                    label="Merge input data"
+                    label="Merge source data"
                     type="Switch"
                     inverse={true}
-                    helpText="Combine source data into a single document for model inference. To process only one document of the source data, turn off merge input data."
+                    helpText="Merge multiple documents into a single document for model processing. To process only one document, turn off merge source data."
                   />
                   <EuiSpacer size="s" />
                   {oneToOneChanged && (

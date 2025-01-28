@@ -43,10 +43,10 @@ interface QueryProps {
 
 const SEARCH_OPTIONS = [
   {
-    label: 'Apply search pipeline',
+    label: 'With search pipeline',
   },
   {
-    label: 'No search pipeline',
+    label: 'Without search pipeline',
   },
 ];
 

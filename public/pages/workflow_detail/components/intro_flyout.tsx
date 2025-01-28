@@ -94,7 +94,7 @@ export function IntroFlyout(props: IntroFlyoutProps) {
                   <>
                     <EuiFlexItem grow={false}>
                       <EuiTitle size="m">
-                        <h3>Following the steps to build your workflow</h3>
+                        <h3>Use the following steps to build your workflow</h3>
                       </EuiTitle>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>

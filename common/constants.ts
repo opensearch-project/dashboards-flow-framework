@@ -167,7 +167,7 @@ export enum WORKFLOW_TYPE {
   HYBRID_SEARCH = 'Hybrid Search',
   RAG = 'Lexical Search with RAG',
   VECTOR_SEARCH_WITH_RAG = 'Vector Search with RAG',
-  CUSTOM = 'Custom',
+  CUSTOM = 'Custom Search',
   UNKNOWN = 'Unknown',
 }
 // If no datasource version is found, we default to 2.17.0
