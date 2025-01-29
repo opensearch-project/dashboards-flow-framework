@@ -626,7 +626,7 @@ export function getEmbeddingModelDimensions(
   // so we check for that first.
   if (connector?.parameters?.dimensions !== undefined) {
     return connector.parameters?.dimensions;
-  } else if (connector.parameters?.model !== undefined) {
+  } else if (connector?.parameters?.model !== undefined) {
     return (
       // @ts-ignore
       COHERE_CONFIGS[connector.parameters?.model]?.dimension ||

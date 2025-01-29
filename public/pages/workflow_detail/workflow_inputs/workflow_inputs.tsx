@@ -400,8 +400,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               )
                 .unwrap()
                 .then(async (result) => {
-                  await sleep(1000);
-
                   await dispatch(
                     getWorkflow({
                       workflowId: updatedWorkflow.id as string,
