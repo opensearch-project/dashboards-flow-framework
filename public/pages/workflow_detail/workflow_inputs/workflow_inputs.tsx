@@ -23,6 +23,7 @@ import {
 import {
   CONFIG_STEP,
   CachedFormikState,
+  MINIMUM_FULL_SUPPORTED_VERSION,
   TemplateNode,
   WORKFLOW_STEP_TYPE,
   Workflow,
@@ -55,7 +56,9 @@ import {
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
-
+import { getEffectiveVersion } from '../../../pages/workflows/new_workflow/new_workflow';
+import { getDataSourceEnabled } from '../../../services';
+import semver from 'semver';
 interface WorkflowInputsProps {
   workflow: Workflow | undefined;
   uiConfig: WorkflowConfig | undefined;
@@ -90,12 +93,17 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     dirty,
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
-  const dataSourceId = getDataSourceId();
 
   // transient running states
   const [isUpdatingSearchPipeline, setIsUpdatingSearchPipeline] = useState<
     boolean
   >(false);
+
+  const [showProcessorSection, setShowProcessorSection] = useState<boolean>(
+    true
+  );
+  const dataSourceId = getDataSourceId();
+  const dataSourceEnabled = getDataSourceEnabled().enabled;
 
   // provisioned resources states
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
@@ -244,6 +252,33 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   useEffect(() => {
     setSearchProvisioned(hasProvisionedSearchResources(props.workflow));
   }, [props.workflow]);
+
+  useEffect(() => {
+    const checkVersionForProcessors = async () => {
+      if (!dataSourceEnabled) {
+        setShowProcessorSection(true);
+        return;
+      }
+
+      try {
+        const version = await getEffectiveVersion(dataSourceId);
+
+        // Only hide processor section if:
+        // 1. We're on the search step (SEARCH_REQUEST context)
+        // 2. Version is less than 2.19.0
+        const shouldHideProcessors =
+          props.selectedStep === CONFIG_STEP.SEARCH &&
+          semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
+
+        setShowProcessorSection(!shouldHideProcessors);
+      } catch (error) {
+        console.error('Error checking version:', error);
+        setShowProcessorSection(true);
+      }
+    };
+
+    checkVersionForProcessors();
+  }, [dataSourceId, props.selectedStep, dataSourceEnabled]);
 
   // populated ingest docs state
   const [docsPopulated, setDocsPopulated] = useState<boolean>(false);
@@ -672,6 +707,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
                 setCachedFormikState={props.setCachedFormikState}
+                showProcessorSection={showProcessorSection}
               />
             )}
           </EuiFlexItem>

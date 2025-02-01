@@ -17,6 +17,7 @@ interface EnrichSearchRequestProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
+  showProcessorSection?: boolean;
 }
 
 /**
@@ -32,14 +33,16 @@ export function EnrichSearchRequest(props: EnrichSearchRequestProps) {
         }
         optional={false}
       />
-      <EuiFlexItem>
-        <ProcessorsList
-          uiConfig={props.uiConfig}
-          setUiConfig={props.setUiConfig}
-          context={PROCESSOR_CONTEXT.SEARCH_REQUEST}
-          setCachedFormikState={props.setCachedFormikState}
-        />
-      </EuiFlexItem>
+      {props.showProcessorSection && (
+        <EuiFlexItem>
+          <ProcessorsList
+            uiConfig={props.uiConfig}
+            setUiConfig={props.setUiConfig}
+            context={PROCESSOR_CONTEXT.SEARCH_REQUEST}
+            setCachedFormikState={props.setCachedFormikState}
+          />
+        </EuiFlexItem>
+      )}
     </EuiFlexGroup>
   );
 }

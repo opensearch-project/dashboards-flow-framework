@@ -20,6 +20,7 @@ interface SearchInputsProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
+  showProcessorSection?: boolean;
 }
 
 /**
@@ -50,9 +51,11 @@ export function SearchInputs(props: SearchInputsProps) {
           setCachedFormikState={props.setCachedFormikState}
         />
       </EuiFlexItem>
+
       <EuiFlexItem grow={false}>
         <EuiHorizontalRule margin="m" />
       </EuiFlexItem>
+
       <EuiFlexItem grow={false}>
         <EnrichSearchResponse
           uiConfig={props.uiConfig}
