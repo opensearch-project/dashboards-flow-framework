@@ -7,6 +7,7 @@ import {
   FLOW_FRAMEWORK_SEARCH_WORKFLOWS_ROUTE,
   FLOW_FRAMEWORK_SEARCH_WORKFLOW_STATE_ROUTE,
   FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX,
+  PROVISION_TIMEOUT,
 } from '../../common';
 
 /**
@@ -75,7 +76,7 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
 
   flowFramework.updateWorkflow = ca({
     url: {
-      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>?update_fields=<%=update_fields%>&reprovision=<%=reprovision%>`,
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>?update_fields=<%=update_fields%>`,
       req: {
         workflow_id: {
           type: 'string',
@@ -85,7 +86,21 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
           type: 'boolean',
           required: true,
         },
-        reprovision: {
+      },
+    },
+    needBody: true,
+    method: 'PUT',
+  });
+
+  flowFramework.updateAndReprovisionWorkflow = ca({
+    url: {
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>?update_fields=<%=update_fields%>&reprovision=true&wait_for_completion_timeout=${PROVISION_TIMEOUT}`,
+      req: {
+        workflow_id: {
+          type: 'string',
+          required: true,
+        },
+        update_fields: {
           type: 'boolean',
           required: true,
         },
@@ -97,7 +112,7 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
 
   flowFramework.provisionWorkflow = ca({
     url: {
-      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>/_provision`,
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>/_provision?wait_for_completion_timeout=${PROVISION_TIMEOUT}`,
       req: {
         workflow_id: {
           type: 'string',

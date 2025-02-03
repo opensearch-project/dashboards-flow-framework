@@ -49,7 +49,6 @@ import {
   hasProvisionedIngestResources,
   hasProvisionedSearchResources,
   generateId,
-  sleep,
   getResourcesToBeForceDeleted,
   getDataSourceId,
 } from '../../../utils';
@@ -341,7 +340,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       )
         .unwrap()
         .then(async (result) => {
-          await sleep(1000);
           props.setUnsavedIngestProcessors(false);
           props.setUnsavedSearchProcessors(false);
           success = true;
@@ -386,13 +384,9 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           )
             .unwrap()
             .then(async (result) => {
-              await sleep(1000);
               props.setUnsavedIngestProcessors(false);
               props.setUnsavedSearchProcessors(false);
               await dispatch(
-                // TODO: update to be synchronous provisioning, to prevent
-                // having to wait/sleep before performing next actions.
-                // https://github.com/opensearch-project/flow-framework/pull/1009
                 provisionWorkflow({
                   workflowId: updatedWorkflow.id as string,
                   dataSourceId,
@@ -400,8 +394,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               )
                 .unwrap()
                 .then(async (result) => {
-                  await sleep(1000);
-
                   await dispatch(
                     getWorkflow({
                       workflowId: updatedWorkflow.id as string,

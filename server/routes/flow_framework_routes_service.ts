@@ -475,13 +475,21 @@ export class FlowFrameworkRoutesService {
         data_source_id,
         this.client
       );
-      await callWithRequest('flowFramework.updateWorkflow', {
-        workflow_id,
-        // default update_fields to false if not explicitly set otherwise
-        update_fields: update_fields,
-        reprovision: reprovision,
-        body: workflowTemplate,
-      });
+      if (reprovision) {
+        await callWithRequest('flowFramework.updateAndReprovisionWorkflow', {
+          workflow_id,
+          // default update_fields to false if not explicitly set otherwise
+          update_fields,
+          body: workflowTemplate,
+        });
+      } else {
+        await callWithRequest('flowFramework.updateWorkflow', {
+          workflow_id,
+          // default update_fields to false if not explicitly set otherwise
+          update_fields,
+          body: workflowTemplate,
+        });
+      }
 
       return res.ok({ body: { workflowId: workflow_id, workflowTemplate } });
     } catch (err: any) {
