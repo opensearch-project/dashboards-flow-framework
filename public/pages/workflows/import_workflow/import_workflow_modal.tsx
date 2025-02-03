@@ -76,7 +76,7 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
       workflowNameExists
     );
   }
-  const workflowNameExists = Object.values(workflows)
+  const workflowNameExists = Object.values(workflows || {})
     .map((workflow) => workflow.name)
     .includes(workflowName);
 
