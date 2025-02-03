@@ -266,7 +266,7 @@ export function SourceDataModal(props: SourceDataProps) {
                     <EuiCompressedComboBox
                       placeholder="Select an index"
                       singleSelection={{ asPlainText: true }}
-                      options={Object.values(indices).map((option) => {
+                      options={Object.values(indices || {}).map((option) => {
                         return { label: option.name };
                       })}
                       onChange={(options) => {

@@ -78,7 +78,7 @@ export function EditWorkflowMetadataModal(
         'This workflow name is already in use. Use a different name',
         (name) => {
           return !(
-            Object.values(workflows)
+            Object.values(workflows || {})
               .map((workflow) => workflow.name)
               .includes(name || '') && name !== props.workflow?.name
           );
