@@ -77,7 +77,7 @@ function indexConfigToSchema(
       'name',
       'This index name is already in use. Use a different name',
       (name) => {
-        return !Object.values(indices)
+        return !Object.values(indices || {})
           .map((index) => index.name)
           .includes(name || '');
       }

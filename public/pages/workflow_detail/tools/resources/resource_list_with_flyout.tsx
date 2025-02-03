@@ -71,7 +71,7 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
       props.workflow.resourcesCreated.forEach((resource) => {
         resourcesMap[resource.id] = resource;
       });
-      setAllResources(Object.values(resourcesMap));
+      setAllResources(Object.values(resourcesMap || {}));
     }
   }, [props.workflow?.resourcesCreated]);
 
