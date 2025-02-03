@@ -75,7 +75,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
               />
             ) : (
               <EuiCompressedSuperSelect
-                options={Object.values(indices).map(
+                options={Object.values(indices || {}).map(
                   (option) =>
                     ({
                       value: option.name,

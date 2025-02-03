@@ -57,7 +57,7 @@ export function QuickConfigureInputs(props: QuickConfigureInputsProps) {
   useEffect(() => {
     if (models) {
       setDeployedModels(
-        Object.values(models).filter(
+        Object.values(models || {}).filter(
           (model) => model.state === MODEL_STATE.DEPLOYED
         )
       );
