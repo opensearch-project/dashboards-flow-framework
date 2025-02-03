@@ -273,7 +273,7 @@ const workflowsSlice = createSlice({
       })
       .addCase(searchWorkflows.fulfilled, (state, action) => {
         const { workflows } = action.payload as { workflows: WorkflowDict };
-        state.workflows = workflows;
+        state.workflows = workflows || {};
         state.loading = false;
         state.errorMessage = '';
       })

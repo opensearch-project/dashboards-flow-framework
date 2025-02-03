@@ -43,6 +43,7 @@ import {
 import { getCore, getDataSourceEnabled } from '../services';
 import {
   Connector,
+  IngestPipelineErrors,
   InputMapEntry,
   MDSQueryParams,
   ModelInputMap,
@@ -50,6 +51,7 @@ import {
   OutputMapEntry,
   OutputMapFormValue,
   QueryParam,
+  SimulateIngestPipelineResponseVerbose,
 } from '../../common/interfaces';
 import * as pluginManifest from '../../opensearch_dashboards.json';
 import { DataSourceAttributes } from '../../../../src/plugins/data_source/common/data_sources';
@@ -197,6 +199,34 @@ export function unwrapTransformedDocs(
     );
   }
   return transformedDocsSources;
+}
+
+// Extract any processor-level errors from a verbose simulate ingest pipeline API call
+export function getIngestPipelineErrors(
+  simulatePipelineResponse: SimulateIngestPipelineResponseVerbose
+): IngestPipelineErrors {
+  let ingestPipelineErrors = {} as IngestPipelineErrors;
+  simulatePipelineResponse.docs?.forEach((docResult) => {
+    docResult.processor_results.forEach((processorResult, idx) => {
+      if (processorResult.error?.reason !== undefined) {
+        ingestPipelineErrors[idx] = {
+          processorType: processorResult.processor_type,
+          errorMsg: processorResult.error.reason,
+        };
+      }
+    });
+  });
+  return ingestPipelineErrors;
+}
+
+export function formatIngestPipelineErrors(
+  errors: IngestPipelineErrors
+): string {
+  let msg = 'Errors found with the following ingest processor(s):\n\n';
+  Object.values(errors || {}).forEach((processorError, idx) => {
+    msg += `Processor type: ${processorError.processorType}. Error: ${processorError.errorMsg}\n\n`;
+  });
+  return msg;
 }
 
 // ML inference processors will use standard dot notation or JSONPath depending on the input.

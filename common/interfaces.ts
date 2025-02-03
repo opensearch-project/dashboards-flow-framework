@@ -568,6 +568,10 @@ export type CachedFormikState = {
   touched?: {};
 };
 
+export type IngestPipelineErrors = {
+  [idx: number]: { processorType: string; errorMsg: string };
+};
+
 /**
  ********** OPENSEARCH TYPES/INTERFACES ************
  */
@@ -594,6 +598,24 @@ export type SimulateIngestPipelineDocResponse = {
 // from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#example-specify-a-pipeline-in-the-path
 export type SimulateIngestPipelineResponse = {
   docs: SimulateIngestPipelineDocResponse[];
+};
+
+// verbose mode
+// from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#query-parameters
+export type SimulateIngestPipelineDocResponseVerbose = SimulateIngestPipelineDocResponse & {
+  processor_type: string;
+  status: 'success' | 'error';
+  description?: string;
+};
+
+// verbose mode
+// from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#query-parameters
+export type SimulateIngestPipelineResponseVerbose = {
+  docs: [
+    {
+      processor_results: SimulateIngestPipelineDocResponseVerbose[];
+    }
+  ];
 };
 
 export type SearchHit = SimulateIngestPipelineDoc;

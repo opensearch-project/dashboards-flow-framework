@@ -13,5 +13,13 @@ export class SplitIngestProcessor extends SplitProcessor {
   constructor() {
     super();
     this.id = generateId('split_processor_ingest');
+    this.optionalFields = [
+      ...(this.optionalFields || []),
+      {
+        id: 'ignore_missing',
+        type: 'boolean',
+        value: false,
+      },
+    ];
   }
 }

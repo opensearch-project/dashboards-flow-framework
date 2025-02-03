@@ -4,6 +4,7 @@
  */
 
 import { schema } from '@osd/config-schema';
+import { isEmpty } from 'lodash';
 import {
   IRouter,
   IOpenSearchDashboardsResponse,
@@ -242,6 +243,26 @@ export function registerOpenSearchRoutes(
           pipeline: schema.any(),
           docs: schema.any(),
         }),
+        query: schema.object({
+          verbose: schema.boolean(),
+        }),
+      },
+    },
+    opensearchRoutesService.simulatePipeline
+  );
+  router.post(
+    {
+      path: `${SIMULATE_PIPELINE_NODE_API_PATH}/{pipeline_id}`,
+      validate: {
+        body: schema.object({
+          docs: schema.any(),
+        }),
+        params: schema.object({
+          pipeline_id: schema.string(),
+        }),
+        query: schema.object({
+          verbose: schema.boolean(),
+        }),
       },
     },
     opensearchRoutesService.simulatePipeline
@@ -256,6 +277,27 @@ export function registerOpenSearchRoutes(
         body: schema.object({
           pipeline: schema.any(),
           docs: schema.any(),
+        }),
+        query: schema.object({
+          verbose: schema.boolean(),
+        }),
+      },
+    },
+    opensearchRoutesService.simulatePipeline
+  );
+  router.post(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/simulatePipeline/{pipeline_id}`,
+      validate: {
+        params: schema.object({
+          data_source_id: schema.string(),
+          pipeline_id: schema.string(),
+        }),
+        body: schema.object({
+          docs: schema.any(),
+        }),
+        query: schema.object({
+          verbose: schema.boolean(),
         }),
       },
     },
@@ -511,10 +553,16 @@ export class OpenSearchRoutesService {
     req: OpenSearchDashboardsRequest,
     res: OpenSearchDashboardsResponseFactory
   ): Promise<IOpenSearchDashboardsResponse<any>> => {
-    const { data_source_id = '' } = req.params as { data_source_id?: string };
+    const { data_source_id = '', pipeline_id = '' } = req.params as {
+      data_source_id?: string;
+      pipeline_id?: string;
+    };
     const { pipeline, docs } = req.body as {
-      pipeline: IngestPipelineConfig;
+      pipeline?: IngestPipelineConfig;
       docs: SimulateIngestPipelineDoc[];
+    };
+    const { verbose = false } = req.query as {
+      verbose?: boolean;
     };
     try {
       const callWithRequest = getClientBasedOnDataSource(
@@ -525,10 +573,20 @@ export class OpenSearchRoutesService {
         this.client
       );
 
-      const response = await callWithRequest('ingest.simulate', {
-        body: { pipeline, docs },
-      });
+      let response = undefined as any;
 
+      if (!isEmpty(pipeline_id)) {
+        response = await callWithRequest('ingest.simulate', {
+          body: { docs },
+          id: pipeline_id,
+          verbose,
+        });
+      } else {
+        response = await callWithRequest('ingest.simulate', {
+          body: { docs, pipeline },
+          verbose,
+        });
+      }
       return res.ok({
         body: { docs: response.docs } as SimulateIngestPipelineResponse,
       });

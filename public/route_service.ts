@@ -127,10 +127,12 @@ export interface RouteService {
   ) => Promise<any | HttpFetchError>;
   simulatePipeline: (
     body: {
-      pipeline: IngestPipelineConfig;
+      pipeline?: IngestPipelineConfig;
       docs: SimulateIngestPipelineDoc[];
     },
-    dataSourceId?: string
+    dataSourceId?: string,
+    pipelineId?: string,
+    verbose?: boolean
   ) => Promise<any | HttpFetchError>;
   getIngestPipeline: (
     pipelineId: string,
@@ -408,17 +410,23 @@ export function configureRoutes(core: CoreStart): RouteService {
     },
     simulatePipeline: async (
       body: {
-        pipeline: IngestPipelineConfig;
+        pipeline?: IngestPipelineConfig;
         docs: SimulateIngestPipelineDoc[];
       },
-      dataSourceId?: string
+      dataSourceId?: string,
+      pipelineId?: string,
+      verbose?: boolean
     ) => {
       try {
-        const url = dataSourceId
+        let url = dataSourceId
           ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/simulatePipeline`
           : SIMULATE_PIPELINE_NODE_API_PATH;
+        url = pipelineId ? `${url}/${pipelineId}` : url;
         const response = await core.http.post<{ respString: string }>(url, {
           body: JSON.stringify(body),
+          query: {
+            verbose: verbose ?? false,
+          },
         });
         return response;
       } catch (e: any) {

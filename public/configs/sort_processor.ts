@@ -40,6 +40,11 @@ export abstract class SortProcessor extends Processor {
         id: 'tag',
         type: 'string',
       },
+      {
+        id: 'ignore_failure',
+        type: 'boolean',
+        value: false,
+      },
     ];
   }
 }

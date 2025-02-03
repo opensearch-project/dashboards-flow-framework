@@ -70,6 +70,11 @@ export class TextChunkingIngestProcessor extends Processor {
         id: 'tag',
         type: 'string',
       },
+      {
+        id: 'ignore_missing',
+        type: 'boolean',
+        value: false,
+      },
     ];
   }
 }
