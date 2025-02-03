@@ -87,7 +87,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const [workflowNameTouched, setWorkflowNameTouched] = useState<boolean>(
     false
   );
-  const workflowNameExists = Object.values(workflows)
+  const workflowNameExists = Object.values(workflows || {})
     .map((workflow) => workflow.name)
     .includes(workflowName);
 

@@ -37,7 +37,7 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   const { models, connectors } = useSelector((state: AppState) => state.ml);
   const ingestMLProcessors = (Object.values(
-    values?.ingest?.enrich
+    values?.ingest?.enrich || {}
   ) as any[]).filter((ingestProcessor) => ingestProcessor?.model !== undefined);
   const ingestProcessorModelIds = ingestMLProcessors
     .map((ingestProcessor) => ingestProcessor?.model?.id as string | undefined)
@@ -52,7 +52,7 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
   useEffect(() => {
     if (ingestProcessorModelIds.length > 0) {
       ingestProcessorModelIds.forEach((ingestProcessorModelId) => {
-        const processorModel = Object.values(models).find(
+        const processorModel = Object.values(models || {}).find(
           (model) => model.id === ingestProcessorModelId
         );
         if (processorModel?.connectorId !== undefined) {
@@ -91,7 +91,7 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
   useEffect(() => {
     if (ingestMLProcessors.length > 0) {
       ingestMLProcessors.forEach((ingestMLProcessor) => {
-        const processorModel = Object.values(models).find(
+        const processorModel = Object.values(models || {}).find(
           (model) => model.id === ingestMLProcessor?.model?.id
         );
         if (processorModel?.connectorId !== undefined) {
