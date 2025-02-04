@@ -166,9 +166,7 @@ export function Query(props: QueryProps) {
                               : [SEARCH_OPTIONS[1]]
                           }
                           selectedOptions={
-                            props.hasSearchPipeline &&
-                            includePipeline &&
-                            props.selectedStep === CONFIG_STEP.SEARCH
+                            includePipeline
                               ? [SEARCH_OPTIONS[0]]
                               : [SEARCH_OPTIONS[1]]
                           }
@@ -194,15 +192,12 @@ export function Query(props: QueryProps) {
                             apiBody: {
                               index: indexToSearch,
                               body: injectParameters(queryParams, tempRequest),
-                              searchPipeline:
-                                props.hasSearchPipeline &&
-                                includePipeline &&
-                                props.selectedStep === CONFIG_STEP.SEARCH &&
-                                !isEmpty(values?.search?.pipelineName)
-                                  ? values?.search?.pipelineName
-                                  : '_none',
+                              searchPipeline: includePipeline
+                                ? values?.search?.pipelineName
+                                : '_none',
                             },
                             dataSourceId,
+                            verbose: includePipeline,
                           })
                         )
                           .unwrap()

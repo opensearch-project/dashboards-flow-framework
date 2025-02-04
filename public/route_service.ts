@@ -97,11 +97,13 @@ export interface RouteService {
     body,
     dataSourceId,
     searchPipeline,
+    verbose,
   }: {
     index: string;
     body: {};
     dataSourceId?: string;
     searchPipeline?: string;
+    verbose?: boolean;
   }) => Promise<any | HttpFetchError>;
   ingest: (
     index: string,
@@ -322,11 +324,13 @@ export function configureRoutes(core: CoreStart): RouteService {
       body,
       dataSourceId,
       searchPipeline,
+      verbose,
     }: {
       index: string;
       body: {};
       dataSourceId?: string;
       searchPipeline?: string;
+      verbose?: boolean;
     }) => {
       try {
         const url = dataSourceId
@@ -338,6 +342,9 @@ export function configureRoutes(core: CoreStart): RouteService {
           : basePath;
         const response = await core.http.post<{ respString: string }>(path, {
           body: JSON.stringify(body),
+          query: {
+            verbose: verbose ?? false,
+          },
         });
         return response;
       } catch (e: any) {

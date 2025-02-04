@@ -118,9 +118,11 @@ export const searchIndex = createAsyncThunk(
     {
       apiBody,
       dataSourceId,
+      verbose,
     }: {
       apiBody: { index: string; body: {}; searchPipeline?: string };
       dataSourceId?: string;
+      verbose?: boolean;
     },
     { rejectWithValue }
   ) => {
@@ -130,6 +132,7 @@ export const searchIndex = createAsyncThunk(
       body,
       dataSourceId,
       searchPipeline,
+      verbose,
     });
     if (response instanceof HttpFetchError) {
       return rejectWithValue('Error searching index: ' + response.body.message);

@@ -120,6 +120,9 @@ export function registerOpenSearchRoutes(
           index: schema.string(),
         }),
         body: schema.any(),
+        query: schema.object({
+          verbose: schema.boolean(),
+        }),
       },
     },
     opensearchRoutesService.searchIndex
@@ -133,6 +136,9 @@ export function registerOpenSearchRoutes(
           data_source_id: schema.string(),
         }),
         body: schema.any(),
+        query: schema.object({
+          verbose: schema.boolean(),
+        }),
       },
     },
     opensearchRoutesService.searchIndex
@@ -146,6 +152,9 @@ export function registerOpenSearchRoutes(
           search_pipeline: schema.string(),
         }),
         body: schema.any(),
+        query: schema.object({
+          verbose: schema.boolean(),
+        }),
       },
     },
     opensearchRoutesService.searchIndex
@@ -160,6 +169,9 @@ export function registerOpenSearchRoutes(
           data_source_id: schema.string(),
         }),
         body: schema.any(),
+        query: schema.object({
+          verbose: schema.boolean(),
+        }),
       },
     },
     opensearchRoutesService.searchIndex
@@ -467,6 +479,9 @@ export class OpenSearchRoutesService {
       search_pipeline: string | undefined;
     };
     const { data_source_id = '' } = req.params as { data_source_id?: string };
+    const { verbose = false } = req.query as {
+      verbose?: boolean;
+    };
     const body = req.body;
     try {
       const callWithRequest = getClientBasedOnDataSource(
@@ -481,6 +496,7 @@ export class OpenSearchRoutesService {
         index,
         body,
         search_pipeline,
+        verbose_pipeline: verbose,
       });
 
       return res.ok({ body: response });
