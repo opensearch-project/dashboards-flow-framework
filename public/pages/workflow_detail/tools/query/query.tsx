@@ -23,14 +23,22 @@ import {
   FETCH_ALL_QUERY,
   QueryParam,
   SearchResponse,
+  SearchResponseVerbose,
   WorkflowFormValues,
 } from '../../../../../common';
-import { AppState, searchIndex, useAppDispatch } from '../../../../store';
+import {
+  AppState,
+  searchIndex,
+  setOpenSearchError,
+  useAppDispatch,
+} from '../../../../store';
 import {
   containsEmptyValues,
   containsSameValues,
+  formatSearchPipelineErrors,
   getDataSourceId,
   getPlaceholdersFromQuery,
+  getSearchPipelineErrors,
   injectParameters,
 } from '../../../../utils';
 import { QueryParamsList, Results } from '../../../../general_components';
@@ -201,9 +209,28 @@ export function Query(props: QueryProps) {
                           })
                         )
                           .unwrap()
-                          .then(async (resp: SearchResponse) => {
-                            setQueryResponse(resp);
-                          })
+                          .then(
+                            async (
+                              resp: SearchResponse | SearchResponseVerbose
+                            ) => {
+                              if (includePipeline) {
+                                const searchPipelineErrors = getSearchPipelineErrors(
+                                  resp as SearchResponseVerbose
+                                );
+                                if (!isEmpty(searchPipelineErrors)) {
+                                  dispatch(
+                                    setOpenSearchError({
+                                      error: `Error running search pipeline. ${formatSearchPipelineErrors(
+                                        searchPipelineErrors
+                                      )}`,
+                                    })
+                                  );
+                                }
+                              }
+
+                              setQueryResponse(resp);
+                            }
+                          )
                           .catch((error: any) => {
                             setQueryResponse(undefined);
                             console.error('Error running query: ', error);

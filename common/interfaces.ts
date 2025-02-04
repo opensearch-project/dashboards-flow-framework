@@ -641,6 +641,29 @@ export type SearchResponse = {
   ext?: {};
 };
 
+export type SearchProcessorInputData = {
+  _index: string;
+  _id: string;
+  _score: number;
+  _source: {};
+};
+export type SearchProcessorOutputData = SearchProcessorInputData;
+
+export type SearchProcessorResult = {
+  processor_name: string;
+  duration_millis: number;
+  status: 'success' | 'fail';
+  error?: string;
+  input_data: SearchProcessorInputData[] | null;
+  output_data: SearchProcessorOutputData[] | null;
+};
+
+export type SearchResponseVerbose = SearchResponse & {
+  processor_results: SearchProcessorResult[];
+};
+
+export type SearchPipelineErrors = IngestPipelineErrors;
+
 export type IndexResponse = {
   indexName: string;
   indexDetails: IndexConfiguration;

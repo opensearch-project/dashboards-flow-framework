@@ -51,6 +51,8 @@ import {
   OutputMapEntry,
   OutputMapFormValue,
   QueryParam,
+  SearchPipelineErrors,
+  SearchResponseVerbose,
   SimulateIngestPipelineResponseVerbose,
 } from '../../common/interfaces';
 import * as pluginManifest from '../../opensearch_dashboards.json';
@@ -223,6 +225,31 @@ export function formatIngestPipelineErrors(
   errors: IngestPipelineErrors
 ): string {
   let msg = 'Errors found with the following ingest processor(s):\n\n';
+  Object.values(errors || {}).forEach((processorError, idx) => {
+    msg += `Processor type: ${processorError.processorType}. Error: ${processorError.errorMsg}\n\n`;
+  });
+  return msg;
+}
+
+export function getSearchPipelineErrors(
+  searchResponseVerbose: SearchResponseVerbose
+): SearchPipelineErrors {
+  let searchPipelineErrors = {} as SearchPipelineErrors;
+  searchResponseVerbose.processor_results?.forEach((processorResult, idx) => {
+    if (processorResult?.error !== undefined) {
+      searchPipelineErrors[idx] = {
+        processorType: processorResult.processor_name,
+        errorMsg: processorResult.error,
+      };
+    }
+  });
+  return searchPipelineErrors;
+}
+
+export function formatSearchPipelineErrors(
+  errors: IngestPipelineErrors
+): string {
+  let msg = 'Errors found with the following search processor(s):\n\n';
   Object.values(errors || {}).forEach((processorError, idx) => {
     msg += `Processor type: ${processorError.processorType}. Error: ${processorError.errorMsg}\n\n`;
   });
