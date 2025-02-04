@@ -39,6 +39,7 @@ import {
   IMAGE_FIELD_PATTERN,
   LABEL_FIELD_PATTERN,
   MODEL_ID_PATTERN,
+  WORKFLOW_TYPE,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
 import {
@@ -151,7 +152,8 @@ export function isValidUiWorkflow(workflowObj: any): boolean {
   return (
     isValidWorkflow(workflowObj) &&
     workflowObj?.ui_metadata?.config !== undefined &&
-    workflowObj?.ui_metadata?.type !== undefined
+    workflowObj?.ui_metadata?.type !== undefined &&
+    Object.values(WORKFLOW_TYPE).includes(workflowObj?.ui_metadata?.type)
   );
 }
 
