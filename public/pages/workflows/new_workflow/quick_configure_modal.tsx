@@ -72,8 +72,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const dataSourceId = getDataSourceId();
   const history = useHistory();
   const { models } = useSelector((state: AppState) => state.ml);
-  //const { workflows } = useSelector((state: AppState) => state.workflows);
-  const workflows = undefined;
+  const { workflows } = useSelector((state: AppState) => state.workflows);
 
   // model interface states
   const [embeddingModelInterface, setEmbeddingModelInterface] = useState<
