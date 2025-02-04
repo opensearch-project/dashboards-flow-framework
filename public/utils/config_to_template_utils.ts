@@ -363,9 +363,36 @@ export function processorConfigsToTemplateProcessors(
         });
         break;
       }
+      case PROCESSOR_TYPE.TEXT_EMBEDDING:
+      case PROCESSOR_TYPE.TEXT_IMAGE_EMBEDDING: {
+        const formValues = processorConfigToFormik(processorConfig);
+        let finalFormValues = {} as FormikValues;
+        // iterate through the form values, ignoring any empty
+        // field (empty fields can be possible if the field is optional)
+        Object.keys(formValues).forEach((formKey: string) => {
+          const formValue = formValues[formKey];
+          finalFormValues = optionallyAddToFinalForm(
+            finalFormValues,
+            formKey,
+            formValue
+          );
+        });
+        // add the field map config obj
+        finalFormValues = {
+          ...finalFormValues,
+          field_map: mergeMapIntoSingleObj(
+            formValues['field_map'] as MapFormValue
+          ),
+        };
+        processorsList.push({
+          [processorConfig.type]: finalFormValues,
+        });
+        break;
+      }
       case PROCESSOR_TYPE.SPLIT:
       case PROCESSOR_TYPE.SORT:
       case PROCESSOR_TYPE.COLLAPSE:
+      case PROCESSOR_TYPE.COPY:
       default: {
         const formValues = processorConfigToFormik(processorConfig);
         let finalFormValues = {} as FormikValues;

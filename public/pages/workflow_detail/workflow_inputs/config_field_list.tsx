@@ -11,6 +11,7 @@ import {
   BooleanField,
   NumberField,
   JsonField,
+  MapField,
 } from './input_fields';
 import { IConfigField } from '../../../../common';
 import { camelCaseToTitleString } from '../../../utils';
@@ -100,6 +101,18 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
               <EuiFlexItem key={idx}>
                 <JsonField
                   validate={false}
+                  label={camelCaseToTitleString(field.id)}
+                  fieldPath={fieldPath}
+                />
+                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
+          case 'map': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <MapField
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={fieldPath}
                 />
