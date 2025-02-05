@@ -30,6 +30,7 @@ import {
   AppState,
   searchIndex,
   setOpenSearchError,
+  setSearchPipelineErrors,
   useAppDispatch,
 } from '../../../../store';
 import {
@@ -217,6 +218,13 @@ export function Query(props: QueryProps) {
                                 const searchPipelineErrors = getSearchPipelineErrors(
                                   resp as SearchResponseVerbose
                                 );
+                                // The errors map may be empty; in which case, this dispatch will clear
+                                // any older errors.
+                                dispatch(
+                                  setSearchPipelineErrors({
+                                    errors: searchPipelineErrors,
+                                  })
+                                );
                                 if (!isEmpty(searchPipelineErrors)) {
                                   dispatch(
                                     setOpenSearchError({
@@ -226,6 +234,8 @@ export function Query(props: QueryProps) {
                                     })
                                   );
                                 }
+                              } else {
+                                setSearchPipelineErrors({ errors: {} });
                               }
 
                               setQueryResponse(resp);
@@ -233,6 +243,7 @@ export function Query(props: QueryProps) {
                           )
                           .catch((error: any) => {
                             setQueryResponse(undefined);
+                            setSearchPipelineErrors({ errors: {} });
                             console.error('Error running query: ', error);
                           });
                       }}

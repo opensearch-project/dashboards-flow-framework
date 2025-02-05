@@ -53,7 +53,12 @@ import {
   MIN_SUPPORTED_VERSION,
   MINIMUM_FULL_SUPPORTED_VERSION,
 } from '../../../../common';
-import { AppState } from '../../../store';
+import {
+  AppState,
+  setIngestPipelineErrors,
+  setSearchPipelineErrors,
+  useAppDispatch,
+} from '../../../store';
 
 interface ProcessorsListProps {
   uiConfig: WorkflowConfig;
@@ -68,15 +73,25 @@ const PANEL_ID = 0;
  * General component for configuring pipeline processors (ingest / search request / search response)
  */
 export function ProcessorsList(props: ProcessorsListProps) {
-  const { ingestPipeline: ingestPipelineErrors } = useSelector(
-    (state: AppState) => state.errors
-  );
+  const dispatch = useAppDispatch();
+  const {
+    ingestPipeline: ingestPipelineErrors,
+    searchPipeline: searchPipelineErrors,
+  } = useSelector((state: AppState) => state.errors);
   const { values, errors, touched } = useFormikContext<WorkflowFormValues>();
   const [version, setVersion] = useState<string>('');
   const location = useLocation();
   const [processorAdded, setProcessorAdded] = useState<boolean>(false);
   const [isPopoverOpen, setPopover] = useState(false);
   const [processors, setProcessors] = useState<IProcessorConfig[]>([]);
+
+  function clearProcessorErrors(): void {
+    if (props.context === PROCESSOR_CONTEXT.INGEST) {
+      dispatch(setIngestPipelineErrors({ errors: {} }));
+    } else {
+      dispatch(setSearchPipelineErrors({ errors: {} }));
+    }
+  }
 
   const closePopover = () => {
     setPopover(false);
@@ -262,6 +277,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
   // the list of processors. Additionally, persist any current form state
   // (touched, errors) so they are re-initialized when the form is reset.
   function addProcessor(processor: IProcessorConfig): void {
+    clearProcessorErrors();
     props.setCachedFormikState({
       errors,
       touched,
@@ -299,6 +315,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
   // (getting any updated/interim values along the way) delete
   // the specified processor from the list of processors
   function deleteProcessor(processorIdToDelete: string): void {
+    clearProcessorErrors();
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
     let newConfig = formikToUiConfig(values, existingConfig);
     switch (props.context) {
@@ -349,11 +366,18 @@ export function ProcessorsList(props: ProcessorsListProps) {
           hasErrors && allTouched
             ? 'Invalid or missing fields detected'
             : undefined;
-        const processorRuntimeError = getIn(
-          ingestPipelineErrors,
-          `${processorIndex}.errorMsg`,
-          undefined
-        ) as string | undefined;
+        const processorRuntimeError =
+          props.context === PROCESSOR_CONTEXT.INGEST
+            ? getIn(
+                ingestPipelineErrors,
+                `${processorIndex}.errorMsg`,
+                undefined
+              )
+            : getIn(
+                searchPipelineErrors,
+                `${processorIndex}.errorMsg`,
+                undefined
+              );
 
         return (
           <EuiFlexItem key={processorIndex}>
