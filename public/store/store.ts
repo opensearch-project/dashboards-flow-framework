@@ -11,6 +11,7 @@ import {
   workflowsReducer,
   presetsReducer,
   mlReducer,
+  errorsReducer,
 } from './reducers';
 
 const rootReducer = combineReducers({
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
   presets: presetsReducer,
   ml: mlReducer,
   opensearch: opensearchReducer,
+  errors: errorsReducer,
 });
 
 export const store = configureStore({

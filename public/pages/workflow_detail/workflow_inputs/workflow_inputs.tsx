@@ -39,6 +39,7 @@ import {
   deprovisionWorkflow,
   getWorkflow,
   provisionWorkflow,
+  setIngestPipelineErrors,
   setOpenSearchError,
   simulatePipeline,
   updateWorkflow,
@@ -595,6 +596,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               .unwrap()
               .then((resp: SimulateIngestPipelineResponseVerbose) => {
                 const ingestPipelineErrors = getIngestPipelineErrors(resp);
+                // The errors map may be empty; in which case, this dispatch will clear
+                // any older errors.
+                dispatch(
+                  setIngestPipelineErrors({ errors: ingestPipelineErrors })
+                );
                 if (isEmpty(ingestPipelineErrors)) {
                   bulkIngest(ingestDocsObjs);
                 } else {
@@ -614,6 +620,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               });
           } else {
             bulkIngest(ingestDocsObjs);
+            dispatch(setIngestPipelineErrors({ errors: {} }));
           }
         }
       } else {
