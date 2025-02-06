@@ -728,14 +728,14 @@ export function getUpdatedIndexSettings(
 function getEmbeddingFieldFromConnector(
   connector: Connector
 ): string | undefined {
-  if (connector.parameters?.model !== undefined) {
+  if (connector?.parameters?.model !== undefined) {
     return (
       // @ts-ignore
-      COHERE_CONFIGS[connector.parameters?.model]?.fieldName ||
+      COHERE_CONFIGS[connector?.parameters?.model]?.fieldName ||
       // @ts-ignore
-      OPENAI_CONFIGS[connector.parameters?.model]?.fieldName ||
+      OPENAI_CONFIGS[connector?.parameters?.model]?.fieldName ||
       // @ts-ignore
-      BEDROCK_CONFIGS[connector.parameters?.model]?.fieldName
+      BEDROCK_CONFIGS[connector?.parameters?.model]?.fieldName
     );
   } else {
     return undefined;
