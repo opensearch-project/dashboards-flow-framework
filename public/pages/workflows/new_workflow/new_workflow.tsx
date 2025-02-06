@@ -81,8 +81,7 @@ const filterPresetsByVersion = async (
     WORKFLOW_TYPE.HYBRID_SEARCH,
   ];
 
-  //const version = await getEffectiveVersion(dataSourceId);
-  const version = '2.17.0';
+  const version = await getEffectiveVersion(dataSourceId);
 
   if (semver.lt(version, MIN_SUPPORTED_VERSION)) {
     return [];
@@ -151,23 +150,12 @@ export function NewWorkflow(props: NewWorkflowProps) {
       const dataSourceEnabled = getDataSourceEnabled().enabled;
 
       if (!dataSourceEnabled) {
-        const enrichedWorkflows = presetWorkflows
-          .filter((workflow) => {
-            const workflowType =
-              workflow.ui_metadata?.type ?? WORKFLOW_TYPE.UNKNOWN;
-            return [
-              WORKFLOW_TYPE.SEMANTIC_SEARCH,
-              WORKFLOW_TYPE.MULTIMODAL_SEARCH,
-              WORKFLOW_TYPE.HYBRID_SEARCH,
-            ].includes(workflowType as WORKFLOW_TYPE);
-          })
-          .map((presetWorkflow) =>
-            enrichPresetWorkflowWithUiMetadata(
-              presetWorkflow,
-              '2.17.0'
-              //MINIMUM_FULL_SUPPORTED_VERSION
-            )
-          );
+        const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
+          enrichPresetWorkflowWithUiMetadata(
+            presetWorkflow,
+            MINIMUM_FULL_SUPPORTED_VERSION
+          )
+        );
         setAllWorkflows(enrichedWorkflows);
         setFilteredWorkflows(enrichedWorkflows);
         setIsVersionLoading(false);
@@ -183,8 +171,7 @@ export function NewWorkflow(props: NewWorkflowProps) {
 
       setIsVersionLoading(true);
 
-      //const version = await getEffectiveVersion(dataSourceId);
-      const version = '2.17.0';
+      const version = await getEffectiveVersion(dataSourceId);
 
       const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
         enrichPresetWorkflowWithUiMetadata(presetWorkflow, version)

@@ -33,6 +33,8 @@ import {
   getWorkflow,
   searchConnectors,
   searchModels,
+  setIngestPipelineErrors,
+  setSearchPipelineErrors,
   useAppDispatch,
 } from '../../store';
 import { ResizableWorkspace } from './resizable_workspace';
@@ -82,6 +84,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   // - fetch workflow
   // - fetch available models & connectors as their IDs may be used when building flows
   // - fetch all indices
+  // - clear any processor-level errors
   useEffect(() => {
     dispatch(getWorkflow({ workflowId, dataSourceId }));
     dispatch(searchModels({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId }));
@@ -89,6 +92,8 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
       searchConnectors({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId })
     );
     dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
+    dispatch(setIngestPipelineErrors({ errors: {} }));
+    dispatch(setSearchPipelineErrors({ errors: {} }));
   }, []);
 
   // data-source-related states
