@@ -10,8 +10,8 @@ export class TextImageEmbeddingIngestProcessor extends Processor {
     this.id = generateId('text_image_embedding_processor_ingest');
     this.fields = [
       {
-        id: 'model_id',
-        type: 'string',
+        id: 'model',
+        type: 'model',
       },
       {
         id: 'embedding',
