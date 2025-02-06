@@ -568,6 +568,10 @@ export type CachedFormikState = {
   touched?: {};
 };
 
+export type IngestPipelineErrors = {
+  [idx: number]: { processorType: string; errorMsg: string };
+};
+
 /**
  ********** OPENSEARCH TYPES/INTERFACES ************
  */
@@ -596,6 +600,24 @@ export type SimulateIngestPipelineResponse = {
   docs: SimulateIngestPipelineDocResponse[];
 };
 
+// verbose mode
+// from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#query-parameters
+export type SimulateIngestPipelineDocResponseVerbose = SimulateIngestPipelineDocResponse & {
+  processor_type: string;
+  status: 'success' | 'error';
+  description?: string;
+};
+
+// verbose mode
+// from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#query-parameters
+export type SimulateIngestPipelineResponseVerbose = {
+  docs: [
+    {
+      processor_results: SimulateIngestPipelineDocResponseVerbose[];
+    }
+  ];
+};
+
 export type SearchHit = SimulateIngestPipelineDoc;
 
 export type SearchResponse = {
@@ -618,6 +640,29 @@ export type SearchResponse = {
   aggregations?: {};
   ext?: {};
 };
+
+export type SearchProcessorInputData = {
+  _index: string;
+  _id: string;
+  _score: number;
+  _source: {};
+};
+export type SearchProcessorOutputData = SearchProcessorInputData;
+
+export type SearchProcessorResult = {
+  processor_name: string;
+  duration_millis: number;
+  status: 'success' | 'fail';
+  error?: string;
+  input_data: SearchProcessorInputData[] | null;
+  output_data: SearchProcessorOutputData[] | null;
+};
+
+export type SearchResponseVerbose = SearchResponse & {
+  processor_results: SearchProcessorResult[];
+};
+
+export type SearchPipelineErrors = IngestPipelineErrors;
 
 export type IndexResponse = {
   indexName: string;

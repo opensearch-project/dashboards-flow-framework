@@ -23,6 +23,7 @@ import {
 import {
   CONFIG_STEP,
   CachedFormikState,
+  SimulateIngestPipelineResponseVerbose,
   TemplateNode,
   WORKFLOW_STEP_TYPE,
   Workflow,
@@ -38,6 +39,9 @@ import {
   deprovisionWorkflow,
   getWorkflow,
   provisionWorkflow,
+  setIngestPipelineErrors,
+  setOpenSearchError,
+  simulatePipeline,
   updateWorkflow,
   useAppDispatch,
 } from '../../../store';
@@ -51,6 +55,9 @@ import {
   generateId,
   getResourcesToBeForceDeleted,
   getDataSourceId,
+  prepareDocsForSimulate,
+  getIngestPipelineErrors,
+  formatIngestPipelineErrors,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
@@ -271,6 +278,49 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     if (props.workflow?.ui_metadata?.config !== undefined) {
       props.setUiConfig(props.workflow?.ui_metadata?.config);
     }
+  }
+
+  // Utility fn to perform bulk ingest
+  function bulkIngest(ingestDocsObjs: {}[]) {
+    const bulkBody = prepareBulkBody(values.ingest.index.name, ingestDocsObjs);
+    dispatch(bulk({ apiBody: { body: bulkBody }, dataSourceId }))
+      .unwrap()
+      .then(async (resp: any) => {
+        props.setIngestResponse(customStringify(resp));
+        props.setIsRunningIngest(false);
+        setLastIngested(Date.now());
+        getCore().notifications.toasts.add({
+          iconType: 'check',
+          color: 'success',
+          title: 'Ingest flow updated',
+          // @ts-ignore
+          text: (
+            <EuiFlexGroup direction="column">
+              <EuiFlexItem grow={false}>
+                <EuiText size="s">
+                  Validate your ingest flow using Test flow
+                </EuiText>
+              </EuiFlexItem>
+              <EuiFlexItem>
+                <EuiFlexGroup direction="row" justifyContent="flexEnd">
+                  <EuiFlexItem grow={false}>
+                    <EuiSmallButton
+                      fill={false}
+                      onClick={() => props.displaySearchPanel()}
+                    >
+                      Test flow
+                    </EuiSmallButton>
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          ),
+        });
+      })
+      .catch((error: any) => {
+        props.setIngestResponse('');
+        throw error;
+      });
   }
 
   // Utility fn to update the workflow UI config only, based on the current form values.
@@ -524,48 +574,54 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       if (ingestDocsObjs.length > 0 && !isEmpty(ingestDocsObjs[0])) {
         success = await validateAndUpdateWorkflow(false, true, false);
         if (success) {
-          const bulkBody = prepareBulkBody(
-            values.ingest.index.name,
-            ingestDocsObjs
-          );
-          dispatch(bulk({ apiBody: { body: bulkBody }, dataSourceId }))
-            .unwrap()
-            .then(async (resp: any) => {
-              props.setIngestResponse(customStringify(resp));
-              props.setIsRunningIngest(false);
-              setLastIngested(Date.now());
-              getCore().notifications.toasts.add({
-                iconType: 'check',
-                color: 'success',
-                title: 'Ingest flow updated',
-                // @ts-ignore
-                text: (
-                  <EuiFlexGroup direction="column">
-                    <EuiFlexItem grow={false}>
-                      <EuiText size="s">
-                        Validate your ingest flow using Test flow
-                      </EuiText>
-                    </EuiFlexItem>
-                    <EuiFlexItem>
-                      <EuiFlexGroup direction="row" justifyContent="flexEnd">
-                        <EuiFlexItem grow={false}>
-                          <EuiSmallButton
-                            fill={false}
-                            onClick={() => props.displaySearchPanel()}
-                          >
-                            Test flow
-                          </EuiSmallButton>
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
-                ),
+          if (
+            !isEmpty(values?.ingest?.enrich) &&
+            values?.ingest?.pipelineName !== undefined &&
+            values?.ingest?.pipelineName !== ''
+          ) {
+            const curDocs = prepareDocsForSimulate(
+              values?.ingest?.docs,
+              values?.ingest?.index?.name
+            );
+            await dispatch(
+              simulatePipeline({
+                apiBody: {
+                  docs: curDocs,
+                },
+                pipelineId: values.ingest.pipelineName,
+                dataSourceId,
+                verbose: true,
+              })
+            )
+              .unwrap()
+              .then((resp: SimulateIngestPipelineResponseVerbose) => {
+                const ingestPipelineErrors = getIngestPipelineErrors(resp);
+                // The errors map may be empty; in which case, this dispatch will clear
+                // any older errors.
+                dispatch(
+                  setIngestPipelineErrors({ errors: ingestPipelineErrors })
+                );
+                if (isEmpty(ingestPipelineErrors)) {
+                  bulkIngest(ingestDocsObjs);
+                } else {
+                  dispatch(
+                    setOpenSearchError({
+                      error: `Data not ingested. ${formatIngestPipelineErrors(
+                        ingestPipelineErrors
+                      )}`,
+                    })
+                  );
+                }
+              })
+              .catch((error: any) => {
+                getCore().notifications.toasts.addDanger(
+                  `Failed to simulate ingest pipeline: ${error}`
+                );
               });
-            })
-            .catch((error: any) => {
-              props.setIngestResponse('');
-              throw error;
-            });
+          } else {
+            bulkIngest(ingestDocsObjs);
+            dispatch(setIngestPipelineErrors({ errors: {} }));
+          }
         }
       } else {
         getCore().notifications.toasts.addDanger(
