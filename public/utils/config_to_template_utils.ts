@@ -377,6 +377,14 @@ export function processorConfigsToTemplateProcessors(
             formValue
           );
         });
+        // remove the model field, update to just the required model ID
+        const model = finalFormValues.model;
+        delete finalFormValues.model;
+        finalFormValues = {
+          ...finalFormValues,
+          model_id: model.id,
+        };
+
         // add the field map config obj
         finalFormValues = {
           ...finalFormValues,

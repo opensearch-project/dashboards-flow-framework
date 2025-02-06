@@ -137,9 +137,11 @@ export function ProcessorsList(props: ProcessorsListProps) {
   }, [props.context, props.uiConfig]);
 
   const getMenuItems = () => {
-    const isPreV219 =
-      semver.gte(version, MIN_SUPPORTED_VERSION) &&
-      semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
+    // const isPreV219 =
+    //   semver.gte(version, MIN_SUPPORTED_VERSION) &&
+    //   semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
+
+    const isPreV219 = true;
     const ingestProcessors = [
       ...(isPreV219
         ? [

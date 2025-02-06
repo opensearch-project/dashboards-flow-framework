@@ -12,6 +12,7 @@ import {
   NumberField,
   JsonField,
   MapField,
+  ModelField,
 } from './input_fields';
 import { IConfigField } from '../../../../common';
 import { camelCaseToTitleString } from '../../../utils';
@@ -115,6 +116,19 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                 <MapField
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={fieldPath}
+                />
+                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
+          case 'model': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <ModelField
+                  field={field}
+                  fieldPath={fieldPath}
+                  showMissingInterfaceCallout={false}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
