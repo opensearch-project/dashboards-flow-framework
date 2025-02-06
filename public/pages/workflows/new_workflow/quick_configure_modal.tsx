@@ -426,6 +426,27 @@ function updateIngestProcessors(
           ] as MapFormValue;
         }
       });
+    } else if (processor.type === PROCESSOR_TYPE.TEXT_IMAGE_EMBEDDING) {
+      config.ingest.enrich.processors[idx].fields.forEach((field) => {
+        if (field.id === 'model' && fields.embeddingModelId) {
+          field.value = { id: fields.embeddingModelId };
+        }
+        if (field.id === 'field_map') {
+          field.value = [
+            {
+              key: 'text',
+              value: fields.textField || '',
+            },
+            {
+              key: 'image',
+              value: fields.imageField || '',
+            },
+          ] as MapFormValue;
+        }
+        if (field.id === 'embedding') {
+          field.value = fields.vectorField || '';
+        }
+      });
     }
   });
   return config;
