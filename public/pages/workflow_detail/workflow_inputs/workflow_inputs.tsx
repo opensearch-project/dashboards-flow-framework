@@ -81,6 +81,8 @@ interface WorkflowInputsProps {
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
 }
 
+const SUCCESS_TOAST_ID = 'success_toast_id';
+
 /**
  * The workflow inputs component containing the multi-step flow to create ingest
  * and search flows for a particular workflow.
@@ -290,6 +292,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         props.setIsRunningIngest(false);
         setLastIngested(Date.now());
         getCore().notifications.toasts.add({
+          id: SUCCESS_TOAST_ID,
           iconType: 'check',
           color: 'success',
           title: 'Ingest flow updated',
@@ -306,7 +309,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   <EuiFlexItem grow={false}>
                     <EuiSmallButton
                       fill={false}
-                      onClick={() => props.displaySearchPanel()}
+                      onClick={() => {
+                        props.displaySearchPanel();
+                        getCore().notifications.toasts.remove(SUCCESS_TOAST_ID);
+                      }}
                     >
                       Test flow
                     </EuiSmallButton>
@@ -912,6 +918,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       onClick={async () => {
                         if (await validateAndUpdateSearchResources()) {
                           getCore().notifications.toasts.add({
+                            id: SUCCESS_TOAST_ID,
                             iconType: 'check',
                             color: 'success',
                             title: 'Search flow updated',
@@ -931,9 +938,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                                     <EuiFlexItem grow={false}>
                                       <EuiSmallButton
                                         fill={false}
-                                        onClick={() =>
-                                          props.displaySearchPanel()
-                                        }
+                                        onClick={() => {
+                                          props.displaySearchPanel();
+                                          getCore().notifications.toasts.remove(
+                                            SUCCESS_TOAST_ID
+                                          );
+                                        }}
                                       >
                                         Test flow
                                       </EuiSmallButton>
