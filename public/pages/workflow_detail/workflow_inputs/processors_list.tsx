@@ -4,8 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import semver from 'semver';
-import { getEffectiveVersion } from '../../../pages/workflows/new_workflow/new_workflow';
 import {
   EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
@@ -29,7 +29,7 @@ import {
   WorkflowFormValues,
 } from '../../../../common';
 import { formikToUiConfig, getDataSourceFromURL } from '../../../utils';
-
+import { getEffectiveVersion } from '../../../pages/workflows/new_workflow/new_workflow';
 import {
   CollapseProcessor,
   CopyIngestProcessor,
@@ -53,6 +53,12 @@ import {
   MIN_SUPPORTED_VERSION,
   MINIMUM_FULL_SUPPORTED_VERSION,
 } from '../../../../common';
+import {
+  AppState,
+  setIngestPipelineErrors,
+  setSearchPipelineErrors,
+  useAppDispatch,
+} from '../../../store';
 
 interface ProcessorsListProps {
   uiConfig: WorkflowConfig;
@@ -67,12 +73,25 @@ const PANEL_ID = 0;
  * General component for configuring pipeline processors (ingest / search request / search response)
  */
 export function ProcessorsList(props: ProcessorsListProps) {
+  const dispatch = useAppDispatch();
+  const {
+    ingestPipeline: ingestPipelineErrors,
+    searchPipeline: searchPipelineErrors,
+  } = useSelector((state: AppState) => state.errors);
   const { values, errors, touched } = useFormikContext<WorkflowFormValues>();
   const [version, setVersion] = useState<string>('');
   const location = useLocation();
   const [processorAdded, setProcessorAdded] = useState<boolean>(false);
   const [isPopoverOpen, setPopover] = useState(false);
   const [processors, setProcessors] = useState<IProcessorConfig[]>([]);
+
+  function clearProcessorErrors(): void {
+    if (props.context === PROCESSOR_CONTEXT.INGEST) {
+      dispatch(setIngestPipelineErrors({ errors: {} }));
+    } else {
+      dispatch(setSearchPipelineErrors({ errors: {} }));
+    }
+  }
 
   const closePopover = () => {
     setPopover(false);
@@ -258,6 +277,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
   // the list of processors. Additionally, persist any current form state
   // (touched, errors) so they are re-initialized when the form is reset.
   function addProcessor(processor: IProcessorConfig): void {
+    clearProcessorErrors();
     props.setCachedFormikState({
       errors,
       touched,
@@ -295,6 +315,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
   // (getting any updated/interim values along the way) delete
   // the specified processor from the list of processors
   function deleteProcessor(processorIdToDelete: string): void {
+    clearProcessorErrors();
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
     let newConfig = formikToUiConfig(values, existingConfig);
     switch (props.context) {
@@ -341,6 +362,23 @@ export function ProcessorsList(props: ProcessorsListProps) {
           }
         } catch (e) {}
 
+        const processorFormError =
+          hasErrors && allTouched
+            ? 'Invalid or missing fields detected'
+            : undefined;
+        const processorRuntimeError =
+          props.context === PROCESSOR_CONTEXT.INGEST
+            ? getIn(
+                ingestPipelineErrors,
+                `${processorIndex}.errorMsg`,
+                undefined
+              )
+            : getIn(
+                searchPipelineErrors,
+                `${processorIndex}.errorMsg`,
+                undefined
+              );
+
         return (
           <EuiFlexItem key={processorIndex}>
             <EuiPanel paddingSize="s">
@@ -354,14 +392,15 @@ export function ProcessorsList(props: ProcessorsListProps) {
                     <EuiFlexItem grow={false}>
                       <EuiText>{`${processor.name || 'Processor'}`}</EuiText>
                     </EuiFlexItem>
-                    {hasErrors && allTouched && (
+                    {(processorFormError !== undefined ||
+                      processorRuntimeError !== undefined) && (
                       <EuiFlexItem grow={false}>
                         <EuiIconTip
                           aria-label="Warning"
                           size="m"
                           type="alert"
                           color="danger"
-                          content="Invalid or missing fields detected"
+                          content={processorFormError || processorRuntimeError}
                           position="right"
                         />
                       </EuiFlexItem>

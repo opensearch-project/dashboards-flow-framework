@@ -4,6 +4,7 @@
  */
 
 import {
+  INITIAL_ERRORS_STATE,
   INITIAL_ML_STATE,
   INITIAL_OPENSEARCH_STATE,
   INITIAL_PRESETS_STATE,
@@ -38,6 +39,7 @@ export function mockStore(...workflowSets: WorkflowInput[]) {
         workflows: workflowDict,
       },
       presets: INITIAL_PRESETS_STATE,
+      errors: INITIAL_ERRORS_STATE,
     }),
     dispatch: jest.fn(),
     subscribe: jest.fn(),
