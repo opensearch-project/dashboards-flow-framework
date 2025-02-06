@@ -182,18 +182,14 @@ export function MapField(props: MapFieldProps) {
                                   <SelectWithCustomOptions
                                     fieldPath={`${props.fieldPath}.${idx}.key`}
                                     options={props.keyOptions as any[]}
-                                    placeholder={
-                                      props.keyPlaceholder || 'Input'
-                                    }
+                                    placeholder={props.keyPlaceholder || 'Key'}
                                     allowCreate={true}
                                   />
                                 ) : (
                                   <TextField
                                     fullWidth={true}
                                     fieldPath={`${props.fieldPath}.${idx}.key`}
-                                    placeholder={
-                                      props.keyPlaceholder || 'Input'
-                                    }
+                                    placeholder={props.keyPlaceholder || 'Key'}
                                     showError={false}
                                   />
                                 )}
@@ -220,7 +216,7 @@ export function MapField(props: MapFieldProps) {
                                     fieldPath={`${props.fieldPath}.${idx}.value`}
                                     options={props.valueOptions || []}
                                     placeholder={
-                                      props.valuePlaceholder || 'Output'
+                                      props.valuePlaceholder || 'Value'
                                     }
                                     allowCreate={true}
                                   />
@@ -229,7 +225,7 @@ export function MapField(props: MapFieldProps) {
                                     fullWidth={true}
                                     fieldPath={`${props.fieldPath}.${idx}.value`}
                                     placeholder={
-                                      props.valuePlaceholder || 'Output'
+                                      props.valuePlaceholder || 'Value'
                                     }
                                     showError={false}
                                   />

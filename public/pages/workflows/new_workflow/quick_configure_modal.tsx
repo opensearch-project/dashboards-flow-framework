@@ -48,6 +48,7 @@ import {
   isVectorSearchUseCase,
   WORKFLOW_NAME_RESTRICTIONS,
   MAX_DESCRIPTION_LENGTH,
+  MapFormValue,
 } from '../../../../common';
 import { APP_PATH } from '../../../utils';
 import { AppState, createWorkflow, useAppDispatch } from '../../../store';
@@ -409,6 +410,41 @@ function updateIngestProcessors(
             }
           }
           field.value = [outputMap] as OutputMapArrayFormValue;
+        }
+      });
+    } else if (processor.type === PROCESSOR_TYPE.TEXT_EMBEDDING) {
+      config.ingest.enrich.processors[idx].fields.forEach((field) => {
+        if (field.id === 'model' && fields.embeddingModelId) {
+          field.value = { id: fields.embeddingModelId };
+        }
+        if (field.id === 'field_map') {
+          field.value = [
+            {
+              key: fields.textField || '',
+              value: fields.vectorField || '',
+            },
+          ] as MapFormValue;
+        }
+      });
+    } else if (processor.type === PROCESSOR_TYPE.TEXT_IMAGE_EMBEDDING) {
+      config.ingest.enrich.processors[idx].fields.forEach((field) => {
+        if (field.id === 'model' && fields.embeddingModelId) {
+          field.value = { id: fields.embeddingModelId };
+        }
+        if (field.id === 'field_map') {
+          field.value = [
+            {
+              key: 'text',
+              value: fields.textField || '',
+            },
+            {
+              key: 'image',
+              value: fields.imageField || '',
+            },
+          ] as MapFormValue;
+        }
+        if (field.id === 'embedding') {
+          field.value = fields.vectorField || '';
         }
       });
     }

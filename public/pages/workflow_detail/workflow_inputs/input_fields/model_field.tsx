@@ -30,8 +30,9 @@ import { AppState } from '../../../../store';
 interface ModelFieldProps {
   field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
-  hasModelInterface: boolean;
-  onModelChange: (modelId: string) => void;
+  hasModelInterface?: boolean;
+  onModelChange?: (modelId: string) => void;
+  showMissingInterfaceCallout?: boolean;
 }
 
 type ModelItem = ModelFormValue & {
@@ -47,7 +48,10 @@ export function ModelField(props: ModelFieldProps) {
   // re-fetch here as it could overload client-side if user clicks back and forth /
   // keeps re-rendering this component (and subsequently re-fetching data) as they're building flows
   const models = useSelector((state: AppState) => state.ml.models);
-  //const models = {};
+
+  // Set defaults for optional props
+  const showMissingInterfaceCallout = props.showMissingInterfaceCallout ?? true;
+  const hasModelInterface = props.hasModelInterface ?? false;
 
   const { errors, touched, values } = useFormikContext<WorkflowFormValues>();
 
@@ -74,7 +78,8 @@ export function ModelField(props: ModelFieldProps) {
 
   return (
     <>
-      {!props.hasModelInterface &&
+      {showMissingInterfaceCallout &&
+        !hasModelInterface &&
         !isEmpty(getIn(values, props.fieldPath)?.id) && (
           <>
             <EuiCallOut
@@ -156,7 +161,9 @@ export function ModelField(props: ModelFieldProps) {
                   form.setFieldValue(props.fieldPath, {
                     id: option,
                   } as ModelFormValue);
-                  props.onModelChange(option);
+                  if (props.onModelChange) {
+                    props.onModelChange(option);
+                  }
                 }}
                 isInvalid={
                   getIn(errors, field.name) && getIn(touched, field.name)
