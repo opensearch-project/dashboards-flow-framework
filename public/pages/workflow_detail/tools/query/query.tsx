@@ -23,14 +23,23 @@ import {
   FETCH_ALL_QUERY,
   QueryParam,
   SearchResponse,
+  SearchResponseVerbose,
   WorkflowFormValues,
 } from '../../../../../common';
-import { AppState, searchIndex, useAppDispatch } from '../../../../store';
+import {
+  AppState,
+  searchIndex,
+  setOpenSearchError,
+  setSearchPipelineErrors,
+  useAppDispatch,
+} from '../../../../store';
 import {
   containsEmptyValues,
   containsSameValues,
+  formatSearchPipelineErrors,
   getDataSourceId,
   getPlaceholdersFromQuery,
+  getSearchPipelineErrors,
   injectParameters,
 } from '../../../../utils';
 import { QueryParamsList, Results } from '../../../../general_components';
@@ -166,9 +175,7 @@ export function Query(props: QueryProps) {
                               : [SEARCH_OPTIONS[1]]
                           }
                           selectedOptions={
-                            props.hasSearchPipeline &&
-                            includePipeline &&
-                            props.selectedStep === CONFIG_STEP.SEARCH
+                            includePipeline
                               ? [SEARCH_OPTIONS[0]]
                               : [SEARCH_OPTIONS[1]]
                           }
@@ -194,23 +201,49 @@ export function Query(props: QueryProps) {
                             apiBody: {
                               index: indexToSearch,
                               body: injectParameters(queryParams, tempRequest),
-                              searchPipeline:
-                                props.hasSearchPipeline &&
-                                includePipeline &&
-                                props.selectedStep === CONFIG_STEP.SEARCH &&
-                                !isEmpty(values?.search?.pipelineName)
-                                  ? values?.search?.pipelineName
-                                  : '_none',
+                              searchPipeline: includePipeline
+                                ? values?.search?.pipelineName
+                                : '_none',
                             },
                             dataSourceId,
+                            verbose: includePipeline,
                           })
                         )
                           .unwrap()
-                          .then(async (resp: SearchResponse) => {
-                            setQueryResponse(resp);
-                          })
+                          .then(
+                            async (
+                              resp: SearchResponse | SearchResponseVerbose
+                            ) => {
+                              if (includePipeline) {
+                                const searchPipelineErrors = getSearchPipelineErrors(
+                                  resp as SearchResponseVerbose
+                                );
+                                // The errors map may be empty; in which case, this dispatch will clear
+                                // any older errors.
+                                dispatch(
+                                  setSearchPipelineErrors({
+                                    errors: searchPipelineErrors,
+                                  })
+                                );
+                                if (!isEmpty(searchPipelineErrors)) {
+                                  dispatch(
+                                    setOpenSearchError({
+                                      error: `Error running search pipeline. ${formatSearchPipelineErrors(
+                                        searchPipelineErrors
+                                      )}`,
+                                    })
+                                  );
+                                }
+                              } else {
+                                setSearchPipelineErrors({ errors: {} });
+                              }
+
+                              setQueryResponse(resp);
+                            }
+                          )
                           .catch((error: any) => {
                             setQueryResponse(undefined);
+                            setSearchPipelineErrors({ errors: {} });
                             console.error('Error running query: ', error);
                           });
                       }}

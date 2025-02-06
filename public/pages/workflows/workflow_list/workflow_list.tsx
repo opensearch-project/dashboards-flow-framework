@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { debounce, isEmpty } from 'lodash';
+import { debounce } from 'lodash';
 import {
   EuiInMemoryTable,
   Direction,
@@ -34,6 +34,7 @@ import { MultiSelectFilter } from '../../../general_components';
 import { WORKFLOWS_TAB } from '../workflows';
 import { DeleteWorkflowModal } from './delete_workflow_modal';
 import { ResourceList } from './resource_list';
+import { isValidUiWorkflow } from '../../../utils';
 
 interface WorkflowListProps {
   setSelectedTabId: (tabId: WORKFLOWS_TAB) => void;
@@ -142,15 +143,14 @@ export function WorkflowList(props: WorkflowListProps) {
         >
           <EuiFlyoutHeader hasBorder={true}>
             <EuiText size="m">
-              <h2>{`Resources configured for'${getCharacterLimitedString(
+              <h2>{`Resources configured for '${getCharacterLimitedString(
                 selectedWorkflow.name,
                 MAX_WORKFLOW_NAME_TO_DISPLAY
               )}'`}</h2>
             </EuiText>
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
-            {selectedWorkflow?.ui_metadata === undefined ||
-            isEmpty(selectedWorkflow?.ui_metadata) ||
+            {!isValidUiWorkflow(selectedWorkflow) ||
             selectedWorkflow?.ui_metadata?.type === WORKFLOW_TYPE.UNKNOWN ? (
               <EuiEmptyPrompt
                 title={<h2>Invalid workflow type</h2>}
@@ -230,7 +230,11 @@ function fetchFilteredWorkflows(
       description: workflow.description || EMPTY_FIELD_STRING,
       ui_metadata: {
         ...workflow.ui_metadata,
-        type: workflow.ui_metadata?.type || WORKFLOW_TYPE.UNKNOWN,
+        type:
+          workflow.ui_metadata?.type !== undefined &&
+          Object.values(WORKFLOW_TYPE).includes(workflow.ui_metadata?.type)
+            ? workflow.ui_metadata?.type
+            : WORKFLOW_TYPE.UNKNOWN,
       } as UIState,
     })
   );

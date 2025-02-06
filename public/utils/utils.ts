@@ -39,10 +39,12 @@ import {
   IMAGE_FIELD_PATTERN,
   LABEL_FIELD_PATTERN,
   MODEL_ID_PATTERN,
+  WORKFLOW_TYPE,
 } from '../../common';
 import { getCore, getDataSourceEnabled } from '../services';
 import {
   Connector,
+  IngestPipelineErrors,
   InputMapEntry,
   MDSQueryParams,
   ModelInputMap,
@@ -50,6 +52,9 @@ import {
   OutputMapEntry,
   OutputMapFormValue,
   QueryParam,
+  SearchPipelineErrors,
+  SearchResponseVerbose,
+  SimulateIngestPipelineResponseVerbose,
 } from '../../common/interfaces';
 import * as pluginManifest from '../../opensearch_dashboards.json';
 import { DataSourceAttributes } from '../../../../src/plugins/data_source/common/data_sources';
@@ -147,7 +152,8 @@ export function isValidUiWorkflow(workflowObj: any): boolean {
   return (
     isValidWorkflow(workflowObj) &&
     workflowObj?.ui_metadata?.config !== undefined &&
-    workflowObj?.ui_metadata?.type !== undefined
+    workflowObj?.ui_metadata?.type !== undefined &&
+    Object.values(WORKFLOW_TYPE).includes(workflowObj?.ui_metadata?.type)
   );
 }
 
@@ -197,6 +203,59 @@ export function unwrapTransformedDocs(
     );
   }
   return transformedDocsSources;
+}
+
+// Extract any processor-level errors from a verbose simulate ingest pipeline API call
+export function getIngestPipelineErrors(
+  simulatePipelineResponse: SimulateIngestPipelineResponseVerbose
+): IngestPipelineErrors {
+  let ingestPipelineErrors = {} as IngestPipelineErrors;
+  simulatePipelineResponse.docs?.forEach((docResult) => {
+    docResult.processor_results.forEach((processorResult, idx) => {
+      if (processorResult.error?.reason !== undefined) {
+        ingestPipelineErrors[idx] = {
+          processorType: processorResult.processor_type,
+          errorMsg: processorResult.error.reason,
+        };
+      }
+    });
+  });
+  return ingestPipelineErrors;
+}
+
+export function formatIngestPipelineErrors(
+  errors: IngestPipelineErrors
+): string {
+  let msg = 'Errors found with the following ingest processor(s):\n\n';
+  Object.values(errors || {}).forEach((processorError, idx) => {
+    msg += `Processor type: ${processorError.processorType}. Error: ${processorError.errorMsg}\n\n`;
+  });
+  return msg;
+}
+
+export function getSearchPipelineErrors(
+  searchResponseVerbose: SearchResponseVerbose
+): SearchPipelineErrors {
+  let searchPipelineErrors = {} as SearchPipelineErrors;
+  searchResponseVerbose.processor_results?.forEach((processorResult, idx) => {
+    if (processorResult?.error !== undefined) {
+      searchPipelineErrors[idx] = {
+        processorType: processorResult.processor_name,
+        errorMsg: processorResult.error,
+      };
+    }
+  });
+  return searchPipelineErrors;
+}
+
+export function formatSearchPipelineErrors(
+  errors: IngestPipelineErrors
+): string {
+  let msg = 'Errors found with the following search processor(s):\n\n';
+  Object.values(errors || {}).forEach((processorError, idx) => {
+    msg += `Processor type: ${processorError.processorType}. Error: ${processorError.errorMsg}\n\n`;
+  });
+  return msg;
 }
 
 // ML inference processors will use standard dot notation or JSONPath depending on the input.
