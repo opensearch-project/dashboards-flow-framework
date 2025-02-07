@@ -11,6 +11,8 @@ import {
   EuiFlexGroup,
   EuiCompressedFieldSearch,
   EuiLoadingSpinner,
+  EuiEmptyPrompt,
+  EuiButton,
 } from '@elastic/eui';
 import { useSelector } from 'react-redux';
 import { UseCase } from './use_case';
@@ -27,7 +29,11 @@ import {
   searchConnectors,
 } from '../../../store';
 import { enrichPresetWorkflowWithUiMetadata } from './utils';
-import { getDataSourceId, isDataSourceReady } from '../../../utils';
+import {
+  getDataSourceId,
+  isDataSourceReady,
+  getAppBasePath,
+} from '../../../utils';
 import { getDataSourceEnabled } from '../../../services';
 import semver from 'semver';
 import { DataSourceAttributes } from '../../../../../../src/plugins/data_source/common/data_sources';
@@ -118,6 +124,9 @@ export function NewWorkflow(props: NewWorkflowProps) {
     WorkflowTemplate[]
   >([]);
   const [isVersionLoading, setIsVersionLoading] = useState(false);
+  const [isDataSourceIncompatible, setIsDataSourceIncompatible] = useState(
+    false
+  );
 
   // search bar state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -159,16 +168,19 @@ export function NewWorkflow(props: NewWorkflowProps) {
         setAllWorkflows(enrichedWorkflows);
         setFilteredWorkflows(enrichedWorkflows);
         setIsVersionLoading(false);
+        setIsDataSourceIncompatible(false);
         return;
       }
 
       if (!dataSourceId) {
         setAllWorkflows([]);
         setFilteredWorkflows([]);
-        setIsVersionLoading(true);
+        setIsVersionLoading(false);
+        setIsDataSourceIncompatible(true);
         return;
       }
 
+      setIsDataSourceIncompatible(false);
       setIsVersionLoading(true);
 
       const version = await getEffectiveVersion(dataSourceId);
@@ -219,6 +231,23 @@ export function NewWorkflow(props: NewWorkflowProps) {
               <EuiLoadingSpinner size="xl" />
             </EuiFlexItem>
           </EuiFlexGroup>
+        ) : isDataSourceIncompatible ? (
+          <EuiEmptyPrompt
+            title={<h2>Incompatible data source</h2>}
+            body={
+              <p>{`No compatible data source available.
+          Add a compatible data source.`}</p>
+            }
+            actions={
+              <EuiButton
+                color="primary"
+                fill
+                href={`${getAppBasePath()}/app/management/opensearch-dashboards/dataSources`}
+              >
+                Manage data sources
+              </EuiButton>
+            }
+          />
         ) : (
           <EuiFlexGrid columns={3} gutterSize="l">
             {filteredWorkflows.map((workflow: Workflow, index) => {
