@@ -40,7 +40,6 @@ import {
   getWorkflow,
   provisionWorkflow,
   setIngestPipelineErrors,
-  setOpenSearchError,
   simulatePipeline,
   updateWorkflow,
   useAppDispatch,
@@ -57,7 +56,6 @@ import {
   getDataSourceId,
   prepareDocsForSimulate,
   getIngestPipelineErrors,
-  formatIngestPipelineErrors,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
@@ -609,14 +607,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 );
                 if (isEmpty(ingestPipelineErrors)) {
                   bulkIngest(ingestDocsObjs);
-                } else {
-                  dispatch(
-                    setOpenSearchError({
-                      error: `Data not ingested. ${formatIngestPipelineErrors(
-                        ingestPipelineErrors
-                      )}`,
-                    })
-                  );
                 }
               })
               .catch((error: any) => {
