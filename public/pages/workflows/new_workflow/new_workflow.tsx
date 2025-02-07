@@ -39,6 +39,7 @@ import {
   MIN_SUPPORTED_VERSION,
   MINIMUM_FULL_SUPPORTED_VERSION,
 } from '../../../../common/constants';
+import { getLocalClusterVersion } from '../../../store/reducers/opensearch_reducer';
 
 interface NewWorkflowProps {}
 
@@ -52,7 +53,7 @@ const filterPresetsByVersion = async (
     return workflows;
   }
 
-  if (!dataSourceId) {
+  if (dataSourceId === undefined) {
     return [];
   }
 
@@ -92,14 +93,18 @@ export function NewWorkflow(props: NewWorkflowProps) {
   const dataSourceId = getDataSourceId();
   const dataSourceEnabled = getDataSourceEnabled().enabled;
   // workflows state
-  const { presetWorkflows, loading } = useSelector(
+  const { presetWorkflows, loading: presetsLoading } = useSelector(
     (state: AppState) => state.presets
   );
+  const { loading: opensearchLoading, localClusterVersion } = useSelector(
+    (state: AppState) => state.opensearch
+  );
+  const isLoading = presetsLoading || opensearchLoading;
+
   const [allWorkflows, setAllWorkflows] = useState<WorkflowTemplate[]>([]);
   const [filteredWorkflows, setFilteredWorkflows] = useState<
     WorkflowTemplate[]
   >([]);
-  const [isVersionLoading, setIsVersionLoading] = useState(false);
 
   // search bar state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -118,6 +123,9 @@ export function NewWorkflow(props: NewWorkflowProps) {
       dispatch(
         searchConnectors({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId })
       );
+    }
+    if (dataSourceId === '') {
+      dispatch(getLocalClusterVersion());
     }
   }, [dataSourceId, dataSourceEnabled]);
 
@@ -140,18 +148,14 @@ export function NewWorkflow(props: NewWorkflowProps) {
         );
         setAllWorkflows(enrichedWorkflows);
         setFilteredWorkflows(enrichedWorkflows);
-        setIsVersionLoading(false);
         return;
       }
 
-      if (!dataSourceId) {
+      if (dataSourceId === undefined) {
         setAllWorkflows([]);
         setFilteredWorkflows([]);
-        setIsVersionLoading(true);
         return;
       }
-
-      setIsVersionLoading(true);
 
       const version = await getEffectiveVersion(dataSourceId);
 
@@ -166,11 +170,10 @@ export function NewWorkflow(props: NewWorkflowProps) {
 
       setAllWorkflows(versionFilteredWorkflows);
       setFilteredWorkflows(versionFilteredWorkflows);
-      setIsVersionLoading(false);
     };
 
     loadWorkflows();
-  }, [presetWorkflows, dataSourceId, dataSourceEnabled]);
+  }, [presetWorkflows, dataSourceId, dataSourceEnabled, localClusterVersion]);
 
   // When search query updated, re-filter preset list
   useEffect(() => {
@@ -191,7 +194,7 @@ export function NewWorkflow(props: NewWorkflowProps) {
         />
       </EuiFlexItem>
       <EuiFlexItem>
-        {loading || isVersionLoading ? (
+        {isLoading ? (
           <EuiFlexGroup
             justifyContent="center"
             alignItems="center"
