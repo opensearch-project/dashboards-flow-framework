@@ -21,18 +21,21 @@ import {
   MODEL_STATE,
   WorkflowFormValues,
   ModelFormValue,
-  IConfigField,
   ML_CHOOSE_MODEL_LINK,
   ML_REMOTE_MODEL_LINK,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 
 interface ModelFieldProps {
-  field: IConfigField;
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   hasModelInterface?: boolean;
   onModelChange?: (modelId: string) => void;
   showMissingInterfaceCallout?: boolean;
+  label?: string;
+  helpText?: string;
+  fullWidth?: boolean;
+  showError?: boolean;
+  showInvalid?: boolean;
 }
 
 type ModelItem = ModelFormValue & {
@@ -118,9 +121,14 @@ export function ModelField(props: ModelFieldProps) {
       )}
       <Field name={props.fieldPath}>
         {({ field, form }: FieldProps) => {
+          const isInvalid =
+            (props.showInvalid ?? true) &&
+            getIn(errors, `${field.name}.id`) &&
+            getIn(touched, `${field.name}.id`);
           return (
             <EuiCompressedFormRow
-              label={'Model'}
+              fullWidth={props.fullWidth}
+              label={props.label || 'Model'}
               labelAppend={
                 <EuiText size="xs">
                   <EuiLink href={ML_CHOOSE_MODEL_LINK} target="_blank">
@@ -128,9 +136,12 @@ export function ModelField(props: ModelFieldProps) {
                   </EuiLink>
                 </EuiText>
               }
-              helpText={'The model ID.'}
+              helpText={props.helpText || 'The model ID.'}
+              isInvalid={isInvalid}
+              error={props.showError && getIn(errors, `${field.name}.id`)}
             >
               <EuiCompressedSuperSelect
+                fullWidth={props.fullWidth}
                 disabled={isEmpty(deployedModels)}
                 options={deployedModels.map(
                   (option) =>
@@ -165,11 +176,7 @@ export function ModelField(props: ModelFieldProps) {
                     props.onModelChange(option);
                   }
                 }}
-                isInvalid={
-                  getIn(errors, field.name) && getIn(touched, field.name)
-                    ? true
-                    : undefined
-                }
+                isInvalid={isInvalid}
               />
             </EuiCompressedFormRow>
           );

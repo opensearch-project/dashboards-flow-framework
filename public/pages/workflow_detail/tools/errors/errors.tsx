@@ -4,7 +4,12 @@
  */
 
 import React from 'react';
-import { EuiCodeBlock, EuiEmptyPrompt, EuiSpacer } from '@elastic/eui';
+import {
+  EuiCodeBlock,
+  EuiEmptyPrompt,
+  EuiFlexItem,
+  EuiSpacer,
+} from '@elastic/eui';
 
 interface ErrorsProps {
   errorMessages: string[];
@@ -23,12 +28,12 @@ export function Errors(props: ErrorsProps) {
         <>
           {props.errorMessages.map((errorMessage, idx) => {
             return (
-              <>
+              <EuiFlexItem grow={false} key={idx}>
                 <EuiSpacer size="m" />
                 <EuiCodeBlock fontSize="m" isCopyable={false} paddingSize="s">
                   {errorMessage}
                 </EuiCodeBlock>
-              </>
+              </EuiFlexItem>
             );
           })}
         </>
