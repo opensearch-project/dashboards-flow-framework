@@ -141,6 +141,7 @@ export function ModelField(props: ModelFieldProps) {
               error={props.showError && getIn(errors, `${field.name}.id`)}
             >
               <EuiCompressedSuperSelect
+                data-testid="selectDeployedModel"
                 fullWidth={props.fullWidth}
                 disabled={isEmpty(deployedModels)}
                 options={deployedModels.map(
