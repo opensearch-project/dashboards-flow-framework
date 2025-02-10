@@ -126,7 +126,6 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
             el = (
               <EuiFlexItem key={idx}>
                 <ModelField
-                  field={field}
                   fieldPath={fieldPath}
                   showMissingInterfaceCallout={false}
                 />

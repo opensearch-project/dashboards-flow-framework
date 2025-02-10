@@ -5,6 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import * as yup from 'yup';
+import { Formik, getIn } from 'formik';
 import { isEmpty } from 'lodash';
 import { useSelector } from 'react-redux';
 import { flattie } from 'flattie';
@@ -16,9 +18,12 @@ import {
   EuiModalBody,
   EuiModalFooter,
   EuiSmallButtonEmpty,
-  EuiCompressedFieldText,
-  EuiCompressedFormRow,
-  EuiCompressedTextArea,
+  EuiFlexItem,
+  EuiFlexGroup,
+  EuiCallOut,
+  EuiSpacer,
+  EuiText,
+  EuiLink,
 } from '@elastic/eui';
 import {
   DEFAULT_PROMPT_RESULTS_FIELD,
@@ -49,76 +54,141 @@ import {
   WORKFLOW_NAME_RESTRICTIONS,
   MAX_DESCRIPTION_LENGTH,
   MapFormValue,
+  MAX_STRING_LENGTH,
+  Model,
+  MODEL_STATE,
+  ML_REMOTE_MODEL_LINK,
 } from '../../../../common';
-import { APP_PATH } from '../../../utils';
+import { APP_PATH, getInitialValue } from '../../../utils';
 import { AppState, createWorkflow, useAppDispatch } from '../../../store';
 import {
   constructUrlWithParams,
   getDataSourceId,
+  getEmbeddingModelDimensions,
   parseModelInputs,
   parseModelOutputs,
 } from '../../../utils/utils';
-import { QuickConfigureInputs } from './quick_configure_inputs';
+import { QuickConfigureOptionalFields } from './quick_configure_optional_fields';
+import { ModelField, TextField } from '../../workflow_detail/workflow_inputs';
 
 interface QuickConfigureModalProps {
   workflow: Workflow;
   onClose(): void;
 }
 
-// Modal to handle workflow creation. Includes a static field to set the workflow name, and
-// an optional set of quick-configure fields, that when populated, help pre-populate
-// some of the detailed workflow configuration.
+// Modal to handle workflow creation. Includes a static field to set the workflow name,
+// any required models, and an optional set of quick-configure fields, that when populated,
+// help pre-populate some of the detailed workflow configuration.
 export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const history = useHistory();
-  const { models } = useSelector((state: AppState) => state.ml);
+  const { models, connectors } = useSelector((state: AppState) => state.ml);
   const { workflows } = useSelector((state: AppState) => state.workflows);
 
-  // model interface states
+  // is creating state
+  const [isCreating, setIsCreating] = useState<boolean>(false);
+
+  // The set of both req'd and optional fields
+  const [quickConfigureFields, setQuickConfigureFields] = useState<
+    QuickConfigureFields
+  >({});
+
+  // sub-form values/schema. dependent on the workflow type.
+  // certain types require different subsets of models.
+  const [tempErrors, setTempErrors] = useState<boolean>(false);
+  const [formValues, setFormValues] = useState<{}>({});
+  const [formSchemaObj, setFormSchemaObj] = useState<{}>({});
+  useEffect(() => {
+    const workflowType = props.workflow?.ui_metadata?.type;
+    // All workflows require a unique name, and optional description.
+    let tempFormValues = {
+      name: getInitialValue('string'),
+      description: getInitialValue('string'),
+    } as {};
+    let tempFormSchemaObj = {
+      name: yup
+        .string()
+        .test('workflowName', WORKFLOW_NAME_RESTRICTIONS, (name) => {
+          return !(
+            name === undefined ||
+            name === '' ||
+            name.length > 100 ||
+            WORKFLOW_NAME_REGEXP.test(name) === false
+          );
+        })
+        .test(
+          'workflowName',
+          'This workflow name is already in use. Use a different name',
+          (name) => {
+            return !(
+              Object.values(workflows || {})
+                .map((workflow) => workflow.name)
+                .includes(name || '') && name !== props.workflow?.name
+            );
+          }
+        )
+        .required('Required') as yup.Schema,
+      description: yup
+        .string()
+        .min(0)
+        .max(MAX_DESCRIPTION_LENGTH, 'Too long')
+        .optional() as yup.Schema,
+    } as {};
+
+    // If not custom/blank, we will have more req'd form fields for the users to supply
+    if (workflowType !== WORKFLOW_TYPE.CUSTOM) {
+      // if a RAG workflow, require an LLM
+      if (
+        workflowType === WORKFLOW_TYPE.RAG ||
+        workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG
+      ) {
+        tempFormValues = {
+          ...tempFormValues,
+          llm: getInitialValue('model'),
+        };
+        tempFormSchemaObj = {
+          ...tempFormSchemaObj,
+          llm: yup.object({
+            id: yup
+              .string()
+              .trim()
+              .min(1, 'Too short')
+              .max(MAX_STRING_LENGTH, 'Too long')
+              .required('Required'),
+          }),
+        };
+      }
+      // all workflows besides custom and vanilla RAG require an embedding model
+      if (workflowType !== WORKFLOW_TYPE.RAG) {
+        tempFormValues = {
+          ...tempFormValues,
+          embeddingModel: getInitialValue('model'),
+        };
+        tempFormSchemaObj = {
+          ...tempFormSchemaObj,
+          embeddingModel: yup.object({
+            id: yup
+              .string()
+              .trim()
+              .min(1, 'Too short')
+              .max(MAX_STRING_LENGTH, 'Too long')
+              .required('Required'),
+          }),
+        };
+      }
+    }
+    setFormValues(tempFormValues);
+    setFormSchemaObj(tempFormSchemaObj);
+  }, [props.workflow?.ui_metadata?.type]);
+
+  // model interface states, used for pre-populating some of the downstream ML processor configs
   const [embeddingModelInterface, setEmbeddingModelInterface] = useState<
     ModelInterface | undefined
   >(undefined);
   const [llmInterface, setLLMInterface] = useState<ModelInterface | undefined>(
     undefined
   );
-
-  // workflow name state
-  const [workflowName, setWorkflowName] = useState<string>('');
-  const [workflowNameTouched, setWorkflowNameTouched] = useState<boolean>(
-    false
-  );
-  const workflowNameExists = Object.values(workflows || {})
-    .map((workflow) => workflow.name)
-    .includes(workflowName);
-
-  // workflow description state
-  const [workflowDescription, setWorkflowDescription] = useState<string>('');
-
-  const [quickConfigureFields, setQuickConfigureFields] = useState<
-    QuickConfigureFields
-  >({});
-
-  // is creating state
-  const [isCreating, setIsCreating] = useState<boolean>(false);
-
-  // custom sanitization on workflow name
-  function isInvalidName(name: string): boolean {
-    return (
-      name === '' ||
-      name.length > 100 ||
-      WORKFLOW_NAME_REGEXP.test(name) === false ||
-      workflowNameExists
-    );
-  }
-
-  // custom sanitization on workflow description
-  function isInvalidDescription(description: string): boolean {
-    return description.length > MAX_DESCRIPTION_LENGTH;
-  }
-
-  // fetching model interface if available. used to prefill some
-  // of the input/output maps
   useEffect(() => {
     setEmbeddingModelInterface(
       models[quickConfigureFields?.embeddingModelId || '']?.interface
@@ -128,111 +198,236 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
     setLLMInterface(models[quickConfigureFields?.llmId || '']?.interface);
   }, [models, quickConfigureFields?.llmId]);
 
+  // Deployed models state
+  const [deployedModels, setDeployedModels] = useState<Model[]>([]);
+  useEffect(() => {
+    if (models) {
+      setDeployedModels(
+        Object.values(models || {}).filter(
+          (model) => model.state === MODEL_STATE.DEPLOYED
+        )
+      );
+    }
+  }, [models]);
+
+  // Try to pre-fill the dimensions if an embedding model is selected
+  const [unknownEmbeddingLength, setUnknownEmbeddingLength] = useState<boolean>(
+    false
+  );
+  useEffect(() => {
+    const selectedModel = deployedModels.find(
+      (model) => model.id === quickConfigureFields?.embeddingModelId
+    );
+    if (selectedModel?.connectorId !== undefined) {
+      const connector = connectors[selectedModel.connectorId];
+      if (connector !== undefined) {
+        const dimensions = getEmbeddingModelDimensions(connector);
+        if (dimensions === undefined) {
+          setUnknownEmbeddingLength(true);
+        }
+        setUnknownEmbeddingLength(dimensions === undefined);
+        setQuickConfigureFields({
+          ...quickConfigureFields,
+          embeddingLength: getEmbeddingModelDimensions(connector),
+        });
+      }
+    }
+  }, [quickConfigureFields?.embeddingModelId, deployedModels, connectors]);
+
   return (
-    <EuiModal onClose={() => props.onClose()} style={{ width: '40vw' }}>
-      <EuiModalHeader>
-        <EuiModalHeaderTitle>
-          <p>{`Quick configure`}</p>
-        </EuiModalHeaderTitle>
-      </EuiModalHeader>
-      <EuiModalBody>
-        <EuiCompressedFormRow
-          fullWidth={true}
-          label={'Name'}
-          error={
-            workflowNameExists
-              ? 'This workflow name is already in use. Use a different name'
-              : WORKFLOW_NAME_RESTRICTIONS
-          }
-          isInvalid={workflowNameTouched && isInvalidName(workflowName)}
-        >
-          <EuiCompressedFieldText
-            fullWidth={true}
-            placeholder={'Enter a name for this workflow'}
-            value={workflowName}
-            onChange={(e) => {
-              setWorkflowNameTouched(true);
-              setWorkflowName(e.target.value?.trim());
-            }}
-            onBlur={() => setWorkflowNameTouched(true)}
-          />
-        </EuiCompressedFormRow>
-        <EuiCompressedFormRow
-          fullWidth={true}
-          label={'Description'}
-          error={'Too long'}
-          isInvalid={isInvalidDescription(workflowDescription)}
-        >
-          <EuiCompressedTextArea
-            fullWidth={true}
-            placeholder="Enter a description for this workflow"
-            value={workflowDescription}
-            onChange={(e) => {
-              setWorkflowDescription(e.target.value);
-            }}
-          />
-        </EuiCompressedFormRow>
-        <QuickConfigureInputs
-          workflowType={props.workflow.ui_metadata?.type}
-          setFields={setQuickConfigureFields}
-        />
-      </EuiModalBody>
-      <EuiModalFooter>
-        <EuiSmallButtonEmpty
-          onClick={() => props.onClose()}
-          data-testid="quickConfigureCancelButton"
-        >
-          Cancel
-        </EuiSmallButtonEmpty>
-        <EuiSmallButton
-          disabled={isInvalidName(workflowName) || isCreating}
-          isLoading={isCreating}
-          onClick={() => {
-            setIsCreating(true);
-            let workflowToCreate = {
-              ...props.workflow,
-              name: workflowName,
-              description: workflowDescription,
-            } as Workflow;
-            if (!isEmpty(quickConfigureFields)) {
-              workflowToCreate = injectQuickConfigureFields(
-                workflowToCreate,
-                quickConfigureFields,
-                embeddingModelInterface,
-                llmInterface
-              );
-            }
-            dispatch(
-              createWorkflow({
-                apiBody: workflowToCreate,
-                dataSourceId,
-              })
-            )
-              .unwrap()
-              .then((result) => {
-                setIsCreating(false);
-                const { workflow } = result;
-                history.replace(
-                  constructUrlWithParams(
-                    APP_PATH.WORKFLOWS,
-                    workflow.id,
-                    dataSourceId
-                  )
-                );
-              })
-              .catch((err: any) => {
-                setIsCreating(false);
-                console.error(err);
-              });
-          }}
-          data-testid="quickConfigureCreateButton"
-          fill={true}
-          color="primary"
-        >
-          Create
-        </EuiSmallButton>
-      </EuiModalFooter>
-    </EuiModal>
+    <Formik
+      enableReinitialize={true}
+      initialValues={formValues}
+      validationSchema={yup.object(formSchemaObj)}
+      onSubmit={(values) => {}}
+      validate={(values) => {}}
+    >
+      {(formikProps) => {
+        // update tempErrors if errors detected
+        useEffect(() => {
+          setTempErrors(!isEmpty(formikProps.errors));
+        }, [formikProps.errors]);
+
+        return (
+          <EuiModal onClose={() => props.onClose()} style={{ width: '40vw' }}>
+            <EuiModalHeader>
+              <EuiModalHeaderTitle>
+                <p>{`Quick configure`}</p>
+              </EuiModalHeaderTitle>
+            </EuiModalHeader>
+            <EuiModalBody>
+              <EuiFlexGroup direction="column" gutterSize="s">
+                <EuiFlexItem>
+                  <TextField
+                    label="Name - required"
+                    fullWidth={true}
+                    fieldPath={`name`}
+                    showError={true}
+                  />
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <TextField
+                    label="Description - optional"
+                    fullWidth={true}
+                    fieldPath={`description`}
+                    showError={true}
+                    placeholder="Provide a description for this workflow."
+                    textArea={true}
+                  />
+                </EuiFlexItem>
+                {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM &&
+                  isEmpty(deployedModels) && (
+                    <EuiFlexItem>
+                      <EuiCallOut
+                        color="warning"
+                        iconType={'alert'}
+                        size="s"
+                        title={
+                          <EuiText size="s">
+                            Preset unavailable. You have no models registered in
+                            your cluster.{' '}
+                            <EuiLink
+                              href={ML_REMOTE_MODEL_LINK}
+                              target="_blank"
+                            >
+                              Learn more
+                            </EuiLink>{' '}
+                            about integrating ML models.
+                          </EuiText>
+                        }
+                      />
+                    </EuiFlexItem>
+                  )}
+                {(props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.RAG ||
+                  props.workflow?.ui_metadata?.type ===
+                    WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) &&
+                  !isEmpty(deployedModels) && (
+                    <EuiFlexItem>
+                      <ModelField
+                        fieldPath="llm"
+                        showMissingInterfaceCallout={false}
+                        label="Large language model - required"
+                        helpText="The large language model to generate user-friendly responses."
+                        fullWidth={true}
+                        showError={true}
+                        onModelChange={(modelId) =>
+                          setQuickConfigureFields({
+                            ...quickConfigureFields,
+                            llmId: modelId,
+                          })
+                        }
+                      />
+                    </EuiFlexItem>
+                  )}
+                {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM &&
+                  props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.RAG &&
+                  !isEmpty(deployedModels) && (
+                    <EuiFlexItem>
+                      <>
+                        {unknownEmbeddingLength && (
+                          <>
+                            <EuiCallOut
+                              size="s"
+                              title="No embedding length found. Make sure to manually configure below."
+                              color="warning"
+                            />
+                            <EuiSpacer size="s" />
+                          </>
+                        )}
+                        <ModelField
+                          fieldPath="embeddingModel"
+                          showMissingInterfaceCallout={false}
+                          label="Embedding model - required"
+                          helpText="The model to generate embeddings."
+                          fullWidth={true}
+                          showError={true}
+                          onModelChange={(modelId) =>
+                            setQuickConfigureFields({
+                              ...quickConfigureFields,
+                              embeddingModelId: modelId,
+                            })
+                          }
+                        />
+                      </>
+                    </EuiFlexItem>
+                  )}
+              </EuiFlexGroup>
+              {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM && (
+                <>
+                  <EuiSpacer size="m" />
+                  <QuickConfigureOptionalFields
+                    workflowType={props.workflow.ui_metadata?.type}
+                    fields={quickConfigureFields}
+                    setFields={setQuickConfigureFields}
+                  />
+                </>
+              )}
+            </EuiModalBody>
+            <EuiModalFooter>
+              <EuiSmallButtonEmpty
+                onClick={() => props.onClose()}
+                data-testid="quickConfigureCancelButton"
+              >
+                Cancel
+              </EuiSmallButtonEmpty>
+              <EuiSmallButton
+                disabled={tempErrors || isCreating}
+                isLoading={isCreating}
+                onClick={() => {
+                  formikProps.submitForm().then(() => {
+                    formikProps.validateForm().then((resp) => {
+                      if (isEmpty(resp)) {
+                        setIsCreating(true);
+                        let workflowToCreate = {
+                          ...props.workflow,
+                          name: getIn(formikProps.values, 'name'),
+                          description: getIn(formikProps.values, 'description'),
+                        } as Workflow;
+                        if (!isEmpty(quickConfigureFields)) {
+                          workflowToCreate = injectQuickConfigureFields(
+                            workflowToCreate,
+                            quickConfigureFields,
+                            embeddingModelInterface,
+                            llmInterface
+                          );
+                        }
+                        dispatch(
+                          createWorkflow({
+                            apiBody: workflowToCreate,
+                            dataSourceId,
+                          })
+                        )
+                          .unwrap()
+                          .then((result) => {
+                            setIsCreating(false);
+                            const { workflow } = result;
+                            history.replace(
+                              constructUrlWithParams(
+                                APP_PATH.WORKFLOWS,
+                                workflow.id,
+                                dataSourceId
+                              )
+                            );
+                          })
+                          .catch((err: any) => {
+                            setIsCreating(false);
+                            console.error(err);
+                          });
+                      }
+                    });
+                  });
+                }}
+                data-testid="quickConfigureCreateButton"
+                fill={true}
+                color="primary"
+              >
+                Create
+              </EuiSmallButton>
+            </EuiModalFooter>
+          </EuiModal>
+        );
+      }}
+    </Formik>
   );
 }
 

@@ -44,35 +44,55 @@ const PANEL_TITLE = 'Inspect flows';
  * The base Tools component for performing ingest and search, viewing resources, and debugging.
  */
 export function Tools(props: ToolsProps) {
-  // error message state
+  // error message states. Error may come from several different sources.
   const { opensearch, workflows } = useSelector((state: AppState) => state);
   const opensearchError = opensearch.errorMessage;
   const workflowsError = workflows.errorMessage;
-  const [curErrorMessage, setCurErrorMessage] = useState<string>('');
+  const {
+    ingestPipeline: ingestPipelineErrors,
+    searchPipeline: searchPipelineErrors,
+  } = useSelector((state: AppState) => state.errors);
+  const [curErrorMessages, setCurErrorMessages] = useState<string[]>([]);
 
-  // auto-navigate to errors tab if a new error has been set as a result of
-  // executing OpenSearch or Flow Framework workflow APIs, or from the workflow state
-  // (note that if provision/deprovision fails, there is no concrete exception returned at the API level -
-  // it is just set in the workflow's error field when fetching workflow state)
+  // Propagate any errors coming from opensearch API calls, including ingest/search pipeline verbose calls.
   useEffect(() => {
-    setCurErrorMessage(opensearchError);
-    if (!isEmpty(opensearchError)) {
-      props.setSelectedTabId(INSPECTOR_TAB_ID.ERRORS);
+    if (
+      !isEmpty(opensearchError) ||
+      !isEmpty(ingestPipelineErrors) ||
+      !isEmpty(searchPipelineErrors)
+    ) {
+      if (!isEmpty(opensearchError)) {
+        setCurErrorMessages([opensearchError]);
+      } else if (!isEmpty(ingestPipelineErrors)) {
+        setCurErrorMessages([
+          'Data not ingested. Errors found with the following ingest processor(s):',
+          ...Object.values(ingestPipelineErrors).map((value) => value.errorMsg),
+        ]);
+      } else if (!isEmpty(searchPipelineErrors)) {
+        setCurErrorMessages([
+          'Errors found with the following search processor(s)',
+          ...Object.values(searchPipelineErrors).map((value) => value.errorMsg),
+        ]);
+      }
+    } else {
+      setCurErrorMessages([]);
     }
-  }, [opensearchError]);
+  }, [opensearchError, ingestPipelineErrors, searchPipelineErrors]);
 
+  // Propagate any errors coming from the workflow, either runtime from API call, or persisted in the indexed workflow itself.
   useEffect(() => {
-    setCurErrorMessage(workflowsError);
-    if (!isEmpty(workflowsError)) {
-      props.setSelectedTabId(INSPECTOR_TAB_ID.ERRORS);
-    }
+    setCurErrorMessages(!isEmpty(workflowsError) ? [workflowsError] : []);
   }, [workflowsError]);
   useEffect(() => {
-    setCurErrorMessage(props.workflow?.error || '');
-    if (!isEmpty(props.workflow?.error)) {
+    setCurErrorMessages(props.workflow?.error ? [props.workflow.error] : []);
+  }, [props.workflow?.error]);
+
+  // auto-navigate to errors tab if new errors have been found
+  useEffect(() => {
+    if (curErrorMessages.length > 0) {
       props.setSelectedTabId(INSPECTOR_TAB_ID.ERRORS);
     }
-  }, [props.workflow?.error]);
+  }, [curErrorMessages]);
 
   // auto-navigate to ingest tab if a populated value has been set, indicating ingest has been ran
   useEffect(() => {
@@ -136,7 +156,7 @@ export function Tools(props: ToolsProps) {
                   />
                 )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.ERRORS && (
-                  <Errors errorMessage={curErrorMessage} />
+                  <Errors errorMessages={curErrorMessages} />
                 )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.RESOURCES && (
                   <Resources workflow={props.workflow} />

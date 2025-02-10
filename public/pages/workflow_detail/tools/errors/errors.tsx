@@ -4,11 +4,15 @@
  */
 
 import React from 'react';
-import { EuiCodeBlock, EuiEmptyPrompt } from '@elastic/eui';
-import { isEmpty } from 'lodash';
+import {
+  EuiCodeBlock,
+  EuiEmptyPrompt,
+  EuiFlexItem,
+  EuiSpacer,
+} from '@elastic/eui';
 
 interface ErrorsProps {
-  errorMessage: string;
+  errorMessages: string[];
 }
 
 /**
@@ -18,12 +22,21 @@ interface ErrorsProps {
 export function Errors(props: ErrorsProps) {
   return (
     <>
-      {isEmpty(props.errorMessage) ? (
+      {props.errorMessages?.length === 0 ? (
         <EuiEmptyPrompt title={<h2>No errors</h2>} titleSize="s" />
       ) : (
-        <EuiCodeBlock fontSize="m" isCopyable={false}>
-          {props.errorMessage}
-        </EuiCodeBlock>
+        <>
+          {props.errorMessages.map((errorMessage, idx) => {
+            return (
+              <EuiFlexItem grow={false} key={idx}>
+                <EuiSpacer size="m" />
+                <EuiCodeBlock fontSize="m" isCopyable={false} paddingSize="s">
+                  {errorMessage}
+                </EuiCodeBlock>
+              </EuiFlexItem>
+            );
+          })}
+        </>
       )}
     </>
   );

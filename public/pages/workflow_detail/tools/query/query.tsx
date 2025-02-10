@@ -29,14 +29,12 @@ import {
 import {
   AppState,
   searchIndex,
-  setOpenSearchError,
   setSearchPipelineErrors,
   useAppDispatch,
 } from '../../../../store';
 import {
   containsEmptyValues,
   containsSameValues,
-  formatSearchPipelineErrors,
   getDataSourceId,
   getPlaceholdersFromQuery,
   getSearchPipelineErrors,
@@ -225,15 +223,6 @@ export function Query(props: QueryProps) {
                                     errors: searchPipelineErrors,
                                   })
                                 );
-                                if (!isEmpty(searchPipelineErrors)) {
-                                  dispatch(
-                                    setOpenSearchError({
-                                      error: `Error running search pipeline. ${formatSearchPipelineErrors(
-                                        searchPipelineErrors
-                                      )}`,
-                                    })
-                                  );
-                                }
                               } else {
                                 setSearchPipelineErrors({ errors: {} });
                               }
