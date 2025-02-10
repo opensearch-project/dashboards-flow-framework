@@ -40,7 +40,6 @@ import {
   getWorkflow,
   provisionWorkflow,
   setIngestPipelineErrors,
-  setOpenSearchError,
   simulatePipeline,
   updateWorkflow,
   useAppDispatch,
@@ -57,7 +56,6 @@ import {
   getDataSourceId,
   prepareDocsForSimulate,
   getIngestPipelineErrors,
-  formatIngestPipelineErrors,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
@@ -80,6 +78,8 @@ interface WorkflowInputsProps {
   displaySearchPanel: () => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
 }
+
+const SUCCESS_TOAST_ID = 'success_toast_id';
 
 /**
  * The workflow inputs component containing the multi-step flow to create ingest
@@ -290,6 +290,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         props.setIsRunningIngest(false);
         setLastIngested(Date.now());
         getCore().notifications.toasts.add({
+          id: SUCCESS_TOAST_ID,
           iconType: 'check',
           color: 'success',
           title: 'Ingest flow updated',
@@ -306,7 +307,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   <EuiFlexItem grow={false}>
                     <EuiSmallButton
                       fill={false}
-                      onClick={() => props.displaySearchPanel()}
+                      onClick={() => {
+                        props.displaySearchPanel();
+                        getCore().notifications.toasts.remove(SUCCESS_TOAST_ID);
+                      }}
                     >
                       Test flow
                     </EuiSmallButton>
@@ -603,14 +607,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 );
                 if (isEmpty(ingestPipelineErrors)) {
                   bulkIngest(ingestDocsObjs);
-                } else {
-                  dispatch(
-                    setOpenSearchError({
-                      error: `Data not ingested. ${formatIngestPipelineErrors(
-                        ingestPipelineErrors
-                      )}`,
-                    })
-                  );
                 }
               })
               .catch((error: any) => {
@@ -912,6 +908,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       onClick={async () => {
                         if (await validateAndUpdateSearchResources()) {
                           getCore().notifications.toasts.add({
+                            id: SUCCESS_TOAST_ID,
                             iconType: 'check',
                             color: 'success',
                             title: 'Search flow updated',
@@ -931,9 +928,12 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                                     <EuiFlexItem grow={false}>
                                       <EuiSmallButton
                                         fill={false}
-                                        onClick={() =>
-                                          props.displaySearchPanel()
-                                        }
+                                        onClick={() => {
+                                          props.displaySearchPanel();
+                                          getCore().notifications.toasts.remove(
+                                            SUCCESS_TOAST_ID
+                                          );
+                                        }}
                                       >
                                         Test flow
                                       </EuiSmallButton>

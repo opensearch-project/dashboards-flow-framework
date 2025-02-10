@@ -4,3 +4,4 @@
  */
 
 export * from './workflow_inputs';
+export * from './input_fields';

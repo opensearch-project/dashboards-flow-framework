@@ -200,7 +200,6 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
         />
       ) : (
         <ModelField
-          field={modelField}
           fieldPath={modelFieldPath}
           hasModelInterface={modelInterface !== undefined}
           onModelChange={onModelChange}

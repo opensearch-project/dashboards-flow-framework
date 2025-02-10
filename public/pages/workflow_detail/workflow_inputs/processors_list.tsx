@@ -17,7 +17,8 @@ import {
   EuiAccordion,
   EuiSpacer,
   EuiText,
-  EuiIconTip,
+  EuiIcon,
+  EuiCallOut,
 } from '@elastic/eui';
 import { cloneDeep, isEmpty } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
@@ -84,6 +85,11 @@ export function ProcessorsList(props: ProcessorsListProps) {
   const [processorAdded, setProcessorAdded] = useState<boolean>(false);
   const [isPopoverOpen, setPopover] = useState(false);
   const [processors, setProcessors] = useState<IProcessorConfig[]>([]);
+
+  // Accordions do not persist an open/closed state, so we manually persist
+  const [processorOpenState, setProcessorOpenState] = useState<{
+    [processorId: string]: boolean;
+  }>({});
 
   function clearProcessorErrors(): void {
     if (props.context === PROCESSOR_CONTEXT.INGEST) {
@@ -379,31 +385,60 @@ export function ProcessorsList(props: ProcessorsListProps) {
                 `${processorIndex}.errorMsg`,
                 undefined
               );
+        const errorFound =
+          processorFormError !== undefined ||
+          processorRuntimeError !== undefined;
+        const isAddedProcessor =
+          processorAdded && processorIndex === processors.length - 1;
+        const processorOpen =
+          processorOpenState[processor.id] ?? isAddedProcessor;
+        const errorMsg = processorFormError
+          ? 'Form error(s) detected'
+          : 'Runtime error(s) detected';
 
         return (
           <EuiFlexItem key={processorIndex}>
             <EuiPanel paddingSize="s">
               <EuiAccordion
-                initialIsOpen={
-                  processorAdded && processorIndex === processors.length - 1
-                }
+                initialIsOpen={isAddedProcessor}
                 id={`accordion${processor.id}`}
+                onToggle={(isOpen) => {
+                  setProcessorOpenState({
+                    ...processorOpenState,
+                    [processor.id]: isOpen,
+                  });
+                }}
                 buttonContent={
-                  <EuiFlexGroup direction="row">
+                  <EuiFlexGroup direction="column" gutterSize="none">
                     <EuiFlexItem grow={false}>
                       <EuiText>{`${processor.name || 'Processor'}`}</EuiText>
                     </EuiFlexItem>
-                    {(processorFormError !== undefined ||
-                      processorRuntimeError !== undefined) && (
+                    {errorFound && !processorOpen && (
                       <EuiFlexItem grow={false}>
-                        <EuiIconTip
-                          aria-label="Warning"
-                          size="m"
-                          type="alert"
-                          color="danger"
-                          content={processorFormError || processorRuntimeError}
-                          position="right"
-                        />
+                        <EuiFlexGroup
+                          direction="row"
+                          gutterSize="s"
+                          alignItems="flexStart"
+                        >
+                          <EuiFlexItem grow={false}>
+                            <EuiIcon
+                              color="danger"
+                              type={'alert'}
+                              style={{ marginTop: '4px' }}
+                            />
+                          </EuiFlexItem>
+                          <EuiFlexItem grow={false}>
+                            <EuiText
+                              size="s"
+                              color="danger"
+                              style={{
+                                marginTop: '0px',
+                              }}
+                            >
+                              {errorMsg}
+                            </EuiText>
+                          </EuiFlexItem>
+                        </EuiFlexGroup>
                       </EuiFlexItem>
                     )}
                   </EuiFlexGroup>
@@ -421,6 +456,21 @@ export function ProcessorsList(props: ProcessorsListProps) {
               >
                 <EuiSpacer size="s" />
                 <EuiFlexItem style={{ paddingLeft: '28px' }}>
+                  {errorFound && processorOpen && (
+                    <>
+                      <EuiCallOut
+                        size="s"
+                        color="danger"
+                        iconType={'alert'}
+                        title={errorMsg}
+                      >
+                        <EuiText size="s">
+                          {processorFormError || processorRuntimeError}
+                        </EuiText>
+                      </EuiCallOut>
+                      <EuiSpacer size="s" />
+                    </>
+                  )}
                   <ProcessorInputs
                     uiConfig={props.uiConfig}
                     config={processor}
