@@ -13,6 +13,8 @@ import {
 import { SearchResponse } from '../../../common';
 import { ResultsTable } from './results_table';
 import { ResultsJSON } from './results_json';
+import { MLResponse } from './ml_response';
+import { get } from 'lodash';
 
 interface ResultsProps {
   response: SearchResponse;
@@ -21,6 +23,7 @@ interface ResultsProps {
 enum VIEW {
   HITS_TABLE = 'hits_table',
   RAW_JSON = 'raw_json',
+  ML_RESPONSE = 'ml_response',
 }
 
 /**
@@ -55,6 +58,10 @@ export function Results(props: ResultsProps) {
                 id: VIEW.RAW_JSON,
                 label: 'Raw JSON',
               },
+              {
+                id: VIEW.ML_RESPONSE,
+                label: 'ML response',
+              },
             ]}
             idSelected={selectedView}
             onChange={(id) => setSelectedView(id as VIEW)}
@@ -69,9 +76,18 @@ export function Results(props: ResultsProps) {
             {selectedView === VIEW.RAW_JSON && (
               <ResultsJSON response={props.response} />
             )}
+            {selectedView === VIEW.ML_RESPONSE && (
+              <MLResponse
+                mlResponse={getMLResponseFromSearchResponse(props.response)}
+              />
+            )}
           </>
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiPanel>
   );
+}
+
+function getMLResponseFromSearchResponse(searchResponse: SearchResponse): {} {
+  return get(searchResponse, 'ext.ml_inference', {});
 }
