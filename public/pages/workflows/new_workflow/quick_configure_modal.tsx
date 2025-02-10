@@ -76,15 +76,18 @@ interface QuickConfigureModalProps {
   onClose(): void;
 }
 
-// Modal to handle workflow creation. Includes a static field to set the workflow name, and
-// an optional set of quick-configure fields, that when populated, help pre-populate
-// some of the detailed workflow configuration.
+// Modal to handle workflow creation. Includes a static field to set the workflow name,
+// any required models, and an optional set of quick-configure fields, that when populated,
+// help pre-populate some of the detailed workflow configuration.
 export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const history = useHistory();
   const { models, connectors } = useSelector((state: AppState) => state.ml);
   const { workflows } = useSelector((state: AppState) => state.workflows);
+
+  // is creating state
+  const [isCreating, setIsCreating] = useState<boolean>(false);
 
   // The set of both req'd and optional fields
   const [quickConfigureFields, setQuickConfigureFields] = useState<
@@ -98,6 +101,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const [formSchemaObj, setFormSchemaObj] = useState<{}>({});
   useEffect(() => {
     const workflowType = props.workflow?.ui_metadata?.type;
+    // All workflows require a unique name, and optional description.
     let tempFormValues = {
       name: getInitialValue('string'),
       description: getInitialValue('string'),
@@ -185,12 +189,6 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const [llmInterface, setLLMInterface] = useState<ModelInterface | undefined>(
     undefined
   );
-
-  // is creating state
-  const [isCreating, setIsCreating] = useState<boolean>(false);
-
-  // fetching model interface if available. used to prefill some
-  // of the input/output maps
   useEffect(() => {
     setEmbeddingModelInterface(
       models[quickConfigureFields?.embeddingModelId || '']?.interface
@@ -212,7 +210,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
     }
   }, [models]);
 
-  // Try to pre-fill the dimensions based on the chosen embedding model
+  // Try to pre-fill the dimensions if an embedding model is selected
   const [unknownEmbeddingLength, setUnknownEmbeddingLength] = useState<boolean>(
     false
   );
@@ -277,17 +275,17 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                     textArea={true}
                   />
                 </EuiFlexItem>
-                {(props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.RAG ||
-                  props.workflow?.ui_metadata?.type ===
-                    WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) && (
-                  <EuiFlexItem>
-                    {isEmpty(deployedModels) ? (
+                {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM &&
+                  isEmpty(deployedModels) && (
+                    <EuiFlexItem>
                       <EuiCallOut
-                        color="primary"
+                        color="warning"
+                        iconType={'alert'}
                         size="s"
                         title={
                           <EuiText size="s">
-                            You have no models registered in your cluster.{' '}
+                            Preset unavailable. You have no models registered in
+                            your cluster.{' '}
                             <EuiLink
                               href={ML_REMOTE_MODEL_LINK}
                               target="_blank"
@@ -298,7 +296,13 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                           </EuiText>
                         }
                       />
-                    ) : (
+                    </EuiFlexItem>
+                  )}
+                {(props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.RAG ||
+                  props.workflow?.ui_metadata?.type ===
+                    WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) &&
+                  !isEmpty(deployedModels) && (
+                    <EuiFlexItem>
                       <ModelField
                         fieldPath="llm"
                         showMissingInterfaceCallout={false}
@@ -313,57 +317,38 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                           })
                         }
                       />
-                    )}
-                  </EuiFlexItem>
-                )}
+                    </EuiFlexItem>
+                  )}
                 {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM &&
-                  props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.RAG && (
+                  props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.RAG &&
+                  !isEmpty(deployedModels) && (
                     <EuiFlexItem>
-                      {isEmpty(deployedModels) ? (
-                        <EuiCallOut
-                          color="primary"
-                          size="s"
-                          title={
-                            <EuiText size="s">
-                              You have no models registered in your cluster.{' '}
-                              <EuiLink
-                                href={ML_REMOTE_MODEL_LINK}
-                                target="_blank"
-                              >
-                                Learn more
-                              </EuiLink>{' '}
-                              about integrating ML models.
-                            </EuiText>
+                      <>
+                        {unknownEmbeddingLength && (
+                          <>
+                            <EuiCallOut
+                              size="s"
+                              title="No embedding length found. Make sure to manually configure below."
+                              color="warning"
+                            />
+                            <EuiSpacer size="s" />
+                          </>
+                        )}
+                        <ModelField
+                          fieldPath="embeddingModel"
+                          showMissingInterfaceCallout={false}
+                          label="Embedding model - required"
+                          helpText="The model to generate embeddings."
+                          fullWidth={true}
+                          showError={true}
+                          onModelChange={(modelId) =>
+                            setQuickConfigureFields({
+                              ...quickConfigureFields,
+                              embeddingModelId: modelId,
+                            })
                           }
                         />
-                      ) : (
-                        <>
-                          {unknownEmbeddingLength && (
-                            <>
-                              <EuiCallOut
-                                size="s"
-                                title="No embedding length found. Make sure to manually configure below."
-                                color="warning"
-                              />
-                              <EuiSpacer size="s" />
-                            </>
-                          )}
-                          <ModelField
-                            fieldPath="embeddingModel"
-                            showMissingInterfaceCallout={false}
-                            label="Embedding model - required"
-                            helpText="The model to generate embeddings."
-                            fullWidth={true}
-                            showError={true}
-                            onModelChange={(modelId) =>
-                              setQuickConfigureFields({
-                                ...quickConfigureFields,
-                                embeddingModelId: modelId,
-                              })
-                            }
-                          />
-                        </>
-                      )}
+                      </>
                     </EuiFlexItem>
                   )}
               </EuiFlexGroup>
