@@ -32,7 +32,6 @@ export const INITIAL_OPENSEARCH_STATE = {
 };
 
 const OPENSEARCH_PREFIX = 'opensearch';
-const SET_OPENSEARCH_ERROR = `${OPENSEARCH_PREFIX}/setError`;
 const CAT_INDICES_ACTION = `${OPENSEARCH_PREFIX}/catIndices`;
 const GET_MAPPINGS_ACTION = `${OPENSEARCH_PREFIX}/mappings`;
 const SEARCH_INDEX_ACTION = `${OPENSEARCH_PREFIX}/search`;
@@ -42,13 +41,6 @@ const SIMULATE_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/simulatePipeline`;
 const GET_INGEST_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/getIngestPipeline`;
 const GET_SEARCH_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/getSearchPipeline`;
 const GET_INDEX_ACTION = `${OPENSEARCH_PREFIX}/getIndex`;
-
-export const setOpenSearchError = createAsyncThunk(
-  SET_OPENSEARCH_ERROR,
-  async ({ error }: { error: string }, { rejectWithValue }) => {
-    return error;
-  }
-);
 
 export const catIndices = createAsyncThunk(
   CAT_INDICES_ACTION,
@@ -328,9 +320,6 @@ const opensearchSlice = createSlice({
       .addCase(ingest.pending, (state, action) => {
         state.loading = true;
         state.errorMessage = '';
-      })
-      .addCase(setOpenSearchError.fulfilled, (state, action) => {
-        state.errorMessage = action.payload;
       })
       .addCase(catIndices.fulfilled, (state, action) => {
         const indicesMap = new Map<string, Index>();

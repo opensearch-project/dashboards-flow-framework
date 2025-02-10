@@ -85,7 +85,7 @@ export function EditWorkflowMetadataModal(
         }
       )
       .required('Required') as yup.Schema,
-    desription: yup
+    description: yup
       .string()
       .min(0)
       .max(MAX_DESCRIPTION_LENGTH, 'Too long')

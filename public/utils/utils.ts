@@ -215,22 +215,12 @@ export function getIngestPipelineErrors(
       if (processorResult.error?.reason !== undefined) {
         ingestPipelineErrors[idx] = {
           processorType: processorResult.processor_type,
-          errorMsg: processorResult.error.reason,
+          errorMsg: `Type: ${processorResult.processor_type}. Error: ${processorResult.error.reason}`,
         };
       }
     });
   });
   return ingestPipelineErrors;
-}
-
-export function formatIngestPipelineErrors(
-  errors: IngestPipelineErrors
-): string {
-  let msg = 'Errors found with the following ingest processor(s):\n\n';
-  Object.values(errors || {}).forEach((processorError, idx) => {
-    msg += `Processor type: ${processorError.processorType}. Error: ${processorError.errorMsg}\n\n`;
-  });
-  return msg;
 }
 
 export function getSearchPipelineErrors(
@@ -241,21 +231,11 @@ export function getSearchPipelineErrors(
     if (processorResult?.error !== undefined) {
       searchPipelineErrors[idx] = {
         processorType: processorResult.processor_name,
-        errorMsg: processorResult.error,
+        errorMsg: `Type: ${processorResult.processor_name}. Error: ${processorResult.error}`,
       };
     }
   });
   return searchPipelineErrors;
-}
-
-export function formatSearchPipelineErrors(
-  errors: IngestPipelineErrors
-): string {
-  let msg = 'Errors found with the following search processor(s):\n\n';
-  Object.values(errors || {}).forEach((processorError, idx) => {
-    msg += `Processor type: ${processorError.processorType}. Error: ${processorError.errorMsg}\n\n`;
-  });
-  return msg;
 }
 
 // ML inference processors will use standard dot notation or JSONPath depending on the input.
