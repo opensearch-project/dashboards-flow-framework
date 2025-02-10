@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { get } from 'lodash';
 import {
   EuiPanel,
   EuiFlexGroup,
@@ -14,7 +15,6 @@ import { SearchResponse } from '../../../common';
 import { ResultsTable } from './results_table';
 import { ResultsJSON } from './results_json';
 import { MLResponse } from './ml_response';
-import { get } from 'lodash';
 
 interface ResultsProps {
   response: SearchResponse;
