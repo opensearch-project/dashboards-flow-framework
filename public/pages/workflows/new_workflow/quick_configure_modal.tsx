@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import * as yup from 'yup';
+import { Formik, getIn } from 'formik';
 import { isEmpty } from 'lodash';
 import { useSelector } from 'react-redux';
 import { flattie } from 'flattie';
@@ -67,8 +68,7 @@ import {
   parseModelInputs,
   parseModelOutputs,
 } from '../../../utils/utils';
-import { QuickConfigureInputs } from './quick_configure_inputs';
-import { Formik, getIn } from 'formik';
+import { QuickConfigureOptionalFields } from './quick_configure_optional_fields';
 import { ModelField, TextField } from '../../workflow_detail/workflow_inputs';
 
 interface QuickConfigureModalProps {
@@ -368,11 +368,14 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                   )}
               </EuiFlexGroup>
               {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM && (
-                <QuickConfigureInputs
-                  workflowType={props.workflow.ui_metadata?.type}
-                  fields={quickConfigureFields}
-                  setFields={setQuickConfigureFields}
-                />
+                <>
+                  <EuiSpacer size="m" />
+                  <QuickConfigureOptionalFields
+                    workflowType={props.workflow.ui_metadata?.type}
+                    fields={quickConfigureFields}
+                    setFields={setQuickConfigureFields}
+                  />
+                </>
               )}
             </EuiModalBody>
             <EuiModalFooter>
