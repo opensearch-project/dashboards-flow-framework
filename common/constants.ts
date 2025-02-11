@@ -250,6 +250,8 @@ export const BULK_API_DOCS_LINK =
   'https://opensearch.org/docs/latest/api-reference/document-apis/bulk/';
 export const SEARCH_PIPELINE_DOCS_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/';
+export const ML_RESPONSE_PROCESSOR_EXAMPLE_DOCS_LINK =
+  'https://opensearch.org/docs/latest/search-plugins/search-pipelines/ml-inference-search-response/#example-externally-hosted-text-embedding-model';
 
 /**
  * Text chunking algorithm constants
