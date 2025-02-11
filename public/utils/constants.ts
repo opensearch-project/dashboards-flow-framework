@@ -35,3 +35,8 @@ export const BREADCRUMBS = Object.freeze({
 });
 
 export const USE_NEW_HOME_PAGE = getUISettings().get('home:useNewHomePage');
+
+export const getAppBasePath = () => {
+  const currentPath = window.location.pathname;
+  return currentPath.substring(0, currentPath.indexOf('/app/'));
+};

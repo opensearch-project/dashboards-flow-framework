@@ -46,6 +46,7 @@ import {
   Connector,
   IngestPipelineErrors,
   InputMapEntry,
+  MapFormValue,
   MDSQueryParams,
   ModelInputMap,
   ModelOutputMap,
@@ -731,6 +732,10 @@ export function getEmbeddingField(
 ): string | undefined {
   let embeddingField = getEmbeddingFieldFromConnector(connector);
   const outputMap = processorConfig?.output_map as OutputMapFormValue;
+  // legacy text_embedding / text_image_embedding processors store vector fields
+  // in different configs
+  const fieldMap = processorConfig?.field_map as MapFormValue; // text embedding processor
+  const embedding = processorConfig?.embedding; // text/image embedding processor
   if (
     outputMap !== undefined &&
     outputMap[0] !== undefined &&
@@ -759,6 +764,10 @@ export function getEmbeddingField(
         break;
       }
     }
+  } else if (embedding !== undefined) {
+    embeddingField = embedding
+  } else if (fieldMap !== undefined) {
+    embeddingField = get(fieldMap, '0.value', embeddingField)
   }
   return embeddingField;
 }
