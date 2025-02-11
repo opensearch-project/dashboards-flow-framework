@@ -741,7 +741,8 @@ function updateRAGSearchResponseProcessors(
   llmInterface: ModelInterface | undefined
 ): WorkflowConfig {
   config.search.enrichResponse.processors.forEach((processor, idx) => {
-    // prefill ML inference
+    // prefill ML inference. By default, store the inference results
+    // under the `ext.ml_inference` response body.
     if (processor.type === PROCESSOR_TYPE.ML) {
       config.search.enrichResponse.processors[idx].fields.forEach((field) => {
         if (field.id === 'model' && fields.llmId) {
@@ -784,7 +785,7 @@ function updateRAGSearchResponseProcessors(
                 ...outputMap[0],
                 value: {
                   transformType: TRANSFORM_TYPE.FIELD,
-                  value: fields.llmResponseField,
+                  value: `ext.ml_inference.${fields.llmResponseField}`,
                 },
               };
             } else {

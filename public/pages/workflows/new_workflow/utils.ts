@@ -4,7 +4,6 @@
  */
 
 import {
-  CollapseProcessor,
   MLIngestProcessor,
   MLSearchRequestProcessor,
   MLSearchResponseProcessor,
@@ -253,7 +252,6 @@ export function fetchRAGMetadata(version: string): UIState {
   baseState.config.search.request.value = customStringify(FETCH_ALL_QUERY);
   baseState.config.search.enrichResponse.processors = [
     new MLSearchResponseProcessor().toObj(),
-    new CollapseProcessor().toObj(),
   ];
   return baseState;
 }
@@ -278,7 +276,6 @@ export function fetchVectorSearchWithRAGMetadata(version: string): UIState {
   ];
   baseState.config.search.enrichResponse.processors = [
     new MLSearchResponseProcessor().toObj(),
-    new CollapseProcessor().toObj(),
   ];
   return baseState;
 }

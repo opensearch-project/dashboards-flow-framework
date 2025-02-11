@@ -14,6 +14,7 @@ import {
   EuiCodeBlock,
   EuiSmallButtonEmpty,
   EuiEmptyPrompt,
+  EuiPopover,
 } from '@elastic/eui';
 import {
   MapEntry,
@@ -25,6 +26,7 @@ import {
   toFormattedDate,
 } from '../../../../../common';
 import { SourceDataModal } from './source_data_modal';
+import { BulkPopoverContent } from './bulk_popover_content';
 
 interface SourceDataProps {
   workflow: Workflow | undefined;
@@ -53,6 +55,9 @@ export function SourceData(props: SourceDataProps) {
 
   // edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+
+  // bulk API popover state
+  const [bulkPopoverOpen, setBulkPopoverOpen] = useState<boolean>(false);
 
   // hook to listen when the docs form value changes.
   useEffect(() => {
@@ -133,11 +138,49 @@ export function SourceData(props: SourceDataProps) {
           </EuiFlexGroup>
         </EuiFlexItem>
         {props.lastIngested !== undefined && (
-          <EuiFlexItem grow={false}>
-            <EuiText size="s" color="subdued">
-              {`Last ingested: ${toFormattedDate(props.lastIngested)}`}
-            </EuiText>
-          </EuiFlexItem>
+          <>
+            <EuiFlexItem grow={false}>
+              <EuiText size="s">
+                {`Last ingested: ${toFormattedDate(props.lastIngested)}`}
+              </EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <EuiFlexGroup
+                direction="row"
+                gutterSize="none"
+                justifyContent="flexStart"
+                style={{ marginTop: '-8px' }}
+              >
+                <EuiFlexItem grow={false}>
+                  <EuiText size="s">
+                    Ingest additional data with the bulk API.
+                  </EuiText>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiPopover
+                    isOpen={bulkPopoverOpen}
+                    initialFocus={false}
+                    anchorPosition="downCenter"
+                    closePopover={() => setBulkPopoverOpen(false)}
+                    button={
+                      <EuiSmallButtonEmpty
+                        style={{ marginTop: '-4px' }}
+                        onClick={() => {
+                          setBulkPopoverOpen(!bulkPopoverOpen);
+                        }}
+                      >
+                        Learn more
+                      </EuiSmallButtonEmpty>
+                    }
+                  >
+                    <BulkPopoverContent
+                      indexName={getIn(values, 'ingest.index.name')}
+                    />
+                  </EuiPopover>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          </>
         )}
         {docsPopulated ? (
           <>
