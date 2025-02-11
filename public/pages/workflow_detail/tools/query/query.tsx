@@ -36,6 +36,7 @@ import {
   containsEmptyValues,
   containsSameValues,
   getDataSourceId,
+  getEffectiveVersion,
   getPlaceholdersFromQuery,
   getSearchPipelineErrors,
   injectParameters,
@@ -64,6 +65,17 @@ const SEARCH_OPTIONS = [
 export function Query(props: QueryProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+  const [dataSourceVersion, setDataSourceVersion] = useState<
+    string | undefined
+  >(undefined);
+  useEffect(() => {
+    async function getVersion() {
+      if (dataSourceId !== undefined) {
+        setDataSourceVersion(await getEffectiveVersion(dataSourceId));
+      }
+    }
+    getVersion();
+  }, [dataSourceId]);
 
   const { loading } = useSelector((state: AppState) => state.opensearch);
 
@@ -204,6 +216,7 @@ export function Query(props: QueryProps) {
                                 : '_none',
                             },
                             dataSourceId,
+                            dataSourceVersion,
                             verbose: includePipeline,
                           })
                         )

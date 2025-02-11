@@ -30,7 +30,6 @@ import {
   INGEST_PIPELINE_NODE_API_PATH,
   GET_INDEX_NODE_API_PATH,
 } from '../common';
-import { getEffectiveVersion } from './utils';
 
 /**
  * A simple client-side service interface containing all of the available node API functions.
@@ -99,12 +98,14 @@ export interface RouteService {
     index,
     body,
     dataSourceId,
+    dataSourceVersion,
     searchPipeline,
     verbose,
   }: {
     index: string;
     body: {};
     dataSourceId?: string;
+    dataSourceVersion?: string;
     searchPipeline?: string;
     verbose?: boolean;
   }) => Promise<any | HttpFetchError>;
@@ -339,12 +340,14 @@ export function configureRoutes(core: CoreStart): RouteService {
       index,
       body,
       dataSourceId,
+      dataSourceVersion,
       searchPipeline,
       verbose,
     }: {
       index: string;
       body: {};
       dataSourceId?: string;
+      dataSourceVersion?: string;
       searchPipeline?: string;
       verbose?: boolean;
     }) => {
@@ -360,6 +363,7 @@ export function configureRoutes(core: CoreStart): RouteService {
           body: JSON.stringify(body),
           query: {
             verbose: verbose ?? false,
+            data_source_version: dataSourceVersion,
           },
         });
         return response;

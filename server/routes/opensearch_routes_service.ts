@@ -5,6 +5,7 @@
 
 import { schema } from '@osd/config-schema';
 import { isEmpty } from 'lodash';
+import semver from 'semver';
 import {
   IRouter,
   IOpenSearchDashboardsResponse,
@@ -25,6 +26,7 @@ import {
   IndexResponse,
   IngestPipelineConfig,
   IngestPipelineResponse,
+  MINIMUM_FULL_SUPPORTED_VERSION,
   SEARCH_INDEX_NODE_API_PATH,
   SEARCH_PIPELINE_NODE_API_PATH,
   SIMULATE_PIPELINE_NODE_API_PATH,
@@ -138,6 +140,7 @@ export function registerOpenSearchRoutes(
         body: schema.any(),
         query: schema.object({
           verbose: schema.boolean(),
+          data_source_version: schema.string(),
         }),
       },
     },
@@ -171,6 +174,7 @@ export function registerOpenSearchRoutes(
         body: schema.any(),
         query: schema.object({
           verbose: schema.boolean(),
+          data_source_version: schema.string(),
         }),
       },
     },
@@ -479,9 +483,14 @@ export class OpenSearchRoutesService {
       search_pipeline: string | undefined;
     };
     const { data_source_id = '' } = req.params as { data_source_id?: string };
-    const { verbose = false } = req.query as {
+    const { verbose = false, data_source_version = undefined } = req.query as {
       verbose?: boolean;
+      data_source_version?: string;
     };
+    const isPreV219 =
+      data_source_version !== undefined
+        ? semver.lt(data_source_version, MINIMUM_FULL_SUPPORTED_VERSION)
+        : false;
     const body = req.body;
     try {
       const callWithRequest = getClientBasedOnDataSource(
@@ -491,13 +500,22 @@ export class OpenSearchRoutesService {
         data_source_id,
         this.client
       );
-
-      const response = await callWithRequest('search', {
-        index,
-        body,
-        search_pipeline,
-        verbose_pipeline: verbose,
-      });
+      let response;
+      // If verbose is false/undefined, or the version isn't eligible, omit the verbose param when searching.
+      if (!verbose || isPreV219) {
+        response = await callWithRequest('search', {
+          index,
+          body,
+          search_pipeline,
+        });
+      } else {
+        response = await callWithRequest('search', {
+          index,
+          body,
+          search_pipeline,
+          verbose_pipeline: verbose,
+        });
+      }
 
       return res.ok({ body: response });
     } catch (err: any) {
