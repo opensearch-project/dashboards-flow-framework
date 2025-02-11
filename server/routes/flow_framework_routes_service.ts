@@ -174,7 +174,7 @@ export function registerFlowFrameworkRoutes(
         }),
         body: schema.any(),
         query: schema.object({
-          data_source_version: schema.string(),
+          data_source_version: schema.maybe(schema.string()),
         }),
       },
     },
@@ -202,7 +202,7 @@ export function registerFlowFrameworkRoutes(
           data_source_id: schema.string(),
         }),
         query: schema.object({
-          data_source_version: schema.string(),
+          data_source_version: schema.maybe(schema.string()),
         }),
       },
     },

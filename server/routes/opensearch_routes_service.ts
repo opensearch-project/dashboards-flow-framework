@@ -140,7 +140,7 @@ export function registerOpenSearchRoutes(
         body: schema.any(),
         query: schema.object({
           verbose: schema.boolean(),
-          data_source_version: schema.string(),
+          data_source_version: schema.maybe(schema.string()),
         }),
       },
     },
@@ -174,7 +174,7 @@ export function registerOpenSearchRoutes(
         body: schema.any(),
         query: schema.object({
           verbose: schema.boolean(),
-          data_source_version: schema.string(),
+          data_source_version: schema.maybe(schema.string()),
         }),
       },
     },

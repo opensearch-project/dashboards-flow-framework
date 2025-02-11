@@ -451,6 +451,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       )
         .unwrap()
         .then(async (result) => {
+          await sleep(100);
           await dispatch(
             updateWorkflow({
               apiBody: {
@@ -463,6 +464,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           )
             .unwrap()
             .then(async (result) => {
+              await sleep(100);
               props.setUnsavedIngestProcessors(false);
               props.setUnsavedSearchProcessors(false);
               await dispatch(
@@ -474,6 +476,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               )
                 .unwrap()
                 .then(async (result) => {
+                  await sleep(100);
                   // if the datasource < 2.19, only async provisioning/reprovisioning is supported.
                   // so, we manually wait some time before trying to fetch the updated workflow
                   if (isPreV219) {
