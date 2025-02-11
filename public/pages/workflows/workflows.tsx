@@ -16,10 +16,16 @@ import {
   EuiSmallButton,
   EuiText,
   EuiFlexItem,
+  EuiEmptyPrompt,
+  EuiButton,
 } from '@elastic/eui';
 import queryString from 'query-string';
 import { useSelector } from 'react-redux';
-import { BREADCRUMBS, USE_NEW_HOME_PAGE } from '../../utils/constants';
+import {
+  BREADCRUMBS,
+  USE_NEW_HOME_PAGE,
+  getAppBasePath,
+} from '../../utils/constants';
 import { getApplication, getCore, getNavigationUI } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
@@ -257,103 +263,144 @@ export function Workflows(props: WorkflowsProps) {
         <EuiPageBody>
           <EuiPageHeader
             pageTitle={pageTitleAndDescription}
-            tabs={[
-              {
-                id: WORKFLOWS_TAB.MANAGE,
-                label: 'Manage workflows',
-                isSelected: selectedTabId === WORKFLOWS_TAB.MANAGE,
-                onClick: () => {
-                  setSelectedTabId(WORKFLOWS_TAB.MANAGE);
-                  replaceActiveTab(WORKFLOWS_TAB.MANAGE, props, dataSourceId);
-                },
-              },
-              {
-                id: WORKFLOWS_TAB.CREATE,
-                label: 'New workflow',
-                isSelected: selectedTabId === WORKFLOWS_TAB.CREATE,
-                onClick: () => {
-                  setSelectedTabId(WORKFLOWS_TAB.CREATE);
-                  replaceActiveTab(WORKFLOWS_TAB.CREATE, props, dataSourceId);
-                },
-              },
-            ]}
-            bottomBorder={true}
+            bottomBorder={false}
           />
+          {dataSourceEnabled && (dataSourceId === undefined) ? (
+            <EuiPageContent grow={true}>
+              <EuiEmptyPrompt
+                title={<h2>Incompatible data source</h2>}
+                body={
+                  <p>
+                    No compatible data source available. Add a compatible data
+                    source.
+                  </p>
+                }
+                actions={
+                  <EuiButton
+                    color="primary"
+                    fill
+                    href={`${getAppBasePath()}/app/management/opensearch-dashboards/dataSources`}
+                  >
+                    Manage data sources
+                  </EuiButton>
+                }
+              />
+            </EuiPageContent>
+          ) : (
+            <>
+              <EuiPageHeader
+                tabs={[
+                  {
+                    id: WORKFLOWS_TAB.MANAGE,
+                    label: 'Manage workflows',
+                    isSelected: selectedTabId === WORKFLOWS_TAB.MANAGE,
+                    onClick: () => {
+                      setSelectedTabId(WORKFLOWS_TAB.MANAGE);
+                      replaceActiveTab(
+                        WORKFLOWS_TAB.MANAGE,
+                        props,
+                        dataSourceId
+                      );
+                    },
+                  },
+                  {
+                    id: WORKFLOWS_TAB.CREATE,
+                    label: 'New workflow',
+                    isSelected: selectedTabId === WORKFLOWS_TAB.CREATE,
+                    onClick: () => {
+                      setSelectedTabId(WORKFLOWS_TAB.CREATE);
+                      replaceActiveTab(
+                        WORKFLOWS_TAB.CREATE,
+                        props,
+                        dataSourceId
+                      );
+                    },
+                  },
+                ]}
+                bottomBorder={true}
+                style={{ paddingBottom: '0px' }}
+              />
 
-          <EuiPageContent grow={false}>
-            <EuiPageHeader
-              style={{ marginTop: '-8px' }}
-              pageTitle={
-                <EuiText size="s">
-                  <h2>
-                    {selectedTabId === WORKFLOWS_TAB.MANAGE
-                      ? 'Workflows'
-                      : 'Create a workflow using a template'}
-                  </h2>
-                </EuiText>
-              }
-              rightSideItems={
-                selectedTabId === WORKFLOWS_TAB.MANAGE
-                  ? [
-                      <EuiSmallButton
-                        style={{ marginTop: '8px' }}
-                        fill={true}
-                        onClick={() => {
-                          setSelectedTabId(WORKFLOWS_TAB.CREATE);
-                          replaceActiveTab(
-                            WORKFLOWS_TAB.CREATE,
-                            props,
-                            dataSourceId
-                          );
-                        }}
-                        iconType="plus"
-                        data-testid="createWorkflowButton"
-                      >
-                        Create workflow
-                      </EuiSmallButton>,
-                      <EuiSmallButton
-                        style={{ marginTop: '8px' }}
-                        onClick={() => {
-                          setIsImportModalOpen(true);
-                        }}
-                        data-testid="importWorkflowButton"
-                      >
-                        Import workflow
-                      </EuiSmallButton>,
-                    ]
-                  : [
-                      <EuiSmallButton
-                        style={{ marginTop: '8px' }}
-                        onClick={() => {
-                          setIsImportModalOpen(true);
-                        }}
-                        data-testid="importWorkflowButton"
-                      >
-                        Import workflow
-                      </EuiSmallButton>,
-                    ]
-              }
-              bottomBorder={false}
-            />
-            {selectedTabId === WORKFLOWS_TAB.MANAGE ? (
-              <WorkflowList setSelectedTabId={setSelectedTabId} />
-            ) : (
-              <>
-                <EuiSpacer size="s" />
-                <NewWorkflow />
-              </>
-            )}
-            {selectedTabId === WORKFLOWS_TAB.MANAGE &&
-              Object.keys(workflows || {}).length === 0 &&
-              !loading && (
-                <EmptyListMessage
-                  onClickNewWorkflow={() => {
-                    setSelectedTabId(WORKFLOWS_TAB.CREATE);
-                    replaceActiveTab(WORKFLOWS_TAB.CREATE, props, dataSourceId);
-                  }}
+              <EuiPageContent grow={false}>
+                <EuiPageHeader
+                  style={{ marginTop: '-8px' }}
+                  pageTitle={
+                    <EuiText size="s">
+                      <h2>
+                        {selectedTabId === WORKFLOWS_TAB.MANAGE
+                          ? 'Workflows'
+                          : 'Create a workflow using a template'}
+                      </h2>
+                    </EuiText>
+                  }
+                  rightSideItems={
+                    selectedTabId === WORKFLOWS_TAB.MANAGE
+                      ? [
+                          <EuiSmallButton
+                            style={{ marginTop: '8px' }}
+                            fill={true}
+                            onClick={() => {
+                              setSelectedTabId(WORKFLOWS_TAB.CREATE);
+                              replaceActiveTab(
+                                WORKFLOWS_TAB.CREATE,
+                                props,
+                                dataSourceId
+                              );
+                            }}
+                            iconType="plus"
+                            data-testid="createWorkflowButton"
+                          >
+                            Create workflow
+                          </EuiSmallButton>,
+                          <EuiSmallButton
+                            style={{ marginTop: '8px' }}
+                            onClick={() => {
+                              setIsImportModalOpen(true);
+                            }}
+                            data-testid="importWorkflowButton"
+                          >
+                            Import workflow
+                          </EuiSmallButton>,
+                        ]
+                      : [
+                          <EuiSmallButton
+                            style={{ marginTop: '8px' }}
+                            onClick={() => {
+                              setIsImportModalOpen(true);
+                            }}
+                            data-testid="importWorkflowButton"
+                          >
+                            Import workflow
+                          </EuiSmallButton>,
+                        ]
+                  }
+                  bottomBorder={false}
                 />
-              )}
-          </EuiPageContent>
+                {selectedTabId === WORKFLOWS_TAB.MANAGE ? (
+                  <WorkflowList setSelectedTabId={setSelectedTabId} />
+                ) : (
+                  <>
+                    <EuiSpacer size="s" />
+                    <NewWorkflow />
+                  </>
+                )}
+                {selectedTabId === WORKFLOWS_TAB.MANAGE &&
+                  Object.keys(workflows || {}).length === 0 &&
+                  !loading && (
+                    <EmptyListMessage
+                      onClickNewWorkflow={() => {
+                        setSelectedTabId(WORKFLOWS_TAB.CREATE);
+                        replaceActiveTab(
+                          WORKFLOWS_TAB.CREATE,
+                          props,
+                          dataSourceId
+                        );
+                      }}
+                    />
+                  )}
+              </EuiPageContent>
+            </>
+          )}
         </EuiPageBody>
       </EuiPage>
     </>
