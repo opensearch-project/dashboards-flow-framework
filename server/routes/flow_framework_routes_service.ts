@@ -5,6 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import semver from 'semver';
 import { schema } from '@osd/config-schema';
 import {
   IRouter,
@@ -21,6 +22,7 @@ import {
   GET_PRESET_WORKFLOWS_NODE_API_PATH,
   GET_WORKFLOW_NODE_API_PATH,
   GET_WORKFLOW_STATE_NODE_API_PATH,
+  MINIMUM_FULL_SUPPORTED_VERSION,
   PROVISION_WORKFLOW_NODE_API_PATH,
   SEARCH_WORKFLOWS_NODE_API_PATH,
   SearchHit,
@@ -171,6 +173,9 @@ export function registerFlowFrameworkRoutes(
           reprovision: schema.boolean(),
         }),
         body: schema.any(),
+        query: schema.object({
+          data_source_version: schema.string(),
+        }),
       },
     },
     flowFrameworkRoutesService.updateWorkflow
@@ -195,6 +200,9 @@ export function registerFlowFrameworkRoutes(
         params: schema.object({
           workflow_id: schema.string(),
           data_source_id: schema.string(),
+        }),
+        query: schema.object({
+          data_source_version: schema.string(),
         }),
       },
     },
@@ -468,6 +476,13 @@ export class FlowFrameworkRoutesService {
     const workflowTemplate = req.body as WorkflowTemplate;
     try {
       const { data_source_id = '' } = req.params as { data_source_id?: string };
+      const { data_source_version } = req.query as {
+        data_source_version?: string;
+      };
+      const isPreV219 =
+        data_source_version !== undefined
+          ? semver.lt(data_source_version, MINIMUM_FULL_SUPPORTED_VERSION)
+          : false;
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
@@ -476,16 +491,25 @@ export class FlowFrameworkRoutesService {
         this.client
       );
       if (reprovision) {
-        await callWithRequest('flowFramework.updateAndReprovisionWorkflow', {
-          workflow_id,
-          // default update_fields to false if not explicitly set otherwise
-          update_fields,
-          body: workflowTemplate,
-        });
+        if (isPreV219) {
+          await callWithRequest(
+            'flowFramework.updateAndReprovisionWorkflowAsync',
+            {
+              workflow_id,
+              update_fields,
+              body: workflowTemplate,
+            }
+          );
+        } else {
+          await callWithRequest('flowFramework.updateAndReprovisionWorkflow', {
+            workflow_id,
+            update_fields,
+            body: workflowTemplate,
+          });
+        }
       } else {
         await callWithRequest('flowFramework.updateWorkflow', {
           workflow_id,
-          // default update_fields to false if not explicitly set otherwise
           update_fields,
           body: workflowTemplate,
         });
@@ -508,6 +532,13 @@ export class FlowFrameworkRoutesService {
     const { workflow_id } = req.params as { workflow_id: string };
     try {
       const { data_source_id = '' } = req.params as { data_source_id?: string };
+      const { data_source_version } = req.query as {
+        data_source_version?: string;
+      };
+      const isPreV219 =
+        data_source_version !== undefined
+          ? semver.lt(data_source_version, MINIMUM_FULL_SUPPORTED_VERSION)
+          : false;
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
@@ -515,9 +546,16 @@ export class FlowFrameworkRoutesService {
         data_source_id,
         this.client
       );
-      await callWithRequest('flowFramework.provisionWorkflow', {
-        workflow_id,
-      });
+      if (isPreV219) {
+        await callWithRequest('flowFramework.provisionWorkflowAsync', {
+          workflow_id,
+        });
+      } else {
+        await callWithRequest('flowFramework.provisionWorkflow', {
+          workflow_id,
+        });
+      }
+
       return res.ok();
     } catch (err: any) {
       return generateCustomError(res, err);

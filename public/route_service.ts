@@ -30,6 +30,7 @@ import {
   INGEST_PIPELINE_NODE_API_PATH,
   GET_INDEX_NODE_API_PATH,
 } from '../common';
+import { getEffectiveVersion } from './utils';
 
 /**
  * A simple client-side service interface containing all of the available node API functions.
@@ -60,11 +61,13 @@ export interface RouteService {
     workflowTemplate: WorkflowTemplate,
     updateFields: boolean,
     reprovision: boolean,
-    dataSourceId?: string
+    dataSourceId?: string,
+    dataSourceVersion?: string
   ) => Promise<any | HttpFetchError>;
   provisionWorkflow: (
     workflowId: string,
-    dataSourceId?: string
+    dataSourceId?: string,
+    dataSourceVersion?: string
   ) => Promise<any | HttpFetchError>;
   deprovisionWorkflow: ({
     workflowId,
@@ -205,7 +208,8 @@ export function configureRoutes(core: CoreStart): RouteService {
       workflowTemplate: WorkflowTemplate,
       updateFields: boolean,
       reprovision: boolean,
-      dataSourceId?: string
+      dataSourceId?: string,
+      dataSourceVersion?: string
     ) => {
       try {
         const url = dataSourceId
@@ -215,6 +219,9 @@ export function configureRoutes(core: CoreStart): RouteService {
           `${url}/${workflowId}/${updateFields}/${reprovision}`,
           {
             body: JSON.stringify(workflowTemplate),
+            query: {
+              data_source_version: dataSourceVersion,
+            },
           }
         );
         return response;
@@ -222,13 +229,22 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    provisionWorkflow: async (workflowId: string, dataSourceId?: string) => {
+    provisionWorkflow: async (
+      workflowId: string,
+      dataSourceId?: string,
+      dataSourceVersion?: string
+    ) => {
       try {
         const url = dataSourceId
           ? `${BASE_NODE_API_PATH}/${dataSourceId}/workflow/provision`
           : PROVISION_WORKFLOW_NODE_API_PATH;
         const response = await core.http.post<{ respString: string }>(
-          `${url}/${workflowId}`
+          `${url}/${workflowId}`,
+          {
+            query: {
+              data_source_version: dataSourceVersion,
+            },
+          }
         );
         return response;
       } catch (e: any) {
