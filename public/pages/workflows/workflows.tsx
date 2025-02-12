@@ -38,6 +38,7 @@ import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_sour
 import {
   dataSourceFilterFn,
   getDataSourceFromURL,
+  getEffectiveVersion,
   isDataSourceReady,
 } from '../../utils/utils';
 import {
@@ -90,6 +91,17 @@ export function Workflows(props: WorkflowsProps) {
   const [dataSourceId, setDataSourceId] = useState<string | undefined>(
     queryParams.dataSourceId
   );
+  const [dataSourceVersion, setDataSourceVersion] = useState<
+    string | undefined
+  >(undefined);
+  useEffect(() => {
+    async function getVersion() {
+      if (dataSourceId !== undefined) {
+        setDataSourceVersion(await getEffectiveVersion(dataSourceId));
+      }
+    }
+    getVersion();
+  }, [dataSourceId]);
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
@@ -382,7 +394,10 @@ export function Workflows(props: WorkflowsProps) {
                   bottomBorder={false}
                 />
                 {selectedTabId === WORKFLOWS_TAB.MANAGE ? (
-                  <WorkflowList setSelectedTabId={setSelectedTabId} />
+                  <WorkflowList
+                    setSelectedTabId={setSelectedTabId}
+                    dataSourceVersion={dataSourceVersion}
+                  />
                 ) : (
                   <>
                     <EuiSpacer size="s" />

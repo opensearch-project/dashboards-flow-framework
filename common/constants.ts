@@ -170,6 +170,13 @@ export enum WORKFLOW_TYPE {
   CUSTOM = 'Custom Search',
   UNKNOWN = 'Unknown',
 }
+export enum WORKFLOW_TYPE_LEGACY {
+  SEMANTIC_SEARCH = 'Semantic Search',
+  MULTIMODAL_SEARCH = 'Multimodal Search',
+  HYBRID_SEARCH = 'Hybrid Search',
+  CUSTOM = 'Custom Search',
+  UNKNOWN = 'Unknown',
+}
 // If no datasource version is found, we default to 2.17.0
 export const MIN_SUPPORTED_VERSION = '2.17.0';
 // Min version to support ML processors
