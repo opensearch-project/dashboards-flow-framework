@@ -116,6 +116,7 @@ export const updateWorkflow = createAsyncThunk(
     {
       apiBody,
       dataSourceId,
+      dataSourceVersion,
     }: {
       apiBody: {
         workflowId: string;
@@ -124,6 +125,7 @@ export const updateWorkflow = createAsyncThunk(
         reprovision?: boolean;
       };
       dataSourceId?: string;
+      dataSourceVersion?: string;
     },
     { rejectWithValue }
   ) => {
@@ -135,7 +137,8 @@ export const updateWorkflow = createAsyncThunk(
       workflowTemplate,
       updateFields || false,
       reprovision || false,
-      dataSourceId
+      dataSourceId,
+      dataSourceVersion
     );
     if (response instanceof HttpFetchError) {
       return rejectWithValue(
@@ -150,14 +153,23 @@ export const updateWorkflow = createAsyncThunk(
 export const provisionWorkflow = createAsyncThunk(
   PROVISION_WORKFLOW_ACTION,
   async (
-    { workflowId, dataSourceId }: { workflowId: string; dataSourceId?: string },
+    {
+      workflowId,
+      dataSourceId,
+      dataSourceVersion,
+    }: {
+      workflowId: string;
+      dataSourceId?: string;
+      dataSourceVersion?: string;
+    },
     { rejectWithValue }
   ) => {
     const response:
       | any
       | HttpFetchError = await getRouteService().provisionWorkflow(
       workflowId,
-      dataSourceId
+      dataSourceId,
+      dataSourceVersion
     );
     if (response instanceof HttpFetchError) {
       return rejectWithValue(

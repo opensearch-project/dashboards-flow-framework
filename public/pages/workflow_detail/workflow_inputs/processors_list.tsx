@@ -29,8 +29,11 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../common';
-import { formikToUiConfig, getDataSourceFromURL } from '../../../utils';
-import { getEffectiveVersion } from '../../../pages/workflows/new_workflow/new_workflow';
+import {
+  formikToUiConfig,
+  getDataSourceFromURL,
+  getEffectiveVersion,
+} from '../../../utils';
 import {
   CollapseProcessor,
   CopyIngestProcessor,

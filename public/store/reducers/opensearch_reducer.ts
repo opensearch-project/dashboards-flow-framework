@@ -110,10 +110,12 @@ export const searchIndex = createAsyncThunk(
     {
       apiBody,
       dataSourceId,
+      dataSourceVersion,
       verbose,
     }: {
       apiBody: { index: string; body: {}; searchPipeline?: string };
       dataSourceId?: string;
+      dataSourceVersion?: string;
       verbose?: boolean;
     },
     { rejectWithValue }
@@ -123,6 +125,7 @@ export const searchIndex = createAsyncThunk(
       index,
       body,
       dataSourceId,
+      dataSourceVersion,
       searchPipeline,
       verbose,
     });

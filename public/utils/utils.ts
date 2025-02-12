@@ -40,8 +40,13 @@ import {
   LABEL_FIELD_PATTERN,
   MODEL_ID_PATTERN,
   WORKFLOW_TYPE,
+  MIN_SUPPORTED_VERSION,
 } from '../../common';
-import { getCore, getDataSourceEnabled } from '../services';
+import {
+  getCore,
+  getDataSourceEnabled,
+  getSavedObjectsClient,
+} from '../services';
 import {
   Connector,
   IngestPipelineErrors,
@@ -858,3 +863,25 @@ export function getFieldValue(jsonObj: {}, fieldName: string): any | undefined {
   }
   return undefined;
 }
+
+// Get the version from the selected data source
+export const getEffectiveVersion = async (
+  dataSourceId: string | undefined
+): Promise<string> => {
+  try {
+    if (dataSourceId === undefined) {
+      throw new Error('Data source is required');
+    }
+
+    const dataSource = await getSavedObjectsClient().get<DataSourceAttributes>(
+      'data-source',
+      dataSourceId
+    );
+    const version =
+      dataSource?.attributes?.dataSourceVersion || MIN_SUPPORTED_VERSION;
+    return version;
+  } catch (error) {
+    console.error('Error getting version:', error);
+    return MIN_SUPPORTED_VERSION;
+  }
+};
