@@ -110,9 +110,40 @@ export function flowFrameworkPlugin(Client: any, config: any, components: any) {
     method: 'PUT',
   });
 
+  flowFramework.updateAndReprovisionWorkflowAsync = ca({
+    url: {
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>?update_fields=<%=update_fields%>&reprovision=true`,
+      req: {
+        workflow_id: {
+          type: 'string',
+          required: true,
+        },
+        update_fields: {
+          type: 'boolean',
+          required: true,
+        },
+      },
+    },
+    needBody: true,
+    method: 'PUT',
+  });
+
   flowFramework.provisionWorkflow = ca({
     url: {
       fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>/_provision?wait_for_completion_timeout=${PROVISION_TIMEOUT}`,
+      req: {
+        workflow_id: {
+          type: 'string',
+          required: true,
+        },
+      },
+    },
+    method: 'POST',
+  });
+
+  flowFramework.provisionWorkflowAsync = ca({
+    url: {
+      fmt: `${FLOW_FRAMEWORK_WORKFLOW_ROUTE_PREFIX}/<%=workflow_id%>/_provision`,
       req: {
         workflow_id: {
           type: 'string',

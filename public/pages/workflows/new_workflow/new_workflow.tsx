@@ -27,11 +27,13 @@ import {
   searchConnectors,
 } from '../../../store';
 import { enrichPresetWorkflowWithUiMetadata } from './utils';
-import { getDataSourceId, isDataSourceReady } from '../../../utils';
+import {
+  getDataSourceId,
+  isDataSourceReady,
+  getEffectiveVersion,
+} from '../../../utils';
 import { getDataSourceEnabled } from '../../../services';
 import semver from 'semver';
-import { DataSourceAttributes } from '../../../../../../src/plugins/data_source/common/data_sources';
-import { getSavedObjectsClient } from '../../../../public/services';
 import {
   WORKFLOW_TYPE,
   MIN_SUPPORTED_VERSION,
@@ -39,27 +41,6 @@ import {
 } from '../../../../common/constants';
 
 interface NewWorkflowProps {}
-
-export const getEffectiveVersion = async (
-  dataSourceId: string | undefined
-): Promise<string> => {
-  try {
-    if (dataSourceId === undefined) {
-      throw new Error('Data source is required');
-    }
-
-    const dataSource = await getSavedObjectsClient().get<DataSourceAttributes>(
-      'data-source',
-      dataSourceId
-    );
-    const version =
-      dataSource?.attributes?.dataSourceVersion || MIN_SUPPORTED_VERSION;
-    return version;
-  } catch (error) {
-    console.error('Error getting version:', error);
-    return MIN_SUPPORTED_VERSION;
-  }
-};
 
 const filterPresetsByVersion = async (
   workflows: WorkflowTemplate[],
