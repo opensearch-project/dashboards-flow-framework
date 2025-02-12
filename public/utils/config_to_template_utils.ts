@@ -4,7 +4,7 @@
  */
 
 import { FormikValues } from 'formik';
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import {
   TemplateFlows,
   TemplateNode,
@@ -231,6 +231,31 @@ export function processorConfigsToTemplateProcessors(
             (outputMapFormValue: OutputMapFormValue) =>
               processModelOutputs(outputMapFormValue)
           );
+        }
+
+        // process where the returned values from the output map should be stored.
+        // by default, if many-to-one, append with "ext.ml_inference", such that the outputs
+        // will be stored in a standalone field in the search response, instead of appended
+        // to each document redundantly.
+        const oneToOne = formValues?.one_to_one as boolean | undefined;
+        if (
+          oneToOne !== undefined &&
+          oneToOne === false &&
+          processor.ml_inference?.output_map !== undefined
+        ) {
+          const updatedOutputMap = processor.ml_inference.output_map?.map(
+            (mapEntry) => {
+              let updatedMapEntry = {};
+              Object.keys(mapEntry).forEach((key) => {
+                updatedMapEntry = {
+                  ...updatedMapEntry,
+                  [`ext.ml_inference.${key}`]: get(mapEntry, key),
+                };
+              });
+              return updatedMapEntry;
+            }
+          );
+          processor.ml_inference.output_map = updatedOutputMap;
         }
 
         // process optional fields
