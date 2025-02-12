@@ -194,7 +194,7 @@ export function processorConfigsToTemplateProcessors(
 
         let processor = {
           ml_inference: {
-            model_id: model.id,
+            model_id: model?.id || '',
           },
         } as MLInferenceProcessor;
 
@@ -378,11 +378,11 @@ export function processorConfigsToTemplateProcessors(
           );
         });
         // remove the model field, update to just the required model ID
-        const model = finalFormValues.model;
+        const model = finalFormValues?.model;
         delete finalFormValues.model;
         finalFormValues = {
           ...finalFormValues,
-          model_id: model.id,
+          model_id: model?.id || '',
         };
 
         // add the field map config obj
