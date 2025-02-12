@@ -61,7 +61,6 @@ describe('WorkflowList', () => {
   });
   test('renders the page', () => {
     const { getAllByText } = renderWithRouter();
-    expect(getAllByText('Manage existing workflows').length).toBeGreaterThan(0);
     expect(getAllByText('Name').length).toBeGreaterThan(0);
     expect(getAllByText('Type').length).toBeGreaterThan(0);
     expect(getAllByText('Last saved').length).toBeGreaterThan(0);

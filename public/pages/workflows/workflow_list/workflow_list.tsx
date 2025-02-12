@@ -20,6 +20,7 @@ import {
   EuiText,
   EuiFlyoutBody,
   EuiEmptyPrompt,
+  EuiSpacer,
 } from '@elastic/eui';
 import { AppState } from '../../../store';
 import {
@@ -180,14 +181,7 @@ export function WorkflowList(props: WorkflowListProps) {
         </EuiFlyout>
       )}
       <EuiFlexGroup direction="column">
-        <EuiFlexItem>
-          <EuiFlexGroup
-            direction="row"
-            style={{ marginLeft: '0px', paddingTop: '10px' }}
-          >
-            <EuiText color="subdued">{`Manage existing workflows`}</EuiText>
-          </EuiFlexGroup>
-        </EuiFlexItem>
+        <EuiSpacer size="m" />
         <EuiFlexItem>
           <EuiFlexGroup direction="row" gutterSize="m">
             <EuiFlexItem grow={true}>
