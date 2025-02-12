@@ -226,14 +226,18 @@ export function Workflows(props: WorkflowsProps) {
   ingest and search flows, test different configurations, and deploy them to your environment.`;
 
   const pageTitleAndDescription = USE_NEW_HOME_PAGE ? (
-    <HeaderControl
-      controls={[
-        {
-          description: DESCRIPTION,
-        },
-      ]}
-      setMountPoint={setAppDescriptionControls}
-    />
+    <>
+      <HeaderControl
+        controls={[
+          {
+            description: DESCRIPTION,
+          },
+        ]}
+        setMountPoint={setAppDescriptionControls}
+      />
+      <GetStartedAccordion />
+      <EuiSpacer size="s" />
+    </>
   ) : (
     <EuiFlexGroup direction="column" style={{ margin: '0px' }}>
       <EuiFlexGroup direction="row" gutterSize="s">
@@ -246,6 +250,7 @@ export function Workflows(props: WorkflowsProps) {
       <EuiText color="subdued">{DESCRIPTION}</EuiText>
       <EuiSpacer size="l" />
       <GetStartedAccordion />
+      <EuiSpacer size="s" />
     </EuiFlexGroup>
   );
 
@@ -265,7 +270,7 @@ export function Workflows(props: WorkflowsProps) {
             pageTitle={pageTitleAndDescription}
             bottomBorder={false}
           />
-          {dataSourceEnabled && (dataSourceId === undefined) ? (
+          {dataSourceEnabled && dataSourceId === undefined ? (
             <EuiPageContent grow={true}>
               <EuiEmptyPrompt
                 title={<h2>Incompatible data source</h2>}
