@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 import {
   EuiCodeBlock,
   EuiEmptyPrompt,
@@ -12,7 +12,7 @@ import {
 } from '@elastic/eui';
 
 interface ErrorsProps {
-  errorMessages: string[];
+  errorMessages: (string | ReactNode)[];
 }
 
 /**
