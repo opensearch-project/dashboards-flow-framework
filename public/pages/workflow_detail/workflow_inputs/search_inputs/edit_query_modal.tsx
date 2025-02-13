@@ -23,6 +23,7 @@ import {
   EuiText,
   EuiEmptyPrompt,
   EuiCallOut,
+  EuiSpacer,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
@@ -85,7 +86,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
   // optional search panel state. allows searching within the modal
-  const [searchPanelOpen, setSearchPanelOpen] = useState<boolean>(false);
+  const [searchPanelOpen, setSearchPanelOpen] = useState<boolean>(true);
 
   // results state
   const [queryResponse, setQueryResponse] = useState<
@@ -225,7 +226,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
                                 data-testid="showOrHideSearchPanelButton"
                                 fill={false}
                                 iconType={
-                                  searchPanelOpen ? 'menuLeft' : 'menuRight'
+                                  searchPanelOpen ? 'menuRight' : 'menuLeft'
                                 }
                                 iconSide="right"
                                 onClick={() => {
@@ -260,42 +261,6 @@ export function EditQueryModal(props: EditQueryModalProps) {
                           <EuiFlexItem grow={false}>
                             <EuiText size="m">Test query</EuiText>
                           </EuiFlexItem>
-                          <EuiFlexItem grow={false}>
-                            <EuiSmallButton
-                              fill={false}
-                              isLoading={loading}
-                              disabled={containsEmptyValues(queryParams)}
-                              onClick={() => {
-                                dispatch(
-                                  searchIndex({
-                                    apiBody: {
-                                      index: values?.search?.index?.name,
-                                      body: injectParameters(
-                                        queryParams,
-                                        tempRequest
-                                      ),
-                                      // Run the query independent of the pipeline inside this modal
-                                      searchPipeline: '_none',
-                                    },
-                                    dataSourceId,
-                                  })
-                                )
-                                  .unwrap()
-                                  .then(async (resp: SearchResponse) => {
-                                    setQueryResponse(resp);
-                                    setTempResultsError('');
-                                  })
-                                  .catch((error: any) => {
-                                    setQueryResponse(undefined);
-                                    const errorMsg = `Error running query: ${error}`;
-                                    setTempResultsError(errorMsg);
-                                    console.error(errorMsg);
-                                  });
-                              }}
-                            >
-                              Search
-                            </EuiSmallButton>
-                          </EuiFlexItem>
                         </EuiFlexGroup>
                       </EuiFlexItem>
                       {/**
@@ -319,6 +284,41 @@ export function EditQueryModal(props: EditQueryModalProps) {
                                   <EuiText size="s">
                                     Run a search to view results.
                                   </EuiText>
+                                  <EuiSpacer size="m" />
+                                  <EuiSmallButton
+                                    fill={false}
+                                    isLoading={loading}
+                                    disabled={containsEmptyValues(queryParams)}
+                                    onClick={() => {
+                                      dispatch(
+                                        searchIndex({
+                                          apiBody: {
+                                            index: values?.search?.index?.name,
+                                            body: injectParameters(
+                                              queryParams,
+                                              tempRequest
+                                            ),
+                                            // Run the query independent of the pipeline inside this modal
+                                            searchPipeline: '_none',
+                                          },
+                                          dataSourceId,
+                                        })
+                                      )
+                                        .unwrap()
+                                        .then(async (resp: SearchResponse) => {
+                                          setQueryResponse(resp);
+                                          setTempResultsError('');
+                                        })
+                                        .catch((error: any) => {
+                                          setQueryResponse(undefined);
+                                          const errorMsg = `Error running query: ${error}`;
+                                          setTempResultsError(errorMsg);
+                                          console.error(errorMsg);
+                                        });
+                                    }}
+                                  >
+                                    Search
+                                  </EuiSmallButton>
                                 </>
                               }
                             />
