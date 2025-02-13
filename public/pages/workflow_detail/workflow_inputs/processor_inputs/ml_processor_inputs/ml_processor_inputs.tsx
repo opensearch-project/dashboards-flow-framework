@@ -31,6 +31,7 @@ import {
   OutputMapArrayFormValue,
   EMPTY_OUTPUT_MAP_ENTRY,
   ML_REMOTE_MODEL_LINK,
+  FETCH_ALL_QUERY_LARGE,
 } from '../../../../../../common';
 import { ModelField } from '../../input_fields';
 import {
@@ -39,9 +40,10 @@ import {
 } from '../../../../../../common';
 import { OverrideQueryModal } from './modals';
 import { ModelInputs } from './model_inputs';
-import { AppState } from '../../../../../store';
+import { AppState, searchModels, useAppDispatch } from '../../../../../store';
 import {
   formikToPartialPipeline,
+  getDataSourceId,
   parseModelInputs,
   parseModelOutputs,
 } from '../../../../../utils';
@@ -62,6 +64,8 @@ interface MLProcessorInputsProps {
  * output map configuration forms, respectively.
  */
 export function MLProcessorInputs(props: MLProcessorInputsProps) {
+  const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
   const { models } = useSelector((state: AppState) => state.ml);
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
@@ -191,11 +195,30 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           color="primary"
           size="s"
           title={
-            <EuiText size="s">
-              You have no models registered in your cluster.{' '}
-              <EuiLink href={ML_REMOTE_MODEL_LINK}>Learn more</EuiLink> about
-              integrating ML models.
-            </EuiText>
+            <>
+              <EuiText size="s">
+                You have no models registered in your cluster.{' '}
+                <EuiLink href={ML_REMOTE_MODEL_LINK} target="_blank">
+                  Learn more
+                </EuiLink>{' '}
+                about integrating ML models.
+              </EuiText>
+              <EuiSpacer size="s" />
+              <EuiSmallButton
+                iconType={'refresh'}
+                iconSide="left"
+                onClick={() => {
+                  dispatch(
+                    searchModels({
+                      apiBody: FETCH_ALL_QUERY_LARGE,
+                      dataSourceId,
+                    })
+                  );
+                }}
+              >
+                Refresh
+              </EuiSmallButton>
+            </>
           }
         />
       ) : (

@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import React, { ReactNode } from 'react';
 import yaml from 'js-yaml';
 import jsonpath from 'jsonpath';
-import { escape, findKey, get, isEmpty, set, unset } from 'lodash';
+import { capitalize, escape, findKey, get, isEmpty, set, unset } from 'lodash';
+import { EuiText } from '@elastic/eui';
 import semver from 'semver';
 import queryString from 'query-string';
 import { useLocation } from 'react-router-dom';
@@ -221,7 +223,7 @@ export function getIngestPipelineErrors(
       if (processorResult.error?.reason !== undefined) {
         ingestPipelineErrors[idx] = {
           processorType: processorResult.processor_type,
-          errorMsg: `Type: ${processorResult.processor_type}. Error: ${processorResult.error.reason}`,
+          errorMsg: processorResult.error.reason,
         };
       }
     });
@@ -229,6 +231,7 @@ export function getIngestPipelineErrors(
   return ingestPipelineErrors;
 }
 
+// Extract any processor-level errors from a verbose search API call
 export function getSearchPipelineErrors(
   searchResponseVerbose: SearchResponseVerbose
 ): SearchPipelineErrors {
@@ -237,11 +240,28 @@ export function getSearchPipelineErrors(
     if (processorResult?.error !== undefined) {
       searchPipelineErrors[idx] = {
         processorType: processorResult.processor_name,
-        errorMsg: `Type: ${processorResult.processor_name}. Error: ${processorResult.error}`,
+        errorMsg: processorResult.error,
       };
     }
   });
   return searchPipelineErrors;
+}
+
+// Generate a more UI-friendly layout of a processor error
+export function formatProcessorError(processorError: {
+  processorType: string;
+  errorMsg: string;
+}): ReactNode {
+  return (
+    <>
+      <EuiText size="s">
+        {`Processor type:`} <b>{capitalize(processorError.processorType)}</b>
+      </EuiText>
+      <EuiText size="s">
+        {`Error:`} <b>{processorError.errorMsg}</b>
+      </EuiText>
+    </>
+  );
 }
 
 // ML inference processors will use standard dot notation or JSONPath depending on the input.
@@ -770,9 +790,9 @@ export function getEmbeddingField(
       }
     }
   } else if (embedding !== undefined) {
-    embeddingField = embedding
+    embeddingField = embedding;
   } else if (fieldMap !== undefined) {
-    embeddingField = get(fieldMap, '0.value', embeddingField)
+    embeddingField = get(fieldMap, '0.value', embeddingField);
   }
   return embeddingField;
 }

@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { debounce } from 'lodash';
+import semver from 'semver';
 import {
   EuiInMemoryTable,
   Direction,
@@ -19,13 +20,16 @@ import {
   EuiText,
   EuiFlyoutBody,
   EuiEmptyPrompt,
+  EuiSpacer,
 } from '@elastic/eui';
 import { AppState } from '../../../store';
 import {
   EMPTY_FIELD_STRING,
   MAX_WORKFLOW_NAME_TO_DISPLAY,
+  MINIMUM_FULL_SUPPORTED_VERSION,
   UIState,
   WORKFLOW_TYPE,
+  WORKFLOW_TYPE_LEGACY,
   Workflow,
   getCharacterLimitedString,
 } from '../../../../common';
@@ -38,6 +42,7 @@ import { isValidUiWorkflow } from '../../../utils';
 
 interface WorkflowListProps {
   setSelectedTabId: (tabId: WORKFLOWS_TAB) => void;
+  dataSourceVersion?: string;
 }
 
 const sorting = {
@@ -47,14 +52,6 @@ const sorting = {
   },
 };
 
-const filterOptions = Object.values(WORKFLOW_TYPE).map((type) => {
-  // @ts-ignore
-  return {
-    name: type,
-    checked: 'on',
-  } as EuiFilterSelectItem;
-});
-
 /**
  * The searchable list of created workflows.
  */
@@ -62,6 +59,19 @@ export function WorkflowList(props: WorkflowListProps) {
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
+
+  // table filters. the list of filters depends on the datasource version, if applicable.
+  const isPreV219 =
+    props.dataSourceVersion !== undefined &&
+    semver.lt(props.dataSourceVersion, MINIMUM_FULL_SUPPORTED_VERSION);
+  const filterType = isPreV219 ? WORKFLOW_TYPE_LEGACY : WORKFLOW_TYPE;
+  const filterOptions = Object.values(filterType).map((type) => {
+    // @ts-ignore
+    return {
+      name: type,
+      checked: 'on',
+    } as EuiFilterSelectItem;
+  });
 
   // actions state
   const [selectedWorkflow, setSelectedWorkflow] = useState<
@@ -171,14 +181,7 @@ export function WorkflowList(props: WorkflowListProps) {
         </EuiFlyout>
       )}
       <EuiFlexGroup direction="column">
-        <EuiFlexItem>
-          <EuiFlexGroup
-            direction="row"
-            style={{ marginLeft: '0px', paddingTop: '10px' }}
-          >
-            <EuiText color="subdued">{`Manage existing workflows`}</EuiText>
-          </EuiFlexGroup>
-        </EuiFlexItem>
+        <EuiSpacer size="m" />
         <EuiFlexItem>
           <EuiFlexGroup direction="row" gutterSize="m">
             <EuiFlexItem grow={true}>

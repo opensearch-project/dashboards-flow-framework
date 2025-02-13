@@ -38,6 +38,7 @@ import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_sour
 import {
   dataSourceFilterFn,
   getDataSourceFromURL,
+  getEffectiveVersion,
   isDataSourceReady,
 } from '../../utils/utils';
 import {
@@ -90,6 +91,17 @@ export function Workflows(props: WorkflowsProps) {
   const [dataSourceId, setDataSourceId] = useState<string | undefined>(
     queryParams.dataSourceId
   );
+  const [dataSourceVersion, setDataSourceVersion] = useState<
+    string | undefined
+  >(undefined);
+  useEffect(() => {
+    async function getVersion() {
+      if (dataSourceId !== undefined) {
+        setDataSourceVersion(await getEffectiveVersion(dataSourceId));
+      }
+    }
+    getVersion();
+  }, [dataSourceId]);
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
@@ -226,14 +238,18 @@ export function Workflows(props: WorkflowsProps) {
   ingest and search flows, test different configurations, and deploy them to your environment.`;
 
   const pageTitleAndDescription = USE_NEW_HOME_PAGE ? (
-    <HeaderControl
-      controls={[
-        {
-          description: DESCRIPTION,
-        },
-      ]}
-      setMountPoint={setAppDescriptionControls}
-    />
+    <>
+      <HeaderControl
+        controls={[
+          {
+            description: DESCRIPTION,
+          },
+        ]}
+        setMountPoint={setAppDescriptionControls}
+      />
+      <GetStartedAccordion />
+      <EuiSpacer size="s" />
+    </>
   ) : (
     <EuiFlexGroup direction="column" style={{ margin: '0px' }}>
       <EuiFlexGroup direction="row" gutterSize="s">
@@ -246,6 +262,7 @@ export function Workflows(props: WorkflowsProps) {
       <EuiText color="subdued">{DESCRIPTION}</EuiText>
       <EuiSpacer size="l" />
       <GetStartedAccordion />
+      <EuiSpacer size="s" />
     </EuiFlexGroup>
   );
 
@@ -265,7 +282,7 @@ export function Workflows(props: WorkflowsProps) {
             pageTitle={pageTitleAndDescription}
             bottomBorder={false}
           />
-          {dataSourceEnabled && (dataSourceId === undefined) ? (
+          {dataSourceEnabled && dataSourceId === undefined ? (
             <EuiPageContent grow={true}>
               <EuiEmptyPrompt
                 title={<h2>Incompatible data source</h2>}
@@ -377,7 +394,10 @@ export function Workflows(props: WorkflowsProps) {
                   bottomBorder={false}
                 />
                 {selectedTabId === WORKFLOWS_TAB.MANAGE ? (
-                  <WorkflowList setSelectedTabId={setSelectedTabId} />
+                  <WorkflowList
+                    setSelectedTabId={setSelectedTabId}
+                    dataSourceVersion={dataSourceVersion}
+                  />
                 ) : (
                   <>
                     <EuiSpacer size="s" />

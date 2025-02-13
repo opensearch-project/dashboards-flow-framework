@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { AppState } from '../../../store';
 import { isEmpty } from 'lodash';
@@ -26,6 +26,7 @@ import { Query } from './query';
 import { Ingest } from './ingest';
 import { Errors } from './errors';
 import {
+  formatProcessorError,
   hasProvisionedIngestResources,
   hasProvisionedSearchResources,
 } from '../../../utils';
@@ -52,7 +53,9 @@ export function Tools(props: ToolsProps) {
     ingestPipeline: ingestPipelineErrors,
     searchPipeline: searchPipelineErrors,
   } = useSelector((state: AppState) => state.errors);
-  const [curErrorMessages, setCurErrorMessages] = useState<string[]>([]);
+  const [curErrorMessages, setCurErrorMessages] = useState<
+    (string | ReactNode)[]
+  >([]);
 
   // Propagate any errors coming from opensearch API calls, including ingest/search pipeline verbose calls.
   useEffect(() => {
@@ -66,12 +69,16 @@ export function Tools(props: ToolsProps) {
       } else if (!isEmpty(ingestPipelineErrors)) {
         setCurErrorMessages([
           'Data not ingested. Errors found with the following ingest processor(s):',
-          ...Object.values(ingestPipelineErrors).map((value) => value.errorMsg),
+          ...Object.values(ingestPipelineErrors).map((ingestPipelineError) =>
+            formatProcessorError(ingestPipelineError)
+          ),
         ]);
       } else if (!isEmpty(searchPipelineErrors)) {
         setCurErrorMessages([
           'Errors found with the following search processor(s)',
-          ...Object.values(searchPipelineErrors).map((value) => value.errorMsg),
+          ...Object.values(searchPipelineErrors).map((searchPipelineError) =>
+            formatProcessorError(searchPipelineError)
+          ),
         ]);
       }
     } else {
