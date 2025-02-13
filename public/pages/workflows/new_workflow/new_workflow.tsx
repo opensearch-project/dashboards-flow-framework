@@ -60,6 +60,7 @@ const filterPresetsByVersion = async (
     WORKFLOW_TYPE.SEMANTIC_SEARCH,
     WORKFLOW_TYPE.MULTIMODAL_SEARCH,
     WORKFLOW_TYPE.HYBRID_SEARCH,
+    WORKFLOW_TYPE.CUSTOM,
   ];
 
   const version = await getEffectiveVersion(dataSourceId);

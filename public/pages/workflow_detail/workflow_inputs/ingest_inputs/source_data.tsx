@@ -112,8 +112,8 @@ export function SourceData(props: SourceDataProps) {
                 <h3>Import sample data</h3>
               </EuiText>
             </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              {docsPopulated ? (
+            {docsPopulated && (
+              <EuiFlexItem grow={false}>
                 <EuiSmallButtonEmpty
                   onClick={() => setIsEditModalOpen(true)}
                   data-testid="editSourceDataButton"
@@ -122,19 +122,8 @@ export function SourceData(props: SourceDataProps) {
                 >
                   Edit
                 </EuiSmallButtonEmpty>
-              ) : (
-                <EuiSmallButton
-                  fill={false}
-                  style={{ width: '75px' }}
-                  onClick={() => setIsEditModalOpen(true)}
-                  data-testid="selectDataToImportButton"
-                  iconType="plus"
-                  iconSide="left"
-                >
-                  {`Import`}
-                </EuiSmallButton>
-              )}
-            </EuiFlexItem>
+              </EuiFlexItem>
+            )}
           </EuiFlexGroup>
         </EuiFlexItem>
         {props.lastIngested !== undefined && (
@@ -208,6 +197,17 @@ export function SourceData(props: SourceDataProps) {
                 <EuiText size="s">
                   Import a data sample to start configuring your ingest flow.
                 </EuiText>
+                <EuiSpacer size="m" />
+                <EuiSmallButton
+                  fill={true}
+                  style={{ width: '130px' }}
+                  onClick={() => setIsEditModalOpen(true)}
+                  data-testid="selectDataToImportButton"
+                  iconType="plus"
+                  iconSide="left"
+                >
+                  {`Import data`}
+                </EuiSmallButton>
               </>
             }
           />
