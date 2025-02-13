@@ -16,6 +16,9 @@ import {
   EuiSuperSelectOption,
   EuiText,
   EuiSmallButton,
+  EuiSmallButtonIcon,
+  EuiFlexGroup,
+  EuiFlexItem,
 } from '@elastic/eui';
 import {
   MODEL_STATE,
@@ -23,8 +26,10 @@ import {
   ModelFormValue,
   ML_CHOOSE_MODEL_LINK,
   ML_REMOTE_MODEL_LINK,
+  FETCH_ALL_QUERY_LARGE,
 } from '../../../../../common';
-import { AppState } from '../../../../store';
+import { AppState, searchModels, useAppDispatch } from '../../../../store';
+import { getDataSourceId } from '../../../../utils';
 
 interface ModelFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
@@ -47,6 +52,8 @@ type ModelItem = ModelFormValue & {
  * A specific field for selecting existing deployed models
  */
 export function ModelField(props: ModelFieldProps) {
+  const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
   // Initial store is fetched when loading base <DetectorDetail /> page. We don't
   // re-fetch here as it could overload client-side if user clicks back and forth /
   // keeps re-rendering this component (and subsequently re-fetching data) as they're building flows
@@ -140,45 +147,64 @@ export function ModelField(props: ModelFieldProps) {
               isInvalid={isInvalid}
               error={props.showError && getIn(errors, `${field.name}.id`)}
             >
-              <EuiCompressedSuperSelect
-                data-testid="selectDeployedModel"
-                fullWidth={props.fullWidth}
-                disabled={isEmpty(deployedModels)}
-                options={deployedModels.map(
-                  (option) =>
-                    ({
-                      value: option.id,
-                      inputDisplay: (
-                        <>
-                          <EuiText size="s">{option.name}</EuiText>
-                        </>
-                      ),
-                      dropdownDisplay: (
-                        <>
-                          <EuiText size="s">{option.name}</EuiText>
-                          <EuiText size="xs" color="subdued">
-                            Deployed
-                          </EuiText>
-                          <EuiText size="xs" color="subdued">
-                            {option.algorithm}
-                          </EuiText>
-                        </>
-                      ),
-                      disabled: false,
-                    } as EuiSuperSelectOption<string>)
-                )}
-                valueOfSelected={field.value?.id || ''}
-                onChange={(option: string) => {
-                  form.setFieldTouched(props.fieldPath, true);
-                  form.setFieldValue(props.fieldPath, {
-                    id: option,
-                  } as ModelFormValue);
-                  if (props.onModelChange) {
-                    props.onModelChange(option);
-                  }
-                }}
-                isInvalid={isInvalid}
-              />
+              <EuiFlexGroup direction="row" gutterSize="none">
+                <EuiFlexItem grow={true}>
+                  <EuiCompressedSuperSelect
+                    data-testid="selectDeployedModel"
+                    fullWidth={props.fullWidth}
+                    disabled={isEmpty(deployedModels)}
+                    options={deployedModels.map(
+                      (option) =>
+                        ({
+                          value: option.id,
+                          inputDisplay: (
+                            <>
+                              <EuiText size="s">{option.name}</EuiText>
+                            </>
+                          ),
+                          dropdownDisplay: (
+                            <>
+                              <EuiText size="s">{option.name}</EuiText>
+                              <EuiText size="xs" color="subdued">
+                                Deployed
+                              </EuiText>
+                              <EuiText size="xs" color="subdued">
+                                {option.algorithm}
+                              </EuiText>
+                            </>
+                          ),
+                          disabled: false,
+                        } as EuiSuperSelectOption<string>)
+                    )}
+                    valueOfSelected={field.value?.id || ''}
+                    onChange={(option: string) => {
+                      form.setFieldTouched(props.fieldPath, true);
+                      form.setFieldValue(props.fieldPath, {
+                        id: option,
+                      } as ModelFormValue);
+                      if (props.onModelChange) {
+                        props.onModelChange(option);
+                      }
+                    }}
+                    isInvalid={isInvalid}
+                  />
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiSmallButtonIcon
+                    iconType={'refresh'}
+                    aria-label="refresh"
+                    display="base"
+                    onClick={() => {
+                      dispatch(
+                        searchModels({
+                          apiBody: FETCH_ALL_QUERY_LARGE,
+                          dataSourceId,
+                        })
+                      );
+                    }}
+                  />
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiCompressedFormRow>
           );
         }}
