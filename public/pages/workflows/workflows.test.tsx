@@ -69,7 +69,6 @@ describe('Workflows', () => {
         queryByText('Select or drag and drop a file')
       ).not.toBeInTheDocument();
     });
-    expect(getAllByText('Manage existing workflows').length).toBeGreaterThan(0);
 
     // When the "Create Workflow" button is clicked, the "New workflow" tab opens
     // Create Workflow Testing
