@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { get } from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { get, isEmpty } from 'lodash';
 import {
   EuiPanel,
   EuiFlexGroup,
@@ -14,7 +14,7 @@ import {
 import { SearchResponse } from '../../../common';
 import { ResultsTable } from './results_table';
 import { ResultsJSON } from './results_json';
-import { MLResponse } from './ml_response';
+import { MLOutputs } from './ml_outputs';
 
 interface ResultsProps {
   response: SearchResponse;
@@ -22,8 +22,8 @@ interface ResultsProps {
 
 enum VIEW {
   HITS_TABLE = 'hits_table',
+  ML_OUTPUTS = 'ml_outputs',
   RAW_JSON = 'raw_json',
-  ML_RESPONSE = 'ml_response',
 }
 
 /**
@@ -31,8 +31,14 @@ enum VIEW {
  * or the raw JSON response.
  */
 export function Results(props: ResultsProps) {
-  // selected view state
+  // selected view state. auto-navigate to ML outputs if there is values found
+  // in "ext.ml_inference" in the search response.
   const [selectedView, setSelectedView] = useState<VIEW>(VIEW.HITS_TABLE);
+  useEffect(() => {
+    if (!isEmpty(get(props.response, 'ext.ml_inference', {}))) {
+      setSelectedView(VIEW.ML_OUTPUTS);
+    }
+  }, [props.response]);
 
   return (
     <EuiPanel
@@ -55,12 +61,12 @@ export function Results(props: ResultsProps) {
                 label: 'Hits',
               },
               {
-                id: VIEW.RAW_JSON,
-                label: 'Raw JSON',
+                id: VIEW.ML_OUTPUTS,
+                label: 'ML outputs',
               },
               {
-                id: VIEW.ML_RESPONSE,
-                label: 'ML response',
+                id: VIEW.RAW_JSON,
+                label: 'Raw JSON',
               },
             ]}
             idSelected={selectedView}
@@ -73,13 +79,13 @@ export function Results(props: ResultsProps) {
             {selectedView === VIEW.HITS_TABLE && (
               <ResultsTable hits={props.response?.hits?.hits || []} />
             )}
+            {selectedView === VIEW.ML_OUTPUTS && (
+              <MLOutputs
+                mlOutputs={getMLResponseFromSearchResponse(props.response)}
+              />
+            )}
             {selectedView === VIEW.RAW_JSON && (
               <ResultsJSON response={props.response} />
-            )}
-            {selectedView === VIEW.ML_RESPONSE && (
-              <MLResponse
-                mlResponse={getMLResponseFromSearchResponse(props.response)}
-              />
             )}
           </>
         </EuiFlexItem>
