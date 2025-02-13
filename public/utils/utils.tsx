@@ -7,6 +7,7 @@ import React, { ReactNode } from 'react';
 import yaml from 'js-yaml';
 import jsonpath from 'jsonpath';
 import { capitalize, escape, findKey, get, isEmpty, set, unset } from 'lodash';
+import { EuiText } from '@elastic/eui';
 import semver from 'semver';
 import queryString from 'query-string';
 import { useLocation } from 'react-router-dom';
@@ -66,7 +67,6 @@ import {
 import * as pluginManifest from '../../opensearch_dashboards.json';
 import { DataSourceAttributes } from '../../../../src/plugins/data_source/common/data_sources';
 import { SavedObject } from '../../../../src/core/public';
-import { EuiText } from '@elastic/eui';
 
 // Generate a random ID. Optionally add a prefix. Optionally
 // override the default # characters to generate.
@@ -231,6 +231,7 @@ export function getIngestPipelineErrors(
   return ingestPipelineErrors;
 }
 
+// Extract any processor-level errors from a verbose search API call
 export function getSearchPipelineErrors(
   searchResponseVerbose: SearchResponseVerbose
 ): SearchPipelineErrors {
@@ -246,6 +247,7 @@ export function getSearchPipelineErrors(
   return searchPipelineErrors;
 }
 
+// Generate a more UI-friendly layout of a processor error
 export function formatProcessorError(processorError: {
   processorType: string;
   errorMsg: string;
