@@ -147,7 +147,7 @@ export function ModelField(props: ModelFieldProps) {
               isInvalid={isInvalid}
               error={props.showError && getIn(errors, `${field.name}.id`)}
             >
-              <EuiFlexGroup direction="row" gutterSize="none">
+              <EuiFlexGroup direction="row" gutterSize="xs">
                 <EuiFlexItem grow={true}>
                   <EuiCompressedSuperSelect
                     data-testid="selectDeployedModel"
