@@ -18,34 +18,26 @@ import {
   ML_RESPONSE_PROCESSOR_EXAMPLE_DOCS_LINK,
 } from '../../../common';
 
-interface MLResponseProps {
-  mlResponse: {};
+interface MLOutputsProps {
+  mlOutputs: {};
 }
 
 /**
- * Small component to render the ML response within a raw search response.
+ * Small component to render the ML outputs within a raw search response.
  */
-export function MLResponse(props: MLResponseProps) {
+export function MLOutputs(props: MLOutputsProps) {
   return (
     <>
       <EuiSpacer size="s" />
-      <EuiText size="s">
-        Showing results stored in <EuiCode>ext.ml_inference</EuiCode> from the
-        search response.{' '}
-        <EuiLink href={ML_RESPONSE_PROCESSOR_EXAMPLE_DOCS_LINK} target="_blank">
-          See an example
-        </EuiLink>
-      </EuiText>
-      <EuiSpacer size="m" />
-      {isEmpty(props.mlResponse) ? (
-        <EuiEmptyPrompt title={<h2>No response found</h2>} titleSize="s" />
+      {isEmpty(props.mlOutputs) ? (
+        <EuiEmptyPrompt title={<h2>No outputs found</h2>} titleSize="s" />
       ) : (
         <EuiCodeEditor
           mode="json"
           theme="textmate"
           width="100%"
           height="100%"
-          value={customStringify(props.mlResponse)}
+          value={customStringify(props.mlOutputs)}
           readOnly={true}
           setOptions={{
             fontSize: '12px',
@@ -55,6 +47,14 @@ export function MLResponse(props: MLResponseProps) {
           tabSize={2}
         />
       )}
+      <EuiSpacer size="s" />
+      <EuiText size="s" color="subdued">
+        Showing ML outputs stored in <EuiCode>ext.ml_inference</EuiCode> from
+        the search response.{' '}
+        <EuiLink href={ML_RESPONSE_PROCESSOR_EXAMPLE_DOCS_LINK} target="_blank">
+          See an example
+        </EuiLink>
+      </EuiText>
     </>
   );
 }
