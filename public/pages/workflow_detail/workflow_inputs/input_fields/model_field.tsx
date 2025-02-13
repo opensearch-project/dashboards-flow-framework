@@ -15,7 +15,6 @@ import {
   EuiCompressedSuperSelect,
   EuiSuperSelectOption,
   EuiText,
-  EuiSmallButton,
   EuiSmallButtonIcon,
   EuiFlexGroup,
   EuiFlexItem,
@@ -25,7 +24,6 @@ import {
   WorkflowFormValues,
   ModelFormValue,
   ML_CHOOSE_MODEL_LINK,
-  ML_REMOTE_MODEL_LINK,
   FETCH_ALL_QUERY_LARGE,
 } from '../../../../../common';
 import { AppState, searchModels, useAppDispatch } from '../../../../store';
@@ -101,31 +99,6 @@ export function ModelField(props: ModelFieldProps) {
             <EuiSpacer size="s" />
           </>
         )}
-      {isEmpty(deployedModels) && (
-        <>
-          <EuiCallOut
-            size="s"
-            title="No deployed models found"
-            iconType={'alert'}
-            color="warning"
-          >
-            <EuiText size="s">
-              To create and deploy models and make them accessible in
-              OpenSearch, see documentation.
-            </EuiText>
-            <EuiSpacer size="s" />
-            <EuiSmallButton
-              target="_blank"
-              href={ML_REMOTE_MODEL_LINK}
-              iconSide="right"
-              iconType={'popout'}
-            >
-              Documentation
-            </EuiSmallButton>
-          </EuiCallOut>
-          <EuiSpacer size="s" />
-        </>
-      )}
       <Field name={props.fieldPath}>
         {({ field, form }: FieldProps) => {
           const isInvalid =
