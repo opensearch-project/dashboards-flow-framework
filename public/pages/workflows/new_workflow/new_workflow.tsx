@@ -116,6 +116,7 @@ export function NewWorkflow(props: NewWorkflowProps) {
   // 1. fetch the workflow presets persisted on server-side
   // 2. fetch the ML models and connectors. these may be used in quick-create views when selecting a preset,
   //    so we optimize by fetching once at the top-level here.
+  // 3. fetch local cluster version if applicable
   useEffect(() => {
     dispatch(getWorkflowPresets());
     if (isDataSourceReady(dataSourceId)) {
@@ -124,6 +125,7 @@ export function NewWorkflow(props: NewWorkflowProps) {
         searchConnectors({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId })
       );
     }
+    // if use local cluster
     if (dataSourceId === '') {
       dispatch(getLocalClusterVersion());
     }
