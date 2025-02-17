@@ -259,6 +259,8 @@ export const SEARCH_PIPELINE_DOCS_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/using-search-pipeline/';
 export const ML_RESPONSE_PROCESSOR_EXAMPLE_DOCS_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/ml-inference-search-response/#example-externally-hosted-text-embedding-model';
+export const UPDATE_MODEL_DOCS_LINK =
+  'https://opensearch.org/docs/latest/ml-commons-plugin/api/model-apis/update-model/';
 
 /**
  * Text chunking algorithm constants
