@@ -18,6 +18,7 @@ import {
   EuiSmallButtonIcon,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiHealth,
 } from '@elastic/eui';
 import {
   MODEL_STATE,
@@ -25,6 +26,7 @@ import {
   ModelFormValue,
   ML_CHOOSE_MODEL_LINK,
   FETCH_ALL_QUERY_LARGE,
+  UPDATE_MODEL_DOCS_LINK,
 } from '../../../../../common';
 import { AppState, searchModels, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
@@ -92,8 +94,15 @@ export function ModelField(props: ModelFieldProps) {
           <>
             <EuiCallOut
               size="s"
-              title="The selected model does not have a model interface. Cannot automatically determine model inputs and outputs."
-              iconType={'alert'}
+              title={
+                <EuiText size="s">
+                  This model has no interface set up yet.{' '}
+                  <EuiLink href={UPDATE_MODEL_DOCS_LINK} target="_blank">
+                    Learn more
+                  </EuiLink>{' '}
+                  about updating a model. Refresh the list when you finish.
+                </EuiText>
+              }
               color="warning"
             />
             <EuiSpacer size="s" />
@@ -137,12 +146,19 @@ export function ModelField(props: ModelFieldProps) {
                           ),
                           dropdownDisplay: (
                             <>
-                              <EuiText size="s">{option.name}</EuiText>
+                              <EuiHealth
+                                color={
+                                  isEmpty(option.interface)
+                                    ? 'warning'
+                                    : 'success'
+                                }
+                              >
+                                <EuiText size="s">{option.name}</EuiText>
+                              </EuiHealth>
                               <EuiText size="xs" color="subdued">
-                                Deployed
-                              </EuiText>
-                              <EuiText size="xs" color="subdued">
-                                {option.algorithm}
+                                {isEmpty(option.interface)
+                                  ? 'Not ready - no model interface'
+                                  : 'Deployed'}
                               </EuiText>
                             </>
                           ),
