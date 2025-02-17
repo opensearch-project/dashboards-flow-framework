@@ -47,6 +47,7 @@ import {
 import {
   getCore,
   getDataSourceEnabled,
+  getRouteService,
   getSavedObjectsClient,
 } from '../services';
 import {
@@ -891,6 +892,11 @@ export const getEffectiveVersion = async (
   try {
     if (dataSourceId === undefined) {
       throw new Error('Data source is required');
+    }
+
+    if (dataSourceId === '') {
+      // Use route service for local cluster case
+      return await getRouteService().getLocalClusterVersion();
     }
 
     const dataSource = await getSavedObjectsClient().get<DataSourceAttributes>(
