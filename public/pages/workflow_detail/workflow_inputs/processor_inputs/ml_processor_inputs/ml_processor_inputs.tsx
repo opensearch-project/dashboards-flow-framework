@@ -224,7 +224,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       ) : (
         <ModelField
           fieldPath={modelFieldPath}
-          hasModelInterface={modelInterface !== undefined}
+          hasModelInterface={!isEmpty(modelInterface)}
           onModelChange={onModelChange}
         />
       )}
