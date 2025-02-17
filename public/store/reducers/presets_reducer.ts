@@ -51,8 +51,8 @@ const presetsSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(getWorkflowPresets.rejected, (state, action) => {
-        state.errorMessage = action.payload as string;
         state.loading = false;
+        state.errorMessage = action.payload as string;
       });
   },
 });

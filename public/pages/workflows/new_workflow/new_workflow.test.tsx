@@ -40,6 +40,10 @@ const initialState = {
     presetWorkflows: loadPresetWorkflowTemplates(),
   },
   workflows: INITIAL_WORKFLOWS_STATE,
+  opensearch: {
+    loading: false,
+    localClusterVersion: null,
+  },
 };
 
 const mockDispatch = jest.fn();

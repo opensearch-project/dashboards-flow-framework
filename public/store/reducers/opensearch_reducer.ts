@@ -29,9 +29,12 @@ export const INITIAL_OPENSEARCH_STATE = {
   indexDetails: {} as { [key: string]: IndexConfiguration },
   ingestPipelineDetails: {} as { [key: string]: IngestPipelineConfig },
   searchPipelineDetails: {} as { [key: string]: SearchPipelineConfig },
+  localClusterVersion: null as string | null,
 };
 
 const OPENSEARCH_PREFIX = 'opensearch';
+const GET_LOCAL_CLUSTER_VERSION_ACTION = `${OPENSEARCH_PREFIX}/getLocalClusterVersion`;
+const SET_OPENSEARCH_ERROR = `${OPENSEARCH_PREFIX}/setError`;
 const CAT_INDICES_ACTION = `${OPENSEARCH_PREFIX}/catIndices`;
 const GET_MAPPINGS_ACTION = `${OPENSEARCH_PREFIX}/mappings`;
 const SEARCH_INDEX_ACTION = `${OPENSEARCH_PREFIX}/search`;
@@ -41,6 +44,25 @@ const SIMULATE_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/simulatePipeline`;
 const GET_INGEST_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/getIngestPipeline`;
 const GET_SEARCH_PIPELINE_ACTION = `${OPENSEARCH_PREFIX}/getSearchPipeline`;
 const GET_INDEX_ACTION = `${OPENSEARCH_PREFIX}/getIndex`;
+
+export const getLocalClusterVersion = createAsyncThunk(
+  GET_LOCAL_CLUSTER_VERSION_ACTION,
+  async (_, { rejectWithValue }) => {
+    try {
+      const version = await getRouteService().getLocalClusterVersion();
+      return version;
+    } catch (error) {
+      return rejectWithValue('Error getting local cluster version: ' + error);
+    }
+  }
+);
+
+export const setOpenSearchError = createAsyncThunk(
+  SET_OPENSEARCH_ERROR,
+  async ({ error }: { error: string }, { rejectWithValue }) => {
+    return error;
+  }
+);
 
 export const catIndices = createAsyncThunk(
   CAT_INDICES_ACTION,
@@ -415,6 +437,19 @@ const opensearchSlice = createSlice({
         state.loading = false;
       })
       .addCase(bulk.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(getLocalClusterVersion.pending, (state) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
+      .addCase(getLocalClusterVersion.fulfilled, (state, action) => {
+        state.localClusterVersion = action.payload;
+        state.loading = false;
+        state.errorMessage = '';
+      })
+      .addCase(getLocalClusterVersion.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       });
