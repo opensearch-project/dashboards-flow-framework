@@ -44,6 +44,8 @@ export function SearchInputs(props: SearchInputsProps) {
         if (dataSourceId !== undefined) {
           const version = await getEffectiveVersion(dataSourceId);
           setShowTransformQuery(semver.gte(version, '2.19.0'));
+        } else {
+          setShowTransformQuery(true); 
         }
       } catch (error) {
         console.error('Error checking version:', error);
