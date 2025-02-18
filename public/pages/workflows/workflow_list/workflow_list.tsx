@@ -161,7 +161,7 @@ export function WorkflowList(props: WorkflowListProps) {
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
             {!isValidUiWorkflow(selectedWorkflow) ||
-            selectedWorkflow?.ui_metadata?.type === WORKFLOW_TYPE.UNKNOWN ? (
+              selectedWorkflow?.ui_metadata?.type === WORKFLOW_TYPE.UNKNOWN ? (
               <EuiEmptyPrompt
                 title={<h2>Invalid workflow type</h2>}
                 titleSize="s"
@@ -199,16 +199,27 @@ export function WorkflowList(props: WorkflowListProps) {
           </EuiFlexGroup>
         </EuiFlexItem>
         <EuiFlexItem>
-          <EuiInMemoryTable<Workflow>
-            items={filteredWorkflows}
-            rowHeader="name"
-            // @ts-ignore
-            columns={columns(tableActions)}
-            sorting={sorting}
-            pagination={true}
-            message={loading === true ? <EuiLoadingSpinner size="xl" /> : null}
-            hasActions={true}
-          />
+          {loading ? (
+            <EuiFlexGroup
+              justifyContent="center"
+              alignItems="center"
+              style={{ minHeight: '400px' }}
+            >
+              <EuiFlexItem grow={false}>
+                <EuiLoadingSpinner size="xl" />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          ) : (
+            <EuiInMemoryTable<Workflow>
+              items={filteredWorkflows}
+              rowHeader="name"
+              // @ts-ignore
+              columns={columns(tableActions)}
+              sorting={sorting}
+              pagination={true}
+              hasActions={true}
+            />
+          )}
         </EuiFlexItem>
       </EuiFlexGroup>
     </>
@@ -235,7 +246,7 @@ function fetchFilteredWorkflows(
         ...workflow.ui_metadata,
         type:
           workflow.ui_metadata?.type !== undefined &&
-          Object.values(WORKFLOW_TYPE).includes(workflow.ui_metadata?.type)
+            Object.values(WORKFLOW_TYPE).includes(workflow.ui_metadata?.type)
             ? workflow.ui_metadata?.type
             : WORKFLOW_TYPE.UNKNOWN,
       } as UIState,
@@ -249,6 +260,6 @@ function fetchFilteredWorkflows(
   return searchQuery.length === 0
     ? filteredWorkflows
     : filteredWorkflows.filter((workflow) =>
-        workflow.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      workflow.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 }
