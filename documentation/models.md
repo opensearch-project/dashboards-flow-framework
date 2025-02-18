@@ -367,6 +367,141 @@ POST /_plugins/_ml/models/_register
 }
 ```
 
+### Cohere Embed
+
+Connector:
+
+```
+POST /_plugins/_ml/connectors/_create
+{
+  "name": "Cohere Embed Model",
+  "description": "The connector to Cohere's public embed API",
+  "version": "1",
+  "protocol": "http",
+  "credential": {
+    "cohere_key": "<ENTER_COHERE_API_KEY_HERE>"
+  },
+  "parameters": {
+    "model": "embed-english-v3.0", 
+    "input_type":"search_document",
+    "truncate": "END"
+  },
+  "actions": [
+    {
+      "action_type": "predict",
+      "method": "POST",
+      "url": "https://api.cohere.ai/v1/embed",
+      "headers": {
+        "Authorization": "Bearer ${credential.cohere_key}",
+        "Request-Source": "unspecified:opensearch"
+      },
+      "request_body": "{ \"texts\": ${parameters.texts}, \"truncate\": \"${parameters.truncate}\", \"model\": \"${parameters.model}\", \"input_type\": \"${parameters.input_type}\" }"
+    }
+  ]
+}
+```
+
+Model:
+
+```
+POST /_plugins/_ml/models/_register
+{
+    "name": "Cohere Embed Model",
+    "function_name": "remote",
+    "description": "Your Cohere Embedding Model",
+    "connector_id": "<connector_id>",
+    "interface": {
+        "input": {
+            "properties": {
+                "parameters": {
+                    "properties": {
+                        "texts": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "output": {
+            "properties": {
+                "inference_results": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "output": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "dataAsMap": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "texts": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "embeddings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "number"
+                                                        }
+                                                    }
+                                                },
+                                                "meta": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "api_version": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "version": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        },
+                                                        "billed_units": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "input_tokens": {
+                                                                    "type": "integer"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "response_type": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "status_code": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
 ## Generative models
 
 ### Claude 3 Sonnet (hosted on Amazon Bedrock)
@@ -486,6 +621,248 @@ POST /_plugins/_ml/models/_register
             "required": [
                 "inference_results"
             ]
+        }
+    }
+}
+```
+
+### DeepSeek Chat
+
+Connector:
+
+```
+POST /_plugins/_ml/connectors/_create
+{
+  "name": "DeepSeek Chat",
+  "description": "Test connector for DeepSeek Chat",
+  "version": "1",
+  "protocol": "http",
+  "parameters": {
+    "endpoint": "api.deepseek.com",
+    "model": "deepseek-chat"
+  },
+  "credential": {
+    "deepSeek_key": "<PLEASE ADD YOUR DEEPSEEK API KEY HERE>"
+  },
+  "actions": [
+    {
+      "action_type": "predict",
+      "method": "POST",
+      "url": "https://${parameters.endpoint}/v1/chat/completions",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ${credential.deepSeek_key}"
+      },
+      "request_body": "{ \"model\": \"${parameters.model}\", \"messages\": ${parameters.messages} }"
+    }
+  ]
+}
+```
+
+Model:
+
+```
+POST /_plugins/_ml/models/_register
+{
+    "name": "DeepSeek Chat model",
+    "function_name": "remote",
+    "description": "DeepSeek Chat",
+    "connector_id": "<connector_id>",
+    "interface": {
+        "input": {
+            "properties": {
+                "parameters": {
+                    "properties": {
+                        "messages": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "role": {
+                                        "type": "string"
+                                    },
+                                    "content": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "output": {
+            "properties": {
+                "inference_results": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "output": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "dataAsMap": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "object": {
+                                                    "type": "string"
+                                                },
+                                                "created": {
+                                                    "type": "integer"
+                                                },
+                                                "model": {
+                                                    "type": "string"
+                                                },
+                                                "choices": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "index": {
+                                                                "type": "integer"
+                                                            },
+                                                            "message": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "role": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "content": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "finish_reason": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "usage": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "prompt_tokens": {
+                                                            "type": "integer"
+                                                        },
+                                                        "completion_tokens": {
+                                                            "type": "integer"
+                                                        },
+                                                        "total_tokens": {
+                                                            "type": "integer"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "status_code": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+### OpenAI GPT-3.5
+
+Connector:
+
+```
+POST /_plugins/_ml/connectors/_create
+{
+  "name": "<YOUR CONNECTOR NAME>",
+  "description": "<YOUR CONNECTOR DESCRIPTION>",
+  "version": "<YOUR CONNECTOR VERSION>",
+  "protocol": "http",
+  "parameters": {
+    "endpoint": "api.openai.com",
+    "model": "gpt-3.5-turbo"
+  },
+  "credential": {
+    "openAI_key": "<PLEASE ADD YOUR OPENAI API KEY HERE>"
+  },
+  "actions": [
+    {
+      "action_type": "predict",
+      "method": "POST",
+      "url": "https://${parameters.endpoint}/v1/chat/completions",
+      "headers": {
+        "Authorization": "Bearer ${credential.openAI_key}"
+      },
+      "request_body": "{ \"model\": \"${parameters.model}\", \"messages\": ${parameters.messages} }"
+    }
+  ]
+}
+```
+
+Model:
+
+```
+POST /_plugins/_ml/models/_register
+{
+    "name": "openAI-gpt-3.5-turbo",
+    "function_name": "remote",
+    "description": "test model",
+    "connector_id": "<connector_id>",
+    "interface": {
+        "input": {
+            "properties": {
+                "parameters": {
+                    "properties": {
+                        "messages": {
+                            "type": "string",
+                            "description": "This is a test description field"
+                        }
+                    }
+                }
+            }
+        },
+        "output": {
+            "properties": {
+                "inference_results": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "output": {
+                                "type": "array",
+                                "items": {
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "description": "This is a test description field"
+                                        },
+                                        "dataAsMap": {
+                                            "type": "object",
+                                            "description": "This is a test description field"
+                                        }
+                                    }
+                                },
+                                "description": "This is a test description field"
+                            },
+                            "status_code": {
+                                "type": "integer",
+                                "description": "This is a test description field"
+                            }
+                        }
+                    },
+                    "description": "This is a test description field"
+                }
+            }
         }
     }
 }

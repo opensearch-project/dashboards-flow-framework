@@ -24,12 +24,13 @@ import {
   MODEL_STATE,
   WorkflowFormValues,
   ModelFormValue,
-  ML_CHOOSE_MODEL_LINK,
   FETCH_ALL_QUERY_LARGE,
   UPDATE_MODEL_DOCS_LINK,
+  MODEL_CATEGORY,
 } from '../../../../../common';
 import { AppState, searchModels, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
+import { ModelInfoPopover } from './models_info_popover';
 
 interface ModelFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
@@ -41,6 +42,7 @@ interface ModelFieldProps {
   fullWidth?: boolean;
   showError?: boolean;
   showInvalid?: boolean;
+  modelCategory?: MODEL_CATEGORY;
 }
 
 type ModelItem = ModelFormValue & {
@@ -118,13 +120,7 @@ export function ModelField(props: ModelFieldProps) {
             <EuiCompressedFormRow
               fullWidth={props.fullWidth}
               label={props.label || 'Model'}
-              labelAppend={
-                <EuiText size="xs">
-                  <EuiLink href={ML_CHOOSE_MODEL_LINK} target="_blank">
-                    Learn more
-                  </EuiLink>
-                </EuiText>
-              }
+              labelAppend={<ModelInfoPopover modelCategory={props.modelCategory} />}
               helpText={props.helpText || 'The model ID.'}
               isInvalid={isInvalid}
               error={props.showError && getIn(errors, `${field.name}.id`)}
