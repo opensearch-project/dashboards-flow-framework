@@ -37,6 +37,7 @@ import {
   TRANSFORM_TYPE,
   OutputMapFormValue,
   NO_TRANSFORMATION,
+  PROCESSOR_CONTEXT,
 } from '../../common';
 import { processorConfigToFormik } from './config_to_form_utils';
 import { sanitizeJSONPath } from './utils';
@@ -105,7 +106,8 @@ function ingestConfigToTemplateNodes(
   const ingestPipelineName = ingestConfig.pipelineName.value;
   const ingestEnabled = ingestConfig.enabled.value;
   const ingestProcessors = processorConfigsToTemplateProcessors(
-    ingestConfig.enrich.processors
+    ingestConfig.enrich.processors,
+    PROCESSOR_CONTEXT.INGEST
   );
   const hasProcessors = ingestProcessors.length > 0;
 
@@ -132,7 +134,8 @@ function searchConfigToTemplateNodes(
 ): TemplateNode[] {
   const searchPipelineName = searchConfig.pipelineName.value;
   const searchRequestProcessors = processorConfigsToTemplateProcessors(
-    searchConfig.enrichRequest.processors
+    searchConfig.enrichRequest.processors,
+    PROCESSOR_CONTEXT.SEARCH_REQUEST
   );
   // For the configured response processors, we don't maintain separate UI / config
   // between response processors and phase results processors. So, we parse
@@ -143,12 +146,14 @@ function searchConfigToTemplateNodes(
     (processor) => processor.type === PROCESSOR_TYPE.NORMALIZATION
   );
   const phaseResultsProcessors = processorConfigsToTemplateProcessors(
-    normalizationProcessor ? [normalizationProcessor] : []
+    normalizationProcessor ? [normalizationProcessor] : [],
+    PROCESSOR_CONTEXT.SEARCH_RESPONSE
   );
   const searchResponseProcessors = processorConfigsToTemplateProcessors(
     searchConfig.enrichResponse.processors.filter(
       (processor) => processor.type !== PROCESSOR_TYPE.NORMALIZATION
-    )
+    ),
+    PROCESSOR_CONTEXT.SEARCH_RESPONSE
   );
   const hasProcessors =
     searchRequestProcessors.length > 0 ||
@@ -177,7 +182,8 @@ function searchConfigToTemplateNodes(
 // General fn to process all processor configs and convert them
 // into a final list of template-formatted IngestProcessor/SearchProcessors.
 export function processorConfigsToTemplateProcessors(
-  processorConfigs: IProcessorConfig[]
+  processorConfigs: IProcessorConfig[],
+  context: PROCESSOR_CONTEXT
 ): (IngestProcessor | SearchProcessor)[] {
   const processorsList = [] as (IngestProcessor | SearchProcessor)[];
 
@@ -214,7 +220,7 @@ export function processorConfigsToTemplateProcessors(
         if (input_map?.length > 0) {
           processor.ml_inference.input_map = input_map.map(
             (inputMapFormValue: InputMapFormValue) => {
-              const res = processModelInputs(inputMapFormValue);
+              const res = processModelInputs(inputMapFormValue, context);
               if (!isEmpty(res.modelConfig)) {
                 modelConfig = {
                   ...modelConfig,
@@ -552,7 +558,8 @@ function mergeMapIntoSingleObj(
 // Bucket the model inputs configured on the UI as input map entries containing dynamic data,
 // or model config entries containing static data.
 function processModelInputs(
-  mapFormValue: InputMapFormValue
+  mapFormValue: InputMapFormValue,
+  context: PROCESSOR_CONTEXT
 ): { inputMap: {}; modelConfig: {} } {
   let inputMap = {};
   let modelConfig = {};
@@ -563,11 +570,17 @@ function processModelInputs(
         mapEntry.value.transformType === TRANSFORM_TYPE.EXPRESSION) &&
       !isEmpty(mapEntry.value.value)
     ) {
+      const inputValue =
+        context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+          ? updatePathForExpandedQuery(mapEntry.value.value as string)
+          : (mapEntry.value.value as string);
+
+      console.log('input value: ', inputValue);
+      console.log('context: ', context);
+
       inputMap = {
         ...inputMap,
-        [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(
-          mapEntry.value.value as string
-        ),
+        [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(inputValue),
       };
       // template with dynamic nested vars. Add the nested vars as input map entries,
       // and add the static template itself to the model config.
@@ -658,4 +671,15 @@ function optionallyAddToFinalForm(
       typeof formValue === 'boolean' ? formValue : formValue;
   }
   return finalFormValues;
+}
+
+// Try to catch and update paths when they are defined on a non-expanded version of a query.
+// For more details & examples, see
+// https://github.com/opensearch-project/dashboards-flow-framework/issues/574
+function updatePathForExpandedQuery(path: string): string {
+  let updatedPath = path;
+
+  // TODO: do the regex checking & replacement
+
+  return updatedPath;
 }
