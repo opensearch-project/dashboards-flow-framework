@@ -29,7 +29,7 @@ interface SearchInputsProps {
 export function SearchInputs(props: SearchInputsProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const [showTransformQuery, setShowTransformQuery] = useState(true);
+  const [showTransformQuery, setShowTransformQuery] = useState(false);
 
   // re-fetch indices on initial load. When users are first creating,
   // they may enter this page without getting the updated index info
