@@ -301,6 +301,96 @@ export const VECTOR_TEMPLATE_PLACEHOLDER = `\$\{${VECTOR}\}`;
 export const DEFAULT_K = 10;
 export const DEFAULT_FETCH_SIZE = 10;
 
+// term-level queries
+export const TERM_QUERY_TEXT = {
+  query: {
+    term: {
+      [TEXT_FIELD_PATTERN]: {
+        value: QUERY_TEXT_PATTERN,
+      },
+    },
+  },
+};
+export const EXISTS_QUERY_TEXT = {
+  query: {
+    exists: {
+      field: TEXT_FIELD_PATTERN,
+    },
+  },
+};
+export const FUZZY_QUERY_TEXT = {
+  query: {
+    fuzzy: {
+      [TEXT_FIELD_PATTERN]: {
+        value: QUERY_TEXT_PATTERN,
+      },
+    },
+  },
+};
+export const WILDCARD_QUERY_TEXT = {
+  query: {
+    wildcard: {
+      [TEXT_FIELD_PATTERN]: {
+        wildcard: QUERY_TEXT_PATTERN,
+        case_insensitive: false,
+      },
+    },
+  },
+};
+export const PREFIX_QUERY_TEXT = {
+  query: {
+    prefix: {
+      [TEXT_FIELD_PATTERN]: {
+        value: QUERY_TEXT_PATTERN,
+      },
+    },
+  },
+};
+// full-text queries
+export const MATCH_QUERY_TEXT = {
+  query: {
+    match: {
+      [TEXT_FIELD_PATTERN]: {
+        query: QUERY_TEXT_PATTERN,
+      },
+    },
+  },
+};
+export const MATCH_BOOLEAN_QUERY_TEXT = {
+  query: {
+    match_bool_prefix: {
+      [TEXT_FIELD_PATTERN]: {
+        query: QUERY_TEXT_PATTERN,
+      },
+    },
+  },
+};
+export const MATCH_PHRASE_QUERY_TEXT = {
+  query: {
+    match_phrase: {
+      [TEXT_FIELD_PATTERN]: {
+        query: QUERY_TEXT_PATTERN,
+      },
+    },
+  },
+};
+export const MATCH_PHRASE_PREFIX_QUERY_TEXT = {
+  query: {
+    match_phrase_prefix: {
+      [TEXT_FIELD_PATTERN]: {
+        query: QUERY_TEXT_PATTERN,
+      },
+    },
+  },
+};
+export const QUERY_STRING_QUERY_TEXT = {
+  query: {
+    query_string: {
+      query: QUERY_TEXT_PATTERN,
+    },
+  },
+};
+// misc / other queries
 export const FETCH_ALL_QUERY = {
   query: {
     match_all: {},
@@ -312,15 +402,6 @@ export const FETCH_ALL_QUERY_LARGE = {
     match_all: {},
   },
   size: 1000,
-};
-export const TERM_QUERY_TEXT = {
-  query: {
-    term: {
-      [TEXT_FIELD_PATTERN]: {
-        value: QUERY_TEXT_PATTERN,
-      },
-    },
-  },
 };
 export const KNN_QUERY = {
   _source: {
@@ -470,6 +551,42 @@ export const QUERY_PRESETS = [
   {
     name: 'Term',
     query: customStringify(TERM_QUERY_TEXT),
+  },
+  {
+    name: 'Match',
+    query: customStringify(MATCH_QUERY_TEXT),
+  },
+  {
+    name: 'Exists',
+    query: customStringify(EXISTS_QUERY_TEXT),
+  },
+  {
+    name: 'Fuzzy',
+    query: customStringify(FUZZY_QUERY_TEXT),
+  },
+  {
+    name: 'Wildcard',
+    query: customStringify(WILDCARD_QUERY_TEXT),
+  },
+  {
+    name: 'Prefix',
+    query: customStringify(PREFIX_QUERY_TEXT),
+  },
+  {
+    name: 'Match boolean',
+    query: customStringify(MATCH_BOOLEAN_QUERY_TEXT),
+  },
+  {
+    name: 'Match phrase',
+    query: customStringify(MATCH_PHRASE_QUERY_TEXT),
+  },
+  {
+    name: 'Match phrase prefix',
+    query: customStringify(MATCH_PHRASE_PREFIX_QUERY_TEXT),
+  },
+  {
+    name: 'Query string',
+    query: customStringify(QUERY_STRING_QUERY_TEXT),
   },
   {
     name: 'Basic k-NN',

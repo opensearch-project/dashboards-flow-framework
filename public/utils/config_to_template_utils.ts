@@ -575,9 +575,6 @@ function processModelInputs(
           ? updatePathForExpandedQuery(mapEntry.value.value as string)
           : (mapEntry.value.value as string);
 
-      console.log('input value: ', inputValue);
-      console.log('context: ', context);
-
       inputMap = {
         ...inputMap,
         [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(inputValue),
@@ -697,6 +694,7 @@ function updatePathForExpandedQuery(path: string): string {
   // TODO handle range query
   // TODO handle geo / xy queries
   // TODO handle "fields" when returning subset of fields in the source response
+  // ^ all tracked in https://github.com/opensearch-project/dashboards-flow-framework/issues/574
 
   return updatedPath;
 }
@@ -708,7 +706,7 @@ function updatePathForExpandedQuery(path: string): string {
 function addSuffixToPath(path: string, prefix: string, suffix: string): string {
   function generateRegex(prefix: string, suffix: string): RegExp {
     // match the specified prefix, followed by some value in dot or bracket notation
-    const notationPattern = `${prefix}(\\.\\w+|\\[\\w+\\])`;
+    const notationPattern = `\\b${prefix}\\b(\\.\\w+|\\[\\w+\\])`;
     // ensure the suffix (in dot or bracket notation) is not present
     const suffixPattern = `(?!(\\.${suffix}|\\[${suffix}\\]))`;
     return new RegExp(notationPattern + suffixPattern, 'g');
