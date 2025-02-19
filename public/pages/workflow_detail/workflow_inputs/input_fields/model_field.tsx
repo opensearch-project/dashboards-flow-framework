@@ -120,7 +120,11 @@ export function ModelField(props: ModelFieldProps) {
             <EuiCompressedFormRow
               fullWidth={props.fullWidth}
               label={props.label || 'Model'}
-              labelAppend={<ModelInfoPopover modelCategory={props.modelCategory} />}
+              labelAppend={
+                props.modelCategory ? (
+                  <ModelInfoPopover modelCategory={props.modelCategory} />
+                ) : undefined
+              }
               helpText={props.helpText || 'The model ID.'}
               isInvalid={isInvalid}
               error={props.showError && getIn(errors, `${field.name}.id`)}

@@ -305,7 +305,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                   !isEmpty(deployedModels) && (
                     <EuiFlexItem>
                       <ModelField
-                        modelCategory= {MODEL_CATEGORY.LLM}
+                        modelCategory={MODEL_CATEGORY.LLM}
                         fieldPath="llm"
                         showMissingInterfaceCallout={false}
                         label="Large language model - required"
@@ -337,7 +337,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                           </>
                         )}
                         <ModelField
-                          modelCategory= {MODEL_CATEGORY.EMBEDDING}
+                          modelCategory={MODEL_CATEGORY.EMBEDDING}
                           fieldPath="embeddingModel"
                           showMissingInterfaceCallout={false}
                           label="Embedding model - required"
