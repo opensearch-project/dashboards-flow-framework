@@ -691,7 +691,9 @@ function updatePathForExpandedQuery(path: string): string {
   updatedPath = addSuffixToPath(updatedPath, 'match_phrase', 'query');
   updatedPath = addSuffixToPath(updatedPath, 'match_phrase_prefix', 'query');
 
-  // TODO handle aggs
+  // "aggs" expands to "aggregations"
+  updatedPath = updateAggsPath(updatedPath);
+
   // TODO handle range query
   // TODO handle geo / xy queries
   // TODO handle "fields" when returning subset of fields in the source response
@@ -717,4 +719,8 @@ function addSuffixToPath(path: string, prefix: string, suffix: string): string {
   return path.replace(regexPattern, (_, subStr) => {
     return `${prefix}${subStr}.${suffix}`;
   });
+}
+
+function updateAggsPath(path: string): string {
+  return path.replace(/\baggs\b/g, 'aggregations');
 }
