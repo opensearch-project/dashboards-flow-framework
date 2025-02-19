@@ -673,7 +673,7 @@ function optionallyAddToFinalForm(
 // Try to catch and update paths when they are defined on a non-expanded version of a query.
 // For more details & examples, see
 // https://github.com/opensearch-project/dashboards-flow-framework/issues/574
-function updatePathForExpandedQuery(path: string): string {
+export function updatePathForExpandedQuery(path: string): string {
   let updatedPath = path;
 
   // Several query types in expanded form nest the search value under a sub-field like "value" or "query".
