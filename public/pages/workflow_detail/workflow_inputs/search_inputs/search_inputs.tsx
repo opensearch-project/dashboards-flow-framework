@@ -29,7 +29,7 @@ interface SearchInputsProps {
 export function SearchInputs(props: SearchInputsProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const [showTransformQuery, setShowTransformQuery] = useState(true);
+  const [showTransformQuery, setShowTransformQuery] = useState(false);
 
   // re-fetch indices on initial load. When users are first creating,
   // they may enter this page without getting the updated index info
@@ -44,6 +44,8 @@ export function SearchInputs(props: SearchInputsProps) {
         if (dataSourceId !== undefined) {
           const version = await getEffectiveVersion(dataSourceId);
           setShowTransformQuery(semver.gte(version, '2.19.0'));
+        } else {
+          setShowTransformQuery(true); 
         }
       } catch (error) {
         console.error('Error checking version:', error);
