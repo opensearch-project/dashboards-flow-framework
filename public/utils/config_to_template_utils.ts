@@ -679,7 +679,19 @@ function optionallyAddToFinalForm(
 function updatePathForExpandedQuery(path: string): string {
   let updatedPath = path;
 
-  // TODO: do the regex checking & replacement
+  const termPattern = /term(\.\w+|\[\w+\])(?!(\.value|\[value\]))/g;
+  const matchPattern = /match(\.\w+|\[\w+\])(?!(\.query|\[query\]))/g;
+
+  updatedPath = updatedPath.replace(
+    termPattern,
+    (match, p1) => `term${p1}.value`
+  );
+  updatedPath = updatedPath.replace(
+    matchPattern,
+    (match, p1) => `match${p1}.query`
+  );
+
+  console.log('updated path here: ', updatedPath);
 
   return updatedPath;
 }
