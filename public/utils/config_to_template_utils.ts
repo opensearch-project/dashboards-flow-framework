@@ -679,12 +679,22 @@ function optionallyAddToFinalForm(
 function updatePathForExpandedQuery(path: string): string {
   let updatedPath = path;
 
-  // ensure term query has "value" suffix
+  // Several query types in expanded form nest the search value under a sub-field like "value" or "query".
+  // Update the path accordingly if it is defined on the non-expanded form of a query.
   updatedPath = addSuffixToPath(updatedPath, 'term', 'value');
-  // ensure prefix query has "value" suffix
   updatedPath = addSuffixToPath(updatedPath, 'prefix', 'value');
+  updatedPath = addSuffixToPath(updatedPath, 'fuzzy', 'value');
+  updatedPath = addSuffixToPath(updatedPath, 'wildcard', 'wildcard');
+  updatedPath = addSuffixToPath(updatedPath, 'regexp', 'value');
+  updatedPath = addSuffixToPath(updatedPath, 'match', 'query');
+  updatedPath = addSuffixToPath(updatedPath, 'match_bool_prefix', 'query');
+  updatedPath = addSuffixToPath(updatedPath, 'match_phrase', 'query');
+  updatedPath = addSuffixToPath(updatedPath, 'match_phrase_prefix', 'query');
 
-  console.log('updated path: ', updatedPath);
+  // TODO handle aggs
+  // TODO handle range query
+  // TODO handle geo / xy queries
+  // TODO handle "fields" when returning subset of fields in the source response
 
   return updatedPath;
 }
