@@ -679,19 +679,32 @@ function optionallyAddToFinalForm(
 function updatePathForExpandedQuery(path: string): string {
   let updatedPath = path;
 
-  const termPattern = /term(\.\w+|\[\w+\])(?!(\.value|\[value\]))/g;
-  const matchPattern = /match(\.\w+|\[\w+\])(?!(\.query|\[query\]))/g;
+  // ensure term query has "value" suffix
+  updatedPath = addSuffixToPath(updatedPath, 'term', 'value');
+  // ensure prefix query has "value" suffix
+  updatedPath = addSuffixToPath(updatedPath, 'prefix', 'value');
 
-  updatedPath = updatedPath.replace(
-    termPattern,
-    (match, p1) => `term${p1}.value`
-  );
-  updatedPath = updatedPath.replace(
-    matchPattern,
-    (match, p1) => `match${p1}.query`
-  );
-
-  console.log('updated path here: ', updatedPath);
+  console.log('updated path: ', updatedPath);
 
   return updatedPath;
+}
+
+// Adds the appropriate suffix to the path, if not already found.
+// For example, given some path "query.term.a", prefix "term", and suffix "value",
+// then append the suffix to produce the final path "query.term.a.value".
+// If the path already has the suffix present, do nothing.
+function addSuffixToPath(path: string, prefix: string, suffix: string): string {
+  function generateRegex(prefix: string, suffix: string): RegExp {
+    // match the specified prefix, followed by some value in dot or bracket notation
+    const notationPattern = `${prefix}(\\.\\w+|\\[\\w+\\])`;
+    // ensure the suffix (in dot or bracket notation) is not present
+    const suffixPattern = `(?!(\\.${suffix}|\\[${suffix}\\]))`;
+    return new RegExp(notationPattern + suffixPattern, 'g');
+  }
+
+  // if the pattern matches, append the appropriate suffix via dot notation
+  const regexPattern = generateRegex(prefix, suffix);
+  return path.replace(regexPattern, (_, subStr) => {
+    return `${prefix}${subStr}.${suffix}`;
+  });
 }
