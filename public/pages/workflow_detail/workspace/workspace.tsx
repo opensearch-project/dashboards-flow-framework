@@ -4,6 +4,8 @@
  */
 
 import React, { useRef, useCallback, useEffect, useState } from 'react';
+import { useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import ReactFlow, {
   Controls,
   useNodesState,
@@ -24,6 +26,7 @@ import {
   WORKFLOW_TUTORIAL_LINK,
   Workflow,
   WorkflowConfig,
+  WorkflowFormValues,
   customStringify,
 } from '../../../../common';
 import {
@@ -32,7 +35,11 @@ import {
   WorkspaceComponent,
 } from './workspace_components';
 import { DeletableEdge } from './workspace_edge';
-import { uiConfigToWorkspaceFlow } from '../../../utils';
+import {
+  configToTemplateFlows,
+  formikToUiConfig,
+  uiConfigToWorkspaceFlow,
+} from '../../../utils';
 
 // styling
 import 'reactflow/dist/style.css';
@@ -60,6 +67,7 @@ enum TOGGLE_BUTTON_ID {
 }
 
 export function Workspace(props: WorkspaceProps) {
+  const { values } = useFormikContext<WorkflowFormValues>();
   // Visual/JSON toggle states
   const [toggleButtonSelected, setToggleButtonSelected] = useState<
     TOGGLE_BUTTON_ID
@@ -78,12 +86,17 @@ export function Workspace(props: WorkspaceProps) {
   // JSON state
   const [provisionTemplate, setProvisionTemplate] = useState<string>('');
   useEffect(() => {
-    if (props.workflow?.workflows?.provision) {
-      const templateAsObj = props.workflow?.workflows.provision as {};
-      const templateAsStr = customStringify(templateAsObj);
-      setProvisionTemplate(templateAsStr);
+    if (!isEmpty(props.uiConfig) && !isEmpty(values)) {
+      const templateFlows = configToTemplateFlows(
+        formikToUiConfig(values, props.uiConfig as WorkflowConfig),
+        true,
+        true
+      );
+      if (!isEmpty(templateFlows.provision)) {
+        setProvisionTemplate(customStringify(templateFlows.provision));
+      }
     }
-  }, [props.workflow]);
+  }, [props.uiConfig, values]);
 
   // ReactFlow state
   const reactFlowWrapper = useRef(null);
