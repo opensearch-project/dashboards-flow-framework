@@ -72,11 +72,11 @@ export function SourceDataModal(props: SourceDataProps) {
 
   // sub-form values/schema
   const docsFormValues = {
-    docs: getInitialValue('jsonArray'),
+    docs: getInitialValue('jsonLines'),
   } as IngestDocsFormValues;
   const docsFormSchema = yup.object({
     docs: getFieldSchema({
-      type: 'jsonArray',
+      type: 'jsonLines',
     } as IConfigField),
   }) as yup.Schema;
 
@@ -234,7 +234,7 @@ export function SourceDataModal(props: SourceDataProps) {
                 {props.selectedOption === SOURCE_OPTIONS.UPLOAD && (
                   <>
                     <EuiCompressedFilePicker
-                      accept="application/json"
+                      accept=".jsonl"
                       multiple={false}
                       initialPromptText="Upload file"
                       onChange={(files) => {
@@ -247,6 +247,7 @@ export function SourceDataModal(props: SourceDataProps) {
                                 'docs',
                                 e.target.result as string
                               );
+                              formikProps.setFieldTouched('docs');
                             }
                           };
                           fileReader.readAsText(files[0]);
@@ -289,9 +290,11 @@ export function SourceDataModal(props: SourceDataProps) {
                 <JsonField
                   label="Documents to be imported"
                   fieldPath={'docs'}
-                  helpText="Documents must be in a JSON array format."
+                  helpText="Documents must be in JSON lines format."
                   editorHeight="40vh"
                   readOnly={false}
+                  validate={true}
+                  validateInline={true}
                 />
               </>
             </EuiModalBody>
