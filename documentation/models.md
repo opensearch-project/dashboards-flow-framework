@@ -382,7 +382,7 @@ POST /_plugins/_ml/connectors/_create
     "cohere_key": "<ENTER_COHERE_API_KEY_HERE>"
   },
   "parameters": {
-    "model": "embed-english-v3.0", 
+    "model": "embed-english-v3.0",
     "input_type":"search_document",
     "truncate": "END"
   },
@@ -395,7 +395,7 @@ POST /_plugins/_ml/connectors/_create
         "Authorization": "Bearer ${credential.cohere_key}",
         "Request-Source": "unspecified:opensearch"
       },
-      "request_body": "{ \"texts\": ${parameters.texts}, \"truncate\": \"${parameters.truncate}\", \"model\": \"${parameters.model}\", \"input_type\": \"${parameters.input_type}\" }"
+      "request_body": "{ \"texts\": [\"${parameters.text}\"], \"truncate\": \"${parameters.truncate}\", \"model\": \"${parameters.model}\", \"input_type\": \"${parameters.input_type}\" }"
     }
   ]
 }
@@ -412,20 +412,21 @@ POST /_plugins/_ml/models/_register
     "connector_id": "<connector_id>",
     "interface": {
         "input": {
+            "type": "object",
             "properties": {
                 "parameters": {
+                    "type": "object",
                     "properties": {
-                        "texts": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
+                        "text": {
+                            "type": "string"
                         }
-                    }
+                    },
+                    "required": ["text"]
                 }
             }
         },
         "output": {
+            "type": "object",
             "properties": {
                 "inference_results": {
                     "type": "array",
@@ -443,60 +444,30 @@ POST /_plugins/_ml/models/_register
                                         "dataAsMap": {
                                             "type": "object",
                                             "properties": {
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "texts": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
+
+
                                                 "embeddings": {
-                                                    "type": "array",
-                                                    "items": {
                                                         "type": "array",
                                                         "items": {
-                                                            "type": "number"
+                                                            "type": "array",
+                                                            "items": {"type": "number"}
                                                         }
                                                     }
-                                                },
-                                                "meta": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "api_version": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "version": {
-                                                                    "type": "string"
-                                                                }
-                                                            }
-                                                        },
-                                                        "billed_units": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "input_tokens": {
-                                                                    "type": "integer"
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                "response_type": {
-                                                    "type": "string"
-                                                }
                                             }
                                         }
-                                    }
+                                    },
+                                    "required": ["name", "dataAsMap"]
                                 }
                             },
                             "status_code": {
                                 "type": "integer"
                             }
-                        }
+                        },
+                        "required": ["output", "status_code"]
                     }
                 }
-            }
+            },
+            "required": ["inference_results"]
         }
     }
 }
@@ -653,7 +624,7 @@ POST /_plugins/_ml/connectors/_create
         "Content-Type": "application/json",
         "Authorization": "Bearer ${credential.deepSeek_key}"
       },
-      "request_body": "{ \"model\": \"${parameters.model}\", \"messages\": ${parameters.messages} }"
+      "request_body": "{ \"model\": \"${parameters.model}\", \"messages\": [{\"role\": \"user\", \"content\": \"${parameters.prompt}\"}] }"
     }
   ]
 }
@@ -673,19 +644,8 @@ POST /_plugins/_ml/models/_register
             "properties": {
                 "parameters": {
                     "properties": {
-                        "messages": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "role": {
-                                        "type": "string"
-                                    },
-                                    "content": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
+                        "prompt": {
+                            "type": "string"
                         }
                     }
                 }
@@ -709,18 +669,6 @@ POST /_plugins/_ml/models/_register
                                         "dataAsMap": {
                                             "type": "object",
                                             "properties": {
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "object": {
-                                                    "type": "string"
-                                                },
-                                                "created": {
-                                                    "type": "integer"
-                                                },
-                                                "model": {
-                                                    "type": "string"
-                                                },
                                                 "choices": {
                                                     "type": "array",
                                                     "items": {
@@ -743,20 +691,6 @@ POST /_plugins/_ml/models/_register
                                                             "finish_reason": {
                                                                 "type": "string"
                                                             }
-                                                        }
-                                                    }
-                                                },
-                                                "usage": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "prompt_tokens": {
-                                                            "type": "integer"
-                                                        },
-                                                        "completion_tokens": {
-                                                            "type": "integer"
-                                                        },
-                                                        "total_tokens": {
-                                                            "type": "integer"
                                                         }
                                                     }
                                                 }
@@ -784,9 +718,9 @@ Connector:
 ```
 POST /_plugins/_ml/connectors/_create
 {
-  "name": "<YOUR CONNECTOR NAME>",
-  "description": "<YOUR CONNECTOR DESCRIPTION>",
-  "version": "<YOUR CONNECTOR VERSION>",
+  "name": "OpenAI gpt-3.5 connector",
+  "description": "OpenAI gpt-3.5 connector",
+  "version": "gpt-3.5-turbo",
   "protocol": "http",
   "parameters": {
     "endpoint": "api.openai.com",
@@ -803,7 +737,7 @@ POST /_plugins/_ml/connectors/_create
       "headers": {
         "Authorization": "Bearer ${credential.openAI_key}"
       },
-      "request_body": "{ \"model\": \"${parameters.model}\", \"messages\": ${parameters.messages} }"
+      "request_body": "{ \"model\": \"${parameters.model}\", \"messages\": [{\"role\": \"user\", \"content\": \"${parameters.prompt}\"}] }"
     }
   ]
 }
@@ -823,7 +757,7 @@ POST /_plugins/_ml/models/_register
             "properties": {
                 "parameters": {
                     "properties": {
-                        "messages": {
+                        "prompt": {
                             "type": "string",
                             "description": "This is a test description field"
                         }
