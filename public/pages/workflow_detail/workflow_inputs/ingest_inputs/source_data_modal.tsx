@@ -21,6 +21,7 @@ import {
   EuiSmallButtonEmpty,
   EuiButtonGroup,
   EuiCompressedComboBox,
+  EuiLink,
 } from '@elastic/eui';
 import { JsonLinesField } from '../input_fields';
 import {
@@ -30,6 +31,7 @@ import {
   IndexMappings,
   IngestDocsFormValues,
   isVectorSearchUseCase,
+  JSONLINES_LINK,
   MAX_BYTES_FORMATTED,
   MAX_DOCS_TO_IMPORT,
   SearchHit,
@@ -296,7 +298,14 @@ export function SourceDataModal(props: SourceDataProps) {
                 <JsonLinesField
                   label="Documents to be imported"
                   fieldPath={'docs'}
-                  helpText="Documents must be in JSON lines format."
+                  helpText={
+                    <EuiText size="s">
+                      Documents must be in JSON lines format.{' '}
+                      <EuiLink href={JSONLINES_LINK} target="_blank">
+                        Learn more
+                      </EuiLink>
+                    </EuiText>
+                  }
                   editorHeight="40vh"
                   readOnly={false}
                   validate={true}

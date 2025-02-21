@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import {
   EuiCodeEditor,
@@ -22,7 +22,7 @@ interface JsonLinesFieldProps {
   validate?: boolean;
   label?: string;
   helpLink?: string;
-  helpText?: string;
+  helpText?: string | ReactNode;
   editorHeight?: string;
   readOnly?: boolean;
 }
