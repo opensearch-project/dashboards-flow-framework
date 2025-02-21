@@ -24,12 +24,14 @@ import {
   MODEL_STATE,
   WorkflowFormValues,
   ModelFormValue,
-  ML_CHOOSE_MODEL_LINK,
   FETCH_ALL_QUERY_LARGE,
   UPDATE_MODEL_DOCS_LINK,
+  MODEL_CATEGORY,
+  ML_CHOOSE_MODEL_LINK,
 } from '../../../../../common';
 import { AppState, searchModels, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
+import { ModelInfoPopover } from './models_info_popover';
 
 interface ModelFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
@@ -41,6 +43,7 @@ interface ModelFieldProps {
   fullWidth?: boolean;
   showError?: boolean;
   showInvalid?: boolean;
+  modelCategory?: MODEL_CATEGORY;
 }
 
 type ModelItem = ModelFormValue & {
@@ -119,7 +122,9 @@ export function ModelField(props: ModelFieldProps) {
               fullWidth={props.fullWidth}
               label={props.label || 'Model'}
               labelAppend={
-                <EuiText size="xs">
+                props.modelCategory ? (
+                  <ModelInfoPopover modelCategory={props.modelCategory} />
+                ) : <EuiText size="xs">
                   <EuiLink href={ML_CHOOSE_MODEL_LINK} target="_blank">
                     Learn more
                   </EuiLink>
@@ -137,33 +142,33 @@ export function ModelField(props: ModelFieldProps) {
                     disabled={isEmpty(deployedModels)}
                     options={deployedModels.map(
                       (option) =>
-                        ({
-                          value: option.id,
-                          inputDisplay: (
-                            <>
+                      ({
+                        value: option.id,
+                        inputDisplay: (
+                          <>
+                            <EuiText size="s">{option.name}</EuiText>
+                          </>
+                        ),
+                        dropdownDisplay: (
+                          <>
+                            <EuiHealth
+                              color={
+                                isEmpty(option.interface)
+                                  ? 'warning'
+                                  : 'success'
+                              }
+                            >
                               <EuiText size="s">{option.name}</EuiText>
-                            </>
-                          ),
-                          dropdownDisplay: (
-                            <>
-                              <EuiHealth
-                                color={
-                                  isEmpty(option.interface)
-                                    ? 'warning'
-                                    : 'success'
-                                }
-                              >
-                                <EuiText size="s">{option.name}</EuiText>
-                              </EuiHealth>
-                              <EuiText size="xs" color="subdued">
-                                {isEmpty(option.interface)
-                                  ? 'Not ready - no model interface'
-                                  : 'Deployed'}
-                              </EuiText>
-                            </>
-                          ),
-                          disabled: false,
-                        } as EuiSuperSelectOption<string>)
+                            </EuiHealth>
+                            <EuiText size="xs" color="subdued">
+                              {isEmpty(option.interface)
+                                ? 'Not ready - no model interface'
+                                : 'Deployed'}
+                            </EuiText>
+                          </>
+                        ),
+                        disabled: false,
+                      } as EuiSuperSelectOption<string>)
                     )}
                     valueOfSelected={field.value?.id || ''}
                     onChange={(option: string) => {

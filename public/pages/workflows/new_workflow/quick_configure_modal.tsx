@@ -58,6 +58,7 @@ import {
   Model,
   MODEL_STATE,
   ML_REMOTE_MODEL_LINK,
+  MODEL_CATEGORY,
 } from '../../../../common';
 import { APP_PATH, getInitialValue } from '../../../utils';
 import { AppState, createWorkflow, useAppDispatch } from '../../../store';
@@ -304,6 +305,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                   !isEmpty(deployedModels) && (
                     <EuiFlexItem>
                       <ModelField
+                        modelCategory={MODEL_CATEGORY.LLM}
                         fieldPath="llm"
                         showMissingInterfaceCallout={false}
                         label="Large language model - required"
@@ -335,6 +337,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                           </>
                         )}
                         <ModelField
+                          modelCategory={MODEL_CATEGORY.EMBEDDING}
                           fieldPath="embeddingModel"
                           showMissingInterfaceCallout={false}
                           label="Embedding model - required"
