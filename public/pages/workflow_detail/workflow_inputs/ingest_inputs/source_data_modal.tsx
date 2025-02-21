@@ -22,9 +22,10 @@ import {
   EuiButtonGroup,
   EuiCompressedComboBox,
 } from '@elastic/eui';
-import { JsonField } from '../input_fields';
+import { JsonLinesField } from '../input_fields';
 import {
   customStringify,
+  customStringifySingleLine,
   FETCH_ALL_QUERY_LARGE,
   IConfigField,
   IndexMappings,
@@ -177,8 +178,14 @@ export function SourceDataModal(props: SourceDataProps) {
               .then((resp) => {
                 const docObjs = resp?.hits?.hits
                   ?.slice(0, MAX_DOCS_TO_IMPORT)
-                  ?.map((hit: SearchHit) => hit?._source);
-                formikProps.setFieldValue('docs', customStringify(docObjs));
+                  ?.map((hit: SearchHit) => hit?._source) as {}[];
+                let jsonLinesStr = '';
+                try {
+                  docObjs.forEach((docObj) => {
+                    jsonLinesStr += customStringifySingleLine(docObj) + '\n';
+                  });
+                } catch {}
+                formikProps.setFieldValue('docs', jsonLinesStr);
               });
           }
         }, [selectedIndex]);
@@ -287,14 +294,13 @@ export function SourceDataModal(props: SourceDataProps) {
                     <EuiSpacer size="xs" />
                   </>
                 )}
-                <JsonField
+                <JsonLinesField
                   label="Documents to be imported"
                   fieldPath={'docs'}
                   helpText="Documents must be in JSON lines format."
                   editorHeight="40vh"
                   readOnly={false}
                   validate={true}
-                  validateInline={true}
                 />
               </>
             </EuiModalBody>

@@ -176,6 +176,8 @@ export function prepareDocsForSimulate(
   let docObjs = [] as {}[];
   try {
     docObjs = JSON.parse(docs) as {}[];
+    const lines = docs?.split('\n') as string[];
+    lines.forEach((line) => docObjs.push(JSON.parse(line)));
   } catch {}
   docObjs.forEach((doc) => {
     preparedDocs.push({

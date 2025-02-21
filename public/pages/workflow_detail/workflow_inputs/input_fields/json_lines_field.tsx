@@ -20,7 +20,6 @@ import { camelCaseToTitleString } from '../../../../utils';
 interface JsonLinesFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   validate?: boolean;
-  validateInline?: boolean;
   label?: string;
   helpLink?: string;
   helpText?: string;
@@ -34,12 +33,14 @@ interface JsonLinesFieldProps {
  */
 export function JsonLinesField(props: JsonLinesFieldProps) {
   const validate = props.validate ?? true;
-  const validateInline = props.validateInline ?? true;
 
   const { errors, touched, values } = useFormikContext<WorkflowFormValues>();
 
   // temp input state. only format when users click out of the code editor
   const [jsonStr, setJsonStr] = useState<string>('{}');
+  const [customErrMsg, setCustomErrMsg] = useState<string | undefined>(
+    undefined
+  );
 
   // initializing the text to be the stringified form value
   useEffect(() => {
@@ -54,6 +55,16 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
   return (
     <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
+        let errMsgToDisplay = undefined as string | undefined;
+        if (validate) {
+          if (customErrMsg) {
+            errMsgToDisplay = customErrMsg;
+          } else if (getIn(errors, field.name)) {
+            errMsgToDisplay = getIn(errors, field.name);
+          } else {
+            errMsgToDisplay = undefined;
+          }
+        }
         return (
           <EuiCompressedFormRow
             fullWidth={true}
@@ -69,7 +80,7 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
               ) : undefined
             }
             helpText={props.helpText || undefined}
-            error={validate ? getIn(errors, field.name) : undefined}
+            error={errMsgToDisplay}
             isInvalid={
               validate
                 ? getIn(errors, field.name) && getIn(touched, field.name)
@@ -77,7 +88,7 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
             }
           >
             <EuiCodeEditor
-              mode="json"
+              mode="hjson"
               theme="textmate"
               width="100%"
               height={props.editorHeight || '15vh'}
@@ -85,59 +96,46 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
               onChange={(input) => {
                 setJsonStr(input);
                 form.setFieldValue(field.name, input);
+                setCustomErrMsg(undefined);
               }}
               onBlur={() => {
+                form.setFieldTouched(field.name);
                 let finalJsonStr = '';
+                let curIdx = -1;
                 try {
-                  jsonStr?.split('\n').forEach((line: string) => {
+                  const lines = jsonStr?.split('\n');
+                  lines.forEach((line: string, idx) => {
+                    curIdx = idx;
                     if (line.trim() !== '') {
-                      try {
-                        finalJsonStr +=
-                          customStringifySingleLine(JSON.parse(line)) + '\n';
-                      } catch (e) {}
+                      finalJsonStr +=
+                        customStringifySingleLine(JSON.parse(line)) + '\n';
                     }
                   });
-                } catch (error) {}
-
-                console.log('final json str: ', finalJsonStr);
-                form.setFieldValue(field.name, finalJsonStr);
-                form.setFieldTouched(field.name);
-
-                // TODO: format under regular scenario, leave alone if JSONLines scenario
-                // try {
-                //   form.setFieldValue(
-                //     field.name,
-                //     customStringify(JSON.parse(jsonStr))
-                //   );
-                // } catch (error) {
-                //   form.setFieldValue(field.name, jsonStr);
-                // } finally {
-                //   form.setFieldTouched(field.name);
-                // }
+                  // remove trailing newline
+                  if (finalJsonStr !== '') {
+                    finalJsonStr = finalJsonStr.slice(0, -1);
+                  }
+                  form.setFieldValue(field.name, finalJsonStr);
+                } catch (error) {
+                  setCustomErrMsg(
+                    `Error on line ${curIdx + 1}: ${getIn(
+                      error,
+                      'message',
+                      'Invalid JSON'
+                    ).replace(/^(.*?)\s+in JSON.*/, '$1')}`
+                  );
+                }
               }}
               readOnly={props.readOnly || false}
               setOptions={{
                 fontSize: '14px',
-                useWorker: validateInline,
+                useWorker: false,
                 highlightActiveLine: !props.readOnly,
                 highlightSelectedWord: !props.readOnly,
                 highlightGutterLine: !props.readOnly,
                 wrap: true,
               }}
               aria-label="Code Editor"
-              tabSize={2}
-              // onValidate={(props) => {
-              //   console.log('validate props: ', props);
-              //   return [];
-              // }}
-              // annotations={[
-              //   {
-              //     column: 0,
-              //     row: 1,
-              //     text: 'Invalid JSON',
-              //     type: 'error',
-              //   },
-              // ]}
             />
           </EuiCompressedFormRow>
         );
