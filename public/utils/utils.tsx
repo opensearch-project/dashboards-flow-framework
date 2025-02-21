@@ -175,17 +175,18 @@ export function prepareDocsForSimulate(
   const preparedDocs = [] as SimulateIngestPipelineDoc[];
   let docObjs = [] as {}[];
   try {
-    docObjs = JSON.parse(docs) as {}[];
     const lines = docs?.split('\n') as string[];
     lines.forEach((line) => docObjs.push(JSON.parse(line)));
   } catch {}
-  docObjs.forEach((doc) => {
+  docObjs?.forEach((doc) => {
     preparedDocs.push({
       _index: indexName,
       _id: generateId(),
       _source: doc,
     });
   });
+  console.log('docobs: ', docObjs);
+  console.log('prepared docs: ', preparedDocs);
   return preparedDocs;
 }
 
