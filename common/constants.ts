@@ -202,6 +202,11 @@ export enum MODEL_TYPE {
   SPARSE_ENCODER = 'sparse_encoder',
 }
 
+export enum MODEL_CATEGORY {
+  EMBEDDING = 'EMBEDDING',
+  LLM = 'LLM',
+}
+
 /**
  * Various constants pertaining to the drag-and-drop UI components
  */
@@ -261,6 +266,27 @@ export const ML_RESPONSE_PROCESSOR_EXAMPLE_DOCS_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/ml-inference-search-response/#example-externally-hosted-text-embedding-model';
 export const UPDATE_MODEL_DOCS_LINK =
   'https://opensearch.org/docs/latest/ml-commons-plugin/api/model-apis/update-model/';
+
+// Large Language Models Documentation Links
+export const BEDROCK_CLAUDE_3_SONNET_DOCS_LINK =
+  'https://github.com/opensearch-project/dashboards-flow-framework/blob/main/documentation/models.md#claude-3-sonnet-hosted-on-amazon-bedrock';
+
+export const OPENAI_GPT35_DOCS_LINK =
+  'https://github.com/opensearch-project/dashboards-flow-framework/blob/main/documentation/models.md#openai-gpt-35';
+
+export const DEEPSEEK_CHAT_DOCS_LINK =
+  'https://github.com/opensearch-project/dashboards-flow-framework/blob/main/documentation/models.md#deepseek-chat';
+
+// Embedding Models Documentation Links
+export const COHERE_EMBEDDING_MODEL_DOCS_LINK =
+  'https://github.com/opensearch-project/dashboards-flow-framework/blob/main/documentation/models.md#cohere-embed';
+
+export const BEDROCK_TITAN_EMBEDDING_DOCS_LINK =
+  'https://github.com/opensearch-project/dashboards-flow-framework/blob/main/documentation/models.md#amazon-bedrock-titan-text-embedding';
+
+// ML Models setup Documentation Link
+export const ML_MODELS_SETUP_DOCS_LINK =
+  'https://github.com/opensearch-project/dashboards-flow-framework/blob/main/documentation/models.md';
 
 /**
  * Text chunking algorithm constants
@@ -431,6 +457,24 @@ export const SEMANTIC_SEARCH_QUERY_NEURAL = {
     },
   },
 };
+export const SEMANTIC_SEARCH_TEMPLATE_QUERY = {
+  query: {
+    template: {
+      knn: {
+        [VECTOR_FIELD_PATTERN]: {
+          vector: VECTOR_PATTERN,
+          k: 2,
+        },
+      },
+    },
+  },
+  ext: {
+    ml_inference: {
+      text: QUERY_TEXT_PATTERN,
+    },
+  },
+};
+
 export const MULTIMODAL_SEARCH_QUERY_NEURAL = {
   _source: {
     excludes: [VECTOR_FIELD_PATTERN],
@@ -595,6 +639,14 @@ export const QUERY_PRESETS = [
   {
     name: WORKFLOW_TYPE.MULTIMODAL_SEARCH,
     query: customStringify(MULTIMODAL_SEARCH_QUERY_BOOL),
+  },
+  {
+    name: 'Semantic search (neural query)',
+    query: customStringify(SEMANTIC_SEARCH_QUERY_NEURAL),
+  },
+  {
+    name: 'Semantic search (template query)',
+    query: customStringify(SEMANTIC_SEARCH_TEMPLATE_QUERY),
   },
   {
     name: `Hybrid search (match & k-NN queries)`,
