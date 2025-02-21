@@ -5,6 +5,7 @@
 
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Field, FieldProps, getIn, useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   EuiCodeEditor,
   EuiCompressedFormRow,
@@ -70,7 +71,19 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
               ) : undefined
             }
             helpText={props.helpText || undefined}
-            error={validate ? customErrMsg : undefined}
+            error={
+              validate ? (
+                <>
+                  {customErrMsg?.split('\n')?.map((errMsg, idx) => {
+                    return (
+                      <EuiText key={idx} color="danger" size="s">
+                        {errMsg}
+                      </EuiText>
+                    );
+                  })}
+                </>
+              ) : undefined
+            }
             isInvalid={
               validate
                 ? getIn(errors, field.name) && getIn(touched, field.name)
@@ -91,32 +104,37 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
               onBlur={() => {
                 form.setFieldTouched(field.name);
                 let finalJsonStr = '';
-                let curIdx = -1;
+                let errs = [] as string[];
                 try {
                   const lines = jsonStr?.split('\n');
                   lines.forEach((line: string, idx) => {
-                    curIdx = idx;
                     if (line.trim() !== '') {
-                      finalJsonStr +=
-                        customStringifySingleLine(JSON.parse(line)) + '\n';
+                      let parsedLine = {};
+                      try {
+                        parsedLine = JSON.parse(line);
+                      } catch (error) {
+                        errs.push(
+                          getFormattedErrorMsg(error as Error, idx + 1)
+                        );
+                      }
+                      if (!isEmpty(parsedLine)) {
+                        finalJsonStr +=
+                          customStringifySingleLine(JSON.parse(line)) + '\n';
+                      }
                     }
                   });
                   // remove trailing newline
                   if (finalJsonStr !== '') {
                     finalJsonStr = finalJsonStr.slice(0, -1);
                   }
-                  form.setFieldValue(field.name, finalJsonStr);
-                } catch (error) {
-                  setCustomErrMsg(
-                    `Error on line ${curIdx + 1}: ${getIn(
-                      error,
-                      'message',
-                      'Invalid JSON'
-                    )
-                      .replace(/^(.*?)\s+in JSON.*/, '$1')
-                      .replace(/^(.*?)\s+after JSON.*/, '$1')}`
-                  );
-                }
+
+                  if (errs?.length > 0) {
+                    setCustomErrMsg(getFormattedErrorMsgList(errs));
+                  } else {
+                    form.setFieldValue(field.name, finalJsonStr);
+                    setCustomErrMsg(undefined);
+                  }
+                } catch (error) {}
               }}
               readOnly={props.readOnly || false}
               setOptions={{
@@ -134,4 +152,29 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
       }}
     </Field>
   );
+}
+
+function getFormattedErrorMsg(error: Error, idx: number): string {
+  return `Error on line ${idx}: ${getIn(error, 'message', 'Invalid JSON')
+    .replace(/^(.*?)\s+in JSON.*/, '$1')
+    .replace(/^(.*?)\s+after JSON.*/, '$1')}`;
+}
+
+// Verbosely display a few error messages, list the count of remaining ones.
+function getFormattedErrorMsgList(errors: string[]): string {
+  let finalMsg = '';
+  const verboseErrors = errors.slice(0, 3);
+  const nonVerboseErrorCount = errors.length - 3;
+  verboseErrors.forEach((error) => {
+    finalMsg += error + '\n';
+  });
+  if (nonVerboseErrorCount > 0) {
+    finalMsg += `${nonVerboseErrorCount} more error${
+      nonVerboseErrorCount > 1 ? 's' : ''
+    }`;
+  } else if (finalMsg !== '') {
+    // remove trailing newline
+    finalMsg = finalMsg.slice(0, -1);
+  }
+  return finalMsg;
 }
