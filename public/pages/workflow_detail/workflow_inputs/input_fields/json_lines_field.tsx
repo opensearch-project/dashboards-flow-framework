@@ -11,12 +11,16 @@ import {
   EuiLink,
   EuiText,
 } from '@elastic/eui';
-import { WorkflowFormValues, customStringify } from '../../../../../common';
+import {
+  customStringifySingleLine,
+  WorkflowFormValues,
+} from '../../../../../common';
 import { camelCaseToTitleString } from '../../../../utils';
 
-interface JsonFieldProps {
+interface JsonLinesFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   validate?: boolean;
+  validateInline?: boolean;
   label?: string;
   helpLink?: string;
   helpText?: string;
@@ -25,11 +29,12 @@ interface JsonFieldProps {
 }
 
 /**
- * An input field for a component where users manually enter
- * in some custom JSON
+ * An input field for a component where users input data in JSON Lines format.
+ * https://jsonlines.org/
  */
-export function JsonField(props: JsonFieldProps) {
+export function JsonLinesField(props: JsonLinesFieldProps) {
   const validate = props.validate ?? true;
+  const validateInline = props.validateInline ?? true;
 
   const { errors, touched, values } = useFormikContext<WorkflowFormValues>();
 
@@ -82,21 +87,38 @@ export function JsonField(props: JsonFieldProps) {
                 form.setFieldValue(field.name, input);
               }}
               onBlur={() => {
+                let finalJsonStr = '';
                 try {
-                  form.setFieldValue(
-                    field.name,
-                    customStringify(JSON.parse(jsonStr))
-                  );
-                } catch (error) {
-                  form.setFieldValue(field.name, jsonStr);
-                } finally {
-                  form.setFieldTouched(field.name);
-                }
+                  jsonStr?.split('\n').forEach((line: string) => {
+                    if (line.trim() !== '') {
+                      try {
+                        finalJsonStr +=
+                          customStringifySingleLine(JSON.parse(line)) + '\n';
+                      } catch (e) {}
+                    }
+                  });
+                } catch (error) {}
+
+                console.log('final json str: ', finalJsonStr);
+                form.setFieldValue(field.name, finalJsonStr);
+                form.setFieldTouched(field.name);
+
+                // TODO: format under regular scenario, leave alone if JSONLines scenario
+                // try {
+                //   form.setFieldValue(
+                //     field.name,
+                //     customStringify(JSON.parse(jsonStr))
+                //   );
+                // } catch (error) {
+                //   form.setFieldValue(field.name, jsonStr);
+                // } finally {
+                //   form.setFieldTouched(field.name);
+                // }
               }}
               readOnly={props.readOnly || false}
               setOptions={{
                 fontSize: '14px',
-                useWorker: validate,
+                useWorker: validateInline,
                 highlightActiveLine: !props.readOnly,
                 highlightSelectedWord: !props.readOnly,
                 highlightGutterLine: !props.readOnly,
@@ -104,6 +126,18 @@ export function JsonField(props: JsonFieldProps) {
               }}
               aria-label="Code Editor"
               tabSize={2}
+              // onValidate={(props) => {
+              //   console.log('validate props: ', props);
+              //   return [];
+              // }}
+              // annotations={[
+              //   {
+              //     column: 0,
+              //     row: 1,
+              //     text: 'Invalid JSON',
+              //     type: 'error',
+              //   },
+              // ]}
             />
           </EuiCompressedFormRow>
         );
