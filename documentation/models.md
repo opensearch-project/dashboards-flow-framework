@@ -775,26 +775,49 @@ POST /_plugins/_ml/models/_register
                             "output": {
                                 "type": "array",
                                 "items": {
+                                    "type": "object",
                                     "properties": {
                                         "name": {
-                                            "type": "string",
-                                            "description": "This is a test description field"
+                                            "type": "string"
                                         },
                                         "dataAsMap": {
                                             "type": "object",
-                                            "description": "This is a test description field"
+                                            "properties": {
+                                                "choices": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "index": {
+                                                                "type": "integer"
+                                                            },
+                                                            "message": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "role": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "content": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "finish_reason": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
-                                },
-                                "description": "This is a test description field"
+                                }
                             },
                             "status_code": {
-                                "type": "integer",
-                                "description": "This is a test description field"
+                                "type": "integer"
                             }
                         }
-                    },
-                    "description": "This is a test description field"
+                    }
                 }
             }
         }
