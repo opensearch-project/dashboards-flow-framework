@@ -24,7 +24,6 @@ import {
 } from '@elastic/eui';
 import { JsonLinesField } from '../input_fields';
 import {
-  customStringify,
   customStringifySingleLine,
   FETCH_ALL_QUERY_LARGE,
   IConfigField,

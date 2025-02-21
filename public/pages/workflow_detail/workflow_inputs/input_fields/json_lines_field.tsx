@@ -55,16 +55,6 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
   return (
     <Field name={props.fieldPath}>
       {({ field, form }: FieldProps) => {
-        let errMsgToDisplay = undefined as string | undefined;
-        if (validate) {
-          if (customErrMsg) {
-            errMsgToDisplay = customErrMsg;
-          } else if (getIn(errors, field.name)) {
-            errMsgToDisplay = getIn(errors, field.name);
-          } else {
-            errMsgToDisplay = undefined;
-          }
-        }
         return (
           <EuiCompressedFormRow
             fullWidth={true}
@@ -80,7 +70,7 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
               ) : undefined
             }
             helpText={props.helpText || undefined}
-            error={errMsgToDisplay}
+            error={validate ? customErrMsg : undefined}
             isInvalid={
               validate
                 ? getIn(errors, field.name) && getIn(touched, field.name)
@@ -122,7 +112,9 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
                       error,
                       'message',
                       'Invalid JSON'
-                    ).replace(/^(.*?)\s+in JSON.*/, '$1')}`
+                    )
+                      .replace(/^(.*?)\s+in JSON.*/, '$1')
+                      .replace(/^(.*?)\s+after JSON.*/, '$1')}`
                   );
                 }
               }}

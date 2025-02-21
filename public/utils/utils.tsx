@@ -185,8 +185,6 @@ export function prepareDocsForSimulate(
       _source: doc,
     });
   });
-  console.log('docobs: ', docObjs);
-  console.log('prepared docs: ', preparedDocs);
   return preparedDocs;
 }
 
