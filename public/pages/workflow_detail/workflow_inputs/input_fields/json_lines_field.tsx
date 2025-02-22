@@ -154,6 +154,7 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
   );
 }
 
+// Parse out the useful information from an error triggered during JSON parsing failure
 function getFormattedErrorMsg(error: Error, idx: number): string {
   return `Error on line ${idx}: ${getIn(error, 'message', 'Invalid JSON')
     .replace(/^(.*?)\s+in JSON.*/, '$1')
