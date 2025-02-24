@@ -50,6 +50,20 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
             );
             break;
           }
+          case 'textArea': {
+            el = (
+              <EuiFlexItem key={idx}>
+                <TextField
+                  label={camelCaseToTitleString(field.id)}
+                  fieldPath={fieldPath}
+                  showError={true}
+                  textArea={true}
+                />
+                <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
+              </EuiFlexItem>
+            );
+            break;
+          }
           case 'select': {
             el = (
               <EuiFlexItem key={idx}>

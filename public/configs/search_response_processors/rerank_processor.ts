@@ -41,7 +41,7 @@ export class RerankProcessor extends Processor {
       },
       {
         id: 'description',
-        type: 'string',
+        type: 'textArea',
       },
       {
         id: 'ignore_failure',

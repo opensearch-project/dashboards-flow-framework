@@ -64,7 +64,7 @@ export class TextChunkingIngestProcessor extends Processor {
       },
       {
         id: 'description',
-        type: 'string',
+        type: 'textArea',
       },
       {
         id: 'tag',

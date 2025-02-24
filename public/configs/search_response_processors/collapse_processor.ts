@@ -33,7 +33,7 @@ export class CollapseProcessor extends Processor {
       },
       {
         id: 'description',
-        type: 'string',
+        type: 'textArea',
       },
       {
         id: 'ignore_failure',

@@ -34,7 +34,7 @@ export abstract class SortProcessor extends Processor {
       },
       {
         id: 'description',
-        type: 'string',
+        type: 'textArea',
       },
       {
         id: 'tag',

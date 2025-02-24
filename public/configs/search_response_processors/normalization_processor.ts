@@ -34,7 +34,7 @@ export class NormalizationProcessor extends Processor {
       },
       {
         id: 'description',
-        type: 'string',
+        type: 'textArea',
       },
       {
         id: 'tag',
