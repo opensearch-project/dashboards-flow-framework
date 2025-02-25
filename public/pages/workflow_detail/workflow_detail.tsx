@@ -128,7 +128,10 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     }
   };
   useEffect(() => {
-    const links = document.querySelectorAll(`a[href="/app/home"]`); // this will catch the home page buttons in core OSD.
+    // try to catch as many external links as possible, particularly
+    // ones that will go to the home page, or different plugins within
+    // the side navigation.
+    const links = document.querySelectorAll(`a[href*="app/"]`);
     links.forEach((link) => {
       link.addEventListener('click', handleLinkClick);
     });
