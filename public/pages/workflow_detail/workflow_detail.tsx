@@ -132,9 +132,15 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     // ones that will go to the home page, or different plugins within
     // the side navigation.
     const links = document.querySelectorAll(`a[href*="app/"]`);
-    links.forEach((link) => {
-      link.addEventListener('click', handleLinkClick);
-    });
+    if (blockNavigation) {
+      links.forEach((link) => {
+        link.addEventListener('click', handleLinkClick);
+      });
+    } else {
+      links.forEach((link) => {
+        link.removeEventListener('click', handleLinkClick);
+      });
+    }
     return () => {
       links.forEach((link) => {
         link.removeEventListener('click', handleLinkClick);
