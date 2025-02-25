@@ -97,8 +97,47 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     dispatch(setSearchPipelineErrors({ errors: {} }));
   }, []);
 
-  // Block navigation away when we can catch it
   const [blockNavigation, setBlockNavigation] = useState<boolean>(false);
+
+  // 1. Block page refreshes if unsaved changes.
+  // Remove listeners on component unload.
+  function preventPageRefresh(e: BeforeUnloadEvent) {
+    e.preventDefault();
+  }
+  useEffect(() => {
+    if (blockNavigation) {
+      window.addEventListener('beforeunload', preventPageRefresh);
+    } else {
+      window.removeEventListener('beforeunload', preventPageRefresh);
+    }
+    return () => {
+      window.removeEventListener('beforeunload', preventPageRefresh);
+    };
+  }, [blockNavigation]);
+
+  // 2. Block navigation (externally-controlled buttons/links)
+  // Remove listeners on component unload.
+  const handleLinkClick = (e: Event) => {
+    if (blockNavigation) {
+      const confirmation = window.confirm(
+        'You have unsaved changes. Are you sure you want to leave?'
+      );
+      if (!confirmation) {
+        e.preventDefault();
+      }
+    }
+  };
+  useEffect(() => {
+    const links = document.querySelectorAll(`a[href="/app/home"]`); // this will catch the home page buttons in core OSD.
+    links.forEach((link) => {
+      link.addEventListener('click', handleLinkClick);
+    });
+    return () => {
+      links.forEach((link) => {
+        link.removeEventListener('click', handleLinkClick);
+      });
+    };
+  }, [blockNavigation]);
 
   // data-source-related states
   const dataSourceEnabled = getDataSourceEnabled().enabled;
@@ -194,6 +233,10 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
 
   return (
     <>
+      {/**
+       * 3. Block navigation (internally-controlled buttons/links). <Prompt /> context is confined to navigation checks
+       *    within the plugin-defined router.
+       */}
       <Prompt
         when={blockNavigation}
         message={(location) => {
