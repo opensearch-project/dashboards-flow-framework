@@ -804,6 +804,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                               disabled={
                                 !ingestEnabled
                                   ? false
+                                  : onIngestAndUnprovisioned
+                                  ? true
                                   : ingestTemplatesDifferent
                               }
                               iconSide="right"
