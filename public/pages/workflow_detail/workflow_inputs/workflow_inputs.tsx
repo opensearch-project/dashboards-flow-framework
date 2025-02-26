@@ -20,6 +20,7 @@ import {
   EuiBottomBar,
   EuiIconTip,
   EuiSmallButtonIcon,
+  EuiButtonEmpty,
 } from '@elastic/eui';
 import {
   CONFIG_STEP,
@@ -723,6 +724,17 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     label="Enable ingest flow"
                     type="Switch"
                   />
+                </EuiFlexItem>
+              )}
+              {(ingestProvisioned || searchProvisioned) && (
+                <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                  <EuiButtonEmpty
+                    iconSide="left"
+                    iconType="play"
+                    onClick={() => props.displaySearchPanel()}
+                  >
+                    Test flow
+                  </EuiButtonEmpty>
                 </EuiFlexItem>
               )}
             </EuiFlexGroup>
