@@ -29,7 +29,6 @@ interface Props extends RouteComponentProps {
 export const FlowFrameworkDashboardsApp = (props: Props) => {
   const { setHeaderActionMenu } = props;
 
-
   // Render the application DOM.
   return (
     <EuiFlexGroup

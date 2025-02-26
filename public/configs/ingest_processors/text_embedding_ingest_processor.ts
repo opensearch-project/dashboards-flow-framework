@@ -21,7 +21,7 @@ export class TextEmbeddingIngestProcessor extends Processor {
     this.optionalFields = [
       {
         id: 'description',
-        type: 'string',
+        type: 'textArea',
       },
       {
         id: 'tag',

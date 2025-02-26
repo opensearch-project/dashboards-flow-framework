@@ -4,7 +4,6 @@
  */
 
 import React, { useEffect, useState, ReactElement } from 'react';
-import { useHistory } from 'react-router-dom';
 import {
   EuiPageHeader,
   EuiFlexGroup,
@@ -29,10 +28,10 @@ import {
 import {
   APP_PATH,
   USE_NEW_HOME_PAGE,
-  constructUrlWithParams,
   getDataSourceId,
   dataSourceFilterFn,
   formikToUiConfig,
+  constructHrefWithDataSourceId,
 } from '../../../utils';
 import { ExportModal } from './export_modal';
 import {
@@ -70,11 +69,11 @@ interface WorkflowDetailHeaderProps {
   unsavedSearchProcessors: boolean;
   setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
   setActionMenu: (menuMount?: MountPoint) => void;
+  setBlockNavigation: (blockNavigation: boolean) => void;
 }
 
 export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
   const dispatch = useAppDispatch();
-  const history = useHistory();
   const { resetForm, setTouched, values, touched, dirty } = useFormikContext<
     WorkflowFormValues
   >();
@@ -115,12 +114,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
       setHeaderVariant?.();
     };
   }, [setHeaderVariant, USE_NEW_HOME_PAGE]);
-
-  const onExitButtonClick = () => {
-    history.replace(
-      constructUrlWithParams(APP_PATH.WORKFLOWS, undefined, dataSourceId)
-    );
-  };
 
   // get & render the data source component, if applicable
   let DataSourceComponent: ReactElement | null = null;
@@ -200,21 +193,8 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
       ? ingestSaveButtonDisabled
       : searchSaveButtonDisabled;
 
-  // Add warning when exiting with unsaved changes
-  function alertFn(e: BeforeUnloadEvent) {
-    e.preventDefault();
-  }
-
-  // Hook for warning of unsaved changes if a browser refresh is detected
   useEffect(() => {
-    if (!saveDisabled) {
-      window.addEventListener('beforeunload', alertFn);
-    } else {
-      window.removeEventListener('beforeunload', alertFn);
-    }
-    return () => {
-      window.removeEventListener('beforeunload', alertFn);
-    };
+    props.setBlockNavigation(!saveDisabled);
   }, [saveDisabled]);
 
   // Utility fn to update the workflow UI config only, based on the current form values.
@@ -319,7 +299,10 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 iconType: 'exit',
                 tooltip: 'Return to projects',
                 ariaLabel: 'Exit',
-                run: onExitButtonClick,
+                href: constructHrefWithDataSourceId(
+                  APP_PATH.WORKFLOWS,
+                  dataSourceId
+                ),
                 controlType: 'icon',
               } as TopNavMenuIconData,
               {
@@ -407,15 +390,10 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 Export
               </EuiSmallButton>,
               <EuiSmallButtonEmpty
-                onClick={() => {
-                  history.replace(
-                    constructUrlWithParams(
-                      APP_PATH.WORKFLOWS,
-                      undefined,
-                      dataSourceId
-                    )
-                  );
-                }}
+                href={constructHrefWithDataSourceId(
+                  APP_PATH.WORKFLOWS,
+                  dataSourceId
+                )}
                 data-testid="closeButton"
               >
                 Close
@@ -430,6 +408,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 {`Save`}
               </EuiSmallButtonEmpty>,
               <EuiSmallButtonIcon
+                data-testid="undoButton"
                 iconType="editorUndo"
                 aria-label="undo changes"
                 isDisabled={undoDisabled}
