@@ -408,6 +408,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 {`Save`}
               </EuiSmallButtonEmpty>,
               <EuiSmallButtonIcon
+                data-testid="undoButton"
                 iconType="editorUndo"
                 aria-label="undo changes"
                 isDisabled={undoDisabled}
