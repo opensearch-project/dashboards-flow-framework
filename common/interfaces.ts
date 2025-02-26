@@ -27,6 +27,7 @@ export type MDSQueryParams = {
 
 export type ConfigFieldType =
   | 'string'
+  | 'textArea'
   | 'json'
   | 'jsonArray'
   | 'jsonString'

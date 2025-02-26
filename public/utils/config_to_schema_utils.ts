@@ -152,6 +152,7 @@ export function getFieldSchema(
 
   switch (field.type) {
     case 'string':
+    case 'textArea':
     case 'select': {
       baseSchema = defaultStringSchema;
       break;

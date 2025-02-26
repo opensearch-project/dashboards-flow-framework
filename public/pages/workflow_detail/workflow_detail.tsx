@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import { Prompt, RouteComponentProps, useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { escape } from 'lodash';
@@ -79,6 +79,7 @@ interface WorkflowDetailProps
 
 export function WorkflowDetail(props: WorkflowDetailProps) {
   const dispatch = useAppDispatch();
+  const history = useHistory();
 
   // On initial load:
   // - fetch workflow
@@ -95,6 +96,55 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     dispatch(setIngestPipelineErrors({ errors: {} }));
     dispatch(setSearchPipelineErrors({ errors: {} }));
   }, []);
+
+  const [blockNavigation, setBlockNavigation] = useState<boolean>(false);
+
+  // 1. Block page refreshes if unsaved changes.
+  // Remove listeners on component unload.
+  function preventPageRefresh(e: BeforeUnloadEvent) {
+    e.preventDefault();
+  }
+  useEffect(() => {
+    if (blockNavigation) {
+      window.addEventListener('beforeunload', preventPageRefresh);
+    } else {
+      window.removeEventListener('beforeunload', preventPageRefresh);
+    }
+    return () => {
+      window.removeEventListener('beforeunload', preventPageRefresh);
+    };
+  }, [blockNavigation]);
+
+  // 2. Block navigation (externally-controlled buttons/links)
+  // Remove listeners on component unload.
+  const handleLinkClick = (e: Event) => {
+    const confirmation = window.confirm(
+      'You have unsaved changes. Are you sure you want to leave?'
+    );
+    if (!confirmation) {
+      e.preventDefault();
+    }
+  };
+  useEffect(() => {
+    // try to catch as many external links as possible, particularly
+    // ones that will go to the home page, or different plugins within
+    // the side navigation.
+    const links = document.querySelectorAll(`a[href*="app/"]`);
+    if (blockNavigation) {
+      links.forEach((link) => {
+        link.addEventListener('click', handleLinkClick);
+      });
+    } else {
+      links.forEach((link) => {
+        link.removeEventListener('click', handleLinkClick);
+      });
+    }
+    return () => {
+      links.forEach((link) => {
+        link.removeEventListener('click', handleLinkClick);
+      });
+    };
+  }, [blockNavigation]);
 
   // data-source-related states
   const dataSourceEnabled = getDataSourceEnabled().enabled;
@@ -188,71 +238,100 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     }
   }, [uiConfig]);
 
-  return errorMessage?.includes(ERROR_GETTING_WORKFLOW_MSG) ||
-    errorMessage?.includes(NO_TEMPLATES_FOUND_MSG) ? (
-    <EuiFlexGroup direction="column" alignItems="center">
-      <EuiFlexItem grow={3}>
-        <EuiEmptyPrompt
-          iconType={'cross'}
-          title={<h2>Oops! We couldn't find that workflow</h2>}
-          titleSize="s"
-        />
-      </EuiFlexItem>
-      <EuiFlexItem grow={7}>
-        <EuiSmallButton
-          style={{ width: '200px' }}
-          fill={false}
-          href={constructHrefWithDataSourceId(APP_PATH.WORKFLOWS, dataSourceId)}
+  return (
+    <>
+      {/**
+       * 3. Block navigation (internally-controlled buttons/links). <Prompt /> context is confined to navigation checks
+       *    within the plugin-defined router.
+       */}
+      <Prompt
+        when={blockNavigation}
+        message={(location) => {
+          const confirmation = window.confirm(
+            'You have unsaved changes. Are you sure you want to leave?'
+          );
+          if (!confirmation) {
+            setBlockNavigation(true);
+            history.goBack();
+            return false;
+          } else {
+            setBlockNavigation(false);
+            return true;
+          }
+        }}
+      />
+
+      {errorMessage?.includes(ERROR_GETTING_WORKFLOW_MSG) ||
+      errorMessage?.includes(NO_TEMPLATES_FOUND_MSG) ? (
+        <EuiFlexGroup direction="column" alignItems="center">
+          <EuiFlexItem grow={3}>
+            <EuiEmptyPrompt
+              iconType={'cross'}
+              title={<h2>Oops! We couldn't find that workflow</h2>}
+              titleSize="s"
+            />
+          </EuiFlexItem>
+          <EuiFlexItem grow={7}>
+            <EuiSmallButton
+              style={{ width: '200px' }}
+              fill={false}
+              href={constructHrefWithDataSourceId(
+                APP_PATH.WORKFLOWS,
+                dataSourceId
+              )}
+            >
+              Return to home
+            </EuiSmallButton>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      ) : (
+        <Formik
+          enableReinitialize={true}
+          initialValues={formValues}
+          initialTouched={cachedFormikState?.touched}
+          initialErrors={cachedFormikState?.errors}
+          validationSchema={formSchema}
+          onSubmit={(values) => {}}
+          validate={(values) => {}}
         >
-          Return to home
-        </EuiSmallButton>
-      </EuiFlexItem>
-    </EuiFlexGroup>
-  ) : (
-    <Formik
-      enableReinitialize={true}
-      initialValues={formValues}
-      initialTouched={cachedFormikState?.touched}
-      initialErrors={cachedFormikState?.errors}
-      validationSchema={formSchema}
-      onSubmit={(values) => {}}
-      validate={(values) => {}}
-    >
-      <ReactFlowProvider>
-        <EuiPage paddingSize="s">
-          <EuiPageBody className="workflow-detail stretch-relative">
-            <WorkflowDetailHeader
-              workflow={workflow}
-              uiConfig={uiConfig}
-              setUiConfig={setUiConfig}
-              isRunningIngest={isRunningIngest}
-              isRunningSearch={isRunningSearch}
-              selectedStep={selectedStep}
-              unsavedIngestProcessors={unsavedIngestProcessors}
-              setUnsavedIngestProcessors={setUnsavedIngestProcessors}
-              unsavedSearchProcessors={unsavedSearchProcessors}
-              setUnsavedSearchProcessors={setUnsavedSearchProcessors}
-              setActionMenu={props.setActionMenu}
-            />
-            <ResizableWorkspace
-              workflow={workflow}
-              uiConfig={uiConfig}
-              setUiConfig={setUiConfig}
-              ingestDocs={ingestDocs}
-              setIngestDocs={setIngestDocs}
-              isRunningIngest={isRunningIngest}
-              setIsRunningIngest={setIsRunningIngest}
-              isRunningSearch={isRunningSearch}
-              setIsRunningSearch={setIsRunningSearch}
-              selectedStep={selectedStep}
-              setSelectedStep={setSelectedStep}
-              setUnsavedIngestProcessors={setUnsavedIngestProcessors}
-              setUnsavedSearchProcessors={setUnsavedSearchProcessors}
-              setCachedFormikState={setCachedFormikState}
-            />
-          </EuiPageBody>
-        </EuiPage>
-      </ReactFlowProvider>
-    </Formik>
+          <ReactFlowProvider>
+            <EuiPage paddingSize="s">
+              <EuiPageBody className="workflow-detail stretch-relative">
+                <WorkflowDetailHeader
+                  workflow={workflow}
+                  uiConfig={uiConfig}
+                  setUiConfig={setUiConfig}
+                  isRunningIngest={isRunningIngest}
+                  isRunningSearch={isRunningSearch}
+                  selectedStep={selectedStep}
+                  unsavedIngestProcessors={unsavedIngestProcessors}
+                  setUnsavedIngestProcessors={setUnsavedIngestProcessors}
+                  unsavedSearchProcessors={unsavedSearchProcessors}
+                  setUnsavedSearchProcessors={setUnsavedSearchProcessors}
+                  setActionMenu={props.setActionMenu}
+                  setBlockNavigation={setBlockNavigation}
+                />
+                <ResizableWorkspace
+                  workflow={workflow}
+                  uiConfig={uiConfig}
+                  setUiConfig={setUiConfig}
+                  ingestDocs={ingestDocs}
+                  setIngestDocs={setIngestDocs}
+                  isRunningIngest={isRunningIngest}
+                  setIsRunningIngest={setIsRunningIngest}
+                  isRunningSearch={isRunningSearch}
+                  setIsRunningSearch={setIsRunningSearch}
+                  selectedStep={selectedStep}
+                  setSelectedStep={setSelectedStep}
+                  setUnsavedIngestProcessors={setUnsavedIngestProcessors}
+                  setUnsavedSearchProcessors={setUnsavedSearchProcessors}
+                  setCachedFormikState={setCachedFormikState}
+                />
+              </EuiPageBody>
+            </EuiPage>
+          </ReactFlowProvider>
+        </Formik>
+      )}
+    </>
   );
 }

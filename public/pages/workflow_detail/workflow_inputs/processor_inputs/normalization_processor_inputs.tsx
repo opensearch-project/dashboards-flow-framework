@@ -22,7 +22,8 @@ interface NormalizationProcessorInputsProps {
 }
 
 /**
- * Specialized component to render the normalization processor. Adds some helper text around weights field.
+ * Specialized component to render the normalization processor. Adds some helper text around weights field,
+ * and bubble it up as a primary field to populate (even though it is technically optional).
  * In the future, may have a more customizable / guided way for specifying the array of weights.
  * For example, could have some visual way of linking it to the underlying sub-queries in the query field,
  * enforce its length = the number of queries, etc.
@@ -38,30 +39,30 @@ export function NormalizationProcessorInputs(
   );
 
   return (
-    // We only have optional fields for this processor, so everything is nested under the accordion
-    <EuiAccordion
-      id={`advancedSettings${props.config.id}`}
-      buttonContent="Advanced settings"
-      paddingSize="none"
-    >
-      <EuiFlexItem style={{ marginLeft: '28px' }}>
+    <>
+      <TextField
+        label={'Weights'}
+        helpText={`A comma-separated array of floating-point values specifying the weight for each query. For example: '0.8, 0.2'`}
+        helpLink={NORMALIZATION_PROCESSOR_LINK}
+        fieldPath={weightsFieldPath}
+        showError={true}
+      />
+      <EuiSpacer size="s" />
+      <EuiAccordion
+        id={`advancedSettings${props.config.id}`}
+        buttonContent="Advanced settings"
+        paddingSize="none"
+        style={{ marginLeft: '-8px' }}
+      >
         <EuiSpacer size="s" />
-        <EuiFlexItem>
-          <TextField
-            label={'Weights'}
-            helpText={`A comma-separated array of floating-point values specifying the weight for each query. For example: '0.8, 0.2'`}
-            helpLink={NORMALIZATION_PROCESSOR_LINK}
-            fieldPath={weightsFieldPath}
-            showError={true}
+        <EuiFlexItem style={{ marginLeft: '28px' }}>
+          <ConfigFieldList
+            configId={props.config.id}
+            configFields={optionalFieldsWithoutWeights}
+            baseConfigPath={props.baseConfigPath}
           />
         </EuiFlexItem>
-        <EuiSpacer size="s" />
-        <ConfigFieldList
-          configId={props.config.id}
-          configFields={optionalFieldsWithoutWeights}
-          baseConfigPath={props.baseConfigPath}
-        />
-      </EuiFlexItem>
-    </EuiAccordion>
+      </EuiAccordion>
+    </>
   );
 }
