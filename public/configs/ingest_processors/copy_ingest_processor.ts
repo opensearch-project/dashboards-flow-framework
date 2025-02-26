@@ -49,7 +49,7 @@ export class CopyIngestProcessor extends Processor {
       },
       {
         id: 'description',
-        type: 'string',
+        type: 'textArea',
       },
       {
         id: 'tag',

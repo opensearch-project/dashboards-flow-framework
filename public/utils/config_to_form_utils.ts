@@ -125,6 +125,7 @@ function searchIndexConfigToFormik(
 export function getInitialValue(fieldType: ConfigFieldType): ConfigFieldValue {
   switch (fieldType) {
     case 'string':
+    case 'textArea':
     case 'select':
     case 'jsonLines': {
       return '';

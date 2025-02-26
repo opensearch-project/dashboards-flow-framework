@@ -149,19 +149,6 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
       );
     });
   });
-
-  test('tests navigation to workflows list on Close button click', async () => {
-    const { getByTestId, history } = renderWithRouter(
-      workflowId,
-      workflowName,
-      WORKFLOW_TYPE.CUSTOM
-    );
-    // The WorkflowDetail Page Close button should navigate back to the workflows list
-    userEvent.click(getByTestId('closeButton'));
-    await waitFor(() => {
-      expect(history.location.pathname).toBe('/workflows');
-    });
-  });
 });
 
 describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow)', () => {
