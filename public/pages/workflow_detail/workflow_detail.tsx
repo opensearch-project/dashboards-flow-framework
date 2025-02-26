@@ -118,13 +118,11 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   // 2. Block navigation (externally-controlled buttons/links)
   // Remove listeners on component unload.
   const handleLinkClick = (e: Event) => {
-    if (blockNavigation) {
-      const confirmation = window.confirm(
-        'You have unsaved changes. Are you sure you want to leave?'
-      );
-      if (!confirmation) {
-        e.preventDefault();
-      }
+    const confirmation = window.confirm(
+      'You have unsaved changes. Are you sure you want to leave?'
+    );
+    if (!confirmation) {
+      e.preventDefault();
     }
   };
   useEffect(() => {
