@@ -6,7 +6,6 @@
 import React, { useEffect, useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
-import semver from 'semver';
 import {
   EuiSmallButton,
   EuiSmallButtonEmpty,
@@ -25,7 +24,6 @@ import {
 import {
   CONFIG_STEP,
   CachedFormikState,
-  MINIMUM_FULL_SUPPORTED_VERSION,
   SimulateIngestPipelineResponseVerbose,
   TemplateNode,
   WORKFLOW_STEP_TYPE,
@@ -59,8 +57,9 @@ import {
   getDataSourceId,
   prepareDocsForSimulate,
   getIngestPipelineErrors,
-  getEffectiveVersion,
   sleep,
+  useDataSourceVersion,
+  getIsPreV219,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
@@ -102,21 +101,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const [dataSourceVersion, setDataSourceVersion] = useState<
-    string | undefined
-  >(undefined);
-  useEffect(() => {
-    async function getVersion() {
-      if (dataSourceId !== undefined) {
-        setDataSourceVersion(await getEffectiveVersion(dataSourceId));
-      }
-    }
-    getVersion();
-  }, [dataSourceId]);
-  const isPreV219 =
-    dataSourceVersion !== undefined
-      ? semver.lt(dataSourceVersion, MINIMUM_FULL_SUPPORTED_VERSION)
-      : false;
+  const dataSourceVersion = useDataSourceVersion(dataSourceId);
+  const isPreV219 = getIsPreV219(dataSourceVersion);
 
   // transient running states
   const [isUpdatingSearchPipeline, setIsUpdatingSearchPipeline] = useState<
