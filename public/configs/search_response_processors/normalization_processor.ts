@@ -21,16 +21,19 @@ export class NormalizationProcessor extends Processor {
       {
         id: 'weights',
         type: 'string',
+        value: '0.5, 0.5',
       },
       {
         id: 'normalization_technique',
         type: 'select',
         selectOptions: ['min_max', 'l2'],
+        value: 'min_max',
       },
       {
         id: 'combination_technique',
         type: 'select',
         selectOptions: ['arithmetic_mean', 'geometric_mean', 'harmonic_mean'],
+        value: 'arithmetic_mean',
       },
       {
         id: 'description',
