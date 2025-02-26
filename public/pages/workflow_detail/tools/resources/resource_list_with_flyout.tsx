@@ -43,8 +43,12 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
   const [allResources, setAllResources] = useState<WorkflowResource[]>([]);
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const [resourceDetails, setResourceDetails] = useState<string | null>(null);
-  const [rowErrorMessage, setRowErrorMessage] = useState<string | null>(null);
+  const [resourceDetails, setResourceDetails] = useState<string | undefined>(
+    undefined
+  );
+  const [rowErrorMessage, setRowErrorMessage] = useState<string | undefined>(
+    undefined
+  );
   const {
     loading,
     getIndexErrorMessage,
@@ -105,7 +109,7 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
     },
   };
 
-  const [isFlyoutVisible, setIsFlyoutVisible] = useState(false);
+  const [isFlyoutVisible, setIsFlyoutVisible] = useState<boolean>(false);
   const [selectedRowData, setSelectedRowData] = useState<
     WorkflowResource | undefined
   >(undefined);
@@ -133,7 +137,7 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
   const closeFlyout = () => {
     setIsFlyoutVisible(false);
     setSelectedRowData(undefined);
-    setResourceDetails(null);
+    setResourceDetails(undefined);
   };
 
   return (
@@ -165,15 +169,17 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
           />
         </EuiFlexItem>
       </EuiFlexGroup>
-      {isFlyoutVisible && (
-        <ResourceFlyout
-          resourceName={selectedRowData?.id || ''}
-          resourceDetails={resourceDetails || ''}
-          onClose={closeFlyout}
-          loading={loading}
-          errorMessage={rowErrorMessage || undefined}
-        />
-      )}
+      {isFlyoutVisible &&
+        selectedRowData !== undefined &&
+        resourceDetails !== undefined && (
+          <ResourceFlyout
+            resource={selectedRowData}
+            resourceDetails={resourceDetails}
+            onClose={closeFlyout}
+            loading={loading}
+            errorMessage={rowErrorMessage || undefined}
+          />
+        )}
     </>
   );
 }

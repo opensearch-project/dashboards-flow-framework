@@ -15,10 +15,13 @@ import {
   EuiText,
   EuiEmptyPrompt,
   EuiLoadingSpinner,
+  EuiHealth,
+  EuiSpacer,
 } from '@elastic/eui';
+import { WORKFLOW_STEP_TYPE, WorkflowResource } from '../../../../../common';
 
 interface ResourceFlyoutProps {
-  resourceName: string;
+  resource: WorkflowResource;
   resourceDetails: string;
   onClose: () => void;
   loading: boolean;
@@ -38,10 +41,33 @@ export function ResourceFlyout(props: ResourceFlyoutProps) {
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
         <EuiFlexGroup direction="column" gutterSize="xs">
-          <EuiFlexItem grow={true}>
-            <EuiText size="m">
-              <h4>Resource details</h4>
-            </EuiText>
+          <EuiFlexItem grow={false}>
+            <EuiTitle size="s">
+              <h4>Name</h4>
+            </EuiTitle>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiText>{props.resource?.id || ''}</EuiText>
+          </EuiFlexItem>
+          <EuiSpacer size="s" />
+          <EuiFlexItem grow={false}>
+            <EuiTitle size="s">
+              <h4>Status</h4>
+            </EuiTitle>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiHealth color="success">Active</EuiHealth>
+          </EuiFlexItem>
+          <EuiSpacer size="s" />
+          <EuiFlexItem grow={false}>
+            <EuiTitle size="s">
+              <h4>
+                {props.resource?.stepType ===
+                WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE
+                  ? 'Configuration'
+                  : 'Pipeline configuration'}
+              </h4>
+            </EuiTitle>
           </EuiFlexItem>
           <EuiFlexItem grow={true}>
             {!props.errorMessage && !props.loading ? (
