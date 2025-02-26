@@ -7,18 +7,10 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import {
   Direction,
-  EuiCodeBlock,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiFlyout,
-  EuiFlyoutBody,
-  EuiFlyoutHeader,
   EuiInMemoryTable,
-  EuiTitle,
   EuiIcon,
-  EuiText,
-  EuiEmptyPrompt,
-  EuiLoadingSpinner,
 } from '@elastic/eui';
 import {
   Workflow,
@@ -38,6 +30,7 @@ import {
   getErrorMessageForStepType,
 } from '../../../../utils';
 import { columns } from './columns';
+import { ResourceFlyout } from './resource_flyout';
 
 interface ResourceListFlyoutProps {
   workflow?: Workflow;
@@ -173,46 +166,13 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
         </EuiFlexItem>
       </EuiFlexGroup>
       {isFlyoutVisible && (
-        <EuiFlyout onClose={closeFlyout}>
-          <EuiFlyoutHeader>
-            <EuiTitle>
-              <h2>{selectedRowData?.id}</h2>
-            </EuiTitle>
-          </EuiFlyoutHeader>
-          <EuiFlyoutBody>
-            <EuiFlexGroup direction="column" gutterSize="xs">
-              <EuiFlexItem grow={true}>
-                <EuiText size="m">
-                  <h4>Resource details</h4>
-                </EuiText>
-              </EuiFlexItem>
-              <EuiFlexItem grow={true}>
-                {!rowErrorMessage && !loading ? (
-                  <EuiCodeBlock
-                    language="json"
-                    fontSize="m"
-                    isCopyable={true}
-                    overflowHeight={600}
-                  >
-                    {resourceDetails}
-                  </EuiCodeBlock>
-                ) : loading ? (
-                  <EuiEmptyPrompt
-                    icon={<EuiLoadingSpinner size="xl" />}
-                    title={<h2>Loading</h2>}
-                  />
-                ) : (
-                  <EuiEmptyPrompt
-                    iconType="alert"
-                    iconColor="danger"
-                    title={<h2>Error loading resource details</h2>}
-                    body={<p>{rowErrorMessage}</p>}
-                  />
-                )}
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </EuiFlyoutBody>
-        </EuiFlyout>
+        <ResourceFlyout
+          resourceName={selectedRowData?.id || ''}
+          resourceDetails={resourceDetails || ''}
+          onClose={closeFlyout}
+          loading={loading}
+          errorMessage={rowErrorMessage || undefined}
+        />
       )}
     </>
   );
