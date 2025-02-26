@@ -44,7 +44,7 @@ import {
   WORKFLOW_NAME_RESTRICTIONS,
 } from '../../../../common';
 import { WORKFLOWS_TAB } from '../workflows';
-import { getDataSourceId } from '../../../utils/utils';
+import { getDataSourceId, getEffectiveVersion, formatDisplayVersion } from '../../../utils/utils';
 
 interface ImportWorkflowModalProps {
   isImportModalOpen: boolean;
@@ -62,6 +62,17 @@ interface ImportWorkflowModalProps {
 export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+  const [dataSourceVersion, setDataSourceVersion] = useState<
+    string | undefined
+  >(undefined);
+  useEffect(() => {
+    async function getVersion() {
+      if (dataSourceId !== undefined) {
+        setDataSourceVersion(await getEffectiveVersion(dataSourceId));
+      }
+    }
+    getVersion();
+  }, [dataSourceId]);
   const { workflows } = useSelector((state: AppState) => state.workflows);
 
   // workflow name state
@@ -87,10 +98,8 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
     return description.length > MAX_DESCRIPTION_LENGTH;
   }
 
-  // States for tracking workflow template compatibility with current data source version
+  // State for tracking workflow template compatibility with current data source version
   const [isCompatible, setIsCompatible] = useState<boolean>(true);
-  const [inCompatibleDataSourceVersion, setInCompatibleDataSourceVersion] = useState<string | undefined>();
-
 
   // transient importing state for button state
   const [isImporting, setIsImporting] = useState<boolean>(false);
@@ -124,11 +133,8 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
   useEffect(() => {
     async function checkCompatibility() {
       if (isValidWorkflow(fileObj)) {
-        const [isCompatible, dataSourceVersion] = await isCompatibleWorkflow(fileObj, dataSourceId);
+        const isCompatible = await isCompatibleWorkflow(fileObj, dataSourceId);
         setIsCompatible(isCompatible);
-        if (dataSourceVersion) {
-          setInCompatibleDataSourceVersion(dataSourceVersion);
-        }
       }
     }
     checkCompatibility();
@@ -161,11 +167,11 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
               <EuiSpacer size="m" />
             </>
           )}
-          {isValidWorkflow(fileObj) && !isCompatible && inCompatibleDataSourceVersion && (
+          {isValidWorkflow(fileObj) && !isCompatible && dataSourceVersion && (
             <>
               <EuiFlexItem>
                 <EuiCallOut
-                  title={`The uploaded file is not compatible with the current data source version ${inCompatibleDataSourceVersion}. Upload a compatible file or switch to another data source.`}
+                  title={`The uploaded file is not compatible with the current data source version ${formatDisplayVersion(dataSourceVersion)}. Upload a compatible file or switch to another data source.`}
                   iconType={'alert'}
                   color="danger"
                 />

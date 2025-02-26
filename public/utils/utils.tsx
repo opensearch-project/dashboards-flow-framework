@@ -157,27 +157,26 @@ export function isValidWorkflow(workflowObj: any): boolean {
   return workflowObj?.name !== undefined;
 }
 
+// Determines if a file used for import workflow is compatible with the current data source version.
 export async function isCompatibleWorkflow(
   workflowObj: any, 
   dataSourceId?: string | undefined
-): Promise<[boolean, string | undefined]> {
+): Promise<boolean> {
   const compatibility = workflowObj?.version?.compatibility;
 
   // Default to true when compatibility cannot be assessed (empty/invalid compatibility array or MDS disabled.)
   if (!Array.isArray(compatibility) || compatibility.length === 0 || dataSourceId === undefined) {
-    return [true, undefined];
+    return true;
   }
 
   const dataSourceVersion = await getEffectiveVersion(dataSourceId);  
   const [effectiveMajorVersion, effectiveMinorVersion] = dataSourceVersion.split('.').map(Number);
   
   // Checks if any version in compatibility array matches the current dataSourceVersion (major.minor)
-  const isCompatible = compatibility.some(compatibleVersion => {
+  return compatibility.some(compatibleVersion => {
     const [compatibleMajor, compatibleMinor] = compatibleVersion.split('.').map(Number);
     return effectiveMajorVersion === compatibleMajor && effectiveMinorVersion === compatibleMinor;
   });
-
-  return [isCompatible, `${effectiveMajorVersion}.${effectiveMinorVersion}`];
 }
 
 
@@ -936,3 +935,15 @@ export const getEffectiveVersion = async (
     return MIN_SUPPORTED_VERSION;
   }
 };
+
+    
+/**
+ * Formats version string to show only major.minor numbers
+ * Example: "3.0.0-alpha1" -> "3.0"
+ */
+export function formatDisplayVersion(version: string): string {
+  // Take first two parts of version number (major.minor)
+  const [major, minor] = version.split('.');
+  return `${major}.${minor}`;
+}
+
