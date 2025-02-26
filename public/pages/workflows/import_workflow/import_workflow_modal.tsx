@@ -27,6 +27,7 @@ import {
   getObjFromJsonOrYamlString,
   isValidUiWorkflow,
   isValidWorkflow,
+  isCompatibleWorkflow,
 } from '../../../utils';
 import { getCore } from '../../../services';
 import {
@@ -86,6 +87,11 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
     return description.length > MAX_DESCRIPTION_LENGTH;
   }
 
+  // States for tracking workflow template compatibility with current data source version
+  const [isCompatible, setIsCompatible] = useState<boolean>(true);
+  const [inCompatibleDataSourceVersion, setInCompatibleDataSourceVersion] = useState<string | undefined>();
+
+
   // transient importing state for button state
   const [isImporting, setIsImporting] = useState<boolean>(false);
 
@@ -115,6 +121,19 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
     }
   }, [fileObj]);
 
+  useEffect(() => {
+    async function checkCompatibility() {
+      if (isValidWorkflow(fileObj)) {
+        const [isCompatible, dataSourceVersion] = await isCompatibleWorkflow(fileObj, dataSourceId);
+        setIsCompatible(isCompatible);
+        if (dataSourceVersion) {
+          setInCompatibleDataSourceVersion(dataSourceVersion);
+        }
+      }
+    }
+    checkCompatibility();
+  }, [fileObj, dataSourceId]);
+
   function onModalClose(): void {
     props.setIsImportModalOpen(false);
     setFileContents(undefined);
@@ -135,6 +154,18 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
               <EuiFlexItem>
                 <EuiCallOut
                   title="The uploaded file is not a valid workflow, remove the file and upload a compatible workflow in JSON or YAML format."
+                  iconType={'alert'}
+                  color="danger"
+                />
+              </EuiFlexItem>
+              <EuiSpacer size="m" />
+            </>
+          )}
+          {isValidWorkflow(fileObj) && !isCompatible && inCompatibleDataSourceVersion && (
+            <>
+              <EuiFlexItem>
+                <EuiCallOut
+                  title={`The uploaded file is not compatible with the current data source version ${inCompatibleDataSourceVersion}. Upload a compatible file or switch to another data source.`}
                   iconType={'alert'}
                   color="danger"
                 />
@@ -230,6 +261,7 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
         <EuiSmallButton
           disabled={
             !isValidWorkflow(fileObj) ||
+            !isCompatible ||
             isImporting ||
             isInvalidName(workflowName) ||
             isInvalidDescription(workflowDescription)

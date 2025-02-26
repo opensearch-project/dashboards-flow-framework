@@ -334,7 +334,6 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-
     getIndex: async (index: string, dataSourceId?: string) => {
       try {
         const url = dataSourceId

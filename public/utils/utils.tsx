@@ -157,6 +157,30 @@ export function isValidWorkflow(workflowObj: any): boolean {
   return workflowObj?.name !== undefined;
 }
 
+export async function isCompatibleWorkflow(
+  workflowObj: any, 
+  dataSourceId?: string | undefined
+): Promise<[boolean, string | undefined]> {
+  const compatibility = workflowObj?.version?.compatibility;
+
+  // Default to true when compatibility cannot be assessed (empty/invalid compatibility array or MDS disabled.)
+  if (!Array.isArray(compatibility) || compatibility.length === 0 || dataSourceId === undefined) {
+    return [true, undefined];
+  }
+
+  const dataSourceVersion = await getEffectiveVersion(dataSourceId);  
+  const [effectiveMajorVersion, effectiveMinorVersion] = dataSourceVersion.split('.').map(Number);
+  
+  // Checks if any version in compatibility array matches the current dataSourceVersion (major.minor)
+  const isCompatible = compatibility.some(compatibleVersion => {
+    const [compatibleMajor, compatibleMinor] = compatibleVersion.split('.').map(Number);
+    return effectiveMajorVersion === compatibleMajor && effectiveMinorVersion === compatibleMinor;
+  });
+
+  return [isCompatible, `${effectiveMajorVersion}.${effectiveMinorVersion}`];
+}
+
+
 export function isValidUiWorkflow(workflowObj: any): boolean {
   return (
     isValidWorkflow(workflowObj) &&
@@ -530,7 +554,7 @@ export const getDataSourceId = () => {
 
 export const isDataSourceReady = (dataSourceId?: string) => {
   const dataSourceEnabled = getDataSourceEnabled().enabled;
-  return !dataSourceEnabled || (dataSourceId && dataSourceId !== '');
+  return !dataSourceEnabled || dataSourceId !== undefined;
 };
 
 // converts camelCase to a space-delimited string with the first word capitalized.
