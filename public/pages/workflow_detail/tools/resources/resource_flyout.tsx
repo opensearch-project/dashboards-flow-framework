@@ -14,7 +14,6 @@ import {
   EuiTitle,
   EuiText,
   EuiEmptyPrompt,
-  EuiLoadingSpinner,
   EuiHealth,
   EuiSpacer,
 } from '@elastic/eui';
@@ -24,7 +23,6 @@ interface ResourceFlyoutProps {
   resource: WorkflowResource;
   resourceDetails: string;
   onClose: () => void;
-  loading: boolean;
   errorMessage?: string;
 }
 
@@ -70,7 +68,7 @@ export function ResourceFlyout(props: ResourceFlyoutProps) {
             </EuiTitle>
           </EuiFlexItem>
           <EuiFlexItem grow={true}>
-            {!props.errorMessage && !props.loading ? (
+            {!props.errorMessage ? (
               <EuiCodeBlock
                 language="json"
                 fontSize="m"
@@ -79,11 +77,6 @@ export function ResourceFlyout(props: ResourceFlyoutProps) {
               >
                 {props.resourceDetails}
               </EuiCodeBlock>
-            ) : props.loading ? (
-              <EuiEmptyPrompt
-                icon={<EuiLoadingSpinner size="xl" />}
-                title={<h2>Loading</h2>}
-              />
             ) : (
               <EuiEmptyPrompt
                 iconType="alert"

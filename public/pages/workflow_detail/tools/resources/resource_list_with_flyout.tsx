@@ -50,7 +50,6 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
     undefined
   );
   const {
-    loading,
     getIndexErrorMessage,
     getIngestPipelineErrorMessage,
     getSearchPipelineErrorMessage,
@@ -176,7 +175,6 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
             resource={selectedRowData}
             resourceDetails={resourceDetails}
             onClose={closeFlyout}
-            loading={loading}
             errorMessage={rowErrorMessage || undefined}
           />
         )}
