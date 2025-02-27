@@ -63,6 +63,7 @@ import {
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
+import { ResourcesFlyout } from '../tools/resources/resources_flyout';
 
 interface WorkflowInputsProps {
   workflow: Workflow | undefined;
@@ -116,6 +117,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // last ingested state
   const [lastIngested, setLastIngested] = useState<number | undefined>(
     undefined
+  );
+
+  // resource details state
+  const [resourcesFlyoutOpen, setResourcesFlyoutOpen] = useState<boolean>(
+    false
   );
 
   // maintain global states
@@ -684,6 +690,13 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       className="workspace-panel"
       borderRadius="l"
     >
+      {resourcesFlyoutOpen && (
+        <ResourcesFlyout
+          resources={props.workflow?.resourcesCreated || []}
+          selectedStep={props.selectedStep}
+          onClose={() => setResourcesFlyoutOpen(false)}
+        />
+      )}
       {props.uiConfig === undefined ? (
         <EuiLoadingSpinner size="xl" />
       ) : (
@@ -725,19 +738,19 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       </EuiButtonEmpty>
                     </EuiFlexItem>
                   )}
-                  {onIngest && ingestProvisioned && (
-                    <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
-                      <EuiButtonEmpty
-                        iconSide="left"
-                        iconType="inspect"
-                        onClick={() => {
-                          console.log('clicking details...');
-                        }}
-                      >
-                        Details
-                      </EuiButtonEmpty>
-                    </EuiFlexItem>
-                  )}
+                  {((onIngest && ingestProvisioned) ||
+                    (onSearch && searchProvisioned)) &&
+                    props.workflow?.resourcesCreated !== undefined && (
+                      <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                        <EuiButtonEmpty
+                          iconSide="left"
+                          iconType="inspect"
+                          onClick={() => setResourcesFlyoutOpen(true)}
+                        >
+                          Details
+                        </EuiButtonEmpty>
+                      </EuiFlexItem>
+                    )}
                 </EuiFlexGroup>
               </EuiFlexItem>
             </EuiFlexGroup>
