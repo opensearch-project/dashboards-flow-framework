@@ -37,7 +37,8 @@ interface ResourceListFlyoutProps {
 }
 
 /**
- * The searchable list of resources for a particular workflow.
+ * The searchable list of resources for a particular workflow. Each resource has an "inspect"
+ * action to view more details within a flyout.
  */
 export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
   const [allResources, setAllResources] = useState<WorkflowResource[]>([]);

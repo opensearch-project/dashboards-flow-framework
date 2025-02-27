@@ -703,26 +703,43 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   <h2>{onIngest ? 'Ingest flow' : 'Search flow'}</h2>
                 </EuiText>
               </EuiFlexItem>
-              {onIngestAndUnprovisioned && (
-                <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
-                  <BooleanField
-                    fieldPath="ingest.enabled"
-                    label="Enable ingest flow"
-                    type="Switch"
-                  />
-                </EuiFlexItem>
-              )}
-              {(ingestProvisioned || searchProvisioned) && (
-                <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
-                  <EuiButtonEmpty
-                    iconSide="left"
-                    iconType="play"
-                    onClick={() => props.displaySearchPanel()}
-                  >
-                    Test flow
-                  </EuiButtonEmpty>
-                </EuiFlexItem>
-              )}
+              <EuiFlexItem grow={false}>
+                <EuiFlexGroup direction="row" gutterSize="s">
+                  {onIngestAndUnprovisioned && (
+                    <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                      <BooleanField
+                        fieldPath="ingest.enabled"
+                        label="Enable ingest flow"
+                        type="Switch"
+                      />
+                    </EuiFlexItem>
+                  )}
+                  {(ingestProvisioned || searchProvisioned) && (
+                    <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                      <EuiButtonEmpty
+                        iconSide="left"
+                        iconType="play"
+                        onClick={() => props.displaySearchPanel()}
+                      >
+                        Test flow
+                      </EuiButtonEmpty>
+                    </EuiFlexItem>
+                  )}
+                  {onIngest && ingestProvisioned && (
+                    <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                      <EuiButtonEmpty
+                        iconSide="left"
+                        iconType="inspect"
+                        onClick={() => {
+                          console.log('clicking details...');
+                        }}
+                      >
+                        Details
+                      </EuiButtonEmpty>
+                    </EuiFlexItem>
+                  )}
+                </EuiFlexGroup>
+              </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
           <EuiFlexItem
