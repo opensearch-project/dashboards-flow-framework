@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import yaml from 'js-yaml';
 import jsonpath from 'jsonpath';
 import { capitalize, escape, findKey, get, isEmpty, set, unset } from 'lodash';
@@ -43,6 +43,7 @@ import {
   MODEL_ID_PATTERN,
   WORKFLOW_TYPE,
   MIN_SUPPORTED_VERSION,
+  MINIMUM_FULL_SUPPORTED_VERSION,
 } from '../../common';
 import {
   getCore,
@@ -550,6 +551,29 @@ export const getDataSourceId = () => {
   const mdsQueryParams = getDataSourceFromURL(location);
   return mdsQueryParams.dataSourceId;
 };
+
+export function useDataSourceVersion(
+  dataSourceId: string | undefined
+): string | undefined {
+  const [dataSourceVersion, setDataSourceVersion] = useState<
+    string | undefined
+  >(undefined);
+  useEffect(() => {
+    async function getVersion() {
+      if (dataSourceId !== undefined) {
+        setDataSourceVersion(await getEffectiveVersion(dataSourceId));
+      }
+    }
+    getVersion();
+  }, [dataSourceId]);
+  return dataSourceVersion;
+}
+
+export function getIsPreV219(dataSourceVersion: string | undefined): boolean {
+  return dataSourceVersion !== undefined
+    ? semver.lt(dataSourceVersion, MINIMUM_FULL_SUPPORTED_VERSION)
+    : false;
+}
 
 export const isDataSourceReady = (dataSourceId?: string) => {
   const dataSourceEnabled = getDataSourceEnabled().enabled;
