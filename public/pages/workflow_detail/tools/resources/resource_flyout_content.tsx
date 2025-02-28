@@ -36,6 +36,7 @@ interface ResourceFlyoutContentProps {
  * The static flyout content for a particular workflow resource.
  */
 export function ResourceFlyoutContent(props: ResourceFlyoutContentProps) {
+  console.log('props.searchquery: ', props.searchQuery);
   return (
     <EuiFlexGroup direction="column" gutterSize="xs">
       <EuiFlexItem grow={false}>
@@ -129,7 +130,11 @@ export function ResourceFlyoutContent(props: ResourceFlyoutContentProps) {
           <EuiCodeBlock fontSize="m" isCopyable={true}>
             {`GET /${props.indexName || 'my_index'}/_search?search_pipeline=${
               props.searchPipelineName || 'my_pipeline'
-            }
+            }` +
+              `${
+                props.searchQuery
+                  ? `\n${props.searchQuery}`
+                  : `
 {
   "query": {
     "term": {
@@ -138,7 +143,8 @@ export function ResourceFlyoutContent(props: ResourceFlyoutContentProps) {
       }
     }
   }
-}`}
+}`
+              }`}
           </EuiCodeBlock>
         </EuiFlexItem>
       ) : (

@@ -37,6 +37,10 @@ interface ResourcesFlyoutProps {
   resources: WorkflowResource[];
   selectedStep: CONFIG_STEP;
   onClose: () => void;
+  indexName?: string;
+  searchPipelineName?: string;
+  ingestPipelineName?: string;
+  searchQuery?: string;
 }
 
 /**
@@ -176,6 +180,10 @@ export function ResourcesFlyout(props: ResourcesFlyoutProps) {
               resource={selectedResource}
               resourceDetails={selectedResourceDetails}
               errorMessage={selectedResourceErrorMessage}
+              indexName={props.indexName}
+              ingestPipelineName={props.ingestPipelineName}
+              searchPipelineName={props.searchPipelineName}
+              searchQuery={props.searchQuery}
             />
           )}
       </EuiFlyoutBody>

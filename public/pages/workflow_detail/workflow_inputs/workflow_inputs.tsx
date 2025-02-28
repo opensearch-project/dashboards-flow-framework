@@ -695,6 +695,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           resources={props.workflow?.resourcesCreated || []}
           selectedStep={props.selectedStep}
           onClose={() => setResourcesFlyoutOpen(false)}
+          indexName={getIn(values, 'ingest.index.name')}
+          ingestPipelineName={getIn(values, 'ingest.pipelineName')}
+          searchPipelineName={getIn(values, 'search.pipelineName')}
+          searchQuery={getIn(values, 'search.request')}
         />
       )}
       {props.uiConfig === undefined ? (
