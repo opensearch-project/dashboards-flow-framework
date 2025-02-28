@@ -5,23 +5,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { getIn, useFormikContext } from 'formik';
 import {
   Direction,
-  EuiCodeBlock,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiFlyout,
-  EuiFlyoutBody,
-  EuiFlyoutHeader,
   EuiInMemoryTable,
-  EuiTitle,
   EuiIcon,
-  EuiText,
-  EuiEmptyPrompt,
-  EuiLoadingSpinner,
 } from '@elastic/eui';
 import {
   Workflow,
+  WorkflowFormValues,
   WorkflowResource,
   customStringify,
 } from '../../../../../common';
@@ -38,22 +32,28 @@ import {
   getErrorMessageForStepType,
 } from '../../../../utils';
 import { columns } from './columns';
+import { ResourceFlyout } from './resource_flyout';
 
 interface ResourceListFlyoutProps {
   workflow?: Workflow;
 }
 
 /**
- * The searchable list of resources for a particular workflow.
+ * The searchable list of resources for a particular workflow. Each resource has an "inspect"
+ * action to view more details within a flyout.
  */
 export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
-  const [allResources, setAllResources] = useState<WorkflowResource[]>([]);
   const dispatch = useAppDispatch();
+  const { values } = useFormikContext<WorkflowFormValues>();
+  const [allResources, setAllResources] = useState<WorkflowResource[]>([]);
   const dataSourceId = getDataSourceId();
-  const [resourceDetails, setResourceDetails] = useState<string | null>(null);
-  const [rowErrorMessage, setRowErrorMessage] = useState<string | null>(null);
+  const [resourceDetails, setResourceDetails] = useState<string | undefined>(
+    undefined
+  );
+  const [rowErrorMessage, setRowErrorMessage] = useState<string | undefined>(
+    undefined
+  );
   const {
-    loading,
     getIndexErrorMessage,
     getIngestPipelineErrorMessage,
     getSearchPipelineErrorMessage,
@@ -112,7 +112,7 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
     },
   };
 
-  const [isFlyoutVisible, setIsFlyoutVisible] = useState(false);
+  const [isFlyoutVisible, setIsFlyoutVisible] = useState<boolean>(false);
   const [selectedRowData, setSelectedRowData] = useState<
     WorkflowResource | undefined
   >(undefined);
@@ -140,7 +140,7 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
   const closeFlyout = () => {
     setIsFlyoutVisible(false);
     setSelectedRowData(undefined);
-    setResourceDetails(null);
+    setResourceDetails(undefined);
   };
 
   return (
@@ -172,48 +172,20 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
           />
         </EuiFlexItem>
       </EuiFlexGroup>
-      {isFlyoutVisible && (
-        <EuiFlyout onClose={closeFlyout}>
-          <EuiFlyoutHeader>
-            <EuiTitle>
-              <h2>{selectedRowData?.id}</h2>
-            </EuiTitle>
-          </EuiFlyoutHeader>
-          <EuiFlyoutBody>
-            <EuiFlexGroup direction="column" gutterSize="xs">
-              <EuiFlexItem grow={true}>
-                <EuiText size="m">
-                  <h4>Resource details</h4>
-                </EuiText>
-              </EuiFlexItem>
-              <EuiFlexItem grow={true}>
-                {!rowErrorMessage && !loading ? (
-                  <EuiCodeBlock
-                    language="json"
-                    fontSize="m"
-                    isCopyable={true}
-                    overflowHeight={600}
-                  >
-                    {resourceDetails}
-                  </EuiCodeBlock>
-                ) : loading ? (
-                  <EuiEmptyPrompt
-                    icon={<EuiLoadingSpinner size="xl" />}
-                    title={<h2>Loading</h2>}
-                  />
-                ) : (
-                  <EuiEmptyPrompt
-                    iconType="alert"
-                    iconColor="danger"
-                    title={<h2>Error loading resource details</h2>}
-                    body={<p>{rowErrorMessage}</p>}
-                  />
-                )}
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </EuiFlyoutBody>
-        </EuiFlyout>
-      )}
+      {isFlyoutVisible &&
+        selectedRowData !== undefined &&
+        resourceDetails !== undefined && (
+          <ResourceFlyout
+            resource={selectedRowData}
+            resourceDetails={resourceDetails}
+            onClose={closeFlyout}
+            errorMessage={rowErrorMessage}
+            indexName={getIn(values, 'ingest.index.name')}
+            ingestPipelineName={getIn(values, 'ingest.pipelineName')}
+            searchPipelineName={getIn(values, 'search.pipelineName')}
+            searchQuery={getIn(values, 'search.request')}
+          />
+        )}
     </>
   );
 }

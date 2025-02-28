@@ -38,8 +38,8 @@ import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_sour
 import {
   dataSourceFilterFn,
   getDataSourceFromURL,
-  getEffectiveVersion,
   isDataSourceReady,
+  useDataSourceVersion,
 } from '../../utils/utils';
 import {
   getDataSourceManagementPlugin,
@@ -91,17 +91,7 @@ export function Workflows(props: WorkflowsProps) {
   const [dataSourceId, setDataSourceId] = useState<string | undefined>(
     queryParams.dataSourceId
   );
-  const [dataSourceVersion, setDataSourceVersion] = useState<
-    string | undefined
-  >(undefined);
-  useEffect(() => {
-    async function getVersion() {
-      if (dataSourceId !== undefined) {
-        setDataSourceVersion(await getEffectiveVersion(dataSourceId));
-      }
-    }
-    getVersion();
-  }, [dataSourceId]);
+  const dataSourceVersion = useDataSourceVersion(dataSourceId);
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
