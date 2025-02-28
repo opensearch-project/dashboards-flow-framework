@@ -191,6 +191,9 @@ export function registerFlowFrameworkRoutes(
         params: schema.object({
           workflow_id: schema.string(),
         }),
+        query: schema.object({
+          data_source_version: schema.maybe(schema.string()),
+        }),
       },
     },
     flowFrameworkRoutesService.provisionWorkflow
