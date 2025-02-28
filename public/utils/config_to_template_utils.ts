@@ -705,17 +705,16 @@ export function updatePathForExpandedQuery(path: string): string {
 // If the path already has the suffix present, do nothing.
 function addSuffixToPath(path: string, prefix: string, suffix: string): string {
   function generateRegex(prefix: string, suffix: string): RegExp {
-    // match the specified prefix, followed by some value in dot or bracket notation
-    const notationPattern = `\\b${prefix}\\b(\\.\\w+|\\[\\w+\\])`;
-    // ensure the suffix (in dot or bracket notation) is not present
-    const suffixPattern = `(?!(\\.${suffix}|\\[${suffix}\\]))`;
-    return new RegExp(notationPattern + suffixPattern, 'g');
+    // ensure the suffix (in dot or bracket notation) is not present, and match
+    // on the prefix, followed by some value in dot notation
+    const finalPattern = `(?!.*(\\.\\b${suffix}\\b|\\[\\b${suffix}\\b\\])).*\\b${prefix}\\b\\.(.+)`;
+    return new RegExp(finalPattern, 'g');
   }
 
   // if the pattern matches, append the appropriate suffix via dot notation
   const regexPattern = generateRegex(prefix, suffix);
-  return path.replace(regexPattern, (_, subStr) => {
-    return `${prefix}${subStr}.${suffix}`;
+  return path.replace(regexPattern, (pattern) => {
+    return `${pattern}.${suffix}`;
   });
 }
 

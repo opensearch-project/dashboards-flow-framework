@@ -13,8 +13,13 @@ import {
   EuiEmptyPrompt,
   EuiHealth,
   EuiSpacer,
+  EuiLink,
 } from '@elastic/eui';
-import { WORKFLOW_STEP_TYPE, WorkflowResource } from '../../../../../common';
+import {
+  SEARCH_PIPELINE_DOCS_LINK,
+  WORKFLOW_STEP_TYPE,
+  WorkflowResource,
+} from '../../../../../common';
 
 interface ResourceFlyoutContentProps {
   resource: WorkflowResource;
@@ -74,6 +79,47 @@ export function ResourceFlyoutContent(props: ResourceFlyoutContentProps) {
             body={<p>{props.errorMessage}</p>}
           />
         )}
+      </EuiFlexItem>
+      <EuiSpacer size="s" />
+      <EuiFlexItem grow={false}>
+        <EuiTitle size="s">
+          <h4>
+            {props.resource?.stepType ===
+            WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE
+              ? 'Ingest additional data using the bulk API'
+              : props.resource?.stepType ===
+                WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE
+              ? 'Ingest additional data using the bulk API'
+              : 'Apply a search pipeline to your applications'}
+          </h4>
+        </EuiTitle>
+      </EuiFlexItem>
+      {props.resource?.stepType ===
+        WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE && (
+        <EuiFlexItem grow={false}>
+          <EuiText size="s">
+            <p>
+              You can invoke the search pipeline API in your applications.{' '}
+              <EuiLink href={SEARCH_PIPELINE_DOCS_LINK} target="_blank">
+                Learn more
+              </EuiLink>
+            </p>
+          </EuiText>
+        </EuiFlexItem>
+      )}
+      <EuiFlexItem grow={false}>
+        <EuiCodeBlock fontSize="m" isCopyable={true}>
+          {`GET /my_index/_search?search_pipeline=my_pipeline
+{
+  "query": {
+    "term": {
+      "item_text": {
+        "value": "{{query_text}}"
+      }
+    }
+  }
+}`}
+        </EuiCodeBlock>
       </EuiFlexItem>
     </EuiFlexGroup>
   );
