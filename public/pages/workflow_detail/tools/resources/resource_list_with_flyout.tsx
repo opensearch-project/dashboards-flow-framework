@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { getIn, useFormikContext } from 'formik';
 import {
   Direction,
   EuiFlexGroup,
@@ -14,6 +15,7 @@ import {
 } from '@elastic/eui';
 import {
   Workflow,
+  WorkflowFormValues,
   WorkflowResource,
   customStringify,
 } from '../../../../../common';
@@ -41,8 +43,9 @@ interface ResourceListFlyoutProps {
  * action to view more details within a flyout.
  */
 export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
-  const [allResources, setAllResources] = useState<WorkflowResource[]>([]);
   const dispatch = useAppDispatch();
+  const { values } = useFormikContext<WorkflowFormValues>();
+  const [allResources, setAllResources] = useState<WorkflowResource[]>([]);
   const dataSourceId = getDataSourceId();
   const [resourceDetails, setResourceDetails] = useState<string | undefined>(
     undefined
@@ -176,7 +179,11 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
             resource={selectedRowData}
             resourceDetails={resourceDetails}
             onClose={closeFlyout}
-            errorMessage={rowErrorMessage || undefined}
+            errorMessage={rowErrorMessage}
+            indexName={getIn(values, 'ingest.index.name')}
+            ingestPipelineName={getIn(values, 'ingest.pipelineName')}
+            searchPipelineName={getIn(values, 'search.pipelineName')}
+            searchQuery={getIn(values, 'search.request')}
           />
         )}
     </>

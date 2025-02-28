@@ -18,6 +18,10 @@ interface ResourceFlyoutProps {
   resourceDetails: string;
   onClose: () => void;
   errorMessage?: string;
+  indexName?: string;
+  searchPipelineName?: string;
+  ingestPipelineName?: string;
+  searchQuery?: string;
 }
 
 /**
@@ -36,6 +40,10 @@ export function ResourceFlyout(props: ResourceFlyoutProps) {
           resource={props.resource}
           resourceDetails={props.resourceDetails}
           errorMessage={props.errorMessage}
+          indexName={props.indexName}
+          ingestPipelineName={props.ingestPipelineName}
+          searchPipelineName={props.searchPipelineName}
+          searchQuery={props.searchQuery}
         />
       </EuiFlyoutBody>
     </EuiFlyout>
