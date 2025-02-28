@@ -157,6 +157,9 @@ export function registerFlowFrameworkRoutes(
           reprovision: schema.boolean(),
         }),
         body: schema.any(),
+        query: schema.object({
+          data_source_version: schema.maybe(schema.string()),
+        }),
       },
     },
     flowFrameworkRoutesService.updateWorkflow
