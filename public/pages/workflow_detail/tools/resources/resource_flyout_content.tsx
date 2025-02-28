@@ -16,6 +16,7 @@ import {
   EuiLink,
 } from '@elastic/eui';
 import {
+  BULK_API_DOCS_LINK,
   SEARCH_PIPELINE_DOCS_LINK,
   WORKFLOW_STEP_TYPE,
   WorkflowResource,
@@ -25,6 +26,10 @@ interface ResourceFlyoutContentProps {
   resource: WorkflowResource;
   resourceDetails: string;
   errorMessage?: string;
+  indexName?: string;
+  searchPipelineName?: string;
+  ingestPipelineName?: string;
+  searchQuery?: string;
 }
 
 /**
@@ -95,7 +100,7 @@ export function ResourceFlyoutContent(props: ResourceFlyoutContentProps) {
         </EuiTitle>
       </EuiFlexItem>
       {props.resource?.stepType ===
-        WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE && (
+      WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE ? (
         <EuiFlexItem grow={false}>
           <EuiText size="s">
             <p>
@@ -106,10 +111,25 @@ export function ResourceFlyoutContent(props: ResourceFlyoutContentProps) {
             </p>
           </EuiText>
         </EuiFlexItem>
+      ) : (
+        <EuiFlexItem grow={false}>
+          <EuiText size="s">
+            <p>
+              You can ingest a larger amount of data using the Bulk API.{' '}
+              <EuiLink href={BULK_API_DOCS_LINK} target="_blank">
+                Learn more
+              </EuiLink>
+            </p>
+          </EuiText>
+        </EuiFlexItem>
       )}
-      <EuiFlexItem grow={false}>
-        <EuiCodeBlock fontSize="m" isCopyable={true}>
-          {`GET /my_index/_search?search_pipeline=my_pipeline
+      {props.resource?.stepType ===
+      WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE ? (
+        <EuiFlexItem grow={false}>
+          <EuiCodeBlock fontSize="m" isCopyable={true}>
+            {`GET /${props.indexName || 'my_index'}/_search?search_pipeline=${
+              props.searchPipelineName || 'my_pipeline'
+            }
 {
   "query": {
     "term": {
@@ -119,8 +139,17 @@ export function ResourceFlyoutContent(props: ResourceFlyoutContentProps) {
     }
   }
 }`}
-        </EuiCodeBlock>
-      </EuiFlexItem>
+          </EuiCodeBlock>
+        </EuiFlexItem>
+      ) : (
+        <EuiFlexItem grow={false}>
+          <EuiCodeBlock fontSize="m" isCopyable={true}>
+            {`POST _bulk
+{ "index": { "_index": "${props.indexName || 'my_index'}", "_id": "abc123" } }
+{ "my_field_1": "my_field_value_1", "my_field_2": "my_field_value_2" }`}
+          </EuiCodeBlock>
+        </EuiFlexItem>
+      )}
     </EuiFlexGroup>
   );
 }
