@@ -6,7 +6,6 @@
 import React, { useEffect, useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
-import semver from 'semver';
 import {
   EuiSmallButton,
   EuiSmallButtonEmpty,
@@ -20,11 +19,11 @@ import {
   EuiBottomBar,
   EuiIconTip,
   EuiSmallButtonIcon,
+  EuiButtonEmpty,
 } from '@elastic/eui';
 import {
   CONFIG_STEP,
   CachedFormikState,
-  MINIMUM_FULL_SUPPORTED_VERSION,
   SimulateIngestPipelineResponseVerbose,
   TemplateNode,
   WORKFLOW_STEP_TYPE,
@@ -58,11 +57,13 @@ import {
   getDataSourceId,
   prepareDocsForSimulate,
   getIngestPipelineErrors,
-  getEffectiveVersion,
   sleep,
+  useDataSourceVersion,
+  getIsPreV219,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
+import { ResourcesFlyout } from '../tools/resources/resources_flyout';
 
 interface WorkflowInputsProps {
   workflow: Workflow | undefined;
@@ -101,21 +102,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const [dataSourceVersion, setDataSourceVersion] = useState<
-    string | undefined
-  >(undefined);
-  useEffect(() => {
-    async function getVersion() {
-      if (dataSourceId !== undefined) {
-        setDataSourceVersion(await getEffectiveVersion(dataSourceId));
-      }
-    }
-    getVersion();
-  }, [dataSourceId]);
-  const isPreV219 =
-    dataSourceVersion !== undefined
-      ? semver.lt(dataSourceVersion, MINIMUM_FULL_SUPPORTED_VERSION)
-      : false;
+  const dataSourceVersion = useDataSourceVersion(dataSourceId);
+  const isPreV219 = getIsPreV219(dataSourceVersion);
 
   // transient running states
   const [isUpdatingSearchPipeline, setIsUpdatingSearchPipeline] = useState<
@@ -129,6 +117,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // last ingested state
   const [lastIngested, setLastIngested] = useState<number | undefined>(
     undefined
+  );
+
+  // resource details state
+  const [resourcesFlyoutOpen, setResourcesFlyoutOpen] = useState<boolean>(
+    false
   );
 
   // maintain global states
@@ -697,6 +690,17 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       className="workspace-panel"
       borderRadius="l"
     >
+      {resourcesFlyoutOpen && (
+        <ResourcesFlyout
+          resources={props.workflow?.resourcesCreated || []}
+          selectedStep={props.selectedStep}
+          onClose={() => setResourcesFlyoutOpen(false)}
+          indexName={getIn(values, 'ingest.index.name')}
+          ingestPipelineName={getIn(values, 'ingest.pipelineName')}
+          searchPipelineName={getIn(values, 'search.pipelineName')}
+          searchQuery={getIn(values, 'search.request')}
+        />
+      )}
       {props.uiConfig === undefined ? (
         <EuiLoadingSpinner size="xl" />
       ) : (
@@ -716,15 +720,43 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   <h2>{onIngest ? 'Ingest flow' : 'Search flow'}</h2>
                 </EuiText>
               </EuiFlexItem>
-              {onIngestAndUnprovisioned && (
-                <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
-                  <BooleanField
-                    fieldPath="ingest.enabled"
-                    label="Enable ingest flow"
-                    type="Switch"
-                  />
-                </EuiFlexItem>
-              )}
+              <EuiFlexItem grow={false}>
+                <EuiFlexGroup direction="row" gutterSize="s">
+                  {onIngestAndUnprovisioned && (
+                    <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                      <BooleanField
+                        fieldPath="ingest.enabled"
+                        label="Enable ingest flow"
+                        type="Switch"
+                      />
+                    </EuiFlexItem>
+                  )}
+                  {(ingestProvisioned || searchProvisioned) && (
+                    <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                      <EuiButtonEmpty
+                        iconSide="left"
+                        iconType="play"
+                        onClick={() => props.displaySearchPanel()}
+                      >
+                        Test flow
+                      </EuiButtonEmpty>
+                    </EuiFlexItem>
+                  )}
+                  {((onIngest && ingestProvisioned) ||
+                    (onSearch && searchProvisioned)) &&
+                    props.workflow?.resourcesCreated !== undefined && (
+                      <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                        <EuiButtonEmpty
+                          iconSide="left"
+                          iconType="inspect"
+                          onClick={() => setResourcesFlyoutOpen(true)}
+                        >
+                          Details
+                        </EuiButtonEmpty>
+                      </EuiFlexItem>
+                    )}
+                </EuiFlexGroup>
+              </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
           <EuiFlexItem
