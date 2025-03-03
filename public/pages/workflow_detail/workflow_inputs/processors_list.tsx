@@ -32,7 +32,7 @@ import {
 import {
   formikToUiConfig,
   getDataSourceFromURL,
-  getEffectiveVersion,
+  getDataSourceVersion,
 } from '../../../utils';
 import {
   CollapseProcessor,
@@ -120,7 +120,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
     }
 
     if (dataSourceId !== undefined) {
-      getEffectiveVersion(dataSourceId)
+      getDataSourceVersion(dataSourceId)
         .then((ver) => {
           setVersion(ver || MIN_SUPPORTED_VERSION);
         })

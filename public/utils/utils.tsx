@@ -175,7 +175,7 @@ export async function isCompatibleWorkflow(
   }
 
   const dataSourceVersion =
-    (await getEffectiveVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
+    (await getDataSourceVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
   const [
     effectiveMajorVersion,
     effectiveMinorVersion,
@@ -573,7 +573,7 @@ export function useDataSourceVersion(
   useEffect(() => {
     async function getVersion() {
       if (dataSourceId !== undefined) {
-        setDataSourceVersion(await getEffectiveVersion(dataSourceId));
+        setDataSourceVersion(await getDataSourceVersion(dataSourceId));
       }
     }
     getVersion();
@@ -946,7 +946,7 @@ export function getFieldValue(jsonObj: {}, fieldName: string): any | undefined {
 }
 
 // Get the version from the selected data source, if found
-export const getEffectiveVersion = async (
+export const getDataSourceVersion = async (
   dataSourceId: string | undefined
 ): Promise<string | undefined> => {
   try {

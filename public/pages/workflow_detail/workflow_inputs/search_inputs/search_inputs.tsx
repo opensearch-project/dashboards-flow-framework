@@ -16,7 +16,7 @@ import {
   WorkflowConfig,
 } from '../../../../../common';
 import { catIndices, useAppDispatch } from '../../../../store';
-import { getDataSourceId, getEffectiveVersion } from '../../../../utils';
+import { getDataSourceId, getDataSourceVersion } from '../../../../utils';
 
 interface SearchInputsProps {
   uiConfig: WorkflowConfig;
@@ -44,7 +44,7 @@ export function SearchInputs(props: SearchInputsProps) {
       try {
         if (dataSourceId !== undefined) {
           const version =
-            (await getEffectiveVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
+            (await getDataSourceVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
           setShowTransformQuery(semver.gte(version, '2.19.0'));
         } else {
           setShowTransformQuery(true);

@@ -30,7 +30,7 @@ import { enrichPresetWorkflowWithUiMetadata } from './utils';
 import {
   getDataSourceId,
   isDataSourceReady,
-  getEffectiveVersion,
+  getDataSourceVersion,
 } from '../../../utils';
 import { getDataSourceEnabled } from '../../../services';
 import semver from 'semver';
@@ -65,7 +65,7 @@ const filterPresetsByVersion = async (
   ];
 
   const version =
-    (await getEffectiveVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
+    (await getDataSourceVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
 
   if (semver.lt(version, MIN_SUPPORTED_VERSION)) {
     return [];
@@ -161,7 +161,7 @@ export function NewWorkflow(props: NewWorkflowProps) {
       }
 
       const version =
-        (await getEffectiveVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
+        (await getDataSourceVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
 
       const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
         enrichPresetWorkflowWithUiMetadata(presetWorkflow, version)
