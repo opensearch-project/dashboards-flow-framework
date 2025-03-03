@@ -64,7 +64,8 @@ const filterPresetsByVersion = async (
     WORKFLOW_TYPE.CUSTOM,
   ];
 
-  const version = await getEffectiveVersion(dataSourceId);
+  const version =
+    (await getEffectiveVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
 
   if (semver.lt(version, MIN_SUPPORTED_VERSION)) {
     return [];
@@ -159,7 +160,8 @@ export function NewWorkflow(props: NewWorkflowProps) {
         return;
       }
 
-      const version = await getEffectiveVersion(dataSourceId);
+      const version =
+        (await getEffectiveVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
 
       const enrichedWorkflows = presetWorkflows.map((presetWorkflow) =>
         enrichPresetWorkflowWithUiMetadata(presetWorkflow, version)

@@ -11,6 +11,7 @@ import { EnrichSearchRequest } from './enrich_search_request';
 import { EnrichSearchResponse } from './enrich_search_response';
 import {
   CachedFormikState,
+  MIN_SUPPORTED_VERSION,
   OMIT_SYSTEM_INDEX_PATTERN,
   WorkflowConfig,
 } from '../../../../../common';
@@ -42,10 +43,11 @@ export function SearchInputs(props: SearchInputsProps) {
     const checkVersion = async () => {
       try {
         if (dataSourceId !== undefined) {
-          const version = await getEffectiveVersion(dataSourceId);
+          const version =
+            (await getEffectiveVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
           setShowTransformQuery(semver.gte(version, '2.19.0'));
         } else {
-          setShowTransformQuery(true); 
+          setShowTransformQuery(true);
         }
       } catch (error) {
         console.error('Error checking version:', error);

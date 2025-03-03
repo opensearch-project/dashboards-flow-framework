@@ -174,7 +174,8 @@ export async function isCompatibleWorkflow(
     return true;
   }
 
-  const dataSourceVersion = await getEffectiveVersion(dataSourceId);
+  const dataSourceVersion =
+    (await getEffectiveVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
   const [
     effectiveMajorVersion,
     effectiveMinorVersion,

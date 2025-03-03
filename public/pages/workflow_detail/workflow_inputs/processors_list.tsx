@@ -122,7 +122,7 @@ export function ProcessorsList(props: ProcessorsListProps) {
     if (dataSourceId !== undefined) {
       getEffectiveVersion(dataSourceId)
         .then((ver) => {
-          setVersion(ver);
+          setVersion(ver || MIN_SUPPORTED_VERSION);
         })
         .catch(console.error);
     }
