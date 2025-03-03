@@ -57,6 +57,8 @@ import {
   injectParameters,
   prepareDocsForSimulate,
   unwrapTransformedDocs,
+  useDataSourceVersion,
+  useMissingDataSourceVersion,
 } from '../../../../../../utils';
 import { TextField } from '../../../input_fields';
 import {
@@ -102,6 +104,11 @@ const PROMPT_EDITOR_ID = 'promptEditor';
 export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+  const dataSourceVersion = useDataSourceVersion(dataSourceId);
+  const missingDataSourceVersion = useMissingDataSourceVersion(
+    dataSourceId,
+    dataSourceVersion
+  );
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
@@ -638,6 +645,8 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                             style={{ width: '100px' }}
                             isLoading={isFetching}
                             disabled={
+                              (props.context === PROCESSOR_CONTEXT.INGEST &&
+                                missingDataSourceVersion) ||
                               onIngestAndNoDocs ||
                               onSearchAndNoQuery ||
                               !props.isDataFetchingAvailable ||
