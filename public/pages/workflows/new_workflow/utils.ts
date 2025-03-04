@@ -28,7 +28,7 @@ import {
   SEMANTIC_SEARCH_QUERY_NEURAL,
   MULTIMODAL_SEARCH_QUERY_NEURAL,
   HYBRID_SEARCH_QUERY_MATCH_NEURAL,
-  TERM_QUERY_TEXT,
+  MATCH_QUERY_TEXT,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 import semver from 'semver';
@@ -164,7 +164,7 @@ export function fetchSemanticSearchMetadata(version: string): UIState {
   });
 
   baseState.config.search.request.value = customStringify(
-    isPreV219 ? SEMANTIC_SEARCH_QUERY_NEURAL : TERM_QUERY_TEXT
+    isPreV219 ? SEMANTIC_SEARCH_QUERY_NEURAL : MATCH_QUERY_TEXT
   );
 
   baseState.config.search.enrichRequest.processors = isPreV219
@@ -224,7 +224,7 @@ export function fetchHybridSearchMetadata(version: string): UIState {
   });
 
   baseState.config.search.request.value = customStringify(
-    isPreV219 ? HYBRID_SEARCH_QUERY_MATCH_NEURAL : TERM_QUERY_TEXT
+    isPreV219 ? HYBRID_SEARCH_QUERY_MATCH_NEURAL : MATCH_QUERY_TEXT
   );
 
   baseState.config.search.enrichResponse.processors = [
@@ -263,9 +263,9 @@ export function fetchVectorSearchWithRAGMetadata(version: string): UIState {
   baseState.config.ingest.index.settings.value = customStringify({
     [`index.knn`]: true,
   });
-  // Search config: term query => ML inference processor for generating embeddings =>
+  // Search config: match query => ML inference processor for generating embeddings =>
   // ML inference processor for returning LLM-generated response of results
-  baseState.config.search.request.value = customStringify(TERM_QUERY_TEXT);
+  baseState.config.search.request.value = customStringify(MATCH_QUERY_TEXT);
   baseState.config.search.enrichRequest.processors = [
     injectQueryTemplateInProcessor(
       new MLSearchRequestProcessor().toObj(),

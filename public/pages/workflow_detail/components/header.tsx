@@ -297,7 +297,7 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
               } as TopNavMenuIconData,
               {
                 iconType: 'exit',
-                tooltip: 'Return to projects',
+                tooltip: 'Return to workflows',
                 ariaLabel: 'Exit',
                 href: constructHrefWithDataSourceId(
                   APP_PATH.WORKFLOWS,
@@ -310,6 +310,13 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 tooltip: 'How it works',
                 ariaLabel: 'How it works',
                 run: () => setIntroFlyoutOpened(true),
+                controlType: 'icon',
+              } as TopNavMenuIconData,
+              {
+                iconType: 'gear',
+                tooltip: 'Edit workflow settings',
+                ariaLabel: 'Edit workflow settings',
+                run: () => setIsEditWorkflowModalOpen(true),
                 controlType: 'icon',
               } as TopNavMenuIconData,
             ]}
