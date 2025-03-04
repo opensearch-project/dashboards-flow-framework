@@ -160,26 +160,38 @@ export function isValidWorkflow(workflowObj: any): boolean {
 
 // Determines if a file used for import workflow is compatible with the current data source version.
 export async function isCompatibleWorkflow(
-  workflowObj: any, 
+  workflowObj: any,
   dataSourceId?: string | undefined
 ): Promise<boolean> {
   const compatibility = workflowObj?.version?.compatibility;
 
   // Default to true when compatibility cannot be assessed (empty/invalid compatibility array or MDS disabled.)
-  if (!Array.isArray(compatibility) || compatibility.length === 0 || dataSourceId === undefined) {
+  if (
+    !Array.isArray(compatibility) ||
+    compatibility.length === 0 ||
+    dataSourceId === undefined
+  ) {
     return true;
   }
 
-  const dataSourceVersion = await getEffectiveVersion(dataSourceId);  
-  const [effectiveMajorVersion, effectiveMinorVersion] = dataSourceVersion.split('.').map(Number);
-  
+  const dataSourceVersion =
+    (await getDataSourceVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
+  const [
+    effectiveMajorVersion,
+    effectiveMinorVersion,
+  ] = dataSourceVersion.split('.').map(Number);
+
   // Checks if any version in compatibility array matches the current dataSourceVersion (major.minor)
-  return compatibility.some(compatibleVersion => {
-    const [compatibleMajor, compatibleMinor] = compatibleVersion.split('.').map(Number);
-    return effectiveMajorVersion === compatibleMajor && effectiveMinorVersion === compatibleMinor;
+  return compatibility.some((compatibleVersion) => {
+    const [compatibleMajor, compatibleMinor] = compatibleVersion
+      .split('.')
+      .map(Number);
+    return (
+      effectiveMajorVersion === compatibleMajor &&
+      effectiveMinorVersion === compatibleMinor
+    );
   });
 }
-
 
 export function isValidUiWorkflow(workflowObj: any): boolean {
   return (
@@ -561,7 +573,7 @@ export function useDataSourceVersion(
   useEffect(() => {
     async function getVersion() {
       if (dataSourceId !== undefined) {
-        setDataSourceVersion(await getEffectiveVersion(dataSourceId));
+        setDataSourceVersion(await getDataSourceVersion(dataSourceId));
       }
     }
     getVersion();
@@ -933,13 +945,13 @@ export function getFieldValue(jsonObj: {}, fieldName: string): any | undefined {
   return undefined;
 }
 
-// Get the version from the selected data source
-export const getEffectiveVersion = async (
+// Get the version from the selected data source, if found
+export const getDataSourceVersion = async (
   dataSourceId: string | undefined
-): Promise<string> => {
+): Promise<string | undefined> => {
   try {
     if (dataSourceId === undefined) {
-      throw new Error('Data source is required');
+      throw new Error();
     }
 
     if (dataSourceId === '') {
@@ -951,16 +963,26 @@ export const getEffectiveVersion = async (
       'data-source',
       dataSourceId
     );
-    const version =
-      dataSource?.attributes?.dataSourceVersion || MIN_SUPPORTED_VERSION;
-    return version;
+    return dataSource?.attributes?.dataSourceVersion;
   } catch (error) {
-    console.error('Error getting version:', error);
-    return MIN_SUPPORTED_VERSION;
+    console.error('Error getting version: ', error);
+    return undefined;
   }
 };
 
-    
+export function useMissingDataSourceVersion(
+  dataSourceId: string | undefined,
+  dataSourceVersion: string | undefined
+): boolean {
+  const [missingVersion, setMissingVersion] = useState<boolean>(false);
+  useEffect(() => {
+    setMissingVersion(
+      dataSourceId !== undefined && dataSourceVersion === undefined
+    );
+  }, [dataSourceId, dataSourceVersion]);
+  return missingVersion;
+}
+
 /**
  * Formats version string to show only major.minor numbers
  * Example: "3.0.0-alpha1" -> "3.0"
@@ -970,4 +992,3 @@ export function formatDisplayVersion(version: string): string {
   const [major, minor] = version.split('.');
   return `${major}.${minor}`;
 }
-

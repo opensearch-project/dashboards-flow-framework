@@ -44,7 +44,11 @@ import {
   WORKFLOW_NAME_RESTRICTIONS,
 } from '../../../../common';
 import { WORKFLOWS_TAB } from '../workflows';
-import { getDataSourceId, getEffectiveVersion, formatDisplayVersion } from '../../../utils/utils';
+import {
+  getDataSourceId,
+  formatDisplayVersion,
+  useDataSourceVersion,
+} from '../../../utils/utils';
 
 interface ImportWorkflowModalProps {
   isImportModalOpen: boolean;
@@ -62,17 +66,7 @@ interface ImportWorkflowModalProps {
 export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const [dataSourceVersion, setDataSourceVersion] = useState<
-    string | undefined
-  >(undefined);
-  useEffect(() => {
-    async function getVersion() {
-      if (dataSourceId !== undefined) {
-        setDataSourceVersion(await getEffectiveVersion(dataSourceId));
-      }
-    }
-    getVersion();
-  }, [dataSourceId]);
+  const dataSourceVersion = useDataSourceVersion(dataSourceId);
   const { workflows } = useSelector((state: AppState) => state.workflows);
 
   // workflow name state
@@ -171,7 +165,9 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
             <>
               <EuiFlexItem>
                 <EuiCallOut
-                  title={`The uploaded file is not compatible with the current data source version ${formatDisplayVersion(dataSourceVersion)}. Upload a compatible file or switch to another data source.`}
+                  title={`The uploaded file is not compatible with the current data source version ${formatDisplayVersion(
+                    dataSourceVersion
+                  )}. Upload a compatible file or switch to another data source.`}
                   iconType={'alert'}
                   color="danger"
                 />
