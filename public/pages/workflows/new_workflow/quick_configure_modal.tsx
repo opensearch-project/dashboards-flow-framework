@@ -223,13 +223,11 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
       const connector = connectors[selectedModel.connectorId];
       if (connector !== undefined) {
         const dimensions = getEmbeddingModelDimensions(connector);
-        if (dimensions === undefined) {
-          setUnknownEmbeddingLength(true);
-        }
+        // dimensions may be undefined. set state vars accordingly
         setUnknownEmbeddingLength(dimensions === undefined);
         setQuickConfigureFields({
           ...quickConfigureFields,
-          embeddingLength: getEmbeddingModelDimensions(connector),
+          embeddingLength: dimensions,
         });
       }
     }

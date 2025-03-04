@@ -28,7 +28,7 @@ import {
   WORKFLOW_TYPE,
 } from '../../../../common';
 import { AppState } from '../../../store';
-import { parseModelInputs } from '../../../utils';
+import { getEmbeddingModelDimensions, parseModelInputs } from '../../../utils';
 
 interface QuickConfigureOptionalFieldsProps {
   workflowType?: WORKFLOW_TYPE;
@@ -127,6 +127,24 @@ export function QuickConfigureOptionalFields(
     props.setFields({ ...props.fields, ...optionalFieldValues });
   }, [optionalFieldValues]);
 
+  // Keep track of if an embedding model is selected with an unknown embedding length.
+  // Only expose the form field if it is unknown, else hide from the user.
+  const [unknownEmbeddingLength, setUnknownEmbeddingLength] = useState<boolean>(
+    false
+  );
+  useEffect(() => {
+    const selectedModel = deployedModels.find(
+      (model) => model.id === props.fields?.embeddingModelId
+    );
+    if (selectedModel?.connectorId !== undefined) {
+      const connector = connectors[selectedModel.connectorId];
+      if (connector !== undefined) {
+        const dimensions = getEmbeddingModelDimensions(connector);
+        setUnknownEmbeddingLength(dimensions === undefined);
+      }
+    }
+  }, [props.fields?.embeddingModelId, deployedModels, connectors]);
+
   return (
     <EuiAccordion
       id="optionalConfiguration"
@@ -202,24 +220,28 @@ export function QuickConfigureOptionalFields(
                 }}
               />
             </EuiCompressedFormRow>
-            <EuiSpacer size="s" />
-            <EuiCompressedFormRow
-              fullWidth={true}
-              label={'Embedding length'}
-              isInvalid={false}
-              helpText="The length / dimension of the generated vector embeddings. Autofilled values may be inaccurate."
-            >
-              <EuiCompressedFieldNumber
-                fullWidth={true}
-                value={props.fields?.embeddingLength || ''}
-                onChange={(e) => {
-                  setOptionalFieldValues({
-                    ...optionalFieldValues,
-                    embeddingLength: Number(e.target.value),
-                  });
-                }}
-              />
-            </EuiCompressedFormRow>
+            {unknownEmbeddingLength && (
+              <>
+                <EuiSpacer size="s" />
+                <EuiCompressedFormRow
+                  fullWidth={true}
+                  label={'Embedding length'}
+                  isInvalid={false}
+                  helpText="The length / dimension of the generated vector embeddings."
+                >
+                  <EuiCompressedFieldNumber
+                    fullWidth={true}
+                    value={props.fields?.embeddingLength || ''}
+                    onChange={(e) => {
+                      setOptionalFieldValues({
+                        ...optionalFieldValues,
+                        embeddingLength: Number(e.target.value),
+                      });
+                    }}
+                  />
+                </EuiCompressedFormRow>
+              </>
+            )}
           </>
         )}
         {(props.workflowType === WORKFLOW_TYPE.RAG ||
