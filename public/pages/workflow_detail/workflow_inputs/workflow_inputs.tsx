@@ -60,6 +60,7 @@ import {
   sleep,
   useDataSourceVersion,
   getIsPreV219,
+  useMissingDataSourceVersion,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
@@ -104,6 +105,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const dataSourceId = getDataSourceId();
   const dataSourceVersion = useDataSourceVersion(dataSourceId);
   const isPreV219 = getIsPreV219(dataSourceVersion);
+  const missingDataSourceVersion = useMissingDataSourceVersion(
+    dataSourceId,
+    dataSourceVersion
+  );
 
   // transient running states
   const [isUpdatingSearchPipeline, setIsUpdatingSearchPipeline] = useState<
@@ -610,7 +615,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           if (
             !isEmpty(values?.ingest?.enrich) &&
             values?.ingest?.pipelineName !== undefined &&
-            values?.ingest?.pipelineName !== ''
+            values?.ingest?.pipelineName !== '' &&
+            // if the data source version is missing/undefined, we cannot
+            // guarantee that the simulate API will be available
+            !missingDataSourceVersion
           ) {
             const curDocs = prepareDocsForSimulate(
               values?.ingest?.docs,

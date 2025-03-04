@@ -260,7 +260,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
               <EuiFlexGroup direction="column" gutterSize="s">
                 <EuiFlexItem>
                   <TextField
-                    label="Name - required"
+                    label="Name"
                     fullWidth={true}
                     fieldPath={`name`}
                     showError={true}
@@ -308,7 +308,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                         modelCategory={MODEL_CATEGORY.LLM}
                         fieldPath="llm"
                         showMissingInterfaceCallout={false}
-                        label="Large language model - required"
+                        label="Large language model"
                         helpText="The large language model to generate user-friendly responses."
                         fullWidth={true}
                         showError={true}
@@ -340,7 +340,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                           modelCategory={MODEL_CATEGORY.EMBEDDING}
                           fieldPath="embeddingModel"
                           showMissingInterfaceCallout={false}
-                          label="Embedding model - required"
+                          label="Embedding model"
                           helpText="The model to generate embeddings."
                           fullWidth={true}
                           showError={true}
