@@ -31,7 +31,11 @@ import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
 import { AppState, searchWorkflows, useAppDispatch } from '../../store';
 import { EmptyListMessage } from './empty_list_message';
-import { FETCH_ALL_QUERY_LARGE, PLUGIN_NAME } from '../../../common';
+import {
+  FETCH_ALL_QUERY_LARGE,
+  OPENSEARCH_FLOW,
+  PLUGIN_NAME,
+} from '../../../common';
 import { ImportWorkflowModal } from './import_workflow';
 import { MountPoint } from '../../../../../src/core/public';
 import { DataSourceSelectableConfig } from '../../../../../src/plugins/data_source_management/public';
@@ -224,7 +228,7 @@ export function Workflows(props: WorkflowsProps) {
     }, [getSavedObjectsClient, getNotifications(), props.setActionMenu]);
   }
 
-  const DESCRIPTION = `Design, prototype, and experiment with solutions using ${PLUGIN_NAME}. Use the visual interface to build
+  const DESCRIPTION = `Design, prototype, and experiment with solutions using ${OPENSEARCH_FLOW}. Use the visual interface to build
   ingest and search flows, test different configurations, and deploy them to your environment.`;
 
   const pageTitleAndDescription = USE_NEW_HOME_PAGE ? (
