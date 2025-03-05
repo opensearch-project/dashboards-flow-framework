@@ -12,14 +12,13 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 import { i18n } from '@osd/i18n';
-import { PLUGIN_ID } from '../../../common';
+import { PLUGIN_ID, PLUGIN_NAME } from '../../../common';
 import { ContentManagementPluginStart } from '../../../../../src/plugins/content_management/public';
 import { CoreStart } from '../../../../../src/core/public';
 import pluginIcon from './icon.svg';
 
 const HEADER_TEXT = 'Design and test your search solutions with ease';
-const DESCRIPTION_TEXT =
-  'OpenSearch Flow is a visual editor for creating search AI flows to power advanced search and generative AI solutions.';
+const DESCRIPTION_TEXT = `${PLUGIN_NAME} is a visual editor for creating search AI flows to power advanced search and generative AI solutions.`;
 
 export const registerPluginCard = (
   contentManagement: ContentManagementPluginStart,

@@ -13,7 +13,8 @@ import {
 import { customStringify } from './utils';
 
 export const PLUGIN_ID = 'opensearch-flow';
-export const PLUGIN_NAME = 'OpenSearch Flow';
+export const PLUGIN_NAME = 'AI Search Flows'; // visible plugin name in the context of OSD
+export const OPENSEARCH_FLOW = 'OpenSearch Flow'; // overall feature / name that the plugin encapsulates
 
 /**
  * BACKEND FLOW FRAMEWORK APIs
