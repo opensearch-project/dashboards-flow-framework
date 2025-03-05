@@ -39,6 +39,7 @@ import {
 import {
   FETCH_ALL_QUERY_LARGE,
   MAX_DESCRIPTION_LENGTH,
+  PLUGIN_NAME,
   Workflow,
   WORKFLOW_NAME_REGEXP,
   WORKFLOW_NAME_RESTRICTIONS,
@@ -179,7 +180,7 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
             <>
               <EuiFlexItem>
                 <EuiCallOut
-                  title="This project is not compatible with OpenSearch Flow. You may not be able to edit or run it."
+                  title={`This project is not compatible with ${PLUGIN_NAME}. You may not be able to edit or run it.`}
                   iconType={'help'}
                   color="warning"
                 />
