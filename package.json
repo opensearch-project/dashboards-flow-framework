@@ -4,7 +4,6 @@
   "description": "OpenSearch Flow Framework Dashboards Plugin",
   "main": "index.js",
   "config": {
-    "plugin_version": "2.19.0.0",
     "plugin_name": "flowFrameworkDashboards",
     "plugin_zip_name": "dashboards-flow-framework"
   },
@@ -14,7 +13,7 @@
     "opensearch": "../../scripts/use_node ../../scripts/opensearch",
     "lint:es": "../../scripts/use_node ../../scripts/eslint -c eslintrc.json",
     "test:jest": "../../node_modules/.bin/jest --config ./test/jest.config.js",
-    "build": "yarn plugin-helpers build && echo Renaming artifact to $npm_package_config_plugin_zip_name-$npm_package_config_plugin_version.zip && mv ./build/$npm_package_config_plugin_name*.zip ./build/$npm_package_config_plugin_zip_name-$npm_package_config_plugin_version.zip"
+    "build": "yarn plugin-helpers build && echo Renaming artifact to $npm_package_config_plugin_zip_name-$npm_package_version.zip && mv ./build/$npm_package_config_plugin_name*.zip ./build/$npm_package_config_plugin_zip_name-$npm_package_version.zip"
   },
   "repository": {
     "type": "git",

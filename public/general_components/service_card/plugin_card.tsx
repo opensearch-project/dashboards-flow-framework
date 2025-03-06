@@ -37,7 +37,7 @@ export const registerPluginCard = (
           }}
         >
           {i18n.translate('flowFrameworkDashboards.opensearchFlowCard.footer', {
-            defaultMessage: 'Try AI Search Flows',
+            defaultMessage: `Try ${PLUGIN_NAME}`,
           })}
         </EuiSmallButton>
       </EuiFlexItem>
