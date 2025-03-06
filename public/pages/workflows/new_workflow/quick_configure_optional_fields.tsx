@@ -88,7 +88,8 @@ export function QuickConfigureOptionalFields(
         };
         break;
       }
-      case WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG: {
+      case WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG:
+      case WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG: {
         defaultFieldValues = {
           textField: DEFAULT_TEXT_FIELD,
           vectorField: DEFAULT_VECTOR_FIELD,
@@ -201,7 +202,8 @@ export function QuickConfigureOptionalFields(
         {(props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
           props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
           props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH ||
-          props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) && (
+          props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG ||
+          props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG) && (
           <>
             <EuiCompressedFormRow
               fullWidth={true}
@@ -245,7 +247,8 @@ export function QuickConfigureOptionalFields(
           </>
         )}
         {(props.workflowType === WORKFLOW_TYPE.RAG ||
-          props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) && (
+          props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG ||
+          props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG) && (
           <>
             <EuiCompressedFormRow
               fullWidth={true}

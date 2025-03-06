@@ -142,7 +142,8 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
       // if a RAG workflow, require an LLM
       if (
         workflowType === WORKFLOW_TYPE.RAG ||
-        workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG
+        workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG ||
+        workflowType === WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG
       ) {
         tempFormValues = {
           ...tempFormValues,
@@ -299,7 +300,9 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                   )}
                 {(props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.RAG ||
                   props.workflow?.ui_metadata?.type ===
-                    WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) &&
+                    WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG ||
+                  props.workflow?.ui_metadata?.type ===
+                    WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG) &&
                   !isEmpty(deployedModels) && (
                     <EuiFlexItem>
                       <ModelField
@@ -482,7 +485,8 @@ function injectQuickConfigureFields(
         }
         break;
       }
-      case WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG: {
+      case WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG:
+      case WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG: {
         if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
           workflow.ui_metadata.config = updateIngestProcessors(
             workflow.ui_metadata.config,

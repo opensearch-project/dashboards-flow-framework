@@ -1,0 +1,14 @@
+{
+    "name": "RAG with Hybrid Search",
+    "description": "Build a search application that uses retrieval-augmented generation (RAG) to retrieve relevant documents using hybrid search, pass them to large language models, and synthesize answers.",
+    "version": {
+        "template": "1.0.0",
+        "compatibility": [
+            "2.19.0",
+            "3.0.0"
+        ]
+    },
+    "ui_metadata": {
+        "type": "RAG with Hybrid Search"
+    }
+}
