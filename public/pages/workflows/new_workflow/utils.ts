@@ -301,6 +301,7 @@ export function fetchHybridSearchWithRAGMetadata(version: string): UIState {
     ),
   ];
   baseState.config.search.enrichResponse.processors = [
+    new NormalizationProcessor().toObj(),
     new MLSearchResponseProcessor().toObj(),
   ];
   return baseState;
