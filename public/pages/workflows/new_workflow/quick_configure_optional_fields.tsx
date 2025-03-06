@@ -26,6 +26,8 @@ import {
   ModelInterface,
   QuickConfigureFields,
   WORKFLOW_TYPE,
+  isRAGUseCase,
+  isVectorSearchUseCase,
 } from '../../../../common';
 import { AppState } from '../../../store';
 import { getEmbeddingModelDimensions, parseModelInputs } from '../../../utils';
@@ -199,11 +201,7 @@ export function QuickConfigureOptionalFields(
             <EuiSpacer size="s" />
           </>
         )}
-        {(props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH ||
-          props.workflowType === WORKFLOW_TYPE.MULTIMODAL_SEARCH ||
-          props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH ||
-          props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG ||
-          props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG) && (
+        {isVectorSearchUseCase(props.workflowType) && (
           <>
             <EuiCompressedFormRow
               fullWidth={true}
@@ -246,9 +244,7 @@ export function QuickConfigureOptionalFields(
             )}
           </>
         )}
-        {(props.workflowType === WORKFLOW_TYPE.RAG ||
-          props.workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG ||
-          props.workflowType === WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG) && (
+        {isRAGUseCase(props.workflowType) && (
           <>
             <EuiCompressedFormRow
               fullWidth={true}
