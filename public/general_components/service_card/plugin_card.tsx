@@ -37,7 +37,7 @@ export const registerPluginCard = (
           }}
         >
           {i18n.translate('flowFrameworkDashboards.opensearchFlowCard.footer', {
-            defaultMessage: 'Try OpenSearch Flow',
+            defaultMessage: `Try ${PLUGIN_NAME}`,
           })}
         </EuiSmallButton>
       </EuiFlexItem>
@@ -49,7 +49,7 @@ export const registerPluginCard = (
     getContent: () => ({
       id: 'opensearch_flow',
       kind: 'card',
-      order: 20,
+      order: 10,
       getTitle: () => {
         return (
           <EuiFlexGroup direction="row" gutterSize="xs">
