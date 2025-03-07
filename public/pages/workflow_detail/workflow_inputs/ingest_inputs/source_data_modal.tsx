@@ -112,7 +112,7 @@ export function SourceDataModal(props: SourceDataProps) {
 
     // 2. Update several form values if an index is selected (and if vector search)
     if (selectedIndex !== undefined) {
-      if (isVectorSearchUseCase(props.workflow)) {
+      if (isVectorSearchUseCase(props.workflow?.ui_metadata?.type)) {
         dispatch(getMappings({ index: selectedIndex, dataSourceId }))
           .unwrap()
           .then((resp: IndexMappings) => {

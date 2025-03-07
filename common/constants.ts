@@ -168,6 +168,7 @@ export enum WORKFLOW_TYPE {
   HYBRID_SEARCH = 'Hybrid Search',
   RAG = 'RAG with Lexical Retrieval',
   VECTOR_SEARCH_WITH_RAG = 'RAG with Vector Retrieval',
+  HYBRID_SEARCH_WITH_RAG = 'RAG with Hybrid Search',
   CUSTOM = 'Custom Search',
   UNKNOWN = 'Unknown',
 }
