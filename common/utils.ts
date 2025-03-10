@@ -4,7 +4,7 @@
  */
 
 import moment from 'moment';
-import { DATE_FORMAT_PATTERN, WORKFLOW_TYPE, Workflow } from './';
+import { DATE_FORMAT_PATTERN, WORKFLOW_TYPE } from './';
 import { isEmpty } from 'lodash';
 
 export function toFormattedDate(timestampMillis: number): String {
@@ -44,14 +44,25 @@ export function customStringifySingleLine(jsonObj: {}): string {
   return JSON.stringify(jsonObj, undefined, 0);
 }
 
-export function isVectorSearchUseCase(workflow: Workflow | undefined): boolean {
+export function isVectorSearchUseCase(workflowType?: WORKFLOW_TYPE): boolean {
   return (
-    workflow?.ui_metadata?.type !== undefined &&
+    workflowType !== undefined &&
     [
-      WORKFLOW_TYPE.HYBRID_SEARCH,
-      WORKFLOW_TYPE.MULTIMODAL_SEARCH,
       WORKFLOW_TYPE.SEMANTIC_SEARCH,
+      WORKFLOW_TYPE.MULTIMODAL_SEARCH,
+      WORKFLOW_TYPE.HYBRID_SEARCH,
       WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG,
-    ].includes(workflow?.ui_metadata?.type)
+      WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG,
+    ].includes(workflowType)
+  );
+}
+
+export function isRAGUseCase(workflowType?: WORKFLOW_TYPE): boolean {
+  return (
+    workflowType !== undefined &&
+    [
+      WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG,
+      WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG,
+    ].includes(workflowType)
   );
 }

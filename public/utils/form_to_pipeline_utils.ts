@@ -8,6 +8,7 @@ import {
   IProcessorConfig,
   IngestPipelineConfig,
   PROCESSOR_CONTEXT,
+  PROCESSOR_TYPE,
   SearchPipelineConfig,
   WorkflowConfig,
   WorkflowFormValues,
@@ -83,8 +84,17 @@ export function formikToPartialPipeline(
                 requestProcessors,
                 context
               ),
+              // for search response, we need to explicitly separate out any phase results processors
+              phase_results_processors: processorConfigsToTemplateProcessors(
+                precedingProcessors.filter((processor) =>
+                  isPhaseResultsProcessor(processor)
+                ),
+                context
+              ),
               response_processors: processorConfigsToTemplateProcessors(
-                precedingProcessors,
+                precedingProcessors.filter(
+                  (processor) => !isPhaseResultsProcessor(processor)
+                ),
                 context
               ),
             } as SearchPipelineConfig)
@@ -112,4 +122,9 @@ function getPrecedingProcessors(
     }
   });
   return precedingProcessors;
+}
+
+// currently the only phase results processor supported is the normalization processor
+function isPhaseResultsProcessor(processor: IProcessorConfig): boolean {
+  return processor.type === PROCESSOR_TYPE.NORMALIZATION;
 }

@@ -59,6 +59,7 @@ import {
   MODEL_STATE,
   ML_REMOTE_MODEL_LINK,
   MODEL_CATEGORY,
+  isRAGUseCase,
 } from '../../../../common';
 import { APP_PATH, getInitialValue } from '../../../utils';
 import { AppState, createWorkflow, useAppDispatch } from '../../../store';
@@ -140,10 +141,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
     // If not custom/blank, we will have more req'd form fields for the users to supply
     if (workflowType !== WORKFLOW_TYPE.CUSTOM) {
       // if a RAG workflow, require an LLM
-      if (
-        workflowType === WORKFLOW_TYPE.RAG ||
-        workflowType === WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG
-      ) {
+      if (isRAGUseCase(workflowType)) {
         tempFormValues = {
           ...tempFormValues,
           llm: getInitialValue('model'),
@@ -160,24 +158,21 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
           }),
         };
       }
-      // all workflows besides custom and vanilla RAG require an embedding model
-      if (workflowType !== WORKFLOW_TYPE.RAG) {
-        tempFormValues = {
-          ...tempFormValues,
-          embeddingModel: getInitialValue('model'),
-        };
-        tempFormSchemaObj = {
-          ...tempFormSchemaObj,
-          embeddingModel: yup.object({
-            id: yup
-              .string()
-              .trim()
-              .min(1, 'Too short')
-              .max(MAX_STRING_LENGTH, 'Too long')
-              .required('Required'),
-          }),
-        };
-      }
+      tempFormValues = {
+        ...tempFormValues,
+        embeddingModel: getInitialValue('model'),
+      };
+      tempFormSchemaObj = {
+        ...tempFormSchemaObj,
+        embeddingModel: yup.object({
+          id: yup
+            .string()
+            .trim()
+            .min(1, 'Too short')
+            .max(MAX_STRING_LENGTH, 'Too long')
+            .required('Required'),
+        }),
+      };
     }
     setFormValues(tempFormValues);
     setFormSchemaObj(tempFormSchemaObj);
@@ -297,30 +292,26 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                       />
                     </EuiFlexItem>
                   )}
-                {(props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.RAG ||
-                  props.workflow?.ui_metadata?.type ===
-                    WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG) &&
-                  !isEmpty(deployedModels) && (
-                    <EuiFlexItem>
-                      <ModelField
-                        modelCategory={MODEL_CATEGORY.LLM}
-                        fieldPath="llm"
-                        showMissingInterfaceCallout={false}
-                        label="Large language model"
-                        helpText="The large language model to generate user-friendly responses."
-                        fullWidth={true}
-                        showError={true}
-                        onModelChange={(modelId) =>
-                          setQuickConfigureFields({
-                            ...quickConfigureFields,
-                            llmId: modelId,
-                          })
-                        }
-                      />
-                    </EuiFlexItem>
-                  )}
+                {isRAGUseCase(props.workflow?.ui_metadata?.type) && (
+                  <EuiFlexItem>
+                    <ModelField
+                      modelCategory={MODEL_CATEGORY.LLM}
+                      fieldPath="llm"
+                      showMissingInterfaceCallout={false}
+                      label="Large language model"
+                      helpText="The large language model to generate user-friendly responses."
+                      fullWidth={true}
+                      showError={true}
+                      onModelChange={(modelId) =>
+                        setQuickConfigureFields({
+                          ...quickConfigureFields,
+                          llmId: modelId,
+                        })
+                      }
+                    />
+                  </EuiFlexItem>
+                )}
                 {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM &&
-                  props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.RAG &&
                   !isEmpty(deployedModels) && (
                     <EuiFlexItem>
                       <>
@@ -449,7 +440,7 @@ function injectQuickConfigureFields(
             workflow.ui_metadata.config,
             quickConfigureFields,
             embeddingModelInterface,
-            isVectorSearchUseCase(workflow)
+            isVectorSearchUseCase(workflow?.ui_metadata?.type)
           );
           workflow.ui_metadata.config = updateIndexConfig(
             workflow.ui_metadata.config,
@@ -463,32 +454,19 @@ function injectQuickConfigureFields(
             workflow.ui_metadata.config,
             quickConfigureFields,
             embeddingModelInterface,
-            isVectorSearchUseCase(workflow)
+            isVectorSearchUseCase(workflow?.ui_metadata?.type)
           );
         }
         break;
       }
-      case WORKFLOW_TYPE.RAG: {
-        if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
-          workflow.ui_metadata.config = updateIndexConfig(
-            workflow.ui_metadata.config,
-            quickConfigureFields
-          );
-          workflow.ui_metadata.config = updateRAGSearchResponseProcessors(
-            workflow.ui_metadata.config,
-            quickConfigureFields,
-            llmInterface
-          );
-        }
-        break;
-      }
-      case WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG: {
+      case WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG:
+      case WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG: {
         if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
           workflow.ui_metadata.config = updateIngestProcessors(
             workflow.ui_metadata.config,
             quickConfigureFields,
             embeddingModelInterface,
-            isVectorSearchUseCase(workflow)
+            isVectorSearchUseCase(workflow?.ui_metadata?.type)
           );
           workflow.ui_metadata.config = updateIndexConfig(
             workflow.ui_metadata.config,
@@ -502,7 +480,7 @@ function injectQuickConfigureFields(
             workflow.ui_metadata.config,
             quickConfigureFields,
             embeddingModelInterface,
-            isVectorSearchUseCase(workflow)
+            isVectorSearchUseCase(workflow?.ui_metadata?.type)
           );
           workflow.ui_metadata.config = updateRAGSearchResponseProcessors(
             workflow.ui_metadata.config,
