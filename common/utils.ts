@@ -4,7 +4,7 @@
  */
 
 import moment from 'moment';
-import { DATE_FORMAT_PATTERN, WORKFLOW_TYPE, Workflow } from './';
+import { DATE_FORMAT_PATTERN, WORKFLOW_TYPE } from './';
 import { isEmpty } from 'lodash';
 
 export function toFormattedDate(timestampMillis: number): String {
@@ -61,7 +61,6 @@ export function isRAGUseCase(workflowType?: WORKFLOW_TYPE): boolean {
   return (
     workflowType !== undefined &&
     [
-      WORKFLOW_TYPE.RAG,
       WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG,
       WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG,
     ].includes(workflowType)

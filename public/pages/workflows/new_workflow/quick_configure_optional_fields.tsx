@@ -82,14 +82,6 @@ export function QuickConfigureOptionalFields(
         };
         break;
       }
-      case WORKFLOW_TYPE.RAG: {
-        defaultFieldValues = {
-          textField: DEFAULT_TEXT_FIELD,
-          promptField: '',
-          llmResponseField: DEFAULT_LLM_RESPONSE_FIELD,
-        };
-        break;
-      }
       case WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG:
       case WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG: {
         defaultFieldValues = {
@@ -160,11 +152,7 @@ export function QuickConfigureOptionalFields(
           fullWidth={true}
           label={'Text field'}
           isInvalid={false}
-          helpText={`The name of the text document field to be ${
-            props.workflowType === WORKFLOW_TYPE.RAG
-              ? 'used as context to the large language model (LLM).'
-              : 'embedded.'
-          }`}
+          helpText={`The name of the text document field to be embedded`}
         >
           <EuiCompressedFieldText
             data-testid="textFieldQuickConfigure"

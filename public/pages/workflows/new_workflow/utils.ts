@@ -56,10 +56,6 @@ export function enrichPresetWorkflowWithUiMetadata(
       uiMetadata = fetchHybridSearchMetadata(workflowVersion);
       break;
     }
-    case WORKFLOW_TYPE.RAG: {
-      uiMetadata = fetchRAGMetadata(workflowVersion);
-      break;
-    }
     case WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG: {
       uiMetadata = fetchVectorSearchWithRAGMetadata(workflowVersion);
       break;
@@ -244,17 +240,6 @@ export function fetchHybridSearchMetadata(version: string): UIState {
         ),
       ];
 
-  return baseState;
-}
-
-export function fetchRAGMetadata(version: string): UIState {
-  let baseState = fetchEmptyMetadata();
-  baseState.type = WORKFLOW_TYPE.RAG;
-  baseState.config.ingest.index.name.value = generateId('my_index', 6);
-  baseState.config.search.request.value = customStringify(FETCH_ALL_QUERY);
-  baseState.config.search.enrichResponse.processors = [
-    new MLSearchResponseProcessor().toObj(),
-  ];
   return baseState;
 }
 

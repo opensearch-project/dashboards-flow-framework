@@ -158,24 +158,21 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
           }),
         };
       }
-      // all workflows besides custom and vanilla RAG require an embedding model
-      if (workflowType !== WORKFLOW_TYPE.RAG) {
-        tempFormValues = {
-          ...tempFormValues,
-          embeddingModel: getInitialValue('model'),
-        };
-        tempFormSchemaObj = {
-          ...tempFormSchemaObj,
-          embeddingModel: yup.object({
-            id: yup
-              .string()
-              .trim()
-              .min(1, 'Too short')
-              .max(MAX_STRING_LENGTH, 'Too long')
-              .required('Required'),
-          }),
-        };
-      }
+      tempFormValues = {
+        ...tempFormValues,
+        embeddingModel: getInitialValue('model'),
+      };
+      tempFormSchemaObj = {
+        ...tempFormSchemaObj,
+        embeddingModel: yup.object({
+          id: yup
+            .string()
+            .trim()
+            .min(1, 'Too short')
+            .max(MAX_STRING_LENGTH, 'Too long')
+            .required('Required'),
+        }),
+      };
     }
     setFormValues(tempFormValues);
     setFormSchemaObj(tempFormSchemaObj);
@@ -315,7 +312,6 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                   </EuiFlexItem>
                 )}
                 {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM &&
-                  props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.RAG &&
                   !isEmpty(deployedModels) && (
                     <EuiFlexItem>
                       <>
@@ -459,20 +455,6 @@ function injectQuickConfigureFields(
             quickConfigureFields,
             embeddingModelInterface,
             isVectorSearchUseCase(workflow?.ui_metadata?.type)
-          );
-        }
-        break;
-      }
-      case WORKFLOW_TYPE.RAG: {
-        if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
-          workflow.ui_metadata.config = updateIndexConfig(
-            workflow.ui_metadata.config,
-            quickConfigureFields
-          );
-          workflow.ui_metadata.config = updateRAGSearchResponseProcessors(
-            workflow.ui_metadata.config,
-            quickConfigureFields,
-            llmInterface
           );
         }
         break;
