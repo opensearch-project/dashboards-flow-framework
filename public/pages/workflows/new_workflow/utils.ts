@@ -56,12 +56,12 @@ export function enrichPresetWorkflowWithUiMetadata(
       uiMetadata = fetchHybridSearchMetadata(workflowVersion);
       break;
     }
-    case WORKFLOW_TYPE.RAG: {
-      uiMetadata = fetchRAGMetadata(workflowVersion);
-      break;
-    }
     case WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG: {
       uiMetadata = fetchVectorSearchWithRAGMetadata(workflowVersion);
+      break;
+    }
+    case WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG: {
+      uiMetadata = fetchHybridSearchWithRAGMetadata(workflowVersion);
       break;
     }
     default: {
@@ -243,17 +243,6 @@ export function fetchHybridSearchMetadata(version: string): UIState {
   return baseState;
 }
 
-export function fetchRAGMetadata(version: string): UIState {
-  let baseState = fetchEmptyMetadata();
-  baseState.type = WORKFLOW_TYPE.RAG;
-  baseState.config.ingest.index.name.value = generateId('my_index', 6);
-  baseState.config.search.request.value = customStringify(FETCH_ALL_QUERY);
-  baseState.config.search.enrichResponse.processors = [
-    new MLSearchResponseProcessor().toObj(),
-  ];
-  return baseState;
-}
-
 export function fetchVectorSearchWithRAGMetadata(version: string): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG;
@@ -273,6 +262,31 @@ export function fetchVectorSearchWithRAGMetadata(version: string): UIState {
     ),
   ];
   baseState.config.search.enrichResponse.processors = [
+    new MLSearchResponseProcessor().toObj(),
+  ];
+  return baseState;
+}
+
+export function fetchHybridSearchWithRAGMetadata(version: string): UIState {
+  let baseState = fetchEmptyMetadata();
+  baseState.type = WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG;
+  // Ingest config: knn index w/ an ML inference processor
+  baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
+  baseState.config.ingest.index.name.value = generateId('knn_index', 6);
+  baseState.config.ingest.index.settings.value = customStringify({
+    [`index.knn`]: true,
+  });
+  // Search config: match query => ML inference processor for generating embeddings
+  // with hybrid search => ML inference processor for returning LLM-generated response of results
+  baseState.config.search.request.value = customStringify(MATCH_QUERY_TEXT);
+  baseState.config.search.enrichRequest.processors = [
+    injectQueryTemplateInProcessor(
+      new MLSearchRequestProcessor().toObj(),
+      HYBRID_SEARCH_QUERY_MATCH_KNN
+    ),
+  ];
+  baseState.config.search.enrichResponse.processors = [
+    new NormalizationProcessor().toObj(),
     new MLSearchResponseProcessor().toObj(),
   ];
   return baseState;

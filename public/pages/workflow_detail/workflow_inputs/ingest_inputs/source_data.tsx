@@ -68,7 +68,7 @@ export function SourceData(props: SourceDataProps) {
 
     // try to clear out any default values for the ML ingest processor, if applicable
     if (
-      isVectorSearchUseCase(props.workflow) &&
+      isVectorSearchUseCase(props.workflow?.ui_metadata?.type) &&
       isEditModalOpen &&
       selectedOption !== SOURCE_OPTIONS.EXISTING_INDEX
     ) {
