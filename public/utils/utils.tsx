@@ -209,11 +209,7 @@ export function prepareDocsForSimulate(
   indexName: string
 ): SimulateIngestPipelineDoc[] {
   const preparedDocs = [] as SimulateIngestPipelineDoc[];
-  let docObjs = [] as {}[];
-  try {
-    const lines = docs?.split('\n') as string[];
-    lines.forEach((line) => docObjs.push(JSON.parse(line)));
-  } catch {}
+  const docObjs = getObjsFromJSONLines(docs);
   docObjs?.forEach((doc) => {
     preparedDocs.push({
       _index: indexName,
@@ -222,6 +218,17 @@ export function prepareDocsForSimulate(
     });
   });
   return preparedDocs;
+}
+
+// Utility fn to transform a raw JSON Lines string into an arr of JSON objs
+// for easier downstream parsing
+export function getObjsFromJSONLines(jsonLines: string | undefined): {}[] {
+  let objs = [] as {}[];
+  try {
+    const lines = jsonLines?.split('\n') as string[];
+    lines.forEach((line) => objs.push(JSON.parse(line)));
+  } catch {}
+  return objs;
 }
 
 // Docs are returned in a certain format from the simulate ingest pipeline API. We want

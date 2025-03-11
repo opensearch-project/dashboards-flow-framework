@@ -61,6 +61,7 @@ import {
   useDataSourceVersion,
   getIsPreV219,
   useMissingDataSourceVersion,
+  getObjsFromJSONLines,
 } from '../../../utils';
 import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
@@ -271,11 +272,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   // populated ingest docs state
   const [docsPopulated, setDocsPopulated] = useState<boolean>(false);
   useEffect(() => {
-    let parsedDocsObjs = [] as {}[];
-    try {
-      const lines = props.ingestDocs?.split('\n') as string[];
-      lines.forEach((line) => parsedDocsObjs.push(JSON.parse(line)));
-    } catch {}
+    const parsedDocsObjs = getObjsFromJSONLines(props.ingestDocs);
     setDocsPopulated(parsedDocsObjs.length > 0 && !isEmpty(parsedDocsObjs[0]));
   }, [props.ingestDocs]);
 
@@ -604,11 +601,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     props.setIsRunningIngest(true);
     let success = false;
     try {
-      let ingestDocsObjs = [] as {}[];
-      try {
-        const lines = props.ingestDocs?.split('\n') as string[];
-        lines.forEach((line) => ingestDocsObjs.push(JSON.parse(line)));
-      } catch (e) {}
+      const ingestDocsObjs = getObjsFromJSONLines(props.ingestDocs);
       if (ingestDocsObjs.length > 0 && !isEmpty(ingestDocsObjs[0])) {
         success = await validateAndUpdateWorkflow(false, true, false);
         if (success) {

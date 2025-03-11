@@ -27,6 +27,7 @@ import {
 } from '../../../../../common';
 import { SourceDataModal } from './source_data_modal';
 import { BulkPopoverContent } from './bulk_popover_content';
+import { getObjsFromJSONLines } from '../../../../utils';
 
 interface SourceDataProps {
   workflow: Workflow | undefined;
@@ -42,11 +43,7 @@ export function SourceData(props: SourceDataProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
 
   // empty/populated docs state
-  let docs = [];
-  try {
-    const lines = getIn(values, 'ingest.docs', '').split('\n') as string[];
-    lines.forEach((line) => docs.push(JSON.parse(line)));
-  } catch {}
+  const docs = getObjsFromJSONLines(getIn(values, 'ingest.docs', ''));
   const docsPopulated = docs.length > 0;
 
   // selected option state
