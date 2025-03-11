@@ -10,9 +10,11 @@ import { useFormikContext } from 'formik';
 import {
   EuiCodeEditor,
   EuiComboBox,
+  EuiContextMenu,
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiPopover,
   EuiSmallButton,
   EuiSmallButtonEmpty,
   EuiText,
@@ -20,7 +22,9 @@ import {
 import {
   CONFIG_STEP,
   customStringify,
+  QUERY_PRESETS,
   QueryParam,
+  QueryPreset,
   SearchResponse,
   SearchResponseVerbose,
   WorkflowFormValues,
@@ -73,6 +77,9 @@ export function Query(props: QueryProps) {
   const dataSourceVersion = useDataSourceVersion(dataSourceId);
   const { loading } = useSelector((state: AppState) => state.opensearch);
   const { values } = useFormikContext<WorkflowFormValues>();
+
+  // popover state
+  const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
   // state for if to execute search w/ or w/o any configured search pipeline.
   // default based on if there is an available search pipeline or not.
@@ -231,20 +238,63 @@ export function Query(props: QueryProps) {
                   <EuiFlexItem grow={false}>
                     <EuiText size="s">Query</EuiText>
                   </EuiFlexItem>
-                  {props.selectedStep === CONFIG_STEP.SEARCH &&
-                    !isEmpty(values?.search?.request) &&
-                    values?.search?.request !== props.queryRequest && (
-                      <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
-                        <EuiSmallButtonEmpty
-                          disabled={false}
-                          onClick={() => {
-                            props.setQueryRequest(values?.search?.request);
-                          }}
+                  <EuiFlexItem grow={false}>
+                    <EuiFlexGroup direction="row" gutterSize="s">
+                      {props.selectedStep === CONFIG_STEP.SEARCH &&
+                        !isEmpty(values?.search?.request) &&
+                        values?.search?.request !== props.queryRequest && (
+                          <EuiFlexItem
+                            grow={false}
+                            style={{ marginBottom: '0px' }}
+                          >
+                            <EuiSmallButtonEmpty
+                              disabled={false}
+                              onClick={() => {
+                                props.setQueryRequest(values?.search?.request);
+                              }}
+                            >
+                              Revert to original query
+                            </EuiSmallButtonEmpty>
+                          </EuiFlexItem>
+                        )}
+                      <EuiFlexItem grow={false}>
+                        <EuiPopover
+                          button={
+                            <EuiSmallButton
+                              onClick={() => setPopoverOpen(!popoverOpen)}
+                              data-testid="inspectorQueryPresetButton"
+                              iconSide="right"
+                              iconType="arrowDown"
+                            >
+                              Query samples
+                            </EuiSmallButton>
+                          }
+                          isOpen={popoverOpen}
+                          closePopover={() => setPopoverOpen(false)}
+                          anchorPosition="downLeft"
                         >
-                          Revert to original query
-                        </EuiSmallButtonEmpty>
+                          <EuiContextMenu
+                            size="s"
+                            initialPanelId={0}
+                            panels={[
+                              {
+                                id: 0,
+                                items: QUERY_PRESETS.map(
+                                  (preset: QueryPreset) => ({
+                                    name: preset.name,
+                                    onClick: () => {
+                                      props.setQueryRequest(preset.query);
+                                      setPopoverOpen(false);
+                                    },
+                                  })
+                                ),
+                              },
+                            ]}
+                          />
+                        </EuiPopover>
                       </EuiFlexItem>
-                    )}
+                    </EuiFlexGroup>
+                  </EuiFlexItem>
                 </EuiFlexGroup>
               </EuiFlexItem>
               <EuiFlexItem grow={true}>
