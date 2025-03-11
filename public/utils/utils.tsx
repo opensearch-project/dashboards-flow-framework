@@ -890,10 +890,7 @@ export function removeVectorFieldFromIndexMappings(
 ): string {
   try {
     let existingMappingsObj = JSON.parse(existingMappings);
-    const existingEmbeddingField = findKey(
-      existingMappingsObj?.properties,
-      (field) => field.type === 'knn_vector'
-    );
+    const existingEmbeddingField = getExistingVectorField(existingMappingsObj);
     if (existingEmbeddingField !== undefined) {
       unset(existingMappingsObj?.properties, existingEmbeddingField);
     }
@@ -901,6 +898,15 @@ export function removeVectorFieldFromIndexMappings(
   } catch {
     return existingMappings;
   }
+}
+
+export function getExistingVectorField(
+  existingMappings: any
+): string | undefined {
+  return findKey(
+    existingMappings?.properties,
+    (field) => field.type === 'knn_vector'
+  );
 }
 
 // Parse out any hidden errors within a 2xx ingest response

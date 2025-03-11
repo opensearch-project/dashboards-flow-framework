@@ -221,7 +221,7 @@ export function SourceData(props: SourceDataProps) {
 // helper fn to parse out some useful info from the ML ingest processor config, if applicable
 // takes on the assumption the first processor is an ML inference processor, and should
 // only be executed for workflows coming from preset vector search use cases.
-export function getProcessorInfo(
+function getProcessorInfo(
   uiConfig: WorkflowConfig,
   values: WorkflowFormValues
 ): {

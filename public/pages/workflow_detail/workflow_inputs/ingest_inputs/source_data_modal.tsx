@@ -25,12 +25,12 @@ import {
 } from '@elastic/eui';
 import { JsonLinesField } from '../input_fields';
 import {
+  customStringify,
   customStringifySingleLine,
   FETCH_ALL_QUERY_LARGE,
   IConfigField,
   IndexMappings,
   IngestDocsFormValues,
-  isVectorSearchUseCase,
   JSONLINES_LINK,
   MAX_BYTES_FORMATTED,
   MAX_DOCS_TO_IMPORT,
@@ -48,10 +48,10 @@ import {
 } from '../../../../store';
 import {
   getDataSourceId,
+  getExistingVectorField,
   getFieldSchema,
   getInitialValue,
 } from '../../../../utils';
-import { getProcessorInfo } from './source_data';
 import '../../../../global-styles.scss';
 
 interface SourceDataProps {
@@ -71,6 +71,7 @@ export function SourceDataModal(props: SourceDataProps) {
   const dataSourceId = getDataSourceId();
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   const indices = useSelector((state: AppState) => state.opensearch.indices);
+  const indexMappingsPath = 'ingest.index.mappings';
 
   // sub-form values/schema
   const docsFormValues = {
@@ -110,33 +111,43 @@ export function SourceDataModal(props: SourceDataProps) {
     // 1. Update the form with the temp docs
     setFieldValue('ingest.docs', tempDocs);
 
-    // 2. Update several form values if an index is selected (and if vector search)
+    // 2. Update several form values if an index is selected. Persist any preset/existing
+    // embedding fields in the mappings, if found
     if (selectedIndex !== undefined) {
-      if (isVectorSearchUseCase(props.workflow?.ui_metadata?.type)) {
-        dispatch(getMappings({ index: selectedIndex, dataSourceId }))
-          .unwrap()
-          .then((resp: IndexMappings) => {
-            const { processorId, inputMapEntry } = getProcessorInfo(
-              props.uiConfig,
-              values
-            );
-            if (processorId !== undefined && inputMapEntry !== undefined) {
-              // set/overwrite default text field for the input map. may be empty.
-              if (inputMapEntry !== undefined) {
-                const textFieldFormPath = `ingest.enrich.${processorId}.input_map.0.0.value`;
-                const curTextField = getIn(values, textFieldFormPath) as string;
-                if (!Object.keys(resp.properties).includes(curTextField)) {
-                  const defaultTextField =
-                    Object.keys(resp.properties).find((fieldName) => {
-                      return resp.properties[fieldName]?.type === 'text';
-                    }) || '';
-                  setFieldValue(textFieldFormPath, defaultTextField);
-                  setIsUpdating(false);
-                }
+      dispatch(getMappings({ index: selectedIndex, dataSourceId }))
+        .unwrap()
+        .then((resp: IndexMappings) => {
+          if (!isEmpty(resp)) {
+            let updatedMappings = resp;
+            try {
+              let existingMappingsObj = JSON.parse(
+                getIn(values, indexMappingsPath)
+              );
+              // const existingEmbeddingField = findKey(
+              //   existingMappingsObj?.properties,
+              //   (field) => field.type === 'knn_vector'
+              // );
+              const existingEmbeddingField = getExistingVectorField(
+                existingMappingsObj
+              );
+              const existingEmbeddingFieldValue = getIn(
+                existingMappingsObj,
+                `properties.${existingEmbeddingField}`
+              );
+              if (
+                existingEmbeddingField !== undefined &&
+                existingEmbeddingFieldValue !== undefined
+              ) {
+                updatedMappings.properties = {
+                  ...updatedMappings.properties,
+                  [existingEmbeddingField]: existingEmbeddingFieldValue,
+                };
               }
-            }
-          });
-      }
+            } catch {}
+            setFieldValue(indexMappingsPath, customStringify(updatedMappings));
+          }
+          setIsUpdating(false);
+        });
     } else {
       setIsUpdating(false);
     }
