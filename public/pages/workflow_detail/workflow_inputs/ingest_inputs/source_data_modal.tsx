@@ -123,10 +123,6 @@ export function SourceDataModal(props: SourceDataProps) {
               let existingMappingsObj = JSON.parse(
                 getIn(values, indexMappingsPath)
               );
-              // const existingEmbeddingField = findKey(
-              //   existingMappingsObj?.properties,
-              //   (field) => field.type === 'knn_vector'
-              // );
               const existingEmbeddingField = getExistingVectorField(
                 existingMappingsObj
               );
