@@ -53,6 +53,7 @@ import {
   generateTransform,
   getDataSourceId,
   getInitialValue,
+  getObjsFromJSONLines,
   getPlaceholdersFromQuery,
   injectParameters,
   prepareDocsForSimulate,
@@ -154,11 +155,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
     `${props.baseConfigPath}.${props.config.id}.one_to_one`
   );
   const docs = getIn(values, 'ingest.docs');
-  let docObjs = [] as {}[] | undefined;
-  try {
-    const lines = docs?.split('\n') as string[];
-    lines.forEach((line) => docObjs?.push(JSON.parse(line)));
-  } catch {}
+  const docObjs = getObjsFromJSONLines(docs);
   const query = getIn(values, 'search.request');
   let queryObj = {} as {} | undefined;
   try {
@@ -706,9 +703,9 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                       });
                                   } else {
                                     try {
-                                      const docObjs = JSON.parse(
-                                        values.ingest.docs
-                                      ) as {}[];
+                                      const docObjs = getObjsFromJSONLines(
+                                        values?.ingest?.docs
+                                      );
                                       if (docObjs.length > 0) {
                                         setSourceInput(
                                           customStringify(docObjs[0])
