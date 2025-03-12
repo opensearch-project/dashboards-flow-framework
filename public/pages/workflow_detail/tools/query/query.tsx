@@ -10,9 +10,11 @@ import { useFormikContext } from 'formik';
 import {
   EuiCodeEditor,
   EuiComboBox,
+  EuiContextMenu,
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiPopover,
   EuiSmallButton,
   EuiSmallButtonEmpty,
   EuiText,
@@ -20,8 +22,9 @@ import {
 import {
   CONFIG_STEP,
   customStringify,
-  FETCH_ALL_QUERY,
+  QUERY_PRESETS,
   QueryParam,
+  QueryPreset,
   SearchResponse,
   SearchResponseVerbose,
   WorkflowFormValues,
@@ -47,6 +50,12 @@ interface QueryProps {
   hasSearchPipeline: boolean;
   hasIngestResources: boolean;
   selectedStep: CONFIG_STEP;
+  queryRequest: string;
+  setQueryRequest: (queryRequest: string) => void;
+  queryResponse: SearchResponse | undefined;
+  setQueryResponse: (queryResponse: SearchResponse | undefined) => void;
+  queryParams: QueryParam[];
+  setQueryParams: (queryParams: QueryParam[]) => void;
 }
 
 const SEARCH_OPTIONS = [
@@ -66,28 +75,11 @@ export function Query(props: QueryProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const dataSourceVersion = useDataSourceVersion(dataSourceId);
-
   const { loading } = useSelector((state: AppState) => state.opensearch);
-
-  // Form state
   const { values } = useFormikContext<WorkflowFormValues>();
 
-  // query response state
-  const [queryResponse, setQueryResponse] = useState<
-    SearchResponse | undefined
-  >(undefined);
-
-  // Standalone / sandboxed search request state. Users can test things out
-  // without updating the base form / persisted value.
-  // Update if the parent form values are changed, or if a newly-created search pipeline is detected.
-  const [tempRequest, setTempRequest] = useState<string>('');
-  useEffect(() => {
-    if (!isEmpty(values?.search?.request)) {
-      setTempRequest(values?.search?.request);
-    } else {
-      setTempRequest(customStringify(FETCH_ALL_QUERY));
-    }
-  }, [values?.search?.request]);
+  // popover state
+  const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
   // state for if to execute search w/ or w/o any configured search pipeline.
   // default based on if there is an available search pipeline or not.
@@ -96,22 +88,16 @@ export function Query(props: QueryProps) {
     setIncludePipeline(props.hasSearchPipeline);
   }, [props.hasSearchPipeline]);
 
-  // query params state
-  const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
-
-  // Do a few things when the request is changed:
-  // 1. Check if there is a new set of query parameters, and if so,
-  //    reset the form.
-  // 2. Clear any stale results
+  // Check if there is a new set of query parameters, and if so, reset the form
   useEffect(() => {
-    const placeholders = getPlaceholdersFromQuery(tempRequest);
+    const placeholders = getPlaceholdersFromQuery(props.queryRequest);
     if (
       !containsSameValues(
         placeholders,
-        queryParams.map((queryParam) => queryParam.name)
+        props.queryParams.map((queryParam) => queryParam.name)
       )
     ) {
-      setQueryParams(
+      props.setQueryParams(
         placeholders.map((placeholder) => ({
           name: placeholder,
           type: 'Text',
@@ -119,8 +105,7 @@ export function Query(props: QueryProps) {
         }))
       );
     }
-    setQueryResponse(undefined);
-  }, [tempRequest]);
+  }, [props.queryRequest]);
 
   // empty states
   const noSearchIndex = isEmpty(values?.search?.index?.name);
@@ -192,7 +177,7 @@ export function Query(props: QueryProps) {
                       fill={true}
                       isLoading={loading}
                       disabled={
-                        containsEmptyValues(queryParams) ||
+                        containsEmptyValues(props.queryParams) ||
                         isEmpty(indexToSearch)
                       }
                       onClick={() => {
@@ -200,7 +185,10 @@ export function Query(props: QueryProps) {
                           searchIndex({
                             apiBody: {
                               index: indexToSearch,
-                              body: injectParameters(queryParams, tempRequest),
+                              body: injectParameters(
+                                props.queryParams,
+                                props.queryRequest
+                              ),
                               searchPipeline: includePipeline
                                 ? values?.search?.pipelineName
                                 : '_none',
@@ -230,11 +218,11 @@ export function Query(props: QueryProps) {
                                 setSearchPipelineErrors({ errors: {} });
                               }
 
-                              setQueryResponse(resp);
+                              props.setQueryResponse(resp);
                             }
                           )
                           .catch((error: any) => {
-                            setQueryResponse(undefined);
+                            props.setQueryResponse(undefined);
                             setSearchPipelineErrors({ errors: {} });
                             console.error('Error running query: ', error);
                           });
@@ -250,20 +238,63 @@ export function Query(props: QueryProps) {
                   <EuiFlexItem grow={false}>
                     <EuiText size="s">Query</EuiText>
                   </EuiFlexItem>
-                  {props.selectedStep === CONFIG_STEP.SEARCH &&
-                    !isEmpty(values?.search?.request) &&
-                    values?.search?.request !== tempRequest && (
-                      <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
-                        <EuiSmallButtonEmpty
-                          disabled={false}
-                          onClick={() => {
-                            setTempRequest(values?.search?.request);
-                          }}
+                  <EuiFlexItem grow={false}>
+                    <EuiFlexGroup direction="row" gutterSize="s">
+                      {props.selectedStep === CONFIG_STEP.SEARCH &&
+                        !isEmpty(values?.search?.request) &&
+                        values?.search?.request !== props.queryRequest && (
+                          <EuiFlexItem
+                            grow={false}
+                            style={{ marginBottom: '0px' }}
+                          >
+                            <EuiSmallButtonEmpty
+                              disabled={false}
+                              onClick={() => {
+                                props.setQueryRequest(values?.search?.request);
+                              }}
+                            >
+                              Revert to original query
+                            </EuiSmallButtonEmpty>
+                          </EuiFlexItem>
+                        )}
+                      <EuiFlexItem grow={false}>
+                        <EuiPopover
+                          button={
+                            <EuiSmallButton
+                              onClick={() => setPopoverOpen(!popoverOpen)}
+                              data-testid="inspectorQueryPresetButton"
+                              iconSide="right"
+                              iconType="arrowDown"
+                            >
+                              Query samples
+                            </EuiSmallButton>
+                          }
+                          isOpen={popoverOpen}
+                          closePopover={() => setPopoverOpen(false)}
+                          anchorPosition="downLeft"
                         >
-                          Revert to original query
-                        </EuiSmallButtonEmpty>
+                          <EuiContextMenu
+                            size="s"
+                            initialPanelId={0}
+                            panels={[
+                              {
+                                id: 0,
+                                items: QUERY_PRESETS.map(
+                                  (preset: QueryPreset) => ({
+                                    name: preset.name,
+                                    onClick: () => {
+                                      props.setQueryRequest(preset.query);
+                                      setPopoverOpen(false);
+                                    },
+                                  })
+                                ),
+                              },
+                            ]}
+                          />
+                        </EuiPopover>
                       </EuiFlexItem>
-                    )}
+                    </EuiFlexGroup>
+                  </EuiFlexItem>
                 </EuiFlexGroup>
               </EuiFlexItem>
               <EuiFlexItem grow={true}>
@@ -272,13 +303,16 @@ export function Query(props: QueryProps) {
                   theme="textmate"
                   width="100%"
                   height={'100%'}
-                  value={tempRequest}
+                  value={props.queryRequest}
                   onChange={(input) => {
-                    setTempRequest(input);
+                    props.setQueryRequest(input);
                   }}
+                  // format the JSON on blur
                   onBlur={() => {
                     try {
-                      setTempRequest(customStringify(JSON.parse(tempRequest)));
+                      props.setQueryRequest(
+                        customStringify(JSON.parse(props.queryRequest))
+                      );
                     } catch (error) {}
                   }}
                   readOnly={false}
@@ -299,8 +333,8 @@ export function Query(props: QueryProps) {
                  * This may return nothing if the list of params are empty
                  */}
                 <QueryParamsList
-                  queryParams={queryParams}
-                  setQueryParams={setQueryParams}
+                  queryParams={props.queryParams}
+                  setQueryParams={props.setQueryParams}
                 />
               </EuiFlexItem>
             </EuiFlexGroup>
@@ -311,7 +345,8 @@ export function Query(props: QueryProps) {
                 <EuiText size="m">Results</EuiText>
               </EuiFlexItem>
               <EuiFlexItem>
-                {queryResponse === undefined || isEmpty(queryResponse) ? (
+                {props.queryResponse === undefined ||
+                isEmpty(props.queryResponse) ? (
                   <EuiEmptyPrompt
                     title={<h2>No results</h2>}
                     titleSize="s"
@@ -324,7 +359,7 @@ export function Query(props: QueryProps) {
                     }
                   />
                 ) : (
-                  <Results response={queryResponse} />
+                  <Results response={props.queryResponse} />
                 )}
               </EuiFlexItem>
             </EuiFlexGroup>
