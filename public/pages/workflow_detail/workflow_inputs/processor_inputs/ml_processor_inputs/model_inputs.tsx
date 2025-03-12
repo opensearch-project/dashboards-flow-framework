@@ -46,6 +46,7 @@ import {
 import { AppState, getMappings, useAppDispatch } from '../../../../../store';
 import {
   getDataSourceId,
+  getObjsFromJSONLines,
   parseModelInputs,
   sanitizeJSONPath,
 } from '../../../../../utils';
@@ -126,9 +127,10 @@ export function ModelInputs(props: ModelInputsProps) {
   >([]);
   useEffect(() => {
     try {
-      const docObjKeys = Object.keys(
-        flattie((JSON.parse(values.ingest.docs) as {}[])[0])
+      const ingestDocsObjs = getObjsFromJSONLines(
+        getIn(values, 'ingest.docs', '')
       );
+      const docObjKeys = Object.keys(flattie(ingestDocsObjs[0]));
       if (docObjKeys.length > 0) {
         setDocFields(
           docObjKeys.map((key) => {
