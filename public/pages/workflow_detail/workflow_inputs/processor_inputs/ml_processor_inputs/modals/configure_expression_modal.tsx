@@ -49,6 +49,7 @@ import {
   generateTransform,
   getDataSourceId,
   getInitialValue,
+  getObjsFromJSONLines,
   getPlaceholdersFromQuery,
   injectParameters,
   prepareDocsForSimulate,
@@ -128,11 +129,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
     `${props.baseConfigPath}.${props.config.id}.one_to_one`
   );
   const docs = getIn(values, 'ingest.docs');
-  let docObjs = [] as {}[] | undefined;
-  try {
-    const lines = docs?.split('\n') as string[];
-    lines.forEach((line) => docObjs?.push(JSON.parse(line)));
-  } catch {}
+  const docObjs = getObjsFromJSONLines(docs);
   const query = getIn(values, 'search.request');
   let queryObj = {} as {} | undefined;
   try {
@@ -475,12 +472,8 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                                       });
                                   } else {
                                     try {
-                                      const docObjs = [] as {}[];
-                                      const lines = values?.ingest?.docs?.split(
-                                        '\n'
-                                      ) as string[];
-                                      lines.forEach((line) =>
-                                        docObjs?.push(JSON.parse(line))
+                                      const docObjs = getObjsFromJSONLines(
+                                        values?.ingest?.docs
                                       );
                                       if (docObjs.length > 0) {
                                         setSourceInput(
