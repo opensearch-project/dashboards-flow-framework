@@ -5,7 +5,7 @@
 
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { AppState } from '../../../store';
+import { useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
   EuiFlexGroup,
@@ -15,11 +15,17 @@ import {
   EuiTabs,
   EuiText,
 } from '@elastic/eui';
+import { AppState } from '../../../store';
 import {
   CONFIG_STEP,
+  customStringify,
+  FETCH_ALL_QUERY,
   INSPECTOR_TAB_ID,
   INSPECTOR_TABS,
+  QueryParam,
+  SearchResponse,
   Workflow,
+  WorkflowFormValues,
 } from '../../../../common';
 import { Resources } from './resources';
 import { Query } from './query';
@@ -56,6 +62,27 @@ export function Tools(props: ToolsProps) {
   const [curErrorMessages, setCurErrorMessages] = useState<
     (string | ReactNode)[]
   >([]);
+  const { values } = useFormikContext<WorkflowFormValues>();
+
+  // Standalone / sandboxed search request state. Users can test things out
+  // without updating the base form / persisted value.
+  // Update if the parent form values are changed, or if a newly-created search pipeline is detected.
+  const [queryRequest, setQueryRequest] = useState<string>('');
+  useEffect(() => {
+    if (!isEmpty(values?.search?.request)) {
+      setQueryRequest(values?.search?.request);
+    } else {
+      setQueryRequest(customStringify(FETCH_ALL_QUERY));
+    }
+  }, [values?.search?.request]);
+
+  // query response state
+  const [queryResponse, setQueryResponse] = useState<
+    SearchResponse | undefined
+  >(undefined);
+
+  // query params state
+  const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
 
   // Propagate any errors coming from opensearch API calls, including ingest/search pipeline verbose calls.
   useEffect(() => {
@@ -160,6 +187,12 @@ export function Tools(props: ToolsProps) {
                       props.workflow
                     )}
                     selectedStep={props.selectedStep}
+                    queryRequest={queryRequest}
+                    setQueryRequest={setQueryRequest}
+                    queryResponse={queryResponse}
+                    setQueryResponse={setQueryResponse}
+                    queryParams={queryParams}
+                    setQueryParams={setQueryParams}
                   />
                 )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.ERRORS && (
