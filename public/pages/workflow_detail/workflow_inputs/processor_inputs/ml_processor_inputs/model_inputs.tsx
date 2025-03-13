@@ -35,7 +35,6 @@ import {
   EMPTY_INPUT_MAP_ENTRY,
   WorkflowConfig,
   getCharacterLimitedString,
-  ModelInputFormField,
   INPUT_TRANSFORM_OPTIONS,
 } from '../../../../../../common';
 import {
@@ -47,7 +46,6 @@ import { AppState, getMappings, useAppDispatch } from '../../../../../store';
 import {
   getDataSourceId,
   getObjsFromJSONLines,
-  parseModelInputs,
   sanitizeJSONPath,
 } from '../../../../../utils';
 import { ConfigureExpressionModal, ConfigureTemplateModal } from './modals/';
@@ -108,7 +106,7 @@ export function ModelInputs(props: ModelInputsProps) {
     number | undefined
   >(undefined);
 
-  // on initial load of the models, update model interface states
+  // get the model interface based on the selected ID and list of known models
   useEffect(() => {
     if (!isEmpty(models)) {
       const modelId = getIn(values, modelFieldPath)?.id;
@@ -116,7 +114,7 @@ export function ModelInputs(props: ModelInputsProps) {
         setModelInterface(models[modelId]?.interface);
       }
     }
-  }, [models]);
+  }, [models, getIn(values, modelFieldPath)?.id]);
 
   // persisting doc/query/index mapping fields to collect a list
   // of options to display in the dropdowns when configuring input / output maps
@@ -217,31 +215,6 @@ export function ModelInputs(props: ModelInputsProps) {
     setFieldTouched(inputMapFieldPath, true);
   }
 
-  // The options for keys can change. We update what options are available, based
-  // on if there is a model interface found, and additionally filter out any
-  // options that are already being used in the input map, to discourage duplicate keys.
-  const [keyOptions, setKeyOptions] = useState<ModelInputFormField[]>([]);
-  useEffect(() => {
-    setKeyOptions(parseModelInputs(modelInterface));
-  }, [modelInterface]);
-  useEffect(() => {
-    if (modelInterface !== undefined) {
-      const modelInputs = parseModelInputs(modelInterface);
-      if (getIn(values, inputMapFieldPath) !== undefined) {
-        const existingKeys = getIn(values, inputMapFieldPath).map(
-          (inputMapEntry: InputMapEntry) => inputMapEntry.key
-        ) as string[];
-        setKeyOptions(
-          modelInputs.filter(
-            (modelInput) => !existingKeys.includes(modelInput.label)
-          )
-        );
-      } else {
-        setKeyOptions(modelInputs);
-      }
-    }
-  }, [getIn(values, inputMapFieldPath), modelInterface]);
-
   const valueOptions =
     props.context === PROCESSOR_CONTEXT.INGEST
       ? docFields
@@ -255,37 +228,38 @@ export function ModelInputs(props: ModelInputsProps) {
         const populatedMap = field.value?.length !== 0;
         return (
           <>
-            <EuiPanel>
-              {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
-                <>
-                  <BooleanField
-                    fieldPath={oneToOnePath}
-                    label="Merge source data"
-                    type="Switch"
-                    inverse={true}
-                    helpText="Merge multiple documents into a single document for model processing. To process only one document, turn off merge source data."
-                  />
-                  <EuiSpacer size="s" />
-                  {oneToOneChanged && (
-                    <>
-                      <EuiCallOut
-                        size="s"
-                        color="warning"
-                        iconType={'alert'}
-                        title={
-                          <EuiText size="s">
-                            You have changed how source data will be processed.
-                            You may need to update any existing input values to
-                            reflect the updated data structure.
-                          </EuiText>
-                        }
-                      />
-                      <EuiSpacer size="s" />
-                    </>
-                  )}
-                </>
-              )}
-              {populatedMap ? (
+            {populatedMap ? (
+              <EuiPanel>
+                {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+                  <>
+                    <BooleanField
+                      fieldPath={oneToOnePath}
+                      label="Merge source data"
+                      type="Switch"
+                      inverse={true}
+                      helpText="Merge multiple documents into a single document for model processing. To process only one document, turn off merge source data."
+                    />
+                    <EuiSpacer size="s" />
+                    {oneToOneChanged && (
+                      <>
+                        <EuiCallOut
+                          size="s"
+                          color="warning"
+                          iconType={'alert'}
+                          title={
+                            <EuiText size="s">
+                              You have changed how source data will be
+                              processed. You may need to update any existing
+                              input values to reflect the updated data
+                              structure.
+                            </EuiText>
+                          }
+                        />
+                        <EuiSpacer size="s" />
+                      </>
+                    )}
+                  </>
+                )}
                 <EuiCompressedFormRow
                   fullWidth={true}
                   key={inputMapFieldPath}
@@ -343,20 +317,10 @@ export function ModelInputs(props: ModelInputsProps) {
                                     <EuiFlexItem>
                                       <>
                                         {/**
-                                         * We determine if there is an interface based on if there are key options or not,
-                                         * as the options would be derived from the underlying interface.
-                                         * And if so, these values should be static.
-                                         * So, we only display the static text with no mechanism to change it's value.
-                                         * Note we still allow more entries, if a user wants to override / add custom
-                                         * keys if there is some gaps in the model interface.
+                                         * If there is a model interface, display the field name.
+                                         * Otherwise, leave as a free-form text box for a user to enter manually.
                                          */}
-                                        {!isEmpty(keyOptions) &&
-                                        !isEmpty(
-                                          getIn(
-                                            values,
-                                            `${inputMapFieldPath}.${idx}.key`
-                                          )
-                                        ) ? (
+                                        {!isEmpty(modelInterface) ? (
                                           <EuiText
                                             size="s"
                                             style={{ marginTop: '4px' }}
@@ -366,13 +330,6 @@ export function ModelInputs(props: ModelInputsProps) {
                                               `${inputMapFieldPath}.${idx}.key`
                                             )}
                                           </EuiText>
-                                        ) : !isEmpty(keyOptions) ? (
-                                          <SelectWithCustomOptions
-                                            fieldPath={`${inputMapFieldPath}.${idx}.key`}
-                                            options={keyOptions as any[]}
-                                            placeholder={`Name`}
-                                            allowCreate={true}
-                                          />
                                         ) : (
                                           <TextField
                                             fullWidth={true}
@@ -628,16 +585,21 @@ export function ModelInputs(props: ModelInputsProps) {
                                         )}
                                       </>
                                     </EuiFlexItem>
-                                    <EuiFlexItem grow={false}>
-                                      <EuiSmallButtonIcon
-                                        iconType={'trash'}
-                                        color="danger"
-                                        aria-label="Delete"
-                                        onClick={() => {
-                                          deleteMapEntry(field.value, idx);
-                                        }}
-                                      />
-                                    </EuiFlexItem>
+                                    {/**
+                                     * Only allow deleting entries if no defined model interface
+                                     */}
+                                    {isEmpty(modelInterface) && (
+                                      <EuiFlexItem grow={false}>
+                                        <EuiSmallButtonIcon
+                                          iconType={'trash'}
+                                          color="danger"
+                                          aria-label="Delete"
+                                          onClick={() => {
+                                            deleteMapEntry(field.value, idx);
+                                          }}
+                                        />
+                                      </EuiFlexItem>
+                                    )}
                                   </>
                                 </EuiFlexGroup>
                               </EuiFlexItem>
@@ -646,33 +608,38 @@ export function ModelInputs(props: ModelInputsProps) {
                         );
                       }
                     )}
-                    <EuiFlexItem grow={false}>
-                      <div>
-                        <EuiSmallButtonEmpty
-                          style={{ marginLeft: '-8px', marginTop: '0px' }}
-                          iconType={'plusInCircle'}
-                          iconSide="left"
-                          onClick={() => {
-                            addMapEntry(field.value);
-                          }}
-                        >
-                          {`Add input`}
-                        </EuiSmallButtonEmpty>
-                      </div>
-                    </EuiFlexItem>
+                    {/**
+                     * Only allow adding entries if no defined model interface
+                     */}
+                    {isEmpty(modelInterface) && (
+                      <EuiFlexItem grow={false}>
+                        <div>
+                          <EuiSmallButtonEmpty
+                            style={{ marginLeft: '-8px', marginTop: '0px' }}
+                            iconType={'plusInCircle'}
+                            iconSide="left"
+                            onClick={() => {
+                              addMapEntry(field.value);
+                            }}
+                          >
+                            {`Add input`}
+                          </EuiSmallButtonEmpty>
+                        </div>
+                      </EuiFlexItem>
+                    )}
                   </EuiFlexGroup>
                 </EuiCompressedFormRow>
-              ) : (
-                <EuiSmallButton
-                  style={{ width: '100px' }}
-                  onClick={() => {
-                    setFieldValue(field.name, [EMPTY_INPUT_MAP_ENTRY]);
-                  }}
-                >
-                  {'Configure'}
-                </EuiSmallButton>
-              )}
-            </EuiPanel>
+              </EuiPanel>
+            ) : (
+              <EuiSmallButton
+                style={{ width: '100px' }}
+                onClick={() => {
+                  setFieldValue(field.name, [EMPTY_INPUT_MAP_ENTRY]);
+                }}
+              >
+                {'Configure'}
+              </EuiSmallButton>
+            )}
           </>
         );
       }}
