@@ -346,6 +346,7 @@ export function ModelInputs(props: ModelInputsProps) {
                               <EuiFlexItem grow={TYPE_FLEX_RATIO}>
                                 <EuiFlexItem>
                                   <EuiCompressedSuperSelect
+                                    fullWidth={true}
                                     disabled={false}
                                     options={INPUT_TRANSFORM_OPTIONS.map(
                                       (option) =>

@@ -211,6 +211,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                               <EuiFlexItem grow={TYPE_FLEX_RATIO}>
                                 <EuiFlexItem>
                                   <EuiCompressedSuperSelect
+                                    fullWidth={true}
                                     disabled={false}
                                     options={OUTPUT_TRANSFORM_OPTIONS.map(
                                       (option) =>
