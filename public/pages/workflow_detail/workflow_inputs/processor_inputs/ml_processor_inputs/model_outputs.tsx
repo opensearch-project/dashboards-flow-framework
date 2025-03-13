@@ -8,6 +8,18 @@ import { Field, FieldProps, getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import { useSelector } from 'react-redux';
 import {
+  EuiCompressedFormRow,
+  EuiCompressedSuperSelect,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiPanel,
+  EuiSmallButton,
+  EuiSmallButtonEmpty,
+  EuiSmallButtonIcon,
+  EuiSuperSelectOption,
+  EuiText,
+} from '@elastic/eui';
+import {
   IProcessorConfig,
   IConfigField,
   PROCESSOR_CONTEXT,
@@ -21,25 +33,10 @@ import {
   OutputMapFormValue,
   EMPTY_OUTPUT_MAP_ENTRY,
   ExpressionVar,
-  ModelOutputFormField,
   OUTPUT_TRANSFORM_OPTIONS,
 } from '../../../../../../common';
-import { SelectWithCustomOptions, TextField } from '../../input_fields';
-
+import { TextField } from '../../input_fields';
 import { AppState } from '../../../../../store';
-import { parseModelOutputs } from '../../../../../utils';
-import {
-  EuiCompressedFormRow,
-  EuiCompressedSuperSelect,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiPanel,
-  EuiSmallButton,
-  EuiSmallButtonEmpty,
-  EuiSmallButtonIcon,
-  EuiSuperSelectOption,
-  EuiText,
-} from '@elastic/eui';
 import { ConfigureMultiExpressionModal } from './modals';
 
 interface ModelOutputsProps {
@@ -75,10 +72,6 @@ export function ModelOutputs(props: ModelOutputsProps) {
   const modelFieldPath = `${props.baseConfigPath}.${props.config.id}.${modelField.id}`;
   // Assuming no more than one set of output map entries.
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map.0`;
-  const fullResponsePath = getIn(
-    values,
-    `${props.baseConfigPath}.${props.config.id}.full_response_path`
-  );
 
   // various modal states
   const [expressionsModalIdx, setExpressionsModalIdx] = useState<
@@ -90,7 +83,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
     ModelInterface | undefined
   >(undefined);
 
-  // on initial load of the models, update model interface states
+  // get the model interface based on the selected ID and list of known models
   useEffect(() => {
     if (!isEmpty(models)) {
       const modelId = getIn(values, modelFieldPath)?.id;
@@ -98,7 +91,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
         setModelInterface(models[modelId]?.interface);
       }
     }
-  }, [models]);
+  }, [models, getIn(values, modelFieldPath)?.id]);
 
   // Adding a map entry to the end of the existing arr
   function addMapEntry(curEntries: OutputMapFormValue): void {
@@ -117,31 +110,6 @@ export function ModelOutputs(props: ModelOutputsProps) {
     setFieldValue(outputMapFieldPath, updatedEntries);
     setFieldTouched(outputMapFieldPath, true);
   }
-
-  // The options for keys can change. We update what options are available, based
-  // on if there is a model interface found, what full_response_path is, and additionally filter out any
-  // options that are already being used in the output map, to discourage duplicate keys.
-  const [keyOptions, setKeyOptions] = useState<ModelOutputFormField[]>([]);
-  useEffect(() => {
-    setKeyOptions(parseModelOutputs(modelInterface));
-  }, [modelInterface]);
-  useEffect(() => {
-    if (modelInterface !== undefined && fullResponsePath === false) {
-      const modelOutputs = parseModelOutputs(modelInterface);
-      if (getIn(values, outputMapFieldPath) !== undefined) {
-        const existingKeys = getIn(values, outputMapFieldPath).map(
-          (outputMapEntry: OutputMapEntry) => outputMapEntry.key
-        ) as string[];
-        setKeyOptions(
-          modelOutputs.filter(
-            (modelOutput) => !existingKeys.includes(modelOutput.label)
-          )
-        );
-      } else {
-        setKeyOptions(modelOutputs);
-      }
-    }
-  }, [getIn(values, outputMapFieldPath), modelInterface, fullResponsePath]);
 
   return (
     <Field name={outputMapFieldPath} key={outputMapFieldPath}>
@@ -214,20 +182,10 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                     <EuiFlexItem>
                                       <>
                                         {/**
-                                         * We determine if there is an interface based on if there are key options or not,
-                                         * as the options would be derived from the underlying interface.
-                                         * And if so, these values should be static.
-                                         * So, we only display the static text with no mechanism to change it's value.
-                                         * Note we still allow more entries, if a user wants to override / add custom
-                                         * keys if there is some gaps in the model interface.
+                                         * If there is a model interface, display the field name.
+                                         * Otherwise, leave as a free-form text box for a user to enter manually.
                                          */}
-                                        {!isEmpty(keyOptions) &&
-                                        !isEmpty(
-                                          getIn(
-                                            values,
-                                            `${outputMapFieldPath}.${idx}.key`
-                                          )
-                                        ) ? (
+                                        {!isEmpty(modelInterface) ? (
                                           <EuiText
                                             size="s"
                                             style={{ marginTop: '4px' }}
@@ -237,13 +195,6 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                               `${outputMapFieldPath}.${idx}.key`
                                             )}
                                           </EuiText>
-                                        ) : !isEmpty(keyOptions) ? (
-                                          <SelectWithCustomOptions
-                                            fieldPath={`${outputMapFieldPath}.${idx}.key`}
-                                            options={keyOptions as any[]}
-                                            placeholder={`Name`}
-                                            allowCreate={true}
-                                          />
                                         ) : (
                                           <TextField
                                             fullWidth={true}
@@ -438,16 +389,21 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                         ) : undefined}
                                       </>
                                     </EuiFlexItem>
-                                    <EuiFlexItem grow={false}>
-                                      <EuiSmallButtonIcon
-                                        iconType={'trash'}
-                                        color="danger"
-                                        aria-label="Delete"
-                                        onClick={() => {
-                                          deleteMapEntry(field.value, idx);
-                                        }}
-                                      />
-                                    </EuiFlexItem>
+                                    {/**
+                                     * Only allow deleting entries if no defined model interface
+                                     */}
+                                    {isEmpty(modelInterface) && (
+                                      <EuiFlexItem grow={false}>
+                                        <EuiSmallButtonIcon
+                                          iconType={'trash'}
+                                          color="danger"
+                                          aria-label="Delete"
+                                          onClick={() => {
+                                            deleteMapEntry(field.value, idx);
+                                          }}
+                                        />
+                                      </EuiFlexItem>
+                                    )}
                                   </>
                                 </EuiFlexGroup>
                               </EuiFlexItem>
@@ -456,20 +412,25 @@ export function ModelOutputs(props: ModelOutputsProps) {
                         );
                       }
                     )}
-                    <EuiFlexItem grow={false}>
-                      <div>
-                        <EuiSmallButtonEmpty
-                          style={{ marginLeft: '-8px', marginTop: '0px' }}
-                          iconType={'plusInCircle'}
-                          iconSide="left"
-                          onClick={() => {
-                            addMapEntry(field.value);
-                          }}
-                        >
-                          {`Add output`}
-                        </EuiSmallButtonEmpty>
-                      </div>
-                    </EuiFlexItem>
+                    {/**
+                     * Only allow adding entries if no defined model interface
+                     */}
+                    {isEmpty(modelInterface) && (
+                      <EuiFlexItem grow={false}>
+                        <div>
+                          <EuiSmallButtonEmpty
+                            style={{ marginLeft: '-8px', marginTop: '0px' }}
+                            iconType={'plusInCircle'}
+                            iconSide="left"
+                            onClick={() => {
+                              addMapEntry(field.value);
+                            }}
+                          >
+                            {`Add output`}
+                          </EuiSmallButtonEmpty>
+                        </div>
+                      </EuiFlexItem>
+                    )}
                   </EuiFlexGroup>
                 </EuiCompressedFormRow>
               </EuiPanel>
