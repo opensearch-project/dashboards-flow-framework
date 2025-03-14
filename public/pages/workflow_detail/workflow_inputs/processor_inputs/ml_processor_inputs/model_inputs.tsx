@@ -37,6 +37,7 @@ import {
   WorkflowConfig,
   getCharacterLimitedString,
   INPUT_TRANSFORM_OPTIONS,
+  MapCache,
 } from '../../../../../../common';
 import {
   TextField,
@@ -50,6 +51,7 @@ import {
   sanitizeJSONPath,
 } from '../../../../../utils';
 import { ConfigureExpressionModal, ConfigureTemplateModal } from './modals/';
+import { updateCache } from './utils';
 
 interface ModelInputsProps {
   config: IProcessorConfig;
@@ -120,9 +122,7 @@ export function ModelInputs(props: ModelInputsProps) {
   // Temporarily cache any configured transformations for different transform types.
   // For example, if a user configures a prompt, swaps the transform
   // type to "Data field", and swaps back to "Prompt", the prompt will be persisted.
-  const [inputMapCache, _] = useState<{
-    [idx: number]: Transform[];
-  }>({});
+  const [inputMapCache, setInputMapCache] = useState<MapCache>({});
 
   // persisting doc/query/index mapping fields to collect a list
   // of options to display in the dropdowns when configuring input / output maps
@@ -391,49 +391,19 @@ export function ModelInputs(props: ModelInputsProps) {
                                     }
                                     onChange={(option) => {
                                       // before updating, cache any form values
-                                      const curCache = inputMapCache[idx];
-                                      if (
-                                        curCache === undefined ||
-                                        isEmpty(curCache)
-                                      ) {
-                                        // case 1: there is no persisted state for this entry index. create a fresh arr
-                                        inputMapCache[idx] = [mapEntry.value];
-                                      } else if (
-                                        !curCache.some(
-                                          (transform: Transform) =>
-                                            transform.transformType ===
-                                            mapEntry.value.transformType
-                                        )
-                                      ) {
-                                        // case 2: there is persisted state for this entry index, but not for the particular
-                                        // transform type. append to the arr
-                                        inputMapCache[idx] = [
-                                          ...inputMapCache[idx],
-                                          mapEntry.value,
-                                        ];
-                                      } else {
-                                        // case 3: there is persisted state for this entry index, and for the particular transform type.
-                                        // Update the cache with the current form value(s)
-                                        inputMapCache[idx] = inputMapCache[
-                                          idx
-                                        ].map((cachedEntry) => {
-                                          if (
-                                            cachedEntry.transformType ===
-                                            mapEntry.value.transformType
-                                          ) {
-                                            return mapEntry.value;
-                                          } else {
-                                            return cachedEntry;
-                                          }
-                                        });
-                                      }
-
+                                      const updatedCache = updateCache(
+                                        inputMapCache,
+                                        mapEntry,
+                                        idx
+                                      );
                                       setFieldValue(
                                         `${inputMapFieldPath}.${idx}.value.transformType`,
                                         option
                                       );
                                       // Pre-populate with any cached values, if found
-                                      const curCacheForOption = curCache?.find(
+                                      const curCacheForOption = updatedCache[
+                                        idx
+                                      ]?.find(
                                         (transform: Transform) =>
                                           transform.transformType === option
                                       );
@@ -445,6 +415,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                         `${inputMapFieldPath}.${idx}.value.nestedVars`,
                                         curCacheForOption?.nestedVars || []
                                       );
+                                      setInputMapCache(updatedCache);
                                     }}
                                   />
                                 </EuiFlexItem>
