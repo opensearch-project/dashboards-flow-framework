@@ -126,6 +126,10 @@ export type OutputMapEntry = InputMapEntry;
 export type InputMapFormValue = InputMapEntry[];
 export type OutputMapFormValue = OutputMapEntry[];
 
+export type MapCache = {
+  [idx: number]: Transform[];
+};
+
 export type InputMapArrayFormValue = InputMapFormValue[];
 export type OutputMapArrayFormValue = OutputMapFormValue[];
 

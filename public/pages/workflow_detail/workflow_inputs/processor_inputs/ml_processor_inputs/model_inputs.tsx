@@ -31,11 +31,13 @@ import {
   IndexMappings,
   InputMapEntry,
   InputMapFormValue,
+  Transform,
   TRANSFORM_TYPE,
   EMPTY_INPUT_MAP_ENTRY,
   WorkflowConfig,
   getCharacterLimitedString,
   INPUT_TRANSFORM_OPTIONS,
+  MapCache,
 } from '../../../../../../common';
 import {
   TextField,
@@ -49,6 +51,7 @@ import {
   sanitizeJSONPath,
 } from '../../../../../utils';
 import { ConfigureExpressionModal, ConfigureTemplateModal } from './modals/';
+import { updateCache } from './utils';
 
 interface ModelInputsProps {
   config: IProcessorConfig;
@@ -98,14 +101,6 @@ export function ModelInputs(props: ModelInputsProps) {
     ModelInterface | undefined
   >(undefined);
 
-  // various modal states
-  const [templateModalIdx, setTemplateModalIdx] = useState<number | undefined>(
-    undefined
-  );
-  const [expressionModalIdx, setExpressionModalIdx] = useState<
-    number | undefined
-  >(undefined);
-
   // get the model interface based on the selected ID and list of known models
   useEffect(() => {
     if (!isEmpty(models)) {
@@ -115,6 +110,19 @@ export function ModelInputs(props: ModelInputsProps) {
       }
     }
   }, [models, getIn(values, modelFieldPath)?.id]);
+
+  // various modal states
+  const [templateModalIdx, setTemplateModalIdx] = useState<number | undefined>(
+    undefined
+  );
+  const [expressionModalIdx, setExpressionModalIdx] = useState<
+    number | undefined
+  >(undefined);
+
+  // Temporarily cache any configured transformations for different transform types.
+  // For example, if a user configures a prompt, swaps the transform
+  // type to "Data field", and swaps back to "Prompt", the prompt will be persisted.
+  const [inputMapCache, setInputMapCache] = useState<MapCache>({});
 
   // persisting doc/query/index mapping fields to collect a list
   // of options to display in the dropdowns when configuring input / output maps
@@ -346,6 +354,7 @@ export function ModelInputs(props: ModelInputsProps) {
                               <EuiFlexItem grow={TYPE_FLEX_RATIO}>
                                 <EuiFlexItem>
                                   <EuiCompressedSuperSelect
+                                    fullWidth={true}
                                     disabled={false}
                                     options={INPUT_TRANSFORM_OPTIONS.map(
                                       (option) =>
@@ -381,20 +390,32 @@ export function ModelInputs(props: ModelInputsProps) {
                                       ) || ''
                                     }
                                     onChange={(option) => {
+                                      // before updating, cache any form values
+                                      const updatedCache = updateCache(
+                                        inputMapCache,
+                                        mapEntry,
+                                        idx
+                                      );
                                       setFieldValue(
                                         `${inputMapFieldPath}.${idx}.value.transformType`,
                                         option
                                       );
-                                      // If the transform type changes, clear any set value and/or nested vars,
-                                      // as it will likely not make sense under other types/contexts.
+                                      // Pre-populate with any cached values, if found
+                                      const curCacheForOption = updatedCache[
+                                        idx
+                                      ]?.find(
+                                        (transform: Transform) =>
+                                          transform.transformType === option
+                                      );
                                       setFieldValue(
                                         `${inputMapFieldPath}.${idx}.value.value`,
-                                        ''
+                                        curCacheForOption?.value || ''
                                       );
                                       setFieldValue(
                                         `${inputMapFieldPath}.${idx}.value.nestedVars`,
-                                        []
+                                        curCacheForOption?.nestedVars || []
                                       );
+                                      setInputMapCache(updatedCache);
                                     }}
                                   />
                                 </EuiFlexItem>
