@@ -117,70 +117,12 @@ export function ModelInputs(props: ModelInputsProps) {
     number | undefined
   >(undefined);
 
-  const [debouncedInputMap, setDebouncedInputMap] = useState<any>();
-  useEffect(() => {
-    // Set a timeout to update debounced value after 500ms
-    const handler = setTimeout(() => {
-      setDebouncedInputMap(getIn(values, inputMapFieldPath));
-    }, 500);
-
-    // Cleanup the timeout if `query` changes before 500ms
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [getIn(values, inputMapFieldPath)]);
-
-  // TODO: this works ok, but does not allow clearing out any form value, or it resets to the last-known/cached value.
-  // need to filter out on this use case.
-
   // Temporarily cache any configured transformations for different transform types.
   // For example, if a user configures a prompt, swaps the transform
   // type to "Data field", and swaps back to "Prompt", the prompt will be persisted.
   const [inputMapCache, _] = useState<{
     [idx: number]: Transform[];
   }>({});
-  useEffect(() => {
-    const curFormValues = debouncedInputMap as InputMapFormValue | undefined;
-    if (curFormValues !== undefined && !isEmpty(curFormValues)) {
-      // for each form value: populate the cache with a non-empty value and/or populate the
-      // form value with its cached value, if found.
-      curFormValues.forEach((mapEntry, idx) => {
-        const curCacheForIdx = inputMapCache[idx];
-        if (curCacheForIdx === undefined || isEmpty(curCacheForIdx)) {
-          // case 1: there is no persisted state for this entry index. create a fresh arr
-          inputMapCache[idx] = [mapEntry.value];
-        } else if (
-          !curCacheForIdx.some(
-            (transform: Transform) =>
-              transform.transformType === mapEntry.value.transformType
-          )
-        ) {
-          // case 2: there is persisted state for this entry index, but not for the particular
-          // transform type. append to the arr
-          inputMapCache[idx] = [...inputMapCache[idx], mapEntry.value];
-        } else {
-          // case 3: there is persisted state for this entry index, and for the particular transform type.
-          // Either update the cache with the current form value(s) (if non-empty), or update the form
-          // with any value found in the cache
-          inputMapCache[idx] = inputMapCache[idx].map((cachedEntry) => {
-            if (cachedEntry.transformType === mapEntry.value.transformType) {
-              const formValue = mapEntry.value.value;
-              // form is non-empty. update the cache
-              if (formValue !== undefined && !isEmpty(formValue)) {
-                return mapEntry.value;
-                // form is empty. update the form with cached value(s)
-              } else {
-                setFieldValue(`${inputMapFieldPath}.${idx}.value`, cachedEntry);
-                return cachedEntry;
-              }
-            } else {
-              return cachedEntry;
-            }
-          });
-        }
-      });
-    }
-  }, [debouncedInputMap]);
 
   // persisting doc/query/index mapping fields to collect a list
   // of options to display in the dropdowns when configuring input / output maps
@@ -448,19 +390,60 @@ export function ModelInputs(props: ModelInputsProps) {
                                       ) || ''
                                     }
                                     onChange={(option) => {
+                                      // before updating, cache any form values
+                                      const curCache = inputMapCache[idx];
+                                      if (
+                                        curCache === undefined ||
+                                        isEmpty(curCache)
+                                      ) {
+                                        // case 1: there is no persisted state for this entry index. create a fresh arr
+                                        inputMapCache[idx] = [mapEntry.value];
+                                      } else if (
+                                        !curCache.some(
+                                          (transform: Transform) =>
+                                            transform.transformType ===
+                                            mapEntry.value.transformType
+                                        )
+                                      ) {
+                                        // case 2: there is persisted state for this entry index, but not for the particular
+                                        // transform type. append to the arr
+                                        inputMapCache[idx] = [
+                                          ...inputMapCache[idx],
+                                          mapEntry.value,
+                                        ];
+                                      } else {
+                                        // case 3: there is persisted state for this entry index, and for the particular transform type.
+                                        // Update the cache with the current form value(s)
+                                        inputMapCache[idx] = inputMapCache[
+                                          idx
+                                        ].map((cachedEntry) => {
+                                          if (
+                                            cachedEntry.transformType ===
+                                            mapEntry.value.transformType
+                                          ) {
+                                            return mapEntry.value;
+                                          } else {
+                                            return cachedEntry;
+                                          }
+                                        });
+                                      }
+
                                       setFieldValue(
                                         `${inputMapFieldPath}.${idx}.value.transformType`,
                                         option
                                       );
-                                      // If the transform type changes, clear any set value and/or nested vars,
-                                      // as it will likely not make sense under other types/contexts.
+                                      // Pre-populate with any cached values, if found
+                                      const curCacheForOption = curCache?.find(
+                                        (transform: Transform) =>
+                                          transform.transformType === option
+                                      );
                                       setFieldValue(
                                         `${inputMapFieldPath}.${idx}.value.value`,
-                                        ''
+                                        curCacheForOption?.value || ''
                                       );
                                       setFieldValue(
                                         `${inputMapFieldPath}.${idx}.value.nestedVars`,
-                                        []
+                                        curCacheForOption?.nestedVars || []
                                       );
                                     }}
                                   />
