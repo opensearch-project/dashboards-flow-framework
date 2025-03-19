@@ -34,10 +34,13 @@ import {
   EMPTY_OUTPUT_MAP_ENTRY,
   ExpressionVar,
   OUTPUT_TRANSFORM_OPTIONS,
+  Transform,
+  MapCache,
 } from '../../../../../../common';
 import { TextField } from '../../input_fields';
 import { AppState } from '../../../../../store';
 import { ConfigureMultiExpressionModal } from './modals';
+import { updateCache } from './utils';
 
 interface ModelOutputsProps {
   config: IProcessorConfig;
@@ -92,6 +95,11 @@ export function ModelOutputs(props: ModelOutputsProps) {
       }
     }
   }, [models, getIn(values, modelFieldPath)?.id]);
+
+  // Temporarily cache any configured transformations for different transform types.
+  // For example, if a user configures a prompt, swaps the transform
+  // type to "Data field", and swaps back to "Prompt", the prompt will be persisted.
+  const [outputMapCache, setOutputMapCache] = useState<MapCache>({});
 
   // Adding a map entry to the end of the existing arr
   function addMapEntry(curEntries: OutputMapFormValue): void {
@@ -211,6 +219,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                               <EuiFlexItem grow={TYPE_FLEX_RATIO}>
                                 <EuiFlexItem>
                                   <EuiCompressedSuperSelect
+                                    fullWidth={true}
                                     disabled={false}
                                     options={OUTPUT_TRANSFORM_OPTIONS.map(
                                       (option) =>
@@ -246,20 +255,32 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                       ) || ''
                                     }
                                     onChange={(option) => {
+                                      // before updating, cache any form values
+                                      const updatedCache = updateCache(
+                                        outputMapCache,
+                                        mapEntry,
+                                        idx
+                                      );
                                       setFieldValue(
                                         `${outputMapFieldPath}.${idx}.value.transformType`,
                                         option
                                       );
-                                      // If the transform type changes, clear any set value and/or nested vars,
-                                      // as it will likely not make sense under other types/contexts.
+                                      // Pre-populate with any cached values, if found
+                                      const curCacheForOption = updatedCache[
+                                        idx
+                                      ]?.find(
+                                        (transform: Transform) =>
+                                          transform.transformType === option
+                                      );
                                       setFieldValue(
                                         `${outputMapFieldPath}.${idx}.value.value`,
-                                        ''
+                                        curCacheForOption?.value || ''
                                       );
                                       setFieldValue(
                                         `${outputMapFieldPath}.${idx}.value.nestedVars`,
-                                        []
+                                        curCacheForOption?.nestedVars || []
                                       );
+                                      setOutputMapCache(updatedCache);
                                     }}
                                   />
                                 </EuiFlexItem>
