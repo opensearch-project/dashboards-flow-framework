@@ -16,10 +16,19 @@ import {
   EuiText,
   EuiCodeBlock,
   EuiSmallButtonEmpty,
+  EuiCallOut,
 } from '@elastic/eui';
 import { WorkflowFormValues } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { EditQueryModal } from './edit_query_modal';
+import { SearchRequest } from '../../../../component_types/other';
+import { useAppDispatch } from '../../../../store';
+import { getDataSourceId } from '../../../../utils/utils';
+import { getIndex } from '../../../../store/reducers/opensearch_reducer';
+interface KnnValidationResult {
+  isValid: boolean;
+  warningMessage?: string;
+}
 
 interface ConfigureSearchRequestProps {}
 
@@ -27,6 +36,8 @@ interface ConfigureSearchRequestProps {}
  * Input component for configuring a search request
  */
 export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
+  const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
   // Form state
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
@@ -42,12 +53,59 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
     values?.search?.index?.name
   );
 
+  // Add knn validation state
+  const searchRequest = new SearchRequest();
+  const indexDetailsState = useSelector(
+    (state: AppState) => state.opensearch.indexDetails
+  );
+  const [validationResult, setValidationResult] = useState<KnnValidationResult>(
+    { isValid: true }
+  );
+
   // initial load: set the search index value, if not already set
   useEffect(() => {
     if (values?.ingest?.enabled) {
       setFieldValue(searchIndexNameFormPath, values?.ingest?.index?.name);
     }
   }, []);
+
+  useEffect(() => {
+    if (selectedIndex) {
+      dispatch(getIndex({ index: selectedIndex, dataSourceId }));
+    }
+  }, [selectedIndex]);
+
+  // validate Knn query
+  useEffect(() => {
+    if (
+      selectedIndex &&
+      values?.search?.request &&
+      indexDetailsState[selectedIndex]
+    ) {
+      try {
+        const indexSettings = JSON.stringify(
+          indexDetailsState[selectedIndex]?.settings || {}
+        );
+
+        // Make sure your query is properly formatted for the validation
+        const queryString =
+          typeof values.search.request === 'string'
+            ? values.search.request
+            : JSON.stringify(values.search.request);
+
+        // Validate the query
+        const result = searchRequest.validateKnnQueryToHaveValidKnnIndex(
+          queryString,
+          indexSettings
+        );
+
+        setValidationResult(result);
+      } catch (error) {
+        console.error('Error validating KNN query:', error);
+        setValidationResult({ isValid: true });
+      }
+    }
+  }, [selectedIndex, values?.search?.request, indexDetailsState]);
 
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
@@ -94,6 +152,18 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
             )}
           </EuiCompressedFormRow>
         </EuiFlexItem>
+        {!validationResult.isValid && validationResult.warningMessage && (
+          <EuiFlexItem>
+            <EuiCallOut
+              title="KNN Query Warning"
+              color="warning"
+              iconType="alert"
+              size="s"
+            >
+              {validationResult.warningMessage}
+            </EuiCallOut>
+          </EuiFlexItem>
+        )}
         <EuiFlexItem>
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
