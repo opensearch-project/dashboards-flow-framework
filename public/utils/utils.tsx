@@ -998,7 +998,7 @@ export function useMissingDataSourceVersion(
 
 /**
  * Formats version string to show only major.minor numbers
- * Example: "3.0.0-alpha1" -> "3.0"
+ * Example: "3.0.0-beta1" -> "3.0"
  */
 export function formatDisplayVersion(version: string): string {
   // Take first two parts of version number (major.minor)
