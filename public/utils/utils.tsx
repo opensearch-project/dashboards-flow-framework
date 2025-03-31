@@ -782,6 +782,25 @@ export function isKnnIndex(existingSettings: string): boolean {
     return false;
   }
 }
+// Check if a query is knn query
+
+export function isKnnQuery(queryString: string): boolean {
+  try {
+    const query =
+      typeof queryString === 'string' ? JSON.parse(queryString) : queryString;
+
+    const hasKnn = getFieldValue(query, 'knn') !== undefined;
+    const hasNeural = getFieldValue(query, 'neural') !== undefined;
+
+    return hasKnn || hasNeural;
+  } catch (error) {
+    console.error('Error in isKnnQuery:', error);
+    // Fallback to string-based detection
+    return (
+      queryString.includes('"knn":{') || queryString.includes('"neural":{')
+    );
+  }
+}
 
 // Update the index settings based on parameters passed.
 // Currently just used for updating the `knn` flag.
