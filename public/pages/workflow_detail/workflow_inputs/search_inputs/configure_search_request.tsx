@@ -155,7 +155,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
         {!validationResult.isValid && validationResult.warningMessage && (
           <EuiFlexItem>
             <EuiCallOut
-              title="KNN Query Warning"
+              title="Vector search might not be working"
               color="warning"
               iconType="alert"
               size="s"
