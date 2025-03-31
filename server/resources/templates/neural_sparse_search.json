@@ -1,0 +1,14 @@
+{
+    "name": "Neural Sparse Search",
+    "description": "Build an application that searches using sparse embeddings.",
+    "version": {
+      "template": "1.0.0",
+      "compatibility": [
+        "2.19.0",
+        "3.0.0"
+      ]
+    },
+    "ui_metadata": {
+      "type": "Neural Sparse Search"
+    }
+  }

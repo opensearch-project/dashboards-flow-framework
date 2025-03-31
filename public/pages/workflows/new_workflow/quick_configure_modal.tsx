@@ -434,6 +434,7 @@ function injectQuickConfigureFields(
     switch (workflow.ui_metadata?.type) {
       case WORKFLOW_TYPE.SEMANTIC_SEARCH:
       case WORKFLOW_TYPE.HYBRID_SEARCH:
+      case WORKFLOW_TYPE.NEURAL_SPARSE_SEARCH:
       case WORKFLOW_TYPE.MULTIMODAL_SEARCH: {
         if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
           workflow.ui_metadata.config = updateIngestProcessors(
@@ -444,6 +445,7 @@ function injectQuickConfigureFields(
           );
           workflow.ui_metadata.config = updateIndexConfig(
             workflow.ui_metadata.config,
+            workflow.ui_metadata?.type,
             quickConfigureFields
           );
           workflow.ui_metadata.config.search.request.value = injectPlaceholderValues(
@@ -470,6 +472,7 @@ function injectQuickConfigureFields(
           );
           workflow.ui_metadata.config = updateIndexConfig(
             workflow.ui_metadata.config,
+            workflow.ui_metadata?.type,
             quickConfigureFields
           );
           workflow.ui_metadata.config.search.request.value = injectPlaceholderValues(
@@ -795,6 +798,7 @@ function updateRAGSearchResponseProcessors(
 // prefill index mappings/settings, if applicable
 function updateIndexConfig(
   config: WorkflowConfig,
+  workflow_type: WORKFLOW_TYPE,
   fields: QuickConfigureFields
 ): WorkflowConfig {
   if (
@@ -823,10 +827,10 @@ function updateIndexConfig(
       };
     }
     if (fields.vectorField) {
-      properties[fields.vectorField] = {
-        type: 'knn_vector',
-        dimension: fields.embeddingLength || '',
-      };
+      properties[fields.vectorField] = 
+        workflow_type !== WORKFLOW_TYPE.NEURAL_SPARSE_SEARCH
+          ? { type: 'knn_vector', dimension: fields.embeddingLength || '' }
+          : { type: 'rank_features' };
     }
     if (fields.labelField) {
       properties[fields.labelField] = {

@@ -32,6 +32,7 @@ import {
   BEDROCK_CONFIGS,
   COHERE_CONFIGS,
   OPENAI_CONFIGS,
+  NEURAL_SPARSE_CONFIGS,
   customStringify,
   NO_TRANSFORMATION,
   TRANSFORM_TYPE,
@@ -766,7 +767,9 @@ export function getEmbeddingModelDimensions(
       // @ts-ignore
       OPENAI_CONFIGS[connector.parameters?.model]?.dimension ||
       // @ts-ignore
-      BEDROCK_CONFIGS[connector.parameters?.model]?.dimension
+      BEDROCK_CONFIGS[connector.parameters?.model]?.dimension ||
+      // @ts-ignore
+      NEURAL_SPARSE_CONFIGS[connector.parameters?.model]?.dimension
     );
   } else {
     return undefined;
@@ -809,7 +812,9 @@ function getEmbeddingFieldFromConnector(
       // @ts-ignore
       OPENAI_CONFIGS[connector?.parameters?.model]?.fieldName ||
       // @ts-ignore
-      BEDROCK_CONFIGS[connector?.parameters?.model]?.fieldName
+      BEDROCK_CONFIGS[connector?.parameters?.model]?.fieldName ||
+      // @ts-ignore
+      NEURAL_SPARSE_CONFIGS[connector?.parameters?.model]?.fieldName
     );
   } else {
     return undefined;
