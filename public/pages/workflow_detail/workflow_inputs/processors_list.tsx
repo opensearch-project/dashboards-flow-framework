@@ -353,8 +353,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
   }
 
   function moveProcessorUp(processorIndex: number): void {
-    if (processorIndex <= 0) return;
-
     clearProcessorErrors();
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
     let newConfig = formikToUiConfig(values, existingConfig);
@@ -411,8 +409,6 @@ export function ProcessorsList(props: ProcessorsListProps) {
         currentProcessors = newConfig.search.enrichResponse.processors;
         break;
     }
-
-    if (processorIndex >= currentProcessors.length - 1) return;
 
     [
       currentProcessors[processorIndex],
