@@ -352,6 +352,87 @@ export function ProcessorsList(props: ProcessorsListProps) {
     props.setUiConfig(newConfig);
   }
 
+  function moveProcessorUp(processorIndex: number): void {
+    clearProcessorErrors();
+    const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
+    let newConfig = formikToUiConfig(values, existingConfig);
+    let currentProcessors: IProcessorConfig[] = [];
+    switch (props.context) {
+      case PROCESSOR_CONTEXT.INGEST:
+        currentProcessors = newConfig.ingest.enrich.processors;
+        break;
+      case PROCESSOR_CONTEXT.SEARCH_REQUEST:
+        currentProcessors = newConfig.search.enrichRequest.processors;
+        break;
+      case PROCESSOR_CONTEXT.SEARCH_RESPONSE:
+        currentProcessors = newConfig.search.enrichResponse.processors;
+        break;
+    }
+
+    [
+      currentProcessors[processorIndex],
+      currentProcessors[processorIndex - 1],
+    ] = [
+      currentProcessors[processorIndex - 1],
+      currentProcessors[processorIndex],
+    ];
+
+    switch (props.context) {
+      case PROCESSOR_CONTEXT.INGEST:
+        newConfig.ingest.enrich.processors = currentProcessors;
+        break;
+      case PROCESSOR_CONTEXT.SEARCH_REQUEST:
+        newConfig.search.enrichRequest.processors = currentProcessors;
+        break;
+      case PROCESSOR_CONTEXT.SEARCH_RESPONSE:
+        newConfig.search.enrichResponse.processors = currentProcessors;
+        break;
+    }
+
+    props.setUiConfig(newConfig);
+  }
+
+  function moveProcessorDown(processorIndex: number): void {
+    clearProcessorErrors();
+    const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
+    let newConfig = formikToUiConfig(values, existingConfig);
+
+    let currentProcessors: IProcessorConfig[] = [];
+    switch (props.context) {
+      case PROCESSOR_CONTEXT.INGEST:
+        currentProcessors = newConfig.ingest.enrich.processors;
+        break;
+      case PROCESSOR_CONTEXT.SEARCH_REQUEST:
+        currentProcessors = newConfig.search.enrichRequest.processors;
+        break;
+      case PROCESSOR_CONTEXT.SEARCH_RESPONSE:
+        currentProcessors = newConfig.search.enrichResponse.processors;
+        break;
+    }
+
+    [
+      currentProcessors[processorIndex],
+      currentProcessors[processorIndex + 1],
+    ] = [
+      currentProcessors[processorIndex + 1],
+      currentProcessors[processorIndex],
+    ];
+
+    switch (props.context) {
+      case PROCESSOR_CONTEXT.INGEST:
+        newConfig.ingest.enrich.processors = currentProcessors;
+        break;
+      case PROCESSOR_CONTEXT.SEARCH_REQUEST:
+        newConfig.search.enrichRequest.processors = currentProcessors;
+        break;
+      case PROCESSOR_CONTEXT.SEARCH_RESPONSE:
+        newConfig.search.enrichResponse.processors = currentProcessors;
+        break;
+    }
+
+    props.setUiConfig(newConfig);
+  }
+
   return (
     <EuiFlexGroup direction="column" gutterSize="s">
       {processors.map((processor: IProcessorConfig, processorIndex) => {
@@ -447,14 +528,34 @@ export function ProcessorsList(props: ProcessorsListProps) {
                   </EuiFlexGroup>
                 }
                 extraAction={
-                  <EuiSmallButtonIcon
-                    iconType={'trash'}
-                    color="danger"
-                    aria-label="Delete"
-                    onClick={() => {
-                      deleteProcessor(processor.id);
-                    }}
-                  />
+                  <EuiFlexGroup gutterSize="s" alignItems="center">
+                    <EuiFlexItem grow={false}>
+                      <EuiSmallButtonIcon
+                        iconType="sortUp"
+                        aria-label="Move processor up"
+                        onClick={() => moveProcessorUp(processorIndex)}
+                        isDisabled={processorIndex === 0}
+                      />
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiSmallButtonIcon
+                        iconType="sortDown"
+                        aria-label="Move processor down"
+                        onClick={() => moveProcessorDown(processorIndex)}
+                        isDisabled={processorIndex === processors.length - 1}
+                      />
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiSmallButtonIcon
+                        iconType="trash"
+                        color="danger"
+                        aria-label="Delete"
+                        onClick={() => {
+                          deleteProcessor(processor.id);
+                        }}
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
                 }
               >
                 <EuiSpacer size="s" />
