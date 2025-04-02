@@ -19,6 +19,7 @@ interface SelectFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onSelectChange?: (option: string) => void;
   showInvalid?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -66,6 +67,7 @@ export function SelectField(props: SelectFieldProps) {
                 }
               }}
               isInvalid={isInvalid}
+              disabled={props.disabled}
             />
           </EuiCompressedFormRow>
         );

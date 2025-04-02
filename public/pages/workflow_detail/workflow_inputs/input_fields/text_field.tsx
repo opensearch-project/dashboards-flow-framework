@@ -25,6 +25,7 @@ interface TextFieldProps {
   showInvalid?: boolean;
   fullWidth?: boolean;
   textArea?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -68,6 +69,7 @@ export function TextField(props: TextFieldProps) {
                   form.setFieldValue(props.fieldPath, e.target.value);
                 }}
                 isInvalid={isInvalid}
+                disabled={props.disabled}
               />
             ) : (
               <EuiCompressedFieldText
@@ -79,6 +81,7 @@ export function TextField(props: TextFieldProps) {
                   form.setFieldValue(props.fieldPath, e.target.value?.trim());
                 }}
                 isInvalid={isInvalid}
+                disabled={props.disabled}
               />
             )}
           </EuiCompressedFormRow>

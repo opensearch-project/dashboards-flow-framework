@@ -26,6 +26,7 @@ interface ProcessorInputsProps {
   config: IProcessorConfig;
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
   context: PROCESSOR_CONTEXT;
+  disableIndexSelection?: boolean;
 }
 
 // Component to dynamically render the processor inputs based on the processor types.
@@ -87,6 +88,7 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                     configId={props.config.id}
                     configFields={props.config.fields}
                     baseConfigPath={props.baseConfigPath}
+                    disableIndexSelection={props.disableIndexSelection}
                   />
                   {!isEmpty(props.config.optionalFields) && (
                     <EuiAccordion
@@ -100,6 +102,7 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                           configId={props.config.id}
                           configFields={props.config.optionalFields || []}
                           baseConfigPath={props.baseConfigPath}
+                          disableIndexSelection={props.disableIndexSelection}
                         />
                       </EuiFlexItem>
                     </EuiAccordion>
