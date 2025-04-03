@@ -25,6 +25,7 @@ interface TextFieldProps {
   showInvalid?: boolean;
   fullWidth?: boolean;
   textArea?: boolean;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
 
 /**
@@ -79,6 +80,7 @@ export function TextField(props: TextFieldProps) {
                   form.setFieldValue(props.fieldPath, e.target.value?.trim());
                 }}
                 isInvalid={isInvalid}
+                inputRef={props.inputRef}
               />
             )}
           </EuiCompressedFormRow>
