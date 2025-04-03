@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import * as yup from 'yup';
 import { Formik, getIn } from 'formik';
@@ -88,6 +88,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const { models, connectors } = useSelector((state: AppState) => state.ml);
   const { workflows } = useSelector((state: AppState) => state.workflows);
 
+  const nameInputRef = useRef<HTMLInputElement>(null);
   // is creating state
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
@@ -95,6 +96,16 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const [quickConfigureFields, setQuickConfigureFields] = useState<
     QuickConfigureFields
   >({});
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (nameInputRef.current) {
+        nameInputRef.current.focus();
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // sub-form values/schema. dependent on the workflow type.
   // certain types require different subsets of models.
@@ -257,6 +268,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                     fullWidth={true}
                     fieldPath={`name`}
                     showError={true}
+                    inputRef={nameInputRef}
                   />
                 </EuiFlexItem>
                 <EuiFlexItem>
