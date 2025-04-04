@@ -491,3 +491,46 @@ Override the query to a knn query, including the embedding output. For example:
     }
 }
 ```
+
+---
+
+## 9. Neural sparse search
+
+### ML resources
+Create and deploy a [Neural Sparse Encoding model](https://github.com/opensearch-project/dashboards-flow-framework/blob/main/documentation/models.md#neural-sparse-encoding).
+
+### Index
+
+Ensure the index mappings have a `rank_features` field - something like the following:
+
+```
+"<embedding_field_name>": {
+    "type": "rank_features"
+}
+```
+
+### Ingest pipeline
+
+Single ML inference processor. Map your input text to the `text_doc` model input field. Optionally map the output `response` to a new document field. Transform the response if needed using JSONPath expression. 
+
+
+### Search pipeline
+
+Single ML inference **search request** processor. Map the query field containing the input text to the `text_doc` model input field. Optionally map the output `response` to a new field. Transform the response if needed using JSONPath expression. Override the query to a neural sparse query. For example:
+
+```
+{
+    "_source": {
+        "excludes": [
+            "<embedding_field>"
+        ]
+    },
+    "query": {
+        "neural_sparse": {
+            "<embedding_field>": {
+                "query_tokens": ${response},
+            }
+        }
+    }
+}
+```

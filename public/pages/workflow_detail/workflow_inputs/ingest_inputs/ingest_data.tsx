@@ -13,9 +13,9 @@ import {
 } from '@elastic/eui';
 import { TextField } from '../input_fields';
 import { AdvancedSettings } from './advanced_settings';
-import { KNN_VECTOR_DOCS_LINK } from '../../../../../common';
+import { KNN_VECTOR_DOCS_LINK, WORKFLOW_TYPE } from '../../../../../common';
 
-interface IngestDataProps {}
+interface IngestDataProps {workflowType: WORKFLOW_TYPE | undefined;}
 
 /**
  * Input component for configuring the data ingest (the OpenSearch index)
@@ -56,7 +56,7 @@ export function IngestData(props: IngestDataProps) {
         />
       </EuiFlexItem>
       <EuiFlexItem>
-        <AdvancedSettings setHasInvalidDimensions={setHasInvalidDimensions} />
+        <AdvancedSettings setHasInvalidDimensions={setHasInvalidDimensions} workflowType={props.workflowType} />
       </EuiFlexItem>
     </EuiFlexGroup>
   );
