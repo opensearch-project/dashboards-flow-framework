@@ -209,10 +209,9 @@ export function QuickConfigureOptionalFields(
                 }}
               />
             </EuiCompressedFormRow>
-            {unknownEmbeddingLength && (
+            {unknownEmbeddingLength && props.workflowType !== WORKFLOW_TYPE.NEURAL_SPARSE_SEARCH && (
               <>
                 <EuiSpacer size="s" />
-                {props.workflowType !== WORKFLOW_TYPE.NEURAL_SPARSE_SEARCH && (
                 <EuiCompressedFormRow
                   fullWidth={true}
                   label={'Embedding length'}
@@ -230,7 +229,6 @@ export function QuickConfigureOptionalFields(
                     }}
                   />
                 </EuiCompressedFormRow>
-                )}
               </>
             )}
           </>
