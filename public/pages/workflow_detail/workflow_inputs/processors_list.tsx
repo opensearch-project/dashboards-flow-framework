@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import semver from 'semver';
 import {
@@ -28,6 +28,8 @@ import {
   PROCESSOR_CONTEXT,
   WorkflowConfig,
   WorkflowFormValues,
+  Workflow,
+  WORKFLOW_STEP_TYPE,
 } from '../../../../common';
 import {
   formikToUiConfig,
@@ -69,6 +71,7 @@ interface ProcessorsListProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   context: PROCESSOR_CONTEXT;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
+  workflow?: Workflow;
 }
 
 const PANEL_ID = 0;
@@ -93,6 +96,22 @@ export function ProcessorsList(props: ProcessorsListProps) {
   const [processorOpenState, setProcessorOpenState] = useState<{
     [processorId: string]: boolean;
   }>({});
+
+  const hasIngestedIndex = useMemo(() => {
+    const indexNameConfigured =
+      props.uiConfig?.ingest?.index?.name?.value !== undefined &&
+      props.uiConfig?.ingest?.index?.name?.value !== '';
+
+    const indexResourceCreated = props.workflow?.resourcesCreated?.some(
+      (resource) =>
+        resource.stepType === WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE
+    );
+
+    return indexNameConfigured && indexResourceCreated;
+  }, [
+    props.uiConfig?.ingest?.index?.name?.value,
+    props.workflow?.resourcesCreated,
+  ]);
 
   function clearProcessorErrors(): void {
     if (props.context === PROCESSOR_CONTEXT.INGEST) {
@@ -580,6 +599,10 @@ export function ProcessorsList(props: ProcessorsListProps) {
                     config={processor}
                     baseConfigPath={baseConfigPath}
                     context={props.context}
+                    disableIndexSelection={
+                      props.context !== PROCESSOR_CONTEXT.INGEST &&
+                      hasIngestedIndex
+                    }
                   />
                 </EuiFlexItem>
               </EuiAccordion>

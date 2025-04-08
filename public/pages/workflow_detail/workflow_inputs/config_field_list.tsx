@@ -26,6 +26,7 @@ interface ConfigFieldListProps {
   configId: string;
   configFields: IConfigField[];
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
+  disableIndexSelection?: boolean;
 }
 
 const CONFIG_FIELD_SPACER_SIZE = 'm';
@@ -35,6 +36,8 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
     <EuiFlexItem grow={false}>
       {props.configFields.map((field, idx) => {
         const fieldPath = `${props.baseConfigPath}.${props.configId}.${field.id}`;
+        const isIndexField = field.id === 'index';
+        const isDisabled = isIndexField && props.disableIndexSelection;
         let el;
         switch (field.type) {
           case 'string': {
@@ -44,6 +47,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={fieldPath}
                   showError={true}
+                  disabled={isDisabled}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -58,6 +62,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   fieldPath={fieldPath}
                   showError={true}
                   textArea={true}
+                  disabled={isDisabled}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -67,7 +72,11 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
           case 'select': {
             el = (
               <EuiFlexItem key={idx}>
-                <SelectField field={field} fieldPath={fieldPath} />
+                <SelectField
+                  field={field}
+                  fieldPath={fieldPath}
+                  disabled={isDisabled}
+                />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
             );

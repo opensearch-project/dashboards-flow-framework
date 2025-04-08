@@ -26,6 +26,7 @@ interface TextFieldProps {
   fullWidth?: boolean;
   textArea?: boolean;
   inputRef?: React.RefObject<HTMLInputElement>;
+  disabled?: boolean;
 }
 
 /**
@@ -69,6 +70,7 @@ export function TextField(props: TextFieldProps) {
                   form.setFieldValue(props.fieldPath, e.target.value);
                 }}
                 isInvalid={isInvalid}
+                disabled={props.disabled}
               />
             ) : (
               <EuiCompressedFieldText
@@ -81,6 +83,7 @@ export function TextField(props: TextFieldProps) {
                 }}
                 isInvalid={isInvalid}
                 inputRef={props.inputRef}
+                disabled={props.disabled}
               />
             )}
           </EuiCompressedFormRow>
