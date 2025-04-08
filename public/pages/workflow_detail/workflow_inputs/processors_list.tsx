@@ -94,6 +94,11 @@ export function ProcessorsList(props: ProcessorsListProps) {
     [processorId: string]: boolean;
   }>({});
 
+  // check if an index has already been indexed in the ingest pipeline
+  const hasIngestedIndex =
+    props.uiConfig?.ingest?.index?.name?.value !== undefined &&
+    props.uiConfig?.ingest?.index?.name?.value !== '';
+
   function clearProcessorErrors(): void {
     if (props.context === PROCESSOR_CONTEXT.INGEST) {
       dispatch(setIngestPipelineErrors({ errors: {} }));
@@ -580,6 +585,10 @@ export function ProcessorsList(props: ProcessorsListProps) {
                     config={processor}
                     baseConfigPath={baseConfigPath}
                     context={props.context}
+                    disableIndexSelection={
+                      props.context !== PROCESSOR_CONTEXT.INGEST &&
+                      hasIngestedIndex
+                    }
                   />
                 </EuiFlexItem>
               </EuiAccordion>

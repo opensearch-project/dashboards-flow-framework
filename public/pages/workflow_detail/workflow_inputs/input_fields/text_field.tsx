@@ -25,7 +25,11 @@ interface TextFieldProps {
   showInvalid?: boolean;
   fullWidth?: boolean;
   textArea?: boolean;
+<<<<<<< HEAD
   inputRef?: React.RefObject<HTMLInputElement>;
+=======
+  disabled?: boolean;
+>>>>>>> 0abce6b (disable choosing index in search pipeline if ingest pipeline already have an index)
 }
 
 /**
@@ -69,6 +73,7 @@ export function TextField(props: TextFieldProps) {
                   form.setFieldValue(props.fieldPath, e.target.value);
                 }}
                 isInvalid={isInvalid}
+                disabled={props.disabled}
               />
             ) : (
               <EuiCompressedFieldText
@@ -80,7 +85,11 @@ export function TextField(props: TextFieldProps) {
                   form.setFieldValue(props.fieldPath, e.target.value?.trim());
                 }}
                 isInvalid={isInvalid}
+<<<<<<< HEAD
                 inputRef={props.inputRef}
+=======
+                disabled={props.disabled}
+>>>>>>> 0abce6b (disable choosing index in search pipeline if ingest pipeline already have an index)
               />
             )}
           </EuiCompressedFormRow>
