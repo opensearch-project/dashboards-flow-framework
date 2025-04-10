@@ -471,10 +471,12 @@ export function parseModelInputs(
   modelInterface: ModelInterface | undefined
 ): ModelInputFormField[] {
   const modelInputsObj = parseModelInputsObj(modelInterface);
+  const requiredModelInputs = parseRequiredModelInputs(modelInterface);
   return Object.keys(modelInputsObj).map(
     (inputName: string) =>
       ({
         label: inputName,
+        optional: !requiredModelInputs.includes(inputName),
         ...modelInputsObj[inputName],
       } as ModelInputFormField)
   );
@@ -491,6 +493,16 @@ export function parseModelInputsObj(
     'input.properties.parameters.properties',
     {}
   ) as ModelInputMap;
+}
+
+function parseRequiredModelInputs(
+  modelInterface: ModelInterface | undefined
+): string[] {
+  return get(
+    modelInterface,
+    'input.properties.parameters.required',
+    []
+  ) as string[];
 }
 
 // Derive the collection of model outputs from the model interface JSONSchema into a form-ready list.

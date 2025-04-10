@@ -337,6 +337,13 @@ export function ModelInputs(props: ModelInputsProps) {
                                               values,
                                               `${inputMapFieldPath}.${idx}.key`
                                             )}
+                                            {getIn(
+                                              values,
+                                              `${inputMapFieldPath}.${idx}.value.optional`,
+                                              false
+                                            ) === true && (
+                                              <i>{` - optional`}</i>
+                                            )}
                                           </EuiText>
                                         ) : (
                                           <TextField

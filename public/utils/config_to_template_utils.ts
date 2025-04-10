@@ -556,55 +556,63 @@ function mergeMapIntoSingleObj(
 }
 
 // Bucket the model inputs configured on the UI as input map entries containing dynamic data,
-// or model config entries containing static data.
+// or model config entries containing static data. Filter out optional inputs that are empty.
 function processModelInputs(
   mapFormValue: InputMapFormValue,
   context: PROCESSOR_CONTEXT
 ): { inputMap: {}; modelConfig: {} } {
   let inputMap = {};
   let modelConfig = {};
-  mapFormValue.forEach((mapEntry) => {
-    // dynamic data
-    if (
-      (mapEntry.value.transformType === TRANSFORM_TYPE.FIELD ||
-        mapEntry.value.transformType === TRANSFORM_TYPE.EXPRESSION) &&
-      !isEmpty(mapEntry.value.value)
-    ) {
-      const inputValue =
-        context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-          ? updatePathForExpandedQuery(mapEntry.value.value as string)
-          : (mapEntry.value.value as string);
+  mapFormValue
+    .filter(
+      (mapEntry) =>
+        !(
+          mapEntry.value?.optional === true &&
+          (mapEntry.value?.value === undefined || mapEntry.value?.value === '')
+        )
+    )
+    .forEach((mapEntry) => {
+      // dynamic data
+      if (
+        (mapEntry.value.transformType === TRANSFORM_TYPE.FIELD ||
+          mapEntry.value.transformType === TRANSFORM_TYPE.EXPRESSION) &&
+        !isEmpty(mapEntry.value.value)
+      ) {
+        const inputValue =
+          context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+            ? updatePathForExpandedQuery(mapEntry.value.value as string)
+            : (mapEntry.value.value as string);
 
-      inputMap = {
-        ...inputMap,
-        [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(inputValue),
-      };
-      // template with dynamic nested vars. Add the nested vars as input map entries,
-      // and add the static template itself to the model config.
-    } else if (
-      mapEntry.value.transformType === TRANSFORM_TYPE.TEMPLATE &&
-      !isEmpty(mapEntry.value.nestedVars)
-    ) {
-      mapEntry.value.nestedVars?.forEach((nestedVar) => {
         inputMap = {
           ...inputMap,
-          [sanitizeJSONPath(nestedVar.name)]: sanitizeJSONPath(
-            nestedVar.transform
-          ),
+          [sanitizeJSONPath(mapEntry.key)]: sanitizeJSONPath(inputValue),
         };
-      });
-      modelConfig = {
-        ...modelConfig,
-        [mapEntry.key]: mapEntry.value.value,
-      };
-      // static data
-    } else {
-      modelConfig = {
-        ...modelConfig,
-        [mapEntry.key]: mapEntry.value.value,
-      };
-    }
-  });
+        // template with dynamic nested vars. Add the nested vars as input map entries,
+        // and add the static template itself to the model config.
+      } else if (
+        mapEntry.value.transformType === TRANSFORM_TYPE.TEMPLATE &&
+        !isEmpty(mapEntry.value.nestedVars)
+      ) {
+        mapEntry.value.nestedVars?.forEach((nestedVar) => {
+          inputMap = {
+            ...inputMap,
+            [sanitizeJSONPath(nestedVar.name)]: sanitizeJSONPath(
+              nestedVar.transform
+            ),
+          };
+        });
+        modelConfig = {
+          ...modelConfig,
+          [mapEntry.key]: mapEntry.value.value,
+        };
+        // static data
+      } else {
+        modelConfig = {
+          ...modelConfig,
+          [mapEntry.key]: mapEntry.value.value,
+        };
+      }
+    });
   return {
     inputMap,
     modelConfig,
