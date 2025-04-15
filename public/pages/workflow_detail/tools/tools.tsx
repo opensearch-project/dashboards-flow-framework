@@ -43,6 +43,8 @@ interface ToolsProps {
   selectedTabId: INSPECTOR_TAB_ID;
   setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
   selectedStep: CONFIG_STEP;
+  hideIngestResponseTab?: boolean;
+  hideErrorsTab?: boolean;
 }
 
 const PANEL_TITLE = 'Inspect flows';
@@ -63,6 +65,13 @@ export function Tools(props: ToolsProps) {
     (string | ReactNode)[]
   >([]);
   const { values } = useFormikContext<WorkflowFormValues>();
+
+  const visibleTabs = INSPECTOR_TABS.filter((tab) => {
+    if (props.hideIngestResponseTab && tab.id === INSPECTOR_TAB_ID.INGEST)
+      return false;
+    if (props.hideErrorsTab && tab.id === INSPECTOR_TAB_ID.ERRORS) return false;
+    return true;
+  });
 
   // Standalone / sandboxed search request state. Users can test things out
   // without updating the base form / persisted value.
@@ -123,14 +132,14 @@ export function Tools(props: ToolsProps) {
 
   // auto-navigate to errors tab if new errors have been found
   useEffect(() => {
-    if (curErrorMessages.length > 0) {
+    if (curErrorMessages.length > 0 && !props.hideErrorsTab) {
       props.setSelectedTabId(INSPECTOR_TAB_ID.ERRORS);
     }
   }, [curErrorMessages]);
 
   // auto-navigate to ingest tab if a populated value has been set, indicating ingest has been ran
   useEffect(() => {
-    if (!isEmpty(props.ingestResponse)) {
+    if (!isEmpty(props.ingestResponse) && !props.hideIngestResponseTab) {
       props.setSelectedTabId(INSPECTOR_TAB_ID.INGEST);
     }
   }, [props.ingestResponse]);
@@ -157,7 +166,7 @@ export function Tools(props: ToolsProps) {
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiTabs size="s" expand={false}>
-            {INSPECTOR_TABS.map((tab, idx) => {
+            {visibleTabs.map((tab, idx) => {
               return (
                 <EuiTab
                   onClick={() => props.setSelectedTabId(tab.id)}

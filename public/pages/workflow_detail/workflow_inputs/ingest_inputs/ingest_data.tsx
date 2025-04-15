@@ -9,6 +9,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiLink,
+  EuiSpacer,
   EuiText,
 } from '@elastic/eui';
 import { TextField } from '../input_fields';
@@ -22,6 +23,9 @@ interface IngestDataProps {}
  */
 export function IngestData(props: IngestDataProps) {
   const [hasInvalidDimensions, setHasInvalidDimensions] = useState<boolean>(
+    false
+  );
+  const [isAccordionExpanded, setIsAccordionExpanded] = useState<boolean>(
     false
   );
 
@@ -55,8 +59,13 @@ export function IngestData(props: IngestDataProps) {
           showError={true}
         />
       </EuiFlexItem>
-      <EuiFlexItem>
-        <AdvancedSettings setHasInvalidDimensions={setHasInvalidDimensions} />
+
+      <EuiSpacer size="xs" />
+      <EuiFlexItem style={{ marginTop: isAccordionExpanded ? '0' : '-24px' }}>
+        <AdvancedSettings
+          setHasInvalidDimensions={setHasInvalidDimensions}
+          onToggle={(isExpanded) => setIsAccordionExpanded(isExpanded)}
+        />
       </EuiFlexItem>
     </EuiFlexGroup>
   );

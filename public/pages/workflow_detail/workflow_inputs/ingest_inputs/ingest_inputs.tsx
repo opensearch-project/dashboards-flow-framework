@@ -28,7 +28,7 @@ interface IngestInputsProps {
  */
 export function IngestInputs(props: IngestInputsProps) {
   return (
-    <EuiFlexGroup direction="column">
+    <EuiFlexGroup direction="column" style={{ height: '100%' }}>
       <EuiFlexItem grow={false}>
         <SourceData
           workflow={props.workflow}
@@ -50,7 +50,7 @@ export function IngestInputs(props: IngestInputsProps) {
       <EuiFlexItem grow={false}>
         <EuiHorizontalRule margin="none" />
       </EuiFlexItem>
-      <EuiFlexItem grow={false}>
+      <EuiFlexItem grow={true} style={{ overflow: 'auto' }}>
         <IngestData />
       </EuiFlexItem>
     </EuiFlexGroup>
