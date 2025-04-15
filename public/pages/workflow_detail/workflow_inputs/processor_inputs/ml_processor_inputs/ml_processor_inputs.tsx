@@ -330,8 +330,14 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <ConfigFieldList
                 configId={props.config.id}
                 configFields={(props.config.optionalFields || []).filter(
-                  // we specially render the one_to_one field in <ModelInputs/>, hence we discard it here to prevent confusion.
-                  (optionalField) => optionalField.id !== 'one_to_one'
+                  (optionalField) => {
+                    // we specially render the one_to_one field in <ModelInputs/>, hence we discard it here to prevent confusion.
+                    return (
+                      optionalField.id !== 'one_to_one' &&
+                      // we specially render the ext_output field in <ModelOutputs/>, hence we discard it here to prevent confusion.
+                      optionalField.id !== 'ext_output'
+                    );
+                  }
                 )}
                 baseConfigPath={props.baseConfigPath}
               />
