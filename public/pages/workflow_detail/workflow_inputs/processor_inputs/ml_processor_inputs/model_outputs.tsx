@@ -16,6 +16,7 @@ import {
   EuiSmallButton,
   EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
+  EuiSpacer,
   EuiSuperSelectOption,
   EuiText,
 } from '@elastic/eui';
@@ -37,7 +38,7 @@ import {
   Transform,
   MapCache,
 } from '../../../../../../common';
-import { TextField } from '../../input_fields';
+import { BooleanField, TextField } from '../../input_fields';
 import { AppState } from '../../../../../store';
 import { ConfigureMultiExpressionModal } from './modals';
 import { updateCache } from './utils';
@@ -73,8 +74,39 @@ export function ModelOutputs(props: ModelOutputsProps) {
     (field) => field.type === 'model'
   ) as IConfigField;
   const modelFieldPath = `${props.baseConfigPath}.${props.config.id}.${modelField.id}`;
-  // Assuming no more than one set of output map entries.
-  const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map.0`;
+  const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map.0`; // Assuming no more than one set of output map entries.
+
+  const oneToOnePath = `${props.baseConfigPath}.${props.config.id}.one_to_one`;
+  const extOutputPath = `${props.baseConfigPath}.${props.config.id}.ext_output`;
+
+  // Automatically update "ext_output" field based on changes to "one_to_one".
+  // Handles BWC automatically by populating the form value, even if it is undefined.
+  useEffect(() => {
+    const oneToOneVal = getIn(values, oneToOnePath);
+    const extOutputVal = getIn(values, extOutputPath);
+    console.log('one to one val: ', oneToOneVal);
+    console.log('ext output val: ', extOutputVal);
+    if (
+      props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE &&
+      oneToOneVal !== undefined
+    ) {
+      if (
+        oneToOneVal === true &&
+        (extOutputVal === true || extOutputVal === undefined)
+      ) {
+        console.log('one to one set. reset ext_output to false by default');
+        setFieldValue(extOutputPath, false);
+        setFieldTouched(extOutputPath, true);
+      } else if (
+        oneToOneVal === false &&
+        (extOutputVal === false || extOutputVal === undefined)
+      ) {
+        console.log('many to one set. reset ext output to true by default');
+        setFieldValue(extOutputPath, true);
+        setFieldTouched(extOutputPath, true);
+      }
+    }
+  }, [getIn(values, oneToOnePath)]);
 
   // various modal states
   const [expressionsModalIdx, setExpressionsModalIdx] = useState<
@@ -127,6 +159,19 @@ export function ModelOutputs(props: ModelOutputsProps) {
           <>
             {populatedMap ? (
               <EuiPanel>
+                {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+                  <>
+                    <BooleanField
+                      fieldPath={extOutputPath}
+                      label="Save outputs externally"
+                      type="Switch"
+                      inverse={false}
+                      helpText="Save model responses to ext.ml_inference for easier readability in the search response."
+                      disabled={getIn(values, oneToOnePath, false) === true}
+                    />
+                    <EuiSpacer size="s" />
+                  </>
+                )}
                 <EuiCompressedFormRow
                   fullWidth={true}
                   key={outputMapFieldPath}
