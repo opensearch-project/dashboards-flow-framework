@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { isEmpty } from 'lodash';
 import {
@@ -28,12 +28,15 @@ import {
 
 interface AdvancedSettingsProps {
   setHasInvalidDimensions: (hasInvalidDimensions: boolean) => void;
+  onToggle?: (isExpanded: boolean) => void;
 }
 
 /**
  * Input component for configuring ingest-side advanced settings
  */
 export function AdvancedSettings(props: AdvancedSettingsProps) {
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   const { models, connectors } = useSelector((state: AppState) => state.ml);
   const ingestMLProcessors = (Object.values(
@@ -133,9 +136,25 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
   }, [getIn(values, indexMappingsPath)]);
 
   return (
-    <EuiFlexGroup direction="column">
-      <EuiFlexItem grow={false}>
-        <EuiAccordion id="advancedSettings" buttonContent="Advanced settings">
+    <EuiFlexGroup direction="column" gutterSize="xs">
+      <EuiFlexItem
+        grow={false}
+        style={{
+          marginTop: isExpanded ? '0px' : '-50px',
+          marginBottom: isExpanded ? '0px' : '-10px',
+        }}
+      >
+        <EuiAccordion
+          id="advancedSettings"
+          buttonContent="Advanced settings"
+          paddingSize="s"
+          onToggle={(expanded) => {
+            setIsExpanded(expanded);
+            if (props.onToggle) {
+              props.onToggle(expanded);
+            }
+          }}
+        >
           <EuiSpacer size="s" />
           <EuiFlexGroup direction="column">
             <EuiFlexItem>

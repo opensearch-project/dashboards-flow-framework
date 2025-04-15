@@ -110,6 +110,7 @@ export function SourceData(props: SourceDataProps) {
                 <h3>Import sample data</h3>
               </EuiText>
             </EuiFlexItem>
+
             {docsPopulated && (
               <EuiFlexItem grow={false}>
                 <EuiSmallButtonEmpty

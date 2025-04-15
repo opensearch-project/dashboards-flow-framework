@@ -20,6 +20,8 @@ import {
   EuiIconTip,
   EuiSmallButtonIcon,
   EuiButtonEmpty,
+  EuiCodeBlock,
+  EuiButtonIcon,
 } from '@elastic/eui';
 import {
   CONFIG_STEP,
@@ -36,6 +38,7 @@ import {
 import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
 import {
+  AppState,
   bulk,
   deprovisionWorkflow,
   getWorkflow,
@@ -66,11 +69,13 @@ import {
 import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
 import { ResourcesFlyout } from '../tools/resources/resources_flyout';
+import { useSelector } from 'react-redux';
 
 interface WorkflowInputsProps {
   workflow: Workflow | undefined;
   uiConfig: WorkflowConfig | undefined;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
+  ingestResponse: string;
   setIngestResponse: (ingestResponse: string) => void;
   ingestDocs: string;
   setIngestDocs: (docs: string) => void;
@@ -84,6 +89,11 @@ interface WorkflowInputsProps {
   setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
   displaySearchPanel: () => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
+  context: 'INGEST' | 'SEARCH';
+  setConsoleContent?: React.Dispatch<React.SetStateAction<React.ReactNode>>;
+  isConsoleExpanded?: boolean;
+  setIsConsoleExpanded?: React.Dispatch<React.SetStateAction<boolean>>;
+  hideConsole?: boolean;
 }
 
 const SUCCESS_TOAST_ID = 'success_toast_id';
@@ -104,6 +114,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+  const [consoleExpanded, setConsoleExpanded] = useState<boolean>(false);
   const dataSourceVersion = useDataSourceVersion(dataSourceId);
   const isPreV219 = getIsPreV219(dataSourceVersion);
   const missingDataSourceVersion = useMissingDataSourceVersion(
@@ -180,6 +191,11 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   const [searchTemplatesDifferent, setSearchTemplatesDifferent] = useState<
     boolean
   >(false);
+
+  const {
+    ingestPipeline: ingestPipelineErrors,
+    searchPipeline: searchPipelineErrors,
+  } = useSelector((state: AppState) => state.errors);
 
   // If a workflow is imported, but not yet provisioned, the template nodes will exist, but the resources themselves won't be created.
   // We persist this to ensure that the update search button is enabled to allow provisioning on the UI.
@@ -268,6 +284,115 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
   useEffect(() => {
     setSearchProvisioned(hasProvisionedSearchResources(props.workflow));
   }, [props.workflow]);
+
+  // Handle console expansion state
+  useEffect(() => {
+    if (props.setIsConsoleExpanded !== undefined) {
+      props.setIsConsoleExpanded(consoleExpanded);
+    }
+  }, [consoleExpanded, props.setIsConsoleExpanded]);
+
+  useEffect(() => {
+    if (props.isConsoleExpanded !== undefined) {
+      setConsoleExpanded(props.isConsoleExpanded);
+    }
+  }, [props.isConsoleExpanded]);
+
+  useEffect(() => {
+    if (props.setConsoleContent) {
+      const consoleContent = (
+        <EuiFlexGroup direction="column" gutterSize="s">
+          <EuiFlexItem>
+            <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
+              <EuiFlexItem>
+                <EuiText size="s">
+                  <h3>Console</h3>
+                </EuiText>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButtonIcon
+                  iconType="unfold"
+                  aria-label="Expand console"
+                  onClick={() => setConsoleExpanded(!consoleExpanded)}
+                />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <style>{`
+              .hideFullScreenButton .euiCodeBlock__fullScreenButton {
+                display: none !important;
+              }
+            `}</style>
+            <EuiCodeBlock
+              language="json"
+              fontSize="s"
+              paddingSize="m"
+              overflowHeight={consoleExpanded ? 400 : 200}
+              isCopyable={false}
+              data-test-subj="consoleOutput"
+              style={{
+                backgroundColor:
+                  props.context === 'INGEST'
+                    ? props.ingestResponse ||
+                      (ingestPipelineErrors &&
+                        Object.keys(ingestPipelineErrors).length > 0)
+                      ? undefined
+                      : 'transparent'
+                    : searchPipelineErrors &&
+                      Object.keys(searchPipelineErrors).length > 0
+                    ? undefined
+                    : 'transparent',
+
+                border:
+                  props.context === 'INGEST'
+                    ? props.ingestResponse ||
+                      (ingestPipelineErrors &&
+                        Object.keys(ingestPipelineErrors).length > 0)
+                      ? undefined
+                      : 'none'
+                    : searchPipelineErrors &&
+                      Object.keys(searchPipelineErrors).length > 0
+                    ? undefined
+                    : 'none',
+              }}
+              className={`
+                ${
+                  props.context === 'INGEST'
+                    ? props.ingestResponse ||
+                      (ingestPipelineErrors &&
+                        Object.keys(ingestPipelineErrors).length > 0)
+                      ? ''
+                      : 'euiCodeBlock--transparentBackground'
+                    : searchPipelineErrors &&
+                      Object.keys(searchPipelineErrors).length > 0
+                    ? ''
+                    : 'euiCodeBlock--transparentBackground'
+                } hideFullScreenButton
+              `}
+            >
+              {props.context === 'INGEST'
+                ? props.ingestResponse ||
+                  (ingestPipelineErrors &&
+                  Object.keys(ingestPipelineErrors).length > 0
+                    ? JSON.stringify(ingestPipelineErrors, null, 2)
+                    : '')
+                : JSON.stringify(searchPipelineErrors, null, 2) || ''}
+            </EuiCodeBlock>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      );
+
+      props.setConsoleContent(consoleContent);
+    }
+  }, [
+    props.setConsoleContent,
+    consoleExpanded,
+    props.context,
+    props.ingestResponse,
+    ingestPipelineErrors,
+    searchPipelineErrors,
+  ]);
 
   // populated ingest docs state
   const [docsPopulated, setDocsPopulated] = useState<boolean>(false);
@@ -705,198 +830,214 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       {props.uiConfig === undefined ? (
         <EuiLoadingSpinner size="xl" />
       ) : (
-        <EuiFlexGroup
-          direction="column"
-          justifyContent="spaceBetween"
-          gutterSize="none"
-          style={{
-            height: '100%',
-            gap: '16px',
-          }}
-        >
-          <EuiFlexItem grow={false}>
-            <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-              <EuiFlexItem grow={false}>
-                <EuiText size="s">
-                  <h2>{onIngest ? 'Ingest flow' : 'Search flow'}</h2>
-                </EuiText>
-              </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiFlexGroup direction="row" gutterSize="s">
-                  {onIngestAndUnprovisioned && (
-                    <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
-                      <BooleanField
-                        fieldPath="ingest.enabled"
-                        label="Enable ingest flow"
-                        type="Switch"
-                      />
-                    </EuiFlexItem>
-                  )}
-                  {(ingestProvisioned || searchProvisioned) && (
-                    <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
-                      <EuiButtonEmpty
-                        iconSide="left"
-                        iconType="play"
-                        onClick={() => props.displaySearchPanel()}
-                      >
-                        Test flow
-                      </EuiButtonEmpty>
-                    </EuiFlexItem>
-                  )}
-                  {((onIngest && ingestProvisioned) ||
-                    (onSearch && searchProvisioned)) &&
-                    props.workflow?.resourcesCreated !== undefined && (
+        <>
+          <EuiFlexGroup
+            direction="column"
+            justifyContent="spaceBetween"
+            gutterSize="none"
+            style={{
+              height: '100%',
+              display: 'flex',
+            }}
+          >
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                <EuiFlexItem grow={false}>
+                  <EuiText size="s">
+                    <h2>{onIngest ? 'Ingest flow' : 'Search flow'}</h2>
+                  </EuiText>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiFlexGroup direction="row" gutterSize="s">
+                    {onIngestAndUnprovisioned && (
+                      <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                        <BooleanField
+                          fieldPath="ingest.enabled"
+                          label="Enable ingest flow"
+                          type="Switch"
+                        />
+                      </EuiFlexItem>
+                    )}
+                    {(ingestProvisioned || searchProvisioned) && (
                       <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
                         <EuiButtonEmpty
                           iconSide="left"
-                          iconType="inspect"
-                          onClick={() => setResourcesFlyoutOpen(true)}
+                          iconType="play"
+                          onClick={() => props.displaySearchPanel()}
                         >
-                          Details
+                          Test flow
                         </EuiButtonEmpty>
                       </EuiFlexItem>
                     )}
-                </EuiFlexGroup>
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </EuiFlexItem>
-          <EuiFlexItem
-            grow={true}
-            style={{
-              overflowY: 'scroll',
-              overflowX: 'hidden',
-            }}
-          >
-            {onIngest ? (
-              <>
-                {!onIngestAndDisabled && (
-                  <IngestInputs
-                    setIngestDocs={props.setIngestDocs}
-                    uiConfig={props.uiConfig}
-                    setUiConfig={props.setUiConfig}
-                    workflow={props.workflow}
-                    lastIngested={lastIngested}
-                    setCachedFormikState={props.setCachedFormikState}
-                  />
-                )}
-              </>
-            ) : (
-              <SearchInputs
-                uiConfig={props.uiConfig}
-                setUiConfig={props.setUiConfig}
-                setCachedFormikState={props.setCachedFormikState}
-              />
-            )}
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiFlexGroup direction="column" gutterSize="none">
-              <EuiFlexItem>
-                <EuiHorizontalRule margin="m" />
-              </EuiFlexItem>
-              <EuiFlexItem>
-                <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                  {onIngest && (
-                    <>
-                      <EuiFlexItem grow={false}>
-                        <EuiHealth
-                          color={ingestProvisioned ? 'primary' : 'subdued'}
-                        >
-                          {ingestProvisioned
-                            ? 'Active ingest resources'
-                            : 'No active ingest resources'}
-                        </EuiHealth>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiFlexGroup
-                          direction="row"
-                          gutterSize="s"
-                          justifyContent="flexEnd"
-                        >
-                          {ingestTemplatesDifferent && (
+                    {((onIngest && ingestProvisioned) ||
+                      (onSearch && searchProvisioned)) &&
+                      props.workflow?.resourcesCreated !== undefined && (
+                        <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                          <EuiButtonEmpty
+                            iconSide="left"
+                            iconType="inspect"
+                            onClick={() => setResourcesFlyoutOpen(true)}
+                          >
+                            Details
+                          </EuiButtonEmpty>
+                        </EuiFlexItem>
+                      )}
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+            <EuiFlexItem
+              grow={true}
+              style={{
+                overflowY: 'scroll',
+                overflowX: 'hidden',
+              }}
+            >
+              {onIngest ? (
+                <>
+                  {!onIngestAndDisabled && (
+                    <IngestInputs
+                      setIngestDocs={props.setIngestDocs}
+                      uiConfig={props.uiConfig}
+                      setUiConfig={props.setUiConfig}
+                      workflow={props.workflow}
+                      lastIngested={lastIngested}
+                      setCachedFormikState={props.setCachedFormikState}
+                    />
+                  )}
+                </>
+              ) : (
+                <SearchInputs
+                  uiConfig={props.uiConfig}
+                  setUiConfig={props.setUiConfig}
+                  setCachedFormikState={props.setCachedFormikState}
+                />
+              )}
+            </EuiFlexItem>
+
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup direction="column" gutterSize="none">
+                <EuiFlexItem>
+                  <EuiHorizontalRule margin="none" />
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <EuiFlexGroup
+                    direction="row"
+                    justifyContent="spaceBetween"
+                    style={{ padding: '8px 0' }}
+                  >
+                    {onIngest && (
+                      <>
+                        <EuiFlexItem grow={false}>
+                          <EuiHealth
+                            color={ingestProvisioned ? 'primary' : 'subdued'}
+                          >
+                            {ingestProvisioned
+                              ? 'Active ingest resources'
+                              : 'No active ingest resources'}
+                          </EuiHealth>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiFlexGroup
+                            direction="row"
+                            gutterSize="s"
+                            justifyContent="flexEnd"
+                          >
+                            {ingestTemplatesDifferent && (
+                              <EuiFlexItem
+                                grow={false}
+                                style={{ marginTop: '8px' }}
+                              >
+                                <EuiIconTip
+                                  content={`To edit your search pipeline, finish building an ingest pipeline by providing some sample data.`}
+                                  position="right"
+                                />
+                              </EuiFlexItem>
+                            )}
+
                             <EuiFlexItem
                               grow={false}
-                              style={{ marginTop: '8px' }}
+                              style={{ marginTop: '0px' }}
                             >
-                              <EuiIconTip
-                                content={`To edit your search pipeline, finish building an ingest pipeline by providing some sample data.`}
-                                position="right"
+                              <EuiSmallButton
+                                fill={true}
+                                onClick={() => {
+                                  props.setSelectedStep(CONFIG_STEP.SEARCH);
+                                }}
+                                data-testid="searchPipelineButton"
+                                disabled={
+                                  !ingestEnabled
+                                    ? false
+                                    : onIngestAndUnprovisioned
+                                    ? true
+                                    : ingestTemplatesDifferent
+                                }
+                                iconSide="right"
+                                iconType="arrowRight"
+                              >
+                                {`Next: Search flow`}
+                              </EuiSmallButton>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
+                        </EuiFlexItem>
+                      </>
+                    )}
+                    {onSearch && (
+                      <>
+                        <EuiFlexItem grow={false}>
+                          <EuiFlexGroup direction="row" gutterSize="s">
+                            <EuiFlexItem grow={false}>
+                              <EuiSmallButtonIcon
+                                style={{ marginTop: '-4px' }}
+                                aria-label="searchPipelineBackButton"
+                                data-testid="searchPipelineBackButton"
+                                iconType={'arrowLeft'}
+                                onClick={() =>
+                                  props.setSelectedStep(CONFIG_STEP.INGEST)
+                                }
                               />
                             </EuiFlexItem>
-                          )}
+                            <EuiFlexItem
+                              grow={false}
+                              style={{ marginLeft: '8px' }}
+                            >
+                              <EuiHealth
+                                color={
+                                  ingestProvisioned ? 'primary' : 'subdued'
+                                }
+                              >
+                                {ingestProvisioned
+                                  ? 'Active ingest resources'
+                                  : 'No active ingest resources'}
+                              </EuiHealth>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
+                        </EuiFlexItem>
 
-                          <EuiFlexItem
-                            grow={false}
-                            style={{ marginTop: '0px' }}
-                          >
-                            <EuiSmallButton
-                              fill={true}
-                              onClick={() => {
-                                props.setSelectedStep(CONFIG_STEP.SEARCH);
-                              }}
-                              data-testid="searchPipelineButton"
-                              disabled={
-                                !ingestEnabled
-                                  ? false
-                                  : onIngestAndUnprovisioned
-                                  ? true
-                                  : ingestTemplatesDifferent
-                              }
-                              iconSide="right"
-                              iconType="arrowRight"
-                            >
-                              {`Next: Search flow`}
-                            </EuiSmallButton>
-                          </EuiFlexItem>
-                        </EuiFlexGroup>
-                      </EuiFlexItem>
-                    </>
-                  )}
-                  {onSearch && (
-                    <>
-                      <EuiFlexItem grow={false}>
-                        <EuiFlexGroup direction="row" gutterSize="s">
-                          <EuiFlexItem grow={false}>
-                            <EuiSmallButtonIcon
-                              style={{ marginTop: '-4px' }}
-                              aria-label="searchPipelineBackButton"
-                              data-testid="searchPipelineBackButton"
-                              iconType={'arrowLeft'}
-                              onClick={() =>
-                                props.setSelectedStep(CONFIG_STEP.INGEST)
-                              }
-                            />
-                          </EuiFlexItem>
-                          <EuiFlexItem
-                            grow={false}
-                            style={{ marginLeft: '8px' }}
-                          >
-                            <EuiHealth
-                              color={ingestProvisioned ? 'primary' : 'subdued'}
-                            >
-                              {ingestProvisioned
-                                ? 'Active ingest resources'
-                                : 'No active ingest resources'}
-                            </EuiHealth>
-                          </EuiFlexItem>
-                        </EuiFlexGroup>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false} style={{ marginRight: '20px' }}>
-                        <EuiHealth
-                          color={searchProvisioned ? 'primary' : 'subdued'}
+                        <EuiFlexItem
+                          grow={false}
+                          style={{ marginRight: '20px' }}
                         >
-                          {searchProvisioned
-                            ? 'Active search resources'
-                            : 'No active search resources'}
-                        </EuiHealth>
-                      </EuiFlexItem>
-                    </>
-                  )}
-                </EuiFlexGroup>
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </EuiFlexItem>
-        </EuiFlexGroup>
+                          <EuiHealth
+                            color={searchProvisioned ? 'primary' : 'subdued'}
+                          >
+                            {searchProvisioned
+                              ? 'Active search resources'
+                              : 'No active search resources'}
+                          </EuiHealth>
+                        </EuiFlexItem>
+                      </>
+                    )}
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+
+          {/* Console section is now handled by the parent component via setConsoleContent */}
+        </>
       )}
+
       {showIngestBottomBar && (
         <EuiBottomBar position="sticky">
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -935,6 +1076,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           </EuiFlexGroup>
         </EuiBottomBar>
       )}
+
       {showSearchBottomBar && (
         <EuiBottomBar position="sticky">
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
