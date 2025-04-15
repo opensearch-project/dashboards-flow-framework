@@ -590,6 +590,12 @@ export function ModelInputs(props: ModelInputsProps) {
                                             fieldPath={`${inputMapFieldPath}.${idx}.value.value`}
                                             placeholder={`Value`}
                                             showError={false}
+                                            preventWhitespace={
+                                              !(
+                                                transformType ===
+                                                TRANSFORM_TYPE.STRING
+                                              )
+                                            }
                                           />
                                         ) : (
                                           <SelectWithCustomOptions
