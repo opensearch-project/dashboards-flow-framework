@@ -242,10 +242,22 @@ export function processorConfigsToTemplateProcessors(
         // process where the returned values from the output map should be stored.
         // we persist a UI-specific "ext_output" field to determine if storing the model outputs
         // in "ext.ml_inference" or not.
-        const extOutput = formValues?.ext_output as boolean | undefined;
+        // For BWC purposes, set a default value for extOutput if it is not persisted to mimic
+        // the legacy hardcoded behavior.
+        const oneToOne = formValues?.one_to_one as boolean | undefined;
+        const tempExtOutput = formValues?.ext_output as boolean | undefined;
+        const finalExtOutput =
+          tempExtOutput !== undefined
+            ? tempExtOutput
+            : oneToOne === true
+            ? false
+            : oneToOne === false
+            ? true
+            : undefined;
+
         if (
-          extOutput !== undefined &&
-          extOutput === true &&
+          finalExtOutput !== undefined &&
+          finalExtOutput === true &&
           processor.ml_inference?.output_map !== undefined
         ) {
           const updatedOutputMap = processor.ml_inference.output_map?.map(

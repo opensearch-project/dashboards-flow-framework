@@ -86,8 +86,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const oneToOnePath = `${props.baseConfigPath}.${props.config.id}.one_to_one`;
   const extOutputPath = `${props.baseConfigPath}.${props.config.id}.ext_output`;
 
-  // Automatically update "ext_output" field based on changes to "one_to_one".
-  // Handles BWC automatically by populating the form value with defaults, even if it is undefined.
+  // Automatically update "ext_output" field based on changes to "one_to_one"
   useEffect(() => {
     const oneToOneVal = getIn(values, oneToOnePath);
     const extOutputVal = getIn(values, extOutputPath);
@@ -95,16 +94,10 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
       props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE &&
       oneToOneVal !== undefined
     ) {
-      if (
-        oneToOneVal === true &&
-        (extOutputVal === true || extOutputVal === undefined)
-      ) {
+      if (oneToOneVal === true && extOutputVal === true) {
         setFieldValue(extOutputPath, false);
         setFieldTouched(extOutputPath, true);
-      } else if (
-        oneToOneVal === false &&
-        (extOutputVal === false || extOutputVal === undefined)
-      ) {
+      } else if (oneToOneVal === false && extOutputVal === false) {
         setFieldValue(extOutputPath, true);
         setFieldTouched(extOutputPath, true);
       }
@@ -369,16 +362,17 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 )}
                 baseConfigPath={props.baseConfigPath}
               />
-              {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
-                <EuiFlexItem>
-                  <BooleanField
-                    label={'Separate outputs from search hits'}
-                    fieldPath={extOutputPath}
-                    type="Checkbox"
-                    disabled={getIn(values, oneToOnePath, false) === true}
-                  />
-                </EuiFlexItem>
-              )}
+              {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE &&
+                getIn(values, extOutputPath) !== undefined && (
+                  <EuiFlexItem>
+                    <BooleanField
+                      label={'Separate outputs from search hits'}
+                      fieldPath={extOutputPath}
+                      type="Checkbox"
+                      disabled={getIn(values, oneToOnePath, false) === true}
+                    />
+                  </EuiFlexItem>
+                )}
             </EuiFlexItem>
           </EuiAccordion>
         </>
