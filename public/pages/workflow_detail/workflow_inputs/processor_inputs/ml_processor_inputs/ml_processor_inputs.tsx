@@ -33,7 +33,7 @@ import {
   ML_REMOTE_MODEL_LINK,
   FETCH_ALL_QUERY_LARGE,
 } from '../../../../../../common';
-import { ModelField } from '../../input_fields';
+import { BooleanField, ModelField } from '../../input_fields';
 import {
   InputMapFormValue,
   InputMapArrayFormValue,
@@ -82,6 +82,34 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map`;
   const outputMapValue = getIn(values, outputMapFieldPath);
   const [modelNotFound, setModelNotFound] = useState<boolean>(false);
+
+  const oneToOnePath = `${props.baseConfigPath}.${props.config.id}.one_to_one`;
+  const extOutputPath = `${props.baseConfigPath}.${props.config.id}.ext_output`;
+
+  // Automatically update "ext_output" field based on changes to "one_to_one".
+  // Handles BWC automatically by populating the form value with defaults, even if it is undefined.
+  useEffect(() => {
+    const oneToOneVal = getIn(values, oneToOnePath);
+    const extOutputVal = getIn(values, extOutputPath);
+    if (
+      props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE &&
+      oneToOneVal !== undefined
+    ) {
+      if (
+        oneToOneVal === true &&
+        (extOutputVal === true || extOutputVal === undefined)
+      ) {
+        setFieldValue(extOutputPath, false);
+        setFieldTouched(extOutputPath, true);
+      } else if (
+        oneToOneVal === false &&
+        (extOutputVal === false || extOutputVal === undefined)
+      ) {
+        setFieldValue(extOutputPath, true);
+        setFieldTouched(extOutputPath, true);
+      }
+    }
+  }, [getIn(values, oneToOnePath)]);
 
   // preview availability states
   // if there are preceding search request processors, we cannot fetch and display the interim transformed query.
@@ -341,6 +369,16 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                 )}
                 baseConfigPath={props.baseConfigPath}
               />
+              {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
+                <EuiFlexItem>
+                  <BooleanField
+                    label={'Separate outputs from search hits'}
+                    fieldPath={extOutputPath}
+                    type="Checkbox"
+                    disabled={getIn(values, oneToOnePath, false) === true}
+                  />
+                </EuiFlexItem>
+              )}
             </EuiFlexItem>
           </EuiAccordion>
         </>
