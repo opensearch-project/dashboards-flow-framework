@@ -240,13 +240,24 @@ export function processorConfigsToTemplateProcessors(
         }
 
         // process where the returned values from the output map should be stored.
-        // by default, if many-to-one, append with "ext.ml_inference", such that the outputs
-        // will be stored in a standalone field in the search response, instead of appended
-        // to each document redundantly.
+        // we persist a UI-specific "ext_output" field to determine if storing the model outputs
+        // in "ext.ml_inference" or not.
+        // For BWC purposes, set a default value for extOutput if it is not persisted to mimic
+        // the legacy hardcoded behavior.
         const oneToOne = formValues?.one_to_one as boolean | undefined;
+        const tempExtOutput = formValues?.ext_output as boolean | undefined;
+        const finalExtOutput =
+          tempExtOutput !== undefined
+            ? tempExtOutput
+            : oneToOne === true
+            ? false
+            : oneToOne === false
+            ? true
+            : undefined;
+
         if (
-          oneToOne !== undefined &&
-          oneToOne === false &&
+          finalExtOutput !== undefined &&
+          finalExtOutput === true &&
           processor.ml_inference?.output_map !== undefined
         ) {
           const updatedOutputMap = processor.ml_inference.output_map?.map(
@@ -266,14 +277,16 @@ export function processorConfigsToTemplateProcessors(
 
         // process optional fields
         let additionalFormValues = {} as FormikValues;
-        Object.keys(formValues).forEach((formKey: string) => {
-          const formValue = formValues[formKey];
-          additionalFormValues = optionallyAddToFinalForm(
-            additionalFormValues,
-            formKey,
-            formValue
-          );
-        });
+        Object.keys(formValues)
+          .filter((formKey) => formKey !== 'ext_output') // ignore UI-specific "ext_output" field
+          .forEach((formKey: string) => {
+            const formValue = formValues[formKey];
+            additionalFormValues = optionallyAddToFinalForm(
+              additionalFormValues,
+              formKey,
+              formValue
+            );
+          });
 
         processor.ml_inference = {
           ...processor.ml_inference,
