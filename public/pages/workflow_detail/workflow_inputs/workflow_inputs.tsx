@@ -1033,8 +1033,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               </EuiFlexGroup>
             </EuiFlexItem>
           </EuiFlexGroup>
-
-          {/* Console section is now handled by the parent component via setConsoleContent */}
         </>
       )}
 
