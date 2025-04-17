@@ -112,6 +112,7 @@ export type ExpressionVar = {
 export type Transform = {
   transformType: TRANSFORM_TYPE;
   value?: string;
+  optional?: boolean;
   // Templates may persist their own set of nested transforms
   // to be dynamically injected into the template
   nestedVars?: ExpressionVar[];
@@ -448,9 +449,11 @@ export type ModelOutput = ModelInput;
 export type ModelInputMap = { [key: string]: ModelInput };
 export type ModelOutputMap = { [key: string]: ModelOutput };
 
-// For rendering options, we extract the name (the key in the input/output obj) and combine into a single obj
+// For rendering options, we extract the name (the key in the input/output obj) and combine into a single obj.
+// Also persist an optional field to dynamically run / not run validation on the form later on
 export type ModelInputFormField = ModelInput & {
   label: string;
+  optional?: boolean;
 };
 
 export type ModelOutputFormField = ModelInputFormField;
