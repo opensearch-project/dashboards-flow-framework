@@ -124,7 +124,10 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
     const modelInputsAsForm = [
       parseModelInputs(newModelInterface).map((modelInput) => {
         return {
-          ...EMPTY_INPUT_MAP_ENTRY,
+          value: {
+            ...EMPTY_INPUT_MAP_ENTRY.value,
+            optional: modelInput.optional,
+          },
           key: modelInput.label,
         };
       }) as InputMapFormValue,
