@@ -285,21 +285,27 @@ export function getFieldSchema(
               transformType: defaultStringSchema.required(),
               value: yup
                 .string()
-                .when('transformType', (transformType, schema) => {
+                .when(['transformType', 'optional'], (transform, schema) => {
                   const finalType = getIn(
-                    transformType,
+                    transform,
                     '0',
                     TRANSFORM_TYPE.FIELD
                   ) as TRANSFORM_TYPE;
+                  const optional = getIn(transform, '1', false) as boolean;
+
                   // accept longer string lengths if the input is a template
                   if (finalType === TRANSFORM_TYPE.TEMPLATE) {
-                    return yup
+                    const templateSchema = yup
                       .string()
                       .min(1, 'Too short')
-                      .max(MAX_TEMPLATE_STRING_LENGTH, 'Too long')
-                      .required();
+                      .max(MAX_TEMPLATE_STRING_LENGTH, 'Too long');
+                    return optional
+                      ? templateSchema.optional()
+                      : templateSchema.required();
                   } else {
-                    return defaultStringSchema.required();
+                    return optional
+                      ? defaultStringSchema.optional()
+                      : defaultStringSchema.required();
                   }
                 }),
               nestedVars: yup.array().of(
