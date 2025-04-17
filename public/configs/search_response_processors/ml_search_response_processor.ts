@@ -23,6 +23,12 @@ export class MLSearchResponseProcessor extends MLProcessor {
         id: 'override',
         type: 'boolean',
       },
+      // ext_output is not a field stored in the processor. We expose it as if it is,
+      // to let users easily toggle saving the output under "ext.ml_inference" or not
+      {
+        id: 'ext_output',
+        type: 'boolean',
+      },
     ];
   }
 }

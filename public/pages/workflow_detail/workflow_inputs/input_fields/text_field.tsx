@@ -26,6 +26,7 @@ interface TextFieldProps {
   fullWidth?: boolean;
   textArea?: boolean;
   inputRef?: React.RefObject<HTMLInputElement>;
+  preventWhitespace?: boolean;
 }
 
 /**
@@ -77,7 +78,12 @@ export function TextField(props: TextFieldProps) {
                 placeholder={props.placeholder || ''}
                 value={field.value || getInitialValue('string')}
                 onChange={(e) => {
-                  form.setFieldValue(props.fieldPath, e.target.value?.trim());
+                  form.setFieldValue(
+                    props.fieldPath,
+                    props.preventWhitespace
+                      ? e.target.value?.trim()
+                      : e.target.value
+                  );
                 }}
                 isInvalid={isInvalid}
                 inputRef={props.inputRef}
