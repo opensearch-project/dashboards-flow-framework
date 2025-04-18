@@ -29,7 +29,7 @@ import {
   MULTIMODAL_SEARCH_QUERY_NEURAL,
   HYBRID_SEARCH_QUERY_MATCH_NEURAL,
   MATCH_QUERY_TEXT,
-  NEURAL_SPARSE_SEARCH_QUERY
+  NEURAL_SPARSE_SEARCH_TEMPLATE_QUERY
 } from '../../../../common';
 import { generateId } from '../../../utils';
 import semver from 'semver';
@@ -193,12 +193,11 @@ export function fetchNeuralSparseSearchMetadata(version: string): UIState {
   baseState.config.ingest.index.name.value = generateId('neural_sparse_index', 6);
   baseState.config.ingest.index.settings.value = customStringify({});
 
-  baseState.config.search.request.value = customStringify(MATCH_QUERY_TEXT);
+  baseState.config.search.request.value = customStringify(NEURAL_SPARSE_SEARCH_TEMPLATE_QUERY);
   
   baseState.config.search.enrichRequest.processors = [
         injectQueryTemplateInProcessor(
-          new MLSearchRequestProcessor().toObj(),
-          NEURAL_SPARSE_SEARCH_QUERY
+          new MLSearchRequestProcessor(false).toObj()
         ),
       ];
 
@@ -323,12 +322,12 @@ export function fetchHybridSearchWithRAGMetadata(version: string): UIState {
 // vector template placeholder (${vector}) so it becomes a proper template
 function injectQueryTemplateInProcessor(
   processorConfig: IProcessorConfig,
-  queryObj: {}
+  queryObj?: {}
 ): IProcessorConfig {
   processorConfig.optionalFields = processorConfig.optionalFields?.map(
     (optionalField) => {
       let updatedField = optionalField;
-      if (optionalField.id === 'query_template') {
+      if (queryObj && optionalField.id === 'query_template') {
         updatedField = {
           ...updatedField,
           value: customStringify(queryObj).replace(

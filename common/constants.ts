@@ -455,14 +455,18 @@ export const KNN_QUERY = {
   },
   size: 10,
 };
-export const NEURAL_SPARSE_SEARCH_QUERY = {
-  _source: {
-    excludes: [VECTOR_FIELD_PATTERN],
+export const NEURAL_SPARSE_SEARCH_TEMPLATE_QUERY = {
+  ext: {
+    ml_inference: {
+      text: QUERY_TEXT_PATTERN,
+    },
   },
   query: {
-    neural_sparse: {
-      [VECTOR_FIELD_PATTERN]: {
-        query_tokens: VECTOR_PATTERN,
+    template: {
+      neural_sparse: {
+        [VECTOR_FIELD_PATTERN]: {
+          query_tokens: VECTOR_TEMPLATE_PLACEHOLDER,
+        },
       },
     },
   },
@@ -662,7 +666,7 @@ export const QUERY_PRESETS = [
   },
   {
     name: 'Neural Sparse Search Query',
-    query: customStringify(NEURAL_SPARSE_SEARCH_QUERY),
+    query: customStringify(NEURAL_SPARSE_SEARCH_TEMPLATE_QUERY),
   },
   {
     name: WORKFLOW_TYPE.MULTIMODAL_SEARCH,

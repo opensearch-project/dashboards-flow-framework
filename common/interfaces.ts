@@ -46,7 +46,7 @@ export type ConfigFieldValue = string | {};
 export interface IConfigField {
   type: ConfigFieldType;
   id: string;
-  value?: ConfigFieldValue;
+  value?: ConfigFieldValue | null;
   selectOptions?: ConfigFieldValue[];
 }
 
