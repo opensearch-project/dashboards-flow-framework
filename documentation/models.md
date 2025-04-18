@@ -473,6 +473,130 @@ POST /_plugins/_ml/models/_register
 }
 ```
 
+### Neural Sparse Encoding
+
+Deploy a sparse encoding model from the Hugging Face Model Hub to a SageMaker real-time inference endpoint using this [guide](https://github.com/zhichao-aws/opensearch-neural-sparse-sample/tree/main/examples/deploy_on_sagemaker).
+
+Connector:
+
+```
+POST /_plugins/_ml/connectors/_create
+{
+  "name": "Neural Sparse Encoding",
+  "description": "Test connector for Sagemaker model",
+  "version": 1,
+  "protocol": "aws_sigv4",
+  "credential": {
+        "access_key": "",
+        "secret_key": "",
+        "session_token": ""
+    },
+  "parameters": {
+    "region": "us-east-1",
+    "service_name": "sagemaker",
+    "model": "opensearch-neural-sparse-encoding-v2-distill"
+  },
+  "actions": [
+    {
+      "action_type": "predict",
+      "method": "POST",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "url": "https://runtime.sagemaker.us-east-1.amazonaws.com/endpoints/ns-handler-3/invocations",
+     "request_body": "[\"${parameters.text_doc}\"]"
+
+    }
+  ]
+}
+```
+
+Model:
+
+```
+POST /_plugins/_ml/models/_register
+{ "name": "Neural Sparse Encoding Model",
+  "function_name": "remote",
+  "version": "1.0.0",
+  "connector_id": "<connector-id>",
+  "description": "Test connector for Sagemaker model",
+  "interface": {
+    "input": {
+        "type": "object",
+        "properties": {
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text_doc": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": true,
+                "required": [
+                    "text_doc"
+                ]
+            }
+        }
+    },
+    "output": {
+        "type": "object",
+        "properties": {
+            "inference_results": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "output": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "dataAsMap": {
+                                        "type": "object",
+                                        "properties": {
+                                            "response": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "type": "number"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "required": [
+                                            "response"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "name",
+                                    "dataAsMap"
+                                ]
+                            }
+                        },
+                        "status_code": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "output",
+                        "status_code"
+                    ]
+                }
+            }
+        },
+        "required": [
+            "inference_results"
+        ]
+    }
+  }
+}
+```
+
 ## Generative models
 
 ### Claude 3 Sonnet (hosted on Amazon Bedrock)

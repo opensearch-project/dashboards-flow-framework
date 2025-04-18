@@ -29,6 +29,7 @@ import {
   MULTIMODAL_SEARCH_QUERY_NEURAL,
   HYBRID_SEARCH_QUERY_MATCH_NEURAL,
   MATCH_QUERY_TEXT,
+  NEURAL_SPARSE_SEARCH_TEMPLATE_QUERY
 } from '../../../../common';
 import { generateId } from '../../../utils';
 import semver from 'semver';
@@ -62,6 +63,10 @@ export function enrichPresetWorkflowWithUiMetadata(
     }
     case WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG: {
       uiMetadata = fetchHybridSearchWithRAGMetadata(workflowVersion);
+      break;
+    }
+    case WORKFLOW_TYPE.NEURAL_SPARSE_SEARCH: {
+      uiMetadata = fetchNeuralSparseSearchMetadata(workflowVersion);
       break;
     }
     default: {
@@ -173,6 +178,26 @@ export function fetchSemanticSearchMetadata(version: string): UIState {
         injectQueryTemplateInProcessor(
           new MLSearchRequestProcessor().toObj(),
           KNN_QUERY
+        ),
+      ];
+
+  return baseState;
+}
+
+export function fetchNeuralSparseSearchMetadata(version: string): UIState {
+  let baseState = fetchEmptyMetadata();
+  baseState.type = WORKFLOW_TYPE.NEURAL_SPARSE_SEARCH;
+
+  baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
+
+  baseState.config.ingest.index.name.value = generateId('neural_sparse_index', 6);
+  baseState.config.ingest.index.settings.value = customStringify({});
+
+  baseState.config.search.request.value = customStringify(NEURAL_SPARSE_SEARCH_TEMPLATE_QUERY);
+  
+  baseState.config.search.enrichRequest.processors = [
+        injectQueryTemplateInProcessor(
+          new MLSearchRequestProcessor(false).toObj()
         ),
       ];
 
@@ -297,12 +322,12 @@ export function fetchHybridSearchWithRAGMetadata(version: string): UIState {
 // vector template placeholder (${vector}) so it becomes a proper template
 function injectQueryTemplateInProcessor(
   processorConfig: IProcessorConfig,
-  queryObj: {}
+  queryObj?: {}
 ): IProcessorConfig {
   processorConfig.optionalFields = processorConfig.optionalFields?.map(
     (optionalField) => {
       let updatedField = optionalField;
-      if (optionalField.id === 'query_template') {
+      if (queryObj && optionalField.id === 'query_template') {
         updatedField = {
           ...updatedField,
           value: customStringify(queryObj).replace(
