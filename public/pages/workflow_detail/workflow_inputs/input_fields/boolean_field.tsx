@@ -20,6 +20,7 @@ interface BooleanFieldProps {
   type: ComponentType;
   inverse?: boolean; // We may label something as the inverse of how the field is persisted, regarding "on/off" or "true/false"
   helpText?: string;
+  disabled?: boolean;
 }
 
 type ComponentType = 'Checkbox' | 'Switch';
@@ -36,6 +37,7 @@ export function BooleanField(props: BooleanFieldProps) {
           <EuiCompressedCheckbox
             data-testid={`checkbox-${field.name}`}
             id={`checkbox-${field.name}`}
+            disabled={props.disabled ?? false}
             label={
               <>
                 <EuiFlexGroup direction="row">
@@ -63,6 +65,7 @@ export function BooleanField(props: BooleanFieldProps) {
           <EuiSwitch
             data-testid={`switch-${field.name}`}
             id={`switch-${field.name}`}
+            disabled={props.disabled ?? false}
             label={
               <>
                 <EuiFlexGroup direction="row">
