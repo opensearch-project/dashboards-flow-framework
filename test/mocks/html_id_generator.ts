@@ -3,7 +3,6 @@
  * This avoids the dependency on UUID and crypto.getRandomValues()
  */
 
-// Simple counter-based ID generator
 export const htmlIdGenerator = (prefix: string = ''): (() => string) => {
   let counter = 0;
   return (): string => {
@@ -12,5 +11,4 @@ export const htmlIdGenerator = (prefix: string = ''): (() => string) => {
   };
 };
 
-// Also export as default
 export default htmlIdGenerator;

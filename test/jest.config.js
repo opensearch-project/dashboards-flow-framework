@@ -11,11 +11,9 @@ module.exports = {
   // when jest tries to interpret these types of files.
   moduleNameMapper: {
     '\\.(css|less|scss|sass|svg)$': '<rootDir>/test/mocks/empty_mock.ts',
-    // Direct mock for the html_id_generator module that's causing the error
     '@elastic/eui/lib/services/accessibility/html_id_generator':
       '<rootDir>/test/mocks/html_id_generator.ts',
 
-    // UUID mocks as backup
     '^uuid$': '<rootDir>/test/mocks/uuid_mock.ts',
     '^uuid/.*$': '<rootDir>/test/mocks/uuid_mock.ts',
   },
