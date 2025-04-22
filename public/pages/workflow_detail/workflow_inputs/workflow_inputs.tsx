@@ -311,8 +311,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 <EuiButtonIcon
-                  iconType="unfold"
-                  aria-label="Expand console"
+                  iconType={consoleExpanded ? 'fold' : 'unfold'}
+                  aria-label={
+                    consoleExpanded ? 'Collapse console' : 'Expand console'
+                  }
                   onClick={() => setConsoleExpanded(!consoleExpanded)}
                 />
               </EuiFlexItem>
@@ -328,7 +330,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               language="json"
               fontSize="s"
               paddingSize="m"
-              overflowHeight={consoleExpanded ? 400 : 200}
+              overflowHeight={consoleExpanded ? undefined : 200}
               isCopyable={false}
               data-test-subj="consoleOutput"
               style={{
@@ -355,6 +357,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                       Object.keys(searchPipelineErrors).length > 0
                     ? undefined
                     : 'none',
+                // allow content to determine the height when expanded
+                maxHeight: consoleExpanded ? undefined : '200px',
               }}
               className={`
                 ${

@@ -107,14 +107,21 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       gutterSize="none"
       style={{ height: '100%' }}
     >
-      <EuiFlexItem style={{ marginBottom: 0 }}>
+      <EuiFlexItem
+        style={{
+          marginBottom: 0,
+          flex: isConsoleExpanded ? '0 1 auto' : '1 0 calc(100% - 40px)',
+          minHeight: isConsoleExpanded ? '20%' : 'calc(100% - 40px)',
+          maxHeight: isConsoleExpanded ? '30%' : '100%',
+
+          transition: 'all 0.3s ease-in-out',
+        }}
+      >
         <EuiResizableContainer
           direction="horizontal"
           style={{
             marginTop: USE_NEW_HOME_PAGE ? '0' : '58px',
-            height: USE_NEW_HOME_PAGE
-              ? 'calc(100% - 50px)'
-              : 'calc(100% - 108px)',
+            height: '100%',
             gap: '0px',
           }}
         >
@@ -262,16 +269,17 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       <EuiFlexItem
         grow={false}
         style={{
-          height: 'auto',
-          maxHeight: '40px',
+          flex: isConsoleExpanded ? '1 0 auto' : '0 0 40px',
+
+          maxHeight: isConsoleExpanded ? '80vh' : '40px',
+          minHeight: isConsoleExpanded ? '400px' : '40px',
+
           padding: '0',
           marginTop: '2px',
-          position: 'absolute',
-          bottom: 0,
-          left: '0',
-          right: '0',
-          transition: 'max-height 0.3s ease-in-out',
-          ...(isConsoleExpanded && { maxHeight: '250px' }),
+          position: 'relative',
+
+          transition: 'all 0.3s ease-in-out',
+          overflow: 'auto',
         }}
       >
         <EuiPanel

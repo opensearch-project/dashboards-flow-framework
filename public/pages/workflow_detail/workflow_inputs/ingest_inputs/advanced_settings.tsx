@@ -140,8 +140,8 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
       <EuiFlexItem
         grow={false}
         style={{
-          marginTop: isExpanded ? '0px' : '-50px',
-          marginBottom: isExpanded ? '0px' : '-10px',
+          marginTop: isExpanded ? '10px' : '20px',
+          marginBottom: isExpanded ? '0px' : '10px',
         }}
       >
         <EuiAccordion
