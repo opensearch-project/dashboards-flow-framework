@@ -110,11 +110,12 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       <EuiFlexItem
         style={{
           marginBottom: 0,
-          flex: isConsoleExpanded ? '0 1 auto' : '1 0 calc(100% - 40px)',
-          minHeight: isConsoleExpanded ? '20%' : 'calc(100% - 40px)',
-          maxHeight: isConsoleExpanded ? '30%' : '100%',
-
-          transition: 'all 0.3s ease-in-out',
+          flex: '1 1 auto',
+          minHeight: isConsoleExpanded
+            ? 'calc(100% - 230px - 2px)'
+            : 'calc(100% - 40px - 2px)',
+          overflow: 'auto',
+          transition: 'min-height 0.3s ease-in-out',
         }}
       >
         <EuiResizableContainer
@@ -269,17 +270,14 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       <EuiFlexItem
         grow={false}
         style={{
-          flex: isConsoleExpanded ? '1 0 auto' : '0 0 40px',
-
-          maxHeight: isConsoleExpanded ? '80vh' : '40px',
-          minHeight: isConsoleExpanded ? '400px' : '40px',
-
+          height: isConsoleExpanded ? '230px' : '40px',
           padding: '0',
           marginTop: '2px',
           position: 'relative',
-
-          transition: 'all 0.3s ease-in-out',
+          transition: 'height 0.3s ease-in-out',
           overflow: 'auto',
+          flexShrink: 0,
+          borderTop: isConsoleExpanded ? '1px solid #D3DAE6' : 'none',
         }}
       >
         <EuiPanel
