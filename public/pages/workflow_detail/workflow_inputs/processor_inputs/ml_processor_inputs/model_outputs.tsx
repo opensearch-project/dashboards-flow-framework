@@ -73,8 +73,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
     (field) => field.type === 'model'
   ) as IConfigField;
   const modelFieldPath = `${props.baseConfigPath}.${props.config.id}.${modelField.id}`;
-  // Assuming no more than one set of output map entries.
-  const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map.0`;
+  const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map.0`; // Assuming no more than one set of output map entries.
 
   // various modal states
   const [expressionsModalIdx, setExpressionsModalIdx] = useState<
