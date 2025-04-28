@@ -89,6 +89,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       style={{
         marginTop: USE_NEW_HOME_PAGE ? '0' : '58px',
         height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 58px)',
+        width: 'calc(100% - 500px)',
         gap: '4px',
       }}
     >

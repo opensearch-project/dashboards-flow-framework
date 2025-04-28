@@ -57,6 +57,7 @@ import {
   getDataSourceId,
 } from '../../utils/utils';
 import { getDataSourceEnabled } from '../../services';
+import { LeftNav } from './left_nav';
 
 // styling
 import './workflow-detail-styles.scss';
@@ -311,22 +312,37 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                   setActionMenu={props.setActionMenu}
                   setBlockNavigation={setBlockNavigation}
                 />
-                <ResizableWorkspace
-                  workflow={workflow}
-                  uiConfig={uiConfig}
-                  setUiConfig={setUiConfig}
-                  ingestDocs={ingestDocs}
-                  setIngestDocs={setIngestDocs}
-                  isRunningIngest={isRunningIngest}
-                  setIsRunningIngest={setIsRunningIngest}
-                  isRunningSearch={isRunningSearch}
-                  setIsRunningSearch={setIsRunningSearch}
-                  selectedStep={selectedStep}
-                  setSelectedStep={setSelectedStep}
-                  setUnsavedIngestProcessors={setUnsavedIngestProcessors}
-                  setUnsavedSearchProcessors={setUnsavedSearchProcessors}
-                  setCachedFormikState={setCachedFormikState}
-                />
+                <EuiFlexGroup
+                  direction="row"
+                  gutterSize="s"
+                  style={{
+                    marginTop: USE_NEW_HOME_PAGE ? '0' : '-75px',
+                    height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 75px)',
+                    gap: '4px',
+                  }}
+                >
+                  <EuiFlexItem grow={false}>
+                    <LeftNav />
+                  </EuiFlexItem>
+                  <EuiFlexItem>
+                    <ResizableWorkspace
+                      workflow={workflow}
+                      uiConfig={uiConfig}
+                      setUiConfig={setUiConfig}
+                      ingestDocs={ingestDocs}
+                      setIngestDocs={setIngestDocs}
+                      isRunningIngest={isRunningIngest}
+                      setIsRunningIngest={setIsRunningIngest}
+                      isRunningSearch={isRunningSearch}
+                      setIsRunningSearch={setIsRunningSearch}
+                      selectedStep={selectedStep}
+                      setSelectedStep={setSelectedStep}
+                      setUnsavedIngestProcessors={setUnsavedIngestProcessors}
+                      setUnsavedSearchProcessors={setUnsavedSearchProcessors}
+                      setCachedFormikState={setCachedFormikState}
+                    />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
               </EuiPageBody>
             </EuiPage>
           </ReactFlowProvider>
