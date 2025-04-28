@@ -314,7 +314,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                 />
                 <EuiFlexGroup
                   direction="row"
-                  gutterSize="s"
+                  gutterSize="xs"
                   style={{
                     marginTop: USE_NEW_HOME_PAGE ? '0' : '-75px',
                     height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 75px)',
@@ -322,7 +322,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                   }}
                 >
                   <EuiFlexItem grow={false}>
-                    <LeftNav />
+                    <LeftNav uiConfig={uiConfig} />
                   </EuiFlexItem>
                   <EuiFlexItem>
                     <ResizableWorkspace
