@@ -159,7 +159,12 @@ export const OPENAI_CONFIGS = {
  * Various constants pertaining to Workflow configs
  */
 
-export const UI_METADATA_SCHEMA_VERSION = 1;
+/**
+ * Schema versioning for tracking all changes made to the config fields within ui_metadata. Used for BWC and debugging.
+ * Version 1: Initial release
+ * Version 2: Updates ML search response processor to have an additional "ext_output" field. https://github.com/opensearch-project/dashboards-flow-framework/pull/699
+ */
+export const UI_METADATA_SCHEMA_VERSION = 2;
 
 // frontend-specific workflow types, derived from the available preset templates
 export enum WORKFLOW_TYPE {
