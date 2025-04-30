@@ -28,6 +28,7 @@ import {
 
 interface AdvancedSettingsProps {
   setHasInvalidDimensions: (hasInvalidDimensions: boolean) => void;
+  onToggle?: (isExpanded: boolean) => void;
 }
 
 /**
@@ -141,6 +142,7 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
         style={{
           marginTop: isExpanded ? '10px' : '20px',
           marginBottom: isExpanded ? '0px' : '10px',
+          overflowX: 'hidden',
         }}
       >
         <EuiAccordion
@@ -149,6 +151,9 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
           paddingSize="s"
           onToggle={(expanded) => {
             setIsExpanded(expanded);
+            if (props.onToggle) {
+              props.onToggle(expanded);
+            }
           }}
         >
           <EuiSpacer size="s" />
