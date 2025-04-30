@@ -5,7 +5,6 @@ import {
   EuiText,
   EuiButtonIcon,
   EuiCodeBlock,
-  EuiEmptyPrompt,
 } from '@elastic/eui';
 import { CONFIG_STEP } from '../../../../common';
 
@@ -28,7 +27,6 @@ export function Console(props: ConsoleProps) {
     setIsExpanded,
   } = props;
 
-  // Determine what content to show
   let content = '';
   if (context === CONFIG_STEP.INGEST) {
     if (ingestResponse) {
@@ -47,6 +45,15 @@ export function Console(props: ConsoleProps) {
   }
 
   const hasContent = content !== '';
+
+  console.log('Console props:', {
+    context: props.context,
+    hasIngestResponse: !!props.ingestResponse,
+    hasIngestErrors:
+      ingestPipelineErrors && Object.keys(ingestPipelineErrors).length > 0,
+    hasSearchErrors:
+      searchPipelineErrors && Object.keys(searchPipelineErrors).length > 0,
+  });
 
   return (
     <EuiFlexGroup direction="column" gutterSize="s">
@@ -83,6 +90,9 @@ export function Console(props: ConsoleProps) {
               data-test-subj="consoleOutput"
               style={{
                 maxHeight: isExpanded ? undefined : '200px',
+                overflowX: 'hidden',
+                overflowY:
+                  hasContent && content.length > 500 ? 'auto' : 'hidden',
               }}
               className="hideFullScreenButton"
             >
@@ -90,17 +100,12 @@ export function Console(props: ConsoleProps) {
             </EuiCodeBlock>
           </>
         ) : (
-          <EuiEmptyPrompt
-            iconType="console"
-            title={<h4>No output to display</h4>}
-            titleSize="xs"
-            body={
-              context === CONFIG_STEP.INGEST ? (
-                <EuiText size="s">Run ingest to view output here.</EuiText>
-              ) : (
-                <EuiText size="s">No search errors to display.</EuiText>
-              )
-            }
+          <div
+            style={{
+              height: '200px',
+              backgroundColor: 'transparent',
+              border: 'none',
+            }}
           />
         )}
       </EuiFlexItem>
