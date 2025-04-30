@@ -273,7 +273,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           marginTop: '2px',
           position: 'relative',
           transition: 'height 0.3s ease-in-out',
-          overflow: 'auto',
+          overflow: 'hidden',
           flexShrink: 0,
           borderTop: '1px solid #D3DAE6',
         }}
@@ -285,6 +285,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
             borderRadius: '0',
             margin: '0',
             boxShadow: 'none',
+            overflowX: 'hidden',
+            overflowY: 'auto',
           }}
         >
           {consoleContent}

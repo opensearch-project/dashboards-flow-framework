@@ -93,6 +93,8 @@ export function Console(props: ConsoleProps) {
                 overflowX: 'hidden',
                 overflowY:
                   hasContent && content.length > 500 ? 'auto' : 'hidden',
+                width: '100%',
+                wordWrap: 'break-word',
               }}
               className="hideFullScreenButton"
             >

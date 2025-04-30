@@ -68,7 +68,7 @@ import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
 import { ResourcesFlyout } from '../tools/resources/resources_flyout';
 import { useSelector } from 'react-redux';
-import { Console } from '../console/console';
+import { Console } from '../console/Console';
 
 interface WorkflowInputsProps {
   workflow: Workflow | undefined;
