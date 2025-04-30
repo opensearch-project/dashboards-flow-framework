@@ -1,7 +1,10 @@
-// console_errors.tsx
+/*
+ * Copyright OpenSearch Contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React from 'react';
 import { EuiCodeBlock } from '@elastic/eui';
-
 interface ConsoleErrorsProps {
   errors: Record<string, any>;
   isExpanded: boolean;

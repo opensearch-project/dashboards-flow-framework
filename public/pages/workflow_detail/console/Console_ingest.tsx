@@ -1,7 +1,10 @@
-// console_ingest.tsx
+/*
+ * Copyright OpenSearch Contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React from 'react';
 import { EuiCodeBlock } from '@elastic/eui';
-
 interface ConsoleIngestProps {
   ingestResponse: string;
   errors: Record<string, any>;

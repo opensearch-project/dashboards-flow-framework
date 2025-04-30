@@ -142,7 +142,6 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
         style={{
           marginTop: isExpanded ? '10px' : '20px',
           marginBottom: isExpanded ? '0px' : '10px',
-          overflowX: 'hidden',
         }}
       >
         <EuiAccordion
