@@ -24,7 +24,6 @@ import {
   EuiButtonIcon,
 } from '@elastic/eui';
 import {
-  CONFIG_STEP,
   CachedFormikState,
   SimulateIngestPipelineResponseVerbose,
   TemplateNode,
@@ -34,6 +33,7 @@ import {
   WorkflowFormValues,
   WorkflowTemplate,
   customStringify,
+  CONFIG_STEP,
 } from '../../../../common';
 import { IngestInputs } from './ingest_inputs';
 import { SearchInputs } from './search_inputs';
@@ -89,7 +89,7 @@ interface WorkflowInputsProps {
   setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
   displaySearchPanel: () => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
-  context: 'INGEST' | 'SEARCH';
+  context: CONFIG_STEP;
   setConsoleContent?: React.Dispatch<React.SetStateAction<React.ReactNode>>;
   isConsoleExpanded?: boolean;
   setIsConsoleExpanded?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -335,7 +335,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               data-test-subj="consoleOutput"
               style={{
                 backgroundColor:
-                  props.context === 'INGEST'
+                  props.context === CONFIG_STEP.INGEST
                     ? props.ingestResponse ||
                       (ingestPipelineErrors &&
                         Object.keys(ingestPipelineErrors).length > 0)
@@ -347,7 +347,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     : 'transparent',
 
                 border:
-                  props.context === 'INGEST'
+                  props.context === CONFIG_STEP.INGEST
                     ? props.ingestResponse ||
                       (ingestPipelineErrors &&
                         Object.keys(ingestPipelineErrors).length > 0)
@@ -362,7 +362,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               }}
               className={`
                 ${
-                  props.context === 'INGEST'
+                  props.context === CONFIG_STEP.INGEST
                     ? props.ingestResponse ||
                       (ingestPipelineErrors &&
                         Object.keys(ingestPipelineErrors).length > 0)
@@ -375,7 +375,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                 } hideFullScreenButton
               `}
             >
-              {props.context === 'INGEST'
+              {props.context === CONFIG_STEP.INGEST
                 ? props.ingestResponse ||
                   (ingestPipelineErrors &&
                   Object.keys(ingestPipelineErrors).length > 0

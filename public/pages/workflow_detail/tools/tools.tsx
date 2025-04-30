@@ -20,8 +20,8 @@ import {
   CONFIG_STEP,
   customStringify,
   FETCH_ALL_QUERY,
+  getVisibleTabs,
   INSPECTOR_TAB_ID,
-  INSPECTOR_TABS,
   QueryParam,
   SearchResponse,
   Workflow,
@@ -43,8 +43,6 @@ interface ToolsProps {
   selectedTabId: INSPECTOR_TAB_ID;
   setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
   selectedStep: CONFIG_STEP;
-  hideIngestResponseTab?: boolean;
-  hideErrorsTab?: boolean;
 }
 
 const PANEL_TITLE = 'Inspect flows';
@@ -66,12 +64,7 @@ export function Tools(props: ToolsProps) {
   >([]);
   const { values } = useFormikContext<WorkflowFormValues>();
 
-  const visibleTabs = INSPECTOR_TABS.filter((tab) => {
-    if (props.hideIngestResponseTab && tab.id === INSPECTOR_TAB_ID.INGEST)
-      return false;
-    if (props.hideErrorsTab && tab.id === INSPECTOR_TAB_ID.ERRORS) return false;
-    return true;
-  });
+  const visibleTabs = getVisibleTabs();
 
   // Standalone / sandboxed search request state. Users can test things out
   // without updating the base form / persisted value.
@@ -132,14 +125,14 @@ export function Tools(props: ToolsProps) {
 
   // auto-navigate to errors tab if new errors have been found
   useEffect(() => {
-    if (curErrorMessages.length > 0 && !props.hideErrorsTab) {
+    if (curErrorMessages.length > 0) {
       props.setSelectedTabId(INSPECTOR_TAB_ID.ERRORS);
     }
   }, [curErrorMessages]);
 
   // auto-navigate to ingest tab if a populated value has been set, indicating ingest has been ran
   useEffect(() => {
-    if (!isEmpty(props.ingestResponse) && !props.hideIngestResponseTab) {
+    if (!isEmpty(props.ingestResponse)) {
       props.setSelectedTabId(INSPECTOR_TAB_ID.INGEST);
     }
   }, [props.ingestResponse]);

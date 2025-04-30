@@ -174,8 +174,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                     setCachedFormikState={props.setCachedFormikState}
                     context={
                       props.selectedStep === CONFIG_STEP.INGEST
-                        ? 'INGEST'
-                        : 'SEARCH'
+                        ? CONFIG_STEP.INGEST
+                        : CONFIG_STEP.SEARCH
                     }
                   />
                 </EuiResizablePanel>
@@ -251,8 +251,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                               selectedTabId={selectedInspectorTabId}
                               setSelectedTabId={setSelectedInspectorTabId}
                               selectedStep={props.selectedStep}
-                              hideIngestResponseTab={true}
-                              hideErrorsTab={true}
                             />
                           </EuiResizablePanel>
                         </>

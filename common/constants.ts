@@ -898,3 +898,21 @@ export const INSPECTOR_TABS = [
     disabled: false,
   },
 ];
+
+export const getVisibleTabs = () => {
+  const tabs = [];
+
+  tabs.push({
+    id: INSPECTOR_TAB_ID.TEST,
+    name: 'Test flow',
+    disabled: false,
+  });
+
+  tabs.push({
+    id: INSPECTOR_TAB_ID.RESOURCES,
+    name: 'Resources',
+    disabled: false,
+  });
+
+  return tabs;
+};
