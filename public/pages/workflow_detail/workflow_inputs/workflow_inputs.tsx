@@ -20,8 +20,6 @@ import {
   EuiIconTip,
   EuiSmallButtonIcon,
   EuiButtonEmpty,
-  EuiCodeBlock,
-  EuiButtonIcon,
 } from '@elastic/eui';
 import {
   CachedFormikState,
@@ -70,6 +68,7 @@ import { BooleanField } from './input_fields';
 import '../workspace/workspace-styles.scss';
 import { ResourcesFlyout } from '../tools/resources/resources_flyout';
 import { useSelector } from 'react-redux';
+import { Console } from '../console/console';
 
 interface WorkflowInputsProps {
   workflow: Workflow | undefined;
@@ -300,94 +299,16 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
   useEffect(() => {
     if (props.setConsoleContent) {
-      const consoleContent = (
-        <EuiFlexGroup direction="column" gutterSize="s">
-          <EuiFlexItem>
-            <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
-              <EuiFlexItem>
-                <EuiText size="s">
-                  <h3>Console</h3>
-                </EuiText>
-              </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiButtonIcon
-                  iconType={consoleExpanded ? 'fold' : 'unfold'}
-                  aria-label={
-                    consoleExpanded ? 'Collapse console' : 'Expand console'
-                  }
-                  onClick={() => setConsoleExpanded(!consoleExpanded)}
-                />
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <style>{`
-              .hideFullScreenButton .euiCodeBlock__fullScreenButton {
-                display: none !important;
-              }
-            `}</style>
-            <EuiCodeBlock
-              language="json"
-              fontSize="s"
-              paddingSize="m"
-              overflowHeight={consoleExpanded ? undefined : 200}
-              isCopyable={false}
-              data-test-subj="consoleOutput"
-              style={{
-                backgroundColor:
-                  props.context === CONFIG_STEP.INGEST
-                    ? props.ingestResponse ||
-                      (ingestPipelineErrors &&
-                        Object.keys(ingestPipelineErrors).length > 0)
-                      ? undefined
-                      : 'transparent'
-                    : searchPipelineErrors &&
-                      Object.keys(searchPipelineErrors).length > 0
-                    ? undefined
-                    : 'transparent',
-
-                border:
-                  props.context === CONFIG_STEP.INGEST
-                    ? props.ingestResponse ||
-                      (ingestPipelineErrors &&
-                        Object.keys(ingestPipelineErrors).length > 0)
-                      ? undefined
-                      : 'none'
-                    : searchPipelineErrors &&
-                      Object.keys(searchPipelineErrors).length > 0
-                    ? undefined
-                    : 'none',
-                // allow content to determine the height when expanded
-                maxHeight: consoleExpanded ? undefined : '200px',
-              }}
-              className={`
-                ${
-                  props.context === CONFIG_STEP.INGEST
-                    ? props.ingestResponse ||
-                      (ingestPipelineErrors &&
-                        Object.keys(ingestPipelineErrors).length > 0)
-                      ? ''
-                      : 'euiCodeBlock--transparentBackground'
-                    : searchPipelineErrors &&
-                      Object.keys(searchPipelineErrors).length > 0
-                    ? ''
-                    : 'euiCodeBlock--transparentBackground'
-                } hideFullScreenButton
-              `}
-            >
-              {props.context === CONFIG_STEP.INGEST
-                ? props.ingestResponse ||
-                  (ingestPipelineErrors &&
-                  Object.keys(ingestPipelineErrors).length > 0
-                    ? JSON.stringify(ingestPipelineErrors, null, 2)
-                    : '')
-                : JSON.stringify(searchPipelineErrors, null, 2) || ''}
-            </EuiCodeBlock>
-          </EuiFlexItem>
-        </EuiFlexGroup>
+      props.setConsoleContent(
+        <Console
+          context={props.context}
+          ingestResponse={props.ingestResponse}
+          ingestPipelineErrors={ingestPipelineErrors}
+          searchPipelineErrors={searchPipelineErrors}
+          isExpanded={consoleExpanded}
+          setIsExpanded={setConsoleExpanded}
+        />
       );
-
-      props.setConsoleContent(consoleContent);
     }
   }, [
     props.setConsoleContent,
@@ -397,7 +318,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     ingestPipelineErrors,
     searchPipelineErrors,
   ]);
-
   // populated ingest docs state
   const [docsPopulated, setDocsPopulated] = useState<boolean>(false);
   useEffect(() => {
