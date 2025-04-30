@@ -113,7 +113,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           flex: '1 1 auto',
           minHeight: isConsoleExpanded
             ? 'calc(100% - 230px - 2px)'
-            : 'calc(100% - 40px - 2px)',
+            : 'calc(100% - 80px - 2px)',
           overflow: 'auto',
           transition: 'min-height 0.3s ease-in-out',
         }}
@@ -270,14 +270,14 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       <EuiFlexItem
         grow={false}
         style={{
-          height: isConsoleExpanded ? '230px' : '40px',
+          height: isConsoleExpanded ? '230px' : '80px',
           padding: '0',
           marginTop: '2px',
           position: 'relative',
           transition: 'height 0.3s ease-in-out',
           overflow: 'auto',
           flexShrink: 0,
-          borderTop: isConsoleExpanded ? '1px solid #D3DAE6' : 'none',
+          borderTop: '1px solid #D3DAE6',
         }}
       >
         <EuiPanel
