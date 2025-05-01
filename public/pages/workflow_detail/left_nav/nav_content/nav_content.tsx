@@ -37,6 +37,12 @@ interface NavContentProps {
  * flows, as well as a way to click and navigate to the individual components of the flows.
  */
 export function NavContent(props: NavContentProps) {
+  const DownArrow = () => (
+    <EuiFlexItem grow={false} style={{ alignItems: 'center' }}>
+      <EuiIcon type="sortDown" size="l" />
+    </EuiFlexItem>
+  );
+
   return (
     <>
       {props.uiConfig === undefined ? (
@@ -80,9 +86,7 @@ export function NavContent(props: NavContentProps) {
               }}
             />
           </EuiFlexItem>
-          <EuiFlexItem grow={false} style={{ alignItems: 'center' }}>
-            <EuiIcon type="sortDown" size="l" />
-          </EuiFlexItem>
+          <DownArrow />
           <EuiFlexItem grow={false}>
             <ProcessorsComponent
               uiConfig={props.uiConfig}
@@ -93,9 +97,7 @@ export function NavContent(props: NavContentProps) {
               setSelectedComponentId={props.setSelectedComponentId}
             />
           </EuiFlexItem>
-          <EuiFlexItem grow={false} style={{ alignItems: 'center' }}>
-            <EuiIcon type="sortDown" size="l" />
-          </EuiFlexItem>
+          <DownArrow />
           <EuiFlexItem grow={false}>
             <NavComponent
               title="Index"
@@ -127,9 +129,7 @@ export function NavContent(props: NavContentProps) {
               }}
             />
           </EuiFlexItem>
-          <EuiFlexItem grow={false} style={{ alignItems: 'center' }}>
-            <EuiIcon type="sortDown" size="l" />
-          </EuiFlexItem>
+          <DownArrow />
           <EuiFlexItem grow={false}>
             <ProcessorsComponent
               uiConfig={props.uiConfig}
@@ -138,6 +138,37 @@ export function NavContent(props: NavContentProps) {
               context={PROCESSOR_CONTEXT.SEARCH_REQUEST}
               setCachedFormikState={props.setCachedFormikState}
               setSelectedComponentId={props.setSelectedComponentId}
+            />
+          </EuiFlexItem>
+          <DownArrow />
+          <EuiFlexItem grow={false}>
+            <NavComponent
+              title="Retrieve from data source"
+              icon="indexSettings"
+              onClick={() => {
+                console.log('retrieve from data source clicked');
+              }}
+            />
+          </EuiFlexItem>
+          <DownArrow />
+          <EuiFlexItem grow={false}>
+            <ProcessorsComponent
+              uiConfig={props.uiConfig}
+              setUiConfig={props.setUiConfig}
+              title="Transform results"
+              context={PROCESSOR_CONTEXT.SEARCH_RESPONSE}
+              setCachedFormikState={props.setCachedFormikState}
+              setSelectedComponentId={props.setSelectedComponentId}
+            />
+          </EuiFlexItem>
+          <DownArrow />
+          <EuiFlexItem grow={false}>
+            <NavComponent
+              title="Search results"
+              icon="document"
+              onClick={() => {
+                console.log('search results clicked');
+              }}
             />
           </EuiFlexItem>
         </EuiFlexGroup>
