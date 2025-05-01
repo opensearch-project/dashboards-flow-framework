@@ -26,7 +26,6 @@ import {
   USE_NEW_HOME_PAGE,
 } from '../../utils';
 import { WorkflowInputs } from './workflow_inputs';
-import { Workspace } from './workspace';
 import { Tools } from './tools';
 
 // styling
@@ -51,7 +50,6 @@ interface ResizableWorkspaceProps {
 }
 
 const WORKFLOW_INPUTS_PANEL_ID = 'workflow_inputs_panel_id';
-const PREVIEW_PANEL_ID = 'preview_panel_id';
 const TOOLS_PANEL_ID = 'tools_panel_id';
 
 /**
@@ -59,25 +57,12 @@ const TOOLS_PANEL_ID = 'tools_panel_id';
  * panels - the ReactFlow workspace panel and the selected component details panel.
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
-  // Preview side panel state. This panel encapsulates the tools panel as a child resizable panel.
-  const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState<boolean>(true);
+  const [isToolsPanelOpen, setIsToolsPanelOpen] = useState<boolean>(true);
   const collapseFnHorizontal = useRef(
     (id: string, options: { direction: 'left' | 'right' }) => {}
   );
-  const onTogglePreviewChange = () => {
-    collapseFnHorizontal.current(PREVIEW_PANEL_ID, {
-      direction: 'right',
-    });
-    setIsPreviewPanelOpen(!isPreviewPanelOpen);
-  };
-
-  // Tools side panel state
-  const [isToolsPanelOpen, setIsToolsPanelOpen] = useState<boolean>(true);
-  const collapseFnVertical = useRef(
-    (id: string, options: { direction: 'top' | 'bottom' }) => {}
-  );
   const onToggleToolsChange = () => {
-    collapseFnVertical.current(TOOLS_PANEL_ID, { direction: 'bottom' });
+    collapseFnHorizontal.current(TOOLS_PANEL_ID, { direction: 'right' });
     setIsToolsPanelOpen(!isToolsPanelOpen);
   };
 
@@ -117,7 +102,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
             <EuiResizablePanel
               id={WORKFLOW_INPUTS_PANEL_ID}
               mode="main"
-              initialSize={60}
+              initialSize={50}
               minSize="25%"
               paddingSize="none"
               scrollable={false}
@@ -148,76 +133,22 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
             </EuiResizablePanel>
             <EuiResizableButton />
             <EuiResizablePanel
-              id={PREVIEW_PANEL_ID}
+              id={TOOLS_PANEL_ID}
               mode="collapsible"
-              initialSize={60}
+              initialSize={50}
               minSize="25%"
               paddingSize="none"
               borderRadius="l"
-              onToggleCollapsedInternal={() => onTogglePreviewChange()}
+              onToggleCollapsedInternal={() => onToggleToolsChange()}
             >
-              <EuiResizableContainer
-                className="workspace-panel"
-                direction="vertical"
-                style={{
-                  gap: '4px',
-                }}
-              >
-                {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
-                  if (togglePanel) {
-                    collapseFnVertical.current = (
-                      panelId: string,
-                      { direction }
-                    ) =>
-                      // ignore is added since docs are incorrectly missing "top" and "bottom"
-                      // as valid direction options for vertically-configured resizable panels.
-                      // @ts-ignore
-                      togglePanel(panelId, { direction });
-                  }
-                  return (
-                    <>
-                      <EuiResizablePanel
-                        mode="main"
-                        initialSize={60}
-                        minSize="25%"
-                        paddingSize="none"
-                        borderRadius="l"
-                      >
-                        <EuiFlexGroup
-                          direction="column"
-                          gutterSize="none"
-                          style={{ height: '100%' }}
-                        >
-                          <EuiFlexItem>
-                            <Workspace
-                              workflow={props.workflow}
-                              uiConfig={props.uiConfig}
-                            />
-                          </EuiFlexItem>
-                        </EuiFlexGroup>
-                      </EuiResizablePanel>
-                      <EuiResizableButton />
-                      <EuiResizablePanel
-                        id={TOOLS_PANEL_ID}
-                        mode="collapsible"
-                        initialSize={50}
-                        minSize="25%"
-                        paddingSize="none"
-                        borderRadius="l"
-                        onToggleCollapsedInternal={() => onToggleToolsChange()}
-                      >
-                        <Tools
-                          workflow={props.workflow}
-                          ingestResponse={ingestResponse}
-                          selectedTabId={selectedInspectorTabId}
-                          setSelectedTabId={setSelectedInspectorTabId}
-                          selectedStep={props.selectedStep}
-                        />
-                      </EuiResizablePanel>
-                    </>
-                  );
-                }}
-              </EuiResizableContainer>
+              <Tools
+                workflow={props.workflow}
+                ingestResponse={ingestResponse}
+                selectedTabId={selectedInspectorTabId}
+                setSelectedTabId={setSelectedInspectorTabId}
+                selectedStep={props.selectedStep}
+                uiConfig={props.uiConfig}
+              />
             </EuiResizablePanel>
           </>
         );

@@ -52,8 +52,6 @@ interface WorkspaceProps {
   uiConfig?: WorkflowConfig;
 }
 
-const PANEL_TITLE = 'Preview flows';
-
 const nodeTypes = {
   custom: WorkspaceComponent,
   ingestGroup: IngestGroupComponent,
@@ -151,11 +149,6 @@ export function Workspace(props: WorkspaceProps) {
          */}
         <div>
           <EuiFlexGroup direction="row" style={{ padding: '12px' }}>
-            <EuiFlexItem grow={false}>
-              <EuiText size="s">
-                <h3>{PANEL_TITLE}</h3>
-              </EuiText>
-            </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiSmallButtonGroup
                 legend="Toggle between visual and JSON views"
