@@ -4,4 +4,4 @@
  */
 
 export * from './nav_component';
-export * from './transform_data';
+export * from './processors_component';

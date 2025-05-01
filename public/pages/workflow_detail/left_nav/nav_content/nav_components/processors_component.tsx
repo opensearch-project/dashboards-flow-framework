@@ -4,37 +4,39 @@
  */
 
 import React from 'react';
-import { EuiCard, EuiIcon, EuiText } from '@elastic/eui';
 import { NavComponent } from './nav_component';
 import {
   CachedFormikState,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
 } from '../../../../../../common';
-import { ProcessorComponents } from './processor_components';
+import { ProcessorList } from './processor_list';
 
-interface TransformDataProps {
+interface ProcessorsComponentProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
+  title: string;
   context: PROCESSOR_CONTEXT;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   setSelectedComponentId: (id: string) => void;
 }
 
 /**
- * The parent component containing the list of ingest processor sub-components.
+ * The reusable parent nav component containing the list of processors.
+ * Takes in a "title" and "context" param to determine what processors
+ * to display (ingest vs. search request vs. search response)
  */
-export function TransformData(props: TransformDataProps) {
+export function ProcessorsComponent(props: ProcessorsComponentProps) {
   return (
     <NavComponent
-      title="Transform data"
+      title={props.title}
       icon="compute"
       body={
         <div style={{ marginLeft: '-40px', padding: '0px' }}>
-          <ProcessorComponents
+          <ProcessorList
             uiConfig={props.uiConfig}
             setUiConfig={props.setUiConfig}
-            context={PROCESSOR_CONTEXT.INGEST}
+            context={props.context}
             setCachedFormikState={props.setCachedFormikState}
             setSelectedComponentId={props.setSelectedComponentId}
           />

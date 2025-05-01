@@ -4,3 +4,4 @@
  */
 
 export * from './search_inputs';
+export * from './configure_search_request';

@@ -53,7 +53,7 @@ import {
 } from '../../../../../configs';
 // import { ProcessorInputs } from '../../../processor_inputs';
 import { useLocation } from 'react-router-dom';
-import { getDataSourceEnabled } from '../../../../../../public/services';
+import { getDataSourceEnabled } from '../../../../../services';
 import {
   MIN_SUPPORTED_VERSION,
   MINIMUM_FULL_SUPPORTED_VERSION,
@@ -65,7 +65,7 @@ import {
   useAppDispatch,
 } from '../../../../../store';
 
-interface ProcessorComponentsProps {
+interface ProcessorListProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   context: PROCESSOR_CONTEXT;
@@ -76,9 +76,10 @@ interface ProcessorComponentsProps {
 const PANEL_ID = 0;
 
 /**
- * General component for configuring pipeline processors (ingest / search request / search response)
+ * Reusable component for configuring the list of individual pipeline processor components
+ * (ingest / search request / search response)
  */
-export function ProcessorComponents(props: ProcessorComponentsProps) {
+export function ProcessorList(props: ProcessorListProps) {
   const dispatch = useAppDispatch();
   const {
     ingestPipeline: ingestPipelineErrors,
@@ -648,6 +649,12 @@ export function ProcessorComponents(props: ProcessorComponentsProps) {
                 </EuiFlexItem>
                 */}
             </EuiCard>
+            <EuiFlexItem
+              grow={false}
+              style={{ alignItems: 'center', marginBottom: '0px' }}
+            >
+              <EuiIcon type="sortDown" size="l" />
+            </EuiFlexItem>
           </>
         );
       })}

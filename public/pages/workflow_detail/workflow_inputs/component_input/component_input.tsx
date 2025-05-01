@@ -5,7 +5,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { EuiFlexItem, EuiPanel } from '@elastic/eui';
-import { SourceData } from '../ingest_inputs/source_data';
+import { SourceData, IngestData } from '../ingest_inputs';
+import { ConfigureSearchRequest } from '../search_inputs';
 import {
   COMPONENT_ID,
   IProcessorConfig,
@@ -17,7 +18,6 @@ import { ProcessorInputs } from '../processor_inputs';
 
 // styling
 import '../../workspace/workspace-styles.scss';
-import { IngestData } from '../ingest_inputs/ingest_data';
 
 interface ComponentInputProps {
   selectedComponentId: string;
@@ -90,6 +90,8 @@ export function ComponentInput(props: ComponentInputProps) {
           />
         ) : props.selectedComponentId === COMPONENT_ID.INGEST_DATA ? (
           <IngestData />
+        ) : props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST ? (
+          <ConfigureSearchRequest />
         ) : undefined}
       </EuiFlexItem>
     </EuiPanel>
