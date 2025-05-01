@@ -82,6 +82,14 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   const dispatch = useAppDispatch();
   const history = useHistory();
 
+  // The global state for selected component ID.
+  const [selectedComponentId, setSelectedComponentId] = useState<string>('');
+
+  // last ingested state
+  const [lastIngested, setLastIngested] = useState<number | undefined>(
+    undefined
+  );
+
   // On initial load:
   // - fetch workflow
   // - fetch available models & connectors as their IDs may be used when building flows
@@ -322,7 +330,19 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                   }}
                 >
                   <EuiFlexItem grow={false}>
-                    <LeftNav uiConfig={uiConfig} />
+                    {/**
+                     * TODO: slowly move the navigation functionality and global state
+                     * that is currently passed into ResizableWorkspace, into LeftNav.
+                     * This will be the new top-level component for persisting & updating
+                     * navigation and API execution state (setting ingest response, running bulk,
+                     * running workflow updates, etc.)
+                     */}
+                    <LeftNav
+                      uiConfig={uiConfig}
+                      setUiConfig={setUiConfig}
+                      setCachedFormikState={setCachedFormikState}
+                      setSelectedComponentId={setSelectedComponentId}
+                    />
                   </EuiFlexItem>
                   <EuiFlexItem>
                     <ResizableWorkspace
@@ -340,6 +360,8 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                       setUnsavedIngestProcessors={setUnsavedIngestProcessors}
                       setUnsavedSearchProcessors={setUnsavedSearchProcessors}
                       setCachedFormikState={setCachedFormikState}
+                      selectedComponentId={selectedComponentId}
+                      lastIngested={lastIngested}
                     />
                   </EuiFlexItem>
                 </EuiFlexGroup>

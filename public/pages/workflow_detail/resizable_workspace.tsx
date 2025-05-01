@@ -25,7 +25,7 @@ import {
   reduceToTemplate,
   USE_NEW_HOME_PAGE,
 } from '../../utils';
-import { WorkflowInputs } from './workflow_inputs';
+import { ComponentInput } from './workflow_inputs';
 import { Tools } from './tools';
 
 // styling
@@ -47,6 +47,8 @@ interface ResizableWorkspaceProps {
   setUnsavedIngestProcessors: (unsavedIngestProcessors: boolean) => void;
   setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
+  selectedComponentId: string;
+  lastIngested: number | undefined;
 }
 
 const WORKFLOW_INPUTS_PANEL_ID = 'workflow_inputs_panel_id';
@@ -108,7 +110,20 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               paddingSize="none"
               scrollable={false}
             >
-              <WorkflowInputs
+              {/**
+               * TODO: see similar comment in WorkflowDetail. TLDR is most of the global state / API
+               * execution will be moved from WorkflowInputs => LeftNav. Over time, the props can be
+               * shifted to that component, and WorkflowInputs can eventually be entirely removed.
+               */}
+              <ComponentInput
+                selectedComponentId={props.selectedComponentId}
+                workflow={props.workflow}
+                uiConfig={props.uiConfig as WorkflowConfig}
+                setUiConfig={props.setUiConfig}
+                setIngestDocs={props.setIngestDocs}
+                lastIngested={props.lastIngested}
+              />
+              {/* <WorkflowInputs
                 workflow={props.workflow}
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
@@ -130,7 +145,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
                 }}
                 setCachedFormikState={props.setCachedFormikState}
-              />
+              /> */}
             </EuiResizablePanel>
             <EuiResizableButton />
             <EuiResizablePanel

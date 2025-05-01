@@ -7,13 +7,16 @@ import React from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiPanel } from '@elastic/eui';
 import { USE_NEW_HOME_PAGE } from '../../../utils';
 import { NavContent } from './nav_content';
-import { WorkflowConfig } from '../../../../common';
+import { CachedFormikState, WorkflowConfig } from '../../../../common';
 /**
  * Base component for rendering processor form inputs based on the processor type
  */
 
 interface LeftNavProps {
   uiConfig: WorkflowConfig | undefined;
+  setUiConfig: (uiConfig: WorkflowConfig) => void;
+  setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
+  setSelectedComponentId: (id: string) => void;
 }
 
 /**
@@ -35,7 +38,12 @@ export function LeftNav(props: LeftNavProps) {
     >
       <EuiFlexGroup direction="column">
         <EuiFlexItem>
-          <NavContent uiConfig={props.uiConfig} />
+          <NavContent
+            uiConfig={props.uiConfig}
+            setUiConfig={props.setUiConfig}
+            setCachedFormikState={props.setCachedFormikState}
+            setSelectedComponentId={props.setSelectedComponentId}
+          />
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiPanel>
