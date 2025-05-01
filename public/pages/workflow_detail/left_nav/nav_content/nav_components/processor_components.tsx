@@ -24,6 +24,7 @@ import { cloneDeep, isEmpty } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
 import {
   CachedFormikState,
+  COMPONENT_ID,
   IProcessorConfig,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
@@ -153,14 +154,22 @@ export function ProcessorComponents(props: ProcessorComponentsProps) {
               name: 'Text Embedding Processor',
               onClick: () => {
                 closePopover();
-                addProcessor(new TextEmbeddingIngestProcessor().toObj());
+                const newProcessor = new TextEmbeddingIngestProcessor().toObj();
+                addProcessor(newProcessor);
+                props.setSelectedComponentId(
+                  `${COMPONENT_ID.ENRICH_DATA}.${newProcessor.id}`
+                );
               },
             },
             {
               name: 'Text Image Embedding Processor',
               onClick: () => {
                 closePopover();
-                addProcessor(new TextImageEmbeddingIngestProcessor().toObj());
+                const newProcessor = new TextImageEmbeddingIngestProcessor().toObj();
+                addProcessor(newProcessor);
+                props.setSelectedComponentId(
+                  `${COMPONENT_ID.ENRICH_DATA}.${newProcessor.id}`
+                );
               },
             },
           ]
@@ -169,7 +178,11 @@ export function ProcessorComponents(props: ProcessorComponentsProps) {
               name: 'ML Inference Processor',
               onClick: () => {
                 closePopover();
-                addProcessor(new MLIngestProcessor().toObj());
+                const newProcessor = new MLIngestProcessor().toObj();
+                addProcessor(newProcessor);
+                props.setSelectedComponentId(
+                  `${COMPONENT_ID.ENRICH_DATA}.${newProcessor.id}`
+                );
               },
             },
           ]),
@@ -177,28 +190,44 @@ export function ProcessorComponents(props: ProcessorComponentsProps) {
         name: 'Split Processor',
         onClick: () => {
           closePopover();
-          addProcessor(new SplitIngestProcessor().toObj());
+          const newProcessor = new SplitIngestProcessor().toObj();
+          addProcessor(newProcessor);
+          props.setSelectedComponentId(
+            `${COMPONENT_ID.ENRICH_DATA}.${newProcessor.id}`
+          );
         },
       },
       {
         name: 'Sort Processor',
         onClick: () => {
           closePopover();
-          addProcessor(new SortIngestProcessor().toObj());
+          const newProcessor = new SortIngestProcessor().toObj();
+          addProcessor(newProcessor);
+          props.setSelectedComponentId(
+            `${COMPONENT_ID.ENRICH_DATA}.${newProcessor.id}`
+          );
         },
       },
       {
         name: 'Text Chunking Processor',
         onClick: () => {
           closePopover();
-          addProcessor(new TextChunkingIngestProcessor().toObj());
+          const newProcessor = new TextChunkingIngestProcessor().toObj();
+          addProcessor(newProcessor);
+          props.setSelectedComponentId(
+            `${COMPONENT_ID.ENRICH_DATA}.${newProcessor.id}`
+          );
         },
       },
       {
         name: 'Copy Processor',
         onClick: () => {
           closePopover();
-          addProcessor(new CopyIngestProcessor().toObj());
+          const newProcessor = new CopyIngestProcessor().toObj();
+          addProcessor(newProcessor);
+          props.setSelectedComponentId(
+            `${COMPONENT_ID.ENRICH_DATA}.${newProcessor.id}`
+          );
         },
       },
     ];
@@ -210,7 +239,11 @@ export function ProcessorComponents(props: ProcessorComponentsProps) {
               name: 'ML Inference Processor',
               onClick: () => {
                 closePopover();
-                addProcessor(new MLSearchRequestProcessor().toObj());
+                const newProcessor = new MLSearchRequestProcessor().toObj();
+                addProcessor(newProcessor);
+                props.setSelectedComponentId(
+                  `${COMPONENT_ID.ENRICH_SEARCH_REQUEST}.${newProcessor.id}`
+                );
               },
             },
           ]
@@ -224,7 +257,11 @@ export function ProcessorComponents(props: ProcessorComponentsProps) {
               name: 'ML Inference Processor',
               onClick: () => {
                 closePopover();
-                addProcessor(new MLSearchResponseProcessor().toObj());
+                const newProcessor = new MLSearchResponseProcessor().toObj();
+                addProcessor(newProcessor);
+                props.setSelectedComponentId(
+                  `${COMPONENT_ID.ENRICH_SEARCH_RESPONSE}.${newProcessor.id}`
+                );
               },
             },
           ]
@@ -233,35 +270,55 @@ export function ProcessorComponents(props: ProcessorComponentsProps) {
         name: 'Rerank Processor',
         onClick: () => {
           closePopover();
-          addProcessor(new RerankProcessor().toObj());
+          const newProcessor = new RerankProcessor().toObj();
+          addProcessor(newProcessor);
+          props.setSelectedComponentId(
+            `${COMPONENT_ID.ENRICH_SEARCH_RESPONSE}.${newProcessor.id}`
+          );
         },
       },
       {
         name: 'Split Processor',
         onClick: () => {
           closePopover();
-          addProcessor(new SplitSearchResponseProcessor().toObj());
+          const newProcessor = new SplitSearchResponseProcessor().toObj();
+          addProcessor(newProcessor);
+          props.setSelectedComponentId(
+            `${COMPONENT_ID.ENRICH_SEARCH_RESPONSE}.${newProcessor.id}`
+          );
         },
       },
       {
         name: 'Sort Processor',
         onClick: () => {
           closePopover();
-          addProcessor(new SortSearchResponseProcessor().toObj());
+          const newProcessor = new SortSearchResponseProcessor().toObj();
+          addProcessor(newProcessor);
+          props.setSelectedComponentId(
+            `${COMPONENT_ID.ENRICH_SEARCH_RESPONSE}.${newProcessor.id}`
+          );
         },
       },
       {
         name: 'Normalization Processor',
         onClick: () => {
           closePopover();
-          addProcessor(new NormalizationProcessor().toObj());
+          const newProcessor = new NormalizationProcessor().toObj();
+          addProcessor(newProcessor);
+          props.setSelectedComponentId(
+            `${COMPONENT_ID.ENRICH_SEARCH_RESPONSE}.${newProcessor.id}`
+          );
         },
       },
       {
         name: 'Collapse Processor',
         onClick: () => {
           closePopover();
-          addProcessor(new CollapseProcessor().toObj());
+          const newProcessor = new CollapseProcessor().toObj();
+          addProcessor(newProcessor);
+          props.setSelectedComponentId(
+            `${COMPONENT_ID.ENRICH_SEARCH_RESPONSE}.${newProcessor.id}`
+          );
         },
       },
     ];
@@ -474,16 +531,20 @@ export function ProcessorComponents(props: ProcessorComponentsProps) {
 
         return (
           <>
+            <EuiSpacer size="s" />
             <EuiCard
+              //style={{ marginLeft: '4px'}}
               key={processorIndex}
               description={''}
-              //titleSize="xs"
+              textAlign="left"
+              onClick={() => {
+                props.setSelectedComponentId(processorPath);
+              }}
               title={
                 <EuiFlexGroup
                   direction="row"
-                  gutterSize="none"
+                  gutterSize="s"
                   justifyContent="spaceAround"
-                  style={{ margin: 0 }}
                 >
                   <EuiFlexItem grow={false}>
                     <EuiFlexGroup direction="column" gutterSize="none">
@@ -558,15 +619,6 @@ export function ProcessorComponents(props: ProcessorComponentsProps) {
                   </EuiFlexItem>
                 </EuiFlexGroup>
               }
-              //layout="horizontal"
-              textAlign="left"
-              onClick={() => {
-                console.log(
-                  'processor clicked. setting processor ID: ',
-                  processor.id
-                );
-                props.setSelectedComponentId(processorPath);
-              }}
             >
               {/* <EuiFlexItem style={{ paddingLeft: '28px' }}>
                   {errorFound && processorOpen && (
@@ -596,7 +648,6 @@ export function ProcessorComponents(props: ProcessorComponentsProps) {
                 </EuiFlexItem>
                 */}
             </EuiCard>
-            <EuiSpacer size="s" />
           </>
         );
       })}

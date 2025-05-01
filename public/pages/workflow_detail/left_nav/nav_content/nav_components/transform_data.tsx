@@ -30,13 +30,15 @@ export function TransformData(props: TransformDataProps) {
       title="Transform data"
       icon="compute"
       body={
-        <ProcessorComponents
-          uiConfig={props.uiConfig}
-          setUiConfig={props.setUiConfig}
-          context={PROCESSOR_CONTEXT.INGEST}
-          setCachedFormikState={props.setCachedFormikState}
-          setSelectedComponentId={props.setSelectedComponentId}
-        />
+        <div style={{ marginLeft: '-40px', padding: '0px' }}>
+          <ProcessorComponents
+            uiConfig={props.uiConfig}
+            setUiConfig={props.setUiConfig}
+            context={PROCESSOR_CONTEXT.INGEST}
+            setCachedFormikState={props.setCachedFormikState}
+            setSelectedComponentId={props.setSelectedComponentId}
+          />
+        </div>
       }
     />
   );

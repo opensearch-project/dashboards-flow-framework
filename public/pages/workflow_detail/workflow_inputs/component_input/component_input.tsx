@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { EuiFlexItem, EuiPanel } from '@elastic/eui';
 import { SourceData } from '../ingest_inputs/source_data';
 import {
+  COMPONENT_ID,
   IProcessorConfig,
   PROCESSOR_CONTEXT,
   Workflow,
@@ -57,8 +58,6 @@ export function ComponentInput(props: ComponentInputProps) {
     }
   }, [props.uiConfig, props.selectedComponentId]);
 
-  // TODO: come up with a standard for the selected component IDs
-
   return (
     <EuiPanel
       paddingSize="s"
@@ -67,7 +66,7 @@ export function ComponentInput(props: ComponentInputProps) {
       borderRadius="l"
     >
       <EuiFlexItem>
-        {props.selectedComponentId === 'ingest.docs' ? (
+        {props.selectedComponentId === COMPONENT_ID.SOURCE_DATA ? (
           <SourceData
             workflow={props.workflow}
             uiConfig={props.uiConfig}
@@ -89,7 +88,7 @@ export function ComponentInput(props: ComponentInputProps) {
             }
             context={processorContext}
           />
-        ) : props.selectedComponentId === 'ingest.index' ? (
+        ) : props.selectedComponentId === COMPONENT_ID.INGEST_DATA ? (
           <IngestData />
         ) : undefined}
       </EuiFlexItem>
@@ -100,7 +99,8 @@ export function ComponentInput(props: ComponentInputProps) {
 function isProcessorComponent(componentId: string): boolean {
   return (
     componentId.startsWith('ingest.enrich') ||
-    componentId.startsWith('search.enrich')
+    componentId.startsWith('search.enrichRequest') ||
+    componentId.startsWith('search.enrichResponse')
   );
 }
 

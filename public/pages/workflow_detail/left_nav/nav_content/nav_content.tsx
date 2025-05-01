@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import {
   EuiFlexGroup,
@@ -15,10 +15,10 @@ import {
 } from '@elastic/eui';
 import {
   CachedFormikState,
+  COMPONENT_ID,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
 } from '../../../../../common';
-import { uiConfigToWorkspaceFlow } from '../../../../utils';
 import { BooleanField } from '../../workflow_inputs';
 import { NavComponent, TransformData } from './nav_components';
 /**
@@ -37,13 +37,6 @@ interface NavContentProps {
  * flows, as well as a way to click and navigate to the individual components of the flows.
  */
 export function NavContent(props: NavContentProps) {
-  useEffect(() => {
-    if (props.uiConfig) {
-      const proposedWorkspaceFlow = uiConfigToWorkspaceFlow(props.uiConfig);
-      console.log('proposed flow: ', proposedWorkspaceFlow);
-    }
-  }, [props.uiConfig]);
-
   return (
     <>
       {props.uiConfig === undefined ? (
@@ -81,10 +74,10 @@ export function NavContent(props: NavContentProps) {
           <EuiHorizontalRule margin="m" />
           <EuiFlexItem grow={false}>
             <NavComponent
-              title="Sample data"
+              title="Source data"
               icon="document"
               onClick={() => {
-                props.setSelectedComponentId('ingest.docs');
+                props.setSelectedComponentId(COMPONENT_ID.SOURCE_DATA);
               }}
             />
           </EuiFlexItem>
@@ -108,7 +101,7 @@ export function NavContent(props: NavContentProps) {
               title="Index"
               icon="indexSettings"
               onClick={() => {
-                props.setSelectedComponentId('ingest.index');
+                props.setSelectedComponentId(COMPONENT_ID.INGEST_DATA);
               }}
             />
           </EuiFlexItem>
