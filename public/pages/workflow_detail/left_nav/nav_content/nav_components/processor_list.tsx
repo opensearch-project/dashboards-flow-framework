@@ -536,7 +536,15 @@ export function ProcessorList(props: ProcessorListProps) {
           <>
             <EuiSpacer size="s" />
             <EuiCard
-              //style={{ marginLeft: '4px'}}
+              style={{
+                paddingLeft: '12px',
+                paddingRight: '12px',
+                paddingBottom: '8px',
+                paddingTop: '8px',
+                marginLeft: '5px',
+                marginBottom: '8px',
+                width: '547px',
+              }}
               key={processorIndex}
               description={''}
               textAlign="left"
@@ -545,12 +553,15 @@ export function ProcessorList(props: ProcessorListProps) {
               }}
               isDisabled={props.isDisabled}
               title={
+                // The flex group with space-around does not work, as it is overridden
+                // by css properties nested in the EuiCard. To get the same effect,
+                // force the title to be a static width.
                 <EuiFlexGroup
                   direction="row"
                   gutterSize="s"
                   justifyContent="spaceAround"
                 >
-                  <EuiFlexItem grow={false}>
+                  <EuiFlexItem style={{ width: '400px' }} grow={false}>
                     <EuiFlexGroup direction="column" gutterSize="none">
                       <EuiFlexItem grow={false}>
                         <EuiTitle size="xs">
