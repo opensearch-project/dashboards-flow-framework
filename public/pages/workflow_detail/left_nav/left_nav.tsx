@@ -4,13 +4,18 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiPanel } from '@elastic/eui';
-import { USE_NEW_HOME_PAGE } from '../../../utils';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiHorizontalRule,
+  EuiPanel,
+  EuiText,
+} from '@elastic/eui';
 import { NavContent } from './nav_content';
 import { CachedFormikState, WorkflowConfig } from '../../../../common';
-/**
- * Base component for rendering processor form inputs based on the processor type
- */
+
+// styling
+import '../workspace/workspace-styles.scss';
 
 interface LeftNavProps {
   uiConfig: WorkflowConfig | undefined;
@@ -27,23 +32,46 @@ export function LeftNav(props: LeftNavProps) {
   return (
     <EuiPanel
       paddingSize="s"
-      grow={true}
+      grow={false}
+      className="workspace-panel left-nav-static-width"
       borderRadius="l"
-      style={{
-        marginTop: USE_NEW_HOME_PAGE ? '0' : '58px',
-        height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 58px)',
-        width: '500px',
-        gap: '4px',
-      }}
     >
-      <EuiFlexGroup direction="column">
-        <EuiFlexItem>
+      <EuiFlexGroup
+        direction="column"
+        justifyContent="spaceBetween"
+        gutterSize="none"
+        style={{
+          height: '100%',
+          gap: '16px',
+        }}
+      >
+        <EuiFlexItem
+          grow={true}
+          style={{
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+          }}
+        >
           <NavContent
             uiConfig={props.uiConfig}
             setUiConfig={props.setUiConfig}
             setCachedFormikState={props.setCachedFormikState}
             setSelectedComponentId={props.setSelectedComponentId}
           />
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiFlexGroup direction="column" gutterSize="none">
+            <EuiFlexItem>
+              <EuiHorizontalRule margin="m" />
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                <EuiFlexItem>
+                  <EuiText>Placeholder for nav buttons</EuiText>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          </EuiFlexGroup>
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiPanel>
