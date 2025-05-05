@@ -64,6 +64,7 @@ import {
   setSearchPipelineErrors,
   useAppDispatch,
 } from '../../../../../store';
+import { DownArrow } from '../down_arrow';
 
 interface ProcessorListProps {
   uiConfig: WorkflowConfig;
@@ -71,6 +72,7 @@ interface ProcessorListProps {
   context: PROCESSOR_CONTEXT;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   setSelectedComponentId: (id: string) => void;
+  isDisabled?: boolean;
 }
 
 const PANEL_ID = 0;
@@ -541,6 +543,7 @@ export function ProcessorList(props: ProcessorListProps) {
               onClick={() => {
                 props.setSelectedComponentId(processorPath);
               }}
+              isDisabled={props.isDisabled}
               title={
                 <EuiFlexGroup
                   direction="row"
@@ -649,12 +652,7 @@ export function ProcessorList(props: ProcessorListProps) {
                 </EuiFlexItem>
                 */}
             </EuiCard>
-            <EuiFlexItem
-              grow={false}
-              style={{ alignItems: 'center', marginBottom: '0px' }}
-            >
-              <EuiIcon type="sortDown" size="l" />
-            </EuiFlexItem>
+            <DownArrow isDisabled={props.isDisabled} />
           </>
         );
       })}
@@ -674,6 +672,7 @@ export function ProcessorList(props: ProcessorListProps) {
                     iconSide="left"
                     onClick={handlePopoverClick}
                     data-testid="addProcessorButton"
+                    isDisabled={props.isDisabled}
                   >
                     {`Add processor`}
                   </EuiSmallButtonEmpty>

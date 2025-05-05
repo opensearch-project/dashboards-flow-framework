@@ -5,13 +5,7 @@
 
 import React from 'react';
 
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiHealth,
-  EuiIcon,
-  EuiText,
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiHealth, EuiText } from '@elastic/eui';
 import {
   CachedFormikState,
   COMPONENT_ID,
@@ -20,6 +14,7 @@ import {
 } from '../../../../../common';
 import { BooleanField } from '../../workflow_inputs';
 import { NavComponent, ProcessorsComponent } from './nav_components';
+import { DownArrow } from './down_arrow';
 
 interface IngestContentProps {
   uiConfig: WorkflowConfig;
@@ -33,12 +28,6 @@ interface IngestContentProps {
  * The base component for rendering the ingest-related components, including real-time provisioning / error states.
  */
 export function IngestContent(props: IngestContentProps) {
-  const DownArrow = () => (
-    <EuiFlexItem grow={false} style={{ alignItems: 'center' }}>
-      <EuiIcon type="sortDown" size="l" />
-    </EuiFlexItem>
-  );
-
   return (
     <>
       <EuiFlexItem grow={false}>

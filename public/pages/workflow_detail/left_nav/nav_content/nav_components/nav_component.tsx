@@ -15,6 +15,7 @@ interface NavComponentProps {
   icon?: string;
   body?: any;
   onClick?: () => void;
+  isDisabled?: boolean;
 }
 
 /**
@@ -30,6 +31,7 @@ export function NavComponent(props: NavComponentProps) {
       title={props.title}
       description={props.description || ''}
       onClick={props.onClick ?? undefined}
+      isDisabled={props.isDisabled ?? false}
     >
       {props.body}
     </EuiCard>

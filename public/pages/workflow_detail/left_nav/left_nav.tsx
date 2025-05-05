@@ -8,6 +8,7 @@ import { isEmpty, isEqual } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
 import {
   EuiBottomBar,
+  EuiButton,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
@@ -729,6 +730,7 @@ export function LeftNav(props: LeftNavProps) {
                   setCachedFormikState={props.setCachedFormikState}
                   setSelectedComponentId={props.setSelectedComponentId}
                   searchProvisioned={searchProvisioned}
+                  isDisabled={!ingestProvisioned}
                 />
               </EuiFlexGroup>
             )}
@@ -740,12 +742,31 @@ export function LeftNav(props: LeftNavProps) {
               <EuiHorizontalRule margin="m" />
             </EuiFlexItem>
             <EuiFlexItem>
-              {/* <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+              <EuiFlexGroup direction="row">
                 <EuiFlexItem>
-                  <EuiText>Placeholder for nav buttons</EuiText>
+                  <EuiButton
+                    fill={true}
+                    onClick={() => {
+                      console.log('ingest data');
+                    }}
+                  >
+                    Update ingest flow
+                  </EuiButton>
                 </EuiFlexItem>
-              </EuiFlexGroup> */}
-              {showIngestBottomBar && (
+                {ingestProvisioned && (
+                  <EuiFlexItem>
+                    <EuiButton
+                      fill={true}
+                      onClick={() => {
+                        console.log('search data');
+                      }}
+                    >
+                      Update search flow
+                    </EuiButton>
+                  </EuiFlexItem>
+                )}
+              </EuiFlexGroup>
+              {/* {showIngestBottomBar && (
                 <EuiBottomBar position="sticky">
                   <EuiFlexGroup direction="row" justifyContent="spaceBetween">
                     <EuiFlexItem grow={false}>
@@ -875,7 +896,7 @@ export function LeftNav(props: LeftNavProps) {
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiBottomBar>
-              )}
+              )} */}
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>

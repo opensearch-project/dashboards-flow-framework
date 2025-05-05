@@ -5,13 +5,7 @@
 
 import React from 'react';
 
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiHealth,
-  EuiIcon,
-  EuiText,
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiHealth, EuiText } from '@elastic/eui';
 import {
   CachedFormikState,
   COMPONENT_ID,
@@ -19,6 +13,7 @@ import {
   WorkflowConfig,
 } from '../../../../../common';
 import { NavComponent, ProcessorsComponent } from './nav_components';
+import { DownArrow } from './down_arrow';
 
 interface SearchContentProps {
   uiConfig: WorkflowConfig;
@@ -26,18 +21,13 @@ interface SearchContentProps {
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   setSelectedComponentId: (id: string) => void;
   searchProvisioned: boolean;
+  isDisabled: boolean;
 }
 
 /**
  * The base component for rendering the search-related components, including real-time provisioning / error states.
  */
 export function SearchContent(props: SearchContentProps) {
-  const DownArrow = () => (
-    <EuiFlexItem grow={false} style={{ alignItems: 'center' }}>
-      <EuiIcon type="sortDown" size="l" />
-    </EuiFlexItem>
-  );
-
   return (
     <>
       <EuiFlexItem grow={false} style={{ marginTop: '-16px' }}>
@@ -67,9 +57,10 @@ export function SearchContent(props: SearchContentProps) {
           onClick={() => {
             props.setSelectedComponentId(COMPONENT_ID.SEARCH_REQUEST);
           }}
+          isDisabled={props.isDisabled}
         />
       </EuiFlexItem>
-      <DownArrow />
+      <DownArrow isDisabled={props.isDisabled} />
       <EuiFlexItem grow={false}>
         <ProcessorsComponent
           uiConfig={props.uiConfig}
@@ -78,9 +69,10 @@ export function SearchContent(props: SearchContentProps) {
           context={PROCESSOR_CONTEXT.SEARCH_REQUEST}
           setCachedFormikState={props.setCachedFormikState}
           setSelectedComponentId={props.setSelectedComponentId}
+          isDisabled={props.isDisabled}
         />
       </EuiFlexItem>
-      <DownArrow />
+      <DownArrow isDisabled={props.isDisabled} />
       <EuiFlexItem grow={false}>
         <NavComponent
           title="Retrieve from data source"
@@ -88,9 +80,10 @@ export function SearchContent(props: SearchContentProps) {
           onClick={() => {
             console.log('retrieve from data source clicked');
           }}
+          isDisabled={props.isDisabled}
         />
       </EuiFlexItem>
-      <DownArrow />
+      <DownArrow isDisabled={props.isDisabled} />
       <EuiFlexItem grow={false}>
         <ProcessorsComponent
           uiConfig={props.uiConfig}
@@ -99,9 +92,10 @@ export function SearchContent(props: SearchContentProps) {
           context={PROCESSOR_CONTEXT.SEARCH_RESPONSE}
           setCachedFormikState={props.setCachedFormikState}
           setSelectedComponentId={props.setSelectedComponentId}
+          isDisabled={props.isDisabled}
         />
       </EuiFlexItem>
-      <DownArrow />
+      <DownArrow isDisabled={props.isDisabled} />
       <EuiFlexItem grow={false}>
         <NavComponent
           title="Search results"
@@ -109,6 +103,7 @@ export function SearchContent(props: SearchContentProps) {
           onClick={() => {
             console.log('search results clicked');
           }}
+          isDisabled={props.isDisabled}
         />
       </EuiFlexItem>
     </>
