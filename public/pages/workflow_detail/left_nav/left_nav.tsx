@@ -10,11 +10,12 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
+  EuiLoadingSpinner,
   EuiPanel,
   EuiSmallButton,
   EuiText,
 } from '@elastic/eui';
-import { NavContent } from './nav_content';
+import { IngestContent, SearchContent } from './nav_content';
 import {
   CachedFormikState,
   CONFIG_STEP,
@@ -693,18 +694,41 @@ export function LeftNav(props: LeftNavProps) {
         }}
       >
         <EuiFlexItem
-          grow={true}
+          grow={false}
           style={{
             overflowY: 'scroll',
             overflowX: 'hidden',
           }}
         >
-          <NavContent
-            uiConfig={props.uiConfig}
-            setUiConfig={props.setUiConfig}
-            setCachedFormikState={props.setCachedFormikState}
-            setSelectedComponentId={props.setSelectedComponentId}
-          />
+          <>
+            {props.uiConfig === undefined ? (
+              <EuiLoadingSpinner size="xl" />
+            ) : (
+              <EuiFlexGroup
+                direction="column"
+                justifyContent="spaceBetween"
+                gutterSize="none"
+                style={{
+                  height: '100%',
+                  gap: '16px',
+                }}
+              >
+                <IngestContent
+                  uiConfig={props.uiConfig}
+                  setUiConfig={props.setUiConfig}
+                  setCachedFormikState={props.setCachedFormikState}
+                  setSelectedComponentId={props.setSelectedComponentId}
+                />
+                <EuiHorizontalRule margin="s" />
+                <SearchContent
+                  uiConfig={props.uiConfig}
+                  setUiConfig={props.setUiConfig}
+                  setCachedFormikState={props.setCachedFormikState}
+                  setSelectedComponentId={props.setSelectedComponentId}
+                />
+              </EuiFlexGroup>
+            )}
+          </>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="column" gutterSize="none">
