@@ -5,7 +5,13 @@
 
 import React from 'react';
 
-import { EuiFlexGroup, EuiFlexItem, EuiIcon, EuiText } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiHealth,
+  EuiIcon,
+  EuiText,
+} from '@elastic/eui';
 import {
   CachedFormikState,
   COMPONENT_ID,
@@ -19,6 +25,7 @@ interface SearchContentProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   setSelectedComponentId: (id: string) => void;
+  searchProvisioned: boolean;
 }
 
 /**
@@ -40,8 +47,16 @@ export function SearchContent(props: SearchContentProps) {
               <h2>{'Search flow'}</h2>
             </EuiText>
           </EuiFlexItem>
-          <EuiFlexItem grow={false} style={{ paddingTop: '8px' }}>
-            <EuiText>TODO add state</EuiText>
+          <EuiFlexItem
+            grow={false}
+            style={{ marginLeft: '8px', marginTop: '22px' }}
+          >
+            <EuiHealth
+              textSize="m"
+              color={props.searchProvisioned ? 'primary' : 'subdued'}
+            >
+              {props.searchProvisioned ? 'Created' : 'Not created'}
+            </EuiHealth>
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiFlexItem>

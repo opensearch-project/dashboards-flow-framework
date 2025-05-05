@@ -7,12 +7,14 @@ import React, { useEffect, useState } from 'react';
 import { isEmpty, isEqual } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
 import {
+  EuiBottomBar,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
   EuiLoadingSpinner,
   EuiPanel,
   EuiSmallButton,
+  EuiSmallButtonEmpty,
   EuiText,
 } from '@elastic/eui';
 import { IngestContent, SearchContent } from './nav_content';
@@ -124,8 +126,8 @@ export function LeftNav(props: LeftNavProps) {
   );
 
   // maintain global states
-  const onIngest = props.selectedStep === CONFIG_STEP.INGEST;
-  const onSearch = props.selectedStep === CONFIG_STEP.SEARCH;
+  const onIngest = props.selectedStep === CONFIG_STEP.INGEST; // TODO: we shouldn't need to persist this now. can remove from props. Need to update the buttons in detail header that save/update on these based on this state.
+  const onSearch = props.selectedStep === CONFIG_STEP.SEARCH; // TODO: we shouldn't need to persist this now. can remove from props
   const ingestEnabled = values?.ingest?.enabled || false;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
@@ -718,6 +720,7 @@ export function LeftNav(props: LeftNavProps) {
                   setUiConfig={props.setUiConfig}
                   setCachedFormikState={props.setCachedFormikState}
                   setSelectedComponentId={props.setSelectedComponentId}
+                  ingestProvisioned={ingestProvisioned}
                 />
                 <EuiHorizontalRule margin="s" />
                 <SearchContent
@@ -725,6 +728,7 @@ export function LeftNav(props: LeftNavProps) {
                   setUiConfig={props.setUiConfig}
                   setCachedFormikState={props.setCachedFormikState}
                   setSelectedComponentId={props.setSelectedComponentId}
+                  searchProvisioned={searchProvisioned}
                 />
               </EuiFlexGroup>
             )}
@@ -736,11 +740,142 @@ export function LeftNav(props: LeftNavProps) {
               <EuiHorizontalRule margin="m" />
             </EuiFlexItem>
             <EuiFlexItem>
-              <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+              {/* <EuiFlexGroup direction="row" justifyContent="spaceBetween">
                 <EuiFlexItem>
                   <EuiText>Placeholder for nav buttons</EuiText>
                 </EuiFlexItem>
-              </EuiFlexGroup>
+              </EuiFlexGroup> */}
+              {showIngestBottomBar && (
+                <EuiBottomBar position="sticky">
+                  <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                    <EuiFlexItem grow={false}>
+                      <EuiText>You have pending changes</EuiText>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiFlexGroup direction="row" gutterSize="s">
+                        {!props.isRunningIngest && (
+                          <EuiFlexItem grow={false}>
+                            <EuiSmallButtonEmpty
+                              iconType="editorUndo"
+                              iconSide="left"
+                              disabled={!dirty}
+                              onClick={() => revertUnsavedChanges()}
+                            >
+                              Discard changes
+                            </EuiSmallButtonEmpty>
+                          </EuiFlexItem>
+                        )}
+                        <EuiFlexItem grow={false}>
+                          <EuiSmallButton
+                            data-test-subj="updateAndRunIngestButton"
+                            fill={true}
+                            iconType="check"
+                            iconSide="left"
+                            disabled={!ingestTemplatesDifferent}
+                            isLoading={props.isRunningIngest}
+                            onClick={() => validateAndRunIngestion()}
+                          >
+                            Update
+                          </EuiSmallButton>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiBottomBar>
+              )}
+              {showSearchBottomBar && (
+                <EuiBottomBar position="sticky">
+                  <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                    {searchUpdateDisabled ? (
+                      <EuiFlexItem grow={false}>
+                        <EuiText color="danger">
+                          You must specify at least one processor
+                        </EuiText>
+                      </EuiFlexItem>
+                    ) : (
+                      <EuiFlexItem grow={false}>
+                        <EuiText>You have pending changes</EuiText>
+                      </EuiFlexItem>
+                    )}
+                    <EuiFlexItem grow={false}>
+                      <EuiFlexGroup direction="row" gutterSize="s">
+                        {!isUpdatingSearchPipeline && (
+                          <EuiFlexItem grow={false}>
+                            <EuiSmallButtonEmpty
+                              iconType="editorUndo"
+                              iconSide="left"
+                              disabled={searchUpdateDisabled ? false : !dirty}
+                              onClick={() => revertUnsavedChanges()}
+                            >
+                              Discard changes
+                            </EuiSmallButtonEmpty>
+                          </EuiFlexItem>
+                        )}
+                        {!searchUpdateDisabled && (
+                          <EuiFlexItem grow={false}>
+                            <EuiSmallButton
+                              data-test-subj="updateSearchButton"
+                              fill={true}
+                              iconType="check"
+                              iconSide="left"
+                              disabled={
+                                isProposingSearchResourcesButNotProvisioned
+                                  ? false
+                                  : !searchTemplatesDifferent
+                              }
+                              isLoading={isUpdatingSearchPipeline}
+                              onClick={async () => {
+                                if (await validateAndUpdateSearchResources()) {
+                                  getCore().notifications.toasts.add({
+                                    id: SUCCESS_TOAST_ID,
+                                    iconType: 'check',
+                                    color: 'success',
+                                    title: 'Search flow updated',
+                                    // @ts-ignore
+                                    text: (
+                                      <EuiFlexGroup direction="column">
+                                        <EuiFlexItem grow={false}>
+                                          <EuiText size="s">
+                                            Validate your search flow using Test
+                                            flow
+                                          </EuiText>
+                                        </EuiFlexItem>
+                                        <EuiFlexItem>
+                                          <EuiFlexGroup
+                                            direction="row"
+                                            justifyContent="flexEnd"
+                                          >
+                                            <EuiFlexItem grow={false}>
+                                              <EuiSmallButton
+                                                fill={false}
+                                                onClick={() => {
+                                                  props.displaySearchPanel();
+                                                  getCore().notifications.toasts.remove(
+                                                    SUCCESS_TOAST_ID
+                                                  );
+                                                }}
+                                              >
+                                                Test flow
+                                              </EuiSmallButton>
+                                            </EuiFlexItem>
+                                          </EuiFlexGroup>
+                                        </EuiFlexItem>
+                                      </EuiFlexGroup>
+                                    ),
+                                  });
+                                  setSearchProvisioned(true);
+                                }
+                              }}
+                            >
+                              Update
+                            </EuiSmallButton>
+                          </EuiFlexItem>
+                        )}
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiBottomBar>
+              )}
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>

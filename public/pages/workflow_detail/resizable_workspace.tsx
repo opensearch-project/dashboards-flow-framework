@@ -141,11 +141,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               paddingSize="none"
               scrollable={false}
             >
-              {/**
-               * TODO: most of the global state / API
-               * execution will be moved from WorkflowInputs => LeftNav. Over time, the props can be
-               * shifted to that component, and WorkflowInputs can eventually be entirely removed.
-               */}
               <ComponentInput
                 selectedComponentId={selectedComponentId}
                 workflow={props.workflow}
@@ -154,29 +149,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 setIngestDocs={props.setIngestDocs}
                 lastIngested={props.lastIngested}
               />
-              {/* <WorkflowInputs
-                workflow={props.workflow}
-                uiConfig={props.uiConfig}
-                setUiConfig={props.setUiConfig}
-                setIngestResponse={setIngestResponse}
-                ingestDocs={props.ingestDocs}
-                setIngestDocs={props.setIngestDocs}
-                isRunningIngest={props.isRunningIngest}
-                setIsRunningIngest={props.setIsRunningIngest}
-                isRunningSearch={props.isRunningSearch}
-                setIsRunningSearch={props.setIsRunningSearch}
-                selectedStep={props.selectedStep}
-                setSelectedStep={props.setSelectedStep}
-                setUnsavedIngestProcessors={props.setUnsavedIngestProcessors}
-                setUnsavedSearchProcessors={props.setUnsavedSearchProcessors}
-                displaySearchPanel={() => {
-                  if (!isToolsPanelOpen) {
-                    onToggleToolsChange();
-                  }
-                  setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
-                }}
-                setCachedFormikState={props.setCachedFormikState}
-              /> */}
             </EuiResizablePanel>
             <EuiResizableButton />
             <EuiResizablePanel

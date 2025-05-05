@@ -5,7 +5,13 @@
 
 import React from 'react';
 
-import { EuiFlexGroup, EuiFlexItem, EuiIcon, EuiText } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiHealth,
+  EuiIcon,
+  EuiText,
+} from '@elastic/eui';
 import {
   CachedFormikState,
   COMPONENT_ID,
@@ -20,6 +26,7 @@ interface IngestContentProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   setSelectedComponentId: (id: string) => void;
+  ingestProvisioned: boolean;
 }
 
 /**
@@ -41,7 +48,18 @@ export function IngestContent(props: IngestContentProps) {
               <h2>{'Ingest flow'}</h2>
             </EuiText>
           </EuiFlexItem>
-          <EuiFlexItem grow={false}>
+          <EuiFlexItem
+            grow={false}
+            style={{ marginLeft: '8px', marginTop: '22px' }}
+          >
+            <EuiHealth
+              textSize="m"
+              color={props.ingestProvisioned ? 'primary' : 'subdued'}
+            >
+              {props.ingestProvisioned ? 'Created' : 'Not created'}
+            </EuiHealth>
+          </EuiFlexItem>
+          {/* <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row" gutterSize="s">
               <EuiFlexItem grow={false} style={{ marginTop: '16px' }}>
                 <BooleanField
@@ -51,7 +69,7 @@ export function IngestContent(props: IngestContentProps) {
                 />
               </EuiFlexItem>
             </EuiFlexGroup>
-          </EuiFlexItem>
+          </EuiFlexItem> */}
         </EuiFlexGroup>
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
