@@ -109,8 +109,26 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           <>
             <div className="left-nav-static-width">
               <LeftNav
+                workflow={props.workflow}
                 uiConfig={props.uiConfig}
                 setUiConfig={props.setUiConfig}
+                setIngestResponse={setIngestResponse}
+                ingestDocs={props.ingestDocs}
+                setIngestDocs={props.setIngestDocs}
+                isRunningIngest={props.isRunningIngest}
+                setIsRunningIngest={props.setIsRunningIngest}
+                isRunningSearch={props.isRunningSearch}
+                setIsRunningSearch={props.setIsRunningSearch}
+                selectedStep={props.selectedStep}
+                setSelectedStep={props.setSelectedStep}
+                setUnsavedIngestProcessors={props.setUnsavedIngestProcessors}
+                setUnsavedSearchProcessors={props.setUnsavedSearchProcessors}
+                displaySearchPanel={() => {
+                  if (!isToolsPanelOpen) {
+                    onToggleToolsChange();
+                  }
+                  setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
+                }}
                 setCachedFormikState={props.setCachedFormikState}
                 setSelectedComponentId={setSelectedComponentId}
               />
