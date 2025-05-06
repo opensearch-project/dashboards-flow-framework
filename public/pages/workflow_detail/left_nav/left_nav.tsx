@@ -7,15 +7,13 @@ import React, { useEffect, useState } from 'react';
 import { isEmpty, isEqual } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
 import {
-  EuiBottomBar,
-  EuiButton,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
   EuiLoadingSpinner,
   EuiPanel,
   EuiSmallButton,
-  EuiSmallButtonEmpty,
+  EuiSmallButtonIcon,
   EuiText,
 } from '@elastic/eui';
 import { IngestContent, SearchContent } from './nav_content';
@@ -80,6 +78,7 @@ interface LeftNavProps {
   setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
   displaySearchPanel: () => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
+  selectedComponentId: string;
   setSelectedComponentId: (id: string) => void;
 }
 
@@ -127,8 +126,8 @@ export function LeftNav(props: LeftNavProps) {
   );
 
   // maintain global states
-  const onIngest = props.selectedStep === CONFIG_STEP.INGEST; // TODO: we shouldn't need to persist this now. can remove from props. Need to update the buttons in detail header that save/update on these based on this state.
-  const onSearch = props.selectedStep === CONFIG_STEP.SEARCH; // TODO: we shouldn't need to persist this now. can remove from props
+  const onIngest = props.selectedComponentId.startsWith('ingest');
+  const onSearch = props.selectedComponentId.startsWith('search');
   const ingestEnabled = values?.ingest?.enabled || false;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
@@ -272,6 +271,7 @@ export function LeftNav(props: LeftNavProps) {
     setDocsPopulated(parsedDocsObjs.length > 0 && !isEmpty(parsedDocsObjs[0]));
   }, [props.ingestDocs]);
 
+  // TODO: can remove this once it's been refactored in new buttons.
   // bottom bar eligibility
   const showIngestBottomBar =
     onIngest &&
@@ -282,6 +282,14 @@ export function LeftNav(props: LeftNavProps) {
     (searchTemplatesDifferent ||
       isUpdatingSearchPipeline ||
       isProposingSearchResourcesButNotProvisioned);
+
+  // update buttons eligibility
+  const onIngestAndUpdateRequired =
+    onIngest &&
+    ingestProvisioned &&
+    (ingestTemplatesDifferent || props.isRunningIngest);
+
+  // TODO: add similar buttons for search
 
   // Utility fn to revert any unsaved changes, reset the form
   function revertUnsavedChanges(): void {
@@ -647,7 +655,7 @@ export function LeftNav(props: LeftNavProps) {
         }
       } else {
         getCore().notifications.toasts.addDanger(
-          'No valid document(s) provided. Ensure it is a valid JSON array.'
+          'No valid document(s) provided in source data.'
         );
       }
     } catch (error) {
@@ -731,7 +739,7 @@ export function LeftNav(props: LeftNavProps) {
                   setCachedFormikState={props.setCachedFormikState}
                   setSelectedComponentId={props.setSelectedComponentId}
                   searchProvisioned={searchProvisioned}
-                  isDisabled={!ingestProvisioned}
+                  isDisabled={false}
                 />
               </EuiFlexGroup>
             )}
@@ -742,9 +750,51 @@ export function LeftNav(props: LeftNavProps) {
             <EuiFlexItem>
               <EuiHorizontalRule margin="m" />
             </EuiFlexItem>
-            <EuiFlexItem>
-              <EuiFlexGroup direction="row">
-                <EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup
+                direction="row"
+                gutterSize="s"
+                style={{ padding: '0px', marginBottom: '4px' }}
+              >
+                {onIngestAndUnprovisioned && (
+                  <EuiFlexItem grow={true}>
+                    <EuiSmallButton
+                      fill={true}
+                      isLoading={props.isRunningIngest}
+                      onClick={() => validateAndRunIngestion()}
+                    >
+                      Create ingest flow
+                    </EuiSmallButton>
+                  </EuiFlexItem>
+                )}
+                {onIngestAndUpdateRequired && (
+                  <>
+                    <EuiFlexItem grow={false}>
+                      <EuiSmallButtonIcon
+                        iconType={'editorUndo'}
+                        aria-label="undo"
+                        display="base"
+                        iconSize="s"
+                        isDisabled={props.isRunningIngest}
+                        onClick={() => revertUnsavedChanges()}
+                      />
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={true}>
+                      <EuiSmallButton
+                        fill={true}
+                        isLoading={props.isRunningIngest}
+                        onClick={() => validateAndRunIngestion()}
+                      >
+                        Update ingest flow
+                      </EuiSmallButton>
+                    </EuiFlexItem>
+                  </>
+                )}
+              </EuiFlexGroup>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup direction="row" style={{ padding: '0px' }}>
+                {/* <EuiFlexItem grow={false}>
                   <EuiButton
                     fill={true}
                     onClick={() => {
@@ -753,8 +803,8 @@ export function LeftNav(props: LeftNavProps) {
                   >
                     Update ingest flow
                   </EuiButton>
-                </EuiFlexItem>
-                {ingestProvisioned && (
+                </EuiFlexItem> */}
+                {/* {ingestProvisioned && (
                   <EuiFlexItem>
                     <EuiButton
                       fill={true}
@@ -765,7 +815,7 @@ export function LeftNav(props: LeftNavProps) {
                       Update search flow
                     </EuiButton>
                   </EuiFlexItem>
-                )}
+                )} */}
               </EuiFlexGroup>
               {/* {showIngestBottomBar && (
                 <EuiBottomBar position="sticky">

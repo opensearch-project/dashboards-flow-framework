@@ -169,6 +169,9 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
     props.uiConfig?.search?.enrichResponse?.processors?.length,
   ]);
 
+  // TODO: below save/undo buttons can be removed, such that we only persist unprovisioned state, and don't allow
+  // partial saving of from w/o provisioning. This can clean up this unused state and related buttons, and not
+  // cause user confusion.
   // button eligibility states
   const ingestUndoButtonDisabled =
     isRunningSave || props.isRunningIngest
