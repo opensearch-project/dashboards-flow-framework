@@ -543,7 +543,7 @@ export function ProcessorList(props: ProcessorListProps) {
                 paddingTop: '8px',
                 marginLeft: '5px',
                 marginBottom: '8px',
-                width: '547px',
+                width: '324px',
               }}
               key={processorIndex}
               description={''}
@@ -561,7 +561,7 @@ export function ProcessorList(props: ProcessorListProps) {
                   gutterSize="s"
                   justifyContent="spaceAround"
                 >
-                  <EuiFlexItem style={{ width: '400px' }} grow={false}>
+                  <EuiFlexItem style={{ width: '180px' }} grow={false}>
                     <EuiFlexGroup direction="column" gutterSize="none">
                       <EuiFlexItem grow={false}>
                         <EuiTitle size="xs">

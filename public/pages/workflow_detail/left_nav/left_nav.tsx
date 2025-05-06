@@ -694,6 +694,7 @@ export function LeftNav(props: LeftNavProps) {
         style={{
           height: '100%',
           gap: '16px',
+          //marginLeft: '12px', TODO: change this value to adjust global margin of left nav.
         }}
       >
         <EuiFlexItem
