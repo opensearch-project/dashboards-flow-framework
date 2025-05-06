@@ -94,8 +94,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       direction="horizontal"
       className="stretch-absolute"
       style={{
-        marginTop: USE_NEW_HOME_PAGE ? '0' : '58px',
-        height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 58px)',
         width: '100%',
         gap: '4px',
       }}

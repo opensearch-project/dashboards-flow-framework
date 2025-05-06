@@ -320,8 +320,8 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                   direction="row"
                   gutterSize="xs"
                   style={{
-                    marginTop: USE_NEW_HOME_PAGE ? '0' : '-75px',
-                    height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 75px)',
+                    marginTop: USE_NEW_HOME_PAGE ? '0' : '-24px',
+                    height: '100%',
                     gap: '4px',
                   }}
                 >
