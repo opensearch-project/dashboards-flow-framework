@@ -130,6 +130,7 @@ export function LeftNav(props: LeftNavProps) {
   const onSearch = props.selectedComponentId.startsWith('search');
   const ingestEnabled = values?.ingest?.enabled || false;
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
+  const onSearchAndUnprovisioned = onSearch && !searchProvisioned;
   const onIngestAndDisabled = onIngest && !ingestEnabled;
   const isProposingNoSearchResources =
     isEmpty(getIn(values, 'search.enrichRequest')) &&
@@ -754,7 +755,7 @@ export function LeftNav(props: LeftNavProps) {
               <EuiFlexGroup
                 direction="row"
                 gutterSize="s"
-                style={{ padding: '0px', marginBottom: '4px' }}
+                style={{ padding: '0px', marginBottom: '48px' }}
               >
                 {onIngestAndUnprovisioned && (
                   <EuiFlexItem grow={true}>
@@ -790,164 +791,61 @@ export function LeftNav(props: LeftNavProps) {
                     </EuiFlexItem>
                   </>
                 )}
-              </EuiFlexGroup>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup direction="row" style={{ padding: '0px' }}>
-                {/* <EuiFlexItem grow={false}>
-                  <EuiButton
-                    fill={true}
-                    onClick={() => {
-                      console.log('ingest data');
-                    }}
-                  >
-                    Update ingest flow
-                  </EuiButton>
-                </EuiFlexItem> */}
-                {/* {ingestProvisioned && (
-                  <EuiFlexItem>
-                    <EuiButton
+                {onSearchAndUnprovisioned && (
+                  <EuiFlexItem grow={true}>
+                    <EuiSmallButton
                       fill={true}
-                      onClick={() => {
-                        console.log('search data');
+                      disabled={!ingestProvisioned}
+                      isLoading={isUpdatingSearchPipeline}
+                      onClick={async () => {
+                        if (await validateAndUpdateSearchResources()) {
+                          getCore().notifications.toasts.add({
+                            id: SUCCESS_TOAST_ID,
+                            iconType: 'check',
+                            color: 'success',
+                            title: 'Search flow updated',
+                            // @ts-ignore
+                            text: (
+                              <EuiFlexGroup direction="column">
+                                <EuiFlexItem grow={false}>
+                                  <EuiText size="s">
+                                    Validate your search flow using Test flow
+                                  </EuiText>
+                                </EuiFlexItem>
+                                <EuiFlexItem>
+                                  <EuiFlexGroup
+                                    direction="row"
+                                    justifyContent="flexEnd"
+                                  >
+                                    <EuiFlexItem grow={false}>
+                                      <EuiSmallButton
+                                        fill={false}
+                                        onClick={() => {
+                                          props.displaySearchPanel();
+                                          getCore().notifications.toasts.remove(
+                                            SUCCESS_TOAST_ID
+                                          );
+                                        }}
+                                      >
+                                        Test flow
+                                      </EuiSmallButton>
+                                    </EuiFlexItem>
+                                  </EuiFlexGroup>
+                                </EuiFlexItem>
+                              </EuiFlexGroup>
+                            ),
+                          });
+                          setSearchProvisioned(true);
+                        }
                       }}
                     >
-                      Update search flow
-                    </EuiButton>
+                      {ingestProvisioned
+                        ? `Create search flow`
+                        : `Create an ingest flow first`}
+                    </EuiSmallButton>
                   </EuiFlexItem>
-                )} */}
+                )}
               </EuiFlexGroup>
-              {/* {showIngestBottomBar && (
-                <EuiBottomBar position="sticky">
-                  <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                    <EuiFlexItem grow={false}>
-                      <EuiText>You have pending changes</EuiText>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiFlexGroup direction="row" gutterSize="s">
-                        {!props.isRunningIngest && (
-                          <EuiFlexItem grow={false}>
-                            <EuiSmallButtonEmpty
-                              iconType="editorUndo"
-                              iconSide="left"
-                              disabled={!dirty}
-                              onClick={() => revertUnsavedChanges()}
-                            >
-                              Discard changes
-                            </EuiSmallButtonEmpty>
-                          </EuiFlexItem>
-                        )}
-                        <EuiFlexItem grow={false}>
-                          <EuiSmallButton
-                            data-test-subj="updateAndRunIngestButton"
-                            fill={true}
-                            iconType="check"
-                            iconSide="left"
-                            disabled={!ingestTemplatesDifferent}
-                            isLoading={props.isRunningIngest}
-                            onClick={() => validateAndRunIngestion()}
-                          >
-                            Update
-                          </EuiSmallButton>
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
-                </EuiBottomBar>
-              )}
-              {showSearchBottomBar && (
-                <EuiBottomBar position="sticky">
-                  <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                    {searchUpdateDisabled ? (
-                      <EuiFlexItem grow={false}>
-                        <EuiText color="danger">
-                          You must specify at least one processor
-                        </EuiText>
-                      </EuiFlexItem>
-                    ) : (
-                      <EuiFlexItem grow={false}>
-                        <EuiText>You have pending changes</EuiText>
-                      </EuiFlexItem>
-                    )}
-                    <EuiFlexItem grow={false}>
-                      <EuiFlexGroup direction="row" gutterSize="s">
-                        {!isUpdatingSearchPipeline && (
-                          <EuiFlexItem grow={false}>
-                            <EuiSmallButtonEmpty
-                              iconType="editorUndo"
-                              iconSide="left"
-                              disabled={searchUpdateDisabled ? false : !dirty}
-                              onClick={() => revertUnsavedChanges()}
-                            >
-                              Discard changes
-                            </EuiSmallButtonEmpty>
-                          </EuiFlexItem>
-                        )}
-                        {!searchUpdateDisabled && (
-                          <EuiFlexItem grow={false}>
-                            <EuiSmallButton
-                              data-test-subj="updateSearchButton"
-                              fill={true}
-                              iconType="check"
-                              iconSide="left"
-                              disabled={
-                                isProposingSearchResourcesButNotProvisioned
-                                  ? false
-                                  : !searchTemplatesDifferent
-                              }
-                              isLoading={isUpdatingSearchPipeline}
-                              onClick={async () => {
-                                if (await validateAndUpdateSearchResources()) {
-                                  getCore().notifications.toasts.add({
-                                    id: SUCCESS_TOAST_ID,
-                                    iconType: 'check',
-                                    color: 'success',
-                                    title: 'Search flow updated',
-                                    // @ts-ignore
-                                    text: (
-                                      <EuiFlexGroup direction="column">
-                                        <EuiFlexItem grow={false}>
-                                          <EuiText size="s">
-                                            Validate your search flow using Test
-                                            flow
-                                          </EuiText>
-                                        </EuiFlexItem>
-                                        <EuiFlexItem>
-                                          <EuiFlexGroup
-                                            direction="row"
-                                            justifyContent="flexEnd"
-                                          >
-                                            <EuiFlexItem grow={false}>
-                                              <EuiSmallButton
-                                                fill={false}
-                                                onClick={() => {
-                                                  props.displaySearchPanel();
-                                                  getCore().notifications.toasts.remove(
-                                                    SUCCESS_TOAST_ID
-                                                  );
-                                                }}
-                                              >
-                                                Test flow
-                                              </EuiSmallButton>
-                                            </EuiFlexItem>
-                                          </EuiFlexGroup>
-                                        </EuiFlexItem>
-                                      </EuiFlexGroup>
-                                    ),
-                                  });
-                                  setSearchProvisioned(true);
-                                }
-                              }}
-                            >
-                              Update
-                            </EuiSmallButton>
-                          </EuiFlexItem>
-                        )}
-                      </EuiFlexGroup>
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
-                </EuiBottomBar>
-              )} */}
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
