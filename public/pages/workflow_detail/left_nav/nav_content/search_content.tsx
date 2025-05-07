@@ -5,10 +5,17 @@
 
 import React from 'react';
 
-import { EuiFlexGroup, EuiFlexItem, EuiHealth, EuiText } from '@elastic/eui';
+import {
+  EuiButtonIcon,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiHealth,
+  EuiText,
+} from '@elastic/eui';
 import {
   CachedFormikState,
   COMPONENT_ID,
+  CONFIG_STEP,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
 } from '../../../../../common';
@@ -20,6 +27,8 @@ interface SearchContentProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   setSelectedComponentId: (id: string) => void;
+  setResourcesFlyoutOpen: (isOpen: boolean) => void;
+  setResourcesFlyoutContext: (context: CONFIG_STEP) => void;
   searchProvisioned: boolean;
   isProvisioningSearch: boolean;
   isUnsaved: boolean;
@@ -39,28 +48,43 @@ export function SearchContent(props: SearchContentProps) {
               <h2>{'Search flow'}</h2>
             </EuiText>
           </EuiFlexItem>
-          <EuiFlexItem
-            grow={false}
-            style={{ marginLeft: '8px', marginTop: '22px' }}
-          >
-            <EuiHealth
-              textSize="m"
-              color={
-                props.isUnsaved
-                  ? 'warning'
-                  : props.searchProvisioned
-                  ? 'primary'
-                  : 'subdued'
-              }
-            >
-              {props.isProvisioningSearch
-                ? 'Creating...'
-                : props.isUnsaved
-                ? 'Unsaved changes'
-                : props.searchProvisioned
-                ? 'Active'
-                : 'Not created'}
-            </EuiHealth>
+          <EuiFlexItem grow={false}>
+            <EuiFlexGroup direction="row" gutterSize="s">
+              <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
+                <EuiButtonIcon
+                  iconType="inspect"
+                  size="s"
+                  aria-label="inspect"
+                  onClick={() => {
+                    props.setResourcesFlyoutContext(CONFIG_STEP.SEARCH);
+                    props.setResourcesFlyoutOpen(true);
+                  }}
+                />
+              </EuiFlexItem>
+              <EuiFlexItem
+                grow={false}
+                style={{ marginLeft: '8px', marginTop: '12px' }}
+              >
+                <EuiHealth
+                  textSize="m"
+                  color={
+                    props.isUnsaved
+                      ? 'warning'
+                      : props.searchProvisioned
+                      ? 'primary'
+                      : 'subdued'
+                  }
+                >
+                  {props.isProvisioningSearch
+                    ? 'Creating...'
+                    : props.isUnsaved
+                    ? 'Unsaved changes'
+                    : props.searchProvisioned
+                    ? 'Active'
+                    : 'Not created'}
+                </EuiHealth>
+              </EuiFlexItem>
+            </EuiFlexGroup>
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiFlexItem>

@@ -57,6 +57,7 @@ import {
   useMissingDataSourceVersion,
 } from '../../../utils';
 import { getCore } from '../../../services';
+import { ResourcesFlyout } from '../tools/resources/resources_flyout';
 
 // styling
 import '../workspace/workspace-styles.scss';
@@ -127,6 +128,9 @@ export function LeftNav(props: LeftNavProps) {
   const [resourcesFlyoutOpen, setResourcesFlyoutOpen] = useState<boolean>(
     false
   );
+  const [resourcesFlyoutContext, setResourcesFlyoutContext] = useState<
+    CONFIG_STEP
+  >(CONFIG_STEP.INGEST);
 
   // maintain global states
   const onIngest = props.selectedComponentId.startsWith('ingest');
@@ -733,177 +737,128 @@ export function LeftNav(props: LeftNavProps) {
   }, [allChangesSaved]);
 
   return (
-    <EuiPanel
-      paddingSize="s"
-      grow={false}
-      className="workspace-panel left-nav-static-width"
-      borderRadius="l"
-    >
-      <EuiFlexGroup
-        direction="column"
-        justifyContent="spaceBetween"
-        gutterSize="none"
-        style={{
-          height: '100%',
-          gap: '16px',
-          //marginLeft: '12px', TODO: change this value to adjust global margin of left nav.
-        }}
+    <>
+      {resourcesFlyoutOpen && (
+        <ResourcesFlyout
+          resources={props.workflow?.resourcesCreated || []}
+          selectedStep={resourcesFlyoutContext}
+          onClose={() => setResourcesFlyoutOpen(false)}
+          indexName={getIn(values, 'ingest.index.name')}
+          ingestPipelineName={getIn(values, 'ingest.pipelineName')}
+          searchPipelineName={getIn(values, 'search.pipelineName')}
+          searchQuery={getIn(values, 'search.request')}
+        />
+      )}
+      <EuiPanel
+        paddingSize="s"
+        grow={false}
+        className="workspace-panel left-nav-static-width"
+        borderRadius="l"
       >
-        <EuiFlexItem
-          grow={false}
+        <EuiFlexGroup
+          direction="column"
+          justifyContent="spaceBetween"
+          gutterSize="none"
           style={{
-            overflowY: 'scroll',
-            overflowX: 'hidden',
+            height: '100%',
+            gap: '16px',
+            //marginLeft: '12px', TODO: change this value to adjust global margin of left nav.
           }}
         >
-          <>
-            {props.uiConfig === undefined ? (
-              <EuiLoadingSpinner size="xl" />
-            ) : (
-              <EuiFlexGroup
-                direction="column"
-                justifyContent="spaceBetween"
-                gutterSize="none"
-                style={{
-                  height: '100%',
-                  gap: '16px',
-                }}
-              >
-                <IngestContent
-                  uiConfig={props.uiConfig}
-                  setUiConfig={props.setUiConfig}
-                  setCachedFormikState={props.setCachedFormikState}
-                  setSelectedComponentId={props.setSelectedComponentId}
-                  ingestProvisioned={ingestProvisioned}
-                  isProvisioningIngest={isProvisioningIngest}
-                  isUnsaved={onIngestAndUpdateRequired}
-                />
-                <EuiHorizontalRule margin="s" />
-                <SearchContent
-                  uiConfig={props.uiConfig}
-                  setUiConfig={props.setUiConfig}
-                  setCachedFormikState={props.setCachedFormikState}
-                  setSelectedComponentId={props.setSelectedComponentId}
-                  searchProvisioned={searchProvisioned}
-                  isProvisioningSearch={isProvisioningSearch}
-                  isUnsaved={onSearchAndUpdateRequired}
-                  isDisabled={false}
-                />
-              </EuiFlexGroup>
-            )}
-          </>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiFlexGroup direction="column" gutterSize="none">
-            <EuiFlexItem>
-              <EuiHorizontalRule margin="m" />
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup
-                direction="row"
-                gutterSize="s"
-                style={{ padding: '0px', marginBottom: '48px' }}
-              >
-                {onIngestAndUnprovisioned && (
-                  <EuiFlexItem grow={true}>
-                    <EuiSmallButton
-                      fill={true}
-                      isLoading={isProvisioningIngest}
-                      onClick={() => validateAndRunIngestion()}
-                    >
-                      Create ingest flow
-                    </EuiSmallButton>
-                  </EuiFlexItem>
-                )}
-                {onIngestAndUpdateRequired && (
-                  <>
-                    <EuiFlexItem grow={false}>
-                      <EuiSmallButtonIcon
-                        iconType={'editorUndo'}
-                        aria-label="undo"
-                        display="base"
-                        iconSize="s"
-                        isDisabled={isProvisioningIngest}
-                        onClick={() => revertUnsavedChanges()}
-                      />
-                    </EuiFlexItem>
+          <EuiFlexItem
+            grow={false}
+            style={{
+              overflowY: 'scroll',
+              overflowX: 'hidden',
+            }}
+          >
+            <>
+              {props.uiConfig === undefined ? (
+                <EuiLoadingSpinner size="xl" />
+              ) : (
+                <EuiFlexGroup
+                  direction="column"
+                  justifyContent="spaceBetween"
+                  gutterSize="none"
+                  style={{
+                    height: '100%',
+                    gap: '16px',
+                  }}
+                >
+                  <IngestContent
+                    uiConfig={props.uiConfig}
+                    setUiConfig={props.setUiConfig}
+                    setCachedFormikState={props.setCachedFormikState}
+                    setSelectedComponentId={props.setSelectedComponentId}
+                    setResourcesFlyoutOpen={setResourcesFlyoutOpen}
+                    setResourcesFlyoutContext={setResourcesFlyoutContext}
+                    ingestProvisioned={ingestProvisioned}
+                    isProvisioningIngest={isProvisioningIngest}
+                    isUnsaved={onIngestAndUpdateRequired}
+                  />
+                  <EuiHorizontalRule margin="s" />
+                  <SearchContent
+                    uiConfig={props.uiConfig}
+                    setUiConfig={props.setUiConfig}
+                    setCachedFormikState={props.setCachedFormikState}
+                    setSelectedComponentId={props.setSelectedComponentId}
+                    setResourcesFlyoutOpen={setResourcesFlyoutOpen}
+                    setResourcesFlyoutContext={setResourcesFlyoutContext}
+                    searchProvisioned={searchProvisioned}
+                    isProvisioningSearch={isProvisioningSearch}
+                    isUnsaved={onSearchAndUpdateRequired}
+                    isDisabled={false}
+                  />
+                </EuiFlexGroup>
+              )}
+            </>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiFlexGroup direction="column" gutterSize="none">
+              <EuiFlexItem>
+                <EuiHorizontalRule margin="m" />
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiFlexGroup
+                  direction="row"
+                  gutterSize="s"
+                  style={{ padding: '0px', marginBottom: '48px' }}
+                >
+                  {onIngestAndUnprovisioned && (
                     <EuiFlexItem grow={true}>
                       <EuiSmallButton
                         fill={true}
                         isLoading={isProvisioningIngest}
                         onClick={() => validateAndRunIngestion()}
                       >
-                        Update ingest flow
+                        Create ingest flow
                       </EuiSmallButton>
                     </EuiFlexItem>
-                  </>
-                )}
-                {onSearchAndUnprovisioned && (
-                  <EuiFlexItem grow={true}>
-                    <EuiSmallButton
-                      fill={true}
-                      disabled={!ingestProvisioned}
-                      isLoading={isProvisioningSearch}
-                      onClick={async () => {
-                        if (await validateAndUpdateSearchResources()) {
-                          getCore().notifications.toasts.add({
-                            id: SUCCESS_TOAST_ID,
-                            iconType: 'check',
-                            color: 'success',
-                            title: 'Search flow created',
-                            // @ts-ignore
-                            text: (
-                              <EuiFlexGroup direction="column">
-                                <EuiFlexItem grow={false}>
-                                  <EuiText size="s">
-                                    Validate your search flow using Test flow
-                                  </EuiText>
-                                </EuiFlexItem>
-                                <EuiFlexItem>
-                                  <EuiFlexGroup
-                                    direction="row"
-                                    justifyContent="flexEnd"
-                                  >
-                                    <EuiFlexItem grow={false}>
-                                      <EuiSmallButton
-                                        fill={false}
-                                        onClick={() => {
-                                          props.displaySearchPanel();
-                                          getCore().notifications.toasts.remove(
-                                            SUCCESS_TOAST_ID
-                                          );
-                                        }}
-                                      >
-                                        Test flow
-                                      </EuiSmallButton>
-                                    </EuiFlexItem>
-                                  </EuiFlexGroup>
-                                </EuiFlexItem>
-                              </EuiFlexGroup>
-                            ),
-                          });
-                          setSearchProvisioned(true);
-                        }
-                      }}
-                    >
-                      {ingestProvisioned
-                        ? `Create search flow`
-                        : `Create an ingest flow first`}
-                    </EuiSmallButton>
-                  </EuiFlexItem>
-                )}
-                {onSearchAndUpdateRequired && (
-                  <>
-                    <EuiFlexItem grow={false}>
-                      <EuiSmallButtonIcon
-                        iconType={'editorUndo'}
-                        aria-label="undo"
-                        display="base"
-                        iconSize="s"
-                        isDisabled={isProvisioningIngest}
-                        onClick={() => revertUnsavedChanges()}
-                      />
-                    </EuiFlexItem>
+                  )}
+                  {onIngestAndUpdateRequired && (
+                    <>
+                      <EuiFlexItem grow={false}>
+                        <EuiSmallButtonIcon
+                          iconType={'editorUndo'}
+                          aria-label="undo"
+                          display="base"
+                          iconSize="s"
+                          isDisabled={isProvisioningIngest}
+                          onClick={() => revertUnsavedChanges()}
+                        />
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={true}>
+                        <EuiSmallButton
+                          fill={true}
+                          isLoading={isProvisioningIngest}
+                          onClick={() => validateAndRunIngestion()}
+                        >
+                          Update ingest flow
+                        </EuiSmallButton>
+                      </EuiFlexItem>
+                    </>
+                  )}
+                  {onSearchAndUnprovisioned && (
                     <EuiFlexItem grow={true}>
                       <EuiSmallButton
                         fill={true}
@@ -915,7 +870,7 @@ export function LeftNav(props: LeftNavProps) {
                               id: SUCCESS_TOAST_ID,
                               iconType: 'check',
                               color: 'success',
-                              title: 'Search flow updated',
+                              title: 'Search flow created',
                               // @ts-ignore
                               text: (
                                 <EuiFlexGroup direction="column">
@@ -951,17 +906,84 @@ export function LeftNav(props: LeftNavProps) {
                           }
                         }}
                       >
-                        Update search flow
+                        {ingestProvisioned
+                          ? `Create search flow`
+                          : `Create an ingest flow first`}
                       </EuiSmallButton>
                     </EuiFlexItem>
-                  </>
-                )}
-              </EuiFlexGroup>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    </EuiPanel>
+                  )}
+                  {onSearchAndUpdateRequired && (
+                    <>
+                      <EuiFlexItem grow={false}>
+                        <EuiSmallButtonIcon
+                          iconType={'editorUndo'}
+                          aria-label="undo"
+                          display="base"
+                          iconSize="s"
+                          isDisabled={isProvisioningIngest}
+                          onClick={() => revertUnsavedChanges()}
+                        />
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={true}>
+                        <EuiSmallButton
+                          fill={true}
+                          disabled={!ingestProvisioned}
+                          isLoading={isProvisioningSearch}
+                          onClick={async () => {
+                            if (await validateAndUpdateSearchResources()) {
+                              getCore().notifications.toasts.add({
+                                id: SUCCESS_TOAST_ID,
+                                iconType: 'check',
+                                color: 'success',
+                                title: 'Search flow updated',
+                                // @ts-ignore
+                                text: (
+                                  <EuiFlexGroup direction="column">
+                                    <EuiFlexItem grow={false}>
+                                      <EuiText size="s">
+                                        Validate your search flow using Test
+                                        flow
+                                      </EuiText>
+                                    </EuiFlexItem>
+                                    <EuiFlexItem>
+                                      <EuiFlexGroup
+                                        direction="row"
+                                        justifyContent="flexEnd"
+                                      >
+                                        <EuiFlexItem grow={false}>
+                                          <EuiSmallButton
+                                            fill={false}
+                                            onClick={() => {
+                                              props.displaySearchPanel();
+                                              getCore().notifications.toasts.remove(
+                                                SUCCESS_TOAST_ID
+                                              );
+                                            }}
+                                          >
+                                            Test flow
+                                          </EuiSmallButton>
+                                        </EuiFlexItem>
+                                      </EuiFlexGroup>
+                                    </EuiFlexItem>
+                                  </EuiFlexGroup>
+                                ),
+                              });
+                              setSearchProvisioned(true);
+                            }
+                          }}
+                        >
+                          Update search flow
+                        </EuiSmallButton>
+                      </EuiFlexItem>
+                    </>
+                  )}
+                </EuiFlexGroup>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </EuiPanel>
+    </>
   );
 }
 
