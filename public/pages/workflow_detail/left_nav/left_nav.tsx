@@ -775,6 +775,8 @@ export function LeftNav(props: LeftNavProps) {
                   setCachedFormikState={props.setCachedFormikState}
                   setSelectedComponentId={props.setSelectedComponentId}
                   ingestProvisioned={ingestProvisioned}
+                  isProvisioningIngest={isProvisioningIngest}
+                  isUnsaved={onIngestAndUpdateRequired}
                 />
                 <EuiHorizontalRule margin="s" />
                 <SearchContent
@@ -783,6 +785,8 @@ export function LeftNav(props: LeftNavProps) {
                   setCachedFormikState={props.setCachedFormikState}
                   setSelectedComponentId={props.setSelectedComponentId}
                   searchProvisioned={searchProvisioned}
+                  isProvisioningSearch={isProvisioningSearch}
+                  isUnsaved={onSearchAndUpdateRequired}
                   isDisabled={false}
                 />
               </EuiFlexGroup>

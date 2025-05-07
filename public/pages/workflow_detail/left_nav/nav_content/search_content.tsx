@@ -21,6 +21,8 @@ interface SearchContentProps {
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   setSelectedComponentId: (id: string) => void;
   searchProvisioned: boolean;
+  isProvisioningSearch: boolean;
+  isUnsaved: boolean;
   isDisabled: boolean;
 }
 
@@ -43,9 +45,21 @@ export function SearchContent(props: SearchContentProps) {
           >
             <EuiHealth
               textSize="m"
-              color={props.searchProvisioned ? 'primary' : 'subdued'}
+              color={
+                props.isUnsaved
+                  ? 'warning'
+                  : props.searchProvisioned
+                  ? 'primary'
+                  : 'subdued'
+              }
             >
-              {props.searchProvisioned ? 'Created' : 'Not created'}
+              {props.isProvisioningSearch
+                ? 'Creating...'
+                : props.isUnsaved
+                ? 'Unsaved changes'
+                : props.searchProvisioned
+                ? 'Active'
+                : 'Not created'}
             </EuiHealth>
           </EuiFlexItem>
         </EuiFlexGroup>

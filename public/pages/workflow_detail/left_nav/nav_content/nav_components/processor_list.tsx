@@ -533,7 +533,7 @@ export function ProcessorList(props: ProcessorListProps) {
           : 'Runtime error(s) detected';
 
         return (
-          <>
+          <div key={processorIndex}>
             <EuiSpacer size="s" />
             <EuiCard
               style={{
@@ -543,7 +543,7 @@ export function ProcessorList(props: ProcessorListProps) {
                 paddingTop: '8px',
                 marginLeft: '5px',
                 marginBottom: '8px',
-                width: '324px',
+                width: '424px',
               }}
               key={processorIndex}
               description={''}
@@ -561,7 +561,7 @@ export function ProcessorList(props: ProcessorListProps) {
                   gutterSize="s"
                   justifyContent="spaceAround"
                 >
-                  <EuiFlexItem style={{ width: '180px' }} grow={false}>
+                  <EuiFlexItem style={{ width: '280px' }} grow={false}>
                     <EuiFlexGroup direction="column" gutterSize="none">
                       <EuiFlexItem grow={false}>
                         <EuiTitle size="xs">
@@ -664,7 +664,7 @@ export function ProcessorList(props: ProcessorListProps) {
                 */}
             </EuiCard>
             <DownArrow isDisabled={props.isDisabled} />
-          </>
+          </div>
         );
       })}
       <EuiSpacer size="s" />

@@ -22,6 +22,8 @@ interface IngestContentProps {
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   setSelectedComponentId: (id: string) => void;
   ingestProvisioned: boolean;
+  isProvisioningIngest: boolean;
+  isUnsaved: boolean;
 }
 
 /**
@@ -43,9 +45,21 @@ export function IngestContent(props: IngestContentProps) {
           >
             <EuiHealth
               textSize="m"
-              color={props.ingestProvisioned ? 'primary' : 'subdued'}
+              color={
+                props.isUnsaved
+                  ? 'warning'
+                  : props.ingestProvisioned
+                  ? 'primary'
+                  : 'subdued'
+              }
             >
-              {props.ingestProvisioned ? 'Created' : 'Not created'}
+              {props.isProvisioningIngest
+                ? 'Creating...'
+                : props.isUnsaved
+                ? 'Unsaved changes'
+                : props.ingestProvisioned
+                ? 'Active'
+                : 'Not created'}
             </EuiHealth>
           </EuiFlexItem>
           {/* <EuiFlexItem grow={false}>
