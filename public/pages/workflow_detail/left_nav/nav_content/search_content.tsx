@@ -6,10 +6,12 @@
 import React from 'react';
 
 import {
+  EuiAccordion,
   EuiButtonIcon,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHealth,
+  EuiSpacer,
   EuiText,
 } from '@elastic/eui';
 import {
@@ -41,14 +43,16 @@ interface SearchContentProps {
  */
 export function SearchContent(props: SearchContentProps) {
   return (
-    <>
-      <EuiFlexItem grow={false} style={{ marginTop: '-16px' }}>
-        <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-          <EuiFlexItem grow={false}>
-            <EuiText size="s">
-              <h2>{'Search flow'}</h2>
-            </EuiText>
-          </EuiFlexItem>
+    <EuiAccordion
+      initialIsOpen={true}
+      id="searchContentAccordion"
+      buttonContent={
+        <EuiText size="s">
+          <h2>{'Search flow'}</h2>
+        </EuiText>
+      }
+      extraAction={
+        <>
           <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row" gutterSize="xs">
               <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
@@ -95,64 +99,68 @@ export function SearchContent(props: SearchContentProps) {
               </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
-        </EuiFlexGroup>
-      </EuiFlexItem>
-      <EuiFlexItem grow={false}>
-        <NavComponent
-          title="Search request"
-          icon="editorCodeBlock"
-          onClick={() => {
-            props.setSelectedComponentId(COMPONENT_ID.SEARCH_REQUEST);
-          }}
-          isDisabled={props.isDisabled}
-        />
-      </EuiFlexItem>
-      <DownArrow isDisabled={props.isDisabled} />
-      <EuiFlexItem grow={false}>
-        <ProcessorsComponent
-          uiConfig={props.uiConfig}
-          setUiConfig={props.setUiConfig}
-          title="Transform query"
-          context={PROCESSOR_CONTEXT.SEARCH_REQUEST}
-          setCachedFormikState={props.setCachedFormikState}
-          setSelectedComponentId={props.setSelectedComponentId}
-          isDisabled={props.isDisabled}
-        />
-      </EuiFlexItem>
-      <DownArrow isDisabled={props.isDisabled} />
-      <EuiFlexItem grow={false}>
-        <NavComponent
-          title="Retrieve from data source"
-          icon="indexSettings"
-          onClick={() => {
-            console.log('retrieve from data source clicked');
-          }}
-          isDisabled={props.isDisabled}
-        />
-      </EuiFlexItem>
-      <DownArrow isDisabled={props.isDisabled} />
-      <EuiFlexItem grow={false}>
-        <ProcessorsComponent
-          uiConfig={props.uiConfig}
-          setUiConfig={props.setUiConfig}
-          title="Transform results"
-          context={PROCESSOR_CONTEXT.SEARCH_RESPONSE}
-          setCachedFormikState={props.setCachedFormikState}
-          setSelectedComponentId={props.setSelectedComponentId}
-          isDisabled={props.isDisabled}
-        />
-      </EuiFlexItem>
-      <DownArrow isDisabled={props.isDisabled} />
-      <EuiFlexItem grow={false}>
-        <NavComponent
-          title="Search results"
-          icon="document"
-          onClick={() => {
-            console.log('search results clicked');
-          }}
-          isDisabled={props.isDisabled}
-        />
-      </EuiFlexItem>
-    </>
+        </>
+      }
+    >
+      <EuiSpacer size="s" />
+      <EuiFlexGroup direction="column" gutterSize="s">
+        <EuiFlexItem grow={false}>
+          <NavComponent
+            title="Search request"
+            icon="editorCodeBlock"
+            onClick={() => {
+              props.setSelectedComponentId(COMPONENT_ID.SEARCH_REQUEST);
+            }}
+            isDisabled={props.isDisabled}
+          />
+        </EuiFlexItem>
+        <DownArrow isDisabled={props.isDisabled} />
+        <EuiFlexItem grow={false}>
+          <ProcessorsComponent
+            uiConfig={props.uiConfig}
+            setUiConfig={props.setUiConfig}
+            title="Transform query"
+            context={PROCESSOR_CONTEXT.SEARCH_REQUEST}
+            setCachedFormikState={props.setCachedFormikState}
+            setSelectedComponentId={props.setSelectedComponentId}
+            isDisabled={props.isDisabled}
+          />
+        </EuiFlexItem>
+        <DownArrow isDisabled={props.isDisabled} />
+        <EuiFlexItem grow={false}>
+          <NavComponent
+            title="Retrieve from data source"
+            icon="indexSettings"
+            onClick={() => {
+              console.log('retrieve from data source clicked');
+            }}
+            isDisabled={props.isDisabled}
+          />
+        </EuiFlexItem>
+        <DownArrow isDisabled={props.isDisabled} />
+        <EuiFlexItem grow={false}>
+          <ProcessorsComponent
+            uiConfig={props.uiConfig}
+            setUiConfig={props.setUiConfig}
+            title="Transform results"
+            context={PROCESSOR_CONTEXT.SEARCH_RESPONSE}
+            setCachedFormikState={props.setCachedFormikState}
+            setSelectedComponentId={props.setSelectedComponentId}
+            isDisabled={props.isDisabled}
+          />
+        </EuiFlexItem>
+        <DownArrow isDisabled={props.isDisabled} />
+        <EuiFlexItem grow={false}>
+          <NavComponent
+            title="Search results"
+            icon="document"
+            onClick={() => {
+              console.log('search results clicked');
+            }}
+            isDisabled={props.isDisabled}
+          />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiAccordion>
   );
 }

@@ -6,10 +6,12 @@
 import React from 'react';
 
 import {
+  EuiAccordion,
   EuiButtonIcon,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHealth,
+  EuiSpacer,
   EuiText,
 } from '@elastic/eui';
 import {
@@ -40,14 +42,16 @@ interface IngestContentProps {
  */
 export function IngestContent(props: IngestContentProps) {
   return (
-    <>
-      <EuiFlexItem grow={false}>
-        <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-          <EuiFlexItem grow={false}>
-            <EuiText size="s">
-              <h2>{'Ingest flow'}</h2>
-            </EuiText>
-          </EuiFlexItem>
+    <EuiAccordion
+      initialIsOpen={true}
+      id="ingestContentAccordion"
+      buttonContent={
+        <EuiText size="s">
+          <h2>{'Ingest flow'}</h2>
+        </EuiText>
+      }
+      extraAction={
+        <>
           <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row" gutterSize="xs">
               <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
@@ -87,48 +91,52 @@ export function IngestContent(props: IngestContentProps) {
             </EuiFlexGroup>
           </EuiFlexItem>
           {/* <EuiFlexItem grow={false}>
-            <EuiFlexGroup direction="row" gutterSize="s">
-              <EuiFlexItem grow={false} style={{ marginTop: '16px' }}>
-                <BooleanField
-                  fieldPath="ingest.enabled"
-                  label="Enable ingest flow"
-                  type="Switch"
-                />
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </EuiFlexItem> */}
-        </EuiFlexGroup>
-      </EuiFlexItem>
-      <EuiFlexItem grow={false}>
-        <NavComponent
-          title="Source data"
-          icon="document"
-          onClick={() => {
-            props.setSelectedComponentId(COMPONENT_ID.SOURCE_DATA);
-          }}
-        />
-      </EuiFlexItem>
-      <DownArrow />
-      <EuiFlexItem grow={false}>
-        <ProcessorsComponent
-          uiConfig={props.uiConfig}
-          setUiConfig={props.setUiConfig}
-          title="Transform data"
-          context={PROCESSOR_CONTEXT.INGEST}
-          setCachedFormikState={props.setCachedFormikState}
-          setSelectedComponentId={props.setSelectedComponentId}
-        />
-      </EuiFlexItem>
-      <DownArrow />
-      <EuiFlexItem grow={false}>
-        <NavComponent
-          title="Index"
-          icon="indexSettings"
-          onClick={() => {
-            props.setSelectedComponentId(COMPONENT_ID.INGEST_DATA);
-          }}
-        />
-      </EuiFlexItem>
-    </>
+                    <EuiFlexGroup direction="row" gutterSize="s">
+                      <EuiFlexItem grow={false} style={{ marginTop: '16px' }}>
+                        <BooleanField
+                          fieldPath="ingest.enabled"
+                          label="Enable ingest flow"
+                          type="Switch"
+                        />
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
+                  </EuiFlexItem> */}
+        </>
+      }
+    >
+      <EuiSpacer size="s" />
+      <EuiFlexGroup direction="column" gutterSize="s">
+        <EuiFlexItem grow={false}>
+          <NavComponent
+            title="Source data"
+            icon="document"
+            onClick={() => {
+              props.setSelectedComponentId(COMPONENT_ID.SOURCE_DATA);
+            }}
+          />
+        </EuiFlexItem>
+        <DownArrow />
+        <EuiFlexItem grow={false}>
+          <ProcessorsComponent
+            uiConfig={props.uiConfig}
+            setUiConfig={props.setUiConfig}
+            title="Transform data"
+            context={PROCESSOR_CONTEXT.INGEST}
+            setCachedFormikState={props.setCachedFormikState}
+            setSelectedComponentId={props.setSelectedComponentId}
+          />
+        </EuiFlexItem>
+        <DownArrow />
+        <EuiFlexItem grow={false}>
+          <NavComponent
+            title="Index"
+            icon="indexSettings"
+            onClick={() => {
+              props.setSelectedComponentId(COMPONENT_ID.INGEST_DATA);
+            }}
+          />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiAccordion>
   );
 }
