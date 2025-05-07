@@ -20,7 +20,6 @@ import {
   EuiText,
 } from '@elastic/eui';
 import {
-  CONFIG_STEP,
   customStringify,
   QUERY_PRESETS,
   QueryParam,
@@ -49,7 +48,7 @@ import { QueryParamsList, Results } from '../../../../general_components';
 interface QueryProps {
   hasSearchPipeline: boolean;
   hasIngestResources: boolean;
-  selectedStep: CONFIG_STEP;
+  selectedComponentId: string;
   queryRequest: string;
   setQueryRequest: (queryRequest: string) => void;
   queryResponse: SearchResponse | undefined;
@@ -107,18 +106,21 @@ export function Query(props: QueryProps) {
     }
   }, [props.queryRequest]);
 
+  // TODO: update empty states to be dependent on if ingest is enabled/disabled.
+  // Now that all ingest & search is navigable on one page, there should be no
+  // confusing conditonal logic on the index to search on etc. Should be able to
+  // remove the selectedComponentId prop altogether.
   // empty states
   const noSearchIndex = isEmpty(values?.search?.index?.name);
   const noSearchRequest = isEmpty(values?.search?.request);
   const onIngestAndInvalid =
-    props.selectedStep === CONFIG_STEP.INGEST && !props.hasIngestResources;
+    props.selectedComponentId.startsWith('ingest') && !props.hasIngestResources;
   const onSearchAndInvalid =
-    props.selectedStep === CONFIG_STEP.SEARCH &&
+    props.selectedComponentId.startsWith('search') &&
     (noSearchIndex || noSearchRequest);
-  const indexToSearch =
-    props.selectedStep === CONFIG_STEP.INGEST
-      ? values?.ingest?.index?.name
-      : values?.search?.index?.name;
+  const indexToSearch = props.selectedComponentId.startsWith('ingest')
+    ? values?.ingest?.index?.name
+    : values?.search?.index?.name;
 
   return (
     <>
@@ -240,7 +242,7 @@ export function Query(props: QueryProps) {
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiFlexGroup direction="row" gutterSize="s">
-                      {props.selectedStep === CONFIG_STEP.SEARCH &&
+                      {props.selectedComponentId.startsWith('search') &&
                         !isEmpty(values?.search?.request) &&
                         values?.search?.request !== props.queryRequest && (
                           <EuiFlexItem

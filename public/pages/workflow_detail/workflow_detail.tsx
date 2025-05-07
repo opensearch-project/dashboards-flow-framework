@@ -39,7 +39,6 @@ import {
 } from '../../store';
 import { ResizableWorkspace } from './resizable_workspace';
 import {
-  CONFIG_STEP,
   CachedFormikState,
   ERROR_GETTING_WORKFLOW_MSG,
   FETCH_ALL_QUERY_LARGE,
@@ -212,20 +211,6 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     CachedFormikState | undefined
   >(undefined);
 
-  // various form-related states. persisted here to pass down to the child's form and header components, particularly
-  // to have consistency on the button states (enabled/disabled)
-  const [isRunningIngest, setIsRunningIngest] = useState<boolean>(false);
-  const [isRunningSearch, setIsRunningSearch] = useState<boolean>(false);
-  const [selectedStep, setSelectedStep] = useState<CONFIG_STEP>(
-    CONFIG_STEP.INGEST
-  );
-  const [unsavedIngestProcessors, setUnsavedIngestProcessors] = useState<
-    boolean
-  >(false);
-  const [unsavedSearchProcessors, setUnsavedSearchProcessors] = useState<
-    boolean
-  >(false);
-
   // Initialize the UI config based on the workflow's config, if applicable.
   useEffect(() => {
     if (workflow?.ui_metadata?.config) {
@@ -305,16 +290,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                 <WorkflowDetailHeader
                   workflow={workflow}
                   uiConfig={uiConfig}
-                  setUiConfig={setUiConfig}
-                  isRunningIngest={isRunningIngest}
-                  isRunningSearch={isRunningSearch}
-                  selectedStep={selectedStep}
-                  unsavedIngestProcessors={unsavedIngestProcessors}
-                  setUnsavedIngestProcessors={setUnsavedIngestProcessors}
-                  unsavedSearchProcessors={unsavedSearchProcessors}
-                  setUnsavedSearchProcessors={setUnsavedSearchProcessors}
                   setActionMenu={props.setActionMenu}
-                  setBlockNavigation={setBlockNavigation}
                 />
                 <EuiFlexGroup
                   direction="row"
@@ -332,14 +308,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                       setUiConfig={setUiConfig}
                       ingestDocs={ingestDocs}
                       setIngestDocs={setIngestDocs}
-                      isRunningIngest={isRunningIngest}
-                      setIsRunningIngest={setIsRunningIngest}
-                      isRunningSearch={isRunningSearch}
-                      setIsRunningSearch={setIsRunningSearch}
-                      selectedStep={selectedStep}
-                      setSelectedStep={setSelectedStep}
-                      setUnsavedIngestProcessors={setUnsavedIngestProcessors}
-                      setUnsavedSearchProcessors={setUnsavedSearchProcessors}
+                      setBlockNavigation={setBlockNavigation}
                       setCachedFormikState={setCachedFormikState}
                       lastIngested={lastIngested}
                     />

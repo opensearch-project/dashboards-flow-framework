@@ -68,14 +68,7 @@ interface LeftNavProps {
   setIngestResponse: (ingestResponse: string) => void;
   ingestDocs: string;
   setIngestDocs: (docs: string) => void;
-  isRunningIngest: boolean;
-  setIsRunningIngest: (isRunningIngest: boolean) => void;
-  isRunningSearch: boolean;
-  setIsRunningSearch: (isRunningSearch: boolean) => void;
-  selectedStep: CONFIG_STEP;
-  setSelectedStep: (step: CONFIG_STEP) => void;
-  setUnsavedIngestProcessors: (unsavedIngestProcessors: boolean) => void;
-  setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
+  setBlockNavigation: (blockNavigation: boolean) => void;
   displaySearchPanel: () => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   selectedComponentId: string;
@@ -96,6 +89,7 @@ export function LeftNav(props: LeftNavProps) {
     setTouched,
     values,
     dirty,
+    touched,
   } = useFormikContext<WorkflowFormValues>();
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
@@ -107,7 +101,16 @@ export function LeftNav(props: LeftNavProps) {
   );
 
   // transient running states
-  const [isUpdatingSearchPipeline, setIsUpdatingSearchPipeline] = useState<
+  const [isProvisioningIngest, setIsProvisioningIngest] = useState<boolean>(
+    false
+  );
+  const [isProvisioningSearch, setIsProvisioningSearch] = useState<boolean>(
+    false
+  );
+  const [unsavedIngestProcessors, setUnsavedIngestProcessors] = useState<
+    boolean
+  >(false);
+  const [unsavedSearchProcessors, setUnsavedSearchProcessors] = useState<
     boolean
   >(false);
 
@@ -128,13 +131,14 @@ export function LeftNav(props: LeftNavProps) {
   // maintain global states
   const onIngest = props.selectedComponentId.startsWith('ingest');
   const onSearch = props.selectedComponentId.startsWith('search');
-  const ingestEnabled = values?.ingest?.enabled || false;
-  const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
-  const onSearchAndUnprovisioned = onSearch && !searchProvisioned;
-  const onIngestAndDisabled = onIngest && !ingestEnabled;
   const isProposingNoSearchResources =
     isEmpty(getIn(values, 'search.enrichRequest')) &&
     isEmpty(getIn(values, 'search.enrichResponse'));
+  const ingestEnabled = values?.ingest?.enabled || false;
+  const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
+  const onSearchAndUnprovisioned =
+    onSearch && !searchProvisioned && !isProposingNoSearchResources;
+  const onIngestAndDisabled = onIngest && !ingestEnabled;
   // fine-grained deprovisioning is not supported, hence once a search pipeline is created, it cannot
   // be deleted without re-creating all of the resources, including ingest resources.
   const searchUpdateDisabled =
@@ -258,12 +262,42 @@ export function LeftNav(props: LeftNavProps) {
     formGeneratedSearchTemplateNodes,
   ]);
 
+  // listener when ingest processors have been added/deleted.
+  // compare to the indexed/persisted workflow config
   useEffect(() => {
     setIngestProvisioned(hasProvisionedIngestResources(props.workflow));
   }, [props.workflow]);
   useEffect(() => {
     setSearchProvisioned(hasProvisionedSearchResources(props.workflow));
   }, [props.workflow]);
+
+  useEffect(() => {
+    setUnsavedIngestProcessors(
+      !isEqual(
+        props.uiConfig?.ingest?.enrich?.processors,
+        props.workflow?.ui_metadata?.config?.ingest?.enrich?.processors
+      )
+    );
+  }, [props.uiConfig?.ingest?.enrich?.processors?.length]);
+
+  // listener when search processors have been added/deleted.
+  // compare to the indexed/persisted workflow config
+  useEffect(() => {
+    setUnsavedSearchProcessors(
+      !isEqual(
+        props.uiConfig?.search?.enrichRequest?.processors,
+        props.workflow?.ui_metadata?.config?.search?.enrichRequest?.processors
+      ) ||
+        !isEqual(
+          props.uiConfig?.search?.enrichResponse?.processors,
+          props.workflow?.ui_metadata?.config?.search?.enrichResponse
+            ?.processors
+        )
+    );
+  }, [
+    props.uiConfig?.search?.enrichRequest?.processors?.length,
+    props.uiConfig?.search?.enrichResponse?.processors?.length,
+  ]);
 
   // populated ingest docs state
   const [docsPopulated, setDocsPopulated] = useState<boolean>(false);
@@ -272,25 +306,16 @@ export function LeftNav(props: LeftNavProps) {
     setDocsPopulated(parsedDocsObjs.length > 0 && !isEmpty(parsedDocsObjs[0]));
   }, [props.ingestDocs]);
 
-  // TODO: can remove this once it's been refactored in new buttons.
-  // bottom bar eligibility
-  const showIngestBottomBar =
-    onIngest &&
-    docsPopulated &&
-    (ingestTemplatesDifferent || props.isRunningIngest);
-  const showSearchBottomBar =
-    onSearch &&
-    (searchTemplatesDifferent ||
-      isUpdatingSearchPipeline ||
-      isProposingSearchResourcesButNotProvisioned);
-
   // update buttons eligibility
   const onIngestAndUpdateRequired =
     onIngest &&
     ingestProvisioned &&
-    (ingestTemplatesDifferent || props.isRunningIngest);
-
-  // TODO: add similar buttons for search
+    (ingestTemplatesDifferent || isProvisioningIngest);
+  const onSearchAndUpdateRequired =
+    onSearch &&
+    searchProvisioned &&
+    !isProposingNoSearchResources &&
+    (searchTemplatesDifferent || isProvisioningSearch);
 
   // Utility fn to revert any unsaved changes, reset the form
   function revertUnsavedChanges(): void {
@@ -307,7 +332,7 @@ export function LeftNav(props: LeftNavProps) {
       .unwrap()
       .then(async (resp: any) => {
         props.setIngestResponse(customStringify(resp));
-        props.setIsRunningIngest(false);
+        setIsProvisioningIngest(false);
         setLastIngested(Date.now());
         getCore().notifications.toasts.add({
           id: SUCCESS_TOAST_ID,
@@ -372,8 +397,8 @@ export function LeftNav(props: LeftNavProps) {
       .unwrap()
       .then(async (result) => {
         success = true;
-        props.setUnsavedIngestProcessors(false);
-        props.setUnsavedSearchProcessors(false);
+        setUnsavedIngestProcessors(false);
+        setUnsavedSearchProcessors(false);
         setTouched({});
         new Promise((f) => setTimeout(f, 1000)).then(async () => {
           dispatch(
@@ -420,8 +445,8 @@ export function LeftNav(props: LeftNavProps) {
           if (isPreV219) {
             await sleep(1000);
           }
-          props.setUnsavedIngestProcessors(false);
-          props.setUnsavedSearchProcessors(false);
+          setUnsavedIngestProcessors(false);
+          setUnsavedSearchProcessors(false);
           success = true;
           // Kicking off an async task to re-fetch the workflow details
           // after some amount of time. Provisioning will finish in an indeterminate
@@ -466,8 +491,8 @@ export function LeftNav(props: LeftNavProps) {
             .unwrap()
             .then(async (result) => {
               await sleep(100);
-              props.setUnsavedIngestProcessors(false);
-              props.setUnsavedSearchProcessors(false);
+              setUnsavedIngestProcessors(false);
+              setUnsavedSearchProcessors(false);
               await dispatch(
                 provisionWorkflow({
                   workflowId: updatedWorkflow.id as string,
@@ -603,7 +628,7 @@ export function LeftNav(props: LeftNavProps) {
   // to clean up any created resources and not have leftover / stale data in some index.
   // This is propagated by passing `reprovision=false` to validateAndUpdateWorkflow()
   async function validateAndRunIngestion(): Promise<boolean> {
-    props.setIsRunningIngest(true);
+    setIsProvisioningIngest(true);
     let success = false;
     try {
       const ingestDocsObjs = getObjsFromJSONLines(props.ingestDocs);
@@ -662,7 +687,7 @@ export function LeftNav(props: LeftNavProps) {
     } catch (error) {
       console.error('Error ingesting documents: ', error);
     }
-    props.setIsRunningIngest(false);
+    setIsProvisioningIngest(false);
     return success;
   }
 
@@ -674,7 +699,7 @@ export function LeftNav(props: LeftNavProps) {
   // This logic is propagated by passing `reprovision=true/false` in the
   // validateAndUpdateWorkflow() fn calls below.
   async function validateAndUpdateSearchResources(): Promise<boolean> {
-    setIsUpdatingSearchPipeline(true);
+    setIsProvisioningSearch(true);
     let success = false;
     try {
       if (hasProvisionedIngestResources(props.workflow)) {
@@ -685,9 +710,27 @@ export function LeftNav(props: LeftNavProps) {
     } catch (error) {
       console.error('Error updating search pipeline: ', error);
     }
-    setIsUpdatingSearchPipeline(false);
+    setIsProvisioningSearch(false);
     return success;
   }
+
+  // global saved state. block navigation away if there are unsaved changes
+  const ingestSaved =
+    isProvisioningSearch || isProvisioningIngest
+      ? true
+      : unsavedIngestProcessors
+      ? false
+      : !dirty;
+  const searchSaved =
+    isProvisioningIngest || isProvisioningSearch
+      ? true
+      : unsavedSearchProcessors
+      ? false
+      : isEmpty(touched?.search) || !dirty;
+  const allChangesSaved = ingestSaved && searchSaved;
+  useEffect(() => {
+    props.setBlockNavigation(!allChangesSaved);
+  }, [allChangesSaved]);
 
   return (
     <EuiPanel
@@ -761,7 +804,7 @@ export function LeftNav(props: LeftNavProps) {
                   <EuiFlexItem grow={true}>
                     <EuiSmallButton
                       fill={true}
-                      isLoading={props.isRunningIngest}
+                      isLoading={isProvisioningIngest}
                       onClick={() => validateAndRunIngestion()}
                     >
                       Create ingest flow
@@ -776,14 +819,14 @@ export function LeftNav(props: LeftNavProps) {
                         aria-label="undo"
                         display="base"
                         iconSize="s"
-                        isDisabled={props.isRunningIngest}
+                        isDisabled={isProvisioningIngest}
                         onClick={() => revertUnsavedChanges()}
                       />
                     </EuiFlexItem>
                     <EuiFlexItem grow={true}>
                       <EuiSmallButton
                         fill={true}
-                        isLoading={props.isRunningIngest}
+                        isLoading={isProvisioningIngest}
                         onClick={() => validateAndRunIngestion()}
                       >
                         Update ingest flow
@@ -796,14 +839,14 @@ export function LeftNav(props: LeftNavProps) {
                     <EuiSmallButton
                       fill={true}
                       disabled={!ingestProvisioned}
-                      isLoading={isUpdatingSearchPipeline}
+                      isLoading={isProvisioningSearch}
                       onClick={async () => {
                         if (await validateAndUpdateSearchResources()) {
                           getCore().notifications.toasts.add({
                             id: SUCCESS_TOAST_ID,
                             iconType: 'check',
                             color: 'success',
-                            title: 'Search flow updated',
+                            title: 'Search flow created',
                             // @ts-ignore
                             text: (
                               <EuiFlexGroup direction="column">
@@ -844,6 +887,70 @@ export function LeftNav(props: LeftNavProps) {
                         : `Create an ingest flow first`}
                     </EuiSmallButton>
                   </EuiFlexItem>
+                )}
+                {onSearchAndUpdateRequired && (
+                  <>
+                    <EuiFlexItem grow={false}>
+                      <EuiSmallButtonIcon
+                        iconType={'editorUndo'}
+                        aria-label="undo"
+                        display="base"
+                        iconSize="s"
+                        isDisabled={isProvisioningIngest}
+                        onClick={() => revertUnsavedChanges()}
+                      />
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={true}>
+                      <EuiSmallButton
+                        fill={true}
+                        disabled={!ingestProvisioned}
+                        isLoading={isProvisioningSearch}
+                        onClick={async () => {
+                          if (await validateAndUpdateSearchResources()) {
+                            getCore().notifications.toasts.add({
+                              id: SUCCESS_TOAST_ID,
+                              iconType: 'check',
+                              color: 'success',
+                              title: 'Search flow updated',
+                              // @ts-ignore
+                              text: (
+                                <EuiFlexGroup direction="column">
+                                  <EuiFlexItem grow={false}>
+                                    <EuiText size="s">
+                                      Validate your search flow using Test flow
+                                    </EuiText>
+                                  </EuiFlexItem>
+                                  <EuiFlexItem>
+                                    <EuiFlexGroup
+                                      direction="row"
+                                      justifyContent="flexEnd"
+                                    >
+                                      <EuiFlexItem grow={false}>
+                                        <EuiSmallButton
+                                          fill={false}
+                                          onClick={() => {
+                                            props.displaySearchPanel();
+                                            getCore().notifications.toasts.remove(
+                                              SUCCESS_TOAST_ID
+                                            );
+                                          }}
+                                        >
+                                          Test flow
+                                        </EuiSmallButton>
+                                      </EuiFlexItem>
+                                    </EuiFlexGroup>
+                                  </EuiFlexItem>
+                                </EuiFlexGroup>
+                              ),
+                            });
+                            setSearchProvisioned(true);
+                          }
+                        }}
+                      >
+                        Update search flow
+                      </EuiSmallButton>
+                    </EuiFlexItem>
+                  </>
                 )}
               </EuiFlexGroup>
             </EuiFlexItem>

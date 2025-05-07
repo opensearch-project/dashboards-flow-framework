@@ -44,8 +44,8 @@ interface ToolsProps {
   ingestResponse: string;
   selectedTabId: INSPECTOR_TAB_ID;
   setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
-  selectedStep: CONFIG_STEP;
   uiConfig?: WorkflowConfig;
+  selectedComponentId: string;
 }
 
 const PANEL_TITLE = 'Inspect flows';
@@ -216,7 +216,7 @@ export function Tools(props: ToolsProps) {
                     hasIngestResources={hasProvisionedIngestResources(
                       props.workflow
                     )}
-                    selectedStep={props.selectedStep}
+                    selectedComponentId={props.selectedComponentId}
                     queryRequest={queryRequest}
                     setQueryRequest={setQueryRequest}
                     queryResponse={queryResponse}
