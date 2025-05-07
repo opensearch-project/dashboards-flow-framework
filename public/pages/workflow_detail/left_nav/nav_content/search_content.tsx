@@ -28,6 +28,7 @@ interface SearchContentProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
+  selectedComponentId: string;
   setSelectedComponentId: (id: string) => void;
   setResourcesFlyoutOpen: (isOpen: boolean) => void;
   setResourcesFlyoutContext: (context: CONFIG_STEP) => void;
@@ -112,6 +113,9 @@ export function SearchContent(props: SearchContentProps) {
               props.setSelectedComponentId(COMPONENT_ID.SEARCH_REQUEST);
             }}
             isDisabled={props.isDisabled}
+            isSelected={
+              props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST
+            }
           />
         </EuiFlexItem>
         <DownArrow isDisabled={props.isDisabled} />
@@ -122,6 +126,7 @@ export function SearchContent(props: SearchContentProps) {
             title="Transform query"
             context={PROCESSOR_CONTEXT.SEARCH_REQUEST}
             setCachedFormikState={props.setCachedFormikState}
+            selectedComponentId={props.selectedComponentId}
             setSelectedComponentId={props.setSelectedComponentId}
             isDisabled={props.isDisabled}
           />
@@ -145,6 +150,7 @@ export function SearchContent(props: SearchContentProps) {
             title="Transform results"
             context={PROCESSOR_CONTEXT.SEARCH_RESPONSE}
             setCachedFormikState={props.setCachedFormikState}
+            selectedComponentId={props.selectedComponentId}
             setSelectedComponentId={props.setSelectedComponentId}
             isDisabled={props.isDisabled}
           />

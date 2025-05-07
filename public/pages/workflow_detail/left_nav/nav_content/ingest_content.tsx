@@ -29,6 +29,7 @@ interface IngestContentProps {
   uiConfig: WorkflowConfig;
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
+  selectedComponentId: string;
   setSelectedComponentId: (id: string) => void;
   setResourcesFlyoutOpen: (isOpen: boolean) => void;
   setResourcesFlyoutContext: (context: CONFIG_STEP) => void;
@@ -113,6 +114,7 @@ export function IngestContent(props: IngestContentProps) {
             onClick={() => {
               props.setSelectedComponentId(COMPONENT_ID.SOURCE_DATA);
             }}
+            isSelected={props.selectedComponentId === COMPONENT_ID.SOURCE_DATA}
           />
         </EuiFlexItem>
         <DownArrow />
@@ -123,6 +125,7 @@ export function IngestContent(props: IngestContentProps) {
             title="Transform data"
             context={PROCESSOR_CONTEXT.INGEST}
             setCachedFormikState={props.setCachedFormikState}
+            selectedComponentId={props.selectedComponentId}
             setSelectedComponentId={props.setSelectedComponentId}
           />
         </EuiFlexItem>
@@ -134,6 +137,7 @@ export function IngestContent(props: IngestContentProps) {
             onClick={() => {
               props.setSelectedComponentId(COMPONENT_ID.INGEST_DATA);
             }}
+            isSelected={props.selectedComponentId === COMPONENT_ID.INGEST_DATA}
           />
         </EuiFlexItem>
       </EuiFlexGroup>

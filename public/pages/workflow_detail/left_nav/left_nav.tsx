@@ -789,6 +789,7 @@ export function LeftNav(props: LeftNavProps) {
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
                     setCachedFormikState={props.setCachedFormikState}
+                    selectedComponentId={props.selectedComponentId}
                     setSelectedComponentId={props.setSelectedComponentId}
                     setResourcesFlyoutOpen={setResourcesFlyoutOpen}
                     setResourcesFlyoutContext={setResourcesFlyoutContext}
@@ -801,6 +802,7 @@ export function LeftNav(props: LeftNavProps) {
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
                     setCachedFormikState={props.setCachedFormikState}
+                    selectedComponentId={props.selectedComponentId}
                     setSelectedComponentId={props.setSelectedComponentId}
                     setResourcesFlyoutOpen={setResourcesFlyoutOpen}
                     setResourcesFlyoutContext={setResourcesFlyoutContext}

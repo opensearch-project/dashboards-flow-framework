@@ -70,6 +70,7 @@ interface ProcessorListProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   context: PROCESSOR_CONTEXT;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
+  selectedComponentId: string;
   setSelectedComponentId: (id: string) => void;
   isDisabled?: boolean;
 }
@@ -543,6 +544,10 @@ export function ProcessorList(props: ProcessorListProps) {
                 marginLeft: '5px',
                 marginBottom: '8px',
                 width: '424px',
+                height:
+                  props.selectedComponentId === processorPath
+                    ? '100px'
+                    : '50px',
               }}
               key={processorIndex}
               description={''}
@@ -550,6 +555,11 @@ export function ProcessorList(props: ProcessorListProps) {
               onClick={() => {
                 props.setSelectedComponentId(processorPath);
               }}
+              selectable={
+                props.selectedComponentId === processorPath
+                  ? { isSelected: true }
+                  : undefined
+              }
               isDisabled={props.isDisabled}
               title={
                 // The flex group with space-around does not work, as it is overridden
@@ -597,7 +607,7 @@ export function ProcessorList(props: ProcessorListProps) {
                       )}
                     </EuiFlexGroup>
                   </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
+                  <EuiFlexItem grow={false} style={{ marginTop: '0px' }}>
                     <EuiFlexGroup
                       gutterSize="s"
                       alignItems="center"
