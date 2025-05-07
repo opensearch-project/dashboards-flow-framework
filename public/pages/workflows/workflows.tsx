@@ -203,6 +203,19 @@ export function Workflows(props: WorkflowsProps) {
     }
   };
 
+  useEffect(() => {
+    const isWorkflowsEmpty = Object.keys(workflows).length === 0;
+
+    if (
+      selectedTabId === WORKFLOWS_TAB.MANAGE &&
+      isWorkflowsEmpty &&
+      isDataSourceReady(dataSourceId)
+    ) {
+      setSelectedTabId(WORKFLOWS_TAB.CREATE);
+      replaceActiveTab(WORKFLOWS_TAB.CREATE, props, dataSourceId);
+    }
+  }, [workflows, selectedTabId, dataSourceId]);
+
   let renderDataSourceComponent = null;
   if (dataSourceEnabled && getDataSourceManagementPlugin()) {
     const DataSourceMenu = getDataSourceManagementPlugin().ui.getDataSourceMenu<
