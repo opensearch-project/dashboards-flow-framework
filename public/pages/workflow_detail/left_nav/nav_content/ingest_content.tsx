@@ -49,7 +49,7 @@ export function IngestContent(props: IngestContentProps) {
             </EuiText>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiFlexGroup direction="row" gutterSize="s">
+            <EuiFlexGroup direction="row" gutterSize="xs">
               <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
                 <EuiButtonIcon
                   iconType="inspect"

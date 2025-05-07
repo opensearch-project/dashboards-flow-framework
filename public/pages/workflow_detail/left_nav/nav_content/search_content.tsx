@@ -29,6 +29,7 @@ interface SearchContentProps {
   setSelectedComponentId: (id: string) => void;
   setResourcesFlyoutOpen: (isOpen: boolean) => void;
   setResourcesFlyoutContext: (context: CONFIG_STEP) => void;
+  displaySearchPanel: () => void;
   searchProvisioned: boolean;
   isProvisioningSearch: boolean;
   isUnsaved: boolean;
@@ -49,7 +50,15 @@ export function SearchContent(props: SearchContentProps) {
             </EuiText>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiFlexGroup direction="row" gutterSize="s">
+            <EuiFlexGroup direction="row" gutterSize="xs">
+              <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
+                <EuiButtonIcon
+                  iconType="play"
+                  size="s"
+                  aria-label="test"
+                  onClick={() => props.displaySearchPanel()}
+                />
+              </EuiFlexItem>
               <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
                 <EuiButtonIcon
                   iconType="inspect"

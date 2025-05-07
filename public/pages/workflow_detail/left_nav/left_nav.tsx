@@ -804,6 +804,7 @@ export function LeftNav(props: LeftNavProps) {
                     setSelectedComponentId={props.setSelectedComponentId}
                     setResourcesFlyoutOpen={setResourcesFlyoutOpen}
                     setResourcesFlyoutContext={setResourcesFlyoutContext}
+                    displaySearchPanel={props.displaySearchPanel}
                     searchProvisioned={searchProvisioned}
                     isProvisioningSearch={isProvisioningSearch}
                     isUnsaved={onSearchAndUpdateRequired}
