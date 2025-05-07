@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { EuiFlexItem, EuiPanel } from '@elastic/eui';
+import { EuiEmptyPrompt, EuiFlexItem, EuiPanel } from '@elastic/eui';
 import { SourceData, IngestData } from '../ingest_inputs';
 import { ConfigureSearchRequest } from '../search_inputs';
 import {
@@ -92,7 +92,17 @@ export function ComponentInput(props: ComponentInputProps) {
           <IngestData />
         ) : props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST ? (
           <ConfigureSearchRequest />
-        ) : undefined}
+        ) : (
+          <EuiEmptyPrompt
+            title={
+              <h2>
+                Select a component from the ingest or search flow to view
+                details.
+              </h2>
+            }
+            titleSize="s"
+          />
+        )}
       </EuiFlexItem>
     </EuiPanel>
   );
