@@ -12,7 +12,6 @@ import {
   EuiContextMenu,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiPanel,
   EuiPopover,
   EuiSpacer,
   EuiText,
@@ -663,56 +662,55 @@ export function ProcessorList(props: ProcessorListProps) {
                 </EuiFlexItem>
                 */}
             </EuiCard>
-            <DownArrow isDisabled={props.isDisabled} />
+            {processorIndex !== processors.length - 1 && (
+              <DownArrow isDisabled={props.isDisabled} />
+            )}
           </div>
         );
       })}
-      <EuiSpacer size="s" />
       <EuiFlexItem>
-        <EuiPanel paddingSize="s" grow={true}>
-          <EuiFlexGroup
-            gutterSize="none"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <EuiFlexItem grow={false}>
-              <EuiPopover
-                button={
-                  <EuiSmallButtonEmpty
-                    iconType="plusInCircle"
-                    iconSide="left"
-                    onClick={handlePopoverClick}
-                    data-testid="addProcessorButton"
-                    isDisabled={props.isDisabled}
-                  >
-                    {`Add processor`}
-                  </EuiSmallButtonEmpty>
-                }
-                isOpen={isPopoverOpen}
-                closePopover={closePopover}
-                panelPaddingSize="none"
-                anchorPosition="downLeft"
-              >
-                {version && (
-                  <EuiContextMenu
-                    size="s"
-                    initialPanelId={PANEL_ID}
-                    panels={[
-                      {
-                        id: PANEL_ID,
-                        title: getMenuItems().length > 0 ? 'PROCESSORS' : '',
-                        items: (() => {
-                          const items = getMenuItems();
-                          return items;
-                        })(),
-                      },
-                    ]}
-                  />
-                )}
-              </EuiPopover>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiPanel>
+        <EuiFlexGroup
+          gutterSize="none"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <EuiFlexItem grow={false}>
+            <EuiPopover
+              button={
+                <EuiSmallButtonEmpty
+                  iconType="plus"
+                  iconSide="left"
+                  onClick={handlePopoverClick}
+                  data-testid="addProcessorButton"
+                  isDisabled={props.isDisabled}
+                >
+                  {`Add processor`}
+                </EuiSmallButtonEmpty>
+              }
+              isOpen={isPopoverOpen}
+              closePopover={closePopover}
+              panelPaddingSize="none"
+              anchorPosition="downLeft"
+            >
+              {version && (
+                <EuiContextMenu
+                  size="s"
+                  initialPanelId={PANEL_ID}
+                  panels={[
+                    {
+                      id: PANEL_ID,
+                      title: getMenuItems().length > 0 ? 'PROCESSORS' : '',
+                      items: (() => {
+                        const items = getMenuItems();
+                        return items;
+                      })(),
+                    },
+                  ]}
+                />
+              )}
+            </EuiPopover>
+          </EuiFlexItem>
+        </EuiFlexGroup>
       </EuiFlexItem>
     </EuiFlexGroup>
   );
