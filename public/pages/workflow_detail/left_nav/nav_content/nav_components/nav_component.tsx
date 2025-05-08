@@ -4,7 +4,13 @@
  */
 
 import React from 'react';
-import { EuiCard, EuiIcon } from '@elastic/eui';
+import {
+  EuiCard,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiIcon,
+  EuiText,
+} from '@elastic/eui';
 /**
  * Base component for rendering processor form inputs based on the processor type
  */
@@ -17,6 +23,7 @@ interface NavComponentProps {
   onClick?: () => void;
   isDisabled?: boolean;
   isSelected?: boolean;
+  isError?: boolean;
 }
 
 /**
@@ -27,9 +34,30 @@ export function NavComponent(props: NavComponentProps) {
   return (
     <EuiCard
       layout="horizontal"
-      icon={props.icon ? <EuiIcon size="l" type={props.icon} /> : undefined}
+      icon={
+        props.icon ? (
+          <EuiIcon
+            size="l"
+            type={props.icon}
+            color={props.isError ? 'danger' : undefined}
+          />
+        ) : undefined
+      }
       titleSize="xs"
-      title={props.title}
+      title={
+        <EuiFlexGroup direction="row" gutterSize="m">
+          <EuiFlexItem grow={false}>
+            <EuiText color={props.isError ? 'danger' : undefined}>
+              {props.title}
+            </EuiText>
+          </EuiFlexItem>
+          {props.isError && (
+            <EuiFlexItem grow={false} style={{ marginTop: '14px' }}>
+              <EuiIcon type="alert" color="danger" />
+            </EuiFlexItem>
+          )}
+        </EuiFlexGroup>
+      }
       description={props.description || ''}
       onClick={props.onClick ?? undefined}
       isDisabled={props.isDisabled ?? false}

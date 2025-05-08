@@ -4,7 +4,8 @@
  */
 
 import React from 'react';
-
+import { isEmpty } from 'lodash';
+import { getIn, useFormikContext } from 'formik';
 import {
   EuiAccordion,
   EuiButtonIcon,
@@ -20,6 +21,7 @@ import {
   CONFIG_STEP,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
+  WorkflowFormValues,
 } from '../../../../../common';
 import { BooleanField } from '../../workflow_inputs';
 import { NavComponent, ProcessorsComponent } from './nav_components';
@@ -42,6 +44,8 @@ interface IngestContentProps {
  * The base component for rendering the ingest-related components, including real-time provisioning / error states.
  */
 export function IngestContent(props: IngestContentProps) {
+  const { errors } = useFormikContext<WorkflowFormValues>();
+
   return (
     <EuiAccordion
       initialIsOpen={true}
@@ -117,6 +121,8 @@ export function IngestContent(props: IngestContentProps) {
               props.setSelectedComponentId(COMPONENT_ID.SOURCE_DATA);
             }}
             isSelected={props.selectedComponentId === COMPONENT_ID.SOURCE_DATA}
+            // TODO: need to specially handle empty state for this component
+            // isError={!isEmpty(getIn(errors, COMPONENT_ID.SOURCE_DATA))}
           />
         </EuiFlexItem>
         <DownArrow />
@@ -140,6 +146,7 @@ export function IngestContent(props: IngestContentProps) {
               props.setSelectedComponentId(COMPONENT_ID.INGEST_DATA);
             }}
             isSelected={props.selectedComponentId === COMPONENT_ID.INGEST_DATA}
+            isError={!isEmpty(getIn(errors, COMPONENT_ID.INGEST_DATA))}
           />
         </EuiFlexItem>
       </EuiFlexGroup>

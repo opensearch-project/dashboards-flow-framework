@@ -4,7 +4,8 @@
  */
 
 import React from 'react';
-
+import { getIn, useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   EuiAccordion,
   EuiButtonIcon,
@@ -20,6 +21,7 @@ import {
   CONFIG_STEP,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
+  WorkflowFormValues,
 } from '../../../../../common';
 import { NavComponent, ProcessorsComponent } from './nav_components';
 import { DownArrow } from './down_arrow';
@@ -44,6 +46,8 @@ interface SearchContentProps {
  * The base component for rendering the search-related components, including real-time provisioning / error states.
  */
 export function SearchContent(props: SearchContentProps) {
+  const { errors } = useFormikContext<WorkflowFormValues>();
+
   return (
     <EuiAccordion
       initialIsOpen={true}
@@ -121,6 +125,7 @@ export function SearchContent(props: SearchContentProps) {
             isSelected={
               props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST
             }
+            isError={!isEmpty(getIn(errors, COMPONENT_ID.SEARCH_REQUEST))}
           />
         </EuiFlexItem>
         <DownArrow isDisabled={props.isDisabled} />

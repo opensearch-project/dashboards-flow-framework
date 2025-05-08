@@ -17,7 +17,6 @@ import {
   EuiText,
   EuiIcon,
   EuiCard,
-  EuiTitle,
 } from '@elastic/eui';
 import { cloneDeep, isEmpty } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
@@ -50,7 +49,6 @@ import {
   TextEmbeddingIngestProcessor,
   TextImageEmbeddingIngestProcessor,
 } from '../../../../../configs';
-// import { ProcessorInputs } from '../../../processor_inputs';
 import { useLocation } from 'react-router-dom';
 import { getDataSourceEnabled } from '../../../../../services';
 import {
@@ -571,38 +569,17 @@ export function ProcessorList(props: ProcessorListProps) {
                   justifyContent="spaceAround"
                 >
                   <EuiFlexItem style={{ width: '280px' }} grow={false}>
-                    <EuiFlexGroup direction="column" gutterSize="none">
+                    <EuiFlexGroup direction="row" gutterSize="m">
                       <EuiFlexItem grow={false}>
-                        <EuiTitle size="xs">
-                          <h2>{processor.name}</h2>
-                        </EuiTitle>
+                        <EuiText
+                          color={processorFormError ? 'danger' : undefined}
+                        >
+                          {processor.name}
+                        </EuiText>
                       </EuiFlexItem>
-                      {errorFound && (
-                        <EuiFlexItem grow={false}>
-                          <EuiFlexGroup
-                            direction="row"
-                            gutterSize="s"
-                            alignItems="flexStart"
-                          >
-                            <EuiFlexItem grow={false}>
-                              <EuiIcon
-                                color="danger"
-                                type={'alert'}
-                                style={{ marginTop: '4px' }}
-                              />
-                            </EuiFlexItem>
-                            <EuiFlexItem grow={false}>
-                              <EuiText
-                                size="s"
-                                color="danger"
-                                style={{
-                                  marginTop: '0px',
-                                }}
-                              >
-                                {errorMsg}
-                              </EuiText>
-                            </EuiFlexItem>
-                          </EuiFlexGroup>
+                      {processorFormError && (
+                        <EuiFlexItem grow={false} style={{ marginTop: '14px' }}>
+                          <EuiIcon type="alert" color="danger" />
                         </EuiFlexItem>
                       )}
                     </EuiFlexGroup>
