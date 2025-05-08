@@ -15,6 +15,7 @@ import {
   EuiSmallButtonEmpty,
   EuiEmptyPrompt,
   EuiPopover,
+  EuiIcon,
 } from '@elastic/eui';
 import {
   MapEntry,
@@ -106,9 +107,16 @@ export function SourceData(props: SourceDataProps) {
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
-              <EuiText size="s">
-                <h3>Import sample data</h3>
-              </EuiText>
+              <EuiFlexGroup direction="row" gutterSize="s">
+                <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
+                  <EuiIcon type="document" size="m" />
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiText size="s">
+                    <h3>Sample data</h3>
+                  </EuiText>
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiFlexItem>
             {docsPopulated && (
               <EuiFlexItem grow={false}>

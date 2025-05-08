@@ -4,7 +4,13 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { EuiEmptyPrompt, EuiFlexItem, EuiPanel } from '@elastic/eui';
+import {
+  EuiEmptyPrompt,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiPanel,
+  EuiText,
+} from '@elastic/eui';
 import { SourceData, IngestData } from '../ingest_inputs';
 import { ConfigureSearchRequest } from '../search_inputs';
 import {
@@ -76,18 +82,27 @@ export function ComponentInput(props: ComponentInputProps) {
         ) : isProcessorComponent(props.selectedComponentId) &&
           processor !== undefined &&
           processorContext !== undefined ? (
-          <ProcessorInputs
-            uiConfig={props.uiConfig}
-            config={processor}
-            baseConfigPath={
-              processorContext === PROCESSOR_CONTEXT.INGEST
-                ? 'ingest.enrich'
-                : processorContext === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                ? 'search.enrichRequest'
-                : 'search.enrichResponse'
-            }
-            context={processorContext}
-          />
+          <EuiFlexGroup direction="column" gutterSize="m">
+            <EuiFlexItem grow={false}>
+              <EuiText size="s">
+                <h3>{processor.name}</h3>
+              </EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <ProcessorInputs
+                uiConfig={props.uiConfig}
+                config={processor}
+                baseConfigPath={
+                  processorContext === PROCESSOR_CONTEXT.INGEST
+                    ? 'ingest.enrich'
+                    : processorContext === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                    ? 'search.enrichRequest'
+                    : 'search.enrichResponse'
+                }
+                context={processorContext}
+              />
+            </EuiFlexItem>
+          </EuiFlexGroup>
         ) : props.selectedComponentId === COMPONENT_ID.INGEST_DATA ? (
           <IngestData />
         ) : props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST ? (

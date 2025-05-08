@@ -109,7 +109,7 @@ export function IngestContent(props: IngestContentProps) {
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
           <NavComponent
-            title="Source data"
+            title="Sample data"
             icon="document"
             onClick={() => {
               props.setSelectedComponentId(COMPONENT_ID.SOURCE_DATA);
