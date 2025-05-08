@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { isEmpty, isEqual } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
 import {
+  EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
@@ -14,6 +15,7 @@ import {
   EuiPanel,
   EuiSmallButton,
   EuiSmallButtonIcon,
+  EuiSpacer,
   EuiText,
 } from '@elastic/eui';
 import { IngestContent, SearchContent } from './nav_content';
@@ -822,6 +824,18 @@ export function LeftNav(props: LeftNavProps) {
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
               </EuiFlexItem>
+              {onSearchAndUnprovisioned && !ingestProvisioned && (
+                <>
+                  <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
+                    <EuiCallOut
+                      color="warning"
+                      iconType={'alert'}
+                      title="You need an ingest flow before creating a search flow."
+                    />
+                  </EuiFlexItem>
+                  <EuiSpacer size="s" />
+                </>
+              )}
               <EuiFlexItem grow={false}>
                 <EuiFlexGroup
                   direction="row"
@@ -910,9 +924,7 @@ export function LeftNav(props: LeftNavProps) {
                           }
                         }}
                       >
-                        {ingestProvisioned
-                          ? `Create search flow`
-                          : `Create an ingest flow first`}
+                        Create search flow
                       </EuiSmallButton>
                     </EuiFlexItem>
                   )}
