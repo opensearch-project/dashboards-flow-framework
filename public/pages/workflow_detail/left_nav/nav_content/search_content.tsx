@@ -33,6 +33,7 @@ interface SearchContentProps {
   setResourcesFlyoutOpen: (isOpen: boolean) => void;
   setResourcesFlyoutContext: (context: CONFIG_STEP) => void;
   displaySearchPanel: () => void;
+  ingestProvisioned: boolean;
   searchProvisioned: boolean;
   isProvisioningSearch: boolean;
   isUnsaved: boolean;
@@ -56,25 +57,29 @@ export function SearchContent(props: SearchContentProps) {
         <>
           <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row" gutterSize="xs">
-              <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
-                <EuiButtonIcon
-                  iconType="play"
-                  size="s"
-                  aria-label="test"
-                  onClick={() => props.displaySearchPanel()}
-                />
-              </EuiFlexItem>
-              <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
-                <EuiButtonIcon
-                  iconType="inspect"
-                  size="s"
-                  aria-label="inspect"
-                  onClick={() => {
-                    props.setResourcesFlyoutContext(CONFIG_STEP.SEARCH);
-                    props.setResourcesFlyoutOpen(true);
-                  }}
-                />
-              </EuiFlexItem>
+              {props.ingestProvisioned && (
+                <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
+                  <EuiButtonIcon
+                    iconType="play"
+                    size="s"
+                    aria-label="test"
+                    onClick={() => props.displaySearchPanel()}
+                  />
+                </EuiFlexItem>
+              )}
+              {props.searchProvisioned && (
+                <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
+                  <EuiButtonIcon
+                    iconType="inspect"
+                    size="s"
+                    aria-label="inspect"
+                    onClick={() => {
+                      props.setResourcesFlyoutContext(CONFIG_STEP.SEARCH);
+                      props.setResourcesFlyoutOpen(true);
+                    }}
+                  />
+                </EuiFlexItem>
+              )}
               <EuiFlexItem
                 grow={false}
                 style={{ marginLeft: '8px', marginTop: '12px' }}

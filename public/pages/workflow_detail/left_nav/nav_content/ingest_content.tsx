@@ -55,17 +55,19 @@ export function IngestContent(props: IngestContentProps) {
         <>
           <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row" gutterSize="xs">
-              <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
-                <EuiButtonIcon
-                  iconType="inspect"
-                  size="s"
-                  aria-label="inspect"
-                  onClick={() => {
-                    props.setResourcesFlyoutContext(CONFIG_STEP.INGEST);
-                    props.setResourcesFlyoutOpen(true);
-                  }}
-                />
-              </EuiFlexItem>
+              {props.ingestProvisioned && (
+                <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
+                  <EuiButtonIcon
+                    iconType="inspect"
+                    size="s"
+                    aria-label="inspect"
+                    onClick={() => {
+                      props.setResourcesFlyoutContext(CONFIG_STEP.INGEST);
+                      props.setResourcesFlyoutOpen(true);
+                    }}
+                  />
+                </EuiFlexItem>
+              )}
               <EuiFlexItem
                 grow={false}
                 style={{ marginLeft: '8px', marginTop: '12px' }}

@@ -807,6 +807,7 @@ export function LeftNav(props: LeftNavProps) {
                     setResourcesFlyoutOpen={setResourcesFlyoutOpen}
                     setResourcesFlyoutContext={setResourcesFlyoutContext}
                     displaySearchPanel={props.displaySearchPanel}
+                    ingestProvisioned={ingestProvisioned}
                     searchProvisioned={searchProvisioned}
                     isProvisioningSearch={isProvisioningSearch}
                     isUnsaved={onSearchAndUpdateRequired}
