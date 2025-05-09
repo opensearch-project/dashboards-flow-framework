@@ -4,7 +4,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { getIn } from 'formik';
 import {
+  EuiCallOut,
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
@@ -21,6 +24,7 @@ import {
   WorkflowConfig,
 } from '../../../../../common';
 import { ProcessorInputs } from '../processor_inputs';
+import { AppState } from '../../../../store';
 
 // styling
 import '../../workspace/workspace-styles.scss';
@@ -39,21 +43,33 @@ interface ComponentInputProps {
  * main form component users will be viewing component details and making changes.
  */
 export function ComponentInput(props: ComponentInputProps) {
+  const {
+    ingestPipeline: ingestPipelineErrors,
+    searchPipeline: searchPipelineErrors,
+  } = useSelector((state: AppState) => state.errors);
+
   // processor-related state. If a processor component is selected, do some extra parsing
-  // to gather the extra data (processor config, context)
+  // to gather the extra data (processor config, context, error(s))
+  const [processors, setProcessors] = useState<IProcessorConfig[] | undefined>(
+    undefined
+  );
   const [processor, setProcessor] = useState<IProcessorConfig | undefined>(
     undefined
   );
   const [processorContext, setProcessorContext] = useState<
     PROCESSOR_CONTEXT | undefined
   >(undefined);
+  const [processorError, setProcessorError] = useState<string | undefined>(
+    undefined
+  );
 
+  // fetch processor state when the source component ID is updated
   useEffect(() => {
     if (isProcessorComponent(props.selectedComponentId)) {
       const context = getContextFromComponentId(props.selectedComponentId);
       const processors = getProcessorsFromContext(props.uiConfig, context);
       const processorId = getProcessorId(props.selectedComponentId);
-
+      setProcessors(processors);
       setProcessor(
         processors.find((processor) => processor.id === processorId)
       );
@@ -61,8 +77,53 @@ export function ComponentInput(props: ComponentInputProps) {
     } else {
       setProcessor(undefined);
       setProcessorContext(undefined);
+      setProcessorError(undefined);
     }
   }, [props.uiConfig, props.selectedComponentId]);
+
+  // fetch any runtime errors when a processor is selected, and/or if
+  // there are updates to the global ingest/search pipeline errors
+  useEffect(() => {
+    if (
+      processors !== undefined &&
+      processor !== undefined &&
+      processorContext !== undefined
+    ) {
+      let processorIndex = undefined as number | undefined;
+      processors.find((processorInList, idx) => {
+        if (processorInList.id === processor.id) {
+          processorIndex = idx;
+          return true;
+        } else {
+          return false;
+        }
+      });
+      if (processorIndex !== undefined) {
+        const processorRuntimeError =
+          processorContext === PROCESSOR_CONTEXT.INGEST
+            ? (getIn(
+                ingestPipelineErrors,
+                `${processorIndex}.errorMsg`,
+                undefined
+              ) as string | undefined)
+            : (getIn(
+                searchPipelineErrors,
+                `${
+                  processorContext === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                    ? processorIndex
+                    : // manually add any search request processors to get to the correct index of
+                      // the search response processor
+                      (props.uiConfig?.search?.enrichRequest?.processors
+                        ?.length || 0) + processorIndex
+                }.errorMsg`,
+                undefined
+              ) as string | undefined);
+        setProcessorError(processorRuntimeError);
+      } else {
+        setProcessorError(undefined);
+      }
+    }
+  }, [ingestPipelineErrors, searchPipelineErrors, processor]);
 
   return (
     <EuiPanel
@@ -83,6 +144,15 @@ export function ComponentInput(props: ComponentInputProps) {
           processor !== undefined &&
           processorContext !== undefined ? (
           <EuiFlexGroup direction="column" gutterSize="m">
+            {processorError !== undefined && (
+              <EuiFlexItem grow={false}>
+                <EuiCallOut
+                  color="danger"
+                  iconType="alert"
+                  title={processorError}
+                />
+              </EuiFlexItem>
+            )}
             <EuiFlexItem grow={false}>
               <EuiText size="s">
                 <h3>{processor.name}</h3>

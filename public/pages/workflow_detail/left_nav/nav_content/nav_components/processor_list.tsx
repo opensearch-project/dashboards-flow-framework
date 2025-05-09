@@ -520,15 +520,19 @@ export function ProcessorList(props: ProcessorListProps) {
               )
             : getIn(
                 searchPipelineErrors,
-                `${processorIndex}.errorMsg`,
+                `${
+                  props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                    ? processorIndex
+                    : // manually add any search request processors to get to the correct index of
+                      // the search response processor
+                      (props.uiConfig?.search?.enrichRequest?.processors
+                        ?.length || 0) + processorIndex
+                }.errorMsg`,
                 undefined
               );
         const errorFound =
           processorFormError !== undefined ||
           processorRuntimeError !== undefined;
-        const errorMsg = processorFormError
-          ? 'Form error(s) detected'
-          : 'Runtime error(s) detected';
 
         return (
           <div key={processorIndex}>
@@ -571,13 +575,11 @@ export function ProcessorList(props: ProcessorListProps) {
                   <EuiFlexItem style={{ width: '280px' }} grow={false}>
                     <EuiFlexGroup direction="row" gutterSize="m">
                       <EuiFlexItem grow={false}>
-                        <EuiText
-                          color={processorFormError ? 'danger' : undefined}
-                        >
+                        <EuiText color={errorFound ? 'danger' : undefined}>
                           {processor.name}
                         </EuiText>
                       </EuiFlexItem>
-                      {processorFormError && (
+                      {errorFound && (
                         <EuiFlexItem grow={false} style={{ marginTop: '14px' }}>
                           <EuiIcon type="alert" color="danger" />
                         </EuiFlexItem>
@@ -620,35 +622,7 @@ export function ProcessorList(props: ProcessorListProps) {
                   </EuiFlexItem>
                 </EuiFlexGroup>
               }
-            >
-              {/* <EuiFlexItem style={{ paddingLeft: '28px' }}>
-                  {errorFound && processorOpen && (
-                    <>
-                      <EuiCallOut
-                        size="s"
-                        color="danger"
-                        iconType={'alert'}
-                        title={errorMsg}
-                      >
-                        <EuiText size="s">
-                          {processorFormError || processorRuntimeError}
-                        </EuiText>
-                      </EuiCallOut>
-                      <EuiSpacer size="s" />
-                    </>
-                  )} 
-                  
-                    <ProcessorInputs
-                    uiConfig={props.uiConfig}
-                    config={processor}
-                    baseConfigPath={baseConfigPath}
-                    context={props.context}
-                  />
-                  
-                  <EuiText>Processor input</EuiText>
-                </EuiFlexItem>
-                */}
-            </EuiCard>
+            />
             {processorIndex !== processors.length - 1 && (
               <DownArrow isDisabled={props.isDisabled} />
             )}
