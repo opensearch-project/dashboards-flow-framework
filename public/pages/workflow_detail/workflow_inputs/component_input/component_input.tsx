@@ -149,8 +149,14 @@ export function ComponentInput(props: ComponentInputProps) {
                 <EuiCallOut
                   color="danger"
                   iconType="alert"
-                  title={processorError}
-                />
+                  title={'Runtime error detected'}
+                  style={{
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word',
+                  }}
+                >
+                  {processorError}
+                </EuiCallOut>
               </EuiFlexItem>
             )}
             <EuiFlexItem grow={false}>

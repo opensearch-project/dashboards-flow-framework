@@ -330,7 +330,7 @@ export function Query(props: QueryProps) {
                   tabSize={2}
                 />
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
+              <EuiFlexItem grow={true}>
                 {/**
                  * This may return nothing if the list of params are empty
                  */}
