@@ -25,6 +25,7 @@ import {
   QueryParam,
   SearchResponse,
   Workflow,
+  WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../common';
 import { Resources } from './resources';
@@ -36,6 +37,7 @@ import {
   hasProvisionedIngestResources,
   hasProvisionedSearchResources,
 } from '../../../utils';
+import { Workspace } from '../workspace';
 
 interface ToolsProps {
   workflow?: Workflow;
@@ -43,6 +45,7 @@ interface ToolsProps {
   selectedTabId: INSPECTOR_TAB_ID;
   setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
   selectedStep: CONFIG_STEP;
+  uiConfig?: WorkflowConfig;
 }
 
 const PANEL_TITLE = 'Inspect flows';
@@ -51,6 +54,7 @@ const PANEL_TITLE = 'Inspect flows';
  * The base Tools component for performing ingest and search, viewing resources, and debugging.
  */
 export function Tools(props: ToolsProps) {
+  const [workspaceKey, setWorkspaceKey] = useState<number>(0);
   // error message states. Error may come from several different sources.
   const { opensearch, workflows } = useSelector((state: AppState) => state);
   const opensearchError = opensearch.errorMessage;
@@ -135,6 +139,15 @@ export function Tools(props: ToolsProps) {
     }
   }, [props.ingestResponse]);
 
+  // Force the workspace component to remount when the preview tab becomes active.
+  // The graph cannot be rendered correctly in ReactFlow when initialized in a hidden container/inactive tab
+  // See: https://reactflow.dev/learn/troubleshooting
+  useEffect(() => {
+    if (props.selectedTabId === INSPECTOR_TAB_ID.PREVIEW) {
+      setWorkspaceKey(Date.now());
+    }
+  }, [props.selectedTabId]);
+
   return (
     <EuiPanel
       paddingSize="m"
@@ -172,9 +185,26 @@ export function Tools(props: ToolsProps) {
           </EuiTabs>
         </EuiFlexItem>
         <EuiFlexItem grow={true}>
-          <EuiFlexGroup direction="column">
+          <EuiFlexGroup direction="column" style={{ height: '100%' }}>
             <EuiFlexItem grow={true}>
               <>
+                {props.selectedTabId === INSPECTOR_TAB_ID.PREVIEW && (
+                  <div
+                    style={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      overflow: 'hidden',
+                      minHeight: '500px',
+                    }}
+                  >
+                    <Workspace
+                      key={workspaceKey}
+                      workflow={props.workflow}
+                      uiConfig={props.uiConfig}
+                    />
+                  </div>
+                )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.INGEST && (
                   <Ingest ingestResponse={props.ingestResponse} />
                 )}

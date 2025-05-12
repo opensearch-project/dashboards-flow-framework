@@ -874,6 +874,7 @@ export enum INSPECTOR_TAB_ID {
   INGEST = 'ingest',
   ERRORS = 'errors',
   RESOURCES = 'resources',
+  PREVIEW = 'preview',
 }
 
 export const INSPECTOR_TABS = [
@@ -895,6 +896,11 @@ export const INSPECTOR_TABS = [
   {
     id: INSPECTOR_TAB_ID.RESOURCES,
     name: 'Resources',
+    disabled: false,
+  },
+  {
+    id: INSPECTOR_TAB_ID.PREVIEW,
+    name: 'Preview',
     disabled: false,
   },
 ];

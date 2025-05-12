@@ -87,14 +87,11 @@ describe('WorkflowDetail Page with create ingestion option', () => {
 
       expect(getAllByText(workflowName).length).toBeGreaterThan(0);
       expect(getAllByText('Inspect flows').length).toBeGreaterThan(0);
-      expect(getAllByText('Preview flows').length).toBeGreaterThan(0);
       expect(
         getAllByText((content) => content.startsWith('Last saved:')).length
       ).toBeGreaterThan(0);
       expect(getByText('Close')).toBeInTheDocument();
       expect(getByText('Export')).toBeInTheDocument();
-      expect(getByText('Visual')).toBeInTheDocument();
-      expect(getByText('JSON')).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Test flow' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Ingest response' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
@@ -126,8 +123,6 @@ describe('WorkflowDetail Page Functionality (Custom Workflow)', () => {
     });
     // Close the export component
     userEvent.click(getByTestId('exportCloseButton'));
-    // Check workspace button group exists (Visual and JSON)
-    getByTestId('visualJSONToggleButtonGroup');
     // Tools panel should collapse and expand the toggle
     const toolsPanel = container.querySelector('#tools_panel_id');
     expect(toolsPanel).toBeVisible();
