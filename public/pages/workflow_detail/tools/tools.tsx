@@ -139,6 +139,9 @@ export function Tools(props: ToolsProps) {
     }
   }, [props.ingestResponse]);
 
+  // Force the workspace component to remount when the preview tab becomes active.
+  // The graph cannot be rendered correctly in ReactFlow when initialized in a hidden container/inactive tab
+  // See: https://reactflow.dev/learn/troubleshooting
   useEffect(() => {
     if (props.selectedTabId === INSPECTOR_TAB_ID.PREVIEW) {
       setWorkspaceKey(Date.now());
