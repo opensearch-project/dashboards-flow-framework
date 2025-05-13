@@ -91,7 +91,9 @@ export function SearchContent(props: SearchContentProps) {
                 <EuiHealth
                   textSize="m"
                   color={
-                    props.isUnsaved
+                    props.isProvisioningSearch
+                      ? 'subdued'
+                      : props.isUnsaved
                       ? 'warning'
                       : props.searchProvisioned
                       ? 'primary'

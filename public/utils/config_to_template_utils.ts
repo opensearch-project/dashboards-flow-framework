@@ -515,7 +515,9 @@ function indexConfigToTemplateNode(
     }
   }
   updateFinalInputsAndSettings(ingestPipelineNode);
-  updateFinalInputsAndSettings(searchPipelineNode);
+
+  // Don't set default search pipeline on the index. This can cause user confusion.
+  //updateFinalInputsAndSettings(searchPipelineNode);
 
   return {
     id: indexConfig.name.value as string,

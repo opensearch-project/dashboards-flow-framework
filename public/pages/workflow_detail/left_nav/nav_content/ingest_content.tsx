@@ -265,7 +265,9 @@ export function IngestContent(props: IngestContentProps) {
                 <EuiHealth
                   textSize="m"
                   color={
-                    props.isUnsaved
+                    props.isProvisioningIngest
+                      ? 'subdued'
+                      : props.isUnsaved
                       ? 'warning'
                       : props.ingestProvisioned
                       ? 'primary'

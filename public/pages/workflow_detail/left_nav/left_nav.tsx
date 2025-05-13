@@ -211,8 +211,10 @@ export function LeftNav(props: LeftNavProps) {
         props.workflow &&
         configToTemplateFlows(
           formikToUiConfig(values, props.uiConfig as WorkflowConfig),
+          // always generate the end-to-end flows including ingest & search, in order
+          // to generate the proper state across ingest & search in the left nav.
           true,
-          includeSearchDuringProvision
+          true
         )?.provision?.nodes) ||
         []
     );
@@ -320,15 +322,26 @@ export function LeftNav(props: LeftNavProps) {
   }, [props.ingestDocs]);
 
   // update buttons eligibility
-  const onIngestAndUpdateRequired =
-    onIngest &&
-    ingestProvisioned &&
-    (ingestTemplatesDifferent || isProvisioningIngest);
-  const onSearchAndUpdateRequired =
-    onSearch &&
+  const ingestUpdateRequired =
+    ingestProvisioned && (ingestTemplatesDifferent || isProvisioningIngest);
+  const onIngestAndUpdateRequired = onIngest && ingestUpdateRequired;
+
+  const searchUpdateRequired =
     searchProvisioned &&
     !isProposingNoSearchResources &&
     (searchTemplatesDifferent || isProvisioningSearch);
+  const onSearchAndUpdateRequired = onSearch && searchUpdateRequired;
+
+  // additionally make sure search has already been provisioned. Preset use cases may have
+  // prefilled search configs, but that shouldn't block creating ingest first.
+  const onIngestAndSearchUpdateRequired =
+    onIngest && searchTemplatesDifferent && searchProvisioned;
+
+  const onSearchAndIngestUpdateRequired =
+    onSearch &&
+    ingestEnabled &&
+    !searchProvisioned &&
+    (!ingestProvisioned || ingestTemplatesDifferent);
 
   // Utility fn to revert any unsaved changes, reset the form
   function revertUnsavedChanges(): void {
@@ -805,7 +818,7 @@ export function LeftNav(props: LeftNavProps) {
                     setResourcesFlyoutContext={setResourcesFlyoutContext}
                     ingestProvisioned={ingestProvisioned}
                     isProvisioningIngest={isProvisioningIngest}
-                    isUnsaved={onIngestAndUpdateRequired}
+                    isUnsaved={ingestUpdateRequired}
                   />
                   <EuiHorizontalRule margin="s" />
                   <SearchContent
@@ -820,7 +833,7 @@ export function LeftNav(props: LeftNavProps) {
                     ingestProvisioned={ingestProvisioned}
                     searchProvisioned={searchProvisioned}
                     isProvisioningSearch={isProvisioningSearch}
-                    isUnsaved={onSearchAndUpdateRequired}
+                    isUnsaved={searchUpdateRequired}
                     isDisabled={false}
                   />
                 </EuiFlexGroup>
@@ -832,12 +845,24 @@ export function LeftNav(props: LeftNavProps) {
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
               </EuiFlexItem>
-              {onSearchAndUnprovisioned && !ingestProvisioned && ingestEnabled && (
+              {onIngestAndSearchUpdateRequired && (
                 <>
                   <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
                     <EuiCallOut
                       color="warning"
-                      iconType={'alert'}
+                      iconType={'help'}
+                      title="Update your search flow before creating an ingest flow"
+                    />
+                  </EuiFlexItem>
+                  <EuiSpacer size="s" />
+                </>
+              )}
+              {onSearchAndIngestUpdateRequired && (
+                <>
+                  <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
+                    <EuiCallOut
+                      color="warning"
+                      iconType={'help'}
                       title="You need an ingest flow before creating a search flow."
                     />
                   </EuiFlexItem>
@@ -850,45 +875,49 @@ export function LeftNav(props: LeftNavProps) {
                   gutterSize="s"
                   style={{ padding: '0px', marginBottom: '48px' }}
                 >
-                  {onIngestAndUnprovisioned && ingestEnabled && (
-                    <EuiFlexItem grow={true}>
-                      <EuiSmallButton
-                        fill={true}
-                        isLoading={isProvisioningIngest}
-                        onClick={() => validateAndRunIngestion()}
-                      >
-                        Create ingest flow
-                      </EuiSmallButton>
-                    </EuiFlexItem>
-                  )}
-                  {onIngestAndUpdateRequired && ingestEnabled && (
-                    <>
-                      <EuiFlexItem grow={false}>
-                        <EuiSmallButtonIcon
-                          iconType={'editorUndo'}
-                          aria-label="undo"
-                          display="base"
-                          iconSize="s"
-                          isDisabled={isProvisioningIngest}
-                          onClick={() => revertUnsavedChanges()}
-                        />
-                      </EuiFlexItem>
+                  {onIngestAndUnprovisioned &&
+                    ingestEnabled &&
+                    !searchUpdateRequired && (
                       <EuiFlexItem grow={true}>
                         <EuiSmallButton
                           fill={true}
                           isLoading={isProvisioningIngest}
                           onClick={() => validateAndRunIngestion()}
                         >
-                          Update ingest flow
+                          Create ingest flow
                         </EuiSmallButton>
                       </EuiFlexItem>
-                    </>
-                  )}
-                  {onSearchAndUnprovisioned && (
+                    )}
+                  {onIngestAndUpdateRequired &&
+                    ingestEnabled &&
+                    !searchUpdateRequired && (
+                      <>
+                        <EuiFlexItem grow={false}>
+                          <EuiSmallButtonIcon
+                            iconType={'editorUndo'}
+                            aria-label="undo"
+                            display="base"
+                            iconSize="s"
+                            isDisabled={isProvisioningIngest}
+                            onClick={() => revertUnsavedChanges()}
+                          />
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={true}>
+                          <EuiSmallButton
+                            fill={true}
+                            isLoading={isProvisioningIngest}
+                            onClick={() => validateAndRunIngestion()}
+                          >
+                            Update ingest flow
+                          </EuiSmallButton>
+                        </EuiFlexItem>
+                      </>
+                    )}
+                  {onSearchAndUnprovisioned && !ingestUpdateRequired && (
                     <EuiFlexItem grow={true}>
                       <EuiSmallButton
                         fill={true}
-                        disabled={!ingestProvisioned && ingestEnabled}
+                        disabled={isProvisioningSearch}
                         isLoading={isProvisioningSearch}
                         onClick={async () => {
                           if (await validateAndUpdateSearchResources()) {
@@ -936,7 +965,7 @@ export function LeftNav(props: LeftNavProps) {
                       </EuiSmallButton>
                     </EuiFlexItem>
                   )}
-                  {onSearchAndUpdateRequired && (
+                  {onSearchAndUpdateRequired && !ingestUpdateRequired && (
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiSmallButtonIcon
@@ -951,7 +980,7 @@ export function LeftNav(props: LeftNavProps) {
                       <EuiFlexItem grow={true}>
                         <EuiSmallButton
                           fill={true}
-                          disabled={!ingestProvisioned && ingestEnabled}
+                          disabled={isProvisioningSearch}
                           isLoading={isProvisioningSearch}
                           onClick={async () => {
                             if (await validateAndUpdateSearchResources()) {
