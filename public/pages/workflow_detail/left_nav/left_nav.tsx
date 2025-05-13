@@ -788,6 +788,7 @@ export function LeftNav(props: LeftNavProps) {
                   }}
                 >
                   <IngestContent
+                    workflow={props.workflow}
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}
                     setCachedFormikState={props.setCachedFormikState}
@@ -824,7 +825,7 @@ export function LeftNav(props: LeftNavProps) {
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
               </EuiFlexItem>
-              {onSearchAndUnprovisioned && !ingestProvisioned && (
+              {onSearchAndUnprovisioned && !ingestProvisioned && ingestEnabled && (
                 <>
                   <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
                     <EuiCallOut
@@ -842,7 +843,7 @@ export function LeftNav(props: LeftNavProps) {
                   gutterSize="s"
                   style={{ padding: '0px', marginBottom: '48px' }}
                 >
-                  {onIngestAndUnprovisioned && (
+                  {onIngestAndUnprovisioned && ingestEnabled && (
                     <EuiFlexItem grow={true}>
                       <EuiSmallButton
                         fill={true}
@@ -853,7 +854,7 @@ export function LeftNav(props: LeftNavProps) {
                       </EuiSmallButton>
                     </EuiFlexItem>
                   )}
-                  {onIngestAndUpdateRequired && (
+                  {onIngestAndUpdateRequired && ingestEnabled && (
                     <>
                       <EuiFlexItem grow={false}>
                         <EuiSmallButtonIcon
@@ -880,7 +881,7 @@ export function LeftNav(props: LeftNavProps) {
                     <EuiFlexItem grow={true}>
                       <EuiSmallButton
                         fill={true}
-                        disabled={!ingestProvisioned}
+                        disabled={!ingestProvisioned && ingestEnabled}
                         isLoading={isProvisioningSearch}
                         onClick={async () => {
                           if (await validateAndUpdateSearchResources()) {
@@ -943,7 +944,7 @@ export function LeftNav(props: LeftNavProps) {
                       <EuiFlexItem grow={true}>
                         <EuiSmallButton
                           fill={true}
-                          disabled={!ingestProvisioned}
+                          disabled={!ingestProvisioned && ingestEnabled}
                           isLoading={isProvisioningSearch}
                           onClick={async () => {
                             if (await validateAndUpdateSearchResources()) {
