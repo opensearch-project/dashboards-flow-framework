@@ -187,6 +187,13 @@ export function LeftNav(props: LeftNavProps) {
     boolean
   >(false);
 
+  // default to the top of the search flow if ingest is switched to disabled
+  useEffect(() => {
+    if (getIn(values, 'ingest.enabled', undefined) === false) {
+      props.setSelectedComponentId('search.request');
+    }
+  }, [getIn(values, 'ingest.enabled')]);
+
   // If a workflow is imported, but not yet provisioned, the template nodes will exist, but the resources themselves won't be created.
   // We persist this to ensure that the update search button is enabled to allow provisioning on the UI.
   const isProposingSearchResourcesButNotProvisioned =
