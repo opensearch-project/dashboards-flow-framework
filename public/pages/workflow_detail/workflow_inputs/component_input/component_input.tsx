@@ -131,8 +131,17 @@ export function ComponentInput(props: ComponentInputProps) {
       grow={true}
       className="workspace-panel"
       borderRadius="l"
+      style={{
+        height: '100%',
+        overflowX: 'hidden',
+        overflowY: 'scroll',
+      }}
     >
-      <EuiFlexItem>
+      {/**
+       * Extra paddding added to the parent EuiFlexItem to account for overflow
+       * within the resizable panel, which has truncation issues otherwise.
+       */}
+      <EuiFlexItem style={{ paddingBottom: '60px' }}>
         {props.selectedComponentId === COMPONENT_ID.SOURCE_DATA ? (
           <SourceData
             workflow={props.workflow}
