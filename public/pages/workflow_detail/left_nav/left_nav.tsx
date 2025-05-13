@@ -340,7 +340,6 @@ export function LeftNav(props: LeftNavProps) {
   const onSearchAndIngestUpdateRequired =
     onSearch &&
     ingestEnabled &&
-    !searchProvisioned &&
     (!ingestProvisioned || ingestTemplatesDifferent);
 
   // Utility fn to revert any unsaved changes, reset the form
@@ -851,7 +850,7 @@ export function LeftNav(props: LeftNavProps) {
                     <EuiCallOut
                       color="warning"
                       iconType={'help'}
-                      title="Update your search flow before creating an ingest flow"
+                      title="Create/update your search flow before updating an ingest flow"
                     />
                   </EuiFlexItem>
                   <EuiSpacer size="s" />
@@ -863,7 +862,9 @@ export function LeftNav(props: LeftNavProps) {
                     <EuiCallOut
                       color="warning"
                       iconType={'help'}
-                      title="You need an ingest flow before creating a search flow."
+                      title={
+                        'Create/update your ingest flow before updating a search flow.'
+                      }
                     />
                   </EuiFlexItem>
                   <EuiSpacer size="s" />
