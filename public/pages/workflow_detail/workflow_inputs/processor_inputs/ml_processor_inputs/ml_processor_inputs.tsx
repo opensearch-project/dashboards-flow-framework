@@ -55,6 +55,7 @@ interface MLProcessorInputsProps {
   config: IProcessorConfig;
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
   context: PROCESSOR_CONTEXT;
+  disabled: boolean;
 }
 
 /**
@@ -250,6 +251,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           fieldPath={modelFieldPath}
           hasModelInterface={!isEmpty(modelInterface)}
           onModelChange={onModelChange}
+          disabled={props.disabled}
         />
       )}
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
@@ -277,6 +279,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             uiConfig={props.uiConfig}
             context={props.context}
             isDataFetchingAvailable={isInputPreviewAvailable}
+            disabled={props.disabled}
           />
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="row" gutterSize="xs">
@@ -304,6 +307,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             uiConfig={props.uiConfig}
             context={props.context}
             isDataFetchingAvailable={isOutputPreviewAvailable}
+            disabled={props.disabled}
           />
           <EuiSpacer size="s" />
           {inputMapValue.length !== outputMapValue.length &&
@@ -336,6 +340,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
               <EuiSmallButton
                 style={{ width: '100px' }}
                 fill={false}
+                disabled={props.disabled}
                 onClick={() => setIsQueryModalOpen(true)}
                 data-testid="overrideQueryButton"
               >
@@ -364,6 +369,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                   }
                 )}
                 baseConfigPath={props.baseConfigPath}
+                disabled={props.disabled}
               />
               {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE &&
                 getIn(values, extOutputPath) !== undefined && (
@@ -372,7 +378,11 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
                       label={'Separate outputs from search hits'}
                       fieldPath={extOutputPath}
                       type="Checkbox"
-                      disabled={getIn(values, oneToOnePath, false) === true}
+                      disabled={
+                        props.disabled
+                          ? props.disabled
+                          : getIn(values, oneToOnePath, false) === true
+                      }
                     />
                   </EuiFlexItem>
                 )}

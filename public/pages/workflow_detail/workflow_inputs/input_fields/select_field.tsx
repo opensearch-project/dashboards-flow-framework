@@ -19,6 +19,7 @@ interface SelectFieldProps {
   fieldPath: string; // the full path in string-form to the field (e.g., 'ingest.enrich.processors.text_embedding_processor.inputField')
   onSelectChange?: (option: string) => void;
   showInvalid?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -26,6 +27,7 @@ interface SelectFieldProps {
  */
 export function SelectField(props: SelectFieldProps) {
   const { errors, touched } = useFormikContext<WorkflowFormValues>();
+  const disabled = props.disabled ?? false;
 
   return (
     <Field name={props.fieldPath}>
@@ -66,6 +68,7 @@ export function SelectField(props: SelectFieldProps) {
                 }
               }}
               isInvalid={isInvalid}
+              disabled={disabled}
             />
           </EuiCompressedFormRow>
         );

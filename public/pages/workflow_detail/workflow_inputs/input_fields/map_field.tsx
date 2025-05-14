@@ -39,6 +39,7 @@ interface MapFieldProps {
   valueOptions?: { label: string }[];
   addEntryButtonText?: string;
   mappingDirection?: 'sortRight' | 'sortLeft' | undefined;
+  disabled?: boolean;
 }
 
 // The keys will be more static in general. Give more space for values where users
@@ -59,6 +60,7 @@ export function MapField(props: MapFieldProps) {
     touched,
     values,
   } = useFormikContext<WorkflowFormValues>();
+  const disabled = props.disabled ?? false;
 
   // Adding a map entry to the end of the existing arr
   function addMapEntry(curEntries: MapFormValue): void {
@@ -184,6 +186,7 @@ export function MapField(props: MapFieldProps) {
                                     options={props.keyOptions as any[]}
                                     placeholder={props.keyPlaceholder || 'Key'}
                                     allowCreate={true}
+                                    disabled={disabled}
                                   />
                                 ) : (
                                   <TextField
@@ -191,6 +194,7 @@ export function MapField(props: MapFieldProps) {
                                     fieldPath={`${props.fieldPath}.${idx}.key`}
                                     placeholder={props.keyPlaceholder || 'Key'}
                                     showError={false}
+                                    disabled={disabled}
                                   />
                                 )}
                               </>
@@ -219,6 +223,7 @@ export function MapField(props: MapFieldProps) {
                                       props.valuePlaceholder || 'Value'
                                     }
                                     allowCreate={true}
+                                    disabled={disabled}
                                   />
                                 ) : (
                                   <TextField
@@ -228,6 +233,7 @@ export function MapField(props: MapFieldProps) {
                                       props.valuePlaceholder || 'Value'
                                     }
                                     showError={false}
+                                    disabled={disabled}
                                   />
                                 )}
                               </>
@@ -240,6 +246,7 @@ export function MapField(props: MapFieldProps) {
                                 onClick={() => {
                                   deleteMapEntry(field.value, idx);
                                 }}
+                                disabled={disabled}
                               />
                             </EuiFlexItem>
                           </>
@@ -258,6 +265,7 @@ export function MapField(props: MapFieldProps) {
                     onClick={() => {
                       addMapEntry(field.value);
                     }}
+                    disabled={disabled}
                   >
                     {props.addEntryButtonText || 'Add more'}
                   </EuiSmallButtonEmpty>

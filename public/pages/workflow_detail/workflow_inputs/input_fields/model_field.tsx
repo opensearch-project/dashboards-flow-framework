@@ -44,6 +44,7 @@ interface ModelFieldProps {
   showError?: boolean;
   showInvalid?: boolean;
   modelCategory?: MODEL_CATEGORY;
+  disabled?: boolean;
 }
 
 type ModelItem = ModelFormValue & {
@@ -67,6 +68,8 @@ export function ModelField(props: ModelFieldProps) {
   const hasModelInterface = props.hasModelInterface ?? false;
 
   const { errors, touched, values } = useFormikContext<WorkflowFormValues>();
+
+  const disabled = props.disabled ?? false;
 
   // Deployed models state
   const [deployedModels, setDeployedModels] = useState<ModelItem[]>([]);
@@ -141,7 +144,7 @@ export function ModelField(props: ModelFieldProps) {
                   <EuiCompressedSuperSelect
                     data-testid="selectDeployedModel"
                     fullWidth={props.fullWidth}
-                    disabled={isEmpty(deployedModels)}
+                    disabled={disabled ? true : isEmpty(deployedModels)}
                     options={deployedModels.map(
                       (option) =>
                         ({
@@ -189,6 +192,7 @@ export function ModelField(props: ModelFieldProps) {
                   <EuiSmallButtonIcon
                     iconType={'refresh'}
                     aria-label="refresh"
+                    isDisabled={disabled}
                     display="base"
                     onClick={() => {
                       dispatch(

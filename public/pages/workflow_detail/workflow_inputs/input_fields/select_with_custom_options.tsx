@@ -16,6 +16,7 @@ interface SelectWithCustomOptionsProps {
   allowCreate?: boolean;
   showInvalid?: boolean;
   onChange?: () => void;
+  disabled?: boolean;
 }
 
 /**
@@ -99,6 +100,7 @@ export function SelectWithCustomOptions(props: SelectWithCustomOptionsProps) {
         props.allowCreate ? 'Add {searchValue} as a custom option' : undefined
       }
       isInvalid={isInvalid}
+      isDisabled={props.disabled ?? false}
     />
   );
 }

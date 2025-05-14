@@ -59,6 +59,7 @@ interface ModelInputsProps {
   uiConfig: WorkflowConfig;
   context: PROCESSOR_CONTEXT;
   isDataFetchingAvailable: boolean;
+  disabled?: boolean;
 }
 
 // Spacing between the input field columns
@@ -92,6 +93,7 @@ export function ModelInputs(props: ModelInputsProps) {
     getIn(values, oneToOnePath),
     getIn(initialValues, oneToOnePath)
   );
+  const disabled = props.disabled ?? false;
 
   // Assuming no more than one set of input map entries.
   const inputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.input_map.0`;
@@ -241,6 +243,7 @@ export function ModelInputs(props: ModelInputsProps) {
                 {props.context === PROCESSOR_CONTEXT.SEARCH_RESPONSE && (
                   <>
                     <BooleanField
+                      disabled={disabled}
                       fieldPath={oneToOnePath}
                       label="Merge source data"
                       type="Switch"
@@ -351,6 +354,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                             fieldPath={`${inputMapFieldPath}.${idx}.key`}
                                             placeholder={`Name`}
                                             showError={false}
+                                            disabled={disabled}
                                           />
                                         )}
                                       </>
@@ -362,7 +366,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                 <EuiFlexItem>
                                   <EuiCompressedSuperSelect
                                     fullWidth={true}
-                                    disabled={false}
+                                    disabled={disabled}
                                     options={INPUT_TRANSFORM_OPTIONS.map(
                                       (option) =>
                                         ({
@@ -484,6 +488,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                               <EuiSmallButton
                                                 style={{ width: '100px' }}
                                                 fill={false}
+                                                disabled={disabled}
                                                 onClick={() =>
                                                   setTemplateModalIdx(idx)
                                                 }
@@ -541,6 +546,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                               <EuiSmallButton
                                                 style={{ width: '100px' }}
                                                 fill={false}
+                                                disabled={disabled}
                                                 onClick={() =>
                                                   setExpressionModalIdx(idx)
                                                 }
@@ -576,7 +582,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                                   <EuiSmallButtonIcon
                                                     aria-label="edit"
                                                     iconType="pencil"
-                                                    disabled={false}
+                                                    disabled={disabled}
                                                     color={'primary'}
                                                     onClick={() =>
                                                       setExpressionModalIdx(idx)
@@ -603,6 +609,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                                 TRANSFORM_TYPE.STRING
                                               )
                                             }
+                                            disabled={disabled}
                                           />
                                         ) : (
                                           <SelectWithCustomOptions
@@ -615,6 +622,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                                 : 'Document field'
                                             }
                                             allowCreate={true}
+                                            disabled={disabled}
                                           />
                                         )}
                                       </>
@@ -627,6 +635,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                         <EuiSmallButtonIcon
                                           iconType={'trash'}
                                           color="danger"
+                                          disabled={disabled}
                                           aria-label="Delete"
                                           onClick={() => {
                                             deleteMapEntry(field.value, idx);
@@ -652,6 +661,7 @@ export function ModelInputs(props: ModelInputsProps) {
                             style={{ marginLeft: '-8px', marginTop: '0px' }}
                             iconType={'plusInCircle'}
                             iconSide="left"
+                            isDisabled={disabled}
                             onClick={() => {
                               addMapEntry(field.value);
                             }}
@@ -667,6 +677,7 @@ export function ModelInputs(props: ModelInputsProps) {
             ) : (
               <EuiSmallButton
                 style={{ width: '100px' }}
+                disabled={disabled}
                 onClick={() => {
                   setFieldValue(field.name, [EMPTY_INPUT_MAP_ENTRY]);
                 }}

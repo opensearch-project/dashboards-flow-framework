@@ -19,6 +19,7 @@ interface NormalizationProcessorInputsProps {
   config: IProcessorConfig;
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
   context: PROCESSOR_CONTEXT;
+  disabled?: boolean;
 }
 
 /**
@@ -31,6 +32,7 @@ interface NormalizationProcessorInputsProps {
 export function NormalizationProcessorInputs(
   props: NormalizationProcessorInputsProps
 ) {
+  const disabled = props.disabled ?? false;
   // extracting field info from the config
   const optionalFields = props.config.optionalFields || [];
   const weightsFieldPath = `${props.baseConfigPath}.${props.config.id}.weights`;
@@ -46,6 +48,7 @@ export function NormalizationProcessorInputs(
         helpLink={NORMALIZATION_PROCESSOR_LINK}
         fieldPath={weightsFieldPath}
         showError={true}
+        disabled={disabled}
       />
       <EuiSpacer size="s" />
       <EuiAccordion
@@ -60,6 +63,7 @@ export function NormalizationProcessorInputs(
             configId={props.config.id}
             configFields={optionalFieldsWithoutWeights}
             baseConfigPath={props.baseConfigPath}
+            disabled={disabled}
           />
         </EuiFlexItem>
       </EuiAccordion>

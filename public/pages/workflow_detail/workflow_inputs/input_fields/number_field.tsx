@@ -21,6 +21,7 @@ interface NumberFieldProps {
   helpText?: string;
   placeholder?: string;
   showError?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -28,6 +29,7 @@ interface NumberFieldProps {
  */
 export function NumberField(props: NumberFieldProps) {
   const { errors, touched } = useFormikContext<WorkflowFormValues>();
+  const disabled = props.disabled ?? false;
 
   return (
     <Field name={props.fieldPath}>
@@ -56,6 +58,7 @@ export function NumberField(props: NumberFieldProps) {
               onChange={(e) => {
                 form.setFieldValue(props.fieldPath, e.target.value);
               }}
+              disabled={disabled}
             />
           </EuiCompressedFormRow>
         );

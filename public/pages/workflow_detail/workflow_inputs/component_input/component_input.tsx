@@ -36,7 +36,7 @@ interface ComponentInputProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   workflow: Workflow | undefined;
   lastIngested: number | undefined;
-  // TODO: propagate readonly to block any form updates
+  // TODO: propagate readonly to block any form updates. Already completed for all processor types.
   readonly: boolean;
 }
 
@@ -187,6 +187,7 @@ export function ComponentInput(props: ComponentInputProps) {
                     : 'search.enrichResponse'
                 }
                 context={processorContext}
+                disabled={props.readonly}
               />
             </EuiFlexItem>
           </EuiFlexGroup>

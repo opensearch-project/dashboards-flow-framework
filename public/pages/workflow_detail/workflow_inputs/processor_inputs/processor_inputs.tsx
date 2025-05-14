@@ -26,6 +26,7 @@ interface ProcessorInputsProps {
   config: IProcessorConfig;
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
   context: PROCESSOR_CONTEXT;
+  disabled: boolean;
 }
 
 // Component to dynamically render the processor inputs based on the processor types.
@@ -48,6 +49,7 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                   config={props.config}
                   baseConfigPath={props.baseConfigPath}
                   context={props.context}
+                  disabled={props.disabled}
                 />
               </EuiFlexItem>
             );
@@ -61,6 +63,7 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                   config={props.config}
                   baseConfigPath={props.baseConfigPath}
                   context={props.context}
+                  disabled={props.disabled}
                 />
               </EuiFlexItem>
             );
@@ -74,6 +77,7 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                   config={props.config}
                   baseConfigPath={props.baseConfigPath}
                   context={props.context}
+                  disabled={props.disabled}
                 />
               </EuiFlexItem>
             );
@@ -87,6 +91,7 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                     configId={props.config.id}
                     configFields={props.config.fields}
                     baseConfigPath={props.baseConfigPath}
+                    disabled={props.disabled}
                   />
                   {!isEmpty(props.config.optionalFields) && (
                     <EuiAccordion
@@ -100,6 +105,7 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                           configId={props.config.id}
                           configFields={props.config.optionalFields || []}
                           baseConfigPath={props.baseConfigPath}
+                          disabled={props.disabled}
                         />
                       </EuiFlexItem>
                     </EuiAccordion>

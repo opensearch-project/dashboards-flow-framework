@@ -26,11 +26,13 @@ interface ConfigFieldListProps {
   configId: string;
   configFields: IConfigField[];
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
+  disabled?: boolean;
 }
 
 const CONFIG_FIELD_SPACER_SIZE = 'm';
 
 export function ConfigFieldList(props: ConfigFieldListProps) {
+  const disabled = props.disabled ?? false;
   return (
     <EuiFlexItem grow={false}>
       {props.configFields.map((field, idx) => {
@@ -44,6 +46,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={fieldPath}
                   showError={true}
+                  disabled={disabled}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -58,6 +61,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   fieldPath={fieldPath}
                   showError={true}
                   textArea={true}
+                  disabled={disabled}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -67,7 +71,11 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
           case 'select': {
             el = (
               <EuiFlexItem key={idx}>
-                <SelectField field={field} fieldPath={fieldPath} />
+                <SelectField
+                  field={field}
+                  fieldPath={fieldPath}
+                  disabled={disabled}
+                />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
             );
@@ -80,6 +88,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={fieldPath}
                   type="Checkbox"
+                  disabled={disabled}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -93,6 +102,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={fieldPath}
                   showError={true}
+                  disabled={disabled}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -105,6 +115,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                 <JsonField
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={fieldPath}
+                  readOnly={disabled}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -118,6 +129,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   validate={false}
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={fieldPath}
+                  readOnly={disabled}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -130,6 +142,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                 <MapField
                   label={camelCaseToTitleString(field.id)}
                   fieldPath={fieldPath}
+                  disabled={disabled}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -142,6 +155,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                 <ModelField
                   fieldPath={fieldPath}
                   showMissingInterfaceCallout={false}
+                  disabled={disabled}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>

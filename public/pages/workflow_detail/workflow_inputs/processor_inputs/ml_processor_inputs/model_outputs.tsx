@@ -48,6 +48,7 @@ interface ModelOutputsProps {
   uiConfig: WorkflowConfig;
   context: PROCESSOR_CONTEXT;
   isDataFetchingAvailable: boolean;
+  disabled?: boolean;
 }
 
 // Spacing between the output field columns
@@ -74,6 +75,8 @@ export function ModelOutputs(props: ModelOutputsProps) {
   ) as IConfigField;
   const modelFieldPath = `${props.baseConfigPath}.${props.config.id}.${modelField.id}`;
   const outputMapFieldPath = `${props.baseConfigPath}.${props.config.id}.output_map.0`; // Assuming no more than one set of output map entries.
+
+  const disabled = props.disabled ?? false;
 
   // various modal states
   const [expressionsModalIdx, setExpressionsModalIdx] = useState<
@@ -208,6 +211,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                             fieldPath={`${outputMapFieldPath}.${idx}.key`}
                                             placeholder={`Name`}
                                             showError={false}
+                                            disabled={disabled}
                                           />
                                         )}
                                       </>
@@ -219,7 +223,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                 <EuiFlexItem>
                                   <EuiCompressedSuperSelect
                                     fullWidth={true}
-                                    disabled={false}
+                                    disabled={disabled}
                                     options={OUTPUT_TRANSFORM_OPTIONS.map(
                                       (option) =>
                                         ({
@@ -328,6 +332,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                               <EuiSmallButton
                                                 style={{ width: '100px' }}
                                                 fill={false}
+                                                disabled={disabled}
                                                 onClick={() =>
                                                   setExpressionsModalIdx(idx)
                                                 }
@@ -378,7 +383,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                                   <EuiSmallButtonIcon
                                                     aria-label="edit"
                                                     iconType="pencil"
-                                                    disabled={false}
+                                                    disabled={disabled}
                                                     color={'primary'}
                                                     onClick={() => {
                                                       setExpressionsModalIdx(
@@ -402,6 +407,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                                 : 'Define a document field'
                                             }
                                             showError={false}
+                                            disabled={disabled}
                                           />
                                         ) : transformType ===
                                           NO_TRANSFORMATION ? (
@@ -417,6 +423,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                         <EuiSmallButtonIcon
                                           iconType={'trash'}
                                           color="danger"
+                                          disabled={disabled}
                                           aria-label="Delete"
                                           onClick={() => {
                                             deleteMapEntry(field.value, idx);

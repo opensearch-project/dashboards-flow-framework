@@ -27,6 +27,7 @@ interface TextChunkingProcessorInputsProps {
   config: IProcessorConfig;
   baseConfigPath: string; // the base path of the nested config, if applicable. e.g., 'ingest.enrich'
   context: PROCESSOR_CONTEXT;
+  disabled?: boolean;
 }
 
 /**
@@ -40,6 +41,7 @@ export function TextChunkingProcessorInputs(
   props: TextChunkingProcessorInputsProps
 ) {
   const { values } = useFormikContext<WorkflowFormValues>();
+  const disabled = props.disabled ?? false;
 
   // extracting field info from the text chunking processor config
   // TODO: have a better mechanism for guaranteeing the expected fields/config instead of hardcoding them here
@@ -76,6 +78,7 @@ export function TextChunkingProcessorInputs(
         field={algorithmField}
         fieldPath={algorithmFieldPath}
         onSelectChange={onAlgorithmChange}
+        disabled={disabled}
       />
       <MapField
         label="Field map"
@@ -83,6 +86,7 @@ export function TextChunkingProcessorInputs(
         fieldPath={fieldMapFieldPath}
         keyPlaceholder={'Input field'}
         valuePlaceholder={'Output field'}
+        disabled={disabled}
       />
       <EuiSpacer size="s" />
       {fieldMapValue?.length === 0 && (
@@ -117,6 +121,7 @@ export function TextChunkingProcessorInputs(
               ) || []),
             ]}
             baseConfigPath={props.baseConfigPath}
+            disabled={disabled}
           />
         </EuiFlexItem>
       </EuiAccordion>
