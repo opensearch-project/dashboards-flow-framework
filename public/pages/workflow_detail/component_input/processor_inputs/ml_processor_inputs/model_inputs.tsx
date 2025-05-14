@@ -50,7 +50,7 @@ import {
   getObjsFromJSONLines,
   sanitizeJSONPath,
 } from '../../../../../utils';
-import { ConfigureExpressionModal, ConfigureTemplateModal } from './modals/';
+import { ConfigureExpressionModal, ConfigureTemplateModal } from './modals';
 import { updateCache } from './utils';
 
 interface ModelInputsProps {

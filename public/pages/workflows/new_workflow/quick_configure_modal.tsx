@@ -71,7 +71,7 @@ import {
   parseModelOutputs,
 } from '../../../utils/utils';
 import { QuickConfigureOptionalFields } from './quick_configure_optional_fields';
-import { ModelField, TextField } from '../../workflow_detail/workflow_inputs';
+import { ModelField, TextField } from '../../workflow_detail/component_input';
 
 interface QuickConfigureModalProps {
   workflow: Workflow;

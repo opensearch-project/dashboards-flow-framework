@@ -146,11 +146,6 @@ export function LeftNav(props: LeftNavProps) {
   const onIngestAndUnprovisioned = onIngest && !ingestProvisioned;
   const onSearchAndUnprovisioned =
     onSearch && !searchProvisioned && !isProposingNoSearchResources;
-  const onIngestAndDisabled = onIngest && !ingestEnabled;
-  // fine-grained deprovisioning is not supported, hence once a search pipeline is created, it cannot
-  // be deleted without re-creating all of the resources, including ingest resources.
-  const searchUpdateDisabled =
-    searchProvisioned && isProposingNoSearchResources;
   // there is an edge case where search resources based on the form should be ignored:
   // that is, when users first create a workflow and are setting up ingest for the first time,
   // where there may be preset form values for search, but should be ignored during the initial ingestion provisioning steps.

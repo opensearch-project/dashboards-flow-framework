@@ -14,20 +14,20 @@ import {
   EuiPanel,
   EuiText,
 } from '@elastic/eui';
-import { SourceData, IngestData } from '../ingest_inputs';
-import { ConfigureSearchRequest } from '../search_inputs';
+import { SourceData, IngestData } from './ingest_inputs';
+import { ConfigureSearchRequest } from './search_inputs';
 import {
   COMPONENT_ID,
   IProcessorConfig,
   PROCESSOR_CONTEXT,
   Workflow,
   WorkflowConfig,
-} from '../../../../../common';
-import { ProcessorInputs } from '../processor_inputs';
-import { AppState } from '../../../../store';
+} from '../../../../common';
+import { ProcessorInputs } from './processor_inputs';
+import { AppState } from '../../../store';
 
 // styling
-import '../../workspace/workspace-styles.scss';
+import '../workspace/workspace-styles.scss';
 
 interface ComponentInputProps {
   selectedComponentId: string;

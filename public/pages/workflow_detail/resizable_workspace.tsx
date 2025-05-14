@@ -20,7 +20,7 @@ import {
   customStringify,
 } from '../../../common';
 import { isValidUiWorkflow, reduceToTemplate } from '../../utils';
-import { ComponentInput } from './workflow_inputs';
+import { ComponentInput } from './component_input';
 import { Tools } from './tools';
 import { LeftNav } from './left_nav';
 
