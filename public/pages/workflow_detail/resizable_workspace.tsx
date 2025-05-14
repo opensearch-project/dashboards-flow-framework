@@ -159,68 +159,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 uiConfig={props.uiConfig}
                 selectedComponentId={selectedComponentId}
               />
-              {/* <EuiResizableContainer
-                className="workspace-panel"
-                direction="vertical"
-                style={{
-                  gap: '4px',
-                }}
-              >
-                {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
-                  if (togglePanel) {
-                    collapseFnVertical.current = (
-                      panelId: string,
-                      { direction }
-                    ) =>
-                      // ignore is added since docs are incorrectly missing "top" and "bottom"
-                      // as valid direction options for vertically-configured resizable panels.
-                      // @ts-ignore
-                      togglePanel(panelId, { direction });
-                  }
-                  return (
-                    <>
-                      <EuiResizablePanel
-                        mode="main"
-                        initialSize={60}
-                        minSize="25%"
-                        paddingSize="none"
-                        borderRadius="l"
-                      >
-                        <EuiFlexGroup
-                          direction="column"
-                          gutterSize="none"
-                          style={{ height: '100%' }}
-                        >
-                          <EuiFlexItem>
-                            <Workspace
-                              workflow={props.workflow}
-                              uiConfig={props.uiConfig}
-                            />
-                          </EuiFlexItem>
-                        </EuiFlexGroup>
-                      </EuiResizablePanel>
-                      <EuiResizableButton />
-                      <EuiResizablePanel
-                        id={TOOLS_PANEL_ID}
-                        mode="collapsible"
-                        initialSize={50}
-                        minSize="25%"
-                        paddingSize="none"
-                        borderRadius="l"
-                        onToggleCollapsedInternal={() => onToggleToolsChange()}
-                      >
-                        <Tools
-                          workflow={props.workflow}
-                          ingestResponse={ingestResponse}
-                          selectedTabId={selectedInspectorTabId}
-                          setSelectedTabId={setSelectedInspectorTabId}
-                          selectedComponentId={selectedComponentId}
-                        />
-                      </EuiResizablePanel>
-                    </>
-                  );
-                }}
-              </EuiResizableContainer> */}
             </EuiResizablePanel>
           </>
         );

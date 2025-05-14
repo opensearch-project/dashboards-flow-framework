@@ -120,7 +120,9 @@ export function Query(props: QueryProps) {
     (noSearchIndex || noSearchRequest);
   const indexToSearch = props.selectedComponentId.startsWith('ingest')
     ? values?.ingest?.index?.name
-    : values?.search?.index?.name;
+    : !isEmpty(values?.search?.index?.name)
+    ? values?.search?.index?.name
+    : values?.ingest?.index?.name;
 
   return (
     <>
@@ -139,7 +141,7 @@ export function Query(props: QueryProps) {
           }
         />
       ) : (
-        <EuiFlexGroup direction="row">
+        <EuiFlexGroup direction="row" style={{ paddingBottom: '24px' }}>
           <EuiFlexItem>
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem grow={false}>
@@ -330,7 +332,7 @@ export function Query(props: QueryProps) {
                   tabSize={2}
                 />
               </EuiFlexItem>
-              <EuiFlexItem grow={true}>
+              <EuiFlexItem grow={false}>
                 {/**
                  * This may return nothing if the list of params are empty
                  */}
