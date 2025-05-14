@@ -31,7 +31,9 @@ interface KnnValidationResult {
   warningMessage?: string;
 }
 
-interface ConfigureSearchRequestProps {}
+interface ConfigureSearchRequestProps {
+  disabled: boolean;
+}
 
 /**
  * Input component for configuring a search request
@@ -156,6 +158,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                   setFieldTouched(searchIndexNameFormPath, true);
                 }}
                 isInvalid={selectedIndex === undefined}
+                disabled={props.disabled}
               />
             )}
           </EuiCompressedFormRow>
@@ -186,6 +189,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                     data-testid="queryEditButton"
                     iconType="pencil"
                     iconSide="left"
+                    isDisabled={props.disabled}
                   >
                     Edit
                   </EuiSmallButtonEmpty>

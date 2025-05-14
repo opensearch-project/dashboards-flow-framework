@@ -28,6 +28,7 @@ import {
 
 interface AdvancedSettingsProps {
   setHasInvalidDimensions: (hasInvalidDimensions: boolean) => void;
+  disabled: boolean;
 }
 
 /**
@@ -139,10 +140,18 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
           <EuiSpacer size="s" />
           <EuiFlexGroup direction="column">
             <EuiFlexItem>
-              <JsonField label="Index mappings" fieldPath={indexMappingsPath} />
+              <JsonField
+                label="Index mappings"
+                fieldPath={indexMappingsPath}
+                readOnly={props.disabled}
+              />
             </EuiFlexItem>
             <EuiFlexItem>
-              <JsonField label="Index settings" fieldPath={indexSettingsPath} />
+              <JsonField
+                label="Index settings"
+                fieldPath={indexSettingsPath}
+                readOnly={props.disabled}
+              />
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiAccordion>

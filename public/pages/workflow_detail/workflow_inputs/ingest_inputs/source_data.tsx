@@ -35,6 +35,7 @@ interface SourceDataProps {
   uiConfig: WorkflowConfig;
   setIngestDocs: (docs: string) => void;
   lastIngested: number | undefined;
+  disabled: boolean;
 }
 
 /**
@@ -121,6 +122,7 @@ export function SourceData(props: SourceDataProps) {
             {docsPopulated && (
               <EuiFlexItem grow={false}>
                 <EuiSmallButtonEmpty
+                  isDisabled={props.disabled}
                   onClick={() => setIsEditModalOpen(true)}
                   data-testid="editSourceDataButton"
                   iconType="pencil"
@@ -207,6 +209,7 @@ export function SourceData(props: SourceDataProps) {
                 <EuiSmallButton
                   fill={true}
                   style={{ width: '130px' }}
+                  disabled={props.disabled}
                   onClick={() => setIsEditModalOpen(true)}
                   data-testid="selectDataToImportButton"
                   iconType="plus"

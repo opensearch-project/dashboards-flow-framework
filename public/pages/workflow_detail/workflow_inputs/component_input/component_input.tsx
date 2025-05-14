@@ -36,7 +36,6 @@ interface ComponentInputProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   workflow: Workflow | undefined;
   lastIngested: number | undefined;
-  // TODO: propagate readonly to block any form updates. Already completed for all processor types.
   readonly: boolean;
 }
 
@@ -150,6 +149,7 @@ export function ComponentInput(props: ComponentInputProps) {
             uiConfig={props.uiConfig}
             setIngestDocs={props.setIngestDocs}
             lastIngested={props.lastIngested}
+            disabled={props.readonly}
           />
         ) : isProcessorComponent(props.selectedComponentId) &&
           processor !== undefined &&
@@ -192,9 +192,9 @@ export function ComponentInput(props: ComponentInputProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
         ) : props.selectedComponentId === COMPONENT_ID.INGEST_DATA ? (
-          <IngestData />
+          <IngestData disabled={props.readonly} />
         ) : props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST ? (
-          <ConfigureSearchRequest />
+          <ConfigureSearchRequest disabled={props.readonly} />
         ) : (
           <EuiEmptyPrompt
             title={

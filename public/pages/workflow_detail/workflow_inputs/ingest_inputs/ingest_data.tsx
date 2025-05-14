@@ -15,7 +15,9 @@ import { TextField } from '../input_fields';
 import { AdvancedSettings } from './advanced_settings';
 import { KNN_VECTOR_DOCS_LINK } from '../../../../../common';
 
-interface IngestDataProps {}
+interface IngestDataProps {
+  disabled: boolean;
+}
 
 /**
  * Input component for configuring the data ingest (the OpenSearch index)
@@ -53,10 +55,14 @@ export function IngestData(props: IngestDataProps) {
           label="Index name"
           fieldPath={'ingest.index.name'}
           showError={true}
+          disabled={props.disabled}
         />
       </EuiFlexItem>
       <EuiFlexItem>
-        <AdvancedSettings setHasInvalidDimensions={setHasInvalidDimensions} />
+        <AdvancedSettings
+          setHasInvalidDimensions={setHasInvalidDimensions}
+          disabled={props.disabled}
+        />
       </EuiFlexItem>
     </EuiFlexGroup>
   );
