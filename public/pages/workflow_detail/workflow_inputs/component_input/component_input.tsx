@@ -36,6 +36,8 @@ interface ComponentInputProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   workflow: Workflow | undefined;
   lastIngested: number | undefined;
+  // TODO: propagate readonly to block any form updates
+  readonly: boolean;
 }
 
 /**

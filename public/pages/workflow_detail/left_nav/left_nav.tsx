@@ -76,6 +76,8 @@ interface LeftNavProps {
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   selectedComponentId: string;
   setSelectedComponentId: (id: string) => void;
+  setIngestReadonly: (readonly: boolean) => void;
+  setSearchReadonly: (readonly: boolean) => void;
 }
 
 const SUCCESS_TOAST_ID = 'success_toast_id';
@@ -323,24 +325,20 @@ export function LeftNav(props: LeftNavProps) {
 
   // update buttons eligibility
   const ingestUpdateRequired =
-    ingestProvisioned && (ingestTemplatesDifferent || isProvisioningIngest);
+    ingestEnabled && ingestProvisioned && ingestTemplatesDifferent;
   const onIngestAndUpdateRequired = onIngest && ingestUpdateRequired;
 
-  const searchUpdateRequired =
-    searchProvisioned &&
-    !isProposingNoSearchResources &&
-    (searchTemplatesDifferent || isProvisioningSearch);
+  const searchUpdateRequired = searchProvisioned && searchTemplatesDifferent;
   const onSearchAndUpdateRequired = onSearch && searchUpdateRequired;
 
-  // additionally make sure search has already been provisioned. Preset use cases may have
-  // prefilled search configs, but that shouldn't block creating ingest first.
-  const onIngestAndSearchUpdateRequired =
-    onIngest && searchTemplatesDifferent && searchProvisioned;
-
+  // Only block ingest updates if search has been provisioned and ALSO requires update.
+  // Preset use cases may have prefilled search configs, but that shouldn't block creating ingest first.
+  const onIngestAndSearchUpdateRequired = onIngest && searchUpdateRequired;
+  // Block search update if ingest hasn't been created, OR it has been created, but requires updates.
   const onSearchAndIngestUpdateRequired =
-    onSearch &&
-    ingestEnabled &&
-    (!ingestProvisioned || ingestTemplatesDifferent);
+    onSearch && ingestEnabled && (!ingestProvisioned || ingestUpdateRequired);
+  props.setIngestReadonly(onIngestAndSearchUpdateRequired);
+  props.setSearchReadonly(onSearchAndIngestUpdateRequired);
 
   // Utility fn to revert any unsaved changes, reset the form
   function revertUnsavedChanges(): void {
@@ -818,6 +816,7 @@ export function LeftNav(props: LeftNavProps) {
                     ingestProvisioned={ingestProvisioned}
                     isProvisioningIngest={isProvisioningIngest}
                     isUnsaved={ingestUpdateRequired}
+                    readonly={onIngestAndSearchUpdateRequired}
                   />
                   <EuiHorizontalRule margin="s" />
                   <SearchContent
@@ -834,6 +833,7 @@ export function LeftNav(props: LeftNavProps) {
                     isProvisioningSearch={isProvisioningSearch}
                     isUnsaved={searchUpdateRequired}
                     isDisabled={false}
+                    readonly={onSearchAndIngestUpdateRequired}
                   />
                 </EuiFlexGroup>
               )}
@@ -914,58 +914,61 @@ export function LeftNav(props: LeftNavProps) {
                         </EuiFlexItem>
                       </>
                     )}
-                  {onSearchAndUnprovisioned && !ingestUpdateRequired && (
-                    <EuiFlexItem grow={true}>
-                      <EuiSmallButton
-                        fill={true}
-                        disabled={isProvisioningSearch}
-                        isLoading={isProvisioningSearch}
-                        onClick={async () => {
-                          if (await validateAndUpdateSearchResources()) {
-                            getCore().notifications.toasts.add({
-                              id: SUCCESS_TOAST_ID,
-                              iconType: 'check',
-                              color: 'success',
-                              title: 'Search flow created',
-                              // @ts-ignore
-                              text: (
-                                <EuiFlexGroup direction="column">
-                                  <EuiFlexItem grow={false}>
-                                    <EuiText size="s">
-                                      Validate your search flow using Test flow
-                                    </EuiText>
-                                  </EuiFlexItem>
-                                  <EuiFlexItem>
-                                    <EuiFlexGroup
-                                      direction="row"
-                                      justifyContent="flexEnd"
-                                    >
-                                      <EuiFlexItem grow={false}>
-                                        <EuiSmallButton
-                                          fill={false}
-                                          onClick={() => {
-                                            props.displaySearchPanel();
-                                            getCore().notifications.toasts.remove(
-                                              SUCCESS_TOAST_ID
-                                            );
-                                          }}
-                                        >
-                                          Test flow
-                                        </EuiSmallButton>
-                                      </EuiFlexItem>
-                                    </EuiFlexGroup>
-                                  </EuiFlexItem>
-                                </EuiFlexGroup>
-                              ),
-                            });
-                            setSearchProvisioned(true);
-                          }
-                        }}
-                      >
-                        Create search flow
-                      </EuiSmallButton>
-                    </EuiFlexItem>
-                  )}
+                  {onSearchAndUnprovisioned &&
+                    !ingestUpdateRequired &&
+                    !(ingestEnabled && !ingestProvisioned) && (
+                      <EuiFlexItem grow={true}>
+                        <EuiSmallButton
+                          fill={true}
+                          disabled={isProvisioningSearch}
+                          isLoading={isProvisioningSearch}
+                          onClick={async () => {
+                            if (await validateAndUpdateSearchResources()) {
+                              getCore().notifications.toasts.add({
+                                id: SUCCESS_TOAST_ID,
+                                iconType: 'check',
+                                color: 'success',
+                                title: 'Search flow created',
+                                // @ts-ignore
+                                text: (
+                                  <EuiFlexGroup direction="column">
+                                    <EuiFlexItem grow={false}>
+                                      <EuiText size="s">
+                                        Validate your search flow using Test
+                                        flow
+                                      </EuiText>
+                                    </EuiFlexItem>
+                                    <EuiFlexItem>
+                                      <EuiFlexGroup
+                                        direction="row"
+                                        justifyContent="flexEnd"
+                                      >
+                                        <EuiFlexItem grow={false}>
+                                          <EuiSmallButton
+                                            fill={false}
+                                            onClick={() => {
+                                              props.displaySearchPanel();
+                                              getCore().notifications.toasts.remove(
+                                                SUCCESS_TOAST_ID
+                                              );
+                                            }}
+                                          >
+                                            Test flow
+                                          </EuiSmallButton>
+                                        </EuiFlexItem>
+                                      </EuiFlexGroup>
+                                    </EuiFlexItem>
+                                  </EuiFlexGroup>
+                                ),
+                              });
+                              setSearchProvisioned(true);
+                            }
+                          }}
+                        >
+                          Create search flow
+                        </EuiSmallButton>
+                      </EuiFlexItem>
+                    )}
                   {onSearchAndUpdateRequired && !ingestUpdateRequired && (
                     <>
                       <EuiFlexItem grow={false}>

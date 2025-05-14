@@ -59,6 +59,8 @@ interface IngestContentProps {
   ingestProvisioned: boolean;
   isProvisioningIngest: boolean;
   isUnsaved: boolean;
+  // TODO: propagate readonly to block adding processors
+  readonly: boolean;
 }
 
 /**

@@ -40,6 +40,8 @@ interface SearchContentProps {
   isProvisioningSearch: boolean;
   isUnsaved: boolean;
   isDisabled: boolean;
+  // TODO: propagate readonly to block adding/deleting processors
+  readonly: boolean;
 }
 
 /**

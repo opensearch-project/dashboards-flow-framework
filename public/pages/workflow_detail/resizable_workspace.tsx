@@ -51,6 +51,12 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // The global state for selected component ID.
   const [selectedComponentId, setSelectedComponentId] = useState<string>('');
 
+  // Readonly states for ingest and search. If there are unsaved changes in one context, block editing in the other.
+  const [ingestReadonly, setIngestReadonly] = useState<boolean>(false);
+  const [searchReadonly, setSearchReadonly] = useState<boolean>(false);
+  const onIngest = selectedComponentId.startsWith('ingest');
+  const onSearch = selectedComponentId.startsWith('search');
+
   // Preview side panel state. This panel encapsulates the tools panel as a child resizable panel.
   const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState<boolean>(true);
   const collapseFnHorizontal = useRef(
@@ -111,6 +117,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 setCachedFormikState={props.setCachedFormikState}
                 selectedComponentId={selectedComponentId}
                 setSelectedComponentId={setSelectedComponentId}
+                setIngestReadonly={setIngestReadonly}
+                setSearchReadonly={setSearchReadonly}
               />
             </div>
             <EuiResizablePanel
@@ -128,6 +136,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 setUiConfig={props.setUiConfig}
                 setIngestDocs={props.setIngestDocs}
                 lastIngested={props.lastIngested}
+                readonly={
+                  (onIngest && ingestReadonly) || (onSearch && searchReadonly)
+                }
               />
             </EuiResizablePanel>
             <EuiResizableButton />
