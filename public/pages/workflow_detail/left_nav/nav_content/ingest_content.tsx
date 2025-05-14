@@ -202,6 +202,7 @@ export function IngestContent(props: IngestContentProps) {
                     <EuiButtonIcon
                       iconType="controlsHorizontal"
                       size="s"
+                      isDisabled={props.readonly}
                       aria-label="disableEnableIngest"
                       onClick={() => {
                         setPopoverOpen(true);

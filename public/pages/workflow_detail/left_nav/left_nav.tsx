@@ -816,7 +816,7 @@ export function LeftNav(props: LeftNavProps) {
                     ingestProvisioned={ingestProvisioned}
                     isProvisioningIngest={isProvisioningIngest}
                     isUnsaved={ingestUpdateRequired}
-                    readonly={onIngestAndSearchUpdateRequired}
+                    readonly={searchUpdateRequired}
                   />
                   <EuiHorizontalRule margin="s" />
                   <SearchContent
@@ -832,7 +832,10 @@ export function LeftNav(props: LeftNavProps) {
                     searchProvisioned={searchProvisioned}
                     isProvisioningSearch={isProvisioningSearch}
                     isUnsaved={searchUpdateRequired}
-                    readonly={onSearchAndIngestUpdateRequired}
+                    readonly={
+                      ingestUpdateRequired ||
+                      (ingestEnabled && !ingestProvisioned)
+                    }
                   />
                 </EuiFlexGroup>
               )}
