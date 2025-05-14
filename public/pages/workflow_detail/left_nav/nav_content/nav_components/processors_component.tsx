@@ -20,7 +20,7 @@ interface ProcessorsComponentProps {
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   selectedComponentId: string;
   setSelectedComponentId: (id: string) => void;
-  isDisabled?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -42,11 +42,11 @@ export function ProcessorsComponent(props: ProcessorsComponentProps) {
             setCachedFormikState={props.setCachedFormikState}
             selectedComponentId={props.selectedComponentId}
             setSelectedComponentId={props.setSelectedComponentId}
-            isDisabled={props.isDisabled}
+            disabled={props.disabled}
           />
         </div>
       }
-      isDisabled={props.isDisabled}
+      isDisabled={false}
     />
   );
 }

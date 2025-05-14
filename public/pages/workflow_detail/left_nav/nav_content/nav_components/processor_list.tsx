@@ -70,7 +70,7 @@ interface ProcessorListProps {
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
   selectedComponentId: string;
   setSelectedComponentId: (id: string) => void;
-  isDisabled?: boolean;
+  disabled?: boolean;
 }
 
 const PANEL_ID = 0;
@@ -562,7 +562,6 @@ export function ProcessorList(props: ProcessorListProps) {
                   ? { isSelected: true }
                   : undefined
               }
-              isDisabled={props.isDisabled}
               title={
                 // The flex group with space-around does not work, as it is overridden
                 // by css properties nested in the EuiCard. To get the same effect,
@@ -597,7 +596,9 @@ export function ProcessorList(props: ProcessorListProps) {
                           iconType="sortUp"
                           aria-label="Move processor up"
                           onClick={() => moveProcessorUp(processorIndex)}
-                          isDisabled={processorIndex === 0}
+                          isDisabled={
+                            props.disabled ? true : processorIndex === 0
+                          }
                         />
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
@@ -605,13 +606,18 @@ export function ProcessorList(props: ProcessorListProps) {
                           iconType="sortDown"
                           aria-label="Move processor down"
                           onClick={() => moveProcessorDown(processorIndex)}
-                          isDisabled={processorIndex === processors.length - 1}
+                          isDisabled={
+                            props.disabled
+                              ? true
+                              : processorIndex === processors.length - 1
+                          }
                         />
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiSmallButtonIcon
                           iconType="trash"
                           color="danger"
+                          isDisabled={props.disabled}
                           aria-label="Delete"
                           onClick={() => {
                             deleteProcessor(processor.id);
@@ -623,9 +629,7 @@ export function ProcessorList(props: ProcessorListProps) {
                 </EuiFlexGroup>
               }
             />
-            {processorIndex !== processors.length - 1 && (
-              <DownArrow isDisabled={props.isDisabled} />
-            )}
+            {processorIndex !== processors.length - 1 && <DownArrow />}
           </div>
         );
       })}
@@ -643,7 +647,7 @@ export function ProcessorList(props: ProcessorListProps) {
                   iconSide="left"
                   onClick={handlePopoverClick}
                   data-testid="addProcessorButton"
-                  isDisabled={props.isDisabled}
+                  disabled={props.disabled}
                 >
                   {`Add processor`}
                 </EuiSmallButtonEmpty>

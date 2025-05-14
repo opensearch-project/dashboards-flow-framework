@@ -832,7 +832,6 @@ export function LeftNav(props: LeftNavProps) {
                     searchProvisioned={searchProvisioned}
                     isProvisioningSearch={isProvisioningSearch}
                     isUnsaved={searchUpdateRequired}
-                    isDisabled={false}
                     readonly={onSearchAndIngestUpdateRequired}
                   />
                 </EuiFlexGroup>

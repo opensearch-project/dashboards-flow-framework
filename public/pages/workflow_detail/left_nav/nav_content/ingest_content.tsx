@@ -59,7 +59,6 @@ interface IngestContentProps {
   ingestProvisioned: boolean;
   isProvisioningIngest: boolean;
   isUnsaved: boolean;
-  // TODO: propagate readonly to block adding processors
   readonly: boolean;
 }
 
@@ -319,6 +318,7 @@ export function IngestContent(props: IngestContentProps) {
               setCachedFormikState={props.setCachedFormikState}
               selectedComponentId={props.selectedComponentId}
               setSelectedComponentId={props.setSelectedComponentId}
+              disabled={props.readonly}
             />
           </EuiFlexItem>
           <DownArrow />
