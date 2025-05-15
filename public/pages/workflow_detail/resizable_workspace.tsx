@@ -40,15 +40,6 @@ const consoleStyles = `
     position: relative;
   }
   
-  .main-content {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: height 0.3s ease-in-out;
-  }
-  
   .console-wrapper {
     flex: 0 0 auto;
     border-top: 1px solid #D3DAE6;
@@ -116,10 +107,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   const [isConsoleExpanded, setIsConsoleExpanded] = useState<boolean>(false);
 
-  const getMainContentHeight = () => {
-    return `calc(100% - ${isConsoleExpanded ? '250px' : '40px'})`;
-  };
-
   // Inspector panel state vars. Actions taken in the form can update the Inspector panel,
   // hence we keep top-level vars here to pass to both form and inspector components.
   const [ingestResponse, setIngestResponse] = useState<string>('');
@@ -171,12 +158,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   return isValidWorkflow ? (
     <div className="workflow-detail-container">
-      <div
-        className="main-content"
-        style={{
-          height: getMainContentHeight(),
-        }}
-      ></div>
       <EuiResizableContainer
         direction="horizontal"
         style={{
