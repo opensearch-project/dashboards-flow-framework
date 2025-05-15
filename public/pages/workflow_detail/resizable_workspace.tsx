@@ -57,8 +57,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const onIngest = selectedComponentId.startsWith('ingest');
   const onSearch = selectedComponentId.startsWith('search');
 
-  // Preview side panel state. This panel encapsulates the tools panel as a child resizable panel.
-  const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState<boolean>(true);
   const collapseFnHorizontal = useRef(
     (id: string, options: { direction: 'left' | 'right' }) => {}
   );
