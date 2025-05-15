@@ -871,30 +871,34 @@ export enum SOURCE_OPTIONS {
 }
 export enum INSPECTOR_TAB_ID {
   TEST = 'test',
-  INGEST = 'ingest',
-  ERRORS = 'errors',
   RESOURCES = 'resources',
 }
-
+export enum CONSOLE_TAB_ID {
+  ERRORS = 'errors',
+  RESPONSES = 'responses',
+}
 export const INSPECTOR_TABS = [
   {
     id: INSPECTOR_TAB_ID.TEST,
     name: 'Test flow',
     disabled: false,
   },
+
   {
-    id: INSPECTOR_TAB_ID.INGEST,
-    name: 'Ingest response',
+    id: INSPECTOR_TAB_ID.RESOURCES,
+    name: 'Resources',
     disabled: false,
   },
+];
+export const CONSOLE_TABS = [
   {
-    id: INSPECTOR_TAB_ID.ERRORS,
+    id: CONSOLE_TAB_ID.ERRORS,
     name: 'Errors',
     disabled: false,
   },
   {
-    id: INSPECTOR_TAB_ID.RESOURCES,
-    name: 'Resources',
+    id: CONSOLE_TAB_ID.RESPONSES,
+    name: 'responses',
     disabled: false,
   },
 ];

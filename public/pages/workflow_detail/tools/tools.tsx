@@ -29,8 +29,6 @@ import {
 } from '../../../../common';
 import { Resources } from './resources';
 import { Query } from './query';
-import { Ingest } from './ingest';
-import { Errors } from './errors';
 import {
   formatProcessorError,
   hasProvisionedIngestResources,
@@ -43,6 +41,7 @@ interface ToolsProps {
   selectedTabId: INSPECTOR_TAB_ID;
   setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
   selectedStep: CONFIG_STEP;
+  setCurErrorMessages: (errorMessages: (string | ReactNode)[]) => void;
 }
 
 const PANEL_TITLE = 'Inspect flows';
@@ -59,9 +58,6 @@ export function Tools(props: ToolsProps) {
     ingestPipeline: ingestPipelineErrors,
     searchPipeline: searchPipelineErrors,
   } = useSelector((state: AppState) => state.errors);
-  const [curErrorMessages, setCurErrorMessages] = useState<
-    (string | ReactNode)[]
-  >([]);
   const { values } = useFormikContext<WorkflowFormValues>();
 
   // Standalone / sandboxed search request state. Users can test things out
@@ -92,16 +88,16 @@ export function Tools(props: ToolsProps) {
       !isEmpty(searchPipelineErrors)
     ) {
       if (!isEmpty(opensearchError)) {
-        setCurErrorMessages([opensearchError]);
+        props.setCurErrorMessages([opensearchError]);
       } else if (!isEmpty(ingestPipelineErrors)) {
-        setCurErrorMessages([
+        props.setCurErrorMessages([
           'Data not ingested. Errors found with the following ingest processor(s):',
           ...Object.values(ingestPipelineErrors).map((ingestPipelineError) =>
             formatProcessorError(ingestPipelineError)
           ),
         ]);
       } else if (!isEmpty(searchPipelineErrors)) {
-        setCurErrorMessages([
+        props.setCurErrorMessages([
           'Errors found with the following search processor(s)',
           ...Object.values(searchPipelineErrors).map((searchPipelineError) =>
             formatProcessorError(searchPipelineError)
@@ -109,31 +105,19 @@ export function Tools(props: ToolsProps) {
         ]);
       }
     } else {
-      setCurErrorMessages([]);
+      props.setCurErrorMessages([]);
     }
   }, [opensearchError, ingestPipelineErrors, searchPipelineErrors]);
 
   // Propagate any errors coming from the workflow, either runtime from API call, or persisted in the indexed workflow itself.
   useEffect(() => {
-    setCurErrorMessages(!isEmpty(workflowsError) ? [workflowsError] : []);
+    props.setCurErrorMessages(!isEmpty(workflowsError) ? [workflowsError] : []);
   }, [workflowsError]);
   useEffect(() => {
-    setCurErrorMessages(props.workflow?.error ? [props.workflow.error] : []);
+    props.setCurErrorMessages(
+      props.workflow?.error ? [props.workflow.error] : []
+    );
   }, [props.workflow?.error]);
-
-  // auto-navigate to errors tab if new errors have been found
-  useEffect(() => {
-    if (curErrorMessages.length > 0) {
-      props.setSelectedTabId(INSPECTOR_TAB_ID.ERRORS);
-    }
-  }, [curErrorMessages]);
-
-  // auto-navigate to ingest tab if a populated value has been set, indicating ingest has been ran
-  useEffect(() => {
-    if (!isEmpty(props.ingestResponse)) {
-      props.setSelectedTabId(INSPECTOR_TAB_ID.INGEST);
-    }
-  }, [props.ingestResponse]);
 
   return (
     <EuiPanel
@@ -175,9 +159,6 @@ export function Tools(props: ToolsProps) {
           <EuiFlexGroup direction="column">
             <EuiFlexItem grow={true}>
               <>
-                {props.selectedTabId === INSPECTOR_TAB_ID.INGEST && (
-                  <Ingest ingestResponse={props.ingestResponse} />
-                )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.TEST && (
                   <Query
                     hasSearchPipeline={hasProvisionedSearchResources(
@@ -194,9 +175,6 @@ export function Tools(props: ToolsProps) {
                     queryParams={queryParams}
                     setQueryParams={setQueryParams}
                   />
-                )}
-                {props.selectedTabId === INSPECTOR_TAB_ID.ERRORS && (
-                  <Errors errorMessages={curErrorMessages} />
                 )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.RESOURCES && (
                   <Resources workflow={props.workflow} />
