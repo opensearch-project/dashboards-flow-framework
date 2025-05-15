@@ -36,6 +36,7 @@ interface ComponentInputProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   workflow: Workflow | undefined;
   lastIngested: number | undefined;
+  ingestUpdateRequired: boolean;
   readonly: boolean;
 }
 
@@ -149,6 +150,7 @@ export function ComponentInput(props: ComponentInputProps) {
             uiConfig={props.uiConfig}
             setIngestDocs={props.setIngestDocs}
             lastIngested={props.lastIngested}
+            ingestUpdateRequired={props.ingestUpdateRequired}
             disabled={props.readonly}
           />
         ) : isProcessorComponent(props.selectedComponentId) &&

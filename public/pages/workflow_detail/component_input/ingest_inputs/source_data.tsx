@@ -16,8 +16,10 @@ import {
   EuiEmptyPrompt,
   EuiPopover,
   EuiIcon,
+  EuiLink,
 } from '@elastic/eui';
 import {
+  BULK_API_DOCS_LINK,
   MapEntry,
   SOURCE_OPTIONS,
   Workflow,
@@ -28,13 +30,17 @@ import {
 } from '../../../../../common';
 import { SourceDataModal } from './source_data_modal';
 import { BulkPopoverContent } from './bulk_popover_content';
-import { getObjsFromJSONLines } from '../../../../utils';
+import {
+  getObjsFromJSONLines,
+  hasProvisionedIngestResources,
+} from '../../../../utils';
 
 interface SourceDataProps {
   workflow: Workflow | undefined;
   uiConfig: WorkflowConfig;
   setIngestDocs: (docs: string) => void;
   lastIngested: number | undefined;
+  ingestUpdateRequired: boolean;
   disabled: boolean;
 }
 
@@ -47,6 +53,7 @@ export function SourceData(props: SourceDataProps) {
   // empty/populated docs state
   const docs = getObjsFromJSONLines(getIn(values, 'ingest.docs', ''));
   const docsPopulated = docs.length > 0;
+  const ingestProvisioned = hasProvisionedIngestResources(props.workflow);
 
   // selected option state
   const [selectedOption, setSelectedOption] = useState<SOURCE_OPTIONS>(
@@ -186,7 +193,6 @@ export function SourceData(props: SourceDataProps) {
               <EuiCodeBlock
                 fontSize="s"
                 language="json"
-                overflowHeight={300}
                 isCopyable={false}
                 whiteSpace="pre"
                 paddingSize="none"
@@ -198,24 +204,40 @@ export function SourceData(props: SourceDataProps) {
         ) : (
           <EuiEmptyPrompt
             iconType="document"
-            title={<h2>No data imported</h2>}
+            title={
+              <h2>
+                {ingestProvisioned && !props.ingestUpdateRequired
+                  ? 'Sample data already ingested'
+                  : 'No data imported'}
+              </h2>
+            }
             titleSize="s"
             body={
               <>
                 <EuiText size="s">
-                  Import a data sample to start configuring your ingest flow.
+                  {ingestProvisioned
+                    ? props.ingestUpdateRequired
+                      ? 'Changes to ingest flow detected. Please provide sample data again.'
+                      : 'Import more data using the bulk API, or replace your existing data with different data.'
+                    : 'Import a data sample to start configuring your ingest flow.'}
+                  {ingestProvisioned && !props.ingestUpdateRequired && (
+                    <EuiLink href={BULK_API_DOCS_LINK} target="_blank">
+                      {` Learn more`}
+                    </EuiLink>
+                  )}
                 </EuiText>
                 <EuiSpacer size="m" />
                 <EuiSmallButton
                   fill={true}
-                  style={{ width: '130px' }}
                   disabled={props.disabled}
                   onClick={() => setIsEditModalOpen(true)}
                   data-testid="selectDataToImportButton"
                   iconType="plus"
                   iconSide="left"
                 >
-                  {`Import data`}
+                  {ingestProvisioned && !props.ingestUpdateRequired
+                    ? `Import different data`
+                    : `Import data`}
                 </EuiSmallButton>
               </>
             }

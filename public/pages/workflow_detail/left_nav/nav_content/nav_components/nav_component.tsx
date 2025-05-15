@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { isEmpty } from 'lodash';
 import {
   EuiCard,
   EuiFlexGroup,
@@ -11,9 +12,6 @@ import {
   EuiIcon,
   EuiText,
 } from '@elastic/eui';
-/**
- * Base component for rendering processor form inputs based on the processor type
- */
 
 interface NavComponentProps {
   title: string;
@@ -27,8 +25,8 @@ interface NavComponentProps {
 }
 
 /**
- * The base left navigation component. Used as a lightweight preview of the ingest and search
- * flows, as well as a way to click and navigate to the individual components of the flows.
+ * General, reusable component used for creating clickable components within
+ * the LeftNav navigation panel.
  */
 export function NavComponent(props: NavComponentProps) {
   return (
@@ -58,7 +56,13 @@ export function NavComponent(props: NavComponentProps) {
           )}
         </EuiFlexGroup>
       }
-      description={props.description || ''}
+      description={
+        !isEmpty(props.description) ? (
+          <EuiText size="xs" color="subdued">
+            {props.description}
+          </EuiText>
+        ) : undefined
+      }
       onClick={props.onClick ?? undefined}
       isDisabled={props.isDisabled ?? false}
       selectable={

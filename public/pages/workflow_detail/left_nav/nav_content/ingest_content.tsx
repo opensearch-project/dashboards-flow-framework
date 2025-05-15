@@ -56,6 +56,7 @@ interface IngestContentProps {
   setSelectedComponentId: (id: string) => void;
   setResourcesFlyoutOpen: (isOpen: boolean) => void;
   setResourcesFlyoutContext: (context: CONFIG_STEP) => void;
+  docsPopulated: boolean;
   ingestProvisioned: boolean;
   isProvisioningIngest: boolean;
   isUnsaved: boolean;
@@ -316,6 +317,13 @@ export function IngestContent(props: IngestContentProps) {
               }}
               isSelected={
                 props.selectedComponentId === COMPONENT_ID.SOURCE_DATA
+              }
+              description={
+                props.ingestProvisioned
+                  ? 'Sample data ingested'
+                  : props.docsPopulated
+                  ? 'Sample data added'
+                  : ''
               }
               // TODO: need to specially handle empty state for this component
               // isError={!isEmpty(getIn(errors, COMPONENT_ID.SOURCE_DATA))}

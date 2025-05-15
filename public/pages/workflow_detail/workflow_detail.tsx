@@ -80,11 +80,6 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   const dispatch = useAppDispatch();
   const history = useHistory();
 
-  // last ingested state
-  const [lastIngested, setLastIngested] = useState<number | undefined>(
-    undefined
-  );
-
   // On initial load:
   // - fetch workflow
   // - fetch available models & connectors as their IDs may be used when building flows
@@ -310,7 +305,6 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                       setIngestDocs={setIngestDocs}
                       setBlockNavigation={setBlockNavigation}
                       setCachedFormikState={setCachedFormikState}
-                      lastIngested={lastIngested}
                     />
                   </EuiFlexItem>
                 </EuiFlexGroup>

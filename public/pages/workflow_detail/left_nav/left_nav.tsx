@@ -74,6 +74,8 @@ interface LeftNavProps {
   setBlockNavigation: (blockNavigation: boolean) => void;
   displaySearchPanel: () => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
+  setLastIngested: (lastIngested: number) => void;
+  setIngestUpdateRequired: (ingestUpdateRequired: boolean) => void;
   selectedComponentId: string;
   setSelectedComponentId: (id: string) => void;
   setIngestReadonly: (readonly: boolean) => void;
@@ -122,11 +124,6 @@ export function LeftNav(props: LeftNavProps) {
   // provisioned resources states
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
   const [searchProvisioned, setSearchProvisioned] = useState<boolean>(false);
-
-  // last ingested state
-  const [lastIngested, setLastIngested] = useState<number | undefined>(
-    undefined
-  );
 
   // resource details state
   const [resourcesFlyoutOpen, setResourcesFlyoutOpen] = useState<boolean>(
@@ -321,6 +318,7 @@ export function LeftNav(props: LeftNavProps) {
   // update buttons eligibility
   const ingestUpdateRequired =
     ingestEnabled && ingestProvisioned && ingestTemplatesDifferent;
+  props.setIngestUpdateRequired(ingestUpdateRequired);
   const onIngestAndUpdateRequired = onIngest && ingestUpdateRequired;
 
   const searchUpdateRequired = searchProvisioned && searchTemplatesDifferent;
@@ -351,7 +349,7 @@ export function LeftNav(props: LeftNavProps) {
       .then(async (resp: any) => {
         props.setIngestResponse(customStringify(resp));
         setIsProvisioningIngest(false);
-        setLastIngested(Date.now());
+        props.setLastIngested(Date.now());
         getCore().notifications.toasts.add({
           id: SUCCESS_TOAST_ID,
           iconType: 'check',
@@ -808,6 +806,7 @@ export function LeftNav(props: LeftNavProps) {
                     setSelectedComponentId={props.setSelectedComponentId}
                     setResourcesFlyoutOpen={setResourcesFlyoutOpen}
                     setResourcesFlyoutContext={setResourcesFlyoutContext}
+                    docsPopulated={docsPopulated}
                     ingestProvisioned={ingestProvisioned}
                     isProvisioningIngest={isProvisioningIngest}
                     isUnsaved={ingestUpdateRequired}

@@ -36,7 +36,6 @@ interface ResizableWorkspaceProps {
   setIngestDocs: (docs: string) => void;
   setBlockNavigation: (blockNavigation: boolean) => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
-  lastIngested: number | undefined;
 }
 
 const WORKFLOW_INPUTS_PANEL_ID = 'workflow_inputs_panel_id';
@@ -50,6 +49,15 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [isToolsPanelOpen, setIsToolsPanelOpen] = useState<boolean>(true);
   // The global state for selected component ID.
   const [selectedComponentId, setSelectedComponentId] = useState<string>('');
+
+  // misc ingest-related state required to be shared across the left nav
+  // and ingest-related components
+  const [lastIngested, setLastIngested] = useState<number | undefined>(
+    undefined
+  );
+  const [ingestUpdateRequired, setIngestUpdateRequired] = useState<boolean>(
+    false
+  );
 
   // Readonly states for ingest and search. If there are unsaved changes in one context, block editing in the other.
   const [ingestReadonly, setIngestReadonly] = useState<boolean>(false);
@@ -105,6 +113,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 setIngestResponse={setIngestResponse}
                 ingestDocs={props.ingestDocs}
                 setIngestDocs={props.setIngestDocs}
+                setIngestUpdateRequired={setIngestUpdateRequired}
                 setBlockNavigation={props.setBlockNavigation}
                 displaySearchPanel={() => {
                   if (!isToolsPanelOpen) {
@@ -113,6 +122,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
                 }}
                 setCachedFormikState={props.setCachedFormikState}
+                setLastIngested={setLastIngested}
                 selectedComponentId={selectedComponentId}
                 setSelectedComponentId={setSelectedComponentId}
                 setIngestReadonly={setIngestReadonly}
@@ -133,7 +143,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 uiConfig={props.uiConfig as WorkflowConfig}
                 setUiConfig={props.setUiConfig}
                 setIngestDocs={props.setIngestDocs}
-                lastIngested={props.lastIngested}
+                lastIngested={lastIngested}
+                ingestUpdateRequired={ingestUpdateRequired}
                 readonly={
                   (onIngest && ingestReadonly) || (onSearch && searchReadonly)
                 }
