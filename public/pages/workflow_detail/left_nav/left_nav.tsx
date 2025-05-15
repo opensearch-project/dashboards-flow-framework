@@ -94,6 +94,7 @@ export function LeftNav(props: LeftNavProps) {
     validateForm,
     resetForm,
     setTouched,
+    setFieldTouched,
     values,
     dirty,
     touched,
@@ -644,6 +645,7 @@ export function LeftNav(props: LeftNavProps) {
   // to clean up any created resources and not have leftover / stale data in some index.
   // This is propagated by passing `reprovision=false` to validateAndUpdateWorkflow()
   async function validateAndRunIngestion(): Promise<boolean> {
+    setFieldTouched('ingest.docs', true);
     setIsProvisioningIngest(true);
     let success = false;
     try {
@@ -697,7 +699,7 @@ export function LeftNav(props: LeftNavProps) {
         }
       } else {
         getCore().notifications.toasts.addDanger(
-          'No valid document(s) provided in source data.'
+          'No valid document(s) provided in sample data.'
         );
       }
     } catch (error) {

@@ -70,7 +70,7 @@ export function IngestContent(props: IngestContentProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
 
-  const { values, errors, setFieldValue } = useFormikContext<
+  const { values, touched, errors, setFieldValue } = useFormikContext<
     WorkflowFormValues
   >();
 
@@ -325,8 +325,10 @@ export function IngestContent(props: IngestContentProps) {
                   ? 'Sample data added'
                   : ''
               }
-              // TODO: need to specially handle empty state for this component
-              // isError={!isEmpty(getIn(errors, COMPONENT_ID.SOURCE_DATA))}
+              isError={
+                getIn(touched, COMPONENT_ID.SOURCE_DATA) &&
+                !isEmpty(getIn(errors, COMPONENT_ID.SOURCE_DATA))
+              }
             />
           </EuiFlexItem>
           <DownArrow />
