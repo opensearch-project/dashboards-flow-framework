@@ -180,6 +180,7 @@ export function IngestContent(props: IngestContentProps) {
                       })
                       .finally(() => {
                         setFieldValue('ingest.enabled', false);
+                        setFieldValue('search.index.name', '');
                       });
 
                     setIsDeleting(false);
@@ -215,10 +216,21 @@ export function IngestContent(props: IngestContentProps) {
                 >
                   <EuiButtonEmpty
                     onClick={() => {
-                      // setFieldValue('ingest.enabled', !ingestEnabled);
                       if (ingestEnabled && props.ingestProvisioned) {
                         setDeleteModalOpen(true);
                       } else {
+                        // clear out or re-configure the search index, if disabling or enabling ingest, respectively
+                        if (ingestEnabled) {
+                          setFieldValue('search.index.name', '');
+                        } else {
+                          setFieldValue(
+                            'search.index.name',
+                            getIn(values, 'ingest.index.name')
+                          );
+                          props.setSelectedComponentId(
+                            COMPONENT_ID.SOURCE_DATA
+                          );
+                        }
                         setFieldValue('ingest.enabled', !ingestEnabled);
                       }
                       setPopoverOpen(false);

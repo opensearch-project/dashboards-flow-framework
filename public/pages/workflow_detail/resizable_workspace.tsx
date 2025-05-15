@@ -155,7 +155,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 selectedTabId={selectedInspectorTabId}
                 setSelectedTabId={setSelectedInspectorTabId}
                 uiConfig={props.uiConfig}
-                selectedComponentId={selectedComponentId}
               />
             </EuiResizablePanel>
           </>

@@ -17,7 +17,6 @@ import {
 } from '@elastic/eui';
 import { AppState } from '../../../store';
 import {
-  CONFIG_STEP,
   customStringify,
   FETCH_ALL_QUERY,
   INSPECTOR_TAB_ID,
@@ -45,7 +44,6 @@ interface ToolsProps {
   selectedTabId: INSPECTOR_TAB_ID;
   setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
   uiConfig?: WorkflowConfig;
-  selectedComponentId: string;
 }
 
 const PANEL_TITLE = 'Inspect flows';
@@ -216,7 +214,6 @@ export function Tools(props: ToolsProps) {
                     hasIngestResources={hasProvisionedIngestResources(
                       props.workflow
                     )}
-                    selectedComponentId={props.selectedComponentId}
                     queryRequest={queryRequest}
                     setQueryRequest={setQueryRequest}
                     queryResponse={queryResponse}

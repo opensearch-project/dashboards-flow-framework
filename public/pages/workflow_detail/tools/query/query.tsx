@@ -48,7 +48,6 @@ import { QueryParamsList, Results } from '../../../../general_components';
 interface QueryProps {
   hasSearchPipeline: boolean;
   hasIngestResources: boolean;
-  selectedComponentId: string;
   queryRequest: string;
   setQueryRequest: (queryRequest: string) => void;
   queryResponse: SearchResponse | undefined;
@@ -106,34 +105,28 @@ export function Query(props: QueryProps) {
     }
   }, [props.queryRequest]);
 
-  // TODO: update empty states to be dependent on if ingest is enabled/disabled.
-  // Now that all ingest & search is navigable on one page, there should be no
-  // confusing conditonal logic on the index to search on etc. Should be able to
-  // remove the selectedComponentId prop altogether.
-  // empty states
-  const noSearchIndex = isEmpty(values?.search?.index?.name);
-  const noSearchRequest = isEmpty(values?.search?.request);
-  const onIngestAndInvalid =
-    props.selectedComponentId.startsWith('ingest') && !props.hasIngestResources;
-  const onSearchAndInvalid =
-    props.selectedComponentId.startsWith('search') &&
-    (noSearchIndex || noSearchRequest);
-  const indexToSearch = props.selectedComponentId.startsWith('ingest')
-    ? values?.ingest?.index?.name
-    : !isEmpty(values?.search?.index?.name)
-    ? values?.search?.index?.name
-    : values?.ingest?.index?.name;
+  const ingestEnabled = values?.ingest?.enabled as boolean;
+  const ingestNotCreated = ingestEnabled && !props.hasIngestResources;
+  const searchNotConfigured =
+    !ingestEnabled && isEmpty(values?.search?.index?.name);
+  const noConfiguredIndex = ingestNotCreated || searchNotConfigured;
+  const indexToSearch =
+    ingestEnabled && props.hasIngestResources
+      ? values?.ingest?.index?.name
+      : !isEmpty(values?.search?.index?.name)
+      ? values?.search?.index?.name
+      : values?.ingest?.index?.name;
 
   return (
     <>
-      {onIngestAndInvalid || onSearchAndInvalid ? (
+      {noConfiguredIndex ? (
         <EuiEmptyPrompt
           title={<h2>Missing search configurations</h2>}
           titleSize="s"
           body={
             <>
               <EuiText size="s">
-                {onIngestAndInvalid
+                {ingestNotCreated
                   ? `Create an index and ingest data first.`
                   : `Configure a search request and an index to search against first.`}
               </EuiText>
@@ -244,8 +237,7 @@ export function Query(props: QueryProps) {
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiFlexGroup direction="row" gutterSize="s">
-                      {props.selectedComponentId.startsWith('search') &&
-                        !isEmpty(values?.search?.request) &&
+                      {!isEmpty(values?.search?.request) &&
                         values?.search?.request !== props.queryRequest && (
                           <EuiFlexItem
                             grow={false}
