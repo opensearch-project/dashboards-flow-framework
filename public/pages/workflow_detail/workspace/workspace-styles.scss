@@ -1,6 +1,37 @@
+.stretch-absolute {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.workflow-inputs-bottom-bar {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 10;
+}
+
 .workspace-panel {
+  position: relative;
   height: 100%;
 }
 
+.workspace-panel .euiFlexItem[style*="overflow"] {
+  padding-bottom: 60px; /* Space for bottom bar */
+}
 
+.console-wrapper {
+  flex: 0 0 auto;
+  border-top: 1px solid #D3DAE6;
+  background-color: #fff;
+  transition: height 0.3s ease-in-out;
+  z-index: 5;
+}
 
+#workflow_inputs_panel_id {
+  position: relative !important;
+  overflow: visible !important;
+}

@@ -20,33 +20,20 @@ import {
   WorkflowConfig,
   customStringify,
 } from '../../../common';
-import { isValidUiWorkflow, reduceToTemplate } from '../../utils';
+import {
+  isValidUiWorkflow,
+  reduceToTemplate,
+  USE_NEW_HOME_PAGE,
+} from '../../utils';
 import { WorkflowInputs } from './workflow_inputs';
 import { Workspace } from './workspace';
 import { Tools } from './tools';
+import { Console } from './tools/console';
 
 // styling
 import './workspace/workspace-styles.scss';
 import '../../global-styles.scss';
-import { Console } from './tools/console';
 
-// styles for console component
-const consoleStyles = `
-  .workflow-detail-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-    position: relative;
-  }
-  
-  .console-wrapper {
-    flex: 0 0 auto;
-    border-top: 1px solid #D3DAE6;
-    background-color: #fff;
-    transition: height 0.3s ease-in-out;
-  }
-`;
 interface ResizableWorkspaceProps {
   workflow: Workflow | undefined;
   uiConfig: WorkflowConfig | undefined;
@@ -73,16 +60,6 @@ const TOOLS_PANEL_ID = 'tools_panel_id';
  * panels - the ReactFlow workspace panel and the selected component details panel.
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
-  useEffect(() => {
-    const styleElement = document.createElement('style');
-    styleElement.textContent = consoleStyles;
-    document.head.appendChild(styleElement);
-
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, []);
-
   // Preview side panel state. This panel encapsulates the tools panel as a child resizable panel.
   const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState<boolean>(true);
   const collapseFnHorizontal = useRef(
@@ -105,8 +82,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     setIsToolsPanelOpen(!isToolsPanelOpen);
   };
 
-  const [isConsoleExpanded, setIsConsoleExpanded] = useState<boolean>(false);
-
   // Inspector panel state vars. Actions taken in the form can update the Inspector panel,
   // hence we keep top-level vars here to pass to both form and inspector components.
   const [ingestResponse, setIngestResponse] = useState<string>('');
@@ -114,21 +89,13 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     INSPECTOR_TAB_ID
   >(INSPECTOR_TAB_ID.TEST);
 
+  // Console state
+  const [isConsoleExpanded, setIsConsoleExpanded] = useState<boolean>(false);
   const [curErrorMessages, setCurErrorMessages] = useState<(string | any)[]>(
     []
   );
 
-  useEffect(() => {
-    console.log('curErrorMessages changed:', curErrorMessages?.length || 0);
-  }, [curErrorMessages]);
-
-  useEffect(() => {
-    console.log(
-      'ingestResponse changed:',
-      !!ingestResponse && ingestResponse.length > 0
-    );
-  }, [ingestResponse]);
-
+  // Console visibility effects
   useEffect(() => {
     if (curErrorMessages.length > 0 && !isConsoleExpanded) {
       setIsConsoleExpanded(true);
@@ -171,143 +138,185 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }, [props.workflow]);
 
-  console.log('Before render - errorMessages:', curErrorMessages?.length || 0);
-  console.log(
-    'Before render - ingestResponse:',
-    !!ingestResponse && ingestResponse.length > 0
-  );
+  // Set up the styles for the console
+  useEffect(() => {
+    const consoleStyles = `
+      .console-wrapper {
+        flex: 0 0 auto;
+        border-top: 1px solid #D3DAE6;
+        background-color: #fff;
+        transition: height 0.3s ease-in-out;
+        position: relative;
+        z-index: 5;
+      }
+    `;
+
+    const styleElement = document.createElement('style');
+    styleElement.textContent = consoleStyles;
+    document.head.appendChild(styleElement);
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   return isValidWorkflow ? (
-    <div className="workflow-detail-container">
-      <EuiResizableContainer
-        direction="horizontal"
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        position: 'relative',
+      }}
+    >
+      {/* Main resizable area - adjust height to account for console */}
+      <div
         style={{
-          marginTop: '8px',
-          height: '100%',
-          gap: '4px',
+          flex: 1,
+          overflow: 'hidden',
+          position: 'relative',
         }}
       >
-        {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
-          if (togglePanel) {
-            collapseFnHorizontal.current = (panelId: string, { direction }) =>
-              togglePanel(panelId, { direction });
-          }
-          return (
-            <>
-              <EuiResizablePanel
-                id={WORKFLOW_INPUTS_PANEL_ID}
-                mode="main"
-                initialSize={60}
-                minSize="25%"
-                paddingSize="none"
-                scrollable={false}
-                style={{ position: 'relative', overflow: 'hidden' }}
-              >
-                <WorkflowInputs
-                  workflow={props.workflow}
-                  uiConfig={props.uiConfig}
-                  setUiConfig={props.setUiConfig}
-                  setIngestResponse={setIngestResponse}
-                  ingestDocs={props.ingestDocs}
-                  setIngestDocs={props.setIngestDocs}
-                  isRunningIngest={props.isRunningIngest}
-                  setIsRunningIngest={props.setIsRunningIngest}
-                  isRunningSearch={props.isRunningSearch}
-                  setIsRunningSearch={props.setIsRunningSearch}
-                  selectedStep={props.selectedStep}
-                  setSelectedStep={props.setSelectedStep}
-                  setUnsavedIngestProcessors={props.setUnsavedIngestProcessors}
-                  setUnsavedSearchProcessors={props.setUnsavedSearchProcessors}
-                  displaySearchPanel={() => {
-                    if (!isToolsPanelOpen) {
-                      onToggleToolsChange();
-                    }
-                    setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
-                  }}
-                  setCachedFormikState={props.setCachedFormikState}
-                />
-              </EuiResizablePanel>
-              <EuiResizableButton />
-              <EuiResizablePanel
-                id={PREVIEW_PANEL_ID}
-                mode="collapsible"
-                initialSize={40}
-                minSize="25%"
-                paddingSize="none"
-                borderRadius="l"
-                onToggleCollapsedInternal={() => onTogglePreviewChange()}
-              >
-                <EuiResizableContainer
-                  className="workspace-panel"
-                  direction="vertical"
-                  style={{
-                    gap: '4px',
-                  }}
+        <EuiResizableContainer
+          direction="horizontal"
+          className="stretch-absolute"
+          style={{
+            marginTop: USE_NEW_HOME_PAGE ? '0' : '58px',
+            height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 58px)',
+            gap: '4px',
+            overflow: 'hidden',
+          }}
+        >
+          {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
+            if (togglePanel) {
+              collapseFnHorizontal.current = (panelId: string, { direction }) =>
+                togglePanel(panelId, { direction });
+            }
+            return (
+              <>
+                <EuiResizablePanel
+                  id={WORKFLOW_INPUTS_PANEL_ID}
+                  mode="main"
+                  initialSize={60}
+                  minSize="25%"
+                  paddingSize="none"
+                  scrollable={false}
                 >
-                  {(EuiResizablePanel, EuiResizableButton, { togglePanel }) => {
-                    if (togglePanel) {
-                      collapseFnVertical.current = (
-                        panelId: string,
-                        { direction }
-                      ) =>
-                        // ignore is added since docs are incorrectly missing "top" and "bottom"
-                        // as valid direction options for vertically-configured resizable panels.
-                        // @ts-ignore
-                        togglePanel(panelId, { direction });
+                  <WorkflowInputs
+                    workflow={props.workflow}
+                    uiConfig={props.uiConfig}
+                    setUiConfig={props.setUiConfig}
+                    setIngestResponse={setIngestResponse}
+                    ingestDocs={props.ingestDocs}
+                    setIngestDocs={props.setIngestDocs}
+                    isRunningIngest={props.isRunningIngest}
+                    setIsRunningIngest={props.setIsRunningIngest}
+                    isRunningSearch={props.isRunningSearch}
+                    setIsRunningSearch={props.setIsRunningSearch}
+                    selectedStep={props.selectedStep}
+                    setSelectedStep={props.setSelectedStep}
+                    setUnsavedIngestProcessors={
+                      props.setUnsavedIngestProcessors
                     }
-                    return (
-                      <>
-                        <EuiResizablePanel
-                          mode="main"
-                          initialSize={60}
-                          minSize="25%"
-                          paddingSize="none"
-                          borderRadius="l"
-                        >
-                          <EuiFlexGroup
-                            direction="column"
-                            gutterSize="none"
-                            style={{ height: '100%' }}
+                    setUnsavedSearchProcessors={
+                      props.setUnsavedSearchProcessors
+                    }
+                    displaySearchPanel={() => {
+                      if (!isToolsPanelOpen) {
+                        onToggleToolsChange();
+                      }
+                      setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
+                    }}
+                    setCachedFormikState={props.setCachedFormikState}
+                  />
+                </EuiResizablePanel>
+                <EuiResizableButton />
+                <EuiResizablePanel
+                  id={PREVIEW_PANEL_ID}
+                  mode="collapsible"
+                  initialSize={40}
+                  minSize="25%"
+                  paddingSize="none"
+                  borderRadius="l"
+                  onToggleCollapsedInternal={() => onTogglePreviewChange()}
+                >
+                  <EuiResizableContainer
+                    className="workspace-panel"
+                    direction="vertical"
+                    style={{
+                      gap: '4px',
+                    }}
+                  >
+                    {(
+                      EuiResizablePanel,
+                      EuiResizableButton,
+                      { togglePanel }
+                    ) => {
+                      if (togglePanel) {
+                        collapseFnVertical.current = (
+                          panelId: string,
+                          { direction }
+                        ) =>
+                          // ignore is added since docs are incorrectly missing "top" and "bottom"
+                          // as valid direction options for vertically-configured resizable panels.
+                          // @ts-ignore
+                          togglePanel(panelId, { direction });
+                      }
+                      return (
+                        <>
+                          <EuiResizablePanel
+                            mode="main"
+                            initialSize={60}
+                            minSize="25%"
+                            paddingSize="none"
+                            borderRadius="l"
                           >
-                            <EuiFlexItem>
-                              <Workspace
-                                workflow={props.workflow}
-                                uiConfig={props.uiConfig}
-                              />
-                            </EuiFlexItem>
-                          </EuiFlexGroup>
-                        </EuiResizablePanel>
-                        <EuiResizableButton />
-                        <EuiResizablePanel
-                          id={TOOLS_PANEL_ID}
-                          mode="collapsible"
-                          initialSize={50}
-                          minSize="25%"
-                          paddingSize="none"
-                          borderRadius="l"
-                          onToggleCollapsedInternal={() =>
-                            onToggleToolsChange()
-                          }
-                        >
-                          <Tools
-                            workflow={props.workflow}
-                            ingestResponse={ingestResponse}
-                            selectedTabId={selectedInspectorTabId}
-                            setSelectedTabId={setSelectedInspectorTabId}
-                            selectedStep={props.selectedStep}
-                            setCurErrorMessages={setCurErrorMessages}
-                          />
-                        </EuiResizablePanel>
-                      </>
-                    );
-                  }}
-                </EuiResizableContainer>
-              </EuiResizablePanel>
-            </>
-          );
-        }}
-      </EuiResizableContainer>
+                            <EuiFlexGroup
+                              direction="column"
+                              gutterSize="none"
+                              style={{ height: '100%' }}
+                            >
+                              <EuiFlexItem>
+                                <Workspace
+                                  workflow={props.workflow}
+                                  uiConfig={props.uiConfig}
+                                />
+                              </EuiFlexItem>
+                            </EuiFlexGroup>
+                          </EuiResizablePanel>
+                          <EuiResizableButton />
+                          <EuiResizablePanel
+                            id={TOOLS_PANEL_ID}
+                            mode="collapsible"
+                            initialSize={50}
+                            minSize="25%"
+                            paddingSize="none"
+                            borderRadius="l"
+                            onToggleCollapsedInternal={() =>
+                              onToggleToolsChange()
+                            }
+                          >
+                            <Tools
+                              workflow={props.workflow}
+                              ingestResponse={ingestResponse}
+                              selectedTabId={selectedInspectorTabId}
+                              setSelectedTabId={setSelectedInspectorTabId}
+                              selectedStep={props.selectedStep}
+                              setCurErrorMessages={setCurErrorMessages}
+                            />
+                          </EuiResizablePanel>
+                        </>
+                      );
+                    }}
+                  </EuiResizableContainer>
+                </EuiResizablePanel>
+              </>
+            );
+          }}
+        </EuiResizableContainer>
+      </div>
 
+      {/* Console section */}
       <div
         className="console-wrapper"
         style={{
