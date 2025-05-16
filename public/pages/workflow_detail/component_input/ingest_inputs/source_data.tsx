@@ -54,6 +54,8 @@ export function SourceData(props: SourceDataProps) {
   const docs = getObjsFromJSONLines(getIn(values, 'ingest.docs', ''));
   const docsPopulated = docs.length > 0;
   const ingestProvisioned = hasProvisionedIngestResources(props.workflow);
+  const ingestProvisionedAndNoUpdate =
+    ingestProvisioned && !props.ingestUpdateRequired;
 
   // selected option state
   const [selectedOption, setSelectedOption] = useState<SOURCE_OPTIONS>(
@@ -206,7 +208,7 @@ export function SourceData(props: SourceDataProps) {
             iconType="document"
             title={
               <h2>
-                {ingestProvisioned && !props.ingestUpdateRequired
+                {ingestProvisionedAndNoUpdate
                   ? 'Sample data already ingested'
                   : 'No data imported'}
               </h2>
@@ -214,31 +216,33 @@ export function SourceData(props: SourceDataProps) {
             titleSize="s"
             body={
               <>
-                <EuiText size="s">
-                  {ingestProvisioned
-                    ? props.ingestUpdateRequired
-                      ? 'Changes to ingest flow detected. Please provide sample data again.'
-                      : 'Import more data using the bulk API, or replace your existing data with different data.'
-                    : 'Import a data sample to start configuring your ingest flow.'}
-                  {ingestProvisioned && !props.ingestUpdateRequired && (
+                {ingestProvisionedAndNoUpdate ? (
+                  <EuiText size="s">
+                    Ingest more data to your index using the{' '}
                     <EuiLink href={BULK_API_DOCS_LINK} target="_blank">
-                      {` Learn more`}
+                      {` bulk API`}
                     </EuiLink>
-                  )}
-                </EuiText>
+                  </EuiText>
+                ) : (
+                  <EuiText size="s">
+                    {ingestProvisioned
+                      ? 'Changes to ingest flow detected. Please provide sample data again.'
+                      : 'Import a data sample to start configuring your ingest flow.'}
+                  </EuiText>
+                )}
                 <EuiSpacer size="m" />
-                <EuiSmallButton
-                  fill={true}
-                  disabled={props.disabled}
-                  onClick={() => setIsEditModalOpen(true)}
-                  data-testid="selectDataToImportButton"
-                  iconType="plus"
-                  iconSide="left"
-                >
-                  {ingestProvisioned && !props.ingestUpdateRequired
-                    ? `Import different data`
-                    : `Import data`}
-                </EuiSmallButton>
+                {!ingestProvisionedAndNoUpdate && (
+                  <EuiSmallButton
+                    fill={true}
+                    disabled={props.disabled}
+                    onClick={() => setIsEditModalOpen(true)}
+                    data-testid="selectDataToImportButton"
+                    iconType="plus"
+                    iconSide="left"
+                  >
+                    Import data
+                  </EuiSmallButton>
+                )}
               </>
             }
           />
