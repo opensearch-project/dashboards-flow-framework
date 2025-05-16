@@ -18,7 +18,6 @@ import {
   EuiCodeBlock,
   EuiSmallButtonEmpty,
   EuiCallOut,
-  EuiIcon,
 } from '@elastic/eui';
 import { WorkflowFormValues } from '../../../../../common';
 import { AppState } from '../../../../store';
@@ -123,18 +122,6 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
         />
       )}
       <EuiFlexGroup direction="column" gutterSize="s">
-        <EuiFlexItem grow={false}>
-          <EuiFlexGroup direction="row" gutterSize="s">
-            <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
-              <EuiIcon type="editorCodeBlock" size="m" />
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiText size="s">
-                <h3>Search request</h3>
-              </EuiText>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiCompressedFormRow label="Index">
             {ingestEnabled ? (

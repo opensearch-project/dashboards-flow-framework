@@ -29,11 +29,6 @@ export function IngestData(props: IngestDataProps) {
 
   return (
     <EuiFlexGroup direction="column">
-      <EuiFlexItem grow={false}>
-        <EuiText size="s">
-          <h3>Ingest data</h3>
-        </EuiText>
-      </EuiFlexItem>
       {hasInvalidDimensions && (
         <EuiCallOut
           style={{ marginLeft: '14px' }}

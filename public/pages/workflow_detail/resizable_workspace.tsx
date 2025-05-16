@@ -50,6 +50,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // The global state for selected component ID.
   const [selectedComponentId, setSelectedComponentId] = useState<string>('');
 
+  const [leftNavOpen, setLeftNavOpen] = useState<boolean>(true);
+
   // misc ingest-related state required to be shared across the left nav
   // and ingest-related components
   const [lastIngested, setLastIngested] = useState<number | undefined>(
@@ -105,29 +107,32 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         }
         return (
           <>
-            <div className="left-nav-static-width">
-              <LeftNav
-                workflow={props.workflow}
-                uiConfig={props.uiConfig}
-                setUiConfig={props.setUiConfig}
-                setIngestResponse={setIngestResponse}
-                ingestDocs={props.ingestDocs}
-                setIngestDocs={props.setIngestDocs}
-                setIngestUpdateRequired={setIngestUpdateRequired}
-                setBlockNavigation={props.setBlockNavigation}
-                displaySearchPanel={() => {
-                  if (!isToolsPanelOpen) {
-                    onToggleToolsChange();
-                  }
-                  setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
-                }}
-                setCachedFormikState={props.setCachedFormikState}
-                setLastIngested={setLastIngested}
-                selectedComponentId={selectedComponentId}
-                setSelectedComponentId={setSelectedComponentId}
-                setIngestReadonly={setIngestReadonly}
-                setSearchReadonly={setSearchReadonly}
-              />
+            <div className={leftNavOpen ? 'left-nav-static-width' : undefined}>
+              {leftNavOpen ? (
+                <LeftNav
+                  workflow={props.workflow}
+                  uiConfig={props.uiConfig}
+                  setUiConfig={props.setUiConfig}
+                  setIngestResponse={setIngestResponse}
+                  ingestDocs={props.ingestDocs}
+                  setIngestDocs={props.setIngestDocs}
+                  setIngestUpdateRequired={setIngestUpdateRequired}
+                  setBlockNavigation={props.setBlockNavigation}
+                  displaySearchPanel={() => {
+                    if (!isToolsPanelOpen) {
+                      onToggleToolsChange();
+                    }
+                    setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
+                  }}
+                  setCachedFormikState={props.setCachedFormikState}
+                  setLastIngested={setLastIngested}
+                  selectedComponentId={selectedComponentId}
+                  setSelectedComponentId={setSelectedComponentId}
+                  setIngestReadonly={setIngestReadonly}
+                  setSearchReadonly={setSearchReadonly}
+                  onClose={() => setLeftNavOpen(false)}
+                />
+              ) : undefined}
             </div>
             <EuiResizablePanel
               id={WORKFLOW_INPUTS_PANEL_ID}
@@ -148,6 +153,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 readonly={
                   (onIngest && ingestReadonly) || (onSearch && searchReadonly)
                 }
+                leftNavOpen={leftNavOpen}
+                openLeftNav={() => setLeftNavOpen(true)}
               />
             </EuiResizablePanel>
             <EuiResizableButton />

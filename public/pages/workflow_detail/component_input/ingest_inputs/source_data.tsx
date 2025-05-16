@@ -15,7 +15,6 @@ import {
   EuiSmallButtonEmpty,
   EuiEmptyPrompt,
   EuiPopover,
-  EuiIcon,
   EuiLink,
 } from '@elastic/eui';
 import {
@@ -115,19 +114,7 @@ export function SourceData(props: SourceDataProps) {
       )}
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
-          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup direction="row" gutterSize="s">
-                <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
-                  <EuiIcon type="document" size="m" />
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiText size="s">
-                    <h3>Sample data</h3>
-                  </EuiText>
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiFlexItem>
+          <EuiFlexGroup direction="row" justifyContent="flexEnd">
             {docsPopulated && (
               <EuiFlexItem grow={false}>
                 <EuiSmallButtonEmpty

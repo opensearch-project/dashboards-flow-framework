@@ -17,6 +17,7 @@ import {
   EuiSmallButtonIcon,
   EuiSpacer,
   EuiText,
+  EuiTitle,
 } from '@elastic/eui';
 import { IngestContent, SearchContent } from './nav_content';
 import {
@@ -81,6 +82,7 @@ interface LeftNavProps {
   setSelectedComponentId: (id: string) => void;
   setIngestReadonly: (readonly: boolean) => void;
   setSearchReadonly: (readonly: boolean) => void;
+  onClose: () => void;
 }
 
 const SUCCESS_TOAST_ID = 'success_toast_id';
@@ -777,7 +779,27 @@ export function LeftNav(props: LeftNavProps) {
         grow={false}
         className="workspace-panel left-nav-static-width"
         borderRadius="l"
+        style={{ paddingBottom: '48px' }}
       >
+        <EuiFlexItem grow={false}>
+          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+            <EuiFlexItem grow={false}>
+              <EuiTitle>
+                <h3>Flow overview</h3>
+              </EuiTitle>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiSmallButtonIcon
+                data-testid="hideLeftNavButton"
+                display="base"
+                iconType={'menuLeft'}
+                onClick={() => {
+                  props.onClose();
+                }}
+              />
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiFlexItem>
         <EuiFlexGroup
           direction="column"
           justifyContent="spaceBetween"
@@ -805,7 +827,7 @@ export function LeftNav(props: LeftNavProps) {
                   gutterSize="none"
                   style={{
                     height: '100%',
-                    gap: '16px',
+                    gap: '4px',
                   }}
                 >
                   <IngestContent
@@ -823,7 +845,7 @@ export function LeftNav(props: LeftNavProps) {
                     isUnsaved={ingestUpdateRequired}
                     readonly={searchUpdateRequired}
                   />
-                  <EuiHorizontalRule margin="s" />
+                  <EuiHorizontalRule margin="xs" />
                   <SearchContent
                     uiConfig={props.uiConfig}
                     setUiConfig={props.setUiConfig}

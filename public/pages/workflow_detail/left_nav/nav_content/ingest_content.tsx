@@ -130,7 +130,7 @@ export function IngestContent(props: IngestContentProps) {
       id="ingestContentAccordion"
       buttonContent={
         <EuiText size="s">
-          <h2>{'Ingest flow'}</h2>
+          <h3>{'Ingest flow'}</h3>
         </EuiText>
       }
       extraAction={
@@ -299,10 +299,10 @@ export function IngestContent(props: IngestContentProps) {
               )}
               <EuiFlexItem
                 grow={false}
-                style={{ marginLeft: '8px', marginTop: '12px' }}
+                style={{ marginLeft: '8px', marginTop: '16px' }}
               >
                 <EuiHealth
-                  textSize="m"
+                  textSize="s"
                   color={
                     props.isProvisioningIngest
                       ? 'subdued'

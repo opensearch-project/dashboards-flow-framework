@@ -54,7 +54,7 @@ export function SearchContent(props: SearchContentProps) {
       id="searchContentAccordion"
       buttonContent={
         <EuiText size="s">
-          <h2>{'Search flow'}</h2>
+          <h3>{'Search flow'}</h3>
         </EuiText>
       }
       extraAction={
@@ -86,10 +86,10 @@ export function SearchContent(props: SearchContentProps) {
               )}
               <EuiFlexItem
                 grow={false}
-                style={{ marginLeft: '8px', marginTop: '12px' }}
+                style={{ marginLeft: '8px', marginTop: '16px' }}
               >
                 <EuiHealth
-                  textSize="m"
+                  textSize="s"
                   color={
                     props.isProvisioningSearch
                       ? 'subdued'

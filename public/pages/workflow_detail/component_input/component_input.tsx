@@ -6,13 +6,17 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   EuiCallOut,
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiHorizontalRule,
+  EuiIcon,
   EuiPanel,
-  EuiText,
+  EuiSmallButtonIcon,
+  EuiTitle,
 } from '@elastic/eui';
 import { SourceData, IngestData } from './ingest_inputs';
 import { ConfigureSearchRequest } from './search_inputs';
@@ -38,6 +42,8 @@ interface ComponentInputProps {
   lastIngested: number | undefined;
   ingestUpdateRequired: boolean;
   readonly: boolean;
+  leftNavOpen: boolean; // optionally show a button to expand out the left nav, if it is collapsed
+  openLeftNav: () => void;
 }
 
 /**
@@ -127,6 +133,67 @@ export function ComponentInput(props: ComponentInputProps) {
     }
   }, [ingestPipelineErrors, searchPipelineErrors, processor]);
 
+  function getComponentButton() {
+    return !props.leftNavOpen ? (
+      <EuiFlexItem grow={false}>
+        <EuiSmallButtonIcon
+          data-testid="showOrHideSearchPanelButton"
+          display="base"
+          iconType={'menuRight'}
+          onClick={() => {
+            props.openLeftNav();
+          }}
+        />
+      </EuiFlexItem>
+    ) : undefined;
+  }
+
+  function getComponentIcon() {
+    let iconType = undefined as string | undefined;
+    switch (props.selectedComponentId) {
+      case COMPONENT_ID.SOURCE_DATA: {
+        iconType = 'document';
+        break;
+      }
+      case COMPONENT_ID.INGEST_DATA: {
+        iconType = 'indexSettings';
+        break;
+      }
+      case COMPONENT_ID.SEARCH_REQUEST: {
+        iconType = 'editorCodeBlock';
+        break;
+      }
+    }
+    return iconType !== undefined ? (
+      <EuiFlexItem grow={false} style={{ paddingTop: '6px' }}>
+        <EuiIcon type={iconType} size="m" />
+      </EuiFlexItem>
+    ) : undefined;
+  }
+
+  function getComponentTitle() {
+    let componentTitle = undefined as string | undefined;
+    if (props.selectedComponentId === COMPONENT_ID.SOURCE_DATA) {
+      componentTitle = 'Sample data';
+    } else if (
+      isProcessorComponent(props.selectedComponentId) &&
+      processor !== undefined
+    ) {
+      componentTitle = processor.name;
+    } else if (props.selectedComponentId === COMPONENT_ID.INGEST_DATA) {
+      componentTitle = 'Index';
+    } else if (props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST) {
+      componentTitle = 'Search request';
+    }
+    return componentTitle !== undefined ? (
+      <EuiFlexItem grow={false}>
+        <EuiTitle size="s">
+          <h3>{componentTitle}</h3>
+        </EuiTitle>
+      </EuiFlexItem>
+    ) : undefined;
+  }
+
   return (
     <EuiPanel
       paddingSize="s"
@@ -139,6 +206,14 @@ export function ComponentInput(props: ComponentInputProps) {
         overflowY: 'scroll',
       }}
     >
+      <EuiFlexGroup direction="row" gutterSize="s">
+        {getComponentButton()}
+        {getComponentIcon()}
+        {getComponentTitle()}
+      </EuiFlexGroup>
+      {!isEmpty(props.selectedComponentId) && (
+        <EuiHorizontalRule margin="s" style={{ marginTop: '6px' }} />
+      )}
       {/**
        * Extra paddding added to the parent EuiFlexItem to account for overflow
        * within the resizable panel, which has truncation issues otherwise.
@@ -172,11 +247,6 @@ export function ComponentInput(props: ComponentInputProps) {
                 </EuiCallOut>
               </EuiFlexItem>
             )}
-            <EuiFlexItem grow={false}>
-              <EuiText size="s">
-                <h3>{processor.name}</h3>
-              </EuiText>
-            </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <ProcessorInputs
                 uiConfig={props.uiConfig}
