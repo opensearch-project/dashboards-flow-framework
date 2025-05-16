@@ -710,6 +710,7 @@ export function LeftNav(props: LeftNavProps) {
         getCore().notifications.toasts.addDanger(
           'No valid document(s) provided in sample data.'
         );
+        setFieldTouched('ingest.docs', true);
       }
     } catch (error) {
       console.error('Error ingesting documents: ', error);

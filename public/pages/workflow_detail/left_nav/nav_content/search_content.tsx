@@ -127,8 +127,9 @@ export function SearchContent(props: SearchContentProps) {
               props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST
             }
             isError={
-              !isEmpty(getIn(errors, COMPONENT_ID.SEARCH_REQUEST)) ||
-              !isEmpty(getIn(errors, 'search.index.name'))
+              (!isEmpty(getIn(errors, COMPONENT_ID.SEARCH_REQUEST)) ||
+                !isEmpty(getIn(errors, 'search.index.name'))) &&
+              props.isUnsaved
             }
           />
         </EuiFlexItem>

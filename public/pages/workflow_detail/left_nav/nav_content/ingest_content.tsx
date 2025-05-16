@@ -107,6 +107,23 @@ export function IngestContent(props: IngestContentProps) {
     );
   }, [props.workflow]);
 
+  // Calculate the error state of the source data component.
+  const [sourceDataError, setSourceDataError] = useState<boolean>(false);
+  useEffect(() => {
+    const hasError = !isEmpty(getIn(errors, COMPONENT_ID.SOURCE_DATA));
+    const isTouched = getIn(touched, COMPONENT_ID.SOURCE_DATA);
+    setSourceDataError(
+      (hasError && isTouched && props.isUnsaved) ||
+        (isTouched && !props.ingestProvisioned && !props.docsPopulated)
+    );
+  }, [
+    errors,
+    touched,
+    props.isUnsaved,
+    props.ingestProvisioned,
+    props.docsPopulated,
+  ]);
+
   return (
     <EuiAccordion
       initialIsOpen={true}
@@ -332,10 +349,7 @@ export function IngestContent(props: IngestContentProps) {
                   ? 'Sample data added'
                   : ''
               }
-              isError={
-                getIn(touched, COMPONENT_ID.SOURCE_DATA) &&
-                !isEmpty(getIn(errors, COMPONENT_ID.SOURCE_DATA))
-              }
+              isError={sourceDataError}
             />
           </EuiFlexItem>
           <DownArrow />
