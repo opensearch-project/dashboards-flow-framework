@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   EuiCompressedFieldText,
   EuiFlexGroup,
@@ -157,7 +158,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                   setFieldValue(searchIndexNameFormPath, option);
                   setFieldTouched(searchIndexNameFormPath, true);
                 }}
-                isInvalid={selectedIndex === undefined}
+                isInvalid={isEmpty(selectedIndex)}
                 disabled={props.disabled}
               />
             )}

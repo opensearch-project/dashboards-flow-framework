@@ -126,7 +126,10 @@ export function SearchContent(props: SearchContentProps) {
             isSelected={
               props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST
             }
-            isError={!isEmpty(getIn(errors, COMPONENT_ID.SEARCH_REQUEST))}
+            isError={
+              !isEmpty(getIn(errors, COMPONENT_ID.SEARCH_REQUEST)) ||
+              !isEmpty(getIn(errors, 'search.index.name'))
+            }
           />
         </EuiFlexItem>
         <DownArrow />

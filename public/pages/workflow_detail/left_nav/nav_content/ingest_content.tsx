@@ -178,12 +178,9 @@ export function IngestContent(props: IngestContentProps) {
                         console.error(
                           `Failed to delete resources for ${props.workflow?.name}: ${err}`
                         );
-                      })
-                      .finally(() => {
-                        setFieldValue('ingest.enabled', false);
-                        setFieldValue('search.index.name', '');
                       });
-
+                    setFieldValue('ingest.enabled', false);
+                    setFieldValue('search.index.name', '');
                     setIsDeleting(false);
                     setDeleteModalOpen(false);
                   }}

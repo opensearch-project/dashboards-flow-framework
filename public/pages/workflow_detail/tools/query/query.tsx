@@ -134,7 +134,7 @@ export function Query(props: QueryProps) {
           }
         />
       ) : (
-        <EuiFlexGroup direction="row" style={{ paddingBottom: '24px' }}>
+        <EuiFlexGroup direction="row" style={{ paddingBottom: '36px' }}>
           <EuiFlexItem>
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem grow={false}>
