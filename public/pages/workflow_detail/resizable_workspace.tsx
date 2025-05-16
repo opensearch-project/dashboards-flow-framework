@@ -141,6 +141,27 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }, [ingestResponse]);
 
+  // Ensure preview panel is visible when important state changes occur
+  useEffect(() => {
+    if (
+      !isPreviewPanelOpen &&
+      (props.isRunningIngest ||
+        props.isRunningSearch ||
+        ingestResponse.length > 0 ||
+        curErrorMessages.length > 0)
+    ) {
+      collapseFnHorizontal.current(PREVIEW_PANEL_ID, {
+        direction: 'right',
+      });
+      setIsPreviewPanelOpen(true);
+    }
+  }, [
+    props.isRunningIngest,
+    props.isRunningSearch,
+    ingestResponse,
+    curErrorMessages,
+  ]);
+
   // is valid workflow state, + associated hook to set it as such
   const [isValidWorkflow, setIsValidWorkflow] = useState<boolean>(true);
   useEffect(() => {
@@ -180,6 +201,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 minSize="25%"
                 paddingSize="none"
                 scrollable={false}
+                style={{ position: 'relative', overflow: 'hidden' }}
               >
                 <WorkflowInputs
                   workflow={props.workflow}
@@ -209,7 +231,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               <EuiResizablePanel
                 id={PREVIEW_PANEL_ID}
                 mode="collapsible"
-                initialSize={60}
+                initialSize={40}
                 minSize="25%"
                 paddingSize="none"
                 borderRadius="l"
@@ -285,19 +307,25 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           );
         }}
       </EuiResizableContainer>
-      {console.log('Console component about to render')}
 
       <div
         className="console-wrapper"
-        style={{ height: isConsoleExpanded ? '250px' : '40px' }}
+        style={{
+          height: isConsoleExpanded ? '200px' : '40px',
+          overflow: 'hidden',
+        }}
       >
         <Console
           isVisible={isConsoleExpanded}
           setIsVisible={setIsConsoleExpanded}
           errorMessages={curErrorMessages}
           ingestResponse={ingestResponse}
+          onClose={() => {
+            setIsConsoleExpanded(false);
+            setCurErrorMessages([]);
+            setIngestResponse('');
+          }}
         />
-        {console.log('Console component rendered')}
       </div>
     </div>
   ) : (

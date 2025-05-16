@@ -20,6 +20,7 @@ interface ConsoleProps {
   setIsVisible: (isVisible: boolean) => void;
   errorMessages: (string | ReactNode)[];
   ingestResponse: string;
+  onClose?: () => void;
 }
 
 /**

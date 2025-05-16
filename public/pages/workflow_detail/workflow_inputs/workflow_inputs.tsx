@@ -88,12 +88,16 @@ interface WorkflowInputsProps {
 
 const SUCCESS_TOAST_ID = 'success_toast_id';
 
+
+
 /**
  * The workflow inputs component containing the multi-step flow to create ingest
  * and search flows for a particular workflow.
  */
 
 export function WorkflowInputs(props: WorkflowInputsProps) {
+
+  
   const {
     submitForm,
     validateForm,
@@ -287,6 +291,24 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       isUpdatingSearchPipeline ||
       isProposingSearchResourcesButNotProvisioned);
 
+  useEffect(() => {
+    console.log('WorkflowInputs bottom bar states:', {
+      showIngestBottomBar,
+      showSearchBottomBar,
+      ingestEnabled,
+      ingestTemplatesDifferent,
+      searchTemplatesDifferent,
+      isRunningIngest: props.isRunningIngest,
+    });
+  }, [
+    showIngestBottomBar,
+    showSearchBottomBar,
+    ingestEnabled,
+    ingestTemplatesDifferent,
+    searchTemplatesDifferent,
+    props.isRunningIngest,
+  ]);
+
   // Utility fn to revert any unsaved changes, reset the form
   function revertUnsavedChanges(): void {
     resetForm();
@@ -302,7 +324,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       .unwrap()
       .then(async (resp: any) => {
         props.setIngestResponse(customStringify(resp));
-        props.setIsRunningIngest(false);
         setLastIngested(Date.now());
         getCore().notifications.toasts.add({
           id: SUCCESS_TOAST_ID,
@@ -335,10 +356,15 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             </EuiFlexGroup>
           ),
         });
+        return true;
       })
       .catch((error: any) => {
         props.setIngestResponse('');
-        throw error;
+        console.error('Error during bulk ingest:', error);
+        getCore().notifications.toasts.addDanger(
+          `Error during data ingest: ${error?.message || 'Unknown error'}`
+        );
+        return false;
       });
   }
 
@@ -684,12 +710,21 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     return success;
   }
 
+  console.log('WorkflowInputs rendering with:', {
+    onIngest,
+    onSearch,
+    ingestEnabled,
+    onIngestAndDisabled,
+    onIngestAndUnprovisioned,
+  });
+
   return (
     <EuiPanel
       paddingSize="s"
       grow={true}
       className="workspace-panel"
       borderRadius="l"
+      style={{ position: 'relative', overflow: 'visible' }}
     >
       {resourcesFlyoutOpen && (
         <ResourcesFlyout
@@ -898,45 +933,47 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         </EuiFlexGroup>
       )}
       {showIngestBottomBar && (
-        <EuiBottomBar position="sticky">
-          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-            <EuiFlexItem grow={false}>
-              <EuiText>You have pending changes</EuiText>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup direction="row" gutterSize="s">
-                {!props.isRunningIngest && (
+        <div className="workflow-inputs-bottom-bar-container">
+          <EuiBottomBar className="workflow-inputs-bottom-bar">
+            <EuiFlexGroup justifyContent="spaceBetween">
+              <EuiFlexItem grow={false}>
+                <EuiText>You have pending changes</EuiText>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiFlexGroup direction="row" gutterSize="s">
+                  {!props.isRunningIngest && (
+                    <EuiFlexItem grow={false}>
+                      <EuiSmallButtonEmpty
+                        iconType="editorUndo"
+                        iconSide="left"
+                        disabled={!dirty}
+                        onClick={() => revertUnsavedChanges()}
+                      >
+                        Discard changes
+                      </EuiSmallButtonEmpty>
+                    </EuiFlexItem>
+                  )}
                   <EuiFlexItem grow={false}>
-                    <EuiSmallButtonEmpty
-                      iconType="editorUndo"
+                    <EuiSmallButton
+                      data-test-subj="updateAndRunIngestButton"
+                      fill={true}
+                      iconType="check"
                       iconSide="left"
-                      disabled={!dirty}
-                      onClick={() => revertUnsavedChanges()}
+                      disabled={!ingestTemplatesDifferent}
+                      isLoading={props.isRunningIngest}
+                      onClick={() => validateAndRunIngestion()}
                     >
-                      Discard changes
-                    </EuiSmallButtonEmpty>
+                      Update
+                    </EuiSmallButton>
                   </EuiFlexItem>
-                )}
-                <EuiFlexItem grow={false}>
-                  <EuiSmallButton
-                    data-test-subj="updateAndRunIngestButton"
-                    fill={true}
-                    iconType="check"
-                    iconSide="left"
-                    disabled={!ingestTemplatesDifferent}
-                    isLoading={props.isRunningIngest}
-                    onClick={() => validateAndRunIngestion()}
-                  >
-                    Update
-                  </EuiSmallButton>
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiBottomBar>
+                </EuiFlexGroup>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </EuiBottomBar>
+        </div>
       )}
       {showSearchBottomBar && (
-        <EuiBottomBar position="sticky">
+        <EuiBottomBar position="sticky" className="workflow-inputs-bottom-bar">
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             {searchUpdateDisabled ? (
               <EuiFlexItem grow={false}>
