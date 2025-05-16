@@ -76,6 +76,16 @@ export function IngestContent(props: IngestContentProps) {
 
   const ingestEnabled = getIn(values, 'ingest.enabled', true);
 
+  // Consistently keep the configured search index up-to-date, as changes are made to the ingest flow.
+  useEffect(() => {
+    if (
+      getIn(values, 'ingest.enabled', true) === true &&
+      !isEmpty(getIn(values, 'ingest.index.name'))
+    ) {
+      setFieldValue('search.index.name', getIn(values, 'ingest.index.name'));
+    }
+  }, [getIn(values, 'ingest.enabled'), getIn(values, 'ingest.index.name')]);
+
   // enable/disable ingest state
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
