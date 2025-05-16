@@ -131,11 +131,11 @@ export function Tools(props: ToolsProps) {
   }, [curErrorMessages]);
 
   // auto-navigate to ingest tab if a populated value has been set, indicating ingest has been ran
-  useEffect(() => {
-    if (!isEmpty(props.ingestResponse)) {
-      props.setSelectedTabId(INSPECTOR_TAB_ID.INGEST);
-    }
-  }, [props.ingestResponse]);
+  // useEffect(() => {
+  //   if (!isEmpty(props.ingestResponse)) {
+  //     props.setSelectedTabId(INSPECTOR_TAB_ID.INGEST);
+  //   }
+  // }, [props.ingestResponse]);
 
   // Force the workspace component to remount when the preview tab becomes active.
   // The graph cannot be rendered correctly in ReactFlow when initialized in a hidden container/inactive tab

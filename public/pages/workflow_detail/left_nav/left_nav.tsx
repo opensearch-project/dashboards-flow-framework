@@ -22,6 +22,7 @@ import {
 import { IngestContent, SearchContent } from './nav_content';
 import {
   CachedFormikState,
+  COMPONENT_ID,
   CONFIG_STEP,
   customStringify,
   SimulateIngestPipelineResponseVerbose,
@@ -698,6 +699,7 @@ export function LeftNav(props: LeftNavProps) {
                 );
                 if (isEmpty(ingestPipelineErrors)) {
                   bulkIngest(ingestDocsObjs);
+                  props.setSelectedComponentId(COMPONENT_ID.SEARCH_REQUEST);
                 }
               })
               .catch((error: any) => {
@@ -708,6 +710,7 @@ export function LeftNav(props: LeftNavProps) {
           } else {
             bulkIngest(ingestDocsObjs);
             dispatch(setIngestPipelineErrors({ errors: {} }));
+            props.setSelectedComponentId(COMPONENT_ID.SEARCH_REQUEST);
           }
         }
       } else {
