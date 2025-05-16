@@ -55,6 +55,7 @@ import {
   prepareDocsForSimulate,
   reduceToTemplate,
   sleep,
+  uiConfigToFormik,
   useDataSourceVersion,
   useMissingDataSourceVersion,
 } from '../../../utils';
@@ -322,7 +323,15 @@ export function LeftNav(props: LeftNavProps) {
   props.setIngestUpdateRequired(ingestUpdateRequired);
   const onIngestAndUpdateRequired = onIngest && ingestUpdateRequired;
 
-  const searchUpdateRequired = searchProvisioned && searchTemplatesDifferent;
+  const searchRequestUpdated =
+    props.uiConfig !== undefined
+      ? !isEqual(
+          getIn(uiConfigToFormik(props.uiConfig, ''), 'search.request', ''),
+          getIn(values, 'search.request')
+        )
+      : false;
+  const searchUpdateRequired =
+    (searchProvisioned && searchTemplatesDifferent) || searchRequestUpdated;
   const onSearchAndUpdateRequired = onSearch && searchUpdateRequired;
 
   // Only block ingest updates if search has been provisioned and ALSO requires update.
@@ -710,8 +719,7 @@ export function LeftNav(props: LeftNavProps) {
   }
 
   // Updating search-related resources. If existing ingest resources, run fine-grained provisioning to persist that
-  // created index and any indexed data, and only update/re-create the search
-  // pipeline, as well as adding that pipeline as the default pipeline for the existing index.
+  // created index and any indexed data, and only update/re-create the search pipeline.
   // If no ingest resources (using user's existing index), run full
   // deprovision/update/provision, since we're just re-creating the search pipeline.
   // This logic is propagated by passing `reprovision=true/false` in the

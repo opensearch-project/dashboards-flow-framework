@@ -360,7 +360,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
                 color="primary"
                 data-testid="updateSearchQueryButton"
               >
-                Save
+                Confirm
               </EuiSmallButton>
             </EuiModalFooter>
           </EuiModal>

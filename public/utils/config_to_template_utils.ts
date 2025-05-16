@@ -264,10 +264,12 @@ export function processorConfigsToTemplateProcessors(
             (mapEntry) => {
               let updatedMapEntry = {};
               Object.keys(mapEntry).forEach((key) => {
-                updatedMapEntry = {
-                  ...updatedMapEntry,
-                  [`ext.ml_inference.${key}`]: get(mapEntry, key),
-                };
+                if (!key.startsWith('ext.ml_inference')) {
+                  updatedMapEntry = {
+                    ...updatedMapEntry,
+                    [`ext.ml_inference.${key}`]: get(mapEntry, key),
+                  };
+                }
               });
               return updatedMapEntry;
             }
