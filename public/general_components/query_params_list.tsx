@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -137,6 +137,7 @@ export function QueryParamsList(props: QueryParamsListProps) {
                               )
                             );
                           }}
+                          isInvalid={isEmpty(queryParam.value)}
                         />
                       )}
                     </EuiFlexItem>

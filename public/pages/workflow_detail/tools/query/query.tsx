@@ -14,6 +14,7 @@ import {
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiHorizontalRule,
   EuiPopover,
   EuiSmallButton,
   EuiSmallButtonEmpty,
@@ -134,7 +135,7 @@ export function Query(props: QueryProps) {
           }
         />
       ) : (
-        <EuiFlexGroup direction="row" style={{ paddingBottom: '36px' }}>
+        <EuiFlexGroup direction="column" style={{ paddingBottom: '36px' }}>
           <EuiFlexItem>
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem grow={false}>
@@ -293,6 +294,15 @@ export function Query(props: QueryProps) {
                   </EuiFlexItem>
                 </EuiFlexGroup>
               </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                {/**
+                 * This may return nothing if the list of params are empty
+                 */}
+                <QueryParamsList
+                  queryParams={props.queryParams}
+                  setQueryParams={props.setQueryParams}
+                />
+              </EuiFlexItem>
               <EuiFlexItem grow={true}>
                 <EuiCodeEditor
                   mode="json"
@@ -324,17 +334,9 @@ export function Query(props: QueryProps) {
                   tabSize={2}
                 />
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                {/**
-                 * This may return nothing if the list of params are empty
-                 */}
-                <QueryParamsList
-                  queryParams={props.queryParams}
-                  setQueryParams={props.setQueryParams}
-                />
-              </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
+          <EuiHorizontalRule size="full" margin="s" />
           <EuiFlexItem>
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem grow={false}>
