@@ -212,7 +212,8 @@ export function LeftNav(props: LeftNavProps) {
           // always generate the end-to-end flows including ingest & search, in order
           // to generate the proper state across ingest & search in the left nav.
           true,
-          true
+          true,
+          searchProvisioned
         )?.provision?.nodes) ||
         []
     );
@@ -636,7 +637,8 @@ export function LeftNav(props: LeftNavProps) {
             workflows: configToTemplateFlows(
               updatedConfig,
               true,
-              includeSearchDuringProvision
+              includeSearchDuringProvision,
+              searchProvisioned
             ),
           } as Workflow;
           success = await updateWorkflowAndResources(
@@ -791,7 +793,7 @@ export function LeftNav(props: LeftNavProps) {
             <EuiFlexItem grow={false}>
               <EuiSmallButtonIcon
                 data-testid="hideLeftNavButton"
-                display="base"
+                aria-label="hideLeftNavButton"
                 iconType={'menuLeft'}
                 onClick={() => {
                   props.onClose();

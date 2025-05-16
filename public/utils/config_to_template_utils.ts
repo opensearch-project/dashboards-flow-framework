@@ -49,12 +49,14 @@ import { sanitizeJSONPath } from './utils';
 export function configToTemplateFlows(
   config: WorkflowConfig,
   includeIngest: boolean = true,
-  includeSearch: boolean = true
+  includeSearch: boolean = true,
+  searchProvisioned: boolean = false
 ): TemplateFlows {
   const provisionFlow = configToProvisionTemplateFlow(
     config,
     includeIngest,
-    includeSearch
+    includeSearch,
+    searchProvisioned
   );
   return {
     provision: provisionFlow,
@@ -64,7 +66,8 @@ export function configToTemplateFlows(
 function configToProvisionTemplateFlow(
   config: WorkflowConfig,
   includeIngest: boolean = true,
-  includeSearch: boolean = true
+  includeSearch: boolean = true,
+  searchProvisioned: boolean
 ): TemplateFlow {
   const nodes = [] as TemplateNode[];
   const edges = [] as TemplateEdge[];
@@ -73,7 +76,9 @@ function configToProvisionTemplateFlow(
     nodes.push(...ingestConfigToTemplateNodes(config.ingest));
   }
   if (includeSearch) {
-    nodes.push(...searchConfigToTemplateNodes(config.search));
+    nodes.push(
+      ...searchConfigToTemplateNodes(config.search, searchProvisioned)
+    );
   }
 
   const createIngestPipelineNode = nodes.find(
@@ -130,7 +135,8 @@ function ingestConfigToTemplateNodes(
 }
 
 function searchConfigToTemplateNodes(
-  searchConfig: SearchConfig
+  searchConfig: SearchConfig,
+  searchProvisioned: boolean
 ): TemplateNode[] {
   const searchPipelineName = searchConfig.pipelineName.value;
   const searchRequestProcessors = processorConfigsToTemplateProcessors(
@@ -160,7 +166,10 @@ function searchConfigToTemplateNodes(
     searchResponseProcessors.length > 0 ||
     phaseResultsProcessors.length > 0;
 
-  return hasProcessors
+  // still create an empty search pipeline, if it has already been provisioned. This is for preventing blocking
+  // users, as fine-grained deprovisioning is not supported. See details in documentation here:
+  // https://docs.opensearch.org/docs/latest/automating-configurations/api/create-workflow/
+  return hasProcessors || (!hasProcessors && searchProvisioned)
     ? [
         {
           id: searchPipelineName,

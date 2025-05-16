@@ -137,8 +137,8 @@ export function ComponentInput(props: ComponentInputProps) {
     return !props.leftNavOpen ? (
       <EuiFlexItem grow={false}>
         <EuiSmallButtonIcon
-          data-testid="showOrHideSearchPanelButton"
-          display="base"
+          data-testid="showLeftNavButton"
+          aria-label="showLeftNavButton"
           iconType={'menuRight'}
           onClick={() => {
             props.openLeftNav();
