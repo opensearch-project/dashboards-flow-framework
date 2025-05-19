@@ -64,6 +64,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Readonly states for ingest and search. If there are unsaved changes in one context, block editing in the other.
   const [ingestReadonly, setIngestReadonly] = useState<boolean>(false);
   const [searchReadonly, setSearchReadonly] = useState<boolean>(false);
+  const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
   const onIngest = selectedComponentId.startsWith('ingest');
   const onSearch = selectedComponentId.startsWith('search');
 
@@ -131,6 +132,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   setSelectedComponentId={setSelectedComponentId}
                   setIngestReadonly={setIngestReadonly}
                   setSearchReadonly={setSearchReadonly}
+                  setIsProvisioning={setIsProvisioning}
                   onClose={() => setLeftNavOpen(false)}
                 />
               ) : undefined}
@@ -152,7 +154,9 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 lastIngested={lastIngested}
                 ingestUpdateRequired={ingestUpdateRequired}
                 readonly={
-                  (onIngest && ingestReadonly) || (onSearch && searchReadonly)
+                  (onIngest && ingestReadonly) ||
+                  (onSearch && searchReadonly) ||
+                  isProvisioning
                 }
                 leftNavOpen={leftNavOpen}
                 openLeftNav={() => setLeftNavOpen(true)}

@@ -83,6 +83,7 @@ interface LeftNavProps {
   setSelectedComponentId: (id: string) => void;
   setIngestReadonly: (readonly: boolean) => void;
   setSearchReadonly: (readonly: boolean) => void;
+  setIsProvisioning: (isProvisioning: boolean) => void;
   onClose: () => void;
 }
 
@@ -125,6 +126,7 @@ export function LeftNav(props: LeftNavProps) {
   const [unsavedSearchProcessors, setUnsavedSearchProcessors] = useState<
     boolean
   >(false);
+  const isProvisioning = isProvisioningIngest || isProvisioningSearch;
 
   // provisioned resources states
   const [ingestProvisioned, setIngestProvisioned] = useState<boolean>(false);
@@ -192,11 +194,6 @@ export function LeftNav(props: LeftNavProps) {
       props.setSelectedComponentId('search.request');
     }
   }, [getIn(values, 'ingest.enabled')]);
-
-  // If a workflow is imported, but not yet provisioned, the template nodes will exist, but the resources themselves won't be created.
-  // We persist this to ensure that the update search button is enabled to allow provisioning on the UI.
-  const isProposingSearchResourcesButNotProvisioned =
-    !isEmpty(persistedSearchTemplateNodes) && !searchProvisioned;
 
   // fetch the total template nodes
   useEffect(() => {
@@ -346,6 +343,10 @@ export function LeftNav(props: LeftNavProps) {
     onSearch && ingestEnabled && (!ingestProvisioned || ingestUpdateRequired);
   props.setIngestReadonly(onIngestAndSearchUpdateRequired);
   props.setSearchReadonly(onSearchAndIngestUpdateRequired);
+
+  useEffect(() => {
+    props.setIsProvisioning(isProvisioning);
+  }, [isProvisioning]);
 
   // Utility fn to revert any unsaved changes, reset the form
   function revertUnsavedChanges(): void {
@@ -848,7 +849,7 @@ export function LeftNav(props: LeftNavProps) {
                     ingestProvisioned={ingestProvisioned}
                     isProvisioningIngest={isProvisioningIngest}
                     isUnsaved={ingestUpdateRequired}
-                    readonly={searchUpdateRequired}
+                    readonly={searchUpdateRequired || isProvisioning}
                   />
                   <EuiHorizontalRule margin="xs" />
                   <SearchContent
@@ -866,7 +867,8 @@ export function LeftNav(props: LeftNavProps) {
                     isUnsaved={searchUpdateRequired}
                     readonly={
                       ingestUpdateRequired ||
-                      (ingestEnabled && !ingestProvisioned)
+                      (ingestEnabled && !ingestProvisioned) ||
+                      isProvisioning
                     }
                   />
                 </EuiFlexGroup>
