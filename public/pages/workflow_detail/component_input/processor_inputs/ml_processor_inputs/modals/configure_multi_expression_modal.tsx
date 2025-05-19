@@ -661,7 +661,7 @@ export function ConfigureMultiExpressionModal(
                 color="primary"
                 data-testid="updateMultiExpressionButton"
               >
-                Save
+                Confirm
               </EuiSmallButton>
             </EuiModalFooter>
           </EuiModal>

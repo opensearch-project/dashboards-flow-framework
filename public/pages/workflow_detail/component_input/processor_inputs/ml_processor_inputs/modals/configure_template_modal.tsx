@@ -890,7 +890,7 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                 color="primary"
                 data-testid="updateTemplateButton"
               >
-                Save
+                Confirm
               </EuiSmallButton>
             </EuiModalFooter>
           </EuiModal>

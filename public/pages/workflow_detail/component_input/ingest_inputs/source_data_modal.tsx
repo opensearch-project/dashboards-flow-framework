@@ -335,7 +335,7 @@ export function SourceDataModal(props: SourceDataProps) {
                 color="primary"
                 data-testid="updateSourceDataButton"
               >
-                Save
+                Confirm
               </EuiSmallButton>
             </EuiModalFooter>
           </EuiModal>

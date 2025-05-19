@@ -256,7 +256,7 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
                 color="primary"
                 data-testid="updateOverrideQueryButton"
               >
-                Save
+                Confirm
               </EuiSmallButton>
             </EuiModalFooter>
           </EuiModal>

@@ -683,7 +683,7 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                 color="primary"
                 data-testid="updateExpressionButton"
               >
-                Save
+                Confirm
               </EuiSmallButton>
             </EuiModalFooter>
           </EuiModal>
