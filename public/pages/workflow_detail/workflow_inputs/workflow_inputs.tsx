@@ -287,24 +287,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       isUpdatingSearchPipeline ||
       isProposingSearchResourcesButNotProvisioned);
 
-  useEffect(() => {
-    console.log('WorkflowInputs bottom bar states:', {
-      showIngestBottomBar,
-      showSearchBottomBar,
-      ingestEnabled,
-      ingestTemplatesDifferent,
-      searchTemplatesDifferent,
-      isRunningIngest: props.isRunningIngest,
-    });
-  }, [
-    showIngestBottomBar,
-    showSearchBottomBar,
-    ingestEnabled,
-    ingestTemplatesDifferent,
-    searchTemplatesDifferent,
-    props.isRunningIngest,
-  ]);
-
   // Utility fn to revert any unsaved changes, reset the form
   function revertUnsavedChanges(): void {
     resetForm();
