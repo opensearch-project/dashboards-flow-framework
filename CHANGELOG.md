@@ -6,6 +6,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [Unreleased 3.0](https://github.com/opensearch-project/anomaly-detection/compare/2.x...HEAD)
 ### Features
 ### Enhancements
+#### Consolidate ingest response and errors into console section(https://github.com/opensearch-project/dashboards-flow-framework/pull/730)
 ### Bug Fixes
 ### Infrastructure
 ### Documentation
