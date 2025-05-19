@@ -93,6 +93,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   return isValidWorkflow ? (
     <EuiResizableContainer
+      key={`${leftNavOpen}`} // re-render when the left nav is toggled, to re-generate the correct width
       direction="horizontal"
       className="stretch-absolute"
       style={{
