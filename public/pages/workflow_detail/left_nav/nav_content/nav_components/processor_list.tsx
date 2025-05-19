@@ -85,6 +85,7 @@ export function ProcessorList(props: ProcessorListProps) {
     ingestPipeline: ingestPipelineErrors,
     searchPipeline: searchPipelineErrors,
   } = useSelector((state: AppState) => state.errors);
+  const { models } = useSelector((state: AppState) => state.ml);
   const { values, errors, touched } = useFormikContext<WorkflowFormValues>();
   const [version, setVersion] = useState<string>('');
   const location = useLocation();
@@ -533,6 +534,11 @@ export function ProcessorList(props: ProcessorListProps) {
         const errorFound =
           processorFormError !== undefined ||
           processorRuntimeError !== undefined;
+        const modelId = getIn(values, `${processorPath}.model.id`, undefined);
+        const modelName =
+          modelId !== undefined
+            ? getIn(models, `${modelId}.name`, undefined)
+            : (undefined as string | undefined);
 
         return (
           <div key={processorIndex}>
@@ -548,11 +554,25 @@ export function ProcessorList(props: ProcessorListProps) {
                 width: '424px',
                 height:
                   props.selectedComponentId === processorPath
-                    ? '100px'
-                    : '50px',
+                    ? isEmpty(modelName)
+                      ? '100px'
+                      : '120px'
+                    : isEmpty(modelName)
+                    ? '50px'
+                    : '80px',
               }}
               key={processorIndex}
-              description={''}
+              description={
+                !isEmpty(modelName) ? (
+                  <EuiText
+                    size="xs"
+                    color="subdued"
+                    style={{ marginTop: '-4px', marginBottom: '-4px' }}
+                  >
+                    {modelName}
+                  </EuiText>
+                ) : undefined
+              }
               textAlign="left"
               onClick={() => {
                 props.setSelectedComponentId(processorPath);

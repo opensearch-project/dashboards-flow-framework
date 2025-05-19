@@ -376,6 +376,7 @@ export function IngestContent(props: IngestContentProps) {
               isSelected={
                 props.selectedComponentId === COMPONENT_ID.INGEST_DATA
               }
+              description={getIn(values, 'ingest.index.name')}
               isError={!isEmpty(getIn(errors, COMPONENT_ID.INGEST_DATA))}
             />
           </EuiFlexItem>

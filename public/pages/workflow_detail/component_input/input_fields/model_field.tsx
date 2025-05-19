@@ -28,6 +28,7 @@ import {
   UPDATE_MODEL_DOCS_LINK,
   MODEL_CATEGORY,
   ML_CHOOSE_MODEL_LINK,
+  ModelItem,
 } from '../../../../../common';
 import { AppState, searchModels, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
@@ -46,11 +47,6 @@ interface ModelFieldProps {
   modelCategory?: MODEL_CATEGORY;
   disabled?: boolean;
 }
-
-type ModelItem = ModelFormValue & {
-  name: string;
-  interface?: {};
-};
 
 /**
  * A specific field for selecting existing deployed models

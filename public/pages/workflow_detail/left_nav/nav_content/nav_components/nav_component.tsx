@@ -58,7 +58,11 @@ export function NavComponent(props: NavComponentProps) {
       }
       description={
         !isEmpty(props.description) ? (
-          <EuiText size="xs" color="subdued">
+          <EuiText
+            size="xs"
+            color="subdued"
+            style={{ marginTop: '-4px', marginBottom: '-4px' }}
+          >
             {props.description}
           </EuiText>
         ) : undefined

@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { get, isEmpty } from 'lodash';
+import { getIn } from 'formik';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -40,6 +41,19 @@ const OPTIONS = [
  * users to freely enter values for each.
  */
 export function QueryParamsList(props: QueryParamsListProps) {
+  // some basic local form state for error highlighting
+  const [paramsTouchedState, setParamsTouchedState] = useState<{}>({});
+  useEffect(() => {
+    let touchedState = {};
+    props.queryParams?.forEach((param) => {
+      touchedState = {
+        ...touchedState,
+        [param.name]: false,
+      };
+    });
+    setParamsTouchedState(touchedState);
+  }, [props.queryParams]);
+
   return (
     <>
       {props.queryParams?.length > 0 && (
@@ -137,7 +151,20 @@ export function QueryParamsList(props: QueryParamsListProps) {
                               )
                             );
                           }}
-                          isInvalid={isEmpty(queryParam.value)}
+                          onBlur={() =>
+                            setParamsTouchedState({
+                              ...paramsTouchedState,
+                              [queryParam.name]: true,
+                            })
+                          }
+                          isInvalid={
+                            isEmpty(queryParam.value) &&
+                            getIn(
+                              paramsTouchedState,
+                              queryParam.name,
+                              false
+                            ) === true
+                          }
                         />
                       )}
                     </EuiFlexItem>
