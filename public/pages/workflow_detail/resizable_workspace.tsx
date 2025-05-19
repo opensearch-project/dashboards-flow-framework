@@ -169,7 +169,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         position: 'relative',
       }}
     >
-      {/* Main resizable area - adjust height to account for console */}
       <div
         style={{
           flex: 1,
@@ -316,7 +315,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         </EuiResizableContainer>
       </div>
 
-      {/* Console section */}
       <div
         className="console-wrapper"
         style={{

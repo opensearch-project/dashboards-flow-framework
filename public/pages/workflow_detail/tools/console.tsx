@@ -23,10 +23,6 @@ interface ConsoleProps {
   onClose?: () => void;
 }
 
-/**
- * Console component that displays at the bottom of the page
- * and shows errors and responses in tabs
- */
 export function Console(props: ConsoleProps) {
   const { isVisible, setIsVisible, errorMessages, ingestResponse } = props;
   const [selectedTabId, setSelectedTabId] = useState<CONSOLE_TAB_ID>(

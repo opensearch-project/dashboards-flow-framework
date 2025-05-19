@@ -338,7 +338,6 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       })
       .catch((error: any) => {
         props.setIngestResponse('');
-        console.error('Error during bulk ingest:', error);
         getCore().notifications.toasts.addDanger(
           `Error during data ingest: ${error?.message || 'Unknown error'}`
         );
