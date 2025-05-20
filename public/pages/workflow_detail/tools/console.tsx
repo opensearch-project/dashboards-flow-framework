@@ -61,7 +61,6 @@ export function Console(props: ConsoleProps) {
         flexDirection: 'column',
         padding: '8px',
         margin: 0,
-        backgroundColor: '#fff',
         boxShadow: 'none',
       }}
     >

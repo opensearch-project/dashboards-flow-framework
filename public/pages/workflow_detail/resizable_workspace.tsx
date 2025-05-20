@@ -143,12 +143,16 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     const consoleStyles = `
       .console-wrapper {
         flex: 0 0 auto;
-        border-top: 1px solid #D3DAE6;
-        background-color: #fff;
+        border-top: 1px solid var(--euiBorderColor);
         transition: height 0.3s ease-in-out;
         position: relative;
         z-index: 5;
       }
+
+      .console-panel[class*="euiPanel"] {
+        background-color: inherit !important;  
+      }
+     
     `;
 
     const styleElement = document.createElement('style');
@@ -180,8 +184,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           direction="horizontal"
           className="stretch-absolute"
           style={{
-            marginTop: USE_NEW_HOME_PAGE ? '0' : '58px',
-            height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 58px)',
+            marginTop: USE_NEW_HOME_PAGE ? '0' : '10px',
+            height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 10px)',
             gap: '4px',
             overflow: 'hidden',
           }}
@@ -318,7 +322,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       <div
         className="console-wrapper"
         style={{
-          height: isConsoleExpanded ? '200px' : '40px',
+          height: isConsoleExpanded ? '380px' : '70px',
           overflow: 'hidden',
         }}
       >
