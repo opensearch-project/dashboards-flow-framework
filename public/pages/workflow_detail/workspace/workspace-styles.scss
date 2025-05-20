@@ -26,15 +26,12 @@
 .console-wrapper {
   flex: 0 0 auto;
   border-top: 1px;
-  background-color: #0A121A;
   transition: height 0.3s ease-in-out;
   z-index: 5;
 }
 
-.euiTheme-light .console-wrapper,
-html[data-theme="light"] .console-wrapper {
-  background-color: #F5F7FA; 
-}
+
+
 
 #workflow_inputs_panel_id {
   position: relative !important;
