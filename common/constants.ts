@@ -898,7 +898,7 @@ export const CONSOLE_TABS = [
   },
   {
     id: CONSOLE_TAB_ID.RESPONSES,
-    name: 'responses',
+    name: 'Responses',
     disabled: false,
   },
 ];

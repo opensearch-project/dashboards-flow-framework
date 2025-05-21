@@ -139,32 +139,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }, [props.workflow]);
 
-  // Set up the styles for the console
-  // useEffect(() => {
-  //   const consoleStyles = `
-  //     .console-wrapper {
-  //       flex: 0 0 auto;
-  //       border-top: 1px solid var(--euiBorderColor);
-  //       transition: height 0.3s ease-in-out;
-  //       position: relative;
-  //       z-index: 5;
-  //     }
-
-  //     .console-panel[class*="euiPanel"] {
-  //       background-color: inherit !important;
-  //     }
-
-  //   `;
-
-  //   const styleElement = document.createElement('style');
-  //   styleElement.textContent = consoleStyles;
-  //   document.head.appendChild(styleElement);
-
-  //   return () => {
-  //     document.head.removeChild(styleElement);
-  //   };
-  // }, []);
-
   return isValidWorkflow ? (
     <div
       style={{
@@ -323,7 +297,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           </EuiResizableContainer>
         </div>
 
-        {/* Console moved inside EuiPageBody */}
         <div
           className="console-wrapper"
           style={{
@@ -339,7 +312,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
             onClose={() => {
               setIsConsoleExpanded(false);
               setCurErrorMessages([]);
-              setIngestResponse('');
+              //setIngestResponse('');
             }}
           />
         </div>
