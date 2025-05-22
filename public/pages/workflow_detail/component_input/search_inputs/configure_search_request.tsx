@@ -123,14 +123,16 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
       )}
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
-          <EuiCompressedFormRow label="Index">
+          <EuiCompressedFormRow label="Index" fullWidth={true}>
             {ingestEnabled ? (
               <EuiCompressedFieldText
                 value={values?.ingest?.index?.name}
                 readOnly={true}
+                fullWidth={true}
               />
             ) : (
               <EuiCompressedSuperSelect
+                fullWidth={true}
                 options={Object.values(indices || {}).map(
                   (option) =>
                     ({

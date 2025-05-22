@@ -22,6 +22,7 @@ interface NumberFieldProps {
   placeholder?: string;
   showError?: boolean;
   disabled?: boolean;
+  fullWidth?: boolean;
 }
 
 /**
@@ -50,6 +51,7 @@ export function NumberField(props: NumberFieldProps) {
             helpText={props.helpText || undefined}
             error={props.showError && getIn(errors, field.name)}
             isInvalid={getIn(errors, field.name) && getIn(touched, field.name)}
+            fullWidth={props.fullWidth}
           >
             <EuiCompressedFieldNumber
               {...field}
@@ -59,6 +61,7 @@ export function NumberField(props: NumberFieldProps) {
                 form.setFieldValue(props.fieldPath, e.target.value);
               }}
               disabled={disabled}
+              fullWidth={props.fullWidth}
             />
           </EuiCompressedFormRow>
         );

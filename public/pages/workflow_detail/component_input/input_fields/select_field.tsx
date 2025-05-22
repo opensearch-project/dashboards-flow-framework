@@ -20,6 +20,7 @@ interface SelectFieldProps {
   onSelectChange?: (option: string) => void;
   showInvalid?: boolean;
   disabled?: boolean;
+  fullWidth?: boolean;
 }
 
 /**
@@ -40,8 +41,10 @@ export function SelectField(props: SelectFieldProps) {
           <EuiCompressedFormRow
             label={camelCaseToTitleString(props.field.id)}
             isInvalid={isInvalid}
+            fullWidth={props.fullWidth}
           >
             <EuiCompressedSuperSelect
+              fullWidth={props.fullWidth}
               options={
                 props.field.selectOptions
                   ? props.field.selectOptions.map(

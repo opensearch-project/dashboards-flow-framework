@@ -51,6 +51,7 @@ export function IngestData(props: IngestDataProps) {
           fieldPath={'ingest.index.name'}
           showError={true}
           disabled={props.disabled}
+          fullWidth={true}
         />
       </EuiFlexItem>
       <EuiFlexItem>

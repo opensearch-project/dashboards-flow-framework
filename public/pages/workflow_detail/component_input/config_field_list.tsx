@@ -47,6 +47,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   fieldPath={fieldPath}
                   showError={true}
                   disabled={disabled}
+                  fullWidth={true}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -62,6 +63,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   showError={true}
                   textArea={true}
                   disabled={disabled}
+                  fullWidth={true}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -75,6 +77,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   field={field}
                   fieldPath={fieldPath}
                   disabled={disabled}
+                  fullWidth={true}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -103,6 +106,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   fieldPath={fieldPath}
                   showError={true}
                   disabled={disabled}
+                  fullWidth={true}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>
@@ -156,6 +160,7 @@ export function ConfigFieldList(props: ConfigFieldListProps) {
                   fieldPath={fieldPath}
                   showMissingInterfaceCallout={false}
                   disabled={disabled}
+                  fullWidth={true}
                 />
                 <EuiSpacer size={CONFIG_FIELD_SPACER_SIZE} />
               </EuiFlexItem>

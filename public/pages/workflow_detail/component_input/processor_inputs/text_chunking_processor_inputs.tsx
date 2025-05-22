@@ -79,6 +79,7 @@ export function TextChunkingProcessorInputs(
         fieldPath={algorithmFieldPath}
         onSelectChange={onAlgorithmChange}
         disabled={disabled}
+        fullWidth={true}
       />
       <MapField
         label="Field map"

@@ -252,6 +252,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
           hasModelInterface={!isEmpty(modelInterface)}
           onModelChange={onModelChange}
           disabled={props.disabled}
+          fullWidth={true}
         />
       )}
       {!isEmpty(getIn(values, modelFieldPath)?.id) && (
