@@ -32,8 +32,6 @@ interface ProcessorsComponentProps {
 export function ProcessorsComponent(props: ProcessorsComponentProps) {
   return (
     <NavComponent
-      //title={props.title}
-      //icon="compute"
       body={
         <EuiFlexGroup direction="column" gutterSize="m">
           <EuiFlexItem
@@ -46,7 +44,6 @@ export function ProcessorsComponent(props: ProcessorsComponentProps) {
               </EuiText>
             </EuiFlexGroup>
           </EuiFlexItem>
-
           <div style={{ padding: '0px' }}>
             <ProcessorList
               uiConfig={props.uiConfig}
