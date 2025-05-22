@@ -30,7 +30,17 @@ export function Errors(props: ErrorsProps) {
             return (
               <EuiFlexItem grow={false} key={idx}>
                 <EuiSpacer size="m" />
-                <EuiCodeBlock fontSize="m" isCopyable={false} paddingSize="s">
+                <EuiCodeBlock
+                  fontSize="m"
+                  isCopyable={false}
+                  paddingSize="s"
+                  style={{
+                    flexGrow: 'false',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word',
+                  }}
+                  whiteSpace="pre-wrap"
+                >
                   {errorMessage}
                 </EuiCodeBlock>
               </EuiFlexItem>

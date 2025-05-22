@@ -33,7 +33,7 @@ import {
   getDataSourceId,
   getInitialValue,
 } from '../../../utils';
-import { TextField } from '../workflow_inputs/input_fields';
+import { TextField } from '../component_input/input_fields';
 import {
   AppState,
   getWorkflow,
