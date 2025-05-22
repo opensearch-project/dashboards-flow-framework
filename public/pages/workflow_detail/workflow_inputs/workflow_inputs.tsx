@@ -302,6 +302,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
       .unwrap()
       .then(async (resp: any) => {
         props.setIngestResponse(customStringify(resp));
+        props.setIsRunningIngest(false);
         setLastIngested(Date.now());
         getCore().notifications.toasts.add({
           id: SUCCESS_TOAST_ID,
@@ -334,14 +335,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             </EuiFlexGroup>
           ),
         });
-        return true;
       })
       .catch((error: any) => {
         props.setIngestResponse('');
-        getCore().notifications.toasts.addDanger(
-          `Error during data ingest: ${error?.message || 'Unknown error'}`
-        );
-        return false;
+        throw error;
       });
   }
 

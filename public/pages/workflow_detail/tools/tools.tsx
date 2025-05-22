@@ -3,8 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { ReactNode, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 import { useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
@@ -15,7 +14,6 @@ import {
   EuiTabs,
   EuiText,
 } from '@elastic/eui';
-import { AppState } from '../../../store';
 import {
   CONFIG_STEP,
   customStringify,
@@ -30,7 +28,6 @@ import {
 import { Resources } from './resources';
 import { Query } from './query';
 import {
-  formatProcessorError,
   hasProvisionedIngestResources,
   hasProvisionedSearchResources,
 } from '../../../utils';
@@ -41,7 +38,6 @@ interface ToolsProps {
   selectedTabId: INSPECTOR_TAB_ID;
   setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
   selectedStep: CONFIG_STEP;
-  setCurErrorMessages: (errorMessages: (string | ReactNode)[]) => void;
 }
 
 const PANEL_TITLE = 'Inspect flows';
@@ -51,13 +47,13 @@ const PANEL_TITLE = 'Inspect flows';
  */
 export function Tools(props: ToolsProps) {
   // error message states. Error may come from several different sources.
-  const { opensearch, workflows } = useSelector((state: AppState) => state);
-  const opensearchError = opensearch.errorMessage;
-  const workflowsError = workflows.errorMessage;
-  const {
-    ingestPipeline: ingestPipelineErrors,
-    searchPipeline: searchPipelineErrors,
-  } = useSelector((state: AppState) => state.errors);
+  // const { opensearch, workflows } = useSelector((state: AppState) => state);
+  // const opensearchError = opensearch.errorMessage;
+  // const workflowsError = workflows.errorMessage;
+  // const {
+  //   ingestPipeline: ingestPipelineErrors,
+  //   searchPipeline: searchPipelineErrors,
+  // } = useSelector((state: AppState) => state.errors);
   const { values } = useFormikContext<WorkflowFormValues>();
 
   // Standalone / sandboxed search request state. Users can test things out
@@ -81,43 +77,43 @@ export function Tools(props: ToolsProps) {
   const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
 
   // Propagate any errors coming from opensearch API calls, including ingest/search pipeline verbose calls.
-  useEffect(() => {
-    if (
-      !isEmpty(opensearchError) ||
-      !isEmpty(ingestPipelineErrors) ||
-      !isEmpty(searchPipelineErrors)
-    ) {
-      if (!isEmpty(opensearchError)) {
-        props.setCurErrorMessages([opensearchError]);
-      } else if (!isEmpty(ingestPipelineErrors)) {
-        props.setCurErrorMessages([
-          'Data not ingested. Errors found with the following ingest processor(s):',
-          ...Object.values(ingestPipelineErrors).map((ingestPipelineError) =>
-            formatProcessorError(ingestPipelineError)
-          ),
-        ]);
-      } else if (!isEmpty(searchPipelineErrors)) {
-        props.setCurErrorMessages([
-          'Errors found with the following search processor(s)',
-          ...Object.values(searchPipelineErrors).map((searchPipelineError) =>
-            formatProcessorError(searchPipelineError)
-          ),
-        ]);
-      }
-    } else {
-      props.setCurErrorMessages([]);
-    }
-  }, [opensearchError, ingestPipelineErrors, searchPipelineErrors]);
+  // useEffect(() => {
+  //   if (
+  //     !isEmpty(opensearchError) ||
+  //     !isEmpty(ingestPipelineErrors) ||
+  //     !isEmpty(searchPipelineErrors)
+  //   ) {
+  //     if (!isEmpty(opensearchError)) {
+  //       props.setCurErrorMessages([opensearchError]);
+  //     } else if (!isEmpty(ingestPipelineErrors)) {
+  //       props.setCurErrorMessages([
+  //         'Data not ingested. Errors found with the following ingest processor(s):',
+  //         ...Object.values(ingestPipelineErrors).map((ingestPipelineError) =>
+  //           formatProcessorError(ingestPipelineError)
+  //         ),
+  //       ]);
+  //     } else if (!isEmpty(searchPipelineErrors)) {
+  //       props.setCurErrorMessages([
+  //         'Errors found with the following search processor(s)',
+  //         ...Object.values(searchPipelineErrors).map((searchPipelineError) =>
+  //           formatProcessorError(searchPipelineError)
+  //         ),
+  //       ]);
+  //     }
+  //   } else {
+  //     props.setCurErrorMessages([]);
+  //   }
+  // }, [opensearchError, ingestPipelineErrors, searchPipelineErrors]);
 
   // Propagate any errors coming from the workflow, either runtime from API call, or persisted in the indexed workflow itself.
-  useEffect(() => {
-    props.setCurErrorMessages(!isEmpty(workflowsError) ? [workflowsError] : []);
-  }, [workflowsError]);
-  useEffect(() => {
-    props.setCurErrorMessages(
-      props.workflow?.error ? [props.workflow.error] : []
-    );
-  }, [props.workflow?.error]);
+  // useEffect(() => {
+  //   props.setCurErrorMessages(!isEmpty(workflowsError) ? [workflowsError] : []);
+  // }, [workflowsError]);
+  // useEffect(() => {
+  //   props.setCurErrorMessages(
+  //     props.workflow?.error ? [props.workflow.error] : []
+  //   );
+  // }, [props.workflow?.error]);
 
   return (
     <EuiPanel

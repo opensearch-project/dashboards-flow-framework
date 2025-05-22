@@ -20,9 +20,12 @@ interface ConsoleProps {
   setIsVisible: (isVisible: boolean) => void;
   errorMessages: (string | ReactNode)[];
   ingestResponse: string;
-  onClose?: () => void;
 }
 
+/**
+ * The console component for displaying erros and ingest responses
+ * with expandable/collapsible functionality.
+ */
 export function Console(props: ConsoleProps) {
   const { isVisible, setIsVisible, errorMessages, ingestResponse } = props;
   const [selectedTabId, setSelectedTabId] = useState<CONSOLE_TAB_ID>(

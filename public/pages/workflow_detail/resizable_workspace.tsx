@@ -22,6 +22,7 @@ import {
   customStringify,
 } from '../../../common';
 import {
+  formatProcessorError,
   isValidUiWorkflow,
   reduceToTemplate,
   USE_NEW_HOME_PAGE,
@@ -34,6 +35,9 @@ import { Console } from './tools/console';
 // styling
 import './workspace/workspace-styles.scss';
 import '../../global-styles.scss';
+import { useSelector } from 'react-redux';
+import { AppState } from '../../store';
+import { isEmpty } from 'lodash';
 
 interface ResizableWorkspaceProps {
   workflow: Workflow | undefined;
@@ -61,6 +65,14 @@ const TOOLS_PANEL_ID = 'tools_panel_id';
  * panels - the ReactFlow workspace panel and the selected component details panel.
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
+  const { opensearch, workflows } = useSelector((state: AppState) => state);
+  const opensearchError = opensearch.errorMessage;
+  const workflowsError = workflows.errorMessage;
+  const {
+    ingestPipeline: ingestPipelineErrors,
+    searchPipeline: searchPipelineErrors,
+  } = useSelector((state: AppState) => state.errors);
+
   // Preview side panel state. This panel encapsulates the tools panel as a child resizable panel.
   const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState<boolean>(true);
   const collapseFnHorizontal = useRef(
@@ -95,6 +107,44 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [curErrorMessages, setCurErrorMessages] = useState<(string | any)[]>(
     []
   );
+
+  // Propagate any errors coming from opensearch API calls, including ingest/search pipeline verbose calls.
+  useEffect(() => {
+    if (
+      !isEmpty(opensearchError) ||
+      !isEmpty(ingestPipelineErrors) ||
+      !isEmpty(searchPipelineErrors)
+    ) {
+      if (!isEmpty(opensearchError)) {
+        setCurErrorMessages([opensearchError]);
+      } else if (!isEmpty(ingestPipelineErrors)) {
+        setCurErrorMessages([
+          'Data not ingested. Errors found with the following ingest processor(s):',
+          ...Object.values(ingestPipelineErrors).map((ingestPipelineError) =>
+            formatProcessorError(ingestPipelineError)
+          ),
+        ]);
+      } else if (!isEmpty(searchPipelineErrors)) {
+        setCurErrorMessages([
+          'Errors found with the following search processor(s)',
+          ...Object.values(searchPipelineErrors).map((searchPipelineError) =>
+            formatProcessorError(searchPipelineError)
+          ),
+        ]);
+      }
+    } else {
+      setCurErrorMessages([]);
+    }
+  }, [opensearchError, ingestPipelineErrors, searchPipelineErrors]);
+
+  // Propagate any errors coming from the workflow, either runtime from API call, or persisted in the indexed workflow itself.
+  useEffect(() => {
+    setCurErrorMessages(!isEmpty(workflowsError) ? [workflowsError] : []);
+  }, [workflowsError]);
+
+  useEffect(() => {
+    setCurErrorMessages(props.workflow?.error ? [props.workflow.error] : []);
+  }, [props.workflow?.error]);
 
   // Console visibility effects
   useEffect(() => {
@@ -283,7 +333,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                                 selectedTabId={selectedInspectorTabId}
                                 setSelectedTabId={setSelectedInspectorTabId}
                                 selectedStep={props.selectedStep}
-                                setCurErrorMessages={setCurErrorMessages}
                               />
                             </EuiResizablePanel>
                           </>
@@ -309,11 +358,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
             setIsVisible={setIsConsoleExpanded}
             errorMessages={curErrorMessages}
             ingestResponse={ingestResponse}
-            onClose={() => {
-              setIsConsoleExpanded(false);
-              setCurErrorMessages([]);
-              //setIngestResponse('');
-            }}
           />
         </div>
       </EuiPageBody>
