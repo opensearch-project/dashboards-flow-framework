@@ -1,3 +1,66 @@
+.workflow-inputs-container {
+  position: relative;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-inputs-main-content {
+  height: 100%;
+  gap: 16px;
+  flex: 1;
+}
+
+
+
+.workflow-inputs-header-actions {
+  margin-top: 20px;
+}
+
+.workflow-inputs-scrollable-content {
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+
+.workflow-inputs-status-actions {
+  margin-top: 8px;
+}
+
+.workflow-inputs-status-icon-tip {
+  margin-top: 8px;
+}
+
+.workflow-inputs-next-button {
+  margin-top: 0px;
+}
+
+.workflow-inputs-back-button {
+  margin-top: -4px;
+}
+
+.workflow-inputs-back-button-spacing {
+  margin-left: 8px;
+}
+
+.workflow-inputs-search-status {
+  margin-right: 20px;
+}
+
+
+.workflow-inputs-bottom-bar-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.workflow-inputs-bottom-bar {
+  position: static;
+  width: 100%;
+}
+
 .stretch-absolute {
   position: absolute;
   top: 0;

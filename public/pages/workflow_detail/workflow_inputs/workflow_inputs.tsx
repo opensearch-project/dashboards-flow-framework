@@ -688,14 +688,8 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
     <EuiPanel
       paddingSize="s"
       grow={true}
-      className="workspace-panel"
+      className="workspace-panel workflow-inputs-container"
       borderRadius="l"
-      style={{
-        position: 'relative',
-        overflow: 'visible',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
     >
       {resourcesFlyoutOpen && (
         <ResourcesFlyout
@@ -715,14 +709,14 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           direction="column"
           justifyContent="spaceBetween"
           gutterSize="none"
-          style={{
-            height: '100%',
-            gap: '16px',
-            flex: 1,
-          }}
+          className="workflow-inputs-main-content"
         >
           <EuiFlexItem grow={false}>
-            <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+            <EuiFlexGroup
+              direction="row"
+              justifyContent="spaceBetween"
+              className="workflow-inputs-header"
+            >
               <EuiFlexItem grow={false}>
                 <EuiText size="s">
                   <h2>{onIngest ? 'Ingest flow' : 'Search flow'}</h2>
@@ -731,7 +725,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
               <EuiFlexItem grow={false}>
                 <EuiFlexGroup direction="row" gutterSize="s">
                   {onIngestAndUnprovisioned && (
-                    <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                    <EuiFlexItem
+                      grow={false}
+                      className="workflow-inputs-header-actions"
+                    >
                       <BooleanField
                         fieldPath="ingest.enabled"
                         label="Enable ingest flow"
@@ -740,7 +737,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                     </EuiFlexItem>
                   )}
                   {(ingestProvisioned || searchProvisioned) && (
-                    <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                    <EuiFlexItem
+                      grow={false}
+                      className="workflow-inputs-header-actions"
+                    >
                       <EuiButtonEmpty
                         iconSide="left"
                         iconType="play"
@@ -753,7 +753,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                   {((onIngest && ingestProvisioned) ||
                     (onSearch && searchProvisioned)) &&
                     props.workflow?.resourcesCreated !== undefined && (
-                      <EuiFlexItem grow={false} style={{ marginTop: '20px' }}>
+                      <EuiFlexItem
+                        grow={false}
+                        className="workflow-inputs-header-actions"
+                      >
                         <EuiButtonEmpty
                           iconSide="left"
                           iconType="inspect"
@@ -769,10 +772,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
           </EuiFlexItem>
           <EuiFlexItem
             grow={true}
-            style={{
-              overflowY: 'scroll',
-              overflowX: 'hidden',
-            }}
+            className="workflow-inputs-scrollable-content"
           >
             {onIngest ? (
               <>
@@ -796,12 +796,20 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
             )}
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiFlexGroup direction="column" gutterSize="none">
+            <EuiFlexGroup
+              direction="column"
+              gutterSize="none"
+              className="workflow-inputs-footer"
+            >
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
               </EuiFlexItem>
               <EuiFlexItem>
-                <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+                <EuiFlexGroup
+                  direction="row"
+                  justifyContent="spaceBetween"
+                  className="workflow-inputs-status-section"
+                >
                   {onIngest && (
                     <>
                       <EuiFlexItem grow={false}>
@@ -822,7 +830,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           {ingestTemplatesDifferent && (
                             <EuiFlexItem
                               grow={false}
-                              style={{ marginTop: '8px' }}
+                              className="workflow-inputs-status-icon-tip"
                             >
                               <EuiIconTip
                                 content={`To edit your search pipeline, finish building an ingest pipeline by providing some sample data.`}
@@ -833,7 +841,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
 
                           <EuiFlexItem
                             grow={false}
-                            style={{ marginTop: '0px' }}
+                            className="workflow-inputs-next-button"
                           >
                             <EuiSmallButton
                               fill={true}
@@ -864,7 +872,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                         <EuiFlexGroup direction="row" gutterSize="s">
                           <EuiFlexItem grow={false}>
                             <EuiSmallButtonIcon
-                              style={{ marginTop: '-4px' }}
+                              className="workflow-inputs-back-button"
                               aria-label="searchPipelineBackButton"
                               data-testid="searchPipelineBackButton"
                               iconType={'arrowLeft'}
@@ -875,7 +883,7 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           </EuiFlexItem>
                           <EuiFlexItem
                             grow={false}
-                            style={{ marginLeft: '8px' }}
+                            className="workflow-inputs-back-button-spacing"
                           >
                             <EuiHealth
                               color={ingestProvisioned ? 'primary' : 'subdued'}
@@ -887,7 +895,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
                           </EuiFlexItem>
                         </EuiFlexGroup>
                       </EuiFlexItem>
-                      <EuiFlexItem grow={false} style={{ marginRight: '20px' }}>
+                      <EuiFlexItem
+                        grow={false}
+                        className="workflow-inputs-search-status"
+                      >
                         <EuiHealth
                           color={searchProvisioned ? 'primary' : 'subdued'}
                         >
@@ -905,23 +916,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         </EuiFlexGroup>
       )}
       {showIngestBottomBar && (
-        <div
-          className="left-panel-bottom-bar"
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 1000,
-          }}
-        >
+        <div className="workflow-inputs-bottom-bar-wrapper">
           <EuiBottomBar
             position="static"
             className="workflow-inputs-bottom-bar"
-            style={{
-              position: 'static',
-              width: '100%',
-            }}
           >
             <EuiFlexGroup justifyContent="spaceBetween">
               <EuiFlexItem grow={false}>
@@ -961,23 +959,10 @@ export function WorkflowInputs(props: WorkflowInputsProps) {
         </div>
       )}
       {showSearchBottomBar && (
-        <div
-          className="left-panel-bottom-bar"
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 1000,
-          }}
-        >
+        <div className="workflow-inputs-bottom-bar-wrapper">
           <EuiBottomBar
             position="static"
             className="workflow-inputs-bottom-bar"
-            style={{
-              position: 'static',
-              width: '100%',
-            }}
           >
             <EuiFlexGroup direction="row" justifyContent="spaceBetween">
               {searchUpdateDisabled ? (
