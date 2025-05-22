@@ -11,8 +11,6 @@
   flex: 1;
 }
 
-
-
 .workflow-inputs-header-actions {
   margin-top: 20px;
 }
@@ -21,7 +19,6 @@
   overflow-y: scroll;
   overflow-x: hidden;
 }
-
 
 .workflow-inputs-status-actions {
   margin-top: 8px;
@@ -47,7 +44,6 @@
   margin-right: 20px;
 }
 
-
 .workflow-inputs-bottom-bar-wrapper {
   position: absolute;
   bottom: 0;
@@ -61,7 +57,7 @@
   width: 100%;
 }
 
-.stretch-absolute {
+.stretch-absolute-workspace {
   position: absolute;
   top: 0;
   left: 0;

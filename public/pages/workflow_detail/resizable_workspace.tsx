@@ -208,7 +208,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         >
           <EuiResizableContainer
             direction="horizontal"
-            className="stretch-absolute"
+            className="stretch-absolute-workspace"
             style={{
               marginTop: USE_NEW_HOME_PAGE ? '0' : '10px',
               height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 10px)',
