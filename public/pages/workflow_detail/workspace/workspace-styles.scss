@@ -7,10 +7,10 @@
 }
 
 .workflow-inputs-bottom-bar {
-  position: absolute !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 10;
 }
 
@@ -19,8 +19,8 @@
   height: 100%;
 }
 
-.workspace-panel .euiFlexItem[style*="overflow"] {
-  padding-bottom: 60px; 
+.workspace-panel .euiFlexItem[style*='overflow'] {
+  padding-bottom: 60px;
 }
 
 .console-wrapper {
@@ -30,10 +30,7 @@
   z-index: 5;
 }
 
-
-
-
 #workflow_inputs_panel_id {
-  position: relative !important;
-  overflow: visible !important;
+  position: relative;
+  overflow: visible;
 }
