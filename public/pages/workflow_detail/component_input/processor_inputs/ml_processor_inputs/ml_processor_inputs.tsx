@@ -356,7 +356,7 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
             paddingSize="none"
           >
             <EuiSpacer size="s" />
-            <EuiFlexItem style={{ marginLeft: '28px' }}>
+            <EuiFlexItem>
               <ConfigFieldList
                 configId={props.config.id}
                 configFields={(props.config.optionalFields || []).filter(

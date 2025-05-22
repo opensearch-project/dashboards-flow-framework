@@ -100,7 +100,7 @@ export function ProcessorInputs(props: ProcessorInputsProps) {
                       paddingSize="none"
                     >
                       <EuiSpacer size="s" />
-                      <EuiFlexItem style={{ marginLeft: '28px' }}>
+                      <EuiFlexItem>
                         <ConfigFieldList
                           configId={props.config.id}
                           configFields={props.config.optionalFields || []}

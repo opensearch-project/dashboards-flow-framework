@@ -107,7 +107,7 @@ export function TextChunkingProcessorInputs(
         buttonContent="Advanced settings"
         paddingSize="none"
       >
-        <EuiFlexItem style={{ marginLeft: '28px' }}>
+        <EuiFlexItem>
           <EuiSpacer size="s" />
           <ConfigFieldList
             configId={props.config.id}

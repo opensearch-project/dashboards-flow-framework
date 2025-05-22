@@ -49,16 +49,16 @@ export function NormalizationProcessorInputs(
         fieldPath={weightsFieldPath}
         showError={true}
         disabled={disabled}
+        fullWidth={true}
       />
       <EuiSpacer size="s" />
       <EuiAccordion
         id={`advancedSettings${props.config.id}`}
         buttonContent="Advanced settings"
         paddingSize="none"
-        style={{ marginLeft: '-8px' }}
       >
         <EuiSpacer size="s" />
-        <EuiFlexItem style={{ marginLeft: '28px' }}>
+        <EuiFlexItem>
           <ConfigFieldList
             configId={props.config.id}
             configFields={optionalFieldsWithoutWeights}
