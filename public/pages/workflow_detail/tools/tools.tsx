@@ -17,7 +17,6 @@ import {
 } from '@elastic/eui';
 import { AppState } from '../../../store';
 import {
-  CONFIG_STEP,
   customStringify,
   FETCH_ALL_QUERY,
   INSPECTOR_TAB_ID,
@@ -44,11 +43,10 @@ interface ToolsProps {
   ingestResponse: string;
   selectedTabId: INSPECTOR_TAB_ID;
   setSelectedTabId: (tabId: INSPECTOR_TAB_ID) => void;
-  selectedStep: CONFIG_STEP;
   uiConfig?: WorkflowConfig;
 }
 
-const PANEL_TITLE = 'Inspect flows';
+const PANEL_TITLE = 'Inspect';
 
 /**
  * The base Tools component for performing ingest and search, viewing resources, and debugging.
@@ -133,11 +131,11 @@ export function Tools(props: ToolsProps) {
   }, [curErrorMessages]);
 
   // auto-navigate to ingest tab if a populated value has been set, indicating ingest has been ran
-  useEffect(() => {
-    if (!isEmpty(props.ingestResponse)) {
-      props.setSelectedTabId(INSPECTOR_TAB_ID.INGEST);
-    }
-  }, [props.ingestResponse]);
+  // useEffect(() => {
+  //   if (!isEmpty(props.ingestResponse)) {
+  //     props.setSelectedTabId(INSPECTOR_TAB_ID.INGEST);
+  //   }
+  // }, [props.ingestResponse]);
 
   // Force the workspace component to remount when the preview tab becomes active.
   // The graph cannot be rendered correctly in ReactFlow when initialized in a hidden container/inactive tab
@@ -216,7 +214,6 @@ export function Tools(props: ToolsProps) {
                     hasIngestResources={hasProvisionedIngestResources(
                       props.workflow
                     )}
-                    selectedStep={props.selectedStep}
                     queryRequest={queryRequest}
                     setQueryRequest={setQueryRequest}
                     queryResponse={queryResponse}

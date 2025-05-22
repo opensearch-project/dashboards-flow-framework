@@ -904,3 +904,13 @@ export const INSPECTOR_TABS = [
     disabled: false,
   },
 ];
+
+export enum COMPONENT_ID {
+  // TODO should these be consistent with the UI configs
+  SOURCE_DATA = 'ingest.docs',
+  ENRICH_DATA = 'ingest.enrich',
+  INGEST_DATA = 'ingest.index',
+  SEARCH_REQUEST = 'search.request',
+  ENRICH_SEARCH_REQUEST = 'search.enrichRequest',
+  ENRICH_SEARCH_RESPONSE = 'search.enrichResponse',
+}

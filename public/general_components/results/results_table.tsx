@@ -81,7 +81,7 @@ export function ResultsTable(props: ResultsTableProps) {
                 style={{
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
-                  width: '20vw',
+                  width: '25vw',
                 }}
               >
                 {customStringify(item._source)}

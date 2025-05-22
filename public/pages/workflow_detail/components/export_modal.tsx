@@ -18,8 +18,6 @@ import {
   EuiModalBody,
   EuiModalFooter,
   EuiSmallButtonEmpty,
-  EuiCallOut,
-  EuiSpacer,
   EuiSmallButtonGroup,
 } from '@elastic/eui';
 import {
@@ -33,8 +31,6 @@ import '../../../global-styles.scss';
 
 interface ExportModalProps {
   workflow?: Workflow;
-  unsavedIngestProcessors: boolean;
-  unsavedSearchProcessors: boolean;
   setIsExportModalOpen(isOpen: boolean): void;
 }
 
@@ -93,17 +89,6 @@ export function ExportModal(props: ExportModalProps) {
       </EuiModalHeader>
       <EuiModalBody>
         <EuiFlexGroup direction="column">
-          {(props.unsavedIngestProcessors || props.unsavedSearchProcessors) && (
-            <>
-              <EuiSpacer size="s" />
-              <EuiCallOut
-                size="s"
-                title="Unsaved configurations detected. Ensure to save and update all resources before exporting."
-                iconType={'alert'}
-                color="warning"
-              />
-            </>
-          )}
           <EuiFlexItem grow={false}>
             <EuiText size="s">
               {`To build identical resources in other environments, create and provision a workflow following the below template.`}{' '}

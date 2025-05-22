@@ -13,20 +13,16 @@ import {
   EuiText,
 } from '@elastic/eui';
 import {
-  CONFIG_STEP,
   CachedFormikState,
   INSPECTOR_TAB_ID,
   Workflow,
   WorkflowConfig,
   customStringify,
 } from '../../../common';
-import {
-  isValidUiWorkflow,
-  reduceToTemplate,
-  USE_NEW_HOME_PAGE,
-} from '../../utils';
-import { WorkflowInputs } from './workflow_inputs';
+import { isValidUiWorkflow, reduceToTemplate } from '../../utils';
+import { ComponentInput } from './component_input';
 import { Tools } from './tools';
+import { LeftNav } from './left_nav';
 
 // styling
 import './workspace/workspace-styles.scss';
@@ -38,14 +34,7 @@ interface ResizableWorkspaceProps {
   setUiConfig: (uiConfig: WorkflowConfig) => void;
   ingestDocs: string;
   setIngestDocs: (docs: string) => void;
-  isRunningIngest: boolean;
-  setIsRunningIngest: (isRunningIngest: boolean) => void;
-  isRunningSearch: boolean;
-  setIsRunningSearch: (isRunningSearch: boolean) => void;
-  selectedStep: CONFIG_STEP;
-  setSelectedStep: (step: CONFIG_STEP) => void;
-  setUnsavedIngestProcessors: (unsavedIngestProcessors: boolean) => void;
-  setUnsavedSearchProcessors: (unsavedSearchProcessors: boolean) => void;
+  setBlockNavigation: (blockNavigation: boolean) => void;
   setCachedFormikState: (cachedFormikState: CachedFormikState) => void;
 }
 
@@ -58,6 +47,27 @@ const TOOLS_PANEL_ID = 'tools_panel_id';
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [isToolsPanelOpen, setIsToolsPanelOpen] = useState<boolean>(true);
+  // The global state for selected component ID.
+  const [selectedComponentId, setSelectedComponentId] = useState<string>('');
+
+  const [leftNavOpen, setLeftNavOpen] = useState<boolean>(true);
+
+  // misc ingest-related state required to be shared across the left nav
+  // and ingest-related components
+  const [lastIngested, setLastIngested] = useState<number | undefined>(
+    undefined
+  );
+  const [ingestUpdateRequired, setIngestUpdateRequired] = useState<boolean>(
+    false
+  );
+
+  // Readonly states for ingest and search. If there are unsaved changes in one context, block editing in the other.
+  const [ingestReadonly, setIngestReadonly] = useState<boolean>(false);
+  const [searchReadonly, setSearchReadonly] = useState<boolean>(false);
+  const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
+  const onIngest = selectedComponentId.startsWith('ingest');
+  const onSearch = selectedComponentId.startsWith('search');
+
   const collapseFnHorizontal = useRef(
     (id: string, options: { direction: 'left' | 'right' }) => {}
   );
@@ -84,11 +94,11 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
 
   return isValidWorkflow ? (
     <EuiResizableContainer
+      key={`${leftNavOpen}`} // re-render when the left nav is toggled, to re-generate the correct width
       direction="horizontal"
       className="stretch-absolute"
       style={{
-        marginTop: USE_NEW_HOME_PAGE ? '0' : '58px',
-        height: USE_NEW_HOME_PAGE ? '100%' : 'calc(100% - 58px)',
+        width: '100%',
         gap: '4px',
       }}
     >
@@ -99,6 +109,34 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         }
         return (
           <>
+            <div className={leftNavOpen ? 'left-nav-static-width' : undefined}>
+              {leftNavOpen ? (
+                <LeftNav
+                  workflow={props.workflow}
+                  uiConfig={props.uiConfig}
+                  setUiConfig={props.setUiConfig}
+                  setIngestResponse={setIngestResponse}
+                  ingestDocs={props.ingestDocs}
+                  setIngestDocs={props.setIngestDocs}
+                  setIngestUpdateRequired={setIngestUpdateRequired}
+                  setBlockNavigation={props.setBlockNavigation}
+                  displaySearchPanel={() => {
+                    if (!isToolsPanelOpen) {
+                      onToggleToolsChange();
+                    }
+                    setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
+                  }}
+                  setCachedFormikState={props.setCachedFormikState}
+                  setLastIngested={setLastIngested}
+                  selectedComponentId={selectedComponentId}
+                  setSelectedComponentId={setSelectedComponentId}
+                  setIngestReadonly={setIngestReadonly}
+                  setSearchReadonly={setSearchReadonly}
+                  setIsProvisioning={setIsProvisioning}
+                  onClose={() => setLeftNavOpen(false)}
+                />
+              ) : undefined}
+            </div>
             <EuiResizablePanel
               id={WORKFLOW_INPUTS_PANEL_ID}
               mode="main"
@@ -107,28 +145,21 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
               paddingSize="none"
               scrollable={false}
             >
-              <WorkflowInputs
+              <ComponentInput
+                selectedComponentId={selectedComponentId}
                 workflow={props.workflow}
-                uiConfig={props.uiConfig}
+                uiConfig={props.uiConfig as WorkflowConfig}
                 setUiConfig={props.setUiConfig}
-                setIngestResponse={setIngestResponse}
-                ingestDocs={props.ingestDocs}
                 setIngestDocs={props.setIngestDocs}
-                isRunningIngest={props.isRunningIngest}
-                setIsRunningIngest={props.setIsRunningIngest}
-                isRunningSearch={props.isRunningSearch}
-                setIsRunningSearch={props.setIsRunningSearch}
-                selectedStep={props.selectedStep}
-                setSelectedStep={props.setSelectedStep}
-                setUnsavedIngestProcessors={props.setUnsavedIngestProcessors}
-                setUnsavedSearchProcessors={props.setUnsavedSearchProcessors}
-                displaySearchPanel={() => {
-                  if (!isToolsPanelOpen) {
-                    onToggleToolsChange();
-                  }
-                  setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
-                }}
-                setCachedFormikState={props.setCachedFormikState}
+                lastIngested={lastIngested}
+                ingestUpdateRequired={ingestUpdateRequired}
+                readonly={
+                  (onIngest && ingestReadonly) ||
+                  (onSearch && searchReadonly) ||
+                  isProvisioning
+                }
+                leftNavOpen={leftNavOpen}
+                openLeftNav={() => setLeftNavOpen(true)}
               />
             </EuiResizablePanel>
             <EuiResizableButton />
@@ -146,7 +177,6 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 ingestResponse={ingestResponse}
                 selectedTabId={selectedInspectorTabId}
                 setSelectedTabId={setSelectedInspectorTabId}
-                selectedStep={props.selectedStep}
                 uiConfig={props.uiConfig}
               />
             </EuiResizablePanel>

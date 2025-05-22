@@ -161,7 +161,7 @@ export function WorkflowList(props: WorkflowListProps) {
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
             {!isValidUiWorkflow(selectedWorkflow) ||
-              selectedWorkflow?.ui_metadata?.type === WORKFLOW_TYPE.UNKNOWN ? (
+            selectedWorkflow?.ui_metadata?.type === WORKFLOW_TYPE.UNKNOWN ? (
               <EuiEmptyPrompt
                 title={<h2>Invalid workflow type</h2>}
                 titleSize="s"
@@ -235,7 +235,9 @@ function fetchFilteredWorkflows(
   // A common use case for API users is to create workflows to register agents for
   // things like chatbots. We specifically filter those out on the UI to prevent confusion.
   const allWorkflowsExceptRegisterAgent = allWorkflows.filter(
-    (workflow) => workflow.use_case !== 'REGISTER_AGENT'
+    (workflow) =>
+      workflow.use_case !== 'REGISTER_AGENT' &&
+      workflow.use_case !== 'REGISTER_AGENTS'
   );
   // If missing/invalid fields for each workflow, add defaults
   const allWorkflowsWithDefaults = allWorkflowsExceptRegisterAgent.map(
@@ -246,7 +248,7 @@ function fetchFilteredWorkflows(
         ...workflow.ui_metadata,
         type:
           workflow.ui_metadata?.type !== undefined &&
-            Object.values(WORKFLOW_TYPE).includes(workflow.ui_metadata?.type)
+          Object.values(WORKFLOW_TYPE).includes(workflow.ui_metadata?.type)
             ? workflow.ui_metadata?.type
             : WORKFLOW_TYPE.UNKNOWN,
       } as UIState,
@@ -260,6 +262,6 @@ function fetchFilteredWorkflows(
   return searchQuery.length === 0
     ? filteredWorkflows
     : filteredWorkflows.filter((workflow) =>
-      workflow.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+        workflow.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
 }

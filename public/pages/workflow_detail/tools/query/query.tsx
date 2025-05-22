@@ -14,13 +14,13 @@ import {
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiHorizontalRule,
   EuiPopover,
   EuiSmallButton,
   EuiSmallButtonEmpty,
   EuiText,
 } from '@elastic/eui';
 import {
-  CONFIG_STEP,
   customStringify,
   QUERY_PRESETS,
   QueryParam,
@@ -49,7 +49,6 @@ import { QueryParamsList, Results } from '../../../../general_components';
 interface QueryProps {
   hasSearchPipeline: boolean;
   hasIngestResources: boolean;
-  selectedStep: CONFIG_STEP;
   queryRequest: string;
   setQueryRequest: (queryRequest: string) => void;
   queryResponse: SearchResponse | undefined;
@@ -107,29 +106,28 @@ export function Query(props: QueryProps) {
     }
   }, [props.queryRequest]);
 
-  // empty states
-  const noSearchIndex = isEmpty(values?.search?.index?.name);
-  const noSearchRequest = isEmpty(values?.search?.request);
-  const onIngestAndInvalid =
-    props.selectedStep === CONFIG_STEP.INGEST && !props.hasIngestResources;
-  const onSearchAndInvalid =
-    props.selectedStep === CONFIG_STEP.SEARCH &&
-    (noSearchIndex || noSearchRequest);
+  const ingestEnabled = values?.ingest?.enabled as boolean;
+  const ingestNotCreated = ingestEnabled && !props.hasIngestResources;
+  const searchNotConfigured =
+    !ingestEnabled && isEmpty(values?.search?.index?.name);
+  const noConfiguredIndex = ingestNotCreated || searchNotConfigured;
   const indexToSearch =
-    props.selectedStep === CONFIG_STEP.INGEST
+    ingestEnabled && props.hasIngestResources
       ? values?.ingest?.index?.name
-      : values?.search?.index?.name;
+      : !isEmpty(values?.search?.index?.name)
+      ? values?.search?.index?.name
+      : values?.ingest?.index?.name;
 
   return (
     <>
-      {onIngestAndInvalid || onSearchAndInvalid ? (
+      {noConfiguredIndex ? (
         <EuiEmptyPrompt
           title={<h2>Missing search configurations</h2>}
           titleSize="s"
           body={
             <>
               <EuiText size="s">
-                {onIngestAndInvalid
+                {ingestNotCreated
                   ? `Create an index and ingest data first.`
                   : `Configure a search request and an index to search against first.`}
               </EuiText>
@@ -137,45 +135,39 @@ export function Query(props: QueryProps) {
           }
         />
       ) : (
-        <EuiFlexGroup direction="row">
+        <EuiFlexGroup direction="column" style={{ paddingBottom: '36px' }}>
           <EuiFlexItem>
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem grow={false}>
-                <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                  <EuiFlexItem grow={false}>
-                    <EuiFlexGroup direction="row" justifyContent="flexStart">
-                      <EuiFlexItem grow={false}>
-                        <EuiText size="m">Search</EuiText>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiComboBox
-                          fullWidth={false}
-                          style={{ width: '250px' }}
-                          compressed={true}
-                          singleSelection={{ asPlainText: true }}
-                          isClearable={false}
-                          options={
-                            props.hasSearchPipeline
-                              ? SEARCH_OPTIONS
-                              : [SEARCH_OPTIONS[1]]
-                          }
-                          selectedOptions={
-                            includePipeline
-                              ? [SEARCH_OPTIONS[0]]
-                              : [SEARCH_OPTIONS[1]]
-                          }
-                          onChange={(options) => {
-                            setIncludePipeline(!includePipeline);
-                          }}
-                        />
-                      </EuiFlexItem>
-                    </EuiFlexGroup>
+                <EuiFlexGroup direction="row" gutterSize="s">
+                  <EuiFlexItem grow={true}>
+                    <EuiComboBox
+                      fullWidth={true}
+                      compressed={true}
+                      singleSelection={{ asPlainText: true }}
+                      isClearable={false}
+                      options={
+                        props.hasSearchPipeline
+                          ? SEARCH_OPTIONS
+                          : [SEARCH_OPTIONS[1]]
+                      }
+                      selectedOptions={
+                        includePipeline
+                          ? [SEARCH_OPTIONS[0]]
+                          : [SEARCH_OPTIONS[1]]
+                      }
+                      onChange={(options) => {
+                        setIncludePipeline(!includePipeline);
+                      }}
+                    />
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiSmallButton
                       data-test-subj="searchButton"
-                      fill={true}
+                      fill={false}
                       isLoading={loading}
+                      iconType={'play'}
+                      iconSide="left"
                       disabled={
                         containsEmptyValues(props.queryParams) ||
                         isEmpty(indexToSearch)
@@ -240,8 +232,7 @@ export function Query(props: QueryProps) {
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiFlexGroup direction="row" gutterSize="s">
-                      {props.selectedStep === CONFIG_STEP.SEARCH &&
-                        !isEmpty(values?.search?.request) &&
+                      {!isEmpty(values?.search?.request) &&
                         values?.search?.request !== props.queryRequest && (
                           <EuiFlexItem
                             grow={false}
@@ -259,15 +250,16 @@ export function Query(props: QueryProps) {
                         )}
                       <EuiFlexItem grow={false}>
                         <EuiPopover
+                          style={{ marginRight: '-8px' }}
                           button={
-                            <EuiSmallButton
+                            <EuiSmallButtonEmpty
                               onClick={() => setPopoverOpen(!popoverOpen)}
                               data-testid="inspectorQueryPresetButton"
                               iconSide="right"
                               iconType="arrowDown"
                             >
                               Query samples
-                            </EuiSmallButton>
+                            </EuiSmallButtonEmpty>
                           }
                           isOpen={popoverOpen}
                           closePopover={() => setPopoverOpen(false)}
@@ -296,6 +288,15 @@ export function Query(props: QueryProps) {
                     </EuiFlexGroup>
                   </EuiFlexItem>
                 </EuiFlexGroup>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                {/**
+                 * This may return nothing if the list of params are empty
+                 */}
+                <QueryParamsList
+                  queryParams={props.queryParams}
+                  setQueryParams={props.setQueryParams}
+                />
               </EuiFlexItem>
               <EuiFlexItem grow={true}>
                 <EuiCodeEditor
@@ -328,17 +329,9 @@ export function Query(props: QueryProps) {
                   tabSize={2}
                 />
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                {/**
-                 * This may return nothing if the list of params are empty
-                 */}
-                <QueryParamsList
-                  queryParams={props.queryParams}
-                  setQueryParams={props.setQueryParams}
-                />
-              </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
+          <EuiHorizontalRule size="full" margin="s" />
           <EuiFlexItem>
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem grow={false}>
@@ -348,12 +341,12 @@ export function Query(props: QueryProps) {
                 {props.queryResponse === undefined ||
                 isEmpty(props.queryResponse) ? (
                   <EuiEmptyPrompt
-                    title={<h2>No results</h2>}
-                    titleSize="s"
+                    iconType="search"
                     body={
                       <>
                         <EuiText size="s">
-                          Run a search to view results.
+                          Use your sample query or write another one to test out
+                          your search flow
                         </EuiText>
                       </>
                     }

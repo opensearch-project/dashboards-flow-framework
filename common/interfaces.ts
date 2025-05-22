@@ -497,6 +497,11 @@ export type ModelFormValue = {
   algorithm?: MODEL_ALGORITHM;
 };
 
+export type ModelItem = ModelFormValue & {
+  name: string;
+  interface?: {};
+};
+
 /**
  ********** MISC TYPES/INTERFACES ************
  */
