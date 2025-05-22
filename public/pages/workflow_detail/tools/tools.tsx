@@ -46,7 +46,7 @@ interface ToolsProps {
   uiConfig?: WorkflowConfig;
 }
 
-const PANEL_TITLE = 'Inspect flows';
+const PANEL_TITLE = 'Inspect';
 
 /**
  * The base Tools component for performing ingest and search, viewing resources, and debugging.
