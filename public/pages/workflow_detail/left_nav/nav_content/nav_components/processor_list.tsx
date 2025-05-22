@@ -551,7 +551,7 @@ export function ProcessorList(props: ProcessorListProps) {
                 paddingTop: '8px',
                 marginLeft: '5px',
                 marginBottom: '8px',
-                width: '424px',
+                width: '464px',
                 height:
                   props.selectedComponentId === processorPath
                     ? isEmpty(modelName)
@@ -591,7 +591,7 @@ export function ProcessorList(props: ProcessorListProps) {
                   gutterSize="s"
                   justifyContent="spaceAround"
                 >
-                  <EuiFlexItem style={{ width: '280px' }} grow={false}>
+                  <EuiFlexItem style={{ width: '320px' }} grow={false}>
                     <EuiFlexGroup direction="row" gutterSize="m">
                       <EuiFlexItem grow={false}>
                         <EuiText color={errorFound ? 'danger' : undefined}>

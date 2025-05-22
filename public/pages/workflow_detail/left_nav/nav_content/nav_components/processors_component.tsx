@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
 import { NavComponent } from './nav_component';
 import {
   CachedFormikState,
@@ -31,20 +32,33 @@ interface ProcessorsComponentProps {
 export function ProcessorsComponent(props: ProcessorsComponentProps) {
   return (
     <NavComponent
-      title={props.title}
-      icon="compute"
+      //title={props.title}
+      //icon="compute"
       body={
-        <div style={{ marginLeft: '-40px', padding: '0px' }}>
-          <ProcessorList
-            uiConfig={props.uiConfig}
-            setUiConfig={props.setUiConfig}
-            context={props.context}
-            setCachedFormikState={props.setCachedFormikState}
-            selectedComponentId={props.selectedComponentId}
-            setSelectedComponentId={props.setSelectedComponentId}
-            disabled={props.disabled}
-          />
-        </div>
+        <EuiFlexGroup direction="column" gutterSize="m">
+          <EuiFlexItem
+            grow={false}
+            style={{ marginTop: '8px', marginBottom: '8px' }}
+          >
+            <EuiFlexGroup direction="row" justifyContent="center">
+              <EuiText size="xs" color="subdued">
+                {props.title}
+              </EuiText>
+            </EuiFlexGroup>
+          </EuiFlexItem>
+
+          <div style={{ padding: '0px' }}>
+            <ProcessorList
+              uiConfig={props.uiConfig}
+              setUiConfig={props.setUiConfig}
+              context={props.context}
+              setCachedFormikState={props.setCachedFormikState}
+              selectedComponentId={props.selectedComponentId}
+              setSelectedComponentId={props.setSelectedComponentId}
+              disabled={props.disabled}
+            />
+          </div>
+        </EuiFlexGroup>
       }
       isDisabled={false}
     />

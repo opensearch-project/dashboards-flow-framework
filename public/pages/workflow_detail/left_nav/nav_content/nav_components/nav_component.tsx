@@ -14,7 +14,7 @@ import {
 } from '@elastic/eui';
 
 interface NavComponentProps {
-  title: string;
+  title?: string;
   description?: string;
   icon?: string;
   body?: any;
@@ -44,11 +44,13 @@ export function NavComponent(props: NavComponentProps) {
       titleSize="xs"
       title={
         <EuiFlexGroup direction="row" gutterSize="m">
-          <EuiFlexItem grow={false}>
-            <EuiText color={props.isError ? 'danger' : undefined}>
-              {props.title}
-            </EuiText>
-          </EuiFlexItem>
+          {!isEmpty(props.title) && (
+            <EuiFlexItem grow={false}>
+              <EuiText color={props.isError ? 'danger' : undefined}>
+                {props.title}
+              </EuiText>
+            </EuiFlexItem>
+          )}
           {props.isError && (
             <EuiFlexItem grow={false} style={{ marginTop: '14px' }}>
               <EuiIcon type="alert" color="danger" />
