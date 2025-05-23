@@ -46,16 +46,7 @@ const PANEL_TITLE = 'Inspect flows';
  * The base Tools component for performing ingest and search, viewing resources, and debugging.
  */
 export function Tools(props: ToolsProps) {
-  // error message states. Error may come from several different sources.
-  // const { opensearch, workflows } = useSelector((state: AppState) => state);
-  // const opensearchError = opensearch.errorMessage;
-  // const workflowsError = workflows.errorMessage;
-  // const {
-  //   ingestPipeline: ingestPipelineErrors,
-  //   searchPipeline: searchPipelineErrors,
-  // } = useSelector((state: AppState) => state.errors);
   const { values } = useFormikContext<WorkflowFormValues>();
-
   // Standalone / sandboxed search request state. Users can test things out
   // without updating the base form / persisted value.
   // Update if the parent form values are changed, or if a newly-created search pipeline is detected.
@@ -75,45 +66,6 @@ export function Tools(props: ToolsProps) {
 
   // query params state
   const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
-
-  // Propagate any errors coming from opensearch API calls, including ingest/search pipeline verbose calls.
-  // useEffect(() => {
-  //   if (
-  //     !isEmpty(opensearchError) ||
-  //     !isEmpty(ingestPipelineErrors) ||
-  //     !isEmpty(searchPipelineErrors)
-  //   ) {
-  //     if (!isEmpty(opensearchError)) {
-  //       props.setCurErrorMessages([opensearchError]);
-  //     } else if (!isEmpty(ingestPipelineErrors)) {
-  //       props.setCurErrorMessages([
-  //         'Data not ingested. Errors found with the following ingest processor(s):',
-  //         ...Object.values(ingestPipelineErrors).map((ingestPipelineError) =>
-  //           formatProcessorError(ingestPipelineError)
-  //         ),
-  //       ]);
-  //     } else if (!isEmpty(searchPipelineErrors)) {
-  //       props.setCurErrorMessages([
-  //         'Errors found with the following search processor(s)',
-  //         ...Object.values(searchPipelineErrors).map((searchPipelineError) =>
-  //           formatProcessorError(searchPipelineError)
-  //         ),
-  //       ]);
-  //     }
-  //   } else {
-  //     props.setCurErrorMessages([]);
-  //   }
-  // }, [opensearchError, ingestPipelineErrors, searchPipelineErrors]);
-
-  // Propagate any errors coming from the workflow, either runtime from API call, or persisted in the indexed workflow itself.
-  // useEffect(() => {
-  //   props.setCurErrorMessages(!isEmpty(workflowsError) ? [workflowsError] : []);
-  // }, [workflowsError]);
-  // useEffect(() => {
-  //   props.setCurErrorMessages(
-  //     props.workflow?.error ? [props.workflow.error] : []
-  //   );
-  // }, [props.workflow?.error]);
 
   return (
     <EuiPanel

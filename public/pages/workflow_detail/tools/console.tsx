@@ -15,6 +15,10 @@ import {
 
 import { CONSOLE_TAB_ID, CONSOLE_TABS } from '../../../../common/constants';
 
+/**
+ * The console component for displaying errors and ingest responses
+ * with expandable/collapsible functionality.
+ */
 interface ConsoleProps {
   isVisible: boolean;
   setIsVisible: (isVisible: boolean) => void;
@@ -22,10 +26,6 @@ interface ConsoleProps {
   ingestResponse: string;
 }
 
-/**
- * The console component for displaying erros and ingest responses
- * with expandable/collapsible functionality.
- */
 export function Console(props: ConsoleProps) {
   const { isVisible, setIsVisible, errorMessages, ingestResponse } = props;
   const [selectedTabId, setSelectedTabId] = useState<CONSOLE_TAB_ID>(
