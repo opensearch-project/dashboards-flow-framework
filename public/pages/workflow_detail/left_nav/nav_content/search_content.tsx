@@ -152,6 +152,7 @@ export function SearchContent(props: SearchContentProps) {
             title="Retrieve from data source"
             icon="list"
             onClick={() => {
+              // TODO: determine what content to show
               props.setSelectedComponentId(
                 COMPONENT_ID.RETRIEVE_FROM_DATA_SOURCE
               );
@@ -182,6 +183,7 @@ export function SearchContent(props: SearchContentProps) {
             title="Search results"
             icon="list"
             onClick={() => {
+              // TODO: determine what content to show
               props.setSelectedComponentId(COMPONENT_ID.SEARCH_RESULTS);
               console.log('Search results clicked');
             }}
