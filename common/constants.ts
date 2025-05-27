@@ -914,3 +914,7 @@ export enum COMPONENT_ID {
   ENRICH_SEARCH_REQUEST = 'search.enrichRequest',
   ENRICH_SEARCH_RESPONSE = 'search.enrichResponse',
 }
+
+// We have to persist a standalone string to override 'style' component, as setting className does
+// not override the default styles from the EuiCard component.
+export const LEFT_NAV_SELECTED_STYLE = '2px solid rgba(128, 128, 128, 0.8)';
