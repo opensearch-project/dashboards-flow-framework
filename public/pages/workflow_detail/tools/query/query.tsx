@@ -25,8 +25,10 @@ import {
   QUERY_PRESETS,
   QueryParam,
   QueryPreset,
+  SearchPipelineConfig,
   SearchResponse,
   SearchResponseVerbose,
+  WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
 import {
@@ -38,6 +40,8 @@ import {
 import {
   containsEmptyValues,
   containsSameValues,
+  formikToSearchPipeline,
+  formikToSearchRequestPipeline,
   getDataSourceId,
   getPlaceholdersFromQuery,
   getSearchPipelineErrors,
@@ -47,6 +51,7 @@ import {
 import { QueryParamsList, Results } from '../../../../general_components';
 
 interface QueryProps {
+  uiConfig: WorkflowConfig | undefined;
   hasSearchPipeline: boolean;
   hasIngestResources: boolean;
   queryRequest: string;
@@ -59,10 +64,13 @@ interface QueryProps {
 
 const SEARCH_OPTIONS = [
   {
-    label: 'With search pipeline',
+    label: 'No transformations',
   },
   {
-    label: 'Without search pipeline',
+    label: 'Just query transformations',
+  },
+  {
+    label: 'All transformations',
   },
 ];
 
@@ -80,12 +88,43 @@ export function Query(props: QueryProps) {
   // popover state
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
-  // state for if to execute search w/ or w/o any configured search pipeline.
-  // default based on if there is an available search pipeline or not.
-  const [includePipeline, setIncludePipeline] = useState<boolean>(false);
+  // search options state. Default to include the full pipeline (with all search req/resp transformations)
+  // if the pipeline exists.
+  const [selectedSearchOption, setSelectedSearchOption] = useState<{
+    label: string;
+  }>(SEARCH_OPTIONS[0]);
   useEffect(() => {
-    setIncludePipeline(props.hasSearchPipeline);
+    if (props.hasSearchPipeline) {
+      setSelectedSearchOption(SEARCH_OPTIONS[2]);
+    }
   }, [props.hasSearchPipeline]);
+
+  // the final constructed search pipeline to search against (if any). Users can toggle
+  // to only run against a subset of search processors that exist in the created pipeline
+  const [finalSearchPipeline, setFinalSearchPipeline] = useState<
+    SearchPipelineConfig | undefined
+  >(undefined);
+  useEffect(() => {
+    // no transformation: empty pipeline
+    if (selectedSearchOption === SEARCH_OPTIONS[0]) {
+      setFinalSearchPipeline(undefined);
+      // partial transformation: create custom search pipeline config
+    } else if (selectedSearchOption === SEARCH_OPTIONS[1]) {
+      if (values !== undefined && props.uiConfig !== undefined) {
+        const searchRequestPipeline = formikToSearchRequestPipeline(
+          values,
+          props.uiConfig
+        );
+        setFinalSearchPipeline(searchRequestPipeline);
+      }
+      // full transformation: create full search pipeline config
+    } else if (selectedSearchOption === SEARCH_OPTIONS[2]) {
+      if (values !== undefined && props.uiConfig !== undefined) {
+        const searchPipeline = formikToSearchPipeline(values, props.uiConfig);
+        setFinalSearchPipeline(searchPipeline);
+      }
+    }
+  }, [selectedSearchOption, props.uiConfig, values]);
 
   // Check if there is a new set of query parameters, and if so, reset the form
   useEffect(() => {
@@ -149,15 +188,11 @@ export function Query(props: QueryProps) {
                       options={
                         props.hasSearchPipeline
                           ? SEARCH_OPTIONS
-                          : [SEARCH_OPTIONS[1]]
+                          : [SEARCH_OPTIONS[0]]
                       }
-                      selectedOptions={
-                        includePipeline
-                          ? [SEARCH_OPTIONS[0]]
-                          : [SEARCH_OPTIONS[1]]
-                      }
+                      selectedOptions={[selectedSearchOption]}
                       onChange={(options) => {
-                        setIncludePipeline(!includePipeline);
+                        setSelectedSearchOption(options[0]);
                       }}
                     />
                   </EuiFlexItem>
@@ -177,17 +212,19 @@ export function Query(props: QueryProps) {
                           searchIndex({
                             apiBody: {
                               index: indexToSearch,
-                              body: injectParameters(
-                                props.queryParams,
-                                props.queryRequest
-                              ),
-                              searchPipeline: includePipeline
-                                ? values?.search?.pipelineName
-                                : '_none',
+                              body: JSON.stringify({
+                                ...JSON.parse(
+                                  injectParameters(
+                                    props.queryParams,
+                                    props.queryRequest
+                                  )
+                                ),
+                                search_pipeline: finalSearchPipeline || {},
+                              }),
                             },
                             dataSourceId,
                             dataSourceVersion,
-                            verbose: includePipeline,
+                            verbose: finalSearchPipeline !== undefined,
                           })
                         )
                           .unwrap()
@@ -195,7 +232,7 @@ export function Query(props: QueryProps) {
                             async (
                               resp: SearchResponse | SearchResponseVerbose
                             ) => {
-                              if (includePipeline) {
+                              if (finalSearchPipeline !== undefined) {
                                 const searchPipelineErrors = getSearchPipelineErrors(
                                   resp as SearchResponseVerbose
                                 );
@@ -220,7 +257,7 @@ export function Query(props: QueryProps) {
                           });
                       }}
                     >
-                      Search
+                      Run test
                     </EuiSmallButton>
                   </EuiFlexItem>
                 </EuiFlexGroup>

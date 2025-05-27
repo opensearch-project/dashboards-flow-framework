@@ -905,14 +905,18 @@ export const INSPECTOR_TABS = [
   },
 ];
 
+// component IDs for each left nav component. Some may be tied
+// to the lower-level form, others are for visual flow purposes only,
+// like 'retrieveFromDataSource' and 'searchResults'
 export enum COMPONENT_ID {
-  // TODO should these be consistent with the UI configs
   SOURCE_DATA = 'ingest.docs',
   ENRICH_DATA = 'ingest.enrich',
   INGEST_DATA = 'ingest.index',
   SEARCH_REQUEST = 'search.request',
   ENRICH_SEARCH_REQUEST = 'search.enrichRequest',
+  RETRIEVE_FROM_DATA_SOURCE = 'retrieveFromDataSource',
   ENRICH_SEARCH_RESPONSE = 'search.enrichResponse',
+  SEARCH_RESULTS = 'searchResults',
 }
 
 // We have to persist a standalone string to override 'style' component, as setting className does
