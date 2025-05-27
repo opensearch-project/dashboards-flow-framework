@@ -13,6 +13,7 @@ import {
   EuiText,
 } from '@elastic/eui';
 import {
+  COMPONENT_ID,
   CachedFormikState,
   INSPECTOR_TAB_ID,
   Workflow,
@@ -47,8 +48,13 @@ const TOOLS_PANEL_ID = 'tools_panel_id';
  */
 export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [isToolsPanelOpen, setIsToolsPanelOpen] = useState<boolean>(true);
-  // The global state for selected component ID.
+  // The global state for selected component ID. Default to the source data (if ingest enabled)
   const [selectedComponentId, setSelectedComponentId] = useState<string>('');
+  useEffect(() => {
+    if (props.uiConfig?.ingest?.enabled?.value === true) {
+      setSelectedComponentId(COMPONENT_ID.SOURCE_DATA);
+    }
+  }, [props.uiConfig?.ingest?.enabled]);
 
   const [leftNavOpen, setLeftNavOpen] = useState<boolean>(true);
 
