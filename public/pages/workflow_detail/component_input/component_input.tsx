@@ -196,6 +196,7 @@ export function ComponentInput(props: ComponentInputProps) {
 
   return (
     <EuiPanel
+      data-testid="componentInputPanel"
       paddingSize="s"
       grow={true}
       className="workspace-panel"

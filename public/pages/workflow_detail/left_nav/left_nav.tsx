@@ -781,6 +781,7 @@ export function LeftNav(props: LeftNavProps) {
         />
       )}
       <EuiPanel
+        data-testid="leftNavPanel"
         paddingSize="s"
         grow={false}
         className="workspace-panel left-nav-static-width"
