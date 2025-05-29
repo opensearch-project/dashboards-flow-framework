@@ -12,6 +12,7 @@ import {
   EuiIcon,
   EuiText,
 } from '@elastic/eui';
+import { LEFT_NAV_SELECTED_STYLE } from '../../../../../../common';
 
 interface NavComponentProps {
   title?: string;
@@ -41,6 +42,7 @@ export function NavComponent(props: NavComponentProps) {
           />
         ) : undefined
       }
+      style={props.isSelected ? { border: LEFT_NAV_SELECTED_STYLE } : {}}
       titleSize="xs"
       title={
         <EuiFlexGroup direction="row" gutterSize="m">
@@ -71,13 +73,6 @@ export function NavComponent(props: NavComponentProps) {
       }
       onClick={props.onClick ?? undefined}
       isDisabled={props.isDisabled ?? false}
-      selectable={
-        props.isSelected
-          ? {
-              isSelected: true,
-            }
-          : undefined
-      }
     >
       {props.body}
     </EuiCard>

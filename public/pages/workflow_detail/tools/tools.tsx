@@ -208,6 +208,7 @@ export function Tools(props: ToolsProps) {
                 )}
                 {props.selectedTabId === INSPECTOR_TAB_ID.TEST && (
                   <Query
+                    uiConfig={props.uiConfig}
                     hasSearchPipeline={hasProvisionedSearchResources(
                       props.workflow
                     )}
