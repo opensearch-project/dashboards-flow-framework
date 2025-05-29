@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { RouteComponentProps, Route, Switch, Router } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
@@ -14,6 +14,7 @@ import '@testing-library/jest-dom';
 import { mockStore, resizeObserverMock } from '../../../test/utils';
 import { createMemoryHistory } from 'history';
 import { MINIMUM_FULL_SUPPORTED_VERSION, WORKFLOW_TYPE } from '../../../common';
+import { sleep } from '../../utils';
 
 jest.mock('../../services', () => {
   const { mockCoreServices } = require('../../../test');
@@ -78,14 +79,17 @@ describe('WorkflowDetail Page with create ingestion option', () => {
 
   Object.values(WORKFLOW_TYPE).forEach((type) => {
     test(`renders the WorkflowDetail page with ${type} type`, async () => {
-      const {
-        getAllByText,
-        getByText,
-        getByRole,
-        getByTestId,
-      } = renderWithRouter(workflowId, workflowName, type);
+      const { getAllByText, getByText, getByRole } = renderWithRouter(
+        workflowId,
+        workflowName,
+        type
+      );
 
       expect(getAllByText(workflowName).length).toBeGreaterThan(0);
+      expect(getAllByText('Flow overview').length).toBeGreaterThan(0);
+      expect(getAllByText('Ingest flow').length).toBeGreaterThan(0);
+      expect(getAllByText('Search flow').length).toBeGreaterThan(0);
+
       expect(getAllByText('Inspect').length).toBeGreaterThan(0);
       expect(
         getAllByText((content) => content.startsWith('Last saved:')).length
@@ -96,11 +100,7 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       expect(getByRole('tab', { name: 'Ingest response' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
-
-      // "Search pipeline" button should be disabled by default
-      const searchPipelineButton = getByTestId('searchPipelineButton');
-      expect(searchPipelineButton).toBeInTheDocument();
-      expect(searchPipelineButton).toBeDisabled();
+      expect(getByRole('tab', { name: 'Preview' })).toBeInTheDocument();
     });
   });
 });
@@ -152,61 +152,31 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
   });
 
   test(`renders the WorkflowDetail page with skip ingestion option`, async () => {
-    const { getByTestId, getAllByText, getAllByTestId } = renderWithRouter(
+    const { getByTestId } = renderWithRouter(
       workflowId,
       workflowName,
       WORKFLOW_TYPE.HYBRID_SEARCH
     );
-    // Defining a new ingest pipeline & index is enabled by default
-    const enabledCheckbox = getByTestId('switch-ingest.enabled');
-    // Skipping ingest pipeline and navigating to search
-    userEvent.click(enabledCheckbox);
-    await waitFor(() => {});
 
-    const searchPipelineButton = getByTestId('searchPipelineButton');
-    userEvent.click(searchPipelineButton);
-    // Search pipeline
-    await waitFor(() => {
-      expect(getAllByText('Search flow').length).toBeGreaterThan(0);
-    });
-    expect(getAllByText('Configure query interface').length).toBeGreaterThan(0);
-    // Edit Search Query
-    const queryEditButton = getByTestId('queryEditButton');
-    expect(queryEditButton).toBeInTheDocument();
-    userEvent.click(queryEditButton);
+    const leftNavPanel = getByTestId('leftNavPanel');
+    expect(within(leftNavPanel).queryByText('Disabled')).toBeNull();
 
-    await waitFor(() => {
-      expect(getAllByText('Define query').length).toBeGreaterThan(0);
-    });
-
-    const searchQueryPresetButton = getByTestId('searchQueryPresetButton');
-    expect(searchQueryPresetButton).toBeInTheDocument();
-    const updateSearchQueryButton = getByTestId('updateSearchQueryButton');
-    expect(updateSearchQueryButton).toBeInTheDocument();
-    userEvent.click(updateSearchQueryButton);
-    // Add request processor
-    const addRequestProcessorButton = await waitFor(
-      () => getAllByTestId('addProcessorButton')[0]
+    // Disable ingest
+    userEvent.click(getByTestId('toggleIngestButtonSwitch'));
+    await sleep(500);
+    userEvent.click(getByTestId('toggleIngestButton'));
+    await sleep(500);
+    expect(
+      within(getByTestId('componentInputPanel')).getByText('Search request')
     );
-    userEvent.click(addRequestProcessorButton);
+    expect(within(leftNavPanel).getByText('Disabled')).toBeInTheDocument();
+    expect(within(leftNavPanel).getByText('Not created')).toBeInTheDocument();
 
-    await waitFor(() => {
-      const popoverPanel = document.querySelector('.euiPopover__panel');
-      expect(popoverPanel).toBeTruthy();
-    });
-    // Add response processor
-    const addResponseProcessorButton = getAllByTestId('addProcessorButton')[1];
-    userEvent.click(addResponseProcessorButton);
-    await waitFor(() => {
-      const popoverPanel = document.querySelector('.euiPopover__panel');
-      expect(popoverPanel).toBeTruthy();
-    });
-    // Build and Run query, Back buttons are present
-    const searchPipelineBackButton = getByTestId('searchPipelineBackButton');
-    userEvent.click(searchPipelineBackButton);
-
-    await waitFor(() => {
-      expect(enabledCheckbox).not.toBeChecked();
-    });
+    // Re-enable ingest
+    userEvent.click(getByTestId('toggleIngestButtonSwitch'));
+    await sleep(500);
+    userEvent.click(getByTestId('toggleIngestButton'));
+    await sleep(500);
+    expect(within(leftNavPanel).queryByText('Disabled')).toBeNull();
   });
 });

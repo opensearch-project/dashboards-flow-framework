@@ -24,6 +24,7 @@ import {
   CachedFormikState,
   COMPONENT_ID,
   IProcessorConfig,
+  LEFT_NAV_SELECTED_STYLE,
   PROCESSOR_CONTEXT,
   WorkflowConfig,
   WorkflowFormValues,
@@ -552,14 +553,11 @@ export function ProcessorList(props: ProcessorListProps) {
                 marginLeft: '5px',
                 marginBottom: '8px',
                 width: '464px',
-                height:
+                height: isEmpty(modelName) ? '50px' : '80px',
+                border:
                   props.selectedComponentId === processorPath
-                    ? isEmpty(modelName)
-                      ? '100px'
-                      : '120px'
-                    : isEmpty(modelName)
-                    ? '50px'
-                    : '80px',
+                    ? LEFT_NAV_SELECTED_STYLE
+                    : '',
               }}
               key={processorIndex}
               description={
@@ -577,11 +575,6 @@ export function ProcessorList(props: ProcessorListProps) {
               onClick={() => {
                 props.setSelectedComponentId(processorPath);
               }}
-              selectable={
-                props.selectedComponentId === processorPath
-                  ? { isSelected: true }
-                  : undefined
-              }
               title={
                 // The flex group with space-around does not work, as it is overridden
                 // by css properties nested in the EuiCard. To get the same effect,

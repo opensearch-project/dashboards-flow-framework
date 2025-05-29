@@ -226,6 +226,7 @@ export function IngestContent(props: IngestContentProps) {
                 <EuiPopover
                   button={
                     <EuiButtonIcon
+                      data-testid="toggleIngestButtonSwitch"
                       iconType="controlsHorizontal"
                       size="s"
                       isDisabled={props.readonly}
@@ -240,6 +241,7 @@ export function IngestContent(props: IngestContentProps) {
                   closePopover={() => setPopoverOpen(false)}
                 >
                   <EuiButtonEmpty
+                    data-testid="toggleIngestButton"
                     onClick={() => {
                       if (ingestEnabled && props.ingestProvisioned) {
                         setDeleteModalOpen(true);
