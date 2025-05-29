@@ -102,6 +102,13 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }, [props.workflow]);
 
+  function displaySearchPanel(): void {
+    if (!isToolsPanelOpen) {
+      onToggleToolsChange();
+    }
+    setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
+  }
+
   return isValidWorkflow ? (
     <EuiResizableContainer
       key={`${leftNavOpen}`} // re-render when the left nav is toggled, to re-generate the correct width
@@ -130,12 +137,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   setIngestDocs={props.setIngestDocs}
                   setIngestUpdateRequired={setIngestUpdateRequired}
                   setBlockNavigation={props.setBlockNavigation}
-                  displaySearchPanel={() => {
-                    if (!isToolsPanelOpen) {
-                      onToggleToolsChange();
-                    }
-                    setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
-                  }}
+                  displaySearchPanel={displaySearchPanel}
                   setCachedFormikState={props.setCachedFormikState}
                   setLastIngested={setLastIngested}
                   selectedComponentId={selectedComponentId}
@@ -170,6 +172,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 }
                 leftNavOpen={leftNavOpen}
                 openLeftNav={() => setLeftNavOpen(true)}
+                displaySearchPanel={displaySearchPanel}
               />
             </EuiResizablePanel>
             <EuiResizableButton />

@@ -914,7 +914,7 @@ export enum COMPONENT_ID {
   INGEST_DATA = 'ingest.index',
   SEARCH_REQUEST = 'search.request',
   ENRICH_SEARCH_REQUEST = 'search.enrichRequest',
-  RETRIEVE_FROM_DATA_SOURCE = 'retrieveFromDataSource',
+  RUN_QUERY = 'runQuery',
   ENRICH_SEARCH_RESPONSE = 'search.enrichResponse',
   SEARCH_RESULTS = 'searchResults',
 }

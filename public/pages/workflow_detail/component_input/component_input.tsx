@@ -19,7 +19,11 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 import { SourceData, IngestData } from './ingest_inputs';
-import { ConfigureSearchRequest } from './search_inputs';
+import {
+  ConfigureSearchRequest,
+  RunQuery,
+  SearchResults,
+} from './search_inputs';
 import {
   COMPONENT_ID,
   IProcessorConfig,
@@ -44,6 +48,7 @@ interface ComponentInputProps {
   readonly: boolean;
   leftNavOpen: boolean; // optionally show a button to expand out the left nav, if it is collapsed
   openLeftNav: () => void;
+  displaySearchPanel: () => void;
 }
 
 /**
@@ -163,6 +168,11 @@ export function ComponentInput(props: ComponentInputProps) {
         iconType = 'editorCodeBlock';
         break;
       }
+      case COMPONENT_ID.RUN_QUERY:
+      case COMPONENT_ID.SEARCH_RESULTS: {
+        iconType = 'list';
+        break;
+      }
     }
     return iconType !== undefined ? (
       <EuiFlexItem grow={false} style={{ paddingTop: '6px' }}>
@@ -183,7 +193,11 @@ export function ComponentInput(props: ComponentInputProps) {
     } else if (props.selectedComponentId === COMPONENT_ID.INGEST_DATA) {
       componentTitle = 'Index';
     } else if (props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST) {
-      componentTitle = 'Search request';
+      componentTitle = 'Sample query';
+    } else if (props.selectedComponentId === COMPONENT_ID.RUN_QUERY) {
+      componentTitle = 'Run query';
+    } else if (props.selectedComponentId === COMPONENT_ID.SEARCH_RESULTS) {
+      componentTitle = 'Search results';
     }
     return componentTitle !== undefined ? (
       <EuiFlexItem grow={false}>
@@ -268,6 +282,13 @@ export function ComponentInput(props: ComponentInputProps) {
           <IngestData disabled={props.readonly} />
         ) : props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST ? (
           <ConfigureSearchRequest disabled={props.readonly} />
+        ) : props.selectedComponentId === COMPONENT_ID.RUN_QUERY ? (
+          <RunQuery
+            uiConfig={props.uiConfig}
+            displaySearchPanel={props.displaySearchPanel}
+          />
+        ) : props.selectedComponentId === COMPONENT_ID.SEARCH_RESULTS ? (
+          <SearchResults />
         ) : (
           <EuiEmptyPrompt
             title={

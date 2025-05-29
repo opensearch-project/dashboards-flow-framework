@@ -26,6 +26,7 @@ import { SearchRequest } from '../../../../component_types/other';
 import { useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils/utils';
 import { getIndex } from '../../../../store/reducers/opensearch_reducer';
+
 interface KnnValidationResult {
   isValid: boolean;
   warningMessage?: string;
