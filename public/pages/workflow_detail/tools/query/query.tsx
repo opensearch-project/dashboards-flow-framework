@@ -67,7 +67,7 @@ const SEARCH_OPTIONS = [
     label: 'No transformations',
   },
   {
-    label: 'Just query transformations',
+    label: 'Only query transformations',
   },
   {
     label: 'All transformations',
