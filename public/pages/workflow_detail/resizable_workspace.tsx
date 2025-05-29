@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { isEmpty } from 'lodash';
 import {
   EuiCodeBlock,
   EuiEmptyPrompt,
@@ -51,7 +52,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // The global state for selected component ID. Default to the source data (if ingest enabled)
   const [selectedComponentId, setSelectedComponentId] = useState<string>('');
   useEffect(() => {
-    if (props.uiConfig?.ingest?.enabled?.value === true) {
+    if (
+      props.uiConfig?.ingest?.enabled?.value === true &&
+      isEmpty(selectedComponentId)
+    ) {
       setSelectedComponentId(COMPONENT_ID.SOURCE_DATA);
     }
   }, [props.uiConfig?.ingest?.enabled]);

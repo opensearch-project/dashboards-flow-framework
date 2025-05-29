@@ -24,6 +24,7 @@ import {
   EuiSmallButtonIcon,
   EuiSpacer,
   EuiIconTip,
+  EuiLink,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -44,6 +45,7 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
   QueryParam,
+  EXPANDED_FORM_QUERY_ISSUE,
 } from '../../../../../../../common';
 import {
   containsEmptyValues,
@@ -83,6 +85,7 @@ interface ConfigureTemplateModalProps {
   fieldPath: string;
   modelInterface: ModelInterface | undefined;
   isDataFetchingAvailable: boolean;
+  isConfiguringQuery?: boolean;
   onClose: () => void;
 }
 
@@ -340,9 +343,18 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                 </EuiFlexItem>
                 <EuiFlexItem grow={false}>
                   <EuiText color="subdued">
-                    Configure a prompt to provide instructions to the model. You
+                    {`Configure a prompt to provide instructions to the model. You
                     can define variables in the prompt and populate them with
-                    data extracted from the input source.
+                    data extracted from the input source.`}
+                    {props.isConfiguringQuery &&
+                      ` Input queries to this processor will be in expanded
+                        form, be sure to build your JSONPath appropriately. For
+                        more details, see this `}
+                    {props.isConfiguringQuery && (
+                      <EuiLink href={EXPANDED_FORM_QUERY_ISSUE} target="_blank">
+                        tracking issue
+                      </EuiLink>
+                    )}
                   </EuiText>
                 </EuiFlexItem>
               </EuiFlexGroup>

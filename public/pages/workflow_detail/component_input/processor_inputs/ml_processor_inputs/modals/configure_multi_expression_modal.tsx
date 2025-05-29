@@ -22,9 +22,11 @@ import {
   EuiSpacer,
   EuiSmallButtonIcon,
   EuiPopover,
+  EuiLink,
 } from '@elastic/eui';
 import {
   customStringify,
+  EXPANDED_FORM_QUERY_ISSUE,
   ExpressionVar,
   IngestPipelineConfig,
   IProcessorConfig,
@@ -78,6 +80,7 @@ interface ConfigureMultiExpressionModalProps {
   modelInterface: ModelInterface | undefined;
   outputMapFieldPath: string;
   isDataFetchingAvailable: boolean;
+  isConfiguringQuery?: boolean;
   onClose: () => void;
 }
 
@@ -290,6 +293,15 @@ export function ConfigureMultiExpressionModal(
                   <EuiText color="subdued">
                     Use a JSONPath expression to extract specific data from a
                     JSON structure and map it to the model input field.
+                    {props.isConfiguringQuery &&
+                      ` Input queries to this processor will be in expanded
+                                            form, be sure to build your JSONPath appropriately. For
+                                            more details, see this `}
+                    {props.isConfiguringQuery && (
+                      <EuiLink href={EXPANDED_FORM_QUERY_ISSUE} target="_blank">
+                        tracking issue
+                      </EuiLink>
+                    )}
                   </EuiText>
                 </EuiFlexItem>
               </EuiFlexGroup>

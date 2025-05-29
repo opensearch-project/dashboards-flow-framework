@@ -23,6 +23,7 @@ import {
   EuiSpacer,
   EuiIconTip,
   EuiPopover,
+  EuiLink,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -40,6 +41,7 @@ import {
   WorkflowFormValues,
   REQUEST_PREFIX,
   QueryParam,
+  EXPANDED_FORM_QUERY_ISSUE,
 } from '../../../../../../../common';
 import {
   containsEmptyValues,
@@ -80,6 +82,7 @@ interface ConfigureExpressionModalProps {
   fieldPath: string;
   modelInterface: ModelInterface | undefined;
   isDataFetchingAvailable: boolean;
+  isConfiguringQuery?: boolean;
   onClose: () => void;
 }
 
@@ -318,6 +321,15 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                   <EuiText color="subdued">
                     Use a JSONPath expression to extract specific data from a
                     JSON structure and map it to the model input field.
+                    {props.isConfiguringQuery &&
+                      ` Input queries to this processor will be in expanded
+                                            form, be sure to build your JSONPath appropriately. For
+                                            more details, see this `}
+                    {props.isConfiguringQuery && (
+                      <EuiLink href={EXPANDED_FORM_QUERY_ISSUE} target="_blank">
+                        tracking issue
+                      </EuiLink>
+                    )}
                   </EuiText>
                 </EuiFlexItem>
               </EuiFlexGroup>
