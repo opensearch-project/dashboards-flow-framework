@@ -117,11 +117,6 @@ export function RunQuery(props: RunQueryProps) {
         </EuiFlexItem>
       )}
       <EuiFlexItem>
-        <EuiText color="subdued" size="s">
-          Click button below and use the inspect panel to test out the query.
-        </EuiText>
-      </EuiFlexItem>
-      <EuiFlexItem>
         <EuiFlexGroup direction="column">
           {noConfiguredIndex && (
             <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
