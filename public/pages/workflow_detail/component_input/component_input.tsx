@@ -284,6 +284,7 @@ export function ComponentInput(props: ComponentInputProps) {
           <ConfigureSearchRequest disabled={props.readonly} />
         ) : props.selectedComponentId === COMPONENT_ID.RUN_QUERY ? (
           <RunQuery
+            workflow={props.workflow}
             uiConfig={props.uiConfig}
             displaySearchPanel={props.displaySearchPanel}
           />

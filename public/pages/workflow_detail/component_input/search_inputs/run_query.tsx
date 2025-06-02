@@ -5,7 +5,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import {
+  EuiCallOut,
   EuiCodeBlock,
   EuiFlexGroup,
   EuiFlexItem,
@@ -13,10 +15,19 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { WorkflowConfig, WorkflowFormValues } from '../../../../../common';
-import { formikToUiConfig, getTransformedQuery } from '../../../../utils';
+import {
+  Workflow,
+  WorkflowConfig,
+  WorkflowFormValues,
+} from '../../../../../common';
+import {
+  formikToUiConfig,
+  getTransformedQuery,
+  hasProvisionedIngestResources,
+} from '../../../../utils';
 
 interface RunQueryProps {
+  workflow: Workflow | undefined;
   uiConfig: WorkflowConfig;
   displaySearchPanel: () => void;
 }
@@ -28,17 +39,29 @@ interface RunQueryProps {
 export function RunQuery(props: RunQueryProps) {
   const { values } = useFormikContext<WorkflowFormValues>();
 
+  const ingestEnabled = values?.ingest?.enabled as boolean;
+  const ingestNotCreated =
+    ingestEnabled && !hasProvisionedIngestResources(props.workflow);
+  const searchNotConfigured =
+    !ingestEnabled && isEmpty(values?.search?.index?.name);
+  const noConfiguredIndex = ingestNotCreated || searchNotConfigured;
+
   const [transformedQuery, setTransformedQuery] = useState<string | undefined>(
     undefined
   );
+  const [hasQueryTransformations, setHasQueryTransformations] = useState<
+    boolean
+  >(false);
   useEffect(() => {
     if (props.uiConfig !== undefined && values?.search?.request !== undefined) {
       const updatedConfig = formikToUiConfig(values, props.uiConfig);
       const query = getTransformedQuery(updatedConfig);
       if (query !== undefined) {
         setTransformedQuery(query);
+        setHasQueryTransformations(true);
       } else {
         setTransformedQuery(values?.search?.request);
+        setHasQueryTransformations(false);
       }
     }
   }, [props.uiConfig, values?.search]);
@@ -47,14 +70,18 @@ export function RunQuery(props: RunQueryProps) {
     <EuiFlexGroup direction="column" gutterSize="s">
       <EuiFlexItem grow={false}>
         <EuiTitle size="xs">
-          <h4>Query</h4>
+          <h4>
+            {hasQueryTransformations
+              ? 'Final transformed query'
+              : 'Final query'}
+          </h4>
         </EuiTitle>
       </EuiFlexItem>
       <EuiFlexItem>
         <EuiText color="subdued" size="s">
-          The final transformed query to be run against the index. If there are
-          no query transformations, it will be identical to your configured
-          sample query.
+          {`The final ${
+            hasQueryTransformations ? 'transformed' : ''
+          } query to be run against the index.`}
         </EuiText>
       </EuiFlexItem>
       <EuiFlexItem>
@@ -75,18 +102,34 @@ export function RunQuery(props: RunQueryProps) {
         </EuiText>
       </EuiFlexItem>
       <EuiFlexItem>
-        <EuiFlexGroup direction="row" alignItems="flexStart">
-          <EuiFlexItem grow={false}>
-            <EuiSmallButton
-              fill={false}
-              iconSide="left"
-              iconType="play"
-              onClick={() => {
-                props.displaySearchPanel();
-              }}
-            >
-              Run test
-            </EuiSmallButton>
+        <EuiFlexGroup direction="column">
+          {noConfiguredIndex && (
+            <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
+              <EuiCallOut
+                size="s"
+                color="warning"
+                title="Missing search configurations"
+              >
+                <p>Create an index and ingest data first.</p>
+              </EuiCallOut>
+            </EuiFlexItem>
+          )}
+          <EuiFlexItem>
+            <EuiFlexGroup direction="row" alignItems="flexStart">
+              <EuiFlexItem grow={false}>
+                <EuiSmallButton
+                  fill={false}
+                  disabled={noConfiguredIndex}
+                  iconSide="left"
+                  iconType="menuRight"
+                  onClick={() => {
+                    props.displaySearchPanel();
+                  }}
+                >
+                  Test in Inspect panel
+                </EuiSmallButton>
+              </EuiFlexItem>
+            </EuiFlexGroup>
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiFlexItem>
