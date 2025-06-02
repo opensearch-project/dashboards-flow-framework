@@ -97,10 +97,9 @@ describe('WorkflowDetail Page with create ingestion option', () => {
       expect(getByText('Close')).toBeInTheDocument();
       expect(getByText('Export')).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Test flow' })).toBeInTheDocument();
-      expect(getByRole('tab', { name: 'Ingest response' })).toBeInTheDocument();
-      expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
       expect(getByRole('tab', { name: 'Preview' })).toBeInTheDocument();
+      expect(getAllByText('Console').length).toBeGreaterThan(0);
     });
   });
 });
@@ -150,7 +149,6 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
   beforeEach(() => {
     jest.clearAllMocks();
   });
-
   test(`renders the WorkflowDetail page with skip ingestion option`, async () => {
     const { getByTestId } = renderWithRouter(
       workflowId,

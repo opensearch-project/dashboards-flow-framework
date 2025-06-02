@@ -886,16 +886,6 @@ export const INSPECTOR_TABS = [
     disabled: false,
   },
   {
-    id: INSPECTOR_TAB_ID.INGEST,
-    name: 'Ingest response',
-    disabled: false,
-  },
-  {
-    id: INSPECTOR_TAB_ID.ERRORS,
-    name: 'Errors',
-    disabled: false,
-  },
-  {
     id: INSPECTOR_TAB_ID.RESOURCES,
     name: 'Resources',
     disabled: false,
@@ -903,6 +893,24 @@ export const INSPECTOR_TABS = [
   {
     id: INSPECTOR_TAB_ID.PREVIEW,
     name: 'Preview',
+    disabled: false,
+  },
+];
+
+export enum CONSOLE_TAB_ID {
+  ERRORS = 'errors',
+  INGEST_RESPONSE = 'ingest_response',
+}
+
+export const CONSOLE_TABS = [
+  {
+    id: CONSOLE_TAB_ID.ERRORS,
+    name: 'Errors',
+    disabled: false,
+  },
+  {
+    id: CONSOLE_TAB_ID.INGEST_RESPONSE,
+    name: 'Ingest Response',
     disabled: false,
   },
 ];

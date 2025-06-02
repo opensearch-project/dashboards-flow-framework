@@ -86,6 +86,7 @@ interface LeftNavProps {
   setSearchReadonly: (readonly: boolean) => void;
   setIsProvisioning: (isProvisioning: boolean) => void;
   onClose: () => void;
+  isConsolePanelOpen: boolean;
 }
 
 const SUCCESS_TOAST_ID = 'success_toast_id';
@@ -797,10 +798,7 @@ export function LeftNav(props: LeftNavProps) {
         grow={false}
         className="workspace-panel left-nav-static-width"
         borderRadius="l"
-        style={{
-          paddingBottom: '48px',
-          marginRight: '0px',
-        }}
+        style={{ paddingBottom: '12px' }}
       >
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -895,11 +893,13 @@ export function LeftNav(props: LeftNavProps) {
               )}
             </>
           </EuiFlexItem>
-          <EuiFlexItem grow={false}>
+          <EuiFlexItem grow={true}>
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
               </EuiFlexItem>
+              <EuiFlexItem grow={true}></EuiFlexItem>
+
               {onIngestAndSearchUpdateRequired && (
                 <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
                   <EuiCallOut
