@@ -11,6 +11,7 @@ import {
   EuiCodeBlock,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiHealth,
   EuiSmallButton,
   EuiText,
   EuiTitle,
@@ -24,12 +25,14 @@ import {
   formikToUiConfig,
   getTransformedQuery,
   hasProvisionedIngestResources,
+  hasProvisionedSearchResources,
 } from '../../../../utils';
 
 interface RunQueryProps {
   workflow: Workflow | undefined;
   uiConfig: WorkflowConfig;
   displaySearchPanel: () => void;
+  includeSearchResultTransforms?: boolean;
 }
 
 /**
@@ -38,13 +41,17 @@ interface RunQueryProps {
  */
 export function RunQuery(props: RunQueryProps) {
   const { values } = useFormikContext<WorkflowFormValues>();
-
+  const includeSearchResultTransforms =
+    props.includeSearchResultTransforms ?? false;
   const ingestEnabled = values?.ingest?.enabled as boolean;
   const ingestNotCreated =
     ingestEnabled && !hasProvisionedIngestResources(props.workflow);
   const searchNotConfigured =
     !ingestEnabled && isEmpty(values?.search?.index?.name);
   const noConfiguredIndex = ingestNotCreated || searchNotConfigured;
+  const searchResultTransformsConfigured =
+    hasProvisionedSearchResources(props.workflow) &&
+    props.uiConfig?.search?.enrichResponse?.processors?.length > 0;
 
   const [transformedQuery, setTransformedQuery] = useState<string | undefined>(
     undefined
@@ -96,6 +103,19 @@ export function RunQuery(props: RunQueryProps) {
           {transformedQuery}
         </EuiCodeBlock>
       </EuiFlexItem>
+      {includeSearchResultTransforms && (
+        <EuiFlexItem>
+          <EuiHealth
+            color={searchResultTransformsConfigured ? 'success' : 'subdued'}
+          >
+            <EuiText>
+              {searchResultTransformsConfigured
+                ? 'Search results transformations configured'
+                : 'No search results transformations configured'}
+            </EuiText>
+          </EuiHealth>
+        </EuiFlexItem>
+      )}
       <EuiFlexItem>
         <EuiText color="subdued" size="s">
           Click button below and use the inspect panel to test out the query.

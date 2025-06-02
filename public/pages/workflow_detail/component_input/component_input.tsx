@@ -19,11 +19,7 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 import { SourceData, IngestData } from './ingest_inputs';
-import {
-  ConfigureSearchRequest,
-  RunQuery,
-  SearchResults,
-} from './search_inputs';
+import { ConfigureSearchRequest, RunQuery } from './search_inputs';
 import {
   COMPONENT_ID,
   IProcessorConfig,
@@ -289,7 +285,12 @@ export function ComponentInput(props: ComponentInputProps) {
             displaySearchPanel={props.displaySearchPanel}
           />
         ) : props.selectedComponentId === COMPONENT_ID.SEARCH_RESULTS ? (
-          <SearchResults />
+          <RunQuery
+            workflow={props.workflow}
+            uiConfig={props.uiConfig}
+            displaySearchPanel={props.displaySearchPanel}
+            includeSearchResultTransforms={true}
+          />
         ) : (
           <EuiEmptyPrompt
             title={
