@@ -821,6 +821,8 @@ export function LeftNav(props: LeftNavProps) {
             grow={false}
             style={{
               overflowY: 'scroll',
+              scrollbarGutter: 'stable',
+              scrollbarWidth: 'thin',
               overflowX: 'hidden',
             }}
           >

@@ -90,7 +90,6 @@ export function ProcessorList(props: ProcessorListProps) {
   const { values, errors, touched } = useFormikContext<WorkflowFormValues>();
   const [version, setVersion] = useState<string>('');
   const location = useLocation();
-  const [processorAdded, setProcessorAdded] = useState<boolean>(false);
   const [isPopoverOpen, setPopover] = useState(false);
   const [processors, setProcessors] = useState<IProcessorConfig[]>([]);
 
@@ -348,7 +347,6 @@ export function ProcessorList(props: ProcessorListProps) {
       errors,
       touched,
     });
-    setProcessorAdded(true);
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
     let newConfig = formikToUiConfig(values, existingConfig);
     switch (props.context) {
@@ -552,8 +550,8 @@ export function ProcessorList(props: ProcessorListProps) {
                 paddingTop: '8px',
                 marginLeft: '5px',
                 marginBottom: '8px',
-                width: '464px',
-                height: isEmpty(modelName) ? '50px' : '80px',
+                width: '452px',
+                height: isEmpty(modelName) ? '55px' : '80px',
                 border:
                   props.selectedComponentId === processorPath
                     ? LEFT_NAV_SELECTED_STYLE
@@ -584,7 +582,7 @@ export function ProcessorList(props: ProcessorListProps) {
                   gutterSize="s"
                   justifyContent="spaceAround"
                 >
-                  <EuiFlexItem style={{ width: '320px' }} grow={false}>
+                  <EuiFlexItem style={{ width: '325px' }} grow={false}>
                     <EuiFlexGroup direction="row" gutterSize="m">
                       <EuiFlexItem grow={false}>
                         <EuiText color={errorFound ? 'danger' : undefined}>
@@ -600,7 +598,7 @@ export function ProcessorList(props: ProcessorListProps) {
                   </EuiFlexItem>
                   <EuiFlexItem grow={false} style={{ marginTop: '0px' }}>
                     <EuiFlexGroup
-                      gutterSize="s"
+                      gutterSize="none"
                       alignItems="center"
                       direction="row"
                     >
