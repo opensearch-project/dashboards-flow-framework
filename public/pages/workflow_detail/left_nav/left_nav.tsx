@@ -142,7 +142,10 @@ export function LeftNav(props: LeftNavProps) {
 
   // maintain global states
   const onIngest = props.selectedComponentId.startsWith('ingest');
-  const onSearch = props.selectedComponentId.startsWith('search');
+  const onSearch =
+    props.selectedComponentId.startsWith('search') ||
+    props.selectedComponentId === COMPONENT_ID.RUN_QUERY ||
+    props.selectedComponentId === COMPONENT_ID.SEARCH_RESULTS;
   const isProposingNoSearchResources =
     isEmpty(getIn(values, 'search.enrichRequest')) &&
     isEmpty(getIn(values, 'search.enrichResponse'));
