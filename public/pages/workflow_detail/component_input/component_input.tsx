@@ -14,6 +14,7 @@ import {
   EuiFlexItem,
   EuiHorizontalRule,
   EuiIcon,
+  EuiLoadingSpinner,
   EuiPanel,
   EuiSmallButtonIcon,
   EuiTitle,
@@ -217,92 +218,98 @@ export function ComponentInput(props: ComponentInputProps) {
         overflowY: 'scroll',
       }}
     >
-      <EuiFlexGroup direction="row" gutterSize="s">
-        {getComponentButton()}
-        {getComponentIcon()}
-        {getComponentTitle()}
-      </EuiFlexGroup>
-      {!isEmpty(props.selectedComponentId) && (
-        <EuiHorizontalRule margin="s" style={{ marginTop: '6px' }} />
-      )}
-      {/**
-       * Extra paddding added to the parent EuiFlexItem to account for overflow
-       * within the resizable panel, which has truncation issues otherwise.
-       */}
-      <EuiFlexItem style={{ paddingBottom: '60px' }}>
-        {props.selectedComponentId === COMPONENT_ID.SOURCE_DATA ? (
-          <SourceData
-            workflow={props.workflow}
-            uiConfig={props.uiConfig}
-            setIngestDocs={props.setIngestDocs}
-            lastIngested={props.lastIngested}
-            ingestUpdateRequired={props.ingestUpdateRequired}
-            disabled={props.readonly}
-          />
-        ) : isProcessorComponent(props.selectedComponentId) &&
-          processor !== undefined &&
-          processorContext !== undefined ? (
-          <EuiFlexGroup direction="column" gutterSize="m">
-            {processorError !== undefined && (
-              <EuiFlexItem grow={false}>
-                <EuiCallOut
-                  color="danger"
-                  iconType="alert"
-                  title={'Runtime error detected'}
-                  style={{
-                    wordWrap: 'break-word',
-                    overflowWrap: 'break-word',
-                  }}
-                >
-                  {processorError}
-                </EuiCallOut>
-              </EuiFlexItem>
-            )}
-            <EuiFlexItem grow={false}>
-              <ProcessorInputs
+      {props.uiConfig === undefined ? (
+        <EuiLoadingSpinner size="xl" />
+      ) : (
+        <>
+          <EuiFlexGroup direction="row" gutterSize="s">
+            {getComponentButton()}
+            {getComponentIcon()}
+            {getComponentTitle()}
+          </EuiFlexGroup>
+          {!isEmpty(props.selectedComponentId) && (
+            <EuiHorizontalRule margin="s" style={{ marginTop: '6px' }} />
+          )}
+          {/**
+           * Extra paddding added to the parent EuiFlexItem to account for overflow
+           * within the resizable panel, which has truncation issues otherwise.
+           */}
+          <EuiFlexItem style={{ paddingBottom: '60px' }}>
+            {props.selectedComponentId === COMPONENT_ID.SOURCE_DATA ? (
+              <SourceData
+                workflow={props.workflow}
                 uiConfig={props.uiConfig}
-                config={processor}
-                baseConfigPath={
-                  processorContext === PROCESSOR_CONTEXT.INGEST
-                    ? 'ingest.enrich'
-                    : processorContext === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                    ? 'search.enrichRequest'
-                    : 'search.enrichResponse'
-                }
-                context={processorContext}
+                setIngestDocs={props.setIngestDocs}
+                lastIngested={props.lastIngested}
+                ingestUpdateRequired={props.ingestUpdateRequired}
                 disabled={props.readonly}
               />
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        ) : props.selectedComponentId === COMPONENT_ID.INGEST_DATA ? (
-          <IngestData disabled={props.readonly} />
-        ) : props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST ? (
-          <ConfigureSearchRequest disabled={props.readonly} />
-        ) : props.selectedComponentId === COMPONENT_ID.RUN_QUERY ? (
-          <RunQuery
-            workflow={props.workflow}
-            uiConfig={props.uiConfig}
-            displaySearchPanel={props.displaySearchPanel}
-          />
-        ) : props.selectedComponentId === COMPONENT_ID.SEARCH_RESULTS ? (
-          <RunQuery
-            workflow={props.workflow}
-            uiConfig={props.uiConfig}
-            displaySearchPanel={props.displaySearchPanel}
-            includeSearchResultTransforms={true}
-          />
-        ) : (
-          <EuiEmptyPrompt
-            title={
-              <h2>
-                Select a component from the ingest or search flow to view
-                details.
-              </h2>
-            }
-            titleSize="s"
-          />
-        )}
-      </EuiFlexItem>
+            ) : isProcessorComponent(props.selectedComponentId) &&
+              processor !== undefined &&
+              processorContext !== undefined ? (
+              <EuiFlexGroup direction="column" gutterSize="m">
+                {processorError !== undefined && (
+                  <EuiFlexItem grow={false}>
+                    <EuiCallOut
+                      color="danger"
+                      iconType="alert"
+                      title={'Runtime error detected'}
+                      style={{
+                        wordWrap: 'break-word',
+                        overflowWrap: 'break-word',
+                      }}
+                    >
+                      {processorError}
+                    </EuiCallOut>
+                  </EuiFlexItem>
+                )}
+                <EuiFlexItem grow={false}>
+                  <ProcessorInputs
+                    uiConfig={props.uiConfig}
+                    config={processor}
+                    baseConfigPath={
+                      processorContext === PROCESSOR_CONTEXT.INGEST
+                        ? 'ingest.enrich'
+                        : processorContext === PROCESSOR_CONTEXT.SEARCH_REQUEST
+                        ? 'search.enrichRequest'
+                        : 'search.enrichResponse'
+                    }
+                    context={processorContext}
+                    disabled={props.readonly}
+                  />
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            ) : props.selectedComponentId === COMPONENT_ID.INGEST_DATA ? (
+              <IngestData disabled={props.readonly} />
+            ) : props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST ? (
+              <ConfigureSearchRequest disabled={props.readonly} />
+            ) : props.selectedComponentId === COMPONENT_ID.RUN_QUERY ? (
+              <RunQuery
+                workflow={props.workflow}
+                uiConfig={props.uiConfig}
+                displaySearchPanel={props.displaySearchPanel}
+              />
+            ) : props.selectedComponentId === COMPONENT_ID.SEARCH_RESULTS ? (
+              <RunQuery
+                workflow={props.workflow}
+                uiConfig={props.uiConfig}
+                displaySearchPanel={props.displaySearchPanel}
+                includeSearchResultTransforms={true}
+              />
+            ) : (
+              <EuiEmptyPrompt
+                title={
+                  <h2>
+                    Select a component from the ingest or search flow to view
+                    details.
+                  </h2>
+                }
+                titleSize="s"
+              />
+            )}
+          </EuiFlexItem>
+        </>
+      )}
     </EuiPanel>
   );
 }

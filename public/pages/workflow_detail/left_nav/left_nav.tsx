@@ -58,6 +58,7 @@ import {
   reduceToTemplate,
   sleep,
   uiConfigToFormik,
+  USE_NEW_HOME_PAGE,
   useDataSourceVersion,
   useMissingDataSourceVersion,
 } from '../../../utils';
@@ -916,7 +917,10 @@ export function LeftNav(props: LeftNavProps) {
                 <EuiFlexGroup
                   direction="row"
                   gutterSize="s"
-                  style={{ padding: '0px', marginBottom: '48px' }}
+                  style={{
+                    padding: '0px',
+                    marginBottom: USE_NEW_HOME_PAGE ? '0px' : '54px',
+                  }}
                 >
                   {onIngestAndUnprovisioned &&
                     ingestEnabled &&
