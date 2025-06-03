@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getIn } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
   EuiCallOut,
@@ -16,6 +16,7 @@ import {
   EuiIcon,
   EuiLoadingSpinner,
   EuiPanel,
+  EuiSmallButtonEmpty,
   EuiSmallButtonIcon,
   EuiTitle,
 } from '@elastic/eui';
@@ -27,6 +28,7 @@ import {
   PROCESSOR_CONTEXT,
   Workflow,
   WorkflowConfig,
+  WorkflowFormValues,
 } from '../../../../common';
 import { ProcessorInputs } from './processor_inputs';
 import { AppState } from '../../../store';
@@ -57,6 +59,13 @@ export function ComponentInput(props: ComponentInputProps) {
     ingestPipeline: ingestPipelineErrors,
     searchPipeline: searchPipelineErrors,
   } = useSelector((state: AppState) => state.errors);
+
+  const { values } = useFormikContext<WorkflowFormValues>();
+
+  // top-level edit button state. Currently implemented as a model, and only applicable for (and only integrated with)
+  // the "Source Data" component. In the future, the edit content may be moved into a contextual panel,
+  // and there may be more top-level actions, such as "preview transformations" for individual processors.
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
 
   // processor-related state. If a processor component is selected, do some extra parsing
   // to gather the extra data (processor config, context, error(s))
@@ -180,8 +189,12 @@ export function ComponentInput(props: ComponentInputProps) {
 
   function getComponentTitle() {
     let componentTitle = undefined as string | undefined;
+    let showEditButton = false;
     if (props.selectedComponentId === COMPONENT_ID.SOURCE_DATA) {
       componentTitle = 'Sample data';
+      if (!isEmpty(values?.ingest?.docs)) {
+        showEditButton = true;
+      }
     } else if (
       isProcessorComponent(props.selectedComponentId) &&
       processor !== undefined
@@ -197,10 +210,25 @@ export function ComponentInput(props: ComponentInputProps) {
       componentTitle = 'Search results';
     }
     return componentTitle !== undefined ? (
-      <EuiFlexItem grow={false}>
-        <EuiTitle size="s">
-          <h3>{componentTitle}</h3>
-        </EuiTitle>
+      <EuiFlexItem>
+        <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+          <EuiFlexItem grow={false}>
+            <EuiTitle size="s">
+              <h3>{componentTitle}</h3>
+            </EuiTitle>
+          </EuiFlexItem>
+          {showEditButton && (
+            <EuiFlexItem grow={false}>
+              <EuiSmallButtonEmpty
+                iconSide="left"
+                iconType={'pencil'}
+                onClick={() => setIsEditModalOpen(true)}
+              >
+                Edit
+              </EuiSmallButtonEmpty>
+            </EuiFlexItem>
+          )}
+        </EuiFlexGroup>
       </EuiFlexItem>
     ) : undefined;
   }
@@ -241,6 +269,8 @@ export function ComponentInput(props: ComponentInputProps) {
                 uiConfig={props.uiConfig}
                 setIngestDocs={props.setIngestDocs}
                 lastIngested={props.lastIngested}
+                isEditModalOpen={isEditModalOpen}
+                setIsEditModalOpen={setIsEditModalOpen}
                 ingestUpdateRequired={props.ingestUpdateRequired}
                 disabled={props.readonly}
               />

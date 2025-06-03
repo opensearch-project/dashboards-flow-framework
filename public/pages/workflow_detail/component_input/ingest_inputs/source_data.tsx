@@ -39,6 +39,8 @@ interface SourceDataProps {
   uiConfig: WorkflowConfig;
   setIngestDocs: (docs: string) => void;
   lastIngested: number | undefined;
+  isEditModalOpen: boolean;
+  setIsEditModalOpen: (isEditModalOpen: boolean) => void;
   ingestUpdateRequired: boolean;
   disabled: boolean;
 }
@@ -61,9 +63,6 @@ export function SourceData(props: SourceDataProps) {
     SOURCE_OPTIONS.MANUAL
   );
 
-  // edit modal state
-  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-
   // bulk API popover state
   const [bulkPopoverOpen, setBulkPopoverOpen] = useState<boolean>(false);
 
@@ -76,7 +75,7 @@ export function SourceData(props: SourceDataProps) {
     // try to clear out any default values for the ML ingest processor, if applicable
     if (
       isVectorSearchUseCase(props.workflow?.ui_metadata?.type) &&
-      isEditModalOpen &&
+      props.isEditModalOpen &&
       selectedOption !== SOURCE_OPTIONS.EXISTING_INDEX
     ) {
       let sampleDoc = undefined as {} | undefined;
@@ -103,33 +102,16 @@ export function SourceData(props: SourceDataProps) {
 
   return (
     <>
-      {isEditModalOpen && (
+      {props.isEditModalOpen && (
         <SourceDataModal
           workflow={props.workflow}
           uiConfig={props.uiConfig}
           selectedOption={selectedOption}
           setSelectedOption={setSelectedOption}
-          setIsModalOpen={setIsEditModalOpen}
+          setIsModalOpen={props.setIsEditModalOpen}
         />
       )}
       <EuiFlexGroup direction="column" gutterSize="s">
-        <EuiFlexItem grow={false}>
-          <EuiFlexGroup direction="row" justifyContent="flexEnd">
-            {docsPopulated && (
-              <EuiFlexItem grow={false}>
-                <EuiSmallButtonEmpty
-                  isDisabled={props.disabled}
-                  onClick={() => setIsEditModalOpen(true)}
-                  data-testid="editSourceDataButton"
-                  iconType="pencil"
-                  iconSide="left"
-                >
-                  Edit
-                </EuiSmallButtonEmpty>
-              </EuiFlexItem>
-            )}
-          </EuiFlexGroup>
-        </EuiFlexItem>
         {props.lastIngested !== undefined && (
           <>
             <EuiFlexItem grow={false}>
@@ -222,7 +204,7 @@ export function SourceData(props: SourceDataProps) {
                   <EuiSmallButton
                     fill={true}
                     disabled={props.disabled}
-                    onClick={() => setIsEditModalOpen(true)}
+                    onClick={() => props.setIsEditModalOpen(true)}
                     data-testid="selectDataToImportButton"
                     iconType="plus"
                     iconSide="left"
