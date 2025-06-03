@@ -118,7 +118,7 @@ export function SearchContent(props: SearchContentProps) {
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
           <NavComponent
-            title="Search request"
+            title="Sample query"
             icon="editorCodeBlock"
             onClick={() => {
               props.setSelectedComponentId(COMPONENT_ID.SEARCH_REQUEST);
@@ -149,19 +149,12 @@ export function SearchContent(props: SearchContentProps) {
         <DownArrow />
         <EuiFlexItem grow={false}>
           <NavComponent
-            title="Retrieve from data source"
+            title="Run query"
             icon="list"
             onClick={() => {
-              // TODO: determine what content to show
-              props.setSelectedComponentId(
-                COMPONENT_ID.RETRIEVE_FROM_DATA_SOURCE
-              );
-              console.log('retrieve from data source clicked');
+              props.setSelectedComponentId(COMPONENT_ID.RUN_QUERY);
             }}
-            isSelected={
-              props.selectedComponentId ===
-              COMPONENT_ID.RETRIEVE_FROM_DATA_SOURCE
-            }
+            isSelected={props.selectedComponentId === COMPONENT_ID.RUN_QUERY}
           />
         </EuiFlexItem>
         <DownArrow />
@@ -183,9 +176,7 @@ export function SearchContent(props: SearchContentProps) {
             title="Search results"
             icon="list"
             onClick={() => {
-              // TODO: determine what content to show
               props.setSelectedComponentId(COMPONENT_ID.SEARCH_RESULTS);
-              console.log('Search results clicked');
             }}
             isSelected={
               props.selectedComponentId === COMPONENT_ID.SEARCH_RESULTS

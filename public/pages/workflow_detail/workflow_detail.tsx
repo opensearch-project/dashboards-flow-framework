@@ -291,7 +291,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                   direction="row"
                   gutterSize="xs"
                   style={{
-                    marginTop: USE_NEW_HOME_PAGE ? '0' : '-24px',
+                    marginTop: USE_NEW_HOME_PAGE ? '0' : '-12px',
                     height: '100%',
                     gap: '4px',
                   }}

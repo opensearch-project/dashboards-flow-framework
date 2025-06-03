@@ -27,8 +27,8 @@ import {
   FETCH_ALL_QUERY_LARGE,
   UPDATE_MODEL_DOCS_LINK,
   MODEL_CATEGORY,
-  ML_CHOOSE_MODEL_LINK,
   ModelItem,
+  ML_REMOTE_MODEL_LINK,
 } from '../../../../../common';
 import { AppState, searchModels, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
@@ -125,7 +125,7 @@ export function ModelField(props: ModelFieldProps) {
                   <ModelInfoPopover modelCategory={props.modelCategory} />
                 ) : (
                   <EuiText size="xs">
-                    <EuiLink href={ML_CHOOSE_MODEL_LINK} target="_blank">
+                    <EuiLink href={ML_REMOTE_MODEL_LINK} target="_blank">
                       Learn more
                     </EuiLink>
                   </EuiText>

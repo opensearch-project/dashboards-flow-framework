@@ -214,7 +214,11 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
           {dataSourceEnabled && DataSourceComponent}
           <EuiPageHeader
             pageTitle={
-              <EuiFlexGroup direction="row" gutterSize="s">
+              <EuiFlexGroup
+                direction="row"
+                gutterSize="s"
+                style={{ marginTop: '-12px' }}
+              >
                 <EuiFlexItem grow={false}>{workflowName}</EuiFlexItem>
                 <EuiFlexItem grow={false} style={{ marginTop: '18px' }}>
                   <EuiButtonIcon

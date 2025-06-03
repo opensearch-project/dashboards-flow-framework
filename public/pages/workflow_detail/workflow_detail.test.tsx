@@ -167,7 +167,7 @@ describe('WorkflowDetail Page with skip ingestion option (Hybrid Search Workflow
     userEvent.click(getByTestId('toggleIngestButton'));
     await sleep(500);
     expect(
-      within(getByTestId('componentInputPanel')).getByText('Search request')
+      within(getByTestId('componentInputPanel')).getByText('Sample query')
     );
     expect(within(leftNavPanel).getByText('Disabled')).toBeInTheDocument();
     expect(within(leftNavPanel).getByText('Not created')).toBeInTheDocument();

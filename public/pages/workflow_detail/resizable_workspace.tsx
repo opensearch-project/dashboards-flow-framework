@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { isEmpty } from 'lodash';
 import {
   EuiCodeBlock,
   EuiEmptyPrompt,
@@ -51,7 +52,10 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // The global state for selected component ID. Default to the source data (if ingest enabled)
   const [selectedComponentId, setSelectedComponentId] = useState<string>('');
   useEffect(() => {
-    if (props.uiConfig?.ingest?.enabled?.value === true) {
+    if (
+      props.uiConfig?.ingest?.enabled?.value === true &&
+      isEmpty(selectedComponentId)
+    ) {
       setSelectedComponentId(COMPONENT_ID.SOURCE_DATA);
     }
   }, [props.uiConfig?.ingest?.enabled]);
@@ -98,6 +102,13 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }, [props.workflow]);
 
+  function displaySearchPanel(): void {
+    if (!isToolsPanelOpen) {
+      onToggleToolsChange();
+    }
+    setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
+  }
+
   return isValidWorkflow ? (
     <EuiResizableContainer
       key={`${leftNavOpen}`} // re-render when the left nav is toggled, to re-generate the correct width
@@ -126,12 +137,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                   setIngestDocs={props.setIngestDocs}
                   setIngestUpdateRequired={setIngestUpdateRequired}
                   setBlockNavigation={props.setBlockNavigation}
-                  displaySearchPanel={() => {
-                    if (!isToolsPanelOpen) {
-                      onToggleToolsChange();
-                    }
-                    setSelectedInspectorTabId(INSPECTOR_TAB_ID.TEST);
-                  }}
+                  displaySearchPanel={displaySearchPanel}
                   setCachedFormikState={props.setCachedFormikState}
                   setLastIngested={setLastIngested}
                   selectedComponentId={selectedComponentId}
@@ -166,6 +172,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
                 }
                 leftNavOpen={leftNavOpen}
                 openLeftNav={() => setLeftNavOpen(true)}
+                displaySearchPanel={displaySearchPanel}
               />
             </EuiResizablePanel>
             <EuiResizableButton />
