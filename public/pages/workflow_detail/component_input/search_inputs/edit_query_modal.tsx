@@ -127,39 +127,30 @@ export function EditQueryModal(props: EditQueryModalProps) {
     setTempResultsError('');
   }, [queryParams]);
 
-  const SearchButton = (
-    <EuiSmallButton
-      fill={false}
-      isLoading={loading}
-      disabled={containsEmptyValues(queryParams)}
-      onClick={() => {
-        dispatch(
-          searchIndex({
-            apiBody: {
-              index: values?.search?.index?.name,
-              body: injectParameters(queryParams, tempRequest),
-              // Run the query independent of the pipeline inside this modal
-              searchPipeline: '_none',
-            },
-            dataSourceId,
-          })
-        )
-          .unwrap()
-          .then(async (resp: SearchResponse) => {
-            setQueryResponse(resp);
-            setTempResultsError('');
-          })
-          .catch((error: any) => {
-            setQueryResponse(undefined);
-            const errorMsg = `Error running query: ${error}`;
-            setTempResultsError(errorMsg);
-            console.error(errorMsg);
-          });
-      }}
-    >
-      Search
-    </EuiSmallButton>
-  );
+  function executeSearch() {
+    dispatch(
+      searchIndex({
+        apiBody: {
+          index: values?.search?.index?.name,
+          body: injectParameters(queryParams, tempRequest),
+          // Run the query independent of the pipeline inside this modal
+          searchPipeline: '_none',
+        },
+        dataSourceId,
+      })
+    )
+      .unwrap()
+      .then(async (resp: SearchResponse) => {
+        setQueryResponse(resp);
+        setTempResultsError('');
+      })
+      .catch((error: any) => {
+        setQueryResponse(undefined);
+        const errorMsg = `Error running query: ${error}`;
+        setTempResultsError(errorMsg);
+        console.error(errorMsg);
+      });
+  }
 
   return (
     <Formik
@@ -297,7 +288,13 @@ export function EditQueryModal(props: EditQueryModalProps) {
                           </EuiFlexItem>
                           {!isEmpty(queryResponse) && (
                             <EuiFlexItem grow={false}>
-                              {SearchButton}
+                              <EuiSmallButtonEmpty
+                                isLoading={loading}
+                                disabled={containsEmptyValues(queryParams)}
+                                onClick={() => executeSearch()}
+                              >
+                                <EuiText size="m">Search</EuiText>
+                              </EuiSmallButtonEmpty>
                             </EuiFlexItem>
                           )}
                         </EuiFlexGroup>
@@ -324,7 +321,14 @@ export function EditQueryModal(props: EditQueryModalProps) {
                                     Run a search to view results.
                                   </EuiText>
                                   <EuiSpacer size="m" />
-                                  {SearchButton}
+                                  <EuiSmallButton
+                                    fill={false}
+                                    isLoading={loading}
+                                    disabled={containsEmptyValues(queryParams)}
+                                    onClick={() => executeSearch()}
+                                  >
+                                    Search
+                                  </EuiSmallButton>
                                 </>
                               }
                             />
