@@ -824,8 +824,8 @@ export function LeftNav(props: LeftNavProps) {
           <EuiFlexItem
             grow={false}
             style={{
-              overflowY: 'scroll',
-              scrollbarGutter: 'stable',
+              overflowY: 'auto',
+              scrollbarGutter: 'auto',
               scrollbarWidth: 'thin',
               overflowX: 'hidden',
             }}
