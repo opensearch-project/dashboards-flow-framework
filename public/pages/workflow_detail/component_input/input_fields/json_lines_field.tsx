@@ -96,45 +96,24 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
               width="100%"
               height={props.editorHeight || '15vh'}
               value={jsonStr}
+              // Validate on every keystroke, collecting all of the errors
               onChange={(input) => {
                 setJsonStr(input);
-                form.setFieldValue(field.name, input);
-                setCustomErrMsg(undefined);
-              }}
-              onBlur={() => {
                 form.setFieldTouched(field.name);
-                let finalJsonStr = '';
-                let errs = [] as string[];
-                try {
-                  const lines = jsonStr?.split('\n');
-                  lines.forEach((line: string, idx) => {
-                    if (line.trim() !== '') {
-                      let parsedLine = {};
-                      try {
-                        parsedLine = JSON.parse(line);
-                      } catch (error) {
-                        errs.push(
-                          getFormattedErrorMsg(error as Error, idx + 1)
-                        );
-                      }
-                      if (!isEmpty(parsedLine)) {
-                        finalJsonStr +=
-                          customStringifySingleLine(JSON.parse(line)) + '\n';
-                      }
-                    }
-                  });
-                  // remove trailing newline
-                  if (finalJsonStr !== '') {
-                    finalJsonStr = finalJsonStr.slice(0, -1);
-                  }
-
-                  if (errs?.length > 0) {
-                    setCustomErrMsg(getFormattedErrorMsgList(errs));
-                  } else {
-                    form.setFieldValue(field.name, finalJsonStr);
-                    setCustomErrMsg(undefined);
-                  }
-                } catch (error) {}
+                form.setFieldValue(field.name, input);
+                const errs = getErrs(input);
+                if (errs?.length > 0) {
+                  setCustomErrMsg(getFormattedErrorMsgList(errs));
+                } else {
+                  setCustomErrMsg(undefined);
+                }
+              }}
+              // Format on blur. If formatting was successful, and there was no errors, then update the form.
+              onBlur={() => {
+                const finalJsonStr = getFormattedJsonStr(jsonStr);
+                if (!isEmpty(finalJsonStr) && isEmpty(getErrs(jsonStr))) {
+                  form.setFieldValue(field.name, finalJsonStr);
+                }
               }}
               readOnly={props.readOnly || false}
               setOptions={{
@@ -178,4 +157,45 @@ function getFormattedErrorMsgList(errors: string[]): string {
     finalMsg = finalMsg.slice(0, -1);
   }
   return finalMsg;
+}
+
+function getFormattedJsonStr(jsonStr: string): string {
+  let finalJsonStr = '';
+  try {
+    const lines = jsonStr?.split('\n');
+    lines.forEach((line: string, idx) => {
+      if (line.trim() !== '') {
+        let parsedLine = {};
+        try {
+          parsedLine = JSON.parse(line);
+        } catch (error) {}
+        if (!isEmpty(parsedLine)) {
+          finalJsonStr += customStringifySingleLine(JSON.parse(line)) + '\n';
+        }
+      }
+    });
+    // remove trailing newline
+    if (finalJsonStr !== '') {
+      finalJsonStr = finalJsonStr.slice(0, -1);
+    }
+  } catch (error) {}
+  return finalJsonStr;
+}
+
+function getErrs(jsonStr: string): string[] {
+  let errs = [] as string[];
+  try {
+    const lines = jsonStr?.split('\n');
+    lines.forEach((line: string, idx) => {
+      if (line.trim() !== '') {
+        let parsedLine = {};
+        try {
+          parsedLine = JSON.parse(line);
+        } catch (error) {
+          errs.push(getFormattedErrorMsg(error as Error, idx + 1));
+        }
+      }
+    });
+  } catch {}
+  return errs;
 }
