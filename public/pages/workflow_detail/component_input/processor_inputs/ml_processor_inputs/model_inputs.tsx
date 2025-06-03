@@ -449,6 +449,10 @@ export function ModelInputs(props: ModelInputsProps) {
                                         isDataFetchingAvailable={
                                           props.isDataFetchingAvailable
                                         }
+                                        isConfiguringQuery={
+                                          props.context ===
+                                          PROCESSOR_CONTEXT.SEARCH_REQUEST
+                                        }
                                         onClose={() =>
                                           setTemplateModalIdx(undefined)
                                         }
@@ -468,6 +472,10 @@ export function ModelInputs(props: ModelInputsProps) {
                                         )}
                                         isDataFetchingAvailable={
                                           props.isDataFetchingAvailable
+                                        }
+                                        isConfiguringQuery={
+                                          props.context ===
+                                          PROCESSOR_CONTEXT.SEARCH_REQUEST
                                         }
                                         onClose={() =>
                                           setExpressionModalIdx(undefined)

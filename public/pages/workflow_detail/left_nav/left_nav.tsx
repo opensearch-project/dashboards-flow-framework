@@ -58,6 +58,7 @@ import {
   reduceToTemplate,
   sleep,
   uiConfigToFormik,
+  USE_NEW_HOME_PAGE,
   useDataSourceVersion,
   useMissingDataSourceVersion,
 } from '../../../utils';
@@ -142,7 +143,10 @@ export function LeftNav(props: LeftNavProps) {
 
   // maintain global states
   const onIngest = props.selectedComponentId.startsWith('ingest');
-  const onSearch = props.selectedComponentId.startsWith('search');
+  const onSearch =
+    props.selectedComponentId.startsWith('search') ||
+    props.selectedComponentId === COMPONENT_ID.RUN_QUERY ||
+    props.selectedComponentId === COMPONENT_ID.SEARCH_RESULTS;
   const isProposingNoSearchResources =
     isEmpty(getIn(values, 'search.enrichRequest')) &&
     isEmpty(getIn(values, 'search.enrichResponse'));
@@ -821,6 +825,8 @@ export function LeftNav(props: LeftNavProps) {
             grow={false}
             style={{
               overflowY: 'scroll',
+              scrollbarGutter: 'stable',
+              scrollbarWidth: 'thin',
               overflowX: 'hidden',
             }}
           >
@@ -911,7 +917,10 @@ export function LeftNav(props: LeftNavProps) {
                 <EuiFlexGroup
                   direction="row"
                   gutterSize="s"
-                  style={{ padding: '0px', marginBottom: '48px' }}
+                  style={{
+                    padding: '0px',
+                    marginBottom: USE_NEW_HOME_PAGE ? '0px' : '54px',
+                  }}
                 >
                   {onIngestAndUnprovisioned &&
                     ingestEnabled &&

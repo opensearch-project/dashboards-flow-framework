@@ -247,10 +247,8 @@ export const ML_INFERENCE_DOCS_LINK =
   'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters';
 export const ML_INFERENCE_RESPONSE_DOCS_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/ml-inference-search-response/#request-fields';
-export const ML_CHOOSE_MODEL_LINK =
-  'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model';
 export const ML_REMOTE_MODEL_LINK =
-  'https://opensearch.org/docs/latest/ml-commons-plugin/remote-models/index/';
+  'https://docs.opensearch.org/docs/latest/ml-commons-plugin/remote-models/supported-connectors/';
 export const TEXT_CHUNKING_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-chunking/';
 export const CREATE_WORKFLOW_LINK =
@@ -273,6 +271,8 @@ export const ML_RESPONSE_PROCESSOR_EXAMPLE_DOCS_LINK =
 export const UPDATE_MODEL_DOCS_LINK =
   'https://opensearch.org/docs/latest/ml-commons-plugin/api/model-apis/update-model/';
 export const JSONLINES_LINK = 'https://jsonlines.org/';
+export const EXPANDED_FORM_QUERY_ISSUE =
+  'https://github.com/opensearch-project/OpenSearch/issues/17358';
 
 // Large Language Models Documentation Links
 export const BEDROCK_CLAUDE_3_SONNET_DOCS_LINK =
@@ -914,7 +914,7 @@ export enum COMPONENT_ID {
   INGEST_DATA = 'ingest.index',
   SEARCH_REQUEST = 'search.request',
   ENRICH_SEARCH_REQUEST = 'search.enrichRequest',
-  RETRIEVE_FROM_DATA_SOURCE = 'retrieveFromDataSource',
+  RUN_QUERY = 'runQuery',
   ENRICH_SEARCH_RESPONSE = 'search.enrichResponse',
   SEARCH_RESULTS = 'searchResults',
 }
