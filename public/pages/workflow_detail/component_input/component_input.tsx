@@ -62,7 +62,7 @@ export function ComponentInput(props: ComponentInputProps) {
 
   const { values } = useFormikContext<WorkflowFormValues>();
 
-  // top-level edit button state. Currently implemented as a model, and only applicable for (and only integrated with)
+  // top-level edit button state. Currently implemented as a modal, and only applicable for (and only integrated with)
   // the "Source Data" component. In the future, the edit content may be moved into a contextual panel,
   // and there may be more top-level actions, such as "preview transformations" for individual processors.
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
