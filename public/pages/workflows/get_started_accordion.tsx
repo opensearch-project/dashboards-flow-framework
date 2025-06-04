@@ -21,11 +21,11 @@ interface GetStartedAccordionProps {
 }
 
 export function GetStartedAccordion(props: GetStartedAccordionProps) {
-  const initialIsOpen = props.initialIsOpen ?? false;
   return (
     <EuiAccordion
+      key={props.initialIsOpen} // re-mount if initialIsOpen changes, otherwise it does not update
       style={{ marginBottom: '-16px' }}
-      initialIsOpen={initialIsOpen}
+      initialIsOpen={props.initialIsOpen}
       id={`accordionGetStarted`}
       buttonContent={
         <EuiFlexGroup direction="row">
