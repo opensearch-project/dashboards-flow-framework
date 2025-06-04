@@ -328,7 +328,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                         <ModelField
                           modelCategory={MODEL_CATEGORY.EMBEDDING}
                           fieldPath="embeddingModel"
-                          showMissingInterfaceCallout={false}
+                          showMissingInterfaceCallout={true}
                           label="Embedding model"
                           helpText="The model to generate embeddings."
                           fullWidth={true}

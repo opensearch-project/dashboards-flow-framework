@@ -208,13 +208,15 @@ export function SourceDataModal(props: SourceDataProps) {
             maxWidth={false}
             onClose={() => onClose()}
             className="configuration-modal"
+            // overriding the default modal height for this one. Prioritize vertical space for easier viewing of imported documents
+            style={{ height: '80vh' }}
           >
             <EuiModalHeader>
               <EuiModalHeaderTitle>
                 <p>{`Import sample data`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
-            <EuiModalBody>
+            <EuiModalBody style={{ height: '70vh' }}>
               <>
                 <EuiText size="s" color="subdued">
                   To start configuring an ingest flow, import a sample of your
@@ -313,13 +315,13 @@ export function SourceDataModal(props: SourceDataProps) {
                       </EuiLink>
                     </EuiText>
                   }
-                  editorHeight="40vh"
+                  editorHeight="20vh"
                   readOnly={false}
                   validate={true}
                 />
               </>
             </EuiModalBody>
-            <EuiModalFooter>
+            <EuiModalFooter style={{ marginBottom: '-24px' }}>
               <EuiSmallButtonEmpty
                 onClick={() => onClose()}
                 color="primary"

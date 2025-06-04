@@ -25,10 +25,10 @@ import {
   WorkflowFormValues,
   ModelFormValue,
   FETCH_ALL_QUERY_LARGE,
-  UPDATE_MODEL_DOCS_LINK,
   MODEL_CATEGORY,
   ModelItem,
   ML_REMOTE_MODEL_LINK,
+  ML_INTERFACE_LINK,
 } from '../../../../../common';
 import { AppState, searchModels, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
@@ -98,11 +98,15 @@ export function ModelField(props: ModelFieldProps) {
               size="s"
               title={
                 <EuiText size="s">
-                  This model has no interface set up yet.{' '}
-                  <EuiLink href={UPDATE_MODEL_DOCS_LINK} target="_blank">
-                    Learn more
+                  This model has no{' '}
+                  <EuiLink href={ML_INTERFACE_LINK} target="_blank">
+                    interface
                   </EuiLink>{' '}
-                  about updating a model. Refresh the list when you finish.
+                  set up yet. For a list of supported models with sufficient
+                  interfaces, see{' '}
+                  <EuiLink href={ML_REMOTE_MODEL_LINK} target="_blank">
+                    here
+                  </EuiLink>
                 </EuiText>
               }
               color="warning"

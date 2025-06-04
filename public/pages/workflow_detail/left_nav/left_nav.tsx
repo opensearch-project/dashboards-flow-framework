@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { isEmpty, isEqual } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
 import {
+  EuiButtonIcon,
   EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
@@ -790,7 +791,11 @@ export function LeftNav(props: LeftNavProps) {
         grow={false}
         className="workspace-panel left-nav-static-width"
         borderRadius="l"
-        style={{ paddingBottom: '48px' }}
+        style={{
+          paddingBottom: '48px',
+          paddingRight: '0px',
+          paddingLeft: '12px',
+        }}
       >
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -800,10 +805,13 @@ export function LeftNav(props: LeftNavProps) {
               </EuiTitle>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiSmallButtonIcon
+              <EuiButtonIcon
+                style={{ marginRight: '12px', marginTop: '8px' }}
                 data-testid="hideLeftNavButton"
                 aria-label="hideLeftNavButton"
                 iconType={'menuLeft'}
+                size="xs"
+                display="base"
                 onClick={() => {
                   props.onClose();
                 }}
@@ -882,7 +890,7 @@ export function LeftNav(props: LeftNavProps) {
               )}
             </>
           </EuiFlexItem>
-          <EuiFlexItem grow={false}>
+          <EuiFlexItem grow={false} style={{ marginRight: '12px' }}>
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />

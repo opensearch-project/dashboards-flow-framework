@@ -127,6 +127,31 @@ export function EditQueryModal(props: EditQueryModalProps) {
     setTempResultsError('');
   }, [queryParams]);
 
+  function executeSearch() {
+    dispatch(
+      searchIndex({
+        apiBody: {
+          index: values?.search?.index?.name,
+          body: injectParameters(queryParams, tempRequest),
+          // Run the query independent of the pipeline inside this modal
+          searchPipeline: '_none',
+        },
+        dataSourceId,
+      })
+    )
+      .unwrap()
+      .then(async (resp: SearchResponse) => {
+        setQueryResponse(resp);
+        setTempResultsError('');
+      })
+      .catch((error: any) => {
+        setQueryResponse(undefined);
+        const errorMsg = `Error running query: ${error}`;
+        setTempResultsError(errorMsg);
+        console.error(errorMsg);
+      });
+  }
+
   return (
     <Formik
       enableReinitialize={false}
@@ -261,6 +286,17 @@ export function EditQueryModal(props: EditQueryModalProps) {
                           <EuiFlexItem grow={false}>
                             <EuiText size="m">Test query</EuiText>
                           </EuiFlexItem>
+                          {!isEmpty(queryResponse) && (
+                            <EuiFlexItem grow={false}>
+                              <EuiSmallButtonEmpty
+                                isLoading={loading}
+                                disabled={containsEmptyValues(queryParams)}
+                                onClick={() => executeSearch()}
+                              >
+                                <EuiText size="m">Search</EuiText>
+                              </EuiSmallButtonEmpty>
+                            </EuiFlexItem>
+                          )}
                         </EuiFlexGroup>
                       </EuiFlexItem>
                       {/**
@@ -289,33 +325,7 @@ export function EditQueryModal(props: EditQueryModalProps) {
                                     fill={false}
                                     isLoading={loading}
                                     disabled={containsEmptyValues(queryParams)}
-                                    onClick={() => {
-                                      dispatch(
-                                        searchIndex({
-                                          apiBody: {
-                                            index: values?.search?.index?.name,
-                                            body: injectParameters(
-                                              queryParams,
-                                              tempRequest
-                                            ),
-                                            // Run the query independent of the pipeline inside this modal
-                                            searchPipeline: '_none',
-                                          },
-                                          dataSourceId,
-                                        })
-                                      )
-                                        .unwrap()
-                                        .then(async (resp: SearchResponse) => {
-                                          setQueryResponse(resp);
-                                          setTempResultsError('');
-                                        })
-                                        .catch((error: any) => {
-                                          setQueryResponse(undefined);
-                                          const errorMsg = `Error running query: ${error}`;
-                                          setTempResultsError(errorMsg);
-                                          console.error(errorMsg);
-                                        });
-                                    }}
+                                    onClick={() => executeSearch()}
                                   >
                                     Search
                                   </EuiSmallButton>

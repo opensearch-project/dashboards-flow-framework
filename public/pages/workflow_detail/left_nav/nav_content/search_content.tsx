@@ -58,11 +58,11 @@ export function SearchContent(props: SearchContentProps) {
         </EuiText>
       }
       extraAction={
-        <>
+        <div style={{ marginBottom: '8px' }}>
           <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row" gutterSize="xs">
               {props.ingestProvisioned && (
-                <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
+                <EuiFlexItem grow={false} style={{ marginTop: '6px' }}>
                   <EuiButtonIcon
                     iconType="play"
                     size="s"
@@ -72,7 +72,7 @@ export function SearchContent(props: SearchContentProps) {
                 </EuiFlexItem>
               )}
               {props.searchProvisioned && (
-                <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
+                <EuiFlexItem grow={false} style={{ marginTop: '6px' }}>
                   <EuiButtonIcon
                     iconType="inspect"
                     size="s"
@@ -86,7 +86,7 @@ export function SearchContent(props: SearchContentProps) {
               )}
               <EuiFlexItem
                 grow={false}
-                style={{ marginLeft: '8px', marginTop: '16px' }}
+                style={{ marginLeft: '8px', marginTop: '12px' }}
               >
                 <EuiHealth
                   textSize="s"
@@ -111,7 +111,7 @@ export function SearchContent(props: SearchContentProps) {
               </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
-        </>
+        </div>
       }
     >
       <EuiSpacer size="s" />
