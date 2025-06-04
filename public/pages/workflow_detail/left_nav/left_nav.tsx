@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { isEmpty, isEqual } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
 import {
+  EuiButtonIcon,
   EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
@@ -804,10 +805,13 @@ export function LeftNav(props: LeftNavProps) {
               </EuiTitle>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiSmallButtonIcon
+              <EuiButtonIcon
+                style={{ marginRight: '12px', marginTop: '8px' }}
                 data-testid="hideLeftNavButton"
                 aria-label="hideLeftNavButton"
                 iconType={'menuLeft'}
+                size="xs"
+                display="base"
                 onClick={() => {
                   props.onClose();
                 }}
@@ -886,7 +890,7 @@ export function LeftNav(props: LeftNavProps) {
               )}
             </>
           </EuiFlexItem>
-          <EuiFlexItem grow={false}>
+          <EuiFlexItem grow={false} style={{ marginRight: '12px' }}>
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />

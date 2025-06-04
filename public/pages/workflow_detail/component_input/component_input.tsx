@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
+  EuiButtonIcon,
   EuiCallOut,
   EuiEmptyPrompt,
   EuiFlexGroup,
@@ -17,7 +18,6 @@ import {
   EuiLoadingSpinner,
   EuiPanel,
   EuiSmallButtonEmpty,
-  EuiSmallButtonIcon,
   EuiTitle,
 } from '@elastic/eui';
 import { SourceData, IngestData } from './ingest_inputs';
@@ -147,10 +147,13 @@ export function ComponentInput(props: ComponentInputProps) {
   function getComponentButton() {
     return !props.leftNavOpen ? (
       <EuiFlexItem grow={false}>
-        <EuiSmallButtonIcon
+        <EuiButtonIcon
+          style={{ marginTop: '4px', marginRight: '8px' }}
           data-testid="showLeftNavButton"
           aria-label="showLeftNavButton"
           iconType={'menuRight'}
+          size="xs"
+          display="base"
           onClick={() => {
             props.openLeftNav();
           }}
@@ -181,7 +184,7 @@ export function ComponentInput(props: ComponentInputProps) {
       }
     }
     return iconType !== undefined ? (
-      <EuiFlexItem grow={false} style={{ paddingTop: '6px' }}>
+      <EuiFlexItem grow={false} style={{ paddingTop: '8px' }}>
         <EuiIcon type={iconType} size="m" />
       </EuiFlexItem>
     ) : undefined;
