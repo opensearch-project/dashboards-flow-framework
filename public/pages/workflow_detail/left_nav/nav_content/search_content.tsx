@@ -118,6 +118,7 @@ export function SearchContent(props: SearchContentProps) {
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
           <NavComponent
+            dataTestId="searchPipelineButton" // for historical reasons, the naming of this component's test id doesn't exactly match its purpose
             title="Sample query"
             icon="editorCodeBlock"
             onClick={() => {

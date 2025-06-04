@@ -935,6 +935,7 @@ export function LeftNav(props: LeftNavProps) {
                     !searchUpdateRequired && (
                       <EuiFlexItem grow={true}>
                         <EuiSmallButton
+                          data-test-subj="updateAndRunIngestButton"
                           fill={true}
                           isLoading={isProvisioningIngest}
                           onClick={() => validateAndRunIngestion()}
@@ -973,6 +974,7 @@ export function LeftNav(props: LeftNavProps) {
                     !(ingestEnabled && !ingestProvisioned) && (
                       <EuiFlexItem grow={true}>
                         <EuiSmallButton
+                          data-test-subj="updateSearchButton"
                           fill={true}
                           disabled={isProvisioningSearch}
                           isLoading={isProvisioningSearch}
