@@ -249,6 +249,8 @@ export const ML_INFERENCE_RESPONSE_DOCS_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/ml-inference-search-response/#request-fields';
 export const ML_REMOTE_MODEL_LINK =
   'https://docs.opensearch.org/docs/latest/ml-commons-plugin/remote-models/supported-connectors/';
+export const ML_INTERFACE_LINK =
+  'https://docs.opensearch.org/docs/latest/ml-commons-plugin/api/model-apis/register-model/#the-interface-parameter';
 export const TEXT_CHUNKING_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-chunking/';
 export const CREATE_WORKFLOW_LINK =

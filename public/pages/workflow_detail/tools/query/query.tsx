@@ -70,7 +70,7 @@ const SEARCH_OPTIONS = [
     label: 'Only query transformations',
   },
   {
-    label: 'All transformations',
+    label: 'Query and result transformations',
   },
 ];
 
@@ -188,7 +188,12 @@ export function Query(props: QueryProps) {
                       options={
                         props.hasSearchPipeline
                           ? SEARCH_OPTIONS
-                          : [SEARCH_OPTIONS[0]]
+                          : SEARCH_OPTIONS.map((option, idx) => {
+                              return {
+                                ...option,
+                                disabled: idx === 0 ? false : true,
+                              };
+                            })
                       }
                       selectedOptions={[selectedSearchOption]}
                       onChange={(options) => {

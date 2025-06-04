@@ -222,7 +222,7 @@ export function IngestContent(props: IngestContentProps) {
           )}
           <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row" gutterSize="xs">
-              <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
+              <EuiFlexItem grow={false} style={{ marginTop: '6px' }}>
                 <EuiPopover
                   button={
                     <EuiButtonIcon
@@ -287,7 +287,7 @@ export function IngestContent(props: IngestContentProps) {
                 </EuiPopover>
               </EuiFlexItem>
               {props.ingestProvisioned && (
-                <EuiFlexItem grow={false} style={{ marginTop: '10px' }}>
+                <EuiFlexItem grow={false} style={{ marginTop: '6px' }}>
                   <EuiButtonIcon
                     iconType="inspect"
                     size="s"
@@ -301,7 +301,7 @@ export function IngestContent(props: IngestContentProps) {
               )}
               <EuiFlexItem
                 grow={false}
-                style={{ marginLeft: '8px', marginTop: '16px' }}
+                style={{ marginLeft: '8px', marginTop: '12px' }}
               >
                 <EuiHealth
                   textSize="s"

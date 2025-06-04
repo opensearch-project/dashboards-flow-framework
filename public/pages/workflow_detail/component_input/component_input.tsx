@@ -5,9 +5,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getIn } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
+  EuiButtonIcon,
   EuiCallOut,
   EuiEmptyPrompt,
   EuiFlexGroup,
@@ -16,7 +17,7 @@ import {
   EuiIcon,
   EuiLoadingSpinner,
   EuiPanel,
-  EuiSmallButtonIcon,
+  EuiSmallButtonEmpty,
   EuiTitle,
 } from '@elastic/eui';
 import { SourceData, IngestData } from './ingest_inputs';
@@ -27,6 +28,7 @@ import {
   PROCESSOR_CONTEXT,
   Workflow,
   WorkflowConfig,
+  WorkflowFormValues,
 } from '../../../../common';
 import { ProcessorInputs } from './processor_inputs';
 import { AppState } from '../../../store';
@@ -57,6 +59,13 @@ export function ComponentInput(props: ComponentInputProps) {
     ingestPipeline: ingestPipelineErrors,
     searchPipeline: searchPipelineErrors,
   } = useSelector((state: AppState) => state.errors);
+
+  const { values } = useFormikContext<WorkflowFormValues>();
+
+  // top-level edit button state. Currently implemented as a modal, and only applicable for (and only integrated with)
+  // the "Source Data" component. In the future, the edit content may be moved into a contextual panel,
+  // and there may be more top-level actions, such as "preview transformations" for individual processors.
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
 
   // processor-related state. If a processor component is selected, do some extra parsing
   // to gather the extra data (processor config, context, error(s))
@@ -138,10 +147,13 @@ export function ComponentInput(props: ComponentInputProps) {
   function getComponentButton() {
     return !props.leftNavOpen ? (
       <EuiFlexItem grow={false}>
-        <EuiSmallButtonIcon
+        <EuiButtonIcon
+          style={{ marginTop: '4px', marginRight: '8px' }}
           data-testid="showLeftNavButton"
           aria-label="showLeftNavButton"
           iconType={'menuRight'}
+          size="xs"
+          display="base"
           onClick={() => {
             props.openLeftNav();
           }}
@@ -172,7 +184,7 @@ export function ComponentInput(props: ComponentInputProps) {
       }
     }
     return iconType !== undefined ? (
-      <EuiFlexItem grow={false} style={{ paddingTop: '6px' }}>
+      <EuiFlexItem grow={false} style={{ paddingTop: '8px' }}>
         <EuiIcon type={iconType} size="m" />
       </EuiFlexItem>
     ) : undefined;
@@ -180,8 +192,12 @@ export function ComponentInput(props: ComponentInputProps) {
 
   function getComponentTitle() {
     let componentTitle = undefined as string | undefined;
+    let showEditButton = false;
     if (props.selectedComponentId === COMPONENT_ID.SOURCE_DATA) {
       componentTitle = 'Sample data';
+      if (!isEmpty(values?.ingest?.docs)) {
+        showEditButton = true;
+      }
     } else if (
       isProcessorComponent(props.selectedComponentId) &&
       processor !== undefined
@@ -197,10 +213,25 @@ export function ComponentInput(props: ComponentInputProps) {
       componentTitle = 'Search results';
     }
     return componentTitle !== undefined ? (
-      <EuiFlexItem grow={false}>
-        <EuiTitle size="s">
-          <h3>{componentTitle}</h3>
-        </EuiTitle>
+      <EuiFlexItem>
+        <EuiFlexGroup direction="row" justifyContent="spaceBetween">
+          <EuiFlexItem grow={false}>
+            <EuiTitle size="s">
+              <h3>{componentTitle}</h3>
+            </EuiTitle>
+          </EuiFlexItem>
+          {showEditButton && (
+            <EuiFlexItem grow={false}>
+              <EuiSmallButtonEmpty
+                iconSide="left"
+                iconType={'pencil'}
+                onClick={() => setIsEditModalOpen(true)}
+              >
+                Edit
+              </EuiSmallButtonEmpty>
+            </EuiFlexItem>
+          )}
+        </EuiFlexGroup>
       </EuiFlexItem>
     ) : undefined;
   }
@@ -241,6 +272,8 @@ export function ComponentInput(props: ComponentInputProps) {
                 uiConfig={props.uiConfig}
                 setIngestDocs={props.setIngestDocs}
                 lastIngested={props.lastIngested}
+                isEditModalOpen={isEditModalOpen}
+                setIsEditModalOpen={setIsEditModalOpen}
                 ingestUpdateRequired={props.ingestUpdateRequired}
                 disabled={props.readonly}
               />
