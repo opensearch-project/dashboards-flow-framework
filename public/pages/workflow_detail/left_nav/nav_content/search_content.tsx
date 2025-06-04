@@ -58,7 +58,7 @@ export function SearchContent(props: SearchContentProps) {
         </EuiText>
       }
       extraAction={
-        <>
+        <div style={{ marginBottom: '8px' }}>
           <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row" gutterSize="xs">
               {props.ingestProvisioned && (
@@ -111,7 +111,7 @@ export function SearchContent(props: SearchContentProps) {
               </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
-        </>
+        </div>
       }
     >
       <EuiSpacer size="s" />
