@@ -16,13 +16,16 @@ import {
 } from '@elastic/eui';
 import { CREATE_WORKFLOW_LINK, ML_REMOTE_MODEL_LINK } from '../../../common';
 
-interface GetStartedAccordionProps {}
+interface GetStartedAccordionProps {
+  initialIsOpen: boolean;
+}
 
 export function GetStartedAccordion(props: GetStartedAccordionProps) {
+  const initialIsOpen = props.initialIsOpen ?? false;
   return (
     <EuiAccordion
       style={{ marginBottom: '-16px' }}
-      initialIsOpen={false}
+      initialIsOpen={initialIsOpen}
       id={`accordionGetStarted`}
       buttonContent={
         <EuiFlexGroup direction="row">
