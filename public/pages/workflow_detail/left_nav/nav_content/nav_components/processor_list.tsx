@@ -550,8 +550,8 @@ export function ProcessorList(props: ProcessorListProps) {
                 paddingTop: '8px',
                 marginLeft: '5px',
                 marginBottom: '8px',
-                width: '450px',
-                height: isEmpty(modelName) ? '55px' : '80px',
+                width: '460px',
+                height: isEmpty(modelName) ? '55px' : '75px',
                 border:
                   props.selectedComponentId === processorPath
                     ? LEFT_NAV_SELECTED_STYLE

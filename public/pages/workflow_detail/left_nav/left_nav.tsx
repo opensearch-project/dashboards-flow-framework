@@ -16,7 +16,6 @@ import {
   EuiPanel,
   EuiSmallButton,
   EuiSmallButtonIcon,
-  EuiSpacer,
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
@@ -793,8 +792,7 @@ export function LeftNav(props: LeftNavProps) {
         borderRadius="l"
         style={{
           paddingBottom: '48px',
-          paddingRight: '0px',
-          paddingLeft: '12px',
+          marginRight: '0px',
         }}
       >
         <EuiFlexItem grow={false}>
@@ -806,7 +804,7 @@ export function LeftNav(props: LeftNavProps) {
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiButtonIcon
-                style={{ marginRight: '12px', marginTop: '8px' }}
+                style={{ marginTop: '8px' }}
                 data-testid="hideLeftNavButton"
                 aria-label="hideLeftNavButton"
                 iconType={'menuLeft'}
