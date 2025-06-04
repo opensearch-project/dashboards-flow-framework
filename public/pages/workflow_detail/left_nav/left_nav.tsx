@@ -896,30 +896,24 @@ export function LeftNav(props: LeftNavProps) {
                 <EuiHorizontalRule margin="m" />
               </EuiFlexItem>
               {onIngestAndSearchUpdateRequired && (
-                <>
-                  <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
-                    <EuiCallOut
-                      color="warning"
-                      iconType={'help'}
-                      title="Create/update your search flow before updating an ingest flow"
-                    />
-                  </EuiFlexItem>
-                  <EuiSpacer size="s" />
-                </>
+                <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
+                  <EuiCallOut
+                    color="warning"
+                    iconType={'help'}
+                    title="Create/update your search flow before updating an ingest flow"
+                  />
+                </EuiFlexItem>
               )}
               {onSearchAndIngestUpdateRequired && (
-                <>
-                  <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
-                    <EuiCallOut
-                      color="warning"
-                      iconType={'help'}
-                      title={
-                        'Create/update your ingest flow before updating a search flow.'
-                      }
-                    />
-                  </EuiFlexItem>
-                  <EuiSpacer size="s" />
-                </>
+                <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
+                  <EuiCallOut
+                    color="warning"
+                    iconType={'help'}
+                    title={
+                      'Create/update your ingest flow before updating a search flow.'
+                    }
+                  />
+                </EuiFlexItem>
               )}
               <EuiFlexItem grow={false}>
                 <EuiFlexGroup
