@@ -790,7 +790,11 @@ export function LeftNav(props: LeftNavProps) {
         grow={false}
         className="workspace-panel left-nav-static-width"
         borderRadius="l"
-        style={{ paddingBottom: '48px' }}
+        style={{
+          paddingBottom: '48px',
+          paddingRight: '0px',
+          paddingLeft: '12px',
+        }}
       >
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -824,8 +828,8 @@ export function LeftNav(props: LeftNavProps) {
           <EuiFlexItem
             grow={false}
             style={{
-              overflowY: 'auto',
-              scrollbarGutter: 'auto',
+              overflowY: 'scroll',
+              scrollbarGutter: 'stable',
               scrollbarWidth: 'thin',
               overflowX: 'hidden',
             }}
