@@ -148,15 +148,19 @@ export function SearchContent(props: SearchContentProps) {
           />
         </EuiFlexItem>
         <DownArrow />
-        <EuiFlexItem grow={false}>
-          <NavComponent
+        <EuiFlexItem grow={false} style={{ alignItems: 'center' }}>
+          <EuiText>Run query</EuiText>
+          {/**
+           * TODO: add back "Run query" panel once the content has been finalized
+           */}
+          {/* <NavComponent
             title="Run query"
             icon="list"
             onClick={() => {
               props.setSelectedComponentId(COMPONENT_ID.RUN_QUERY);
             }}
             isSelected={props.selectedComponentId === COMPONENT_ID.RUN_QUERY}
-          />
+          /> */}
         </EuiFlexItem>
         <DownArrow />
         <EuiFlexItem grow={false}>
@@ -172,7 +176,12 @@ export function SearchContent(props: SearchContentProps) {
           />
         </EuiFlexItem>
         <DownArrow />
-        <EuiFlexItem grow={false}>
+        <EuiFlexItem grow={false} style={{ alignItems: 'center' }}>
+          <EuiText>Search results</EuiText>
+          {/**
+           * TODO: add back "Search results" panel once the content has been finalized
+           */}
+          {/* 
           <NavComponent
             title="Search results"
             icon="list"
@@ -182,7 +191,7 @@ export function SearchContent(props: SearchContentProps) {
             isSelected={
               props.selectedComponentId === COMPONENT_ID.SEARCH_RESULTS
             }
-          />
+          /> */}
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiAccordion>
