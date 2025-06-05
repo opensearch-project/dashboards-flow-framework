@@ -834,15 +834,7 @@ export function LeftNav(props: LeftNavProps) {
             //marginLeft: '12px', TODO: change this value to adjust global margin of left nav.
           }}
         >
-          <EuiFlexItem
-            grow={false}
-            style={{
-              overflowY: 'scroll',
-              scrollbarGutter: 'stable',
-              scrollbarWidth: 'thin',
-              overflowX: 'hidden',
-            }}
-          >
+          <EuiFlexItem grow={false} className="left-nav-scroll">
             <>
               {props.uiConfig === undefined ? (
                 <EuiLoadingSpinner size="xl" />

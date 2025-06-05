@@ -5,3 +5,10 @@
 .left-nav-static-width {
   width: 500px;
 }
+
+.left-nav-scroll {
+  overflow-y: auto;
+  scrollbar-gutter: auto;
+  scrollbar-width: none;
+  overflow-x: hidden;
+}
