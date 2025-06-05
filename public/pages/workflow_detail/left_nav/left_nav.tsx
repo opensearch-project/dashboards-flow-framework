@@ -336,7 +336,8 @@ export function LeftNav(props: LeftNavProps) {
         )
       : false;
   const searchUpdateRequired =
-    (searchProvisioned && searchTemplatesDifferent) || searchRequestUpdated;
+    ((searchProvisioned && searchTemplatesDifferent) || searchRequestUpdated) &&
+    searchProvisioned;
   const onSearchAndUpdateRequired = onSearch && searchUpdateRequired;
 
   // Only block ingest updates if search has been provisioned and ALSO requires update.
@@ -456,10 +457,16 @@ export function LeftNav(props: LeftNavProps) {
   // Details on the reprovision API is here: https://github.com/opensearch-project/flow-framework/pull/804
   async function updateWorkflowAndResources(
     updatedWorkflow: Workflow,
-    reprovision: boolean
+    reprovision: boolean,
+    includeIngest: boolean
   ): Promise<boolean> {
     let success = false;
-    if (!ingestTemplatesDifferent && !searchTemplatesDifferent) {
+    // If we are only doing a UI change, don't do any deprovision/reprovision
+    if (
+      !ingestTemplatesDifferent &&
+      !searchTemplatesDifferent &&
+      !includeIngest
+    ) {
       success = await updateWorkflowUiConfig();
     } else if (reprovision) {
       await dispatch(
@@ -649,7 +656,8 @@ export function LeftNav(props: LeftNavProps) {
           } as Workflow;
           success = await updateWorkflowAndResources(
             updatedWorkflow,
-            reprovision
+            reprovision,
+            includeIngest
           );
         }
       })
@@ -888,7 +896,7 @@ export function LeftNav(props: LeftNavProps) {
               )}
             </>
           </EuiFlexItem>
-          <EuiFlexItem grow={false} style={{ marginRight: '12px' }}>
+          <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
