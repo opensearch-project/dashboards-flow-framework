@@ -829,7 +829,6 @@ export function LeftNav(props: LeftNavProps) {
           style={{
             height: '100%',
             gap: '16px',
-            //marginLeft: '12px', TODO: change this value to adjust global margin of left nav.
           }}
         >
           <EuiFlexItem
@@ -920,13 +919,27 @@ export function LeftNav(props: LeftNavProps) {
                   />
                 </EuiFlexItem>
               )}
-              <EuiFlexItem grow={false}>
+              <EuiFlexItem
+                grow={false}
+                style={{
+                  height: '60px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '20px',
+                }}
+              >
                 <EuiFlexGroup
                   direction="row"
                   gutterSize="s"
                   style={{
                     padding: '0px',
-                    marginBottom: USE_NEW_HOME_PAGE ? '0px' : '54px',
+                    margin: '0px',
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
                   {onIngestAndUnprovisioned &&
