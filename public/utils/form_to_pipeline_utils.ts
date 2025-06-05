@@ -105,6 +105,58 @@ export function formikToPartialPipeline(
   return undefined;
 }
 
+export function formikToSearchRequestPipeline(
+  values: WorkflowFormValues,
+  existingConfig: WorkflowConfig
+): SearchPipelineConfig | undefined {
+  if (values?.ingest && values?.search) {
+    const uiConfig = formikToUiConfig(values, existingConfig);
+    const requestProcessors = uiConfig.search.enrichRequest.processors;
+    if (requestProcessors?.length > 0) {
+      return {
+        request_processors: processorConfigsToTemplateProcessors(
+          requestProcessors,
+          PROCESSOR_CONTEXT.SEARCH_REQUEST
+        ),
+      } as SearchPipelineConfig;
+    }
+  }
+  return undefined;
+}
+
+export function formikToSearchPipeline(
+  values: WorkflowFormValues,
+  existingConfig: WorkflowConfig
+): SearchPipelineConfig | undefined {
+  if (values?.ingest && values?.search) {
+    const uiConfig = formikToUiConfig(values, existingConfig);
+    const requestProcessors = uiConfig.search.enrichRequest.processors;
+    const responseProcessors = uiConfig.search.enrichResponse.processors;
+    if (requestProcessors?.length > 0 || responseProcessors.length > 0) {
+      return {
+        request_processors: processorConfigsToTemplateProcessors(
+          requestProcessors,
+          PROCESSOR_CONTEXT.SEARCH_REQUEST
+        ),
+        // for search response, we need to explicitly separate out any phase results processors
+        phase_results_processors: processorConfigsToTemplateProcessors(
+          responseProcessors.filter((processor) =>
+            isPhaseResultsProcessor(processor)
+          ),
+          PROCESSOR_CONTEXT.SEARCH_RESPONSE
+        ),
+        response_processors: processorConfigsToTemplateProcessors(
+          responseProcessors.filter(
+            (processor) => !isPhaseResultsProcessor(processor)
+          ),
+          PROCESSOR_CONTEXT.SEARCH_RESPONSE
+        ),
+      } as SearchPipelineConfig;
+    }
+  }
+  return undefined;
+}
+
 function getPrecedingProcessors(
   allProcessors: IProcessorConfig[],
   curProcessorId: string,

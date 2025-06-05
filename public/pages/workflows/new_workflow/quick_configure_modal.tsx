@@ -71,7 +71,7 @@ import {
   parseModelOutputs,
 } from '../../../utils/utils';
 import { QuickConfigureOptionalFields } from './quick_configure_optional_fields';
-import { ModelField, TextField } from '../../workflow_detail/workflow_inputs';
+import { ModelField, TextField } from '../../workflow_detail/component_input';
 
 interface QuickConfigureModalProps {
   workflow: Workflow;
@@ -297,7 +297,12 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                     <ModelField
                       modelCategory={MODEL_CATEGORY.LLM}
                       fieldPath="llm"
-                      showMissingInterfaceCallout={false}
+                      showMissingInterfaceCallout={true}
+                      hasModelInterface={
+                        !isEmpty(
+                          models[getIn(formikProps.values, 'llm.id')]?.interface
+                        )
+                      }
                       label="Large language model"
                       helpText="The large language model to generate user-friendly responses."
                       fullWidth={true}
@@ -328,7 +333,14 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                         <ModelField
                           modelCategory={MODEL_CATEGORY.EMBEDDING}
                           fieldPath="embeddingModel"
-                          showMissingInterfaceCallout={false}
+                          showMissingInterfaceCallout={true}
+                          hasModelInterface={
+                            !isEmpty(
+                              models[
+                                getIn(formikProps.values, 'embeddingModel.id')
+                              ]?.interface
+                            )
+                          }
                           label="Embedding model"
                           helpText="The model to generate embeddings."
                           fullWidth={true}

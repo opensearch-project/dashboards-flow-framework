@@ -14,19 +14,21 @@ import {
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiHorizontalRule,
   EuiPopover,
   EuiSmallButton,
   EuiSmallButtonEmpty,
   EuiText,
 } from '@elastic/eui';
 import {
-  CONFIG_STEP,
   customStringify,
   QUERY_PRESETS,
   QueryParam,
   QueryPreset,
+  SearchPipelineConfig,
   SearchResponse,
   SearchResponseVerbose,
+  WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
 import {
@@ -38,6 +40,8 @@ import {
 import {
   containsEmptyValues,
   containsSameValues,
+  formikToSearchPipeline,
+  formikToSearchRequestPipeline,
   getDataSourceId,
   getPlaceholdersFromQuery,
   getSearchPipelineErrors,
@@ -47,9 +51,9 @@ import {
 import { QueryParamsList, Results } from '../../../../general_components';
 
 interface QueryProps {
+  uiConfig: WorkflowConfig | undefined;
   hasSearchPipeline: boolean;
   hasIngestResources: boolean;
-  selectedStep: CONFIG_STEP;
   queryRequest: string;
   setQueryRequest: (queryRequest: string) => void;
   queryResponse: SearchResponse | undefined;
@@ -60,10 +64,13 @@ interface QueryProps {
 
 const SEARCH_OPTIONS = [
   {
-    label: 'With search pipeline',
+    label: 'No transformations',
   },
   {
-    label: 'Without search pipeline',
+    label: 'Only query transformations',
+  },
+  {
+    label: 'Query and result transformations',
   },
 ];
 
@@ -81,12 +88,43 @@ export function Query(props: QueryProps) {
   // popover state
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
-  // state for if to execute search w/ or w/o any configured search pipeline.
-  // default based on if there is an available search pipeline or not.
-  const [includePipeline, setIncludePipeline] = useState<boolean>(false);
+  // search options state. Default to include the full pipeline (with all search req/resp transformations)
+  // if the pipeline exists.
+  const [selectedSearchOption, setSelectedSearchOption] = useState<{
+    label: string;
+  }>(SEARCH_OPTIONS[0]);
   useEffect(() => {
-    setIncludePipeline(props.hasSearchPipeline);
+    if (props.hasSearchPipeline) {
+      setSelectedSearchOption(SEARCH_OPTIONS[2]);
+    }
   }, [props.hasSearchPipeline]);
+
+  // the final constructed search pipeline to search against (if any). Users can toggle
+  // to only run against a subset of search processors that exist in the created pipeline
+  const [finalSearchPipeline, setFinalSearchPipeline] = useState<
+    SearchPipelineConfig | undefined
+  >(undefined);
+  useEffect(() => {
+    // no transformation: empty pipeline
+    if (selectedSearchOption === SEARCH_OPTIONS[0]) {
+      setFinalSearchPipeline(undefined);
+      // partial transformation: create custom search pipeline config
+    } else if (selectedSearchOption === SEARCH_OPTIONS[1]) {
+      if (values !== undefined && props.uiConfig !== undefined) {
+        const searchRequestPipeline = formikToSearchRequestPipeline(
+          values,
+          props.uiConfig
+        );
+        setFinalSearchPipeline(searchRequestPipeline);
+      }
+      // full transformation: create full search pipeline config
+    } else if (selectedSearchOption === SEARCH_OPTIONS[2]) {
+      if (values !== undefined && props.uiConfig !== undefined) {
+        const searchPipeline = formikToSearchPipeline(values, props.uiConfig);
+        setFinalSearchPipeline(searchPipeline);
+      }
+    }
+  }, [selectedSearchOption, props.uiConfig, values]);
 
   // Check if there is a new set of query parameters, and if so, reset the form
   useEffect(() => {
@@ -107,29 +145,28 @@ export function Query(props: QueryProps) {
     }
   }, [props.queryRequest]);
 
-  // empty states
-  const noSearchIndex = isEmpty(values?.search?.index?.name);
-  const noSearchRequest = isEmpty(values?.search?.request);
-  const onIngestAndInvalid =
-    props.selectedStep === CONFIG_STEP.INGEST && !props.hasIngestResources;
-  const onSearchAndInvalid =
-    props.selectedStep === CONFIG_STEP.SEARCH &&
-    (noSearchIndex || noSearchRequest);
+  const ingestEnabled = values?.ingest?.enabled as boolean;
+  const ingestNotCreated = ingestEnabled && !props.hasIngestResources;
+  const searchNotConfigured =
+    !ingestEnabled && isEmpty(values?.search?.index?.name);
+  const noConfiguredIndex = ingestNotCreated || searchNotConfigured;
   const indexToSearch =
-    props.selectedStep === CONFIG_STEP.INGEST
+    ingestEnabled && props.hasIngestResources
       ? values?.ingest?.index?.name
-      : values?.search?.index?.name;
+      : !isEmpty(values?.search?.index?.name)
+      ? values?.search?.index?.name
+      : values?.ingest?.index?.name;
 
   return (
     <>
-      {onIngestAndInvalid || onSearchAndInvalid ? (
+      {noConfiguredIndex ? (
         <EuiEmptyPrompt
           title={<h2>Missing search configurations</h2>}
           titleSize="s"
           body={
             <>
               <EuiText size="s">
-                {onIngestAndInvalid
+                {ingestNotCreated
                   ? `Create an index and ingest data first.`
                   : `Configure a search request and an index to search against first.`}
               </EuiText>
@@ -137,45 +174,40 @@ export function Query(props: QueryProps) {
           }
         />
       ) : (
-        <EuiFlexGroup direction="row">
+        <EuiFlexGroup direction="column" style={{ paddingBottom: '36px' }}>
           <EuiFlexItem>
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem grow={false}>
-                <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                  <EuiFlexItem grow={false}>
-                    <EuiFlexGroup direction="row" justifyContent="flexStart">
-                      <EuiFlexItem grow={false}>
-                        <EuiText size="m">Search</EuiText>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiComboBox
-                          fullWidth={false}
-                          style={{ width: '250px' }}
-                          compressed={true}
-                          singleSelection={{ asPlainText: true }}
-                          isClearable={false}
-                          options={
-                            props.hasSearchPipeline
-                              ? SEARCH_OPTIONS
-                              : [SEARCH_OPTIONS[1]]
-                          }
-                          selectedOptions={
-                            includePipeline
-                              ? [SEARCH_OPTIONS[0]]
-                              : [SEARCH_OPTIONS[1]]
-                          }
-                          onChange={(options) => {
-                            setIncludePipeline(!includePipeline);
-                          }}
-                        />
-                      </EuiFlexItem>
-                    </EuiFlexGroup>
+                <EuiFlexGroup direction="row" gutterSize="s">
+                  <EuiFlexItem grow={true}>
+                    <EuiComboBox
+                      fullWidth={true}
+                      compressed={true}
+                      singleSelection={{ asPlainText: true }}
+                      isClearable={false}
+                      options={
+                        props.hasSearchPipeline
+                          ? SEARCH_OPTIONS
+                          : SEARCH_OPTIONS.map((option, idx) => {
+                              return {
+                                ...option,
+                                disabled: idx === 0 ? false : true,
+                              };
+                            })
+                      }
+                      selectedOptions={[selectedSearchOption]}
+                      onChange={(options) => {
+                        setSelectedSearchOption(options[0]);
+                      }}
+                    />
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiSmallButton
                       data-test-subj="searchButton"
-                      fill={true}
+                      fill={false}
                       isLoading={loading}
+                      iconType={'play'}
+                      iconSide="left"
                       disabled={
                         containsEmptyValues(props.queryParams) ||
                         isEmpty(indexToSearch)
@@ -185,17 +217,19 @@ export function Query(props: QueryProps) {
                           searchIndex({
                             apiBody: {
                               index: indexToSearch,
-                              body: injectParameters(
-                                props.queryParams,
-                                props.queryRequest
-                              ),
-                              searchPipeline: includePipeline
-                                ? values?.search?.pipelineName
-                                : '_none',
+                              body: JSON.stringify({
+                                ...JSON.parse(
+                                  injectParameters(
+                                    props.queryParams,
+                                    props.queryRequest
+                                  )
+                                ),
+                                search_pipeline: finalSearchPipeline || {},
+                              }),
                             },
                             dataSourceId,
                             dataSourceVersion,
-                            verbose: includePipeline,
+                            verbose: finalSearchPipeline !== undefined,
                           })
                         )
                           .unwrap()
@@ -203,7 +237,7 @@ export function Query(props: QueryProps) {
                             async (
                               resp: SearchResponse | SearchResponseVerbose
                             ) => {
-                              if (includePipeline) {
+                              if (finalSearchPipeline !== undefined) {
                                 const searchPipelineErrors = getSearchPipelineErrors(
                                   resp as SearchResponseVerbose
                                 );
@@ -228,7 +262,7 @@ export function Query(props: QueryProps) {
                           });
                       }}
                     >
-                      Search
+                      Run test
                     </EuiSmallButton>
                   </EuiFlexItem>
                 </EuiFlexGroup>
@@ -240,8 +274,7 @@ export function Query(props: QueryProps) {
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiFlexGroup direction="row" gutterSize="s">
-                      {props.selectedStep === CONFIG_STEP.SEARCH &&
-                        !isEmpty(values?.search?.request) &&
+                      {!isEmpty(values?.search?.request) &&
                         values?.search?.request !== props.queryRequest && (
                           <EuiFlexItem
                             grow={false}
@@ -259,15 +292,16 @@ export function Query(props: QueryProps) {
                         )}
                       <EuiFlexItem grow={false}>
                         <EuiPopover
+                          style={{ marginRight: '-8px' }}
                           button={
-                            <EuiSmallButton
+                            <EuiSmallButtonEmpty
                               onClick={() => setPopoverOpen(!popoverOpen)}
                               data-testid="inspectorQueryPresetButton"
                               iconSide="right"
                               iconType="arrowDown"
                             >
                               Query samples
-                            </EuiSmallButton>
+                            </EuiSmallButtonEmpty>
                           }
                           isOpen={popoverOpen}
                           closePopover={() => setPopoverOpen(false)}
@@ -296,6 +330,15 @@ export function Query(props: QueryProps) {
                     </EuiFlexGroup>
                   </EuiFlexItem>
                 </EuiFlexGroup>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                {/**
+                 * This may return nothing if the list of params are empty
+                 */}
+                <QueryParamsList
+                  queryParams={props.queryParams}
+                  setQueryParams={props.setQueryParams}
+                />
               </EuiFlexItem>
               <EuiFlexItem grow={true}>
                 <EuiCodeEditor
@@ -328,17 +371,9 @@ export function Query(props: QueryProps) {
                   tabSize={2}
                 />
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                {/**
-                 * This may return nothing if the list of params are empty
-                 */}
-                <QueryParamsList
-                  queryParams={props.queryParams}
-                  setQueryParams={props.setQueryParams}
-                />
-              </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
+          <EuiHorizontalRule size="full" margin="s" />
           <EuiFlexItem>
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem grow={false}>
@@ -348,12 +383,12 @@ export function Query(props: QueryProps) {
                 {props.queryResponse === undefined ||
                 isEmpty(props.queryResponse) ? (
                   <EuiEmptyPrompt
-                    title={<h2>No results</h2>}
-                    titleSize="s"
+                    iconType="search"
                     body={
                       <>
                         <EuiText size="s">
-                          Run a search to view results.
+                          Use your sample query or write another one to test out
+                          your search flow
                         </EuiText>
                       </>
                     }

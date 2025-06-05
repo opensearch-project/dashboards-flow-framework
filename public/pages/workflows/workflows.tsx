@@ -99,6 +99,7 @@ export function Workflows(props: WorkflowsProps) {
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
+  const noWorkflows = Object.keys(workflows || {}).length === 0 && !loading;
 
   const {
     chrome: { setBreadcrumbs },
@@ -241,7 +242,7 @@ export function Workflows(props: WorkflowsProps) {
         ]}
         setMountPoint={setAppDescriptionControls}
       />
-      <GetStartedAccordion />
+      <GetStartedAccordion initialIsOpen={noWorkflows} />
       <EuiSpacer size="s" />
     </>
   ) : (
@@ -255,7 +256,7 @@ export function Workflows(props: WorkflowsProps) {
       </EuiFlexGroup>
       <EuiText color="subdued">{DESCRIPTION}</EuiText>
       <EuiSpacer size="l" />
-      <GetStartedAccordion />
+      <GetStartedAccordion initialIsOpen={noWorkflows} />
       <EuiSpacer size="s" />
     </EuiFlexGroup>
   );
@@ -398,20 +399,18 @@ export function Workflows(props: WorkflowsProps) {
                     <NewWorkflow />
                   </>
                 )}
-                {selectedTabId === WORKFLOWS_TAB.MANAGE &&
-                  Object.keys(workflows || {}).length === 0 &&
-                  !loading && (
-                    <EmptyListMessage
-                      onClickNewWorkflow={() => {
-                        setSelectedTabId(WORKFLOWS_TAB.CREATE);
-                        replaceActiveTab(
-                          WORKFLOWS_TAB.CREATE,
-                          props,
-                          dataSourceId
-                        );
-                      }}
-                    />
-                  )}
+                {selectedTabId === WORKFLOWS_TAB.MANAGE && noWorkflows && (
+                  <EmptyListMessage
+                    onClickNewWorkflow={() => {
+                      setSelectedTabId(WORKFLOWS_TAB.CREATE);
+                      replaceActiveTab(
+                        WORKFLOWS_TAB.CREATE,
+                        props,
+                        dataSourceId
+                      );
+                    }}
+                  />
+                )}
               </EuiPageContent>
             </>
           )}

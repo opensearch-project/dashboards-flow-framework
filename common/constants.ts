@@ -247,10 +247,10 @@ export const ML_INFERENCE_DOCS_LINK =
   'https://opensearch.org/docs/latest/ingest-pipelines/processors/ml-inference/#configuration-parameters';
 export const ML_INFERENCE_RESPONSE_DOCS_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/ml-inference-search-response/#request-fields';
-export const ML_CHOOSE_MODEL_LINK =
-  'https://opensearch.org/docs/latest/ml-commons-plugin/integrating-ml-models/#choosing-a-model';
 export const ML_REMOTE_MODEL_LINK =
-  'https://opensearch.org/docs/latest/ml-commons-plugin/remote-models/index/';
+  'https://docs.opensearch.org/docs/latest/ml-commons-plugin/remote-models/supported-connectors/';
+export const ML_INTERFACE_LINK =
+  'https://docs.opensearch.org/docs/latest/ml-commons-plugin/api/model-apis/register-model/#the-interface-parameter';
 export const TEXT_CHUNKING_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/ingest-pipelines/processors/text-chunking/';
 export const CREATE_WORKFLOW_LINK =
@@ -273,6 +273,8 @@ export const ML_RESPONSE_PROCESSOR_EXAMPLE_DOCS_LINK =
 export const UPDATE_MODEL_DOCS_LINK =
   'https://opensearch.org/docs/latest/ml-commons-plugin/api/model-apis/update-model/';
 export const JSONLINES_LINK = 'https://jsonlines.org/';
+export const EXPANDED_FORM_QUERY_ISSUE =
+  'https://github.com/opensearch-project/OpenSearch/issues/17358';
 
 // Large Language Models Documentation Links
 export const BEDROCK_CLAUDE_3_SONNET_DOCS_LINK =
@@ -874,6 +876,7 @@ export enum INSPECTOR_TAB_ID {
   INGEST = 'ingest',
   ERRORS = 'errors',
   RESOURCES = 'resources',
+  PREVIEW = 'preview',
 }
 
 export const INSPECTOR_TABS = [
@@ -897,4 +900,27 @@ export const INSPECTOR_TABS = [
     name: 'Resources',
     disabled: false,
   },
+  {
+    id: INSPECTOR_TAB_ID.PREVIEW,
+    name: 'Preview',
+    disabled: false,
+  },
 ];
+
+// component IDs for each left nav component. Some may be tied
+// to the lower-level form, others are for visual flow purposes only,
+// like 'retrieveFromDataSource' and 'searchResults'
+export enum COMPONENT_ID {
+  SOURCE_DATA = 'ingest.docs',
+  ENRICH_DATA = 'ingest.enrich',
+  INGEST_DATA = 'ingest.index',
+  SEARCH_REQUEST = 'search.request',
+  ENRICH_SEARCH_REQUEST = 'search.enrichRequest',
+  RUN_QUERY = 'runQuery',
+  ENRICH_SEARCH_RESPONSE = 'search.enrichResponse',
+  SEARCH_RESULTS = 'searchResults',
+}
+
+// We have to persist a standalone string to override 'style' component, as setting className does
+// not override the default styles from the EuiCard component.
+export const LEFT_NAV_SELECTED_STYLE = '2px solid rgba(128, 128, 128, 0.8)';
