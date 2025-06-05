@@ -322,8 +322,11 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
       data-test-subj="resizable-workspace"
       style={{
         // Keep our component properly sized
-        height: 'calc(100vh - 10px)',
-        maxHeight: 'calc(100vh - 10px)',
+        // do not change this value since the header cost 148px
+        height: 'calc(100vh - 148px)',
+        maxHeight: 'calc(100vh - 148px)',
+        width: 'calc(100vw - 16px)',
+        maxWidth: 'calc(100vw - 16px)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
@@ -348,7 +351,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           style={{
             width: '100%',
             flex: 1,
-            gap: '4px',
+            gap: '2px',
             maxWidth: '100vw',
             overflow: 'hidden',
             minHeight: 0,
@@ -473,7 +476,7 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
         style={{
           height: isConsolePanelOpen ? '30vh' : '35px',
           minHeight: isConsolePanelOpen ? '200px' : '35px',
-          maxHeight: isConsolePanelOpen ? '40vh' : '35px',
+          maxHeight: isConsolePanelOpen ? '30vh' : '35px',
           flexShrink: 0,
           borderTop: '1px solid #D3DAE6',
           transition: 'height 0.2s ease',
@@ -481,8 +484,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           position: 'relative',
           width: '100%',
           maxWidth: '100%',
-          marginBottom: '15px',
-          paddingBottom: '5px',
+          marginBottom: '8px',
+          paddingBottom: '0px',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
         }}
@@ -491,6 +494,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
           paddingSize="s"
           style={{
             height: '100%',
+            maxHeight: '100%',
+            overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
             borderRadius: 0,
