@@ -550,8 +550,8 @@ export function ProcessorList(props: ProcessorListProps) {
                 paddingTop: '8px',
                 marginLeft: '5px',
                 marginBottom: '8px',
-                width: '450px',
-                height: isEmpty(modelName) ? '55px' : '80px',
+                width: '460px',
+                height: isEmpty(modelName) ? '50px' : '75px',
                 border:
                   props.selectedComponentId === processorPath
                     ? LEFT_NAV_SELECTED_STYLE
@@ -584,6 +584,15 @@ export function ProcessorList(props: ProcessorListProps) {
                 >
                   <EuiFlexItem style={{ width: '325px' }} grow={false}>
                     <EuiFlexGroup direction="row" gutterSize="m">
+                      <EuiFlexItem
+                        grow={false}
+                        style={{ marginTop: '13px', marginRight: '0px' }}
+                      >
+                        <EuiIcon
+                          type="compute"
+                          color={errorFound ? 'danger' : undefined}
+                        />
+                      </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiText color={errorFound ? 'danger' : undefined}>
                           {processor.name}

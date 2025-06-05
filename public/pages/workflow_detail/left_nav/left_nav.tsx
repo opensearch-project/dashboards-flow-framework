@@ -16,7 +16,6 @@ import {
   EuiPanel,
   EuiSmallButton,
   EuiSmallButtonIcon,
-  EuiSpacer,
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
@@ -337,7 +336,7 @@ export function LeftNav(props: LeftNavProps) {
         )
       : false;
   const searchUpdateRequired =
-    (searchProvisioned && searchTemplatesDifferent) || searchRequestUpdated;
+    (searchTemplatesDifferent || searchRequestUpdated) && searchProvisioned;
   const onSearchAndUpdateRequired = onSearch && searchUpdateRequired;
 
   // Only block ingest updates if search has been provisioned and ALSO requires update.
@@ -457,10 +456,16 @@ export function LeftNav(props: LeftNavProps) {
   // Details on the reprovision API is here: https://github.com/opensearch-project/flow-framework/pull/804
   async function updateWorkflowAndResources(
     updatedWorkflow: Workflow,
-    reprovision: boolean
+    reprovision: boolean,
+    includeIngest: boolean
   ): Promise<boolean> {
     let success = false;
-    if (!ingestTemplatesDifferent && !searchTemplatesDifferent) {
+    // If we are only doing a UI change, don't do any deprovision/reprovision
+    if (
+      !ingestTemplatesDifferent &&
+      !searchTemplatesDifferent &&
+      !includeIngest
+    ) {
       success = await updateWorkflowUiConfig();
     } else if (reprovision) {
       await dispatch(
@@ -650,7 +655,8 @@ export function LeftNav(props: LeftNavProps) {
           } as Workflow;
           success = await updateWorkflowAndResources(
             updatedWorkflow,
-            reprovision
+            reprovision,
+            includeIngest
           );
         }
       })
@@ -793,8 +799,7 @@ export function LeftNav(props: LeftNavProps) {
         borderRadius="l"
         style={{
           paddingBottom: '48px',
-          paddingRight: '0px',
-          paddingLeft: '12px',
+          marginRight: '0px',
         }}
       >
         <EuiFlexItem grow={false}>
@@ -806,7 +811,7 @@ export function LeftNav(props: LeftNavProps) {
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiButtonIcon
-                style={{ marginRight: '12px', marginTop: '8px' }}
+                style={{ marginTop: '8px' }}
                 data-testid="hideLeftNavButton"
                 aria-label="hideLeftNavButton"
                 iconType={'menuLeft'}
@@ -890,36 +895,30 @@ export function LeftNav(props: LeftNavProps) {
               )}
             </>
           </EuiFlexItem>
-          <EuiFlexItem grow={false} style={{ marginRight: '12px' }}>
+          <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
               </EuiFlexItem>
               {onIngestAndSearchUpdateRequired && (
-                <>
-                  <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
-                    <EuiCallOut
-                      color="warning"
-                      iconType={'help'}
-                      title="Create/update your search flow before updating an ingest flow"
-                    />
-                  </EuiFlexItem>
-                  <EuiSpacer size="s" />
-                </>
+                <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
+                  <EuiCallOut
+                    color="warning"
+                    iconType={'help'}
+                    title="Create/update your search flow before updating an ingest flow"
+                  />
+                </EuiFlexItem>
               )}
               {onSearchAndIngestUpdateRequired && (
-                <>
-                  <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
-                    <EuiCallOut
-                      color="warning"
-                      iconType={'help'}
-                      title={
-                        'Create/update your ingest flow before updating a search flow.'
-                      }
-                    />
-                  </EuiFlexItem>
-                  <EuiSpacer size="s" />
-                </>
+                <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
+                  <EuiCallOut
+                    color="warning"
+                    iconType={'help'}
+                    title={
+                      'Create/update your ingest flow before updating a search flow.'
+                    }
+                  />
+                </EuiFlexItem>
               )}
               <EuiFlexItem grow={false}>
                 <EuiFlexGroup
@@ -935,6 +934,7 @@ export function LeftNav(props: LeftNavProps) {
                     !searchUpdateRequired && (
                       <EuiFlexItem grow={true}>
                         <EuiSmallButton
+                          data-test-subj="updateAndRunIngestButton"
                           fill={true}
                           isLoading={isProvisioningIngest}
                           onClick={() => validateAndRunIngestion()}
@@ -973,6 +973,7 @@ export function LeftNav(props: LeftNavProps) {
                     !(ingestEnabled && !ingestProvisioned) && (
                       <EuiFlexItem grow={true}>
                         <EuiSmallButton
+                          data-test-subj="updateSearchButton"
                           fill={true}
                           disabled={isProvisioningSearch}
                           isLoading={isProvisioningSearch}
