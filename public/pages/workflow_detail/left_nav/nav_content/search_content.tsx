@@ -14,6 +14,7 @@ import {
   EuiHealth,
   EuiSpacer,
   EuiText,
+  EuiToolTip,
 } from '@elastic/eui';
 import {
   CachedFormikState,
@@ -63,25 +64,29 @@ export function SearchContent(props: SearchContentProps) {
             <EuiFlexGroup direction="row" gutterSize="xs">
               {props.ingestProvisioned && (
                 <EuiFlexItem grow={false} style={{ marginTop: '6px' }}>
-                  <EuiButtonIcon
-                    iconType="play"
-                    size="s"
-                    aria-label="test"
-                    onClick={() => props.displaySearchPanel()}
-                  />
+                  <EuiToolTip position="top" content="Test with Inspect tool">
+                    <EuiButtonIcon
+                      iconType="play"
+                      size="s"
+                      aria-label="test"
+                      onClick={() => props.displaySearchPanel()}
+                    />
+                  </EuiToolTip>
                 </EuiFlexItem>
               )}
               {props.searchProvisioned && (
                 <EuiFlexItem grow={false} style={{ marginTop: '6px' }}>
-                  <EuiButtonIcon
-                    iconType="inspect"
-                    size="s"
-                    aria-label="inspect"
-                    onClick={() => {
-                      props.setResourcesFlyoutContext(CONFIG_STEP.SEARCH);
-                      props.setResourcesFlyoutOpen(true);
-                    }}
-                  />
+                  <EuiToolTip position="top" content="View search resources">
+                    <EuiButtonIcon
+                      iconType="inspect"
+                      size="s"
+                      aria-label="inspect"
+                      onClick={() => {
+                        props.setResourcesFlyoutContext(CONFIG_STEP.SEARCH);
+                        props.setResourcesFlyoutOpen(true);
+                      }}
+                    />
+                  </EuiToolTip>
                 </EuiFlexItem>
               )}
               <EuiFlexItem
