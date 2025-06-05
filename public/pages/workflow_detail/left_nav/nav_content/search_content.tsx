@@ -14,6 +14,7 @@ import {
   EuiHealth,
   EuiSpacer,
   EuiText,
+  EuiToolTip,
 } from '@elastic/eui';
 import {
   CachedFormikState,
@@ -63,25 +64,29 @@ export function SearchContent(props: SearchContentProps) {
             <EuiFlexGroup direction="row" gutterSize="xs">
               {props.ingestProvisioned && (
                 <EuiFlexItem grow={false} style={{ marginTop: '6px' }}>
-                  <EuiButtonIcon
-                    iconType="play"
-                    size="s"
-                    aria-label="test"
-                    onClick={() => props.displaySearchPanel()}
-                  />
+                  <EuiToolTip position="top" content="Test with Inspect tool">
+                    <EuiButtonIcon
+                      iconType="play"
+                      size="s"
+                      aria-label="test"
+                      onClick={() => props.displaySearchPanel()}
+                    />
+                  </EuiToolTip>
                 </EuiFlexItem>
               )}
               {props.searchProvisioned && (
                 <EuiFlexItem grow={false} style={{ marginTop: '6px' }}>
-                  <EuiButtonIcon
-                    iconType="inspect"
-                    size="s"
-                    aria-label="inspect"
-                    onClick={() => {
-                      props.setResourcesFlyoutContext(CONFIG_STEP.SEARCH);
-                      props.setResourcesFlyoutOpen(true);
-                    }}
-                  />
+                  <EuiToolTip position="top" content="View search resources">
+                    <EuiButtonIcon
+                      iconType="inspect"
+                      size="s"
+                      aria-label="inspect"
+                      onClick={() => {
+                        props.setResourcesFlyoutContext(CONFIG_STEP.SEARCH);
+                        props.setResourcesFlyoutOpen(true);
+                      }}
+                    />
+                  </EuiToolTip>
                 </EuiFlexItem>
               )}
               <EuiFlexItem
@@ -118,6 +123,7 @@ export function SearchContent(props: SearchContentProps) {
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
           <NavComponent
+            dataTestId="searchPipelineButton" // for historical reasons, the naming of this component's test id doesn't exactly match its purpose
             title="Sample query"
             icon="editorCodeBlock"
             onClick={() => {
@@ -147,15 +153,19 @@ export function SearchContent(props: SearchContentProps) {
           />
         </EuiFlexItem>
         <DownArrow />
-        <EuiFlexItem grow={false}>
-          <NavComponent
+        <EuiFlexItem grow={false} style={{ alignItems: 'center' }}>
+          <EuiText>Run query</EuiText>
+          {/**
+           * TODO: add back "Run query" panel once the content has been finalized
+           */}
+          {/* <NavComponent
             title="Run query"
             icon="list"
             onClick={() => {
               props.setSelectedComponentId(COMPONENT_ID.RUN_QUERY);
             }}
             isSelected={props.selectedComponentId === COMPONENT_ID.RUN_QUERY}
-          />
+          /> */}
         </EuiFlexItem>
         <DownArrow />
         <EuiFlexItem grow={false}>
@@ -171,7 +181,12 @@ export function SearchContent(props: SearchContentProps) {
           />
         </EuiFlexItem>
         <DownArrow />
-        <EuiFlexItem grow={false}>
+        <EuiFlexItem grow={false} style={{ alignItems: 'center' }}>
+          <EuiText>Search results</EuiText>
+          {/**
+           * TODO: add back "Search results" panel once the content has been finalized
+           */}
+          {/* 
           <NavComponent
             title="Search results"
             icon="list"
@@ -181,7 +196,7 @@ export function SearchContent(props: SearchContentProps) {
             isSelected={
               props.selectedComponentId === COMPONENT_ID.SEARCH_RESULTS
             }
-          />
+          /> */}
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiAccordion>

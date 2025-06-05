@@ -31,7 +31,11 @@ import {
   ML_INTERFACE_LINK,
 } from '../../../../../common';
 import { AppState, searchModels, useAppDispatch } from '../../../../store';
-import { getDataSourceId } from '../../../../utils';
+import {
+  getDataSourceId,
+  getIsPreV219,
+  useDataSourceVersion,
+} from '../../../../utils';
 import { ModelInfoPopover } from './models_info_popover';
 
 interface ModelFieldProps {
@@ -54,6 +58,9 @@ interface ModelFieldProps {
 export function ModelField(props: ModelFieldProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+  const dataSourceVersion = useDataSourceVersion(dataSourceId);
+  const isPreV219 = getIsPreV219(dataSourceVersion);
+
   // Initial store is fetched when loading base <DetectorDetail /> page. We don't
   // re-fetch here as it could overload client-side if user clicks back and forth /
   // keeps re-rendering this component (and subsequently re-fetching data) as they're building flows
@@ -92,7 +99,8 @@ export function ModelField(props: ModelFieldProps) {
     <>
       {showMissingInterfaceCallout &&
         !hasModelInterface &&
-        !isEmpty(getIn(values, props.fieldPath)?.id) && (
+        !isEmpty(getIn(values, props.fieldPath)?.id) &&
+        !isPreV219 && (
           <>
             <EuiCallOut
               size="s"

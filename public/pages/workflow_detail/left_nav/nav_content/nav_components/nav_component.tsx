@@ -23,6 +23,7 @@ interface NavComponentProps {
   isDisabled?: boolean;
   isSelected?: boolean;
   isError?: boolean;
+  dataTestId?: string;
 }
 
 /**
@@ -32,6 +33,7 @@ interface NavComponentProps {
 export function NavComponent(props: NavComponentProps) {
   return (
     <EuiCard
+      data-testid={props.dataTestId || 'navComponent'}
       layout="horizontal"
       icon={
         props.icon ? (

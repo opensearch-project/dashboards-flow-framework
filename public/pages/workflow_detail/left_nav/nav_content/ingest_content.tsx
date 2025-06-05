@@ -22,6 +22,7 @@ import {
   EuiSmallButtonEmpty,
   EuiSpacer,
   EuiText,
+  EuiToolTip,
 } from '@elastic/eui';
 import {
   CachedFormikState,
@@ -223,80 +224,89 @@ export function IngestContent(props: IngestContentProps) {
           <EuiFlexItem grow={false}>
             <EuiFlexGroup direction="row" gutterSize="xs">
               <EuiFlexItem grow={false} style={{ marginTop: '6px' }}>
-                <EuiPopover
-                  button={
-                    <EuiButtonIcon
-                      data-testid="toggleIngestButtonSwitch"
-                      iconType="controlsHorizontal"
-                      size="s"
-                      isDisabled={props.readonly}
-                      aria-label="disableEnableIngest"
-                      onClick={() => {
-                        setPopoverOpen(true);
-                      }}
-                    />
+                <EuiToolTip
+                  position="top"
+                  content={
+                    ingestEnabled ? 'Delete ingest flow' : 'Enable ingest flow'
                   }
-                  isOpen={popoverOpen}
-                  onClick={() => setPopoverOpen(!popoverOpen)}
-                  closePopover={() => setPopoverOpen(false)}
                 >
-                  <EuiButtonEmpty
-                    data-testid="toggleIngestButton"
-                    onClick={() => {
-                      if (ingestEnabled && props.ingestProvisioned) {
-                        setDeleteModalOpen(true);
-                      } else {
-                        // clear out or re-configure the search index, if disabling or enabling ingest, respectively
-                        if (ingestEnabled) {
-                          setFieldValue('search.index.name', '');
-                        } else {
-                          setFieldValue(
-                            'search.index.name',
-                            getIn(values, 'ingest.index.name')
-                          );
-                          props.setSelectedComponentId(
-                            COMPONENT_ID.SOURCE_DATA
-                          );
-                        }
-                        setFieldValue('ingest.enabled', !ingestEnabled);
-                      }
-                      setPopoverOpen(false);
-                    }}
-                    iconSide={
-                      ingestEnabled && props.ingestProvisioned
-                        ? 'left'
-                        : undefined
+                  <EuiPopover
+                    button={
+                      <EuiButtonIcon
+                        data-testid="toggleIngestButtonSwitch"
+                        iconType="controlsHorizontal"
+                        size="s"
+                        isDisabled={props.readonly}
+                        aria-label="disableEnableIngest"
+                        onClick={() => {
+                          setPopoverOpen(true);
+                        }}
+                      />
                     }
-                    iconType={
-                      ingestEnabled && props.ingestProvisioned
-                        ? 'trash'
-                        : undefined
-                    }
-                    color={
-                      ingestEnabled && props.ingestProvisioned
-                        ? 'danger'
-                        : undefined
-                    }
+                    isOpen={popoverOpen}
+                    onClick={() => setPopoverOpen(!popoverOpen)}
+                    closePopover={() => setPopoverOpen(false)}
                   >
-                    {ingestEnabled && props.ingestProvisioned
-                      ? 'Delete ingest flow'
-                      : ingestEnabled
-                      ? 'Disable ingest flow'
-                      : 'Enable ingest flow'}
-                  </EuiButtonEmpty>
-                </EuiPopover>
+                    <EuiButtonEmpty
+                      data-testid="toggleIngestButton"
+                      onClick={() => {
+                        if (ingestEnabled && props.ingestProvisioned) {
+                          setDeleteModalOpen(true);
+                        } else {
+                          // clear out or re-configure the search index, if disabling or enabling ingest, respectively
+                          if (ingestEnabled) {
+                            setFieldValue('search.index.name', '');
+                          } else {
+                            setFieldValue(
+                              'search.index.name',
+                              getIn(values, 'ingest.index.name')
+                            );
+                            props.setSelectedComponentId(
+                              COMPONENT_ID.SOURCE_DATA
+                            );
+                          }
+                          setFieldValue('ingest.enabled', !ingestEnabled);
+                        }
+                        setPopoverOpen(false);
+                      }}
+                      iconSide={
+                        ingestEnabled && props.ingestProvisioned
+                          ? 'left'
+                          : undefined
+                      }
+                      iconType={
+                        ingestEnabled && props.ingestProvisioned
+                          ? 'trash'
+                          : undefined
+                      }
+                      color={
+                        ingestEnabled && props.ingestProvisioned
+                          ? 'danger'
+                          : undefined
+                      }
+                    >
+                      {ingestEnabled && props.ingestProvisioned
+                        ? 'Delete ingest flow'
+                        : ingestEnabled
+                        ? 'Disable ingest flow'
+                        : 'Enable ingest flow'}
+                    </EuiButtonEmpty>
+                  </EuiPopover>
+                </EuiToolTip>
               </EuiFlexItem>
               {props.ingestProvisioned && (
                 <EuiFlexItem grow={false} style={{ marginTop: '6px' }}>
-                  <EuiButtonIcon
-                    iconType="inspect"
-                    size="s"
-                    aria-label="inspect"
-                    onClick={() => {
-                      props.setResourcesFlyoutContext(CONFIG_STEP.INGEST);
-                      props.setResourcesFlyoutOpen(true);
-                    }}
-                  />
+                  <EuiToolTip position="top" content="View ingest resources">
+                    <EuiButtonIcon
+                      iconType="inspect"
+                      size="s"
+                      aria-label="inspect"
+                      onClick={() => {
+                        props.setResourcesFlyoutContext(CONFIG_STEP.INGEST);
+                        props.setResourcesFlyoutOpen(true);
+                      }}
+                    />
+                  </EuiToolTip>
                 </EuiFlexItem>
               )}
               <EuiFlexItem
