@@ -336,8 +336,7 @@ export function LeftNav(props: LeftNavProps) {
         )
       : false;
   const searchUpdateRequired =
-    ((searchProvisioned && searchTemplatesDifferent) || searchRequestUpdated) &&
-    searchProvisioned;
+    (searchTemplatesDifferent || searchRequestUpdated) && searchProvisioned;
   const onSearchAndUpdateRequired = onSearch && searchUpdateRequired;
 
   // Only block ingest updates if search has been provisioned and ALSO requires update.
