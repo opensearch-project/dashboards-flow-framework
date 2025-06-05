@@ -588,7 +588,10 @@ export function ProcessorList(props: ProcessorListProps) {
                         grow={false}
                         style={{ marginTop: '13px', marginRight: '0px' }}
                       >
-                        <EuiIcon type="compute" />
+                        <EuiIcon
+                          type="compute"
+                          color={errorFound ? 'danger' : undefined}
+                        />
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiText color={errorFound ? 'danger' : undefined}>
