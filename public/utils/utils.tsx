@@ -65,6 +65,7 @@ import {
   SearchPipelineErrors,
   SearchResponseVerbose,
   SimulateIngestPipelineResponseVerbose,
+  WorkflowConfig,
 } from '../../common/interfaces';
 import * as pluginManifest from '../../opensearch_dashboards.json';
 import { DataSourceAttributes } from '../../../../src/plugins/data_source/common/data_sources';
@@ -1035,4 +1036,26 @@ export function formatDisplayVersion(version: string): string {
   // Take first two parts of version number (major.minor)
   const [major, minor] = version.split('.');
   return `${major}.${minor}`;
+}
+
+/**
+ * Get the final transformed search query, by checking if there are any configured search request processors,
+ * and if so, find the latest one that has a query rewrite configured, if applicable.
+ * As of 3.1, the only "query rewrite" can be done via query_template optional field in ML processor,
+ * so we check for any of these existing in the pipeline.
+ */
+export function getTransformedQuery(
+  uiConfig: WorkflowConfig
+): string | undefined {
+  let transformedQuery = undefined as string | undefined;
+  const searchReqProcessors = uiConfig.search?.enrichRequest?.processors;
+  searchReqProcessors?.forEach((processor) => {
+    const queryTemplateField = processor.optionalFields?.find(
+      (field) => field.id === 'query_template'
+    )?.value as string | undefined;
+    if (queryTemplateField !== undefined) {
+      transformedQuery = queryTemplateField;
+    }
+  });
+  return transformedQuery;
 }

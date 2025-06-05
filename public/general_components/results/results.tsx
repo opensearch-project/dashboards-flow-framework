@@ -11,7 +11,7 @@ import {
   EuiFlexItem,
   EuiSmallButtonGroup,
 } from '@elastic/eui';
-import { SearchResponse } from '../../../common';
+import { SearchResponse, SimulateIngestPipelineDoc } from '../../../common';
 import { ResultsTable } from './results_table';
 import { ResultsJSON } from './results_json';
 import { MLOutputs } from './ml_outputs';
@@ -31,6 +31,12 @@ enum VIEW {
  * or the raw JSON response.
  */
 export function Results(props: ResultsProps) {
+  // hits state
+  const [hits, setHits] = useState<SimulateIngestPipelineDoc[]>([]);
+  useEffect(() => {
+    setHits(props.response?.hits?.hits || []);
+  }, [props.response]);
+
   // selected view state. auto-navigate to ML outputs if there is values found
   // in "ext.ml_inference" in the search response.
   const [selectedView, setSelectedView] = useState<VIEW>(VIEW.HITS_TABLE);
@@ -76,9 +82,7 @@ export function Results(props: ResultsProps) {
         </EuiFlexItem>
         <EuiFlexItem grow={true}>
           <>
-            {selectedView === VIEW.HITS_TABLE && (
-              <ResultsTable hits={props.response?.hits?.hits || []} />
-            )}
+            {selectedView === VIEW.HITS_TABLE && <ResultsTable hits={hits} />}
             {selectedView === VIEW.ML_OUTPUTS && (
               <MLOutputs
                 mlOutputs={getMLResponseFromSearchResponse(props.response)}

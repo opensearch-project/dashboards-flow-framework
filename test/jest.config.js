@@ -11,6 +11,11 @@ module.exports = {
   // when jest tries to interpret these types of files.
   moduleNameMapper: {
     '\\.(css|less|scss|sass|svg)$': '<rootDir>/test/mocks/empty_mock.ts',
+    '@elastic/eui/lib/services/accessibility/html_id_generator':
+      '<rootDir>/test/mocks/html_id_generator.ts',
+
+    '^uuid$': '<rootDir>/test/mocks/uuid_mock.ts',
+    '^uuid/.*$': '<rootDir>/test/mocks/uuid_mock.ts',
   },
   testEnvironment: 'jest-environment-jsdom',
   coverageReporters: ['lcov', 'text', 'cobertura'],

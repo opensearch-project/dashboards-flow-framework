@@ -28,6 +28,7 @@ export class MLSearchResponseProcessor extends MLProcessor {
       {
         id: 'ext_output',
         type: 'boolean',
+        value: true,
       },
     ];
   }
