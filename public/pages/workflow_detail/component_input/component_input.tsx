@@ -183,7 +183,10 @@ export function ComponentInput(props: ComponentInputProps) {
         break;
       }
     }
-    if (isProcessorComponent(props.selectedComponentId)) {
+    if (
+      isProcessorComponent(props.selectedComponentId) &&
+      processor !== undefined
+    ) {
       iconType = 'compute';
     }
     return iconType !== undefined ? (
