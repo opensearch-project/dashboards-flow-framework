@@ -343,7 +343,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                             )
                           }
                         label="Sparse encoder"
-                        helpText="The model to generate sparse vector."
+                        helpText="The model to generate sparse embeddings."
                         fullWidth={true}
                         showError={true}
                         onModelChange={(modelId) =>

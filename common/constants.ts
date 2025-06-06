@@ -331,6 +331,7 @@ export const BEDROCK_TITAN_EMBEDDING_DOCS_LINK =
 export const OPENSEARCH_NEURAL_SPARSE_DOCS_LINK =
   'https://huggingface.co/opensearch-project/opensearch-neural-sparse-encoding-v2-distill';
 
+// TODO: Update this with the official OpenSearch documentation URL when it's available
 export const SAGEMAKER_SPARSE_DEPLOY_LINK =
   'https://github.com/zhichao-aws/opensearch-neural-sparse-sample/tree/main/examples/deploy_on_sagemaker';
 
