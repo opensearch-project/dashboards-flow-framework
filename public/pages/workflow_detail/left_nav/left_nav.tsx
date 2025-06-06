@@ -892,12 +892,12 @@ export function LeftNav(props: LeftNavProps) {
               )}
             </>
           </EuiFlexItem>
+
           <EuiFlexItem grow={true}>
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
               </EuiFlexItem>
-              <EuiFlexItem grow={true}></EuiFlexItem>
 
               {onIngestAndSearchUpdateRequired && (
                 <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>

@@ -1059,3 +1059,83 @@ export function getTransformedQuery(
   });
   return transformedQuery;
 }
+
+// Add this interface to your common/interfaces file or at the top of utils
+export interface ErrorAggregationResult {
+  errorMessages: (string | ReactNode)[];
+  errorCount: number;
+}
+
+export function aggregateConsoleErrors(
+  opensearchError: string | undefined,
+  workflowsError: string | undefined,
+  ingestPipelineErrors: IngestPipelineErrors,
+  searchPipelineErrors: SearchPipelineErrors,
+  workflowError: string | undefined
+): ErrorAggregationResult {
+  const errorMessages: (string | ReactNode)[] = [];
+  let errorCount = 0;
+
+  if (
+    !isEmpty(opensearchError) ||
+    !isEmpty(ingestPipelineErrors) ||
+    !isEmpty(searchPipelineErrors) ||
+    !isEmpty(workflowsError) ||
+    workflowError
+  ) {
+    if (!isEmpty(opensearchError)) {
+      errorMessages.push(opensearchError);
+      errorCount += 1;
+    }
+
+    if (!isEmpty(workflowsError)) {
+      errorMessages.push(workflowsError);
+      errorCount += 1;
+    }
+
+    if (workflowError) {
+      errorMessages.push(workflowError);
+      errorCount += 1;
+    }
+
+    if (!isEmpty(ingestPipelineErrors)) {
+      // Add header message (doesn't count as an error)
+      errorMessages.push(
+        'Data not ingested. Errors found with the following ingest processor(s):'
+      );
+      // Add actual errors (these count)
+      const ingestErrors = Object.values(ingestPipelineErrors).map((error) => {
+        const processorType = error.processorType
+          ? error.processorType.charAt(0).toUpperCase() +
+            error.processorType.slice(1)
+          : 'Unknown';
+        return `Processor type: ${processorType}\nError: ${
+          error.errorMsg || error.toString()
+        }`;
+      });
+      errorMessages.push(...ingestErrors);
+      errorCount += ingestErrors.length;
+    }
+
+    if (!isEmpty(searchPipelineErrors)) {
+      // Add header message (doesn't count as an error)
+      errorMessages.push(
+        'Errors found with the following search processor(s):'
+      );
+      // Add actual errors (these count)
+      const searchErrors = Object.values(searchPipelineErrors).map((error) => {
+        const processorType = error.processorType
+          ? error.processorType.charAt(0).toUpperCase() +
+            error.processorType.slice(1)
+          : 'Unknown';
+        return `Processor type: ${processorType}\nError: ${
+          error.errorMsg || error.toString()
+        }`;
+      });
+      errorMessages.push(...searchErrors);
+      errorCount += searchErrors.length;
+    }
+  }
+
+  return { errorMessages, errorCount };
+}

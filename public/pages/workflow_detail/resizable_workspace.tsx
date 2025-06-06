@@ -34,6 +34,7 @@ import {
   customStringify,
 } from '../../../common';
 import {
+  aggregateConsoleErrors,
   formatProcessorError,
   isValidUiWorkflow,
   reduceToTemplate,
@@ -79,20 +80,24 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }, [props.uiConfig?.ingest?.enabled]);
 
-  const [currentWorkflowId, setCurrentWorkflowId] = useState<
-    string | undefined
-  >(props.workflow?.id);
+  // const [currentWorkflowId, setCurrentWorkflowId] = useState<
+  //   string | undefined
+  // >(props.workflow?.id);
 
   // Always start with console closed when workflow changes
   const [isConsolePanelOpen, setIsConsolePanelOpen] = useState<boolean>(false);
 
   // Reset console state when workflow changes - ensure it's always closed initially
+  // useEffect(() => {
+  //   if (props.workflow?.id !== currentWorkflowId) {
+  //     setCurrentWorkflowId(props.workflow?.id);
+  //     setIsConsolePanelOpen(false); // Always close on workflow change
+  //   }
+  // }, [props.workflow?.id, currentWorkflowId]);
+
   useEffect(() => {
-    if (props.workflow?.id !== currentWorkflowId) {
-      setCurrentWorkflowId(props.workflow?.id);
-      setIsConsolePanelOpen(false); // Always close on workflow change
-    }
-  }, [props.workflow?.id, currentWorkflowId]);
+    setIsConsolePanelOpen(false);
+  }, [props.workflow?.id]);
 
   const [leftNavOpen, setLeftNavOpen] = useState<boolean>(true);
 
@@ -151,109 +156,24 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   >([]);
   const [actualErrorCount, setActualErrorCount] = useState<number>(0);
 
-  // Track if this is the initial mount to prevent auto-opening console on page load
-  const [isInitialMount, setIsInitialMount] = useState<boolean>(true);
-
   useEffect(() => {
-    // Mark that initial mount is complete after first render
-    const timer = setTimeout(() => {
-      setIsInitialMount(false);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (
-      !isEmpty(opensearchError) ||
-      !isEmpty(ingestPipelineErrors) ||
-      !isEmpty(searchPipelineErrors) ||
-      !isEmpty(workflowsError) ||
+    const { errorMessages, errorCount } = aggregateConsoleErrors(
+      opensearchError,
+      workflowsError,
+      ingestPipelineErrors,
+      searchPipelineErrors,
       props.workflow?.error
-    ) {
-      const errorMessages = [];
-      let errorCount = 0;
+    );
 
-      if (!isEmpty(opensearchError)) {
-        errorMessages.push(opensearchError);
-        errorCount += 1;
-      }
-      if (!isEmpty(workflowsError)) {
-        errorMessages.push(workflowsError);
-        errorCount += 1;
-      }
-      if (props.workflow?.error) {
-        errorMessages.push(props.workflow.error);
-        errorCount += 1;
-      }
-      if (!isEmpty(ingestPipelineErrors)) {
-        // Add header message (doesn't count as an error)
-        errorMessages.push(
-          'Data not ingested. Errors found with the following ingest processor(s):'
-        );
-        // Add actual errors (these count)
-        const ingestErrors = Object.values(ingestPipelineErrors).map(
-          (error) => {
-            // Convert to plain text format instead of JSX
-            const processorType = error.processorType
-              ? error.processorType.charAt(0).toUpperCase() +
-                error.processorType.slice(1)
-              : 'Unknown';
-            return `Processor type: ${processorType}\nError: ${
-              error.errorMsg || error.toString()
-            }`;
-          }
-        );
-        errorMessages.push(...ingestErrors);
-        errorCount += ingestErrors.length;
-      }
-      if (!isEmpty(searchPipelineErrors)) {
-        // Add header message (doesn't count as an error)
-        errorMessages.push(
-          'Errors found with the following search processor(s):'
-        );
-        // Add actual errors (these count)
-        const searchErrors = Object.values(searchPipelineErrors).map(
-          (error) => {
-            // Convert to plain text format instead of JSX
-            const processorType = error.processorType
-              ? error.processorType.charAt(0).toUpperCase() +
-                error.processorType.slice(1)
-              : 'Unknown';
-            return `Processor type: ${processorType}\nError: ${
-              error.errorMsg || error.toString()
-            }`;
-          }
-        );
-        errorMessages.push(...searchErrors);
-        errorCount += searchErrors.length;
-      }
-
-      setConsoleErrorMessages(errorMessages);
-      setActualErrorCount(errorCount);
-
-      // Only auto-open console if it's not the initial mount (i.e., user action triggered the errors)
-      if (!isInitialMount) {
-        setIsConsolePanelOpen(true);
-      }
-    } else {
-      setConsoleErrorMessages([]);
-      setActualErrorCount(0);
-    }
+    setConsoleErrorMessages(errorMessages);
+    setActualErrorCount(errorCount);
   }, [
     opensearchError,
     workflowsError,
     ingestPipelineErrors,
     searchPipelineErrors,
     props.workflow?.error,
-    isInitialMount, // Add dependency on isInitialMount
   ]);
-
-  useEffect(() => {
-    // Only auto-open console for ingest response if it's not the initial mount
-    if (!isEmpty(ingestResponse) && !isInitialMount) {
-      setIsConsolePanelOpen(true);
-    }
-  }, [ingestResponse, isInitialMount]); // Add dependency on isInitialMount
 
   // is valid workflow state, + associated hook to set it as such
   const [isValidWorkflow, setIsValidWorkflow] = useState<boolean>(true);
