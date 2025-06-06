@@ -12,7 +12,6 @@ import {
   EuiSmallButton,
   EuiCompressedFilePicker,
   EuiModal,
-  EuiModalBody,
   EuiModalFooter,
   EuiModalHeader,
   EuiModalHeaderTitle,
@@ -22,6 +21,8 @@ import {
   EuiButtonGroup,
   EuiCompressedComboBox,
   EuiLink,
+  EuiFlexGroup,
+  EuiFlexItem,
 } from '@elastic/eui';
 import { JsonLinesField } from '../input_fields';
 import {
@@ -211,43 +212,58 @@ export function SourceDataModal(props: SourceDataProps) {
             // overriding the default modal height for this one. Prioritize vertical space for easier viewing of imported documents
             style={{ height: '80vh' }}
           >
-            <EuiModalHeader>
+            <EuiModalHeader style={{ marginBottom: '-24px' }}>
               <EuiModalHeaderTitle>
                 <p>{`Import sample data`}</p>
               </EuiModalHeaderTitle>
             </EuiModalHeader>
-            <EuiModalBody style={{ height: '70vh' }}>
-              <>
+            <EuiFlexGroup
+              direction="column"
+              gutterSize="s"
+              style={{
+                height: '70vh',
+                margin: '18px',
+                overflow: 'scroll',
+                overflowX: 'hidden',
+              }}
+            >
+              <EuiFlexItem grow={false}>
                 <EuiText size="s" color="subdued">
                   To start configuring an ingest flow, import a sample of your
                   data. You may ingest additional data using the Bulk API after
                   configuring the ingest flow.
                 </EuiText>
-                <EuiSpacer size="s" />
-                <EuiButtonGroup
-                  legend="Import options"
-                  buttonSize="compressed"
-                  idSelected={props.selectedOption}
-                  options={[
-                    {
-                      id: SOURCE_OPTIONS.MANUAL,
-                      label: 'Enter manually',
-                    },
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiFlexGroup direction="row" justifyContent="flexStart">
+                  <EuiFlexItem grow={false}>
+                    <EuiButtonGroup
+                      legend="Import options"
+                      buttonSize="compressed"
+                      idSelected={props.selectedOption}
+                      options={[
+                        {
+                          id: SOURCE_OPTIONS.MANUAL,
+                          label: 'Enter manually',
+                        },
 
-                    {
-                      id: SOURCE_OPTIONS.UPLOAD,
-                      label: 'Upload a file',
-                    },
-                    {
-                      id: SOURCE_OPTIONS.EXISTING_INDEX,
-                      label: 'Upload from an existing index',
-                    },
-                  ]}
-                  onChange={(id) =>
-                    props.setSelectedOption(id as SOURCE_OPTIONS)
-                  }
-                />
-                <EuiSpacer size="m" />
+                        {
+                          id: SOURCE_OPTIONS.UPLOAD,
+                          label: 'Upload a file',
+                        },
+                        {
+                          id: SOURCE_OPTIONS.EXISTING_INDEX,
+                          label: 'Upload from an existing index',
+                        },
+                      ]}
+                      onChange={(id) =>
+                        props.setSelectedOption(id as SOURCE_OPTIONS)
+                      }
+                    />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
                 {props.selectedOption === SOURCE_OPTIONS.UPLOAD && (
                   <>
                     <EuiCompressedFilePicker
@@ -304,6 +320,8 @@ export function SourceDataModal(props: SourceDataProps) {
                     <EuiSpacer size="xs" />
                   </>
                 )}
+              </EuiFlexItem>
+              <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
                 <JsonLinesField
                   label="Documents to be imported"
                   fieldPath={'docs'}
@@ -315,12 +333,16 @@ export function SourceDataModal(props: SourceDataProps) {
                       </EuiLink>
                     </EuiText>
                   }
-                  editorHeight="20vh"
+                  editorHeight={
+                    props.selectedOption === SOURCE_OPTIONS.MANUAL
+                      ? '30vh'
+                      : '23vh'
+                  }
                   readOnly={false}
                   validate={true}
                 />
-              </>
-            </EuiModalBody>
+              </EuiFlexItem>
+            </EuiFlexGroup>
             <EuiModalFooter style={{ marginBottom: '-24px' }}>
               <EuiSmallButtonEmpty
                 onClick={() => onClose()}

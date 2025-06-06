@@ -28,6 +28,9 @@ interface JsonLinesFieldProps {
   readOnly?: boolean;
 }
 
+// The total number of visible errors to be shown at the bottom
+const NUM_VISIBLE_ERRORS = 3;
+
 /**
  * An input field for a component where users input data in JSON Lines format.
  * https://jsonlines.org/
@@ -76,7 +79,12 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
                 <>
                   {customErrMsg?.split('\n')?.map((errMsg, idx) => {
                     return (
-                      <EuiText key={idx} color="danger" size="s">
+                      <EuiText
+                        key={idx}
+                        color="danger"
+                        size="xs"
+                        style={{ marginBottom: '-8px' }}
+                      >
                         {errMsg}
                       </EuiText>
                     );
@@ -122,7 +130,7 @@ export function JsonLinesField(props: JsonLinesFieldProps) {
                 highlightActiveLine: !props.readOnly,
                 highlightSelectedWord: !props.readOnly,
                 highlightGutterLine: !props.readOnly,
-                wrap: true,
+                wrap: false,
               }}
               aria-label="Code Editor"
             />
@@ -143,8 +151,8 @@ function getFormattedErrorMsg(error: Error, idx: number): string {
 // Verbosely display a few error messages, list the count of remaining ones.
 function getFormattedErrorMsgList(errors: string[]): string {
   let finalMsg = '';
-  const verboseErrors = errors.slice(0, 3);
-  const nonVerboseErrorCount = errors.length - 3;
+  const verboseErrors = errors.slice(0, NUM_VISIBLE_ERRORS);
+  const nonVerboseErrorCount = errors.length - NUM_VISIBLE_ERRORS;
   verboseErrors.forEach((error) => {
     finalMsg += error + '\n';
   });
