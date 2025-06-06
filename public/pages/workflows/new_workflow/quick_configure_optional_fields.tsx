@@ -67,6 +67,7 @@ export function QuickConfigureOptionalFields(
     let defaultFieldValues = {} as QuickConfigureFields;
     switch (props.workflowType) {
       case WORKFLOW_TYPE.SEMANTIC_SEARCH:
+      case WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS:
       case WORKFLOW_TYPE.HYBRID_SEARCH: {
         defaultFieldValues = {
           textField: DEFAULT_TEXT_FIELD,
@@ -193,7 +194,9 @@ export function QuickConfigureOptionalFields(
           <>
             <EuiCompressedFormRow
               fullWidth={true}
-              label={'Vector field'}
+              label={props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS
+                ? 'Sparse vector field'
+                : 'Vector field'}
               isInvalid={false}
               helpText="The name of the document field containing the vector embedding."
             >
@@ -208,7 +211,7 @@ export function QuickConfigureOptionalFields(
                 }}
               />
             </EuiCompressedFormRow>
-            {unknownEmbeddingLength && (
+            {unknownEmbeddingLength && props.workflowType !== WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS && (
               <>
                 <EuiSpacer size="s" />
                 <EuiCompressedFormRow

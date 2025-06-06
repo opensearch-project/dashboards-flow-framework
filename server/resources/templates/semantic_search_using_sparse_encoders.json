@@ -1,0 +1,14 @@
+{
+  "name": "Semantic Search using Sparse Encoders",
+  "description": "Build a flow that allows you to search by text and rank results by semantic similarity, to improve search quality. This template uses [Neural Sparse](https://huggingface.co/opensearch-project/opensearch-neural-sparse-encoding-v2-distill), a sparse encoder, to convert text into sparse vectors. This implementation is potentially more cost efficient than the dense (k-NN) vectors for smaller indexes (< 10M documents).",
+  "version": {
+    "template": "1.0.0",
+    "compatibility": [
+      "2.19.0",
+      "3.0.0"
+    ]
+  },
+  "ui_metadata": {
+    "type": "Semantic Search using Sparse Encoders"
+  }
+}

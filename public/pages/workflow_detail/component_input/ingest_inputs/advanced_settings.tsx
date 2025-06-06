@@ -14,7 +14,7 @@ import {
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import { getIn, useFormikContext } from 'formik';
-import { WorkflowFormValues } from '../../../../../common';
+import { WorkflowFormValues, WORKFLOW_TYPE } from '../../../../../common';
 import { AppState } from '../../../../store';
 import {
   getEmbeddingField,
@@ -28,6 +28,7 @@ import {
 
 interface AdvancedSettingsProps {
   setHasInvalidDimensions: (hasInvalidDimensions: boolean) => void;
+  workflowType: WORKFLOW_TYPE | undefined;
   disabled: boolean;
 }
 
@@ -65,7 +66,7 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
 
           // If a dimension is found, it is a known embedding model.
           // Ensure the index is configured to be knn-enabled.
-          if (dimension !== undefined) {
+          if (dimension !== undefined && props.workflowType !== WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS) {
             if (!isKnnIndex(curSettings)) {
               setFieldValue(
                 indexSettingsPath,

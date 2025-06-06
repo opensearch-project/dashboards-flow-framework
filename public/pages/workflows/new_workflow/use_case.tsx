@@ -10,9 +10,11 @@ import {
   EuiFlexItem,
   EuiCard,
   EuiSmallButton,
+  EuiLink,
 } from '@elastic/eui';
 import { Workflow } from '../../../../common';
 import { QuickConfigureModal } from './quick_configure_modal';
+import ReactMarkdown from 'react-markdown';
 
 interface UseCaseProps {
   workflow: Workflow;
@@ -39,7 +41,21 @@ export function UseCase(props: UseCaseProps) {
         titleSize="s"
         paddingSize="l"
         textAlign="left"
-        description={props.workflow?.description || ''}
+        description={
+          <EuiText size="s">
+            <ReactMarkdown
+              components={{
+                a: ({ href, children }) => (
+                  <EuiLink href={href} target="_blank" external>
+                    {children}
+                  </EuiLink>
+                ),
+              }}
+            >
+              {props.workflow?.description || ''}
+            </ReactMarkdown>
+          </EuiText>
+        }
         footer={
           <EuiFlexGroup justifyContent="flexEnd">
             <EuiFlexItem grow={false}>

@@ -330,31 +330,56 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                             <EuiSpacer size="s" />
                           </>
                         )}
-                        <ModelField
-                          modelCategory={MODEL_CATEGORY.EMBEDDING}
-                          fieldPath="embeddingModel"
-                          showMissingInterfaceCallout={true}
-                          hasModelInterface={
+                        {props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS ? (
+                      <ModelField
+                        modelCategory={MODEL_CATEGORY.SPARSE_ENCODER}
+                        fieldPath="embeddingModel"
+                        showMissingInterfaceCallout={true}
+                        hasModelInterface={
                             !isEmpty(
                               models[
                                 getIn(formikProps.values, 'embeddingModel.id')
                               ]?.interface
                             )
                           }
-                          label="Embedding model"
-                          helpText="The model to generate embeddings."
-                          fullWidth={true}
-                          showError={true}
-                          onModelChange={(modelId) =>
-                            setQuickConfigureFields({
-                              ...quickConfigureFields,
-                              embeddingModelId: modelId,
-                            })
-                          }
-                        />
-                      </>
-                    </EuiFlexItem>
-                  )}
+                        label="Sparse encoder"
+                        helpText="The model to generate sparse vector."
+                        fullWidth={true}
+                        showError={true}
+                        onModelChange={(modelId) =>
+                          setQuickConfigureFields({
+                            ...quickConfigureFields,
+                            embeddingModelId: modelId,
+                          })
+                        }
+                      />
+                    ) : (
+                      <ModelField
+                        modelCategory={MODEL_CATEGORY.EMBEDDING}
+                        fieldPath="embeddingModel"
+                        showMissingInterfaceCallout={true}
+                        hasModelInterface={
+                          !isEmpty(
+                            models[
+                              getIn(formikProps.values, 'embeddingModel.id')
+                            ]?.interface
+                          )
+                        }
+                      label="Embedding model"
+                      helpText="The model to generate embeddings."
+                      fullWidth={true}
+                      showError={true}
+                      onModelChange={(modelId) =>
+                        setQuickConfigureFields({
+                          ...quickConfigureFields,
+                          embeddingModelId: modelId,
+                        })
+                      }
+                    />
+                    )}
+                  </>
+                </EuiFlexItem>
+              )}
               </EuiFlexGroup>
               {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM && (
                 <>
@@ -446,6 +471,7 @@ function injectQuickConfigureFields(
     switch (workflow.ui_metadata?.type) {
       case WORKFLOW_TYPE.SEMANTIC_SEARCH:
       case WORKFLOW_TYPE.HYBRID_SEARCH:
+      case WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS:
       case WORKFLOW_TYPE.MULTIMODAL_SEARCH: {
         if (!isEmpty(quickConfigureFields) && workflow.ui_metadata?.config) {
           workflow.ui_metadata.config = updateIngestProcessors(
@@ -456,6 +482,7 @@ function injectQuickConfigureFields(
           );
           workflow.ui_metadata.config = updateIndexConfig(
             workflow.ui_metadata.config,
+            workflow.ui_metadata?.type,
             quickConfigureFields
           );
           workflow.ui_metadata.config.search.request.value = injectPlaceholderValues(
@@ -482,6 +509,7 @@ function injectQuickConfigureFields(
           );
           workflow.ui_metadata.config = updateIndexConfig(
             workflow.ui_metadata.config,
+            workflow.ui_metadata?.type,
             quickConfigureFields
           );
           workflow.ui_metadata.config.search.request.value = injectPlaceholderValues(
@@ -807,6 +835,7 @@ function updateRAGSearchResponseProcessors(
 // prefill index mappings/settings, if applicable
 function updateIndexConfig(
   config: WorkflowConfig,
+  workflow_type: WORKFLOW_TYPE,
   fields: QuickConfigureFields
 ): WorkflowConfig {
   if (
@@ -835,10 +864,10 @@ function updateIndexConfig(
       };
     }
     if (fields.vectorField) {
-      properties[fields.vectorField] = {
-        type: 'knn_vector',
-        dimension: fields.embeddingLength || '',
-      };
+      properties[fields.vectorField] = 
+        workflow_type !== WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS
+          ? { type: 'knn_vector', dimension: fields.embeddingLength || '' }
+          : { type: 'rank_features' };
     }
     if (fields.labelField) {
       properties[fields.labelField] = {

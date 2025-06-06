@@ -17,6 +17,8 @@ import {
     BEDROCK_CLAUDE_3_SONNET_DOCS_LINK,
     OPENAI_GPT35_DOCS_LINK,
     DEEPSEEK_CHAT_DOCS_LINK,
+    OPENSEARCH_NEURAL_SPARSE_DOCS_LINK,
+    SAGEMAKER_SPARSE_DEPLOY_LINK,
 } from '../../../../../common';
 
 interface ModelInfoPopoverProps {
@@ -55,6 +57,19 @@ export function ModelInfoPopover({ modelCategory }: ModelInfoPopoverProps) {
                     </EuiLink>
                 </>
             );
+        } else if (modelCategory === MODEL_CATEGORY.SPARSE_ENCODER) {
+            return (
+                <>
+                    <EuiLink external href={OPENSEARCH_NEURAL_SPARSE_DOCS_LINK} target="_blank">
+                        OpenSearch Neural Sparse Encoder
+                    </EuiLink>
+                    {' (deployable using '}
+                    <EuiLink external href={SAGEMAKER_SPARSE_DEPLOY_LINK} target="_blank">
+                        SageMaker Connector
+                    </EuiLink>
+                    {')'}
+                </>
+            );
         }
         return null;
     };
@@ -64,6 +79,8 @@ export function ModelInfoPopover({ modelCategory }: ModelInfoPopoverProps) {
             return 'n embedding';
         } else if (modelCategory === MODEL_CATEGORY.LLM) {
             return ' large language';
+        } else if (modelCategory === MODEL_CATEGORY.SPARSE_ENCODER) {
+            return ' sparse encoder';
         }
         return '';
     };
@@ -85,7 +102,7 @@ export function ModelInfoPopover({ modelCategory }: ModelInfoPopoverProps) {
         >
             <div style={{ padding: '12px', width: '400px' }}>
                 <p style={{ margin: '0', lineHeight: '1.5' }}>
-                    To create this workflow, you must select a{getModelTypeText()} model. 
+                    To create this workflow, you must select a{getModelTypeText()} model.
                     {getModelLinks() && <> For example: {getModelLinks()}.</>}
                 </p>
                 <p style={{ margin: '24px 0 0 0', lineHeight: '1.5' }}>
@@ -97,5 +114,5 @@ export function ModelInfoPopover({ modelCategory }: ModelInfoPopoverProps) {
             </div>
         </EuiPopover>
     );
-    
+
 }
