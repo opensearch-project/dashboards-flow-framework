@@ -1,0 +1,1161 @@
+[2K[1G[33mwarning[39m package.json: License should be a valid SPDX license expression
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mpublic/utils/[22m[1mconfig_to_template_utils.test.tsx[22m ([0m[1m[41m16.325 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mpublic/pages/workflows/import_workflow/[22m[1mimport_workflow_modal.test.tsx[22m ([0m[1m[41m18.198 s[49m[22m[0m)
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2mpublic/pages/workflows/[22m[1mworkflows.test.tsx[22m ([0m[1m[41m19.291 s[49m[22m[0m)
+  [1m● [22mConsole
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: React has detected a change in the order of Hooks called by WorkflowList. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://fb.me/rules-of-hooks[39m
+[31m      [39m
+[31m         Previous render            Next render[39m
+[31m         ------------------------------------------------------[39m
+[31m      1. useContext                 useContext[39m
+[31m      2. useReducer                 useReducer[39m
+[31m      3. useMemo                    useMemo[39m
+[31m      4. useRef                     useRef[39m
+[31m      5. useRef                     useRef[39m
+[31m      6. useRef                     useRef[39m
+[31m      7. useRef                     useRef[39m
+[31m      8. useLayoutEffect            useLayoutEffect[39m
+[31m      9. useLayoutEffect            useLayoutEffect[39m
+[31m      10. useDebugValue             useDebugValue[39m
+[31m      11. useState                  useState[39m
+[31m      12. useState                  useState[39m
+[31m      13. useState                  useState[39m
+[31m      14. useState                  useState[39m
+[31m      15. useState                  useState[39m
+[31m      16. useState                  useState[39m
+[31m      17. useEffect                 useEffect[39m
+[31m      18. undefined                 useContext[39m
+[31m         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[39m
+[31m      [39m
+[31m          in WorkflowList (created by Workflows)[39m
+[31m          in div (created by EuiPanel)[39m
+[31m          in EuiPanel (created by EuiPageContent)[39m
+[31m          in EuiPageContent (created by Workflows)[39m
+[31m          in div (created by EuiPageBody)[39m
+[31m          in EuiPageBody (created by Workflows)[39m
+[31m          in div (created by EuiPage)[39m
+[31m          in EuiPage (created by Workflows)[39m
+[31m          in Workflows (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router (created by BrowserRouter)[39m
+[31m          in BrowserRouter[39m
+[31m          in Provider[39m
+[2m[22m
+[2m    [0m [90m 579 |[39m[0m[22m
+[2m    [0m [90m 580 |[39m [36mexport[39m [36mconst[39m getDataSourceId [33m=[39m () [33m=>[39m {[0m[22m
+[2m    [0m[31m[1m>[22m[2m[39m[90m 581 |[39m   [36mconst[39m location [33m=[39m useLocation()[33m;[39m[0m[22m
+[2m    [0m [90m     |[39m                               [31m[1m^[22m[2m[39m[0m[22m
+[2m    [0m [90m 582 |[39m   [36mconst[39m mdsQueryParams [33m=[39m getDataSourceFromURL(location)[33m;[39m[0m[22m
+[2m    [0m [90m 583 |[39m   [36mreturn[39m mdsQueryParams[33m.[39mdataSourceId[33m;[39m[0m[22m
+[2m    [0m [90m 584 |[39m }[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat console.apply ([22m[2m../../node_modules/@testing-library/react/dist/act-compat.js[2m:55:34)[22m[2m[22m
+[2m      [2mat console.call [as error] ([22m[2m../../node_modules/@testing-library/react/dist/act-compat.js[2m:55:34)[22m[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnOnHookMismatchInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:14715:9)[22m[2m[22m
+[2m      [2mat updateHookTypesDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:14674:9)[22m[2m[22m
+[2m      [2mat Object.useContext ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15895:7)[22m[2m[22m
+[2m      [2mat useContext ([22m[2m../../node_modules/react/cjs/react.development.js[2m:1493:21)[22m[2m[22m
+[2m      [2mat useLocation ([22m[2m../../node_modules/react-router/modules/hooks.js[2m:29:10)[22m[2m[22m
+[2m      [2mat getDataSourceId ([22m[2mpublic/utils/utils.tsx[2m:581:31)[22m[2m[22m
+[2m      [2mat columns ([22m[2mpublic/pages/workflows/workflow_list/columns.tsx[2m:21:39)[22m[2m[22m
+[2m      [2mat Component ([22m[2mpublic/pages/workflows/workflow_list/workflow_list.tsx[2m:217:31)[22m[2m[22m
+[2m      [2mat renderWithHooks ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:14803:18)[22m[2m[22m
+[2m      [2mat updateFunctionComponent ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:17034:20)[22m[2m[22m
+[2m      [2mat beginWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:18610:16)[22m[2m[22m
+[2m      [2mat beginWork$1 ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23179:14)[22m[2m[22m
+[2m      [2mat performUnitOfWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22157:12)[22m[2m[22m
+[2m      [2mat workLoopSync ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22130:22)[22m[2m[22m
+[2m      [2mat callback ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21756:9)[22m[2m[22m
+[2m      [2mat eventHandler ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11089:24)[22m[2m[22m
+[2m      [2mat Scheduler_runWithPriority ([22m[2m../../node_modules/scheduler/cjs/scheduler.development.js[2m:653:12)[22m[2m[22m
+[2m      [2mat runWithPriority$1 ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11039:10)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueueImpl ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11084:7)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueue ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11072:3)[22m[2m[22m
+[2m      [2mat batch ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21862:7)[22m[2m[22m
+[2m      [2mat Object.notify ([22m[2m../../node_modules/react-redux/lib/utils/Subscription.js[2m:21:7)[22m[2m[22m
+[2m      [2mat Object.onStateChange [as notifyNestedSubs] ([22m[2m../../node_modules/react-redux/lib/utils/Subscription.js[2m:92:15)[22m[2m[22m
+[2m      [2mat listener ([22m[2m../../node_modules/react-redux/lib/utils/Subscription.js[2m:97:20)[22m[2m[22m
+[2m      [2mat next ([22m[2m../../node_modules/redux/lib/redux.js[2m:305:7)[22m[2m[22m
+[2m      [2mat next ([22m[2m../../node_modules/@reduxjs/toolkit/src/serializableStateInvariantMiddleware.ts[2m:172:20)[22m[2m[22m
+[2m      [2mat next ([22m[2m../../node_modules/redux-thunk/lib/index.js[2m:27:16)[22m[2m[22m
+[2m      [2mat apply ([22m[2m../../node_modules/@reduxjs/toolkit/src/immutableStateInvariantMiddleware.ts[2m:258:32)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2m../../node_modules/redux/lib/redux.js[2m:699:28)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/@reduxjs/toolkit/src/createAsyncThunk.ts[2m:651:11[22m[2m[22m
+[2m      [2mat step ([22m[2m../../node_modules/@reduxjs/toolkit/dist/redux-toolkit.cjs.development.js[2m:99:17)[22m[2m[22m
+[2m      [2mat Object.throw ([22m[2m../../node_modules/@reduxjs/toolkit/dist/redux-toolkit.cjs.development.js[2m:48:14)[22m[2m[22m
+[2m      [2mat rejected ([22m[2m../../node_modules/@reduxjs/toolkit/dist/redux-toolkit.cjs.development.js[2m:196:32)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mWorkflows › renders the page[39m[22m
+
+    Unable to find an element with the text: Select or drag and drop a file. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, <script />, <style />
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"euiPage euiPage--paddingMedium euiPage--grow"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"euiPageBody euiPageBody--borderRadiusNone"[39m
+          [36m>[39m
+            [36m<header[39m
+              [33mclass[39m=[32m"euiPageHeader euiPageHeader--responsive euiPageHeader--center"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"euiPageHeaderContent"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive euiPageHeaderContent__top"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"euiFlexItem"[39m
+                  [36m>[39m
+                    [36m<h1[39m
+                      [33mclass[39m=[32m"euiTitle euiTitle--large"[39m
+                    [36m>[39m
+                      [36m<div[39m
+                        [33mclass[39m=[32m"euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionColumn euiFlexGroup--responsive"[39m
+                        [33mstyle[39m=[32m"margin: 0px;"[39m
+                      [36m>[39m
+                        [36m<div[39m
+                          [33mclass[39m=[32m"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--responsive"[39m
+                        [36m>[39m
+                          [36m<div[39m
+                            [33mclass[39m=[32m"euiFlexItem euiFlexItem--flexGrowZero"[39m
+                          [36m>[39m
+                            [36m<div[39m
+                              [33mclass[39m=[32m"euiText euiText--medium"[39m
+                            [36m>[39m
+                              [36m<h1>[39m
+                                [0mAI Search Flows[0m
+                              [36m</h1>[39m
+                            [36m</div>[39m
+                          [36m</div>[39m
+                        [36m</div>[39m
+                        [36m<div[39m
+                          [33mclass[39m=[32m"euiText euiText--medium"[39m
+                        [36m>[39m
+                          [36m<div[39m
+                            [33mclass[39m=[32m"euiTextColor euiTextColor--subdued"[39m
+                          [36m>[39m
+                            [0mDesign, prototype, and experiment with solutions using OpenSearch Flow. Use the visual interface to build
+      ingest and search flows, test different configurations, and deploy them to your environment.[0m
+                          [36m</div>[39m
+                        [36m</div>[39m
+                        [36m<div[39m
+                          [33mclass[39m=[32m"euiSpacer euiSpacer--l"[39m
+                        [36m/>[39m
+                        [36m<div[39m
+                          [33mclass[39m=[32m"euiAccordion"[39m
+                          [33mstyle[39m=[32m"margin-bottom: -16px;"[39m
+                        [36m>[39m
+                          [36m<div[39m
+                            [33mclass[39m=[32m"euiAccordion__triggerWrapper"[39m
+                          [36m>[39m
+                            [36m<button[39m
+                              [33maria-controls[39m=[32m"accordionGetStarted"[39m
+                              [33maria-expanded[39m=[32m"false"[39m
+                              [33mclass[39m=[32m"euiAccordion__button"[39m
+                              [33mid[39m=[32m"ic8738733-5d3d-48d2-8519-d8760d7f6a05"[39m
+                              [33mtype[39m=[32m"button"[39m
+                            [36m>[39m
+                              [36m<span[39m
+                                [33mclass[39m=[32m"euiAccordion__iconWrapper"[39m
+                              [36m>[39m
+                                [36m<svg[39m
+                                  [33maria-hidden[39m=[32m"true"[39m
+                                  [33mclass[39m=[32m"euiIcon euiIcon--medium euiIcon-isLoaded euiAccordion__icon"[39m
+                                  [33mfocusable[39m=[32m"false"[39m
+                                  [33mheight[39m=[32m"16"[39m
+                                  [33mrole[39m=[32m"img"[39m
+                                  [33mviewBox[39m=[32m"0 0 16 16"[39m
+                                  [33mwidth[39m=[32m"16"[39m
+                                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                                [36m>[39m
+                                  [36m<path[39m
+                                    [33md[39m=[32m"m5.157 13.069 4.611-4.685a.546.546 0 0 0 0-.768L5.158 2.93a.552.552 0 0 1 0-.771.53.53 0 0 1 .759 0l4.61 4.684c.631.641.63 1.672 0 2.312l-4.61 4.684a.53.53 0 0 1-.76 0 .552.552 0 0 1 0-.771Z"[39m
+                                    [33mfill-rule[39m=[32m"nonzero"[39m
+                                  [36m/>[39m
+                                [36m</svg>[39m
+                              [36m</span>[39m
+                              [36m<span[39m
+                                [33mclass[39m=[32m"euiIEFlexWrapFix"[39m
+                              [36m>[39m
+                                [36m<div[39m
+                                  [33mclass[39m=[32m"euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive"[39m
+                                [36m>[39m
+                                  [36m<div[39m
+                                    [33mclass[39m=[32m"euiFlexItem euiFlexItem--flexGrowZero"[39m
+                                  [36m>[39m
+                                    [36m<div[39m
+                                      [33mclass[39m=[32m"euiText euiText--medium"[39m
+                                    [36m>[39m
+                                      [0mGet started[0m
+                                    [36m</div>[39m
+                                  [36m</div>[39m
+                                [36m</div>[39m
+                              [36m</span>[39m
+                            [36m</button>[39m
+                          [36m</div>[39m
+                          [36m<div[39m
+                            [33maria-labelledby[39m=[32m"ic8738733-5d3d-48d2-8519-d8760d7f6a05"[39m
+                            [33mclass[39m=[32m"euiAccordion__childWrapper"[39m
+                            [33mid[39m=[32m"accordionGetStarted"[39m
+                            [33mrole[39m=[32m"region"[39m
+                            [33mstyle[39m=[32m"height: 0px"[39m
+                            [33mtabindex[39m=[32m"-1"[39m
+                          [36m>[39m
+                            [36m<div>[39m
+                              [36m<div[39m
+                                [33mclass[39m=[32m""[39m
+                              [36m>[39m
+                                [36m<div[39m
+                                  [33mclass[39m=[32m"euiSpacer euiSpacer--s"[39m
+                                [36m/>[39m
+                                [36m<div[39m
+                                  [33mclass[39m=[32m"euiFlexItem"[39m
+                                [36m>[39m
+       ...
+[2m[22m
+[2m    [0m [90m 56 |[39m     [36mconst[39m importWorkflowButton [33m=[39m getByTestId([32m'importWorkflowButton'[39m)[33m;[39m[0m[22m
+[2m    [0m [90m 57 |[39m     userEvent[33m.[39mclick(importWorkflowButton)[33m;[39m[0m[22m
+[2m    [0m[31m[1m>[22m[2m[39m[90m 58 |[39m     [36mawait[39m waitFor(() [33m=>[39m {[0m[22m
+[2m    [0m [90m    |[39m                  [31m[1m^[22m[2m[39m[0m[22m
+[2m    [0m [90m 59 |[39m       expect([0m[22m
+[2m    [0m [90m 60 |[39m         getAllByText([32m'Select or drag and drop a file'[39m)[33m.[39mlength[0m[22m
+[2m    [0m [90m 61 |[39m       )[33m.[39mtoBeGreaterThan([35m0[39m)[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat waitForWrapper ([22m[2m../../node_modules/@testing-library/dom/dist/wait-for.js[2m:187:27)[22m[2m[22m
+[2m      [2mat call ([22m[2m[0m[36mpublic/pages/workflows/workflows.test.tsx[39m[0m[2m:58:18)[22m[2m[22m
+[2m      [2mat tryCatch ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:45:16)[22m[2m[22m
+[2m      [2mat Generator._invoke ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:133:17)[22m[2m[22m
+[2m      [2mat Generator.next ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:74:21)[22m[2m[22m
+[2m      [2mat asyncGeneratorStep ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:3:17)[22m[2m[22m
+[2m      [2mat _next ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:17:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:22:7[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:14:12)[22m[2m[22m
+
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mpublic/pages/workflows/new_workflow/[22m[1mnew_workflow.test.tsx[22m ([0m[1m[41m20.045 s[49m[22m[0m)
+  [1m● [22mConsole
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. [39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:87:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:59:5)[22m[2m[22m
+[2m      [2mat onDone ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:921:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:960:13[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. [39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:87:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:59:5)[22m[2m[22m
+[2m      [2mat onDone ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:921:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:960:13[22m[2m[22m
+
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mpublic/pages/workflows/workflow_list/[22m[1mworkflow_list.test.tsx[22m ([0m[1m[41m21.58 s[49m[22m[0m)
+  [1m● [22mConsole
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. [39m
+[2m[22m
+[2m      [2mat console.call [as error] ([22m[2m../../node_modules/@testing-library/react/dist/act-compat.js[2m:55:34)[22m[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:87:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:59:5)[22m[2m[22m
+[2m      [2mat onDone ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:921:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:960:13[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. [39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:87:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:59:5)[22m[2m[22m
+[2m      [2mat onDone ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:921:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:960:13[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. [39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:87:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:59:5)[22m[2m[22m
+[2m      [2mat onDone ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:921:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:960:13[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. [39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:87:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:59:5)[22m[2m[22m
+[2m      [2mat onDone ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:921:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:960:13[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. [39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:87:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:59:5)[22m[2m[22m
+[2m      [2mat onDone ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:921:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:960:13[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. [39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:87:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:59:5)[22m[2m[22m
+[2m      [2mat onDone ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:921:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:960:13[22m[2m[22m
+
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mpublic/pages/workflow_detail/[22m[1mworkflow_detail.test.tsx[22m ([0m[1m[41m22.83 s[49m[22m[0m)
+  [1m● [22mConsole
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: Cannot update a component (`ResizableWorkspace`) while rendering a different component (`LeftNav`). To locate the bad setState() call inside `LeftNav`, follow the stack trace as described in https://fb.me/setstate-in-render[39m
+[31m          in LeftNav (created by EuiResizableContainer)[39m
+[31m          in div (created by EuiResizableContainer)[39m
+[31m          in div (created by EuiResizableContainer)[39m
+[31m          in EuiResizableContainerContextProvider (created by EuiResizableContainer)[39m
+[31m          in EuiResizableContainer (created by ResizableWorkspace)[39m
+[31m          in div (created by ResizableWorkspace)[39m
+[31m          in div (created by ResizableWorkspace)[39m
+[31m          in ResizableWorkspace (created by WorkflowDetail)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by WorkflowDetail)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by WorkflowDetail)[39m
+[31m          in div (created by EuiPageBody)[39m
+[31m          in EuiPageBody (created by WorkflowDetail)[39m
+[31m          in div (created by EuiPage)[39m
+[31m          in EuiPage (created by WorkflowDetail)[39m
+[31m          in ReactFlowProvider (created by WorkflowDetail)[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m    [0m [90m 322 |[39m   [36mconst[39m ingestUpdateRequired [33m=[39m[0m[22m
+[2m    [0m [90m 323 |[39m     ingestEnabled [33m&&[39m ingestProvisioned [33m&&[39m ingestTemplatesDifferent[33m;[39m[0m[22m
+[2m    [0m[31m[1m>[22m[2m[39m[90m 324 |[39m   props[33m.[39msetIngestUpdateRequired(ingestUpdateRequired)[33m;[39m[0m[22m
+[2m    [0m [90m     |[39m         [31m[1m^[22m[2m[39m[0m[22m
+[2m    [0m [90m 325 |[39m   [36mconst[39m onIngestAndUpdateRequired [33m=[39m onIngest [33m&&[39m ingestUpdateRequired[33m;[39m[0m[22m
+[2m    [0m [90m 326 |[39m[0m[22m
+[2m    [0m [90m 327 |[39m   [36mconst[39m searchRequestUpdated [33m=[39m[0m[22m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnAboutRenderPhaseUpdatesInDEV ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23241:15)[22m[2m[22m
+[2m      [2mat scheduleWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21165:3)[22m[2m[22m
+[2m      [2mat setIngestUpdateRequired ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15660:5)[22m[2m[22m
+[2m      [2mat Component ([22m[2mpublic/pages/workflow_detail/left_nav/left_nav.tsx[2m:324:9)[22m[2m[22m
+[2m      [2mat renderWithHooks ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:14803:18)[22m[2m[22m
+[2m      [2mat updateFunctionComponent ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:17034:20)[22m[2m[22m
+[2m      [2mat beginWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:18610:16)[22m[2m[22m
+[2m      [2mat beginWork$1 ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23179:14)[22m[2m[22m
+[2m      [2mat performUnitOfWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22157:12)[22m[2m[22m
+[2m      [2mat workLoopSync ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22130:22)[22m[2m[22m
+[2m      [2mat callback ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21756:9)[22m[2m[22m
+[2m      [2mat eventHandler ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11089:24)[22m[2m[22m
+[2m      [2mat Scheduler_runWithPriority ([22m[2m../../node_modules/scheduler/cjs/scheduler.development.js[2m:653:12)[22m[2m[22m
+[2m      [2mat runWithPriority$1 ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11039:10)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueueImpl ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11084:7)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueue ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11072:3)[22m[2m[22m
+[2m      [2mat batchedUpdates ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21862:7)[22m[2m[22m
+[2m      [2mat act ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:929:14)[22m[2m[22m
+[2m      [2mat render ([22m[2m../../node_modules/@testing-library/react/dist/pure.js[2m:97:25)[22m[2m[22m
+[2m      [2mat renderWithRouter ([22m[2m[0m[36mpublic/pages/workflow_detail/workflow_detail.test.tsx[39m[0m[2m:56:14)[22m[2m[22m
+[2m      [2mat call ([22m[2m[0m[36mpublic/pages/workflow_detail/workflow_detail.test.tsx[39m[0m[2m:81:54)[22m[2m[22m
+[2m      [2mat tryCatch ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:45:16)[22m[2m[22m
+[2m      [2mat Generator._invoke ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:133:17)[22m[2m[22m
+[2m      [2mat Generator.next ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:74:21)[22m[2m[22m
+[2m      [2mat asyncGeneratorStep ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:3:17)[22m[2m[22m
+[2m      [2mat _next ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:17:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:22:7[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:14:12)[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: validateDOMNesting(...): <button> cannot appear as a descendant of <button>.[39m
+[31m          in button (created by EuiButtonIcon)[39m
+[31m          in EuiButtonIcon (created by EuiSmallButtonIcon)[39m
+[31m          in EuiSmallButtonIcon (created by ProcessorList)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by ProcessorList)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by ProcessorList)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by ProcessorList)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by ProcessorList)[39m
+[31m          in button (created by EuiCard)[39m
+[31m          in span (created by EuiCard)[39m
+[31m          in EuiTitle (created by EuiCard)[39m
+[31m          in div (created by EuiCard)[39m
+[31m          in div (created by EuiPanel)[39m
+[31m          in EuiPanel (created by EuiCard)[39m
+[31m          in EuiCard (created by ProcessorList)[39m
+[31m          in div (created by ProcessorList)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by ProcessorList)[39m
+[31m          in ProcessorList (created by ProcessorsComponent)[39m
+[31m          in div (created by ProcessorsComponent)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by ProcessorsComponent)[39m
+[31m          in div (created by EuiCard)[39m
+[31m          in div (created by EuiCard)[39m
+[31m          in div (created by EuiPanel)[39m
+[31m          in EuiPanel (created by EuiCard)[39m
+[31m          in EuiCard (created by NavComponent)[39m
+[31m          in NavComponent (created by ProcessorsComponent)[39m
+[31m          in ProcessorsComponent (created by IngestContent)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by IngestContent)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by IngestContent)[39m
+[31m          in div (created by EuiResizeObserver)[39m
+[31m          in div (created by EuiResizeObserver)[39m
+[31m          in EuiResizeObserver (created by EuiAccordion)[39m
+[31m          in div (created by EuiAccordion)[39m
+[31m          in div (created by EuiAccordion)[39m
+[31m          in EuiAccordion (created by IngestContent)[39m
+[31m          in IngestContent (created by LeftNav)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by LeftNav)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by LeftNav)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by LeftNav)[39m
+[31m          in div (created by EuiPanel)[39m
+[31m          in EuiPanel (created by LeftNav)[39m
+[31m          in LeftNav (created by EuiResizableContainer)[39m
+[31m          in div (created by EuiResizableContainer)[39m
+[31m          in div (created by EuiResizableContainer)[39m
+[31m          in EuiResizableContainerContextProvider (created by EuiResizableContainer)[39m
+[31m          in EuiResizableContainer (created by ResizableWorkspace)[39m
+[31m          in div (created by ResizableWorkspace)[39m
+[31m          in div (created by ResizableWorkspace)[39m
+[31m          in ResizableWorkspace (created by WorkflowDetail)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by WorkflowDetail)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by WorkflowDetail)[39m
+[31m          in div (created by EuiPageBody)[39m
+[31m          in EuiPageBody (created by WorkflowDetail)[39m
+[31m          in div (created by EuiPage)[39m
+[31m          in EuiPage (created by WorkflowDetail)[39m
+[31m          in ReactFlowProvider (created by WorkflowDetail)[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m    [0m [90m 54 |[39m[0m[22m
+[2m    [0m [90m 55 |[39m   [36mreturn[39m {[0m[22m
+[2m    [0m[31m[1m>[22m[2m[39m[90m 56 |[39m     [33m...[39mrender([0m[22m
+[2m    [0m [90m    |[39m              [31m[1m^[22m[2m[39m[0m[22m
+[2m    [0m [90m 57 |[39m       [33m<[39m[33mProvider[39m store[33m=[39m{mockStore(mockInput)}[33m>[39m[0m[22m
+[2m    [0m [90m 58 |[39m         [33m<[39m[33mRouter[39m history[33m=[39m{history}[33m>[39m[0m[22m
+[2m    [0m [90m 59 |[39m           [33m<[39m[33mSwitch[39m[33m>[39m[0m[22m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat validateDOMNesting ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:7383:7)[22m[2m[22m
+[2m      [2mat createInstance ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:7479:5)[22m[2m[22m
+[2m      [2mat completeWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:18970:28)[22m[2m[22m
+[2m      [2mat completeUnitOfWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22189:16)[22m[2m[22m
+[2m      [2mat performUnitOfWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22165:12)[22m[2m[22m
+[2m      [2mat workLoopSync ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22130:22)[22m[2m[22m
+[2m      [2mat callback ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21756:9)[22m[2m[22m
+[2m      [2mat eventHandler ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11089:24)[22m[2m[22m
+[2m      [2mat Scheduler_runWithPriority ([22m[2m../../node_modules/scheduler/cjs/scheduler.development.js[2m:653:12)[22m[2m[22m
+[2m      [2mat runWithPriority$1 ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11039:10)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueueImpl ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11084:7)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueue ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11072:3)[22m[2m[22m
+[2m      [2mat batchedUpdates ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21862:7)[22m[2m[22m
+[2m      [2mat act ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:929:14)[22m[2m[22m
+[2m      [2mat render ([22m[2m../../node_modules/@testing-library/react/dist/pure.js[2m:97:25)[22m[2m[22m
+[2m      [2mat renderWithRouter ([22m[2m[0m[36mpublic/pages/workflow_detail/workflow_detail.test.tsx[39m[0m[2m:56:14)[22m[2m[22m
+[2m      [2mat call ([22m[2m[0m[36mpublic/pages/workflow_detail/workflow_detail.test.tsx[39m[0m[2m:81:54)[22m[2m[22m
+[2m      [2mat tryCatch ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:45:16)[22m[2m[22m
+[2m      [2mat Generator._invoke ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:133:17)[22m[2m[22m
+[2m      [2mat Generator.next ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:74:21)[22m[2m[22m
+[2m      [2mat asyncGeneratorStep ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:3:17)[22m[2m[22m
+[2m      [2mat _next ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:17:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:22:7[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:14:12)[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: validateDOMNesting(...): <button> cannot appear as a descendant of <button>.[39m
+[31m          in button (created by EuiButtonIcon)[39m
+[31m          in EuiButtonIcon (created by EuiSmallButtonIcon)[39m
+[31m          in EuiSmallButtonIcon (created by ProcessorList)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by ProcessorList)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by ProcessorList)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by ProcessorList)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by ProcessorList)[39m
+[31m          in button (created by EuiCard)[39m
+[31m          in span (created by EuiCard)[39m
+[31m          in EuiTitle (created by EuiCard)[39m
+[31m          in div (created by EuiCard)[39m
+[31m          in div (created by EuiPanel)[39m
+[31m          in EuiPanel (created by EuiCard)[39m
+[31m          in EuiCard (created by ProcessorList)[39m
+[31m          in div (created by ProcessorList)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by ProcessorList)[39m
+[31m          in ProcessorList (created by ProcessorsComponent)[39m
+[31m          in div (created by ProcessorsComponent)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by ProcessorsComponent)[39m
+[31m          in div (created by EuiCard)[39m
+[31m          in div (created by EuiCard)[39m
+[31m          in div (created by EuiPanel)[39m
+[31m          in EuiPanel (created by EuiCard)[39m
+[31m          in EuiCard (created by NavComponent)[39m
+[31m          in NavComponent (created by ProcessorsComponent)[39m
+[31m          in ProcessorsComponent (created by SearchContent)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by SearchContent)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by SearchContent)[39m
+[31m          in div (created by EuiResizeObserver)[39m
+[31m          in div (created by EuiResizeObserver)[39m
+[31m          in EuiResizeObserver (created by EuiAccordion)[39m
+[31m          in div (created by EuiAccordion)[39m
+[31m          in div (created by EuiAccordion)[39m
+[31m          in EuiAccordion (created by SearchContent)[39m
+[31m          in SearchContent (created by LeftNav)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by LeftNav)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by LeftNav)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by LeftNav)[39m
+[31m          in div (created by EuiPanel)[39m
+[31m          in EuiPanel (created by LeftNav)[39m
+[31m          in LeftNav (created by EuiResizableContainer)[39m
+[31m          in div (created by EuiResizableContainer)[39m
+[31m          in div (created by EuiResizableContainer)[39m
+[31m          in EuiResizableContainerContextProvider (created by EuiResizableContainer)[39m
+[31m          in EuiResizableContainer (created by ResizableWorkspace)[39m
+[31m          in div (created by ResizableWorkspace)[39m
+[31m          in div (created by ResizableWorkspace)[39m
+[31m          in ResizableWorkspace (created by WorkflowDetail)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by WorkflowDetail)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by WorkflowDetail)[39m
+[31m          in div (created by EuiPageBody)[39m
+[31m          in EuiPageBody (created by WorkflowDetail)[39m
+[31m          in div (created by EuiPage)[39m
+[31m          in EuiPage (created by WorkflowDetail)[39m
+[31m          in ReactFlowProvider (created by WorkflowDetail)[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m    [0m [90m 54 |[39m[0m[22m
+[2m    [0m [90m 55 |[39m   [36mreturn[39m {[0m[22m
+[2m    [0m[31m[1m>[22m[2m[39m[90m 56 |[39m     [33m...[39mrender([0m[22m
+[2m    [0m [90m    |[39m              [31m[1m^[22m[2m[39m[0m[22m
+[2m    [0m [90m 57 |[39m       [33m<[39m[33mProvider[39m store[33m=[39m{mockStore(mockInput)}[33m>[39m[0m[22m
+[2m    [0m [90m 58 |[39m         [33m<[39m[33mRouter[39m history[33m=[39m{history}[33m>[39m[0m[22m
+[2m    [0m [90m 59 |[39m           [33m<[39m[33mSwitch[39m[33m>[39m[0m[22m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat validateDOMNesting ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:7383:7)[22m[2m[22m
+[2m      [2mat createInstance ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:7479:5)[22m[2m[22m
+[2m      [2mat completeWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:18970:28)[22m[2m[22m
+[2m      [2mat completeUnitOfWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22189:16)[22m[2m[22m
+[2m      [2mat performUnitOfWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22165:12)[22m[2m[22m
+[2m      [2mat workLoopSync ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22130:22)[22m[2m[22m
+[2m      [2mat callback ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21756:9)[22m[2m[22m
+[2m      [2mat eventHandler ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11089:24)[22m[2m[22m
+[2m      [2mat Scheduler_runWithPriority ([22m[2m../../node_modules/scheduler/cjs/scheduler.development.js[2m:653:12)[22m[2m[22m
+[2m      [2mat runWithPriority$1 ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11039:10)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueueImpl ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11084:7)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueue ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11072:3)[22m[2m[22m
+[2m      [2mat batchedUpdates ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21862:7)[22m[2m[22m
+[2m      [2mat act ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:929:14)[22m[2m[22m
+[2m      [2mat render ([22m[2m../../node_modules/@testing-library/react/dist/pure.js[2m:97:25)[22m[2m[22m
+[2m      [2mat renderWithRouter ([22m[2m[0m[36mpublic/pages/workflow_detail/workflow_detail.test.tsx[39m[0m[2m:56:14)[22m[2m[22m
+[2m      [2mat call ([22m[2m[0m[36mpublic/pages/workflow_detail/workflow_detail.test.tsx[39m[0m[2m:81:54)[22m[2m[22m
+[2m      [2mat tryCatch ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:45:16)[22m[2m[22m
+[2m      [2mat Generator._invoke ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:133:17)[22m[2m[22m
+[2m      [2mat Generator.next ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:74:21)[22m[2m[22m
+[2m      [2mat asyncGeneratorStep ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:3:17)[22m[2m[22m
+[2m      [2mat _next ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:17:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:22:7[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:14:12)[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: validateDOMNesting(...): <div> cannot appear as a descendant of <p>.[39m
+[31m          in div (created by EuiTextColor)[39m
+[31m          in EuiTextColor (created by EuiText)[39m
+[31m          in div (created by EuiText)[39m
+[31m          in EuiText (created by NavComponent)[39m
+[31m          in p (created by EuiCard)[39m
+[31m          in div (created by EuiText)[39m
+[31m          in EuiText (created by EuiCard)[39m
+[31m          in div (created by EuiCard)[39m
+[31m          in div (created by EuiPanel)[39m
+[31m          in EuiPanel (created by EuiCard)[39m
+[31m          in EuiCard (created by NavComponent)[39m
+[31m          in NavComponent (created by IngestContent)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by IngestContent)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by IngestContent)[39m
+[31m          in div (created by EuiResizeObserver)[39m
+[31m          in div (created by EuiResizeObserver)[39m
+[31m          in EuiResizeObserver (created by EuiAccordion)[39m
+[31m          in div (created by EuiAccordion)[39m
+[31m          in div (created by EuiAccordion)[39m
+[31m          in EuiAccordion (created by IngestContent)[39m
+[31m          in IngestContent (created by LeftNav)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by LeftNav)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by LeftNav)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by LeftNav)[39m
+[31m          in div (created by EuiPanel)[39m
+[31m          in EuiPanel (created by LeftNav)[39m
+[31m          in LeftNav (created by EuiResizableContainer)[39m
+[31m          in div (created by EuiResizableContainer)[39m
+[31m          in div (created by EuiResizableContainer)[39m
+[31m          in EuiResizableContainerContextProvider (created by EuiResizableContainer)[39m
+[31m          in EuiResizableContainer (created by ResizableWorkspace)[39m
+[31m          in div (created by ResizableWorkspace)[39m
+[31m          in div (created by ResizableWorkspace)[39m
+[31m          in ResizableWorkspace (created by WorkflowDetail)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by WorkflowDetail)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by WorkflowDetail)[39m
+[31m          in div (created by EuiPageBody)[39m
+[31m          in EuiPageBody (created by WorkflowDetail)[39m
+[31m          in div (created by EuiPage)[39m
+[31m          in EuiPage (created by WorkflowDetail)[39m
+[31m          in ReactFlowProvider (created by WorkflowDetail)[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m    [0m [90m 54 |[39m[0m[22m
+[2m    [0m [90m 55 |[39m   [36mreturn[39m {[0m[22m
+[2m    [0m[31m[1m>[22m[2m[39m[90m 56 |[39m     [33m...[39mrender([0m[22m
+[2m    [0m [90m    |[39m              [31m[1m^[22m[2m[39m[0m[22m
+[2m    [0m [90m 57 |[39m       [33m<[39m[33mProvider[39m store[33m=[39m{mockStore(mockInput)}[33m>[39m[0m[22m
+[2m    [0m [90m 58 |[39m         [33m<[39m[33mRouter[39m history[33m=[39m{history}[33m>[39m[0m[22m
+[2m    [0m [90m 59 |[39m           [33m<[39m[33mSwitch[39m[33m>[39m[0m[22m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat validateDOMNesting ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:7383:7)[22m[2m[22m
+[2m      [2mat createInstance ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:7479:5)[22m[2m[22m
+[2m      [2mat completeWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:18970:28)[22m[2m[22m
+[2m      [2mat completeUnitOfWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22189:16)[22m[2m[22m
+[2m      [2mat performUnitOfWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22165:12)[22m[2m[22m
+[2m      [2mat workLoopSync ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22130:22)[22m[2m[22m
+[2m      [2mat callback ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21756:9)[22m[2m[22m
+[2m      [2mat eventHandler ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11089:24)[22m[2m[22m
+[2m      [2mat Scheduler_runWithPriority ([22m[2m../../node_modules/scheduler/cjs/scheduler.development.js[2m:653:12)[22m[2m[22m
+[2m      [2mat runWithPriority$1 ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11039:10)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueueImpl ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11084:7)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueue ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11072:3)[22m[2m[22m
+[2m      [2mat batchedUpdates ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21862:7)[22m[2m[22m
+[2m      [2mat act ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:929:14)[22m[2m[22m
+[2m      [2mat render ([22m[2m../../node_modules/@testing-library/react/dist/pure.js[2m:97:25)[22m[2m[22m
+[2m      [2mat renderWithRouter ([22m[2m[0m[36mpublic/pages/workflow_detail/workflow_detail.test.tsx[39m[0m[2m:56:14)[22m[2m[22m
+[2m      [2mat call ([22m[2m[0m[36mpublic/pages/workflow_detail/workflow_detail.test.tsx[39m[0m[2m:81:54)[22m[2m[22m
+[2m      [2mat tryCatch ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:45:16)[22m[2m[22m
+[2m      [2mat Generator._invoke ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:133:17)[22m[2m[22m
+[2m      [2mat Generator.next ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:74:21)[22m[2m[22m
+[2m      [2mat asyncGeneratorStep ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:3:17)[22m[2m[22m
+[2m      [2mat _next ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:17:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:22:7[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:14:12)[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: validateDOMNesting(...): <div> cannot appear as a descendant of <p>.[39m
+[31m          in div (created by EuiText)[39m
+[31m          in EuiText (created by NavComponent)[39m
+[31m          in p (created by EuiCard)[39m
+[31m          in div (created by EuiText)[39m
+[31m          in EuiText (created by EuiCard)[39m
+[31m          in div (created by EuiCard)[39m
+[31m          in div (created by EuiPanel)[39m
+[31m          in EuiPanel (created by EuiCard)[39m
+[31m          in EuiCard (created by NavComponent)[39m
+[31m          in NavComponent (created by IngestContent)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by IngestContent)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by IngestContent)[39m
+[31m          in div (created by EuiResizeObserver)[39m
+[31m          in div (created by EuiResizeObserver)[39m
+[31m          in EuiResizeObserver (created by EuiAccordion)[39m
+[31m          in div (created by EuiAccordion)[39m
+[31m          in div (created by EuiAccordion)[39m
+[31m          in EuiAccordion (created by IngestContent)[39m
+[31m          in IngestContent (created by LeftNav)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by LeftNav)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by LeftNav)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by LeftNav)[39m
+[31m          in div (created by EuiPanel)[39m
+[31m          in EuiPanel (created by LeftNav)[39m
+[31m          in LeftNav (created by EuiResizableContainer)[39m
+[31m          in div (created by EuiResizableContainer)[39m
+[31m          in div (created by EuiResizableContainer)[39m
+[31m          in EuiResizableContainerContextProvider (created by EuiResizableContainer)[39m
+[31m          in EuiResizableContainer (created by ResizableWorkspace)[39m
+[31m          in div (created by ResizableWorkspace)[39m
+[31m          in div (created by ResizableWorkspace)[39m
+[31m          in ResizableWorkspace (created by WorkflowDetail)[39m
+[31m          in div (created by EuiFlexItem)[39m
+[31m          in EuiFlexItem (created by WorkflowDetail)[39m
+[31m          in div (created by EuiFlexGroup)[39m
+[31m          in EuiFlexGroup (created by WorkflowDetail)[39m
+[31m          in div (created by EuiPageBody)[39m
+[31m          in EuiPageBody (created by WorkflowDetail)[39m
+[31m          in div (created by EuiPage)[39m
+[31m          in EuiPage (created by WorkflowDetail)[39m
+[31m          in ReactFlowProvider (created by WorkflowDetail)[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m    [0m [90m 54 |[39m[0m[22m
+[2m    [0m [90m 55 |[39m   [36mreturn[39m {[0m[22m
+[2m    [0m[31m[1m>[22m[2m[39m[90m 56 |[39m     [33m...[39mrender([0m[22m
+[2m    [0m [90m    |[39m              [31m[1m^[22m[2m[39m[0m[22m
+[2m    [0m [90m 57 |[39m       [33m<[39m[33mProvider[39m store[33m=[39m{mockStore(mockInput)}[33m>[39m[0m[22m
+[2m    [0m [90m 58 |[39m         [33m<[39m[33mRouter[39m history[33m=[39m{history}[33m>[39m[0m[22m
+[2m    [0m [90m 59 |[39m           [33m<[39m[33mSwitch[39m[33m>[39m[0m[22m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat validateDOMNesting ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:7383:7)[22m[2m[22m
+[2m      [2mat createInstance ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:7479:5)[22m[2m[22m
+[2m      [2mat completeWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:18970:28)[22m[2m[22m
+[2m      [2mat completeUnitOfWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22189:16)[22m[2m[22m
+[2m      [2mat performUnitOfWork ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22165:12)[22m[2m[22m
+[2m      [2mat workLoopSync ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:22130:22)[22m[2m[22m
+[2m      [2mat callback ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21756:9)[22m[2m[22m
+[2m      [2mat eventHandler ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11089:24)[22m[2m[22m
+[2m      [2mat Scheduler_runWithPriority ([22m[2m../../node_modules/scheduler/cjs/scheduler.development.js[2m:653:12)[22m[2m[22m
+[2m      [2mat runWithPriority$1 ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11039:10)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueueImpl ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11084:7)[22m[2m[22m
+[2m      [2mat flushSyncCallbackQueue ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:11072:3)[22m[2m[22m
+[2m      [2mat batchedUpdates ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:21862:7)[22m[2m[22m
+[2m      [2mat act ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:929:14)[22m[2m[22m
+[2m      [2mat render ([22m[2m../../node_modules/@testing-library/react/dist/pure.js[2m:97:25)[22m[2m[22m
+[2m      [2mat renderWithRouter ([22m[2m[0m[36mpublic/pages/workflow_detail/workflow_detail.test.tsx[39m[0m[2m:56:14)[22m[2m[22m
+[2m      [2mat call ([22m[2m[0m[36mpublic/pages/workflow_detail/workflow_detail.test.tsx[39m[0m[2m:81:54)[22m[2m[22m
+[2m      [2mat tryCatch ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:45:16)[22m[2m[22m
+[2m      [2mat Generator._invoke ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:133:17)[22m[2m[22m
+[2m      [2mat Generator.next ([22m[2m../../node_modules/@babel/runtime/helpers/regeneratorRuntime.js[2m:74:21)[22m[2m[22m
+[2m      [2mat asyncGeneratorStep ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:3:17)[22m[2m[22m
+[2m      [2mat _next ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:17:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:22:7[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m../../node_modules/@babel/runtime/helpers/asyncToGenerator.js[2m:14:12)[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:338:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:339:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:338:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:339:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:338:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:339:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:338:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:339:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:338:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:339:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:338:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:339:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:338:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: An update to Formik inside a test was not wrapped in act(...).[39m
+[31m      [39m
+[31m      When testing, code that causes React state updates should be wrapped into act(...):[39m
+[31m      [39m
+[31m      act(() => {[39m
+[31m        /* fire events that update state */[39m
+[31m      });[39m
+[31m      /* assert on the output */[39m
+[31m      [39m
+[31m      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://fb.me/react-wrap-tests-with-act[39m
+[31m          in Formik (created by WorkflowDetail)[39m
+[31m          in WorkflowDetail (created by Context.Consumer)[39m
+[31m          in Route[39m
+[31m          in Switch[39m
+[31m          in Router[39m
+[31m          in Provider[39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:88:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:60:5)[22m[2m[22m
+[2m      [2mat warnIfNotCurrentlyActingUpdatesInDev ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:23284:7)[22m[2m[22m
+[2m      [2mat setIteration ([22m[2m../../node_modules/react-dom/cjs/react-dom.development.js[2m:15656:9)[22m[2m[22m
+[2m      [2mat dispatch ([22m[2mnode_modules/formik/src/Formik.tsx[2m:193:36)[22m[2m[22m
+[2m      [2mat [22m[2mnode_modules/formik/src/Formik.tsx[2m:339:11[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. [39m
+[2m[22m
+[2m      [2mat console.call [as error] ([22m[2m../../node_modules/@testing-library/react/dist/act-compat.js[2m:55:34)[22m[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:87:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:59:5)[22m[2m[22m
+[2m      [2mat onDone ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:921:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:960:13[22m[2m[22m
+
+    [2m[31mconsole.error[39m[22m
+[31m      Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. [39m
+[2m[22m
+[2m      [2mat printWarning ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:87:30)[22m[2m[22m
+[2m      [2mat error ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:59:5)[22m[2m[22m
+[2m      [2mat onDone ([22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:921:9)[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/react-dom/cjs/react-dom-test-utils.development.js[2m:960:13[22m[2m[22m
+
+
+[1mTest Suites: [22m[1m[31m1 failed[39m[22m, [1m[32m5 passed[39m[22m, 6 total
+[1mTests:       [22m[1m[31m1 failed[39m[22m, [1m[32m29 passed[39m[22m, 30 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        [1m[33m27.078 s[39m[22m
+[2mRan all test suites[22m[2m.[22m
+[2K[1G[31merror[39m Command failed with exit code 1.

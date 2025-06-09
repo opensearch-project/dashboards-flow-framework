@@ -58,7 +58,6 @@ import {
   reduceToTemplate,
   sleep,
   uiConfigToFormik,
-  USE_NEW_HOME_PAGE,
   useDataSourceVersion,
   useMissingDataSourceVersion,
 } from '../../../utils';
@@ -86,6 +85,7 @@ interface LeftNavProps {
   setSearchReadonly: (readonly: boolean) => void;
   setIsProvisioning: (isProvisioning: boolean) => void;
   onClose: () => void;
+  isConsolePanelOpen: boolean;
 }
 
 const SUCCESS_TOAST_ID = 'success_toast_id';
@@ -704,6 +704,7 @@ export function LeftNav(props: LeftNavProps) {
               .unwrap()
               .then((resp: SimulateIngestPipelineResponseVerbose) => {
                 const ingestPipelineErrors = getIngestPipelineErrors(resp);
+
                 // The errors map may be empty; in which case, this dispatch will clear
                 // any older errors.
                 dispatch(
@@ -797,10 +798,7 @@ export function LeftNav(props: LeftNavProps) {
         grow={false}
         className="workspace-panel left-nav-static-width"
         borderRadius="l"
-        style={{
-          paddingBottom: '48px',
-          marginRight: '0px',
-        }}
+        style={{ paddingBottom: '12px' }}
       >
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
@@ -831,7 +829,6 @@ export function LeftNav(props: LeftNavProps) {
           style={{
             height: '100%',
             gap: '16px',
-            //marginLeft: '12px', TODO: change this value to adjust global margin of left nav.
           }}
         >
           <EuiFlexItem
@@ -895,11 +892,13 @@ export function LeftNav(props: LeftNavProps) {
               )}
             </>
           </EuiFlexItem>
-          <EuiFlexItem grow={false}>
+
+          <EuiFlexItem grow={true}>
             <EuiFlexGroup direction="column" gutterSize="none">
               <EuiFlexItem>
                 <EuiHorizontalRule margin="m" />
               </EuiFlexItem>
+
               {onIngestAndSearchUpdateRequired && (
                 <EuiFlexItem grow={false} style={{ marginTop: '-8px' }}>
                   <EuiCallOut
@@ -920,13 +919,27 @@ export function LeftNav(props: LeftNavProps) {
                   />
                 </EuiFlexItem>
               )}
-              <EuiFlexItem grow={false}>
+              <EuiFlexItem
+                grow={false}
+                style={{
+                  height: '60px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '20px',
+                }}
+              >
                 <EuiFlexGroup
                   direction="row"
                   gutterSize="s"
                   style={{
                     padding: '0px',
-                    marginBottom: USE_NEW_HOME_PAGE ? '0px' : '54px',
+                    margin: '0px',
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
                   {onIngestAndUnprovisioned &&

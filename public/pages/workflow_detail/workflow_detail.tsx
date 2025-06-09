@@ -281,7 +281,15 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
         >
           <ReactFlowProvider>
             <EuiPage paddingSize="s">
-              <EuiPageBody className="workflow-detail stretch-relative">
+              {' '}
+              <EuiPageBody
+                className="workflow-detail stretch-relative"
+                style={{
+                  height: 'calc(100vh - 100px)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
                 <WorkflowDetailHeader
                   workflow={workflow}
                   uiConfig={uiConfig}
@@ -291,9 +299,10 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                   direction="row"
                   gutterSize="xs"
                   style={{
-                    marginTop: USE_NEW_HOME_PAGE ? '0' : '-12px',
-                    height: '100%',
+                    marginTop: USE_NEW_HOME_PAGE ? '0' : '-24px',
+                    flex: 1,
                     gap: '4px',
+                    minHeight: 0,
                   }}
                 >
                   <EuiFlexItem>
