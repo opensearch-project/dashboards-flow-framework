@@ -80,25 +80,24 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
           )}'?`}</p>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
-      <EuiModalBody>
-        <EuiFlexGroup direction="column">
-          <EuiFlexItem>
-            <EuiText size="s">
-              The workflow will be permanently deleted.
-            </EuiText>
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <EuiCheckbox
-              id="deprovision"
-              onChange={(e) => {
-                setDeprovision(e.target.checked);
-              }}
-              checked={deprovision}
-              label="Delete associated resources"
-            />
-          </EuiFlexItem>
-        </EuiFlexGroup>
-      </EuiModalBody>
+      <EuiFlexGroup
+        direction="column"
+        style={{ marginLeft: '12px', marginRight: '12px', overflow: 'hidden' }}
+      >
+        <EuiFlexItem grow={false}>
+          <EuiText size="s">The workflow will be permanently deleted.</EuiText>
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiCheckbox
+            id="deprovision"
+            onChange={(e) => {
+              setDeprovision(e.target.checked);
+            }}
+            checked={deprovision}
+            label="Delete associated resources"
+          />
+        </EuiFlexItem>
+      </EuiFlexGroup>
       <EuiModalFooter>
         <EuiSmallButtonEmpty
           onClick={() => props.clearDeleteState()}
