@@ -175,7 +175,7 @@ export function Query(props: QueryProps) {
         />
       ) : (
         <EuiFlexGroup direction="column" style={{ paddingBottom: '36px' }}>
-          <EuiFlexItem>
+          <EuiFlexItem grow={isEmpty(props.queryResponse) ? 9 : 5}>
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem grow={false}>
                 <EuiFlexGroup direction="row" gutterSize="s">
@@ -331,7 +331,7 @@ export function Query(props: QueryProps) {
                   </EuiFlexItem>
                 </EuiFlexGroup>
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
+              <EuiFlexItem grow={false} style={{ marginTop: '0px' }}>
                 {/**
                  * This may return nothing if the list of params are empty
                  */}
@@ -373,13 +373,17 @@ export function Query(props: QueryProps) {
               </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
-          <EuiHorizontalRule size="full" margin="s" />
-          <EuiFlexItem>
+          <EuiHorizontalRule
+            size="full"
+            margin="xs"
+            style={{ marginTop: '0px', marginBottom: '0px' }}
+          />
+          <EuiFlexItem grow={isEmpty(props.queryResponse) ? 1 : 5}>
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem grow={false}>
                 <EuiText size="m">Results</EuiText>
               </EuiFlexItem>
-              <EuiFlexItem>
+              <EuiFlexItem style={{ marginTop: '0px' }}>
                 {props.queryResponse === undefined ||
                 isEmpty(props.queryResponse) ? (
                   <EuiEmptyPrompt
