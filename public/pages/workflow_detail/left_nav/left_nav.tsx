@@ -58,7 +58,6 @@ import {
   reduceToTemplate,
   sleep,
   uiConfigToFormik,
-  USE_NEW_HOME_PAGE,
   useDataSourceVersion,
   useMissingDataSourceVersion,
 } from '../../../utils';
@@ -705,6 +704,7 @@ export function LeftNav(props: LeftNavProps) {
               .unwrap()
               .then((resp: SimulateIngestPipelineResponseVerbose) => {
                 const ingestPipelineErrors = getIngestPipelineErrors(resp);
+
                 // The errors map may be empty; in which case, this dispatch will clear
                 // any older errors.
                 dispatch(

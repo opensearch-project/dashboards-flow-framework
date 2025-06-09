@@ -32,11 +32,11 @@ export function Console(props: ConsoleProps) {
     const bodyColor = window.getComputedStyle(document.body).color;
     const colorValues = bodyColor.match(/\d+/g);
     const isDarkMode = colorValues && parseInt(colorValues[0]) > 150;
-    
+
     return {
       backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff',
       textColor: isDarkMode ? '#ffffff' : '#000000',
-      isDarkMode
+      isDarkMode,
     };
   };
 
@@ -56,7 +56,9 @@ export function Console(props: ConsoleProps) {
   };
 
   const showHeader = () => {
-    const injectedStyle = document.getElementById('console-fullscreen-hide-header');
+    const injectedStyle = document.getElementById(
+      'console-fullscreen-hide-header'
+    );
     if (injectedStyle) {
       injectedStyle.remove();
     }
@@ -276,10 +278,8 @@ export function Console(props: ConsoleProps) {
         </EuiFlexGroup>
       </div>
 
-      {/* Simple Fullscreen for Responses */}
       {fullscreenMode === 'responses' && (
         <>
-          {/* Main fullscreen container */}
           <div
             style={{
               position: 'fixed',
@@ -296,7 +296,6 @@ export function Console(props: ConsoleProps) {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Pure text only */}
             <pre
               style={{
                 marginTop: '0px',
@@ -316,8 +315,7 @@ export function Console(props: ConsoleProps) {
               {props.ingestResponse}
             </pre>
           </div>
-          
-          {/* Separate close button overlay */}
+
           <div
             style={{
               position: 'fixed',
@@ -343,10 +341,8 @@ export function Console(props: ConsoleProps) {
         </>
       )}
 
-      {/* Simple Fullscreen for Errors */}
       {fullscreenMode === 'errors' && (
         <>
-          {/* Main fullscreen container */}
           <div
             style={{
               position: 'fixed',
@@ -363,7 +359,6 @@ export function Console(props: ConsoleProps) {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Pure text only */}
             <div style={{ marginTop: '0px' }}>
               {props.errorMessages.map((errorMessage, idx) => (
                 <pre
@@ -387,8 +382,7 @@ export function Console(props: ConsoleProps) {
               ))}
             </div>
           </div>
-          
-          {/* Separate close button overlay */}
+
           <div
             style={{
               position: 'fixed',

@@ -35,7 +35,6 @@ import {
 } from '../../../common';
 import {
   aggregateConsoleErrors,
-  formatProcessorError,
   isValidUiWorkflow,
   reduceToTemplate,
 } from '../../utils';
@@ -80,20 +79,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
     }
   }, [props.uiConfig?.ingest?.enabled]);
 
-  // const [currentWorkflowId, setCurrentWorkflowId] = useState<
-  //   string | undefined
-  // >(props.workflow?.id);
-
   // Always start with console closed when workflow changes
   const [isConsolePanelOpen, setIsConsolePanelOpen] = useState<boolean>(false);
-
-  // Reset console state when workflow changes - ensure it's always closed initially
-  // useEffect(() => {
-  //   if (props.workflow?.id !== currentWorkflowId) {
-  //     setCurrentWorkflowId(props.workflow?.id);
-  //     setIsConsolePanelOpen(false); // Always close on workflow change
-  //   }
-  // }, [props.workflow?.id, currentWorkflowId]);
 
   useEffect(() => {
     setIsConsolePanelOpen(false);
