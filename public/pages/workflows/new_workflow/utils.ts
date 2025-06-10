@@ -29,6 +29,7 @@ import {
   MULTIMODAL_SEARCH_QUERY_NEURAL,
   HYBRID_SEARCH_QUERY_MATCH_NEURAL,
   MATCH_QUERY_TEXT,
+  NEURAL_SPARSE_SEARCH_QUERY,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 import semver from 'semver';
@@ -62,6 +63,10 @@ export function enrichPresetWorkflowWithUiMetadata(
     }
     case WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG: {
       uiMetadata = fetchHybridSearchWithRAGMetadata(workflowVersion);
+      break;
+    }
+    case WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS: {
+      uiMetadata = fetchNeuralSparseSearchMetadata(workflowVersion);
       break;
     }
     default: {
@@ -173,6 +178,26 @@ export function fetchSemanticSearchMetadata(version: string): UIState {
         injectQueryTemplateInProcessor(
           new MLSearchRequestProcessor().toObj(),
           KNN_QUERY
+        ),
+      ];
+
+  return baseState;
+}
+
+export function fetchNeuralSparseSearchMetadata(version: string): UIState {
+  let baseState = fetchEmptyMetadata();
+  baseState.type = WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS;
+
+  baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
+
+  baseState.config.ingest.index.name.value = generateId('neural_sparse_index', 6);
+  baseState.config.ingest.index.settings.value = customStringify({});
+
+    baseState.config.search.request.value = customStringify(MATCH_QUERY_TEXT);
+  baseState.config.search.enrichRequest.processors = [
+        injectQueryTemplateInProcessor(
+          new MLSearchRequestProcessor().toObj(),
+          NEURAL_SPARSE_SEARCH_QUERY
         ),
       ];
 

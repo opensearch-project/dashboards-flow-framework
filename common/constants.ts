@@ -155,6 +155,38 @@ export const OPENAI_CONFIGS = {
   } as RemoteEmbeddingModelConfig,
 };
 
+// Neural Sparse
+export const NEURAL_SPARSE_CONFIGS = {
+  [`opensearch-neural-sparse-encoding-v2-distill`]: {
+    dimension: 30522,
+    fieldName: 'passage_embedding',
+  } as RemoteEmbeddingModelConfig,
+  [`opensearch-neural-sparse-encoding-v1`]: {
+    dimension: 30522,
+    fieldName: 'passage_embedding',
+  } as RemoteEmbeddingModelConfig,
+  [`opensearch-neural-sparse-encoding-multilingual-v1`]: {
+    dimension: 105879,
+    fieldName: 'passage_embedding',
+  } as RemoteEmbeddingModelConfig,
+  [`opensearch-neural-sparse-encoding-doc-v2-mini`]: {
+    dimension: 30522,
+    fieldName: 'passage_embedding',
+  } as RemoteEmbeddingModelConfig,
+    [`opensearch-neural-sparse-encoding-doc-v3-distill`]: {
+    dimension: 30522,
+    fieldName: 'passage_embedding',
+  } as RemoteEmbeddingModelConfig,
+  [`opensearch-neural-sparse-encoding-doc-v1`]: {
+    dimension: 30522,
+    fieldName: 'passage_embedding',
+  } as RemoteEmbeddingModelConfig,
+  [`opensearch-neural-sparse-encoding-doc-v2-distill`]: {
+    dimension: 30522,
+    fieldName: 'passage_embedding',
+  } as RemoteEmbeddingModelConfig,
+};
+
 /**
  * Various constants pertaining to Workflow configs
  */
@@ -173,6 +205,7 @@ export enum WORKFLOW_TYPE {
   HYBRID_SEARCH = 'Hybrid Search',
   VECTOR_SEARCH_WITH_RAG = 'RAG with Vector Retrieval',
   HYBRID_SEARCH_WITH_RAG = 'RAG with Hybrid Search',
+  SEMANTIC_SEARCH_USING_SPARSE_ENCODERS = 'Semantic Search using Sparse Encoders',
   CUSTOM = 'Custom Search',
   UNKNOWN = 'Unknown',
 }
@@ -211,6 +244,7 @@ export enum MODEL_TYPE {
 export enum MODEL_CATEGORY {
   EMBEDDING = 'EMBEDDING',
   LLM = 'LLM',
+  SPARSE_ENCODER = 'SPARSE_ENCODER',
 }
 
 /**
@@ -292,6 +326,14 @@ export const COHERE_EMBEDDING_MODEL_DOCS_LINK =
 
 export const BEDROCK_TITAN_EMBEDDING_DOCS_LINK =
   'https://github.com/opensearch-project/dashboards-flow-framework/blob/main/documentation/models.md#amazon-bedrock-titan-text-embedding';
+
+// Sparse Encoder Models Documentation Links
+export const OPENSEARCH_NEURAL_SPARSE_DOCS_LINK =
+  'https://huggingface.co/opensearch-project/opensearch-neural-sparse-encoding-v2-distill';
+
+// TODO: Update this with the official OpenSearch documentation URL when it's available
+export const SAGEMAKER_SPARSE_DEPLOY_LINK =
+  'https://github.com/zhichao-aws/opensearch-neural-sparse-sample/tree/main/examples/deploy_on_sagemaker';
 
 // ML Models setup Documentation Link
 export const ML_MODELS_SETUP_DOCS_LINK =
@@ -595,6 +637,18 @@ export const HYBRID_SEARCH_QUERY_MATCH_TERM = {
     },
   },
 };
+export const NEURAL_SPARSE_SEARCH_QUERY = {
+  _source: {
+    excludes: [VECTOR_FIELD_PATTERN],
+  },
+  query: {
+    neural_sparse: {
+      [VECTOR_FIELD_PATTERN]: {
+        query_tokens: VECTOR_PATTERN,
+      },
+    },
+  },
+};
 
 export const QUERY_PRESETS = [
   {
@@ -648,6 +702,10 @@ export const QUERY_PRESETS = [
   {
     name: WORKFLOW_TYPE.MULTIMODAL_SEARCH,
     query: customStringify(MULTIMODAL_SEARCH_QUERY_BOOL),
+  },
+  {
+    name: 'Neural Sparse Search Query',
+    query: customStringify(NEURAL_SPARSE_SEARCH_QUERY),
   },
   {
     name: 'Semantic search (neural query)',

@@ -53,6 +53,7 @@ export function isVectorSearchUseCase(workflowType?: WORKFLOW_TYPE): boolean {
       WORKFLOW_TYPE.HYBRID_SEARCH,
       WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG,
       WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG,
+      WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS,
     ].includes(workflowType)
   );
 }

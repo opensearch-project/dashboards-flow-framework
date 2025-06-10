@@ -319,7 +319,7 @@ export function ComponentInput(props: ComponentInputProps) {
                 </EuiFlexItem>
               </EuiFlexGroup>
             ) : props.selectedComponentId === COMPONENT_ID.INGEST_DATA ? (
-              <IngestData disabled={props.readonly} />
+              <IngestData disabled={props.readonly} workflowType={props.workflow?.ui_metadata?.type} />
             ) : props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST ? (
               <ConfigureSearchRequest disabled={props.readonly} />
             ) : props.selectedComponentId === COMPONENT_ID.RUN_QUERY ? (

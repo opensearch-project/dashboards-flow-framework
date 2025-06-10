@@ -13,10 +13,11 @@ import {
 } from '@elastic/eui';
 import { TextField } from '../input_fields';
 import { AdvancedSettings } from './advanced_settings';
-import { KNN_VECTOR_DOCS_LINK } from '../../../../../common';
+import { KNN_VECTOR_DOCS_LINK, WORKFLOW_TYPE } from '../../../../../common';
 
 interface IngestDataProps {
   disabled: boolean;
+  workflowType: WORKFLOW_TYPE | undefined;
 }
 
 /**
@@ -57,6 +58,7 @@ export function IngestData(props: IngestDataProps) {
       <EuiFlexItem>
         <AdvancedSettings
           setHasInvalidDimensions={setHasInvalidDimensions}
+          workflowType={props.workflowType} 
           disabled={props.disabled}
         />
       </EuiFlexItem>
