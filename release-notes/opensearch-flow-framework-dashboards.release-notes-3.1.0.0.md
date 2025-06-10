@@ -7,7 +7,7 @@ Compatible with OpenSearch 3.1.0.0
 - Refactor form navigation to left panel ([#737](https://github.com/opensearch-project/dashboards-flow-framework/pull/737))
 
 ### Enhancements
-- Misc improvements IV ([#747](https://github.com/opensearch-project/dashboards-flow-framework/pull/747))
+- Misc improvements IV ([#743](https://github.com/opensearch-project/dashboards-flow-framework/pull/743))
 - Update README.md ([#744](https://github.com/opensearch-project/dashboards-flow-framework/pull/744))
 
 ### Bug Fixes
