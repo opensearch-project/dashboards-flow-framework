@@ -311,7 +311,9 @@ export function Workflows(props: WorkflowsProps) {
                 }
               />
             </EuiPageContent>
-          ) : dataSourceEnabled && connectionErrors ? (
+          ) : dataSourceEnabled &&
+            dataSourceId !== undefined &&
+            connectionErrors ? (
             <EuiPageContent grow={true}>
               <EuiEmptyPrompt
                 title={<h2>Incompatible data source</h2>}
