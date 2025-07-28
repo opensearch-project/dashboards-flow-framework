@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { RouteComponentProps, useLocation } from 'react-router-dom';
-import { escape } from 'lodash';
+import { escape, isEmpty } from 'lodash';
 import {
   EuiPageHeader,
   EuiPage,
@@ -18,6 +18,7 @@ import {
   EuiFlexItem,
   EuiEmptyPrompt,
   EuiButton,
+  EuiLink,
 } from '@elastic/eui';
 import queryString from 'query-string';
 import { useSelector } from 'react-redux';
@@ -33,6 +34,7 @@ import { AppState, searchWorkflows, useAppDispatch } from '../../store';
 import { EmptyListMessage } from './empty_list_message';
 import {
   FETCH_ALL_QUERY_LARGE,
+  MAIN_PLUGIN_DOC_LINK,
   OPENSEARCH_FLOW,
   PLUGIN_NAME,
 } from '../../../common';
@@ -96,9 +98,22 @@ export function Workflows(props: WorkflowsProps) {
     queryParams.dataSourceId
   );
   const dataSourceVersion = useDataSourceVersion(dataSourceId);
-  const { workflows, loading } = useSelector(
-    (state: AppState) => state.workflows
+  const {
+    workflows,
+    loading,
+    errorMessage: errorMessageFlowFramework,
+  } = useSelector((state: AppState) => state.workflows);
+  const { errorMessage: errorMessageMl } = useSelector(
+    (state: AppState) => state.ml
   );
+  const { errorMessage: errorMessageOpenSearch } = useSelector(
+    (state: AppState) => state.opensearch
+  );
+  const connectionErrors =
+    !isEmpty(errorMessageFlowFramework) ||
+    !isEmpty(errorMessageMl) ||
+    !isEmpty(errorMessageOpenSearch);
+
   const noWorkflows = Object.keys(workflows || {}).length === 0 && !loading;
 
   const {
@@ -277,7 +292,42 @@ export function Workflows(props: WorkflowsProps) {
             pageTitle={pageTitleAndDescription}
             bottomBorder={false}
           />
-          {dataSourceEnabled && dataSourceId === undefined ? (
+          {!dataSourceEnabled && connectionErrors ? (
+            <EuiPageContent grow={true}>
+              <EuiEmptyPrompt
+                title={<h2>Error accessing cluster</h2>}
+                body={
+                  <p>
+                    Ensure your OpenSearch cluster is available and has the Flow
+                    Framework and ML Commons plugins installed.
+                  </p>
+                }
+                actions={
+                  <EuiButton color="primary" fill={false}>
+                    <EuiLink target="_blank" href={MAIN_PLUGIN_DOC_LINK}>
+                      See documentation
+                    </EuiLink>
+                  </EuiButton>
+                }
+              />
+            </EuiPageContent>
+          ) : dataSourceEnabled && connectionErrors ? (
+            <EuiPageContent grow={true}>
+              <EuiEmptyPrompt
+                title={<h2>Incompatible data source</h2>}
+                body={<p>Ensure the data source has the latest ML features.</p>}
+                actions={
+                  <EuiButton
+                    color="primary"
+                    fill
+                    href={`${getAppBasePath()}/app/management/opensearch-dashboards/dataSources`}
+                  >
+                    Manage data sources
+                  </EuiButton>
+                }
+              />
+            </EuiPageContent>
+          ) : dataSourceEnabled && dataSourceId === undefined ? (
             <EuiPageContent grow={true}>
               <EuiEmptyPrompt
                 title={<h2>Incompatible data source</h2>}
