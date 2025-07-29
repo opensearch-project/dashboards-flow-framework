@@ -6,6 +6,8 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [Unreleased 3.2](https://github.com/opensearch-project/anomaly-detection/compare/2.x...HEAD)
 ### Features
 ### Enhancements
+- Cleanly handle error states for backend connection issues ([#757](https://github.com/opensearch-project/dashboards-flow-framework/pull/757))
+
 ### Bug Fixes
 ### Infrastructure
 ### Documentation
