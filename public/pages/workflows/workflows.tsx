@@ -292,6 +292,10 @@ export function Workflows(props: WorkflowsProps) {
             pageTitle={pageTitleAndDescription}
             bottomBorder={false}
           />
+          {/**
+           * Local cluster issues: could be due to cluster being down, permissions issues,
+           * and/or missing plugins.
+           */}
           {!dataSourceEnabled && connectionErrors ? (
             <EuiPageContent grow={true}>
               <EuiEmptyPrompt
@@ -311,13 +315,20 @@ export function Workflows(props: WorkflowsProps) {
                 }
               />
             </EuiPageContent>
-          ) : dataSourceEnabled &&
+          ) : // Remote cluster/datasource issues: datasource is down, permissions issues,
+          // and/or missing plugins or features.
+          dataSourceEnabled &&
             dataSourceId !== undefined &&
             connectionErrors ? (
             <EuiPageContent grow={true}>
               <EuiEmptyPrompt
                 title={<h2>Incompatible data source</h2>}
-                body={<p>Ensure the data source has the latest ML features.</p>}
+                body={
+                  <p>
+                    Ensure the data source is available and has the latest ML
+                    features.
+                  </p>
+                }
                 actions={
                   <EuiButton
                     color="primary"
