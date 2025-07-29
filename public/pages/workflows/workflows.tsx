@@ -30,7 +30,12 @@ import {
 import { getApplication, getCore, getNavigationUI } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
-import { AppState, searchWorkflows, useAppDispatch } from '../../store';
+import {
+  AppState,
+  searchModels,
+  searchWorkflows,
+  useAppDispatch,
+} from '../../store';
 import { EmptyListMessage } from './empty_list_message';
 import {
   FETCH_ALL_QUERY_LARGE,
@@ -98,21 +103,45 @@ export function Workflows(props: WorkflowsProps) {
     queryParams.dataSourceId
   );
   const dataSourceVersion = useDataSourceVersion(dataSourceId);
-  const {
-    workflows,
-    loading,
-    errorMessage: errorMessageFlowFramework,
-  } = useSelector((state: AppState) => state.workflows);
-  const { errorMessage: errorMessageMl } = useSelector(
-    (state: AppState) => state.ml
+  const { workflows, loading } = useSelector(
+    (state: AppState) => state.workflows
   );
-  const { errorMessage: errorMessageOpenSearch } = useSelector(
-    (state: AppState) => state.opensearch
-  );
+
+  // run health checks on FF and ML commons, any time there is a new selected datasource (or none if MDS is disabled)
+  // block all user actions if there are failures executing the basic search APIs for either plugin.
+  const [
+    flowFrameworkConnectionErrors,
+    setFlowFrameworkConnectionErrors,
+  ] = useState<boolean>(false);
+  const [mlCommonsConnectionErrors, setMLCommonsConnectionErrors] = useState<
+    boolean
+  >(false);
   const connectionErrors =
-    !isEmpty(errorMessageFlowFramework) ||
-    !isEmpty(errorMessageMl) ||
-    !isEmpty(errorMessageOpenSearch);
+    flowFrameworkConnectionErrors || mlCommonsConnectionErrors;
+  useEffect(() => {
+    async function flowFrameworkHealthCheck() {
+      await dispatch(
+        searchWorkflows({
+          apiBody: FETCH_ALL_QUERY_LARGE,
+          dataSourceId,
+        })
+      ).then((resp: any) => {
+        setFlowFrameworkConnectionErrors(!isEmpty(resp.error));
+      });
+    }
+    async function mlCommonsHealthCheck() {
+      await dispatch(
+        searchModels({
+          apiBody: FETCH_ALL_QUERY_LARGE,
+          dataSourceId,
+        })
+      ).then((resp: any) => {
+        setMLCommonsConnectionErrors(!isEmpty(resp.error));
+      });
+    }
+    flowFrameworkHealthCheck();
+    mlCommonsHealthCheck();
+  }, [dataSourceId]);
 
   const noWorkflows = Object.keys(workflows || {}).length === 0 && !loading;
 
