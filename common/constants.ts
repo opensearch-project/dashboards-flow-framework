@@ -173,7 +173,7 @@ export const NEURAL_SPARSE_CONFIGS = {
     dimension: 30522,
     fieldName: 'passage_embedding',
   } as RemoteEmbeddingModelConfig,
-    [`opensearch-neural-sparse-encoding-doc-v3-distill`]: {
+  [`opensearch-neural-sparse-encoding-doc-v3-distill`]: {
     dimension: 30522,
     fieldName: 'passage_embedding',
   } as RemoteEmbeddingModelConfig,
@@ -295,7 +295,7 @@ export const NORMALIZATION_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/normalization-processor/';
 export const GITHUB_FEEDBACK_LINK =
   'https://github.com/opensearch-project/dashboards-flow-framework/issues/new/choose';
-export const JSONPATH_DOCS_LINK = 'https://www.npmjs.com/package/jsonpath';
+export const JSONPATH_DOCS_LINK = 'https://www.npmjs.com/package/jsonpath-plus';
 export const KNN_VECTOR_DOCS_LINK =
   'https://opensearch.org/docs/latest/field-types/supported-field-types/knn-vector/';
 export const BULK_API_DOCS_LINK =
