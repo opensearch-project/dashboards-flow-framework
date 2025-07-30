@@ -18,7 +18,6 @@ import {
   EuiFlexItem,
   EuiEmptyPrompt,
   EuiButton,
-  EuiLink,
 } from '@elastic/eui';
 import queryString from 'query-string';
 import { useSelector } from 'react-redux';
@@ -119,29 +118,28 @@ export function Workflows(props: WorkflowsProps) {
   const connectionErrors =
     flowFrameworkConnectionErrors || mlCommonsConnectionErrors;
   useEffect(() => {
-    async function flowFrameworkHealthCheck() {
-      await dispatch(
-        searchWorkflows({
-          apiBody: FETCH_ALL_QUERY_LARGE,
-          dataSourceId,
-        })
-      ).then((resp: any) => {
-        setFlowFrameworkConnectionErrors(!isEmpty(resp.error));
-      });
-    }
-    async function mlCommonsHealthCheck() {
-      await dispatch(
-        searchModels({
-          apiBody: FETCH_ALL_QUERY_LARGE,
-          dataSourceId,
-        })
-      ).then((resp: any) => {
-        setMLCommonsConnectionErrors(!isEmpty(resp.error));
-      });
+    async function healthCheck() {
+      await Promise.all([
+        dispatch(
+          searchWorkflows({
+            apiBody: FETCH_ALL_QUERY_LARGE,
+            dataSourceId,
+          })
+        ).then((resp: any) => {
+          setFlowFrameworkConnectionErrors(!isEmpty(resp.error));
+        }),
+        dispatch(
+          searchModels({
+            apiBody: FETCH_ALL_QUERY_LARGE,
+            dataSourceId,
+          })
+        ).then((resp: any) => {
+          setMLCommonsConnectionErrors(!isEmpty(resp.error));
+        }),
+      ]);
     }
     if (isDataSourceReady(dataSourceId)) {
-      flowFrameworkHealthCheck();
-      mlCommonsHealthCheck();
+      healthCheck();
     }
   }, [dataSourceId, dataSourceEnabled]);
 
@@ -338,10 +336,15 @@ export function Workflows(props: WorkflowsProps) {
                   </p>
                 }
                 actions={
-                  <EuiButton color="primary" fill={false}>
-                    <EuiLink target="_blank" href={MAIN_PLUGIN_DOC_LINK}>
-                      See documentation
-                    </EuiLink>
+                  <EuiButton
+                    color="primary"
+                    fill={false}
+                    iconType="popout"
+                    iconSide="right"
+                    target="_blank"
+                    href={MAIN_PLUGIN_DOC_LINK}
+                  >
+                    See documentation
                   </EuiButton>
                 }
               />
