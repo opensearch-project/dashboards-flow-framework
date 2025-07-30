@@ -139,9 +139,11 @@ export function Workflows(props: WorkflowsProps) {
         setMLCommonsConnectionErrors(!isEmpty(resp.error));
       });
     }
-    flowFrameworkHealthCheck();
-    mlCommonsHealthCheck();
-  }, [dataSourceId]);
+    if (isDataSourceReady(dataSourceId)) {
+      flowFrameworkHealthCheck();
+      mlCommonsHealthCheck();
+    }
+  }, [dataSourceId, dataSourceEnabled]);
 
   const noWorkflows = Object.keys(workflows || {}).length === 0 && !loading;
 
