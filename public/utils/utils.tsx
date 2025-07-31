@@ -5,7 +5,7 @@
 
 import React, { ReactNode, useEffect, useState } from 'react';
 import yaml from 'js-yaml';
-import jsonpath from 'jsonpath';
+import { JSONPath } from 'jsonpath-plus';
 import { capitalize, escape, findKey, get, isEmpty, set, unset } from 'lodash';
 import { EuiText } from '@elastic/eui';
 import semver from 'semver';
@@ -440,7 +440,7 @@ function getTransformedResult(
 // will always be returned by default when running query().
 function executeJsonPath(input: {}, path: string): any[] {
   const isIndefinite = isIndefiniteJsonPath(path);
-  const res = jsonpath.query(input, path);
+  const res = JSONPath({ path, json: input, wrap: true });
   if (isIndefinite) {
     return res;
   } else {
