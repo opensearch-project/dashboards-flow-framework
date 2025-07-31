@@ -291,6 +291,8 @@ export const CREATE_WORKFLOW_LINK =
   'https://opensearch.org/docs/latest/automating-configurations/api/create-workflow/';
 export const WORKFLOW_TUTORIAL_LINK =
   'https://opensearch.org/docs/latest/automating-configurations/workflow-tutorial/';
+export const MAIN_PLUGIN_DOC_LINK =
+  'https://docs.opensearch.org/latest/vector-search/ai-search/workflow-builder/';
 export const NORMALIZATION_PROCESSOR_LINK =
   'https://opensearch.org/docs/latest/search-plugins/search-pipelines/normalization-processor/';
 export const GITHUB_FEEDBACK_LINK =

@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { RouteComponentProps, useLocation } from 'react-router-dom';
-import { escape } from 'lodash';
+import { escape, isEmpty } from 'lodash';
 import {
   EuiPageHeader,
   EuiPage,
@@ -29,10 +29,16 @@ import {
 import { getApplication, getCore, getNavigationUI } from '../../services';
 import { WorkflowList } from './workflow_list';
 import { NewWorkflow } from './new_workflow';
-import { AppState, searchWorkflows, useAppDispatch } from '../../store';
+import {
+  AppState,
+  searchModels,
+  searchWorkflows,
+  useAppDispatch,
+} from '../../store';
 import { EmptyListMessage } from './empty_list_message';
 import {
   FETCH_ALL_QUERY_LARGE,
+  MAIN_PLUGIN_DOC_LINK,
   OPENSEARCH_FLOW,
   PLUGIN_NAME,
 } from '../../../common';
@@ -99,6 +105,44 @@ export function Workflows(props: WorkflowsProps) {
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
+
+  // run health checks on FF and ML commons, any time there is a new selected datasource (or none if MDS is disabled)
+  // block all user actions if there are failures executing the basic search APIs for either plugin.
+  const [
+    flowFrameworkConnectionErrors,
+    setFlowFrameworkConnectionErrors,
+  ] = useState<boolean>(false);
+  const [mlCommonsConnectionErrors, setMLCommonsConnectionErrors] = useState<
+    boolean
+  >(false);
+  const connectionErrors =
+    flowFrameworkConnectionErrors || mlCommonsConnectionErrors;
+  useEffect(() => {
+    async function healthCheck() {
+      await Promise.all([
+        dispatch(
+          searchWorkflows({
+            apiBody: FETCH_ALL_QUERY_LARGE,
+            dataSourceId,
+          })
+        ).then((resp: any) => {
+          setFlowFrameworkConnectionErrors(!isEmpty(resp.error));
+        }),
+        dispatch(
+          searchModels({
+            apiBody: FETCH_ALL_QUERY_LARGE,
+            dataSourceId,
+          })
+        ).then((resp: any) => {
+          setMLCommonsConnectionErrors(!isEmpty(resp.error));
+        }),
+      ]);
+    }
+    if (isDataSourceReady(dataSourceId)) {
+      healthCheck();
+    }
+  }, [dataSourceId, dataSourceEnabled]);
+
   const noWorkflows = Object.keys(workflows || {}).length === 0 && !loading;
 
   const {
@@ -277,7 +321,60 @@ export function Workflows(props: WorkflowsProps) {
             pageTitle={pageTitleAndDescription}
             bottomBorder={false}
           />
-          {dataSourceEnabled && dataSourceId === undefined ? (
+          {/**
+           * Local cluster issues: could be due to cluster being down, permissions issues,
+           * and/or missing plugins.
+           */}
+          {!dataSourceEnabled && connectionErrors ? (
+            <EuiPageContent grow={true}>
+              <EuiEmptyPrompt
+                title={<h2>Error accessing cluster</h2>}
+                body={
+                  <p>
+                    Ensure your OpenSearch cluster is available and has the Flow
+                    Framework and ML Commons plugins installed.
+                  </p>
+                }
+                actions={
+                  <EuiButton
+                    color="primary"
+                    fill={false}
+                    iconType="popout"
+                    iconSide="right"
+                    target="_blank"
+                    href={MAIN_PLUGIN_DOC_LINK}
+                  >
+                    See documentation
+                  </EuiButton>
+                }
+              />
+            </EuiPageContent>
+          ) : // Remote cluster/datasource issues: datasource is down, permissions issues,
+          // and/or missing plugins or features.
+          dataSourceEnabled &&
+            dataSourceId !== undefined &&
+            connectionErrors ? (
+            <EuiPageContent grow={true}>
+              <EuiEmptyPrompt
+                title={<h2>Incompatible data source</h2>}
+                body={
+                  <p>
+                    Ensure the data source is available and has the latest ML
+                    features.
+                  </p>
+                }
+                actions={
+                  <EuiButton
+                    color="primary"
+                    fill
+                    href={`${getAppBasePath()}/app/management/opensearch-dashboards/dataSources`}
+                  >
+                    Manage data sources
+                  </EuiButton>
+                }
+              />
+            </EuiPageContent>
+          ) : dataSourceEnabled && dataSourceId === undefined ? (
             <EuiPageContent grow={true}>
               <EuiEmptyPrompt
                 title={<h2>Incompatible data source</h2>}

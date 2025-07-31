@@ -41,4 +41,18 @@ export const mockCoreServices = {
   }),
 
   getHeaderActionMenu: () => jest.fn(),
+
+  // Iteratively add mocked values as needed when rendering components that make these dispatch calls in unit testing.
+  getRouteService: () => ({
+    searchWorkflows: () => {
+      return {
+        workflows: {},
+      };
+    },
+    searchModels: () => {
+      return {
+        models: {},
+      };
+    },
+  }),
 };

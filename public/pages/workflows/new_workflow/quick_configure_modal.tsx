@@ -186,12 +186,16 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
     undefined
   );
   useEffect(() => {
-    setEmbeddingModelInterface(
-      models[quickConfigureFields?.embeddingModelId || '']?.interface
-    );
+    if (!isEmpty(models)) {
+      setEmbeddingModelInterface(
+        models[quickConfigureFields?.embeddingModelId || '']?.interface
+      );
+    }
   }, [models, quickConfigureFields?.embeddingModelId]);
   useEffect(() => {
-    setLLMInterface(models[quickConfigureFields?.llmId || '']?.interface);
+    if (!isEmpty(models)) {
+      setLLMInterface(models[quickConfigureFields?.llmId || '']?.interface);
+    }
   }, [models, quickConfigureFields?.llmId]);
 
   // Deployed models state
@@ -330,56 +334,57 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                             <EuiSpacer size="s" />
                           </>
                         )}
-                        {props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS ? (
-                      <ModelField
-                        modelCategory={MODEL_CATEGORY.SPARSE_ENCODER}
-                        fieldPath="embeddingModel"
-                        showMissingInterfaceCallout={true}
-                        hasModelInterface={
-                            !isEmpty(
-                              models[
-                                getIn(formikProps.values, 'embeddingModel.id')
-                              ]?.interface
-                            )
-                          }
-                        label="Sparse encoder"
-                        helpText="The model to generate sparse embeddings."
-                        fullWidth={true}
-                        showError={true}
-                        onModelChange={(modelId) =>
-                          setQuickConfigureFields({
-                            ...quickConfigureFields,
-                            embeddingModelId: modelId,
-                          })
-                        }
-                      />
-                    ) : (
-                      <ModelField
-                        modelCategory={MODEL_CATEGORY.EMBEDDING}
-                        fieldPath="embeddingModel"
-                        showMissingInterfaceCallout={true}
-                        hasModelInterface={
-                          !isEmpty(
-                            models[
-                              getIn(formikProps.values, 'embeddingModel.id')
-                            ]?.interface
-                          )
-                        }
-                      label="Embedding model"
-                      helpText="The model to generate embeddings."
-                      fullWidth={true}
-                      showError={true}
-                      onModelChange={(modelId) =>
-                        setQuickConfigureFields({
-                          ...quickConfigureFields,
-                          embeddingModelId: modelId,
-                        })
-                      }
-                    />
-                    )}
-                  </>
-                </EuiFlexItem>
-              )}
+                        {props.workflow?.ui_metadata?.type ===
+                        WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS ? (
+                          <ModelField
+                            modelCategory={MODEL_CATEGORY.SPARSE_ENCODER}
+                            fieldPath="embeddingModel"
+                            showMissingInterfaceCallout={true}
+                            hasModelInterface={
+                              !isEmpty(
+                                models[
+                                  getIn(formikProps.values, 'embeddingModel.id')
+                                ]?.interface
+                              )
+                            }
+                            label="Sparse encoder"
+                            helpText="The model to generate sparse embeddings."
+                            fullWidth={true}
+                            showError={true}
+                            onModelChange={(modelId) =>
+                              setQuickConfigureFields({
+                                ...quickConfigureFields,
+                                embeddingModelId: modelId,
+                              })
+                            }
+                          />
+                        ) : (
+                          <ModelField
+                            modelCategory={MODEL_CATEGORY.EMBEDDING}
+                            fieldPath="embeddingModel"
+                            showMissingInterfaceCallout={true}
+                            hasModelInterface={
+                              !isEmpty(
+                                models[
+                                  getIn(formikProps.values, 'embeddingModel.id')
+                                ]?.interface
+                              )
+                            }
+                            label="Embedding model"
+                            helpText="The model to generate embeddings."
+                            fullWidth={true}
+                            showError={true}
+                            onModelChange={(modelId) =>
+                              setQuickConfigureFields({
+                                ...quickConfigureFields,
+                                embeddingModelId: modelId,
+                              })
+                            }
+                          />
+                        )}
+                      </>
+                    </EuiFlexItem>
+                  )}
               </EuiFlexGroup>
               {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM && (
                 <>
@@ -864,7 +869,7 @@ function updateIndexConfig(
       };
     }
     if (fields.vectorField) {
-      properties[fields.vectorField] = 
+      properties[fields.vectorField] =
         workflow_type !== WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS
           ? { type: 'knn_vector', dimension: fields.embeddingLength || '' }
           : { type: 'rank_features' };

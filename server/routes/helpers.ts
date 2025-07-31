@@ -57,6 +57,7 @@ function isDatasourceError(err: any) {
 export function isIgnorableError(error: any): boolean {
   return (
     error.body?.error?.type === INDEX_NOT_FOUND_EXCEPTION ||
+    error.body?.error?.caused_by?.type === INDEX_NOT_FOUND_EXCEPTION ||
     error.body?.error === NO_MODIFICATIONS_FOUND_TEXT
   );
 }
