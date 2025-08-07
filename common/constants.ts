@@ -206,6 +206,7 @@ export enum WORKFLOW_TYPE {
   VECTOR_SEARCH_WITH_RAG = 'RAG with Vector Retrieval',
   HYBRID_SEARCH_WITH_RAG = 'RAG with Hybrid Search',
   SEMANTIC_SEARCH_USING_SPARSE_ENCODERS = 'Semantic Search using Sparse Encoders',
+  AGENTIC_SEARCH = 'Agentic Search',
   CUSTOM = 'Custom Search',
   UNKNOWN = 'Unknown',
 }

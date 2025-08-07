@@ -69,6 +69,9 @@ export function enrichPresetWorkflowWithUiMetadata(
       uiMetadata = fetchNeuralSparseSearchMetadata(workflowVersion);
       break;
     }
+    case WORKFLOW_TYPE.AGENTIC_SEARCH: {
+      uiMetadata = fetchAgenticSearchMetadata(workflowVersion);
+    }
     default: {
       uiMetadata = fetchEmptyMetadata();
       break;
@@ -190,16 +193,19 @@ export function fetchNeuralSparseSearchMetadata(version: string): UIState {
 
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
 
-  baseState.config.ingest.index.name.value = generateId('neural_sparse_index', 6);
+  baseState.config.ingest.index.name.value = generateId(
+    'neural_sparse_index',
+    6
+  );
   baseState.config.ingest.index.settings.value = customStringify({});
 
-    baseState.config.search.request.value = customStringify(MATCH_QUERY_TEXT);
+  baseState.config.search.request.value = customStringify(MATCH_QUERY_TEXT);
   baseState.config.search.enrichRequest.processors = [
-        injectQueryTemplateInProcessor(
-          new MLSearchRequestProcessor().toObj(),
-          NEURAL_SPARSE_SEARCH_QUERY
-        ),
-      ];
+    injectQueryTemplateInProcessor(
+      new MLSearchRequestProcessor().toObj(),
+      NEURAL_SPARSE_SEARCH_QUERY
+    ),
+  ];
 
   return baseState;
 }
@@ -314,6 +320,23 @@ export function fetchHybridSearchWithRAGMetadata(version: string): UIState {
     new NormalizationProcessor().toObj(),
     new MLSearchResponseProcessor().toObj(),
   ];
+  return baseState;
+}
+
+export function fetchAgenticSearchMetadata(version: string): UIState {
+  let baseState = fetchEmptyMetadata();
+  baseState.type = WORKFLOW_TYPE.AGENTIC_SEARCH;
+  // Ingest config: knn index w/ an ML inference processor
+  baseState.config.ingest.enrich.processors = [];
+  baseState.config.ingest.index.name.value = generateId('my_index', 6);
+  // baseState.config.ingest.index.settings.value = customStringify({
+  //   [`index.knn`]: true,
+  // });
+
+  // TODO: make below an agentic search query
+  baseState.config.search.request.value = customStringify(MATCH_QUERY_TEXT);
+  baseState.config.search.enrichRequest.processors = [];
+  baseState.config.search.enrichResponse.processors = [];
   return baseState;
 }
 
