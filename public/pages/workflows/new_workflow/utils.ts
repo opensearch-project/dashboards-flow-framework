@@ -30,6 +30,7 @@ import {
   HYBRID_SEARCH_QUERY_MATCH_NEURAL,
   MATCH_QUERY_TEXT,
   NEURAL_SPARSE_SEARCH_QUERY,
+  AGENTIC_SEARCH_QUERY,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 import semver from 'semver';
@@ -71,6 +72,7 @@ export function enrichPresetWorkflowWithUiMetadata(
     }
     case WORKFLOW_TYPE.AGENTIC_SEARCH: {
       uiMetadata = fetchAgenticSearchMetadata(workflowVersion);
+      break;
     }
     default: {
       uiMetadata = fetchEmptyMetadata();
@@ -334,7 +336,7 @@ export function fetchAgenticSearchMetadata(version: string): UIState {
   // });
 
   // TODO: make below an agentic search query
-  baseState.config.search.request.value = customStringify(MATCH_QUERY_TEXT);
+  baseState.config.search.request.value = customStringify(AGENTIC_SEARCH_QUERY);
   baseState.config.search.enrichRequest.processors = [];
   baseState.config.search.enrichResponse.processors = [];
   return baseState;

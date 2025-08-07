@@ -60,6 +60,7 @@ import {
   ML_REMOTE_MODEL_LINK,
   MODEL_CATEGORY,
   isRAGUseCase,
+  isDependentOnModels,
 } from '../../../../common';
 import { APP_PATH, getInitialValue } from '../../../utils';
 import { AppState, createWorkflow, useAppDispatch } from '../../../store';
@@ -139,7 +140,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
     } as {};
 
     // If not custom/blank, we will have more req'd form fields for the users to supply
-    if (workflowType !== WORKFLOW_TYPE.CUSTOM) {
+    if (isDependentOnModels(workflowType)) {
       // if a RAG workflow, require an LLM
       if (isRAGUseCase(workflowType)) {
         tempFormValues = {
@@ -273,7 +274,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                     textArea={true}
                   />
                 </EuiFlexItem>
-                {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM &&
+                {isDependentOnModels(props.workflow?.ui_metadata?.type) &&
                   isEmpty(deployedModels) && (
                     <EuiFlexItem>
                       <EuiCallOut
@@ -320,7 +321,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                     />
                   </EuiFlexItem>
                 )}
-                {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM &&
+                {isDependentOnModels(props.workflow?.ui_metadata?.type) &&
                   !isEmpty(deployedModels) && (
                     <EuiFlexItem>
                       <>
@@ -386,7 +387,7 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
                     </EuiFlexItem>
                   )}
               </EuiFlexGroup>
-              {props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.CUSTOM && (
+              {isDependentOnModels(props.workflow?.ui_metadata?.type) && (
                 <>
                   <EuiSpacer size="m" />
                   <QuickConfigureOptionalFields
@@ -535,6 +536,7 @@ function injectQuickConfigureFields(
         }
         break;
       }
+      case WORKFLOW_TYPE.AGENTIC_SEARCH:
       case WORKFLOW_TYPE.CUSTOM:
       case undefined:
       default:

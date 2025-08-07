@@ -652,6 +652,14 @@ export const NEURAL_SPARSE_SEARCH_QUERY = {
     },
   },
 };
+export const AGENTIC_SEARCH_QUERY = {
+  query: {
+    agentic: {
+      query_text: QUERY_TEXT_PATTERN,
+      query_fields: [],
+    },
+  },
+};
 
 export const QUERY_PRESETS = [
   {
@@ -725,6 +733,10 @@ export const QUERY_PRESETS = [
   {
     name: `Hybrid search (match & term queries)`,
     query: customStringify(HYBRID_SEARCH_QUERY_MATCH_TERM),
+  },
+  {
+    name: 'Agentic search',
+    query: customStringify(AGENTIC_SEARCH_QUERY),
   },
 ] as QueryPreset[];
 
