@@ -20,6 +20,7 @@ import {
   EuiCallOut,
   EuiButtonGroup,
 } from '@elastic/eui';
+import { ModelField } from '../input_fields/model_field';
 import { AppState, registerAgent, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils/utils';
 
@@ -46,6 +47,7 @@ export function AgentConfigurationForm(props: AgentConfigurationFormProps) {
   // Temp form fields
   const [agentName, setAgentName] = useState<string>('');
   const [agentDescription, setAgentDescription] = useState<string>('');
+  const [selectedModelId, setSelectedModelId] = useState<string>('');
 
   // Misc states
   const [isCreatingAgent, setIsCreatingAgent] = useState<boolean>(false);
@@ -56,19 +58,12 @@ export function AgentConfigurationForm(props: AgentConfigurationFormProps) {
 
   const { agents, loading } = useSelector((state: AppState) => state.ml);
 
-  // Switch to select mode by default, but auto-switch to create mode if no agents are available
   useEffect(() => {
-    if (!loading) {
-      if (Object.keys(agents || {}).length === 0) {
-        setTabId(AgentConfigTab.CREATE);
-      } else {
-        setTabId(AgentConfigTab.SELECT);
-      }
-    }
-  }, [loading, agents]);
+    setTabId(AgentConfigTab.SELECT);
+  }, []);
 
   const createNewAgent = async () => {
-    if (!agentName.trim()) return;
+    if (!agentName.trim() || !selectedModelId.trim()) return;
     setCreateError('');
     setIsCreatingAgent(true);
 
@@ -83,7 +78,7 @@ export function AgentConfigurationForm(props: AgentConfigurationFormProps) {
             type: 'QueryPlanningTool',
             description: 'A general tool to answer any question',
             parameters: {
-              model_id: 'TODO replace me',
+              model_id: selectedModelId,
               response_filter: '$.output.message.content[0].text',
             },
           },
@@ -106,6 +101,7 @@ export function AgentConfigurationForm(props: AgentConfigurationFormProps) {
         // Reset form fields
         setAgentName('');
         setAgentDescription('');
+        setSelectedModelId('');
       } else {
         console.error('Invalid agent response:', response);
         setCreateError('Invalid response from server. Failed to create agent.');
@@ -166,7 +162,9 @@ export function AgentConfigurationForm(props: AgentConfigurationFormProps) {
               },
             ]}
             idSelected={tabId}
-            onChange={(id) => setTabId(id as AgentConfigTab)}
+            onChange={(id) => {
+              setTabId(id as AgentConfigTab);
+            }}
             buttonSize="s"
             isFullWidth
             color="primary"
@@ -239,6 +237,14 @@ export function AgentConfigurationForm(props: AgentConfigurationFormProps) {
                 rows={3}
               />
             </EuiFormRow>
+            <EuiSpacer size="m" />
+            <ModelField
+              // TODO: fieldPath shouldn't be needed
+              fieldPath="model"
+              label="Large language model"
+              helpText="Select a large language model (LLM) for the agent to use"
+              onModelChange={(modelId) => setSelectedModelId(modelId)}
+            />
             <EuiSpacer size="m" />
             {createError && (
               <>

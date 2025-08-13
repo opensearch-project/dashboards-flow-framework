@@ -32,6 +32,7 @@ import {
 import { JsonField } from '../input_fields';
 import {
   customStringify,
+  FETCH_ALL_QUERY_LARGE,
   IConfigField,
   QUERY_PRESETS,
   QueryParam,
@@ -55,6 +56,7 @@ import {
   searchIndex,
   searchAgents,
   useAppDispatch,
+  searchModels,
 } from '../../../../store';
 import { QueryParamsList, Results } from '../../../../general_components';
 import '../../../../global-styles.scss';
@@ -187,12 +189,18 @@ export function EditQueryModal(props: EditQueryModalProps) {
     }
   }, [tempRequest]);
 
-  // Fetch agents when agent tab is selected
+  // Fetch agents & models when agent tab is selected
   useEffect(() => {
     if (selectedTab === QueryEditorTab.AGENT) {
       dispatch(
         searchAgents({
-          apiBody: {},
+          apiBody: FETCH_ALL_QUERY_LARGE,
+          dataSourceId,
+        })
+      );
+      dispatch(
+        searchModels({
+          apiBody: FETCH_ALL_QUERY_LARGE,
           dataSourceId,
         })
       );
