@@ -29,6 +29,8 @@ import {
   SEARCH_PIPELINE_NODE_API_PATH,
   INGEST_PIPELINE_NODE_API_PATH,
   GET_INDEX_NODE_API_PATH,
+  REGISTER_AGENT_NODE_API_PATH,
+  SEARCH_AGENTS_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -128,6 +130,14 @@ export interface RouteService {
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
   searchConnectors: (
+    body: {},
+    dataSourceId?: string
+  ) => Promise<any | HttpFetchError>;
+  registerAgent: (
+    body: {},
+    dataSourceId?: string
+  ) => Promise<any | HttpFetchError>;
+  searchAgents: (
     body: {},
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
@@ -438,6 +448,34 @@ export function configureRoutes(core: CoreStart): RouteService {
         const url = dataSourceId
           ? `${BASE_NODE_API_PATH}/${dataSourceId}/connector/search`
           : SEARCH_CONNECTORS_NODE_API_PATH;
+        const response = await core.http.post<{ respString: string }>(url, {
+          body: JSON.stringify(body),
+        });
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    
+    registerAgent: async (body: {}, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/agent/register`
+          : REGISTER_AGENT_NODE_API_PATH;
+        const response = await core.http.post<{ respString: string }>(url, {
+          body: JSON.stringify(body),
+        });
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    
+    searchAgents: async (body: {}, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/agent/search`
+          : SEARCH_AGENTS_NODE_API_PATH;
         const response = await core.http.post<{ respString: string }>(url, {
           body: JSON.stringify(body),
         });

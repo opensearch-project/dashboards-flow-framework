@@ -1,6 +1,6 @@
 {
     "name": "Agentic Search",
-    "description": "Build a search application that leverages an agent to convert natural language to search queries",
+    "description": "Build a search application that leverages an agent to convert natural language to search queries.",
     "version": {
         "template": "1.0.0",
         "compatibility": [

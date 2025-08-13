@@ -492,6 +492,17 @@ export type ConnectorDict = {
   [connectorId: string]: Connector;
 };
 
+export type Agent = {
+  id: string;
+  name: string;
+  type: string;
+  description?: string;
+};
+
+export type AgentDict = {
+  [agentId: string]: Agent;
+};
+
 export type ModelFormValue = {
   id: string;
   algorithm?: MODEL_ALGORITHM;
