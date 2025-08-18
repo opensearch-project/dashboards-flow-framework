@@ -74,6 +74,10 @@ export function enrichPresetWorkflowWithUiMetadata(
       uiMetadata = fetchAgenticSearchMetadata(workflowVersion);
       break;
     }
+    case WORKFLOW_TYPE.AGENTIC_SEARCH_SIMPLIFIED: {
+      uiMetadata = fetchAgenticSearchSimplifiedMetadata(workflowVersion);
+      break;
+    }
     default: {
       uiMetadata = fetchEmptyMetadata();
       break;
@@ -336,6 +340,21 @@ export function fetchAgenticSearchMetadata(version: string): UIState {
   // });
 
   // TODO: make below an agentic search query
+  baseState.config.search.request.value = customStringify(AGENTIC_SEARCH_QUERY);
+  baseState.config.search.enrichRequest.processors = [];
+  baseState.config.search.enrichResponse.processors = [];
+  return baseState;
+}
+
+export function fetchAgenticSearchSimplifiedMetadata(version: string): UIState {
+  let baseState = fetchEmptyMetadata();
+  baseState.type = WORKFLOW_TYPE.AGENTIC_SEARCH_SIMPLIFIED;
+  // Simplified agentic search has the same setup as regular agentic search
+  // but with a streamlined UI and potentially different defaults
+  baseState.config.ingest.enrich.processors = [];
+  baseState.config.ingest.index.name.value = generateId('simple_index', 6);
+  
+  // Use the same agentic search query format
   baseState.config.search.request.value = customStringify(AGENTIC_SEARCH_QUERY);
   baseState.config.search.enrichRequest.processors = [];
   baseState.config.search.enrichResponse.processors = [];

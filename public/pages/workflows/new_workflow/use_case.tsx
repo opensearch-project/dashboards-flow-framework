@@ -41,7 +41,8 @@ export function UseCase(props: UseCaseProps) {
                 <h3>{props.workflow.name}</h3>
               </EuiText>
             </EuiFlexItem>
-            {props.workflow.ui_metadata?.type === WORKFLOW_TYPE.AGENTIC_SEARCH && (
+            {(props.workflow.ui_metadata?.type === WORKFLOW_TYPE.AGENTIC_SEARCH || 
+              props.workflow.ui_metadata?.type === WORKFLOW_TYPE.AGENTIC_SEARCH_SIMPLIFIED) && (
               <EuiFlexItem grow={false}>
                 <EuiBetaBadge
                   label="Experimental"

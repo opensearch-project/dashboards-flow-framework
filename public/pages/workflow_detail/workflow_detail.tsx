@@ -17,6 +17,7 @@ import {
   EuiFlexItem,
   EuiPage,
   EuiPageBody,
+  EuiLoadingSpinner,
 } from '@elastic/eui';
 import {
   APP_PATH,
@@ -38,6 +39,7 @@ import {
   useAppDispatch,
 } from '../../store';
 import { ResizableWorkspace } from './resizable_workspace';
+import { SimplifiedWorkspace } from './simplified_workspace';
 import {
   CachedFormikState,
   ERROR_GETTING_WORKFLOW_MSG,
@@ -45,6 +47,7 @@ import {
   MAX_WORKFLOW_NAME_TO_DISPLAY,
   NO_TEMPLATES_FOUND_MSG,
   OMIT_SYSTEM_INDEX_PATTERN,
+  WORKFLOW_TYPE,
   WorkflowConfig,
   WorkflowFormValues,
   WorkflowSchema,
@@ -148,7 +151,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   // data-source-related states
   const dataSourceEnabled = getDataSourceEnabled().enabled;
   const dataSourceId = getDataSourceId();
-  const { workflows, errorMessage } = useSelector(
+  const { workflows, errorMessage, loading } = useSelector(
     (state: AppState) => state.workflows
   );
 
@@ -297,15 +300,26 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                   }}
                 >
                   <EuiFlexItem>
-                    <ResizableWorkspace
-                      workflow={workflow}
-                      uiConfig={uiConfig}
-                      setUiConfig={setUiConfig}
-                      ingestDocs={ingestDocs}
-                      setIngestDocs={setIngestDocs}
-                      setBlockNavigation={setBlockNavigation}
-                      setCachedFormikState={setCachedFormikState}
-                    />
+                    {loading ? (
+                      <EuiLoadingSpinner size="xl" />
+                    ) : workflow?.ui_metadata?.type ===
+                      WORKFLOW_TYPE.AGENTIC_SEARCH_SIMPLIFIED ? (
+                      <SimplifiedWorkspace
+                        workflow={workflow}
+                        uiConfig={uiConfig}
+                        setBlockNavigation={setBlockNavigation}
+                      />
+                    ) : (
+                      <ResizableWorkspace
+                        workflow={workflow}
+                        uiConfig={uiConfig}
+                        setUiConfig={setUiConfig}
+                        ingestDocs={ingestDocs}
+                        setIngestDocs={setIngestDocs}
+                        setBlockNavigation={setBlockNavigation}
+                        setCachedFormikState={setCachedFormikState}
+                      />
+                    )}
                   </EuiFlexItem>
                 </EuiFlexGroup>
               </EuiPageBody>
