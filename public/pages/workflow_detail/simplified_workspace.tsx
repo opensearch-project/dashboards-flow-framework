@@ -5,26 +5,26 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { AppState, searchIndex, useAppDispatch } from '../../store';
 import {
   EuiPanel,
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
-  EuiFieldSearch,
-  EuiSelect,
   EuiText,
   EuiSmallButton,
   EuiBetaBadge,
   EuiSpacer,
   EuiCallOut,
+  EuiToolTip,
+  EuiIcon,
 } from '@elastic/eui';
-import { AppState, searchAgents, useAppDispatch } from '../../store';
-import {
-  FETCH_ALL_QUERY_LARGE,
-  Workflow,
-  WorkflowConfig,
-} from '../../../common';
+import { Workflow, WorkflowConfig } from '../../../common';
 import { getDataSourceId } from '../../utils/utils';
+import { SimplifiedAgentSelector } from './components/simplified_agent_selector';
+import { SimplifiedSearchQuery } from './components/simplified_search_query';
+import { SimplifiedIndexSelector } from './components/simplified_index_selector';
+import { SimplifiedSearchResults } from './components/simplified_search_results';
 
 // styling
 import '../../global-styles.scss';
@@ -32,48 +32,77 @@ import '../../global-styles.scss';
 interface SimplifiedWorkspaceProps {
   workflow: Workflow | undefined;
   uiConfig: WorkflowConfig | undefined;
-  setBlockNavigation: (blockNavigation: boolean) => void;
+  setBlockNavigation: (blockNavigation: boolean) => void; // TODO: block if unsaved changes.
 }
 
 /**
  * Simplified workspace component for the Agentic Search (Simplified) workflow type.
  * This component provides a streamlined UI with just a search bar and two dropdowns.
  */
+// Constant for consistent form widths
+const FORM_WIDTH = '750px';
+
 export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
 
-  const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedIndexId, setSelectedIndexId] = useState<string | undefined>(
     undefined
   );
   const [selectedAgentId, setSelectedAgentId] = useState<string | undefined>(
     undefined
   );
+  const [finalQuery, setFinalQuery] = useState<{}>({
+    query: {
+      agentic: {
+        query_text: '',
+        agent_id: '',
+        query_fields: [],
+      },
+    },
+  });
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { indices } = useSelector((state: AppState) => state.opensearch);
-  const { agents } = useSelector((state: AppState) => state.ml);
+  // Get the loading and error states from Redux
+  const {
+    loading: opensearchLoading,
+    errorMessage: opensearchError,
+  } = useSelector((state: AppState) => state.opensearch);
 
-  // Fetch all agents on initial load
+  const { loading: mlLoading } = useSelector((state: AppState) => state.ml);
+
   useEffect(() => {
-    dispatch(searchAgents({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId }));
-  }, []);
+    if (opensearchError) {
+      setError(opensearchError);
+    }
+  }, [opensearchError]);
 
-  const indexOptions = Object.values(indices || {}).map((index) => ({
-    value: index.name,
-    text: index.name,
-  }));
-  const agentOptions = Object.values(agents || {}).map((agent) => ({
-    value: agent.id,
-    text: agent.name,
-  }));
+  // Update finalQuery when agent changes (and if the agent_id key exists)
+  useEffect(() => {
+    if (finalQuery?.query?.agentic?.agent_id !== undefined) {
+      setFinalQuery((prevQuery) => ({
+        ...prevQuery,
+        query: {
+          ...prevQuery?.query,
+          agentic: {
+            ...prevQuery?.query?.agentic,
+            agent_id: selectedAgentId || '',
+          },
+        },
+      }));
+    }
+  }, [selectedAgentId]);
+
+  const handleClear = () => {
+    setSearchResults(null);
+    setError(null);
+  };
 
   const handleSearch = () => {
     // Validate that all required fields are selected
-    if (!searchQuery) {
+    if (!finalQuery?.query?.agentic?.query_text) {
       setError('Please enter a search query');
       return;
     }
@@ -92,26 +121,24 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
     setIsSearching(true);
     setError(null);
 
-    // Here you would integrate with the actual search API
-    // For now we'll just simulate a search
-    setTimeout(() => {
-      setIsSearching(false);
-      // Mock results for demonstration
-      setSearchResults({
-        took: 42,
-        hits: {
-          total: { value: 3 },
-          hits: [
-            { _source: { title: 'Sample document 1' } },
-            { _source: { title: 'Sample document 2' } },
-            { _source: { title: 'Sample document 3' } },
-          ],
+    dispatch(
+      searchIndex({
+        apiBody: {
+          index: selectedIndexId,
+          body: finalQuery,
         },
+        dataSourceId,
+      })
+    )
+      .unwrap()
+      .then((response) => {
+        setIsSearching(false);
+        setSearchResults(response);
+      })
+      .catch((error) => {
+        setIsSearching(false);
+        setError(`Search failed: ${error}`);
       });
-    }, 1000);
-
-    // Notify parent component of state changes
-    props.setBlockNavigation(false);
   };
 
   return (
@@ -123,7 +150,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
         flexDirection: 'column',
       }}
     >
-      <EuiFlexGroup direction="column" gutterSize="l">
+      <EuiFlexGroup direction="column" gutterSize="m">
         <EuiFlexItem grow={false}>
           <EuiFlexGroup gutterSize="xs" alignItems="center">
             <EuiFlexItem>
@@ -142,7 +169,21 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
           <EuiText size="s" color="subdued">
             <p>
               Enter a natural language query and let AI do the searching for
-              you.
+              you. Ask questions in plain English, and the AI agent will convert
+              them into optimized search queries to find relevant results.
+            </p>
+            <p>
+              <strong>Example questions:</strong>
+              <ul>
+                <li>
+                  "What's the average CPU usage across my servers last week?"
+                </li>
+                <li>"Find documents about machine learning in healthcare"</li>
+                <li>
+                  "Show me the most recent customer complaints about shipping
+                  delays"
+                </li>
+              </ul>
             </p>
           </EuiText>
           <EuiSpacer size="m" />
@@ -156,87 +197,86 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
             <EuiSpacer size="m" />
           </EuiFlexItem>
         )}
-        <EuiFlexItem grow={false}>
-          <EuiFlexGroup justifyContent="flexStart">
-            <EuiFlexItem grow={false} style={{ width: '300px' }}>
-              <EuiFormRow label="Select Index">
-                <EuiSelect
-                  options={indexOptions}
-                  value={selectedIndexId}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setSelectedIndexId(value || undefined);
-                  }}
-                  aria-label="Select index"
-                  placeholder="Select an index"
-                  hasNoInitialSelection={true}
-                />
-              </EuiFormRow>
-            </EuiFlexItem>
-            <EuiFlexItem
-              grow={false}
-              style={{ width: '300px', marginLeft: '16px' }}
-            >
-              <EuiFormRow label="Select Agent">
-                <EuiSelect
-                  options={agentOptions}
-                  value={selectedAgentId}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setSelectedAgentId(value || undefined);
-                  }}
-                  aria-label="Select agent"
-                  placeholder="Select an agent"
-                  hasNoInitialSelection={true}
-                />
-              </EuiFormRow>
-            </EuiFlexItem>
-          </EuiFlexGroup>
+        <EuiFlexItem grow={false} style={{ maxWidth: FORM_WIDTH }}>
+          <SimplifiedIndexSelector
+            selectedIndexId={selectedIndexId}
+            onIndexSelected={(indexId) => setSelectedIndexId(indexId)}
+          />
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiFormRow label="Search Query" fullWidth>
-            <EuiFieldSearch
-              placeholder="Enter your question or query here..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              fullWidth
-              isClearable
-              aria-label="Enter search query"
+        <EuiFlexItem grow={false} style={{ maxWidth: FORM_WIDTH }}>
+          <EuiFormRow
+            label={
+              <>
+                Agent
+                <EuiToolTip content="Select or create an AI agent that will interpret your natural language query and convert it to a search query">
+                  <EuiIcon
+                    type="questionInCircle"
+                    color="subdued"
+                    style={{ marginLeft: '4px' }}
+                  />
+                </EuiToolTip>
+              </>
+            }
+            fullWidth
+          >
+            <SimplifiedAgentSelector
+              selectedAgentId={selectedAgentId}
+              onAgentSelected={(agentId) => setSelectedAgentId(agentId)}
             />
           </EuiFormRow>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiFlexGroup justifyContent="flexEnd">
+          <SimplifiedSearchQuery
+            finalQuery={finalQuery}
+            onFinalQueryChange={(query) => setFinalQuery(query)}
+          />
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiFlexGroup justifyContent="flexEnd" gutterSize="s">
+            {searchResults && (
+              <EuiFlexItem grow={false}>
+                <EuiToolTip content="Clear search results and form">
+                  <EuiSmallButton onClick={handleClear} iconType="eraser">
+                    Clear
+                  </EuiSmallButton>
+                </EuiToolTip>
+              </EuiFlexItem>
+            )}
             <EuiFlexItem grow={false}>
-              <EuiSmallButton
-                onClick={handleSearch}
-                fill
-                iconType="search"
-                isLoading={isSearching}
-                isDisabled={
-                  !searchQuery || !selectedIndexId || !selectedAgentId
+              <EuiToolTip
+                content={
+                  !finalQuery?.query?.agentic?.query_text ||
+                  !selectedIndexId ||
+                  !selectedAgentId ||
+                  mlLoading
+                    ? 'Select an index and agent, and enter a search query'
+                    : 'Search using AI agent'
                 }
               >
-                Search
-              </EuiSmallButton>
+                <EuiSmallButton
+                  onClick={handleSearch}
+                  fill
+                  iconType="search"
+                  isLoading={isSearching || opensearchLoading}
+                  isDisabled={
+                    !finalQuery?.query?.agentic?.query_text ||
+                    !selectedIndexId ||
+                    !selectedAgentId ||
+                    mlLoading
+                  }
+                >
+                  Search
+                </EuiSmallButton>
+              </EuiToolTip>
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
-        {searchResults && (
-          <EuiFlexItem>
-            <EuiPanel color="subdued" hasShadow={false} paddingSize="m">
-              <EuiText size="s">
-                <h4>Results</h4>
-                <p>Found {searchResults.hits.total.value} documents</p>
-                <ul>
-                  {searchResults.hits.hits.map((hit: any, index: number) => (
-                    <li key={index}>{hit._source.title}</li>
-                  ))}
-                </ul>
-              </EuiText>
-            </EuiPanel>
-          </EuiFlexItem>
-        )}
+        <EuiFlexItem>
+          <SimplifiedSearchResults
+            searchResults={searchResults}
+            isLoading={isSearching || opensearchLoading}
+          />
+        </EuiFlexItem>
         <EuiFlexItem />
       </EuiFlexGroup>
     </EuiPanel>
