@@ -18,6 +18,7 @@ import {
   EuiCallOut,
   EuiToolTip,
   EuiIcon,
+  EuiButtonEmpty,
 } from '@elastic/eui';
 import { Workflow, WorkflowConfig } from '../../../common';
 import { getDataSourceId } from '../../utils/utils';
@@ -25,6 +26,7 @@ import { SimplifiedAgentSelector } from './components/simplified_agent_selector'
 import { SimplifiedSearchQuery } from './components/simplified_search_query';
 import { SimplifiedIndexSelector } from './components/simplified_index_selector';
 import { SimplifiedSearchResults } from './components/simplified_search_results';
+import { SimplifiedAgenticInfoModal } from './components/simplified_agentic_info_modal';
 
 // styling
 import '../../global-styles.scss';
@@ -45,6 +47,9 @@ const FORM_WIDTH = '750px';
 export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+
+  // State for modal visibility
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const [selectedIndexId, setSelectedIndexId] = useState<string | undefined>(
     undefined
@@ -165,30 +170,23 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
                 size="s"
               />
             </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButtonEmpty
+                size="s"
+                iconType="questionInCircle"
+                onClick={() => setIsModalVisible(true)}
+              >
+                What's Agentic Search?
+              </EuiButtonEmpty>
+            </EuiFlexItem>
           </EuiFlexGroup>
-          <EuiText size="s" color="subdued">
-            <p>
-              Enter a natural language query and let AI do the searching for
-              you. Ask questions in plain English, and the AI agent will convert
-              them into optimized search queries to find relevant results.
-            </p>
-            <p>
-              <strong>Example questions:</strong>
-              <ul>
-                <li>
-                  "What's the average CPU usage across my servers last week?"
-                </li>
-                <li>"Find documents about machine learning in healthcare"</li>
-                <li>
-                  "Show me the most recent customer complaints about shipping
-                  delays"
-                </li>
-              </ul>
-            </p>
-          </EuiText>
           <EuiSpacer size="m" />
         </EuiFlexItem>
-
+        {isModalVisible && (
+          <SimplifiedAgenticInfoModal
+            onClose={() => setIsModalVisible(false)}
+          />
+        )}
         {error && (
           <EuiFlexItem grow={false}>
             <EuiCallOut title="Error" color="danger" iconType="alert">

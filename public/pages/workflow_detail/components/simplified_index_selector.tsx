@@ -16,7 +16,7 @@ import {
 import { AppState, useAppDispatch } from '../../../store';
 import { getDataSourceId } from '../../../utils/utils';
 import { catIndices } from '../../../store';
-import { OMIT_SYSTEM_INDEX_PATTERN } from 'common';
+import { OMIT_SYSTEM_INDEX_PATTERN } from '../../../../common';
 
 interface SimplifiedIndexSelectorProps {
   selectedIndexId: string | undefined;
