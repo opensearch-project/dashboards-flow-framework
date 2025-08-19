@@ -353,11 +353,16 @@ export function fetchAgenticSearchSimplifiedMetadata(version: string): UIState {
   // but with a streamlined UI and potentially different defaults
   baseState.config.ingest.enrich.processors = [];
   baseState.config.ingest.index.name.value = generateId('simple_index', 6);
-  
+
   // Use the same agentic search query format
   baseState.config.search.request.value = customStringify(AGENTIC_SEARCH_QUERY);
   baseState.config.search.enrichRequest.processors = [];
   baseState.config.search.enrichResponse.processors = [];
+  baseState.config.search.agentId = {
+    id: 'agentId',
+    type: 'string',
+    value: '',
+  };
   return baseState;
 }
 

@@ -382,6 +382,7 @@ export const LABEL_FIELD_PATTERN = `{{label_field}}`;
 export const QUERY_TEXT_PATTERN = `{{query_text}}`;
 export const QUERY_IMAGE_PATTERN = `{{query_image}}`;
 export const MODEL_ID_PATTERN = `{{model_id}}`;
+export const AGENT_ID_PATTERN = `{{agent_id}}`;
 export const VECTOR = 'vector';
 export const VECTOR_PATTERN = `{{${VECTOR}}}`;
 export const VECTOR_TEMPLATE_PLACEHOLDER = `\$\{${VECTOR}\}`;
@@ -662,12 +663,12 @@ export const NEURAL_SPARSE_SEARCH_QUERY = {
 export const AGENTIC_SEARCH_QUERY = {
   query: {
     agentic: {
-      query_text: QUERY_TEXT_PATTERN,
+      query_text: '',
       query_fields: [],
+      agent_id: AGENT_ID_PATTERN,
     },
   },
 };
-
 export const QUERY_PRESETS = [
   {
     name: 'Fetch all',

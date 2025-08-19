@@ -79,7 +79,7 @@ function formikToSearchUiConfig(
   searchFormValues: FormikValues,
   existingConfig: SearchConfig
 ): SearchConfig {
-  return {
+  const updatedConfig = {
     ...existingConfig,
     request: {
       ...existingConfig.request,
@@ -102,6 +102,16 @@ function formikToSearchUiConfig(
       existingConfig.enrichResponse
     ),
   };
+
+  // Handle optional agentId field
+  if (existingConfig.agentId && searchFormValues['agentId'] !== undefined) {
+    updatedConfig.agentId = {
+      ...existingConfig.agentId,
+      value: searchFormValues['agentId'],
+    };
+  }
+  
+  return updatedConfig;
 }
 
 function formikToSearchIndexUiConfig(

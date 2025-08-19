@@ -5,6 +5,8 @@
 
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { getIn, useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   EuiSelect,
   EuiFormRow,
@@ -16,16 +18,18 @@ import {
 import { AppState, useAppDispatch } from '../../../store';
 import { getDataSourceId } from '../../../utils/utils';
 import { catIndices } from '../../../store';
-import { OMIT_SYSTEM_INDEX_PATTERN } from '../../../../common';
+import {
+  OMIT_SYSTEM_INDEX_PATTERN,
+  WorkflowFormValues,
+} from '../../../../common';
 
-interface SimplifiedIndexSelectorProps {
-  selectedIndexId: string | undefined;
-  onIndexSelected: (indexId: string | undefined) => void;
-}
+interface SimplifiedIndexSelectorProps {}
 
 export function SimplifiedIndexSelector(props: SimplifiedIndexSelectorProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
+
   const { indices, loading: opensearchLoading } = useSelector(
     (state: AppState) => state.opensearch
   );
@@ -75,14 +79,14 @@ export function SimplifiedIndexSelector(props: SimplifiedIndexSelectorProps) {
       ) : (
         <EuiSelect
           options={indexOptions}
-          value={props.selectedIndexId}
+          value={getIn(values, 'search.index.name')}
           onChange={(e) => {
             const value = e.target.value;
-            props.onIndexSelected(value || undefined);
+            setFieldValue('search.index.name', value);
           }}
           aria-label="Select index"
           placeholder="Select an index"
-          hasNoInitialSelection={!props.selectedIndexId}
+          hasNoInitialSelection={isEmpty(getIn(values, 'search.index.name'))}
           fullWidth
         />
       )}

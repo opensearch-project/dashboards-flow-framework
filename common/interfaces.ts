@@ -88,6 +88,7 @@ export type SearchConfig = {
   pipelineName: IConfigField;
   enrichRequest: ProcessorsConfig;
   enrichResponse: ProcessorsConfig;
+  agentId?: IConfigField;
 };
 
 export type WorkflowConfig = {

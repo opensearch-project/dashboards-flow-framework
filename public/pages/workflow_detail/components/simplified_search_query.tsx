@@ -14,32 +14,36 @@ import {
   EuiFlexItem,
 } from '@elastic/eui';
 import { SimplifiedJsonField } from './simplified_json_field';
-import { customStringify } from '../../../../common';
+import { customStringify, WorkflowFormValues } from '../../../../common';
+import { getIn, useFormikContext } from 'formik';
+import { cloneDeep } from 'lodash';
 
-interface SimplifiedSearchQueryProps {
-  finalQuery: Record<string, any>;
-  onFinalQueryChange: (query: Record<string, any>) => void;
-  isAdvancedModeDefault?: boolean;
-}
+interface SimplifiedSearchQueryProps {}
 
 export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
-  const [advancedMode, setAdvancedMode] = useState<boolean>(
-    props.isAdvancedModeDefault || false
-  );
+  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
+  const finalQuery = (() => {
+    try {
+      return JSON.parse(getIn(values, 'search.request', '{}'));
+    } catch (e) {
+      return {};
+    }
+  })();
+  const [advancedMode, setAdvancedMode] = useState<boolean>(false);
   const [simpleSearchQuery, setSimpleSearchQuery] = useState<string>(
-    props.finalQuery?.query?.agentic?.query_text || ''
+    finalQuery?.query?.agentic?.query_text || ''
   );
   const [jsonError, setJsonError] = useState<string | null>(null);
 
   useEffect(() => {
-    setSimpleSearchQuery(props.finalQuery?.query?.agentic?.query_text || '');
-  }, [props.finalQuery]);
+    setSimpleSearchQuery(finalQuery?.query?.agentic?.query_text || '');
+  }, [finalQuery]);
 
   const handleModeSwitch = (isAdvanced: boolean) => {
     if (!isAdvanced) {
       try {
-        if (props.finalQuery?.query?.agentic?.query_text) {
-          setSimpleSearchQuery(props.finalQuery.query.agentic.query_text);
+        if (finalQuery?.query?.agentic?.query_text) {
+          setSimpleSearchQuery(finalQuery.query.agentic.query_text);
         }
       } catch (error) {}
     }
@@ -51,24 +55,17 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
     setSimpleSearchQuery(newQueryText);
 
     // Update the finalQuery in the parent by creating a new query with the updated text
-    const updatedQuery = {
-      ...props.finalQuery,
-      query: {
-        ...props.finalQuery.query,
-        agentic: {
-          ...props.finalQuery.query.agentic,
-          query_text: newQueryText,
-        },
-      },
-    };
-    props.onFinalQueryChange(updatedQuery);
+    let updatedQuery = cloneDeep(finalQuery);
+    if (updatedQuery?.query?.agentic?.query_text !== undefined) {
+      updatedQuery.query.agentic.query_text = newQueryText;
+      setFieldValue('search.request', customStringify(updatedQuery));
+    }
   };
 
   const handleAdvancedQueryChange = (value: string) => {
     try {
       const parsedQuery = JSON.parse(value);
-      // Update the parent with the new query
-      props.onFinalQueryChange(parsedQuery);
+      setFieldValue('search.request', customStringify(parsedQuery));
       setJsonError(null);
     } catch (error) {
       setJsonError('Invalid JSON: ' + (error as Error).message);
@@ -124,7 +121,7 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
           <EuiFlexItem>
             {advancedMode ? (
               <SimplifiedJsonField
-                value={customStringify(props.finalQuery)}
+                value={customStringify(finalQuery)}
                 onChange={handleAdvancedQueryChange}
                 editorHeight="200px"
                 isInvalid={!!jsonError}

@@ -5,6 +5,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { cloneDeep } from 'lodash';
+import { getIn, useFormikContext } from 'formik';
 import { AppState, searchIndex, useAppDispatch } from '../../store';
 import {
   EuiPanel,
@@ -20,7 +22,12 @@ import {
   EuiIcon,
   EuiButtonEmpty,
 } from '@elastic/eui';
-import { Workflow, WorkflowConfig } from '../../../common';
+import {
+  customStringify,
+  Workflow,
+  WorkflowConfig,
+  WorkflowFormValues,
+} from '../../../common';
 import { getDataSourceId } from '../../utils/utils';
 import { SimplifiedAgentSelector } from './components/simplified_agent_selector';
 import { SimplifiedSearchQuery } from './components/simplified_search_query';
@@ -47,25 +54,18 @@ const FORM_WIDTH = '750px';
 export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
+  const selectedIndexId = getIn(values, 'search.index.name');
+  const selectedAgentId = getIn(values, 'search.agentId');
+  const finalQuery = (() => {
+    try {
+      return JSON.parse(getIn(values, 'search.request', '{}'));
+    } catch (e) {
+      return {};
+    }
+  })();
 
-  // State for modal visibility
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-
-  const [selectedIndexId, setSelectedIndexId] = useState<string | undefined>(
-    undefined
-  );
-  const [selectedAgentId, setSelectedAgentId] = useState<string | undefined>(
-    undefined
-  );
-  const [finalQuery, setFinalQuery] = useState<{}>({
-    query: {
-      agentic: {
-        query_text: '',
-        agent_id: '',
-        query_fields: [],
-      },
-    },
-  });
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -86,18 +86,13 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
 
   // Update finalQuery when agent changes (and if the agent_id key exists)
   useEffect(() => {
-    if (finalQuery?.query?.agentic?.agent_id !== undefined) {
-      setFinalQuery((prevQuery) => ({
-        ...prevQuery,
-        query: {
-          ...prevQuery?.query,
-          agentic: {
-            ...prevQuery?.query?.agentic,
-            agent_id: selectedAgentId || '',
-          },
-        },
-      }));
-    }
+    try {
+      let updatedQuery = cloneDeep(finalQuery);
+      if (updatedQuery?.query?.agentic?.agent_id !== undefined) {
+        updatedQuery.query.agentic.agent_id = selectedAgentId || '';
+        setFieldValue('search.request', customStringify(updatedQuery));
+      }
+    } catch {}
   }, [selectedAgentId]);
 
   const handleClear = () => {
@@ -196,10 +191,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
           </EuiFlexItem>
         )}
         <EuiFlexItem grow={false} style={{ maxWidth: FORM_WIDTH }}>
-          <SimplifiedIndexSelector
-            selectedIndexId={selectedIndexId}
-            onIndexSelected={(indexId) => setSelectedIndexId(indexId)}
-          />
+          <SimplifiedIndexSelector />
         </EuiFlexItem>
         <EuiFlexItem grow={false} style={{ maxWidth: FORM_WIDTH }}>
           <EuiFormRow
@@ -217,17 +209,11 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
             }
             fullWidth
           >
-            <SimplifiedAgentSelector
-              selectedAgentId={selectedAgentId}
-              onAgentSelected={(agentId) => setSelectedAgentId(agentId)}
-            />
+            <SimplifiedAgentSelector />
           </EuiFormRow>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <SimplifiedSearchQuery
-            finalQuery={finalQuery}
-            onFinalQueryChange={(query) => setFinalQuery(query)}
-          />
+          <SimplifiedSearchQuery />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiFlexGroup justifyContent="flexEnd" gutterSize="s">

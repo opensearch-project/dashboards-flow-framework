@@ -5,6 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { getIn, useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   EuiAccordion,
   EuiButtonEmpty,
@@ -33,18 +35,17 @@ import {
   FETCH_ALL_QUERY_LARGE,
   MODEL_STATE,
   ModelFormValue,
+  WorkflowFormValues,
 } from '../../../../common';
 import { getDataSourceId } from '../../../utils/utils';
 
-interface SimplifiedAgentSelectorProps {
-  selectedAgentId: string | undefined;
-  onAgentSelected: (agentId: string) => void;
-  width?: string;
-}
+interface SimplifiedAgentSelectorProps {}
 
 export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
+  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
+  const selectedAgentId = getIn(values, 'search.agentId');
 
   const [createMode, setCreateMode] = useState<boolean>(false);
   const [agentName, setAgentName] = useState<string>('');
@@ -75,16 +76,16 @@ export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
     value: agent.id,
     text: agent.name,
   }));
-  const selectedAgent = props.selectedAgentId
-    ? agents[props.selectedAgentId]
+  const selectedAgent = !isEmpty(selectedAgentId)
+    ? agents[selectedAgentId]
     : undefined;
 
   // Close accordion when agent is selected
   useEffect(() => {
-    if (props.selectedAgentId) {
+    if (!isEmpty(selectedAgentId)) {
       setAccordionOpen(false);
     }
-  }, [props.selectedAgentId]);
+  }, [selectedAgentId]);
 
   // Create a new agent
   const createNewAgent = async () => {
@@ -121,7 +122,7 @@ export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
       ).unwrap();
 
       if (response && response.agent && response.agent.id) {
-        props.onAgentSelected(response.agent.id);
+        setFieldValue('search.agentId', response.agent.id);
         // Switch back to select mode and collapse accordion
         setCreateMode(false);
         setAccordionOpen(false);
@@ -271,17 +272,17 @@ export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
             ) : (
               <EuiSelect
                 options={agentOptions}
-                value={props.selectedAgentId}
+                value={selectedAgentId}
                 onChange={(e) => {
                   const value = e.target.value;
                   if (value) {
-                    props.onAgentSelected(value);
+                    setFieldValue('search.agentId', value);
                     setAccordionOpen(false);
                   }
                 }}
                 aria-label="Select agent"
                 placeholder="Select an agent"
-                hasNoInitialSelection={!props.selectedAgentId}
+                hasNoInitialSelection={isEmpty(selectedAgentId)}
                 fullWidth
               />
             )}

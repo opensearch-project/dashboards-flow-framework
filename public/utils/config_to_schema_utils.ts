@@ -106,6 +106,10 @@ function searchConfigToSchema(
     searchSchemaObj['enrichResponse'] = processorsConfigToSchema(
       searchConfig.enrichResponse
     );
+    // Handle optional agentId field if present
+    if (searchConfig.agentId) {
+      searchSchemaObj['agentId'] = getFieldSchema(searchConfig.agentId);
+    }
   }
   return yup.object(searchSchemaObj);
 }
