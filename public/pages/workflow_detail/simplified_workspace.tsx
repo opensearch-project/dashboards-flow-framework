@@ -17,14 +17,12 @@ import {
   EuiPanel,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiFormRow,
   EuiText,
   EuiSmallButton,
   EuiBetaBadge,
   EuiSpacer,
   EuiCallOut,
   EuiToolTip,
-  EuiIcon,
   EuiButtonEmpty,
   EuiSmallButtonIcon,
   EuiSmallButtonEmpty,
@@ -219,11 +217,28 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
     >
       <EuiFlexGroup direction="column" gutterSize="m">
         <EuiFlexItem grow={false}>
-          <EuiFlexGroup gutterSize="xs" alignItems="center">
-            <EuiFlexItem>
-              <EuiText size="m">
-                <h2>Simplified Agentic Search</h2>
-              </EuiText>
+          <EuiFlexGroup
+            gutterSize="xs"
+            alignItems="center"
+            justifyContent="spaceBetween"
+          >
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup gutterSize="xs" alignItems="center">
+                <EuiFlexItem grow={false}>
+                  <EuiText size="m">
+                    <h2>Agentic Search</h2>
+                  </EuiText>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="s"
+                    iconType="questionInCircle"
+                    onClick={() => setIsModalVisible(true)}
+                  >
+                    Learn more
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiBetaBadge
@@ -231,15 +246,6 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
                 tooltipContent="This feature is experimental and may change in future releases"
                 size="s"
               />
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiButtonEmpty
-                size="s"
-                iconType="questionInCircle"
-                onClick={() => setIsModalVisible(true)}
-              >
-                What's Agentic Search?
-              </EuiButtonEmpty>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="m" />
@@ -261,23 +267,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
           <SimplifiedIndexSelector />
         </EuiFlexItem>
         <EuiFlexItem grow={false} style={{ maxWidth: FORM_WIDTH }}>
-          <EuiFormRow
-            label={
-              <>
-                Agent
-                <EuiToolTip content="Select or create an AI agent that will interpret your natural language query and convert it to a search query">
-                  <EuiIcon
-                    type="questionInCircle"
-                    color="subdued"
-                    style={{ marginLeft: '4px' }}
-                  />
-                </EuiToolTip>
-              </>
-            }
-            fullWidth
-          >
-            <SimplifiedAgentSelector />
-          </EuiFormRow>
+          <SimplifiedAgentSelector />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <SimplifiedSearchQuery />
@@ -322,7 +312,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
-        <EuiFlexItem>
+        <EuiFlexItem grow={false}>
           <SimplifiedSearchResults
             searchResults={searchResults}
             isLoading={isSearching || opensearchLoading}
