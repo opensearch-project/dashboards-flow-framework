@@ -20,7 +20,9 @@ import {
 import { SimplifiedJsonField } from './simplified_json_field';
 import { customStringify, WorkflowFormValues } from '../../../../common';
 
-interface SimplifiedSearchQueryProps {}
+interface SimplifiedSearchQueryProps {
+  setSearchPipeline: (searchPipeline: {}) => void;
+}
 
 /**
  * Enum for query mode toggle options
@@ -92,12 +94,24 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
     }
   }, [agentId]);
 
-  // reset the custom pipeline to match the auto-generated one, whenever the checkmark is disabled
+  // reset the custom pipeline to match the auto-generated one, whenever the checkmark is disabled.
+  // always reset the upstream persisted search pipeline when either are toggled, back to the default
   useEffect(() => {
-    if (!useAutoPipeline) {
+    if (useAutoPipeline) {
+      props.setSearchPipeline(autoPipeline);
+    } else {
+      props.setSearchPipeline(autoPipeline);
       setCustomPipeline(autoPipeline);
     }
   }, [useAutoPipeline]);
+
+  useEffect(() => {
+    if (useAutoPipeline) {
+      props.setSearchPipeline(autoPipeline);
+    } else {
+      props.setSearchPipeline(customPipeline);
+    }
+  }, [autoPipeline, customPipeline]);
 
   const handleModeSwitch = (queryMode: string) => {
     if (queryMode === QUERY_MODE.SIMPLE) {

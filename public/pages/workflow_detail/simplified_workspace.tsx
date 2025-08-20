@@ -80,6 +80,9 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
     }
   })();
 
+  // the runtime-specific pipeline to be ran inline with the search query
+  const [runtimeSearchPipeline, setRuntimeSearchPipeline] = useState<{}>({});
+
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<any | null>(null);
@@ -133,7 +136,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
               ...props.workflow?.ui_metadata,
               config: updatedConfig,
             },
-            // TODO: omit any "workflows" field as we are not provisioning anything in this view
+            // TODO: for now, omit any "workflows" field as we are not provisioning anything in this view
             // workflows: configToTemplateFlows(updatedConfig, false, false),
           } as Workflow;
           await dispatch(
@@ -190,7 +193,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
       searchIndex({
         apiBody: {
           index: selectedIndexId,
-          body: finalQuery,
+          body: injectPipelineIntoQuery(finalQuery),
         },
         dataSourceId,
       })
@@ -205,6 +208,13 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
         setError(`Search failed: ${error}`);
       });
   };
+
+  function injectPipelineIntoQuery(finalQuery: any): {} {
+    return {
+      ...finalQuery,
+      search_pipeline: runtimeSearchPipeline,
+    };
+  }
 
   return (
     <EuiPanel
@@ -270,7 +280,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
           <SimplifiedAgentSelector />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <SimplifiedSearchQuery />
+          <SimplifiedSearchQuery setSearchPipeline={setRuntimeSearchPipeline} />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiFlexGroup justifyContent="flexEnd" gutterSize="s">
