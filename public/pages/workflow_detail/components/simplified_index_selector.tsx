@@ -50,7 +50,7 @@ export function SimplifiedIndexSelector(props: SimplifiedIndexSelectorProps) {
     <EuiFormRow
       label={
         <>
-          Select Index
+          Index
           <EuiToolTip content="Choose the index that contains the data you want to search">
             <EuiIcon
               type="questionInCircle"

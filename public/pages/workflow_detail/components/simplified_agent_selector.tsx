@@ -90,7 +90,7 @@ export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
               onClick={() => setIsModalVisible(true)}
               iconType="plusInCircle"
             >
-              Create
+              Create new
             </EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>

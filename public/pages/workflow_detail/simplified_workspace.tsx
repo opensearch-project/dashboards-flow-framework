@@ -218,7 +218,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
       <EuiFlexGroup direction="column" gutterSize="m">
         <EuiFlexItem grow={false}>
           <EuiFlexGroup
-            gutterSize="xs"
+            gutterSize="m"
             alignItems="center"
             justifyContent="spaceBetween"
           >
