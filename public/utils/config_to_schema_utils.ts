@@ -45,7 +45,7 @@ function ingestConfigToSchema(
   indices: { [key: string]: Index }
 ): ObjectSchema<any> {
   const ingestSchemaObj = {} as { [key: string]: Schema };
-  if (ingestConfig?.enabled) {
+  if (ingestConfig?.enabled?.value === true) {
     ingestSchemaObj['docs'] = getFieldSchema({
       type: 'jsonLines',
     } as IConfigField);

@@ -7,7 +7,12 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
-import { AppState, searchIndex, useAppDispatch } from '../../store';
+import {
+  AppState,
+  searchIndex,
+  updateWorkflow,
+  useAppDispatch,
+} from '../../store';
 import {
   EuiPanel,
   EuiFlexGroup,
@@ -21,6 +26,8 @@ import {
   EuiToolTip,
   EuiIcon,
   EuiButtonEmpty,
+  EuiSmallButtonIcon,
+  EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -34,6 +41,8 @@ import { SimplifiedSearchQuery } from './components/simplified_search_query';
 import { SimplifiedIndexSelector } from './components/simplified_index_selector';
 import { SimplifiedSearchResults } from './components/simplified_search_results';
 import { SimplifiedAgenticInfoModal } from './components/simplified_agentic_info_modal';
+import { formikToUiConfig, reduceToTemplate } from '../../utils';
+import { getCore } from '../../services';
 
 // styling
 import '../../global-styles.scss';
@@ -54,7 +63,15 @@ const FORM_WIDTH = '750px';
 export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
+  const {
+    values,
+    setFieldValue,
+    dirty,
+    submitForm,
+    validateForm,
+    resetForm,
+    setTouched,
+  } = useFormikContext<WorkflowFormValues>();
   const selectedIndexId = getIn(values, 'search.index.name');
   const selectedAgentId = getIn(values, 'search.agentId');
   const finalQuery = (() => {
@@ -70,13 +87,15 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
   const [searchResults, setSearchResults] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Get the loading and error states from Redux
   const {
     loading: opensearchLoading,
     errorMessage: opensearchError,
   } = useSelector((state: AppState) => state.opensearch);
 
   const { loading: mlLoading } = useSelector((state: AppState) => state.ml);
+  const { loading: workflowsLoading } = useSelector(
+    (state: AppState) => state.workflows
+  );
 
   useEffect(() => {
     if (opensearchError) {
@@ -94,6 +113,54 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
       }
     } catch {}
   }, [selectedAgentId]);
+
+  // Utility fn to validate the form and update the workflow if valid
+  async function validateAndUpdateWorkflow(): Promise<boolean> {
+    let success = false;
+    await submitForm();
+    await validateForm()
+      .then(async (validationResults) => {
+        const { search } = validationResults;
+        if (search !== undefined && Object.keys(search)?.length > 0) {
+          getCore().notifications.toasts.addDanger('Missing or invalid fields');
+        } else {
+          setTouched({});
+          const updatedConfig = formikToUiConfig(
+            values,
+            props.uiConfig as WorkflowConfig
+          );
+          const updatedWorkflow = {
+            ...props.workflow,
+            ui_metadata: {
+              ...props.workflow?.ui_metadata,
+              config: updatedConfig,
+            },
+            // TODO: omit any "workflows" field as we are not provisioning anything in this view
+            // workflows: configToTemplateFlows(updatedConfig, false, false),
+          } as Workflow;
+          await dispatch(
+            updateWorkflow({
+              apiBody: {
+                workflowId: updatedWorkflow.id as string,
+                workflowTemplate: reduceToTemplate(updatedWorkflow),
+                reprovision: false,
+              },
+              dataSourceId,
+            })
+          );
+        }
+      })
+      .catch((error) => {
+        console.error('Error validating form: ', error);
+      });
+
+    return success;
+  }
+
+  // Utility fn to revert any unsaved changes, reset the form
+  function revertUnsavedChanges(): void {
+    resetForm();
+  }
 
   const handleClear = () => {
     setSearchResults(null);
@@ -260,6 +327,32 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
             searchResults={searchResults}
             isLoading={isSearching || opensearchLoading}
           />
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiFlexGroup direction="row">
+            <EuiFlexItem grow={false}>
+              <EuiSmallButtonEmpty
+                disabled={!dirty}
+                isLoading={workflowsLoading}
+                onClick={async () => {
+                  await validateAndUpdateWorkflow();
+                }}
+              >
+                {workflowsLoading ? 'Saving' : 'Save'}
+              </EuiSmallButtonEmpty>
+            </EuiFlexItem>
+            {dirty && (
+              <EuiFlexItem grow={false} style={{ marginLeft: '0px' }}>
+                <EuiSmallButtonIcon
+                  iconType={'editorUndo'}
+                  aria-label="undo"
+                  iconSize="l"
+                  isDisabled={workflowsLoading}
+                  onClick={() => revertUnsavedChanges()}
+                />
+              </EuiFlexItem>
+            )}
+          </EuiFlexGroup>
         </EuiFlexItem>
         <EuiFlexItem />
       </EuiFlexGroup>

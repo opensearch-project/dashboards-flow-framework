@@ -300,7 +300,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                   }}
                 >
                   <EuiFlexItem>
-                    {loading ? (
+                    {loading && workflow === undefined ? (
                       <EuiLoadingSpinner size="xl" />
                     ) : workflow?.ui_metadata?.type ===
                       WORKFLOW_TYPE.AGENTIC_SEARCH_SIMPLIFIED ? (

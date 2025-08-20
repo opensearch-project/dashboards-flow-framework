@@ -351,8 +351,13 @@ export function fetchAgenticSearchSimplifiedMetadata(version: string): UIState {
   baseState.type = WORKFLOW_TYPE.AGENTIC_SEARCH_SIMPLIFIED;
   // Simplified agentic search has the same setup as regular agentic search
   // but with a streamlined UI and potentially different defaults
-  baseState.config.ingest.enrich.processors = [];
-  baseState.config.ingest.index.name.value = generateId('simple_index', 6);
+  // baseState.config.ingest.enrich.processors = [];
+  // baseState.config.ingest.index.name.value = generateId('simple_index', 6);
+  baseState.config.ingest.enabled = {
+    id: 'enabled',
+    type: 'boolean',
+    value: false,
+  };
 
   // Use the same agentic search query format
   baseState.config.search.request.value = customStringify(AGENTIC_SEARCH_QUERY);
