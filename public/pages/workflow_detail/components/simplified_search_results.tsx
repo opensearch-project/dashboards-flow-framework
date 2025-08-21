@@ -3,78 +3,165 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
-import { EuiPanel, EuiText, EuiSpacer } from '@elastic/eui';
+import React, { useState } from 'react';
+import {
+  EuiPanel,
+  EuiText,
+  EuiSpacer,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiSmallButtonGroup,
+  EuiCodeBlock,
+} from '@elastic/eui';
+import { customStringify } from '../../../../common';
 
 interface SimplifiedSearchResultsProps {
-  searchResults: any | null;
+  searchResponse?: any;
+}
+
+/**
+ * Enum for results view tab options
+ */
+enum RESULTS_VIEW {
+  HITS = 'hits',
+  GENERATED_PIPELINE = 'generated_pipeline',
+  RAW_RESPONSE = 'raw_response',
 }
 
 export function SimplifiedSearchResults(props: SimplifiedSearchResultsProps) {
-  const { searchResults } = props;
+  const generatedQuery = getGeneratedQueryFromResponse(props.searchResponse);
+  const [selectedView, setSelectedView] = useState<RESULTS_VIEW>(
+    RESULTS_VIEW.HITS
+  );
+
+  const handleViewChange = (viewId: string) => {
+    setSelectedView(viewId as RESULTS_VIEW);
+  };
 
   return (
     <EuiPanel color="subdued" hasShadow={false} paddingSize="m">
-      <EuiText size="s">
-        <h4>Results</h4>
-        <p>
-          Found {searchResults?.hits?.total?.value || 'unknown number of'}{' '}
-          documents in {searchResults?.took}ms
-        </p>
-      </EuiText>
-      {searchResults.ext?.agent_search && (
-        <>
-          <EuiSpacer size="s" />
+      <EuiFlexGroup direction="column" gutterSize="s">
+        <EuiFlexItem grow={false}>
           <EuiText size="s">
-            <h5>AI Response</h5>
-            <p>{searchResults.ext.agent_search.response}</p>
-
-            {searchResults.ext.agent_search.parsed_query && (
-              <>
-                <h5>Generated Query</h5>
-                <pre>
-                  {JSON.stringify(
-                    searchResults.ext.agent_search.parsed_query,
-                    null,
-                    2
-                  )}
-                </pre>
-              </>
-            )}
+            <h4>Results</h4>
           </EuiText>
-        </>
-      )}
-
-      <EuiSpacer size="s" />
-      {searchResults.hits?.hits?.length > 0 ? (
-        <>
-          <EuiText size="s">
-            <h5>Documents</h5>
-          </EuiText>
-          {searchResults.hits.hits.map((hit: any, index: number) => (
-            <EuiPanel
-              key={index}
-              hasBorder
-              paddingSize="s"
-              style={{ marginTop: '8px' }}
-            >
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiSmallButtonGroup
+            legend="Results View"
+            options={[
+              {
+                id: RESULTS_VIEW.HITS,
+                label: 'Hits',
+              },
+              {
+                id: RESULTS_VIEW.GENERATED_PIPELINE,
+                label: 'Generated search pipeline',
+              },
+              {
+                id: RESULTS_VIEW.RAW_RESPONSE,
+                label: 'Raw response',
+              },
+            ]}
+            idSelected={selectedView}
+            onChange={handleViewChange}
+            isFullWidth={false}
+          />
+        </EuiFlexItem>
+        <EuiFlexItem>
+          {selectedView === RESULTS_VIEW.HITS ? (
+            <>
               <EuiText size="s">
-                <h6>Document {index + 1}</h6>
                 <p>
-                  <strong>Score:</strong> {hit._score}
+                  Found {props.searchResponse?.hits?.total?.value} documents in{' '}
+                  {props.searchResponse?.took}ms
                 </p>
-                <pre style={{ maxHeight: '200px', overflow: 'auto' }}>
-                  {JSON.stringify(hit._source, null, 2)}
-                </pre>
               </EuiText>
-            </EuiPanel>
-          ))}
-        </>
-      ) : (
-        <EuiText size="s">
-          <p>No documents found</p>
-        </EuiText>
-      )}
+              <EuiSpacer size="s" />
+              {props.searchResponse?.hits?.hits?.length > 0 ? (
+                <>
+                  <EuiText size="s">
+                    <h5>Documents</h5>
+                  </EuiText>
+                  {props.searchResponse.hits.hits.map(
+                    (hit: any, index: number) => (
+                      <EuiPanel
+                        key={index}
+                        hasBorder
+                        paddingSize="s"
+                        style={{ marginTop: '8px' }}
+                      >
+                        <EuiText size="s">
+                          <h6>Document {index + 1}</h6>
+                          <p>
+                            <strong>Score:</strong> {hit._score}
+                          </p>
+                          <pre style={{ maxHeight: '200px', overflow: 'auto' }}>
+                            {customStringify(hit._source)}
+                          </pre>
+                        </EuiText>
+                      </EuiPanel>
+                    )
+                  )}
+                </>
+              ) : (
+                <EuiText size="s">
+                  <p>No documents found</p>
+                </EuiText>
+              )}
+            </>
+          ) : selectedView === RESULTS_VIEW.GENERATED_PIPELINE ? (
+            <>
+              {generatedQuery !== undefined ? (
+                <EuiCodeBlock
+                  language="json"
+                  fontSize="s"
+                  paddingSize="m"
+                  overflowHeight={400}
+                  isCopyable
+                >
+                  {customStringify(generatedQuery)}
+                </EuiCodeBlock>
+              ) : (
+                <EuiText size="s">
+                  <p>No agentic query translator processor results available</p>
+                </EuiText>
+              )}
+            </>
+          ) : (
+            <>
+              <EuiCodeBlock
+                language="json"
+                fontSize="s"
+                paddingSize="m"
+                overflowHeight={400}
+                isCopyable
+              >
+                {customStringify(props.searchResponse)}
+              </EuiCodeBlock>
+            </>
+          )}
+        </EuiFlexItem>
+      </EuiFlexGroup>
     </EuiPanel>
   );
+}
+
+//Util fn to extract the generated search query from the agentic_query_translator processor
+function getGeneratedQueryFromResponse(searchResponse?: any): {} | undefined {
+  if (!searchResponse?.processor_results) {
+    return undefined;
+  }
+
+  // Loop through all processor results to find the agentic_query_translator
+  const processorResults = searchResponse.processor_results;
+  for (const processor of processorResults) {
+    if (
+      processor.processor_name === 'agentic_query_translator' &&
+      processor.output_data
+    ) {
+      return processor.output_data as {};
+    }
+  }
+  return undefined;
 }

@@ -87,7 +87,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isSearching, setIsSearching] = useState<boolean>(false);
-  const [searchResults, setSearchResults] = useState<any | undefined>(
+  const [searchResponse, setSearchResponse] = useState<any | undefined>(
     undefined
   );
   const [error, setError] = useState<string | null>(null);
@@ -97,7 +97,6 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
     errorMessage: opensearchError,
   } = useSelector((state: AppState) => state.opensearch);
 
-  const { loading: mlLoading } = useSelector((state: AppState) => state.ml);
   const { loading: workflowsLoading } = useSelector(
     (state: AppState) => state.workflows
   );
@@ -172,7 +171,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
   }
 
   const handleClear = () => {
-    setSearchResults(undefined);
+    setSearchResponse(undefined);
     setError(null);
   };
 
@@ -204,12 +203,13 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
           body: injectPipelineIntoQuery(finalQuery),
         },
         dataSourceId,
+        verbose: true,
       })
     )
       .unwrap()
       .then((response) => {
         setIsSearching(false);
-        setSearchResults(response);
+        setSearchResponse(response);
       })
       .catch((error) => {
         setIsSearching(false);
@@ -287,83 +287,91 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
         <EuiFlexItem grow={false} style={{ maxWidth: FORM_WIDTH }}>
           <SimplifiedAgentSelector />
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
+        <EuiFlexItem grow={false} style={{ maxWidth: FORM_WIDTH }}>
           <SimplifiedFieldSelector uiConfig={props.uiConfig} />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <SimplifiedSearchQuery setSearchPipeline={setRuntimeSearchPipeline} />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiFlexGroup justifyContent="flexEnd" gutterSize="s">
-            {searchResults && (
-              <EuiFlexItem grow={false}>
-                <EuiToolTip content="Clear search results and form">
-                  <EuiSmallButton onClick={handleClear} iconType="eraser">
-                    Clear
-                  </EuiSmallButton>
-                </EuiToolTip>
-              </EuiFlexItem>
-            )}
+          <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
-              <EuiToolTip
-                content={
-                  !finalQuery?.query?.agentic?.query_text ||
-                  !selectedIndexId ||
-                  !selectedAgentId ||
-                  mlLoading
-                    ? 'Select an index and agent, and enter a search query'
-                    : 'Search using AI agent'
-                }
-              >
-                <EuiSmallButton
-                  onClick={handleSearch}
-                  fill
-                  iconType="search"
-                  isLoading={isSearching || opensearchLoading}
-                  isDisabled={
-                    !finalQuery?.query?.agentic?.query_text ||
-                    !selectedIndexId ||
-                    !selectedAgentId ||
-                    mlLoading
-                  }
-                >
-                  Search
-                </EuiSmallButton>
-              </EuiToolTip>
+              <EuiFlexGroup direction="row">
+                <EuiFlexItem grow={false}>
+                  <EuiSmallButton
+                    fill={true}
+                    disabled={!dirty}
+                    isLoading={workflowsLoading}
+                    onClick={async () => {
+                      await validateAndUpdateWorkflow();
+                    }}
+                  >
+                    {workflowsLoading
+                      ? 'Saving'
+                      : !dirty
+                      ? 'All changes saved'
+                      : 'Save configuration'}
+                  </EuiSmallButton>
+                </EuiFlexItem>
+                {dirty && (
+                  <EuiFlexItem grow={false} style={{ marginLeft: '0px' }}>
+                    <EuiSmallButtonIcon
+                      iconType={'editorUndo'}
+                      aria-label="undo"
+                      display="base"
+                      iconSize="l"
+                      isDisabled={workflowsLoading}
+                      onClick={() => revertUnsavedChanges()}
+                    />
+                  </EuiFlexItem>
+                )}
+              </EuiFlexGroup>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup direction="row" gutterSize="s">
+                {searchResponse && (
+                  <EuiFlexItem grow={false}>
+                    <EuiToolTip content="Clear search results and form">
+                      <EuiSmallButton onClick={handleClear} iconType="eraser">
+                        Clear
+                      </EuiSmallButton>
+                    </EuiToolTip>
+                  </EuiFlexItem>
+                )}
+                <EuiFlexItem grow={false}>
+                  <EuiToolTip
+                    content={
+                      !finalQuery?.query?.agentic?.query_text ||
+                      !selectedIndexId ||
+                      !selectedAgentId
+                        ? 'Select an index and agent, and enter a search query'
+                        : 'Search using AI agent'
+                    }
+                  >
+                    <EuiSmallButton
+                      onClick={handleSearch}
+                      fill
+                      iconType="search"
+                      isLoading={isSearching || opensearchLoading}
+                      isDisabled={
+                        !finalQuery?.query?.agentic?.query_text ||
+                        !selectedIndexId ||
+                        !selectedAgentId
+                      }
+                    >
+                      Search
+                    </EuiSmallButton>
+                  </EuiToolTip>
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
-        {searchResults !== undefined && (
+        {searchResponse !== undefined && (
           <EuiFlexItem grow={false}>
-            <SimplifiedSearchResults searchResults={searchResults} />
+            <SimplifiedSearchResults searchResponse={searchResponse} />
           </EuiFlexItem>
         )}
-        <EuiFlexItem grow={false}>
-          <EuiFlexGroup direction="row">
-            <EuiFlexItem grow={false}>
-              <EuiSmallButtonEmpty
-                disabled={!dirty}
-                isLoading={workflowsLoading}
-                onClick={async () => {
-                  await validateAndUpdateWorkflow();
-                }}
-              >
-                {workflowsLoading ? 'Saving' : 'Save'}
-              </EuiSmallButtonEmpty>
-            </EuiFlexItem>
-            {dirty && (
-              <EuiFlexItem grow={false} style={{ marginLeft: '0px' }}>
-                <EuiSmallButtonIcon
-                  iconType={'editorUndo'}
-                  aria-label="undo"
-                  iconSize="l"
-                  isDisabled={workflowsLoading}
-                  onClick={() => revertUnsavedChanges()}
-                />
-              </EuiFlexItem>
-            )}
-          </EuiFlexGroup>
-        </EuiFlexItem>
         <EuiFlexItem />
       </EuiFlexGroup>
     </EuiPanel>
