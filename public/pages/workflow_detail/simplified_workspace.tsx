@@ -296,7 +296,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
-              <EuiFlexGroup direction="row">
+              <EuiFlexGroup direction="row" gutterSize="s">
                 <EuiFlexItem grow={false}>
                   <EuiSmallButton
                     fill={true}
@@ -314,7 +314,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
                   </EuiSmallButton>
                 </EuiFlexItem>
                 {dirty && (
-                  <EuiFlexItem grow={false} style={{ marginLeft: '0px' }}>
+                  <EuiFlexItem grow={false}>
                     <EuiSmallButtonIcon
                       iconType={'editorUndo'}
                       aria-label="undo"
@@ -323,19 +323,6 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
                       isDisabled={workflowsLoading}
                       onClick={() => revertUnsavedChanges()}
                     />
-                  </EuiFlexItem>
-                )}
-              </EuiFlexGroup>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup direction="row" gutterSize="s">
-                {searchResponse && (
-                  <EuiFlexItem grow={false}>
-                    <EuiToolTip content="Clear search results and form">
-                      <EuiSmallButton onClick={handleClear} iconType="eraser">
-                        Clear
-                      </EuiSmallButton>
-                    </EuiToolTip>
                   </EuiFlexItem>
                 )}
                 <EuiFlexItem grow={false}>
@@ -363,6 +350,19 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
                     </EuiSmallButton>
                   </EuiToolTip>
                 </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup direction="row" gutterSize="s">
+                {searchResponse && (
+                  <EuiFlexItem grow={false}>
+                    <EuiToolTip content="Clear search results and form">
+                      <EuiSmallButton onClick={handleClear} iconType="eraser">
+                        Clear results
+                      </EuiSmallButton>
+                    </EuiToolTip>
+                  </EuiFlexItem>
+                )}
               </EuiFlexGroup>
             </EuiFlexItem>
           </EuiFlexGroup>

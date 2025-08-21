@@ -23,10 +23,25 @@ interface SimplifiedSearchResultsProps {
  * Enum for results view tab options
  */
 enum RESULTS_VIEW {
+  GENERATED_QUERY = 'generated_pipeline',
   HITS = 'hits',
-  GENERATED_PIPELINE = 'generated_pipeline',
   RAW_RESPONSE = 'raw_response',
 }
+
+const RESULTS_VIEW_OPTIONS = [
+  {
+    id: RESULTS_VIEW.GENERATED_QUERY,
+    label: 'Generated query',
+  },
+  {
+    id: RESULTS_VIEW.HITS,
+    label: 'Hits',
+  },
+  {
+    id: RESULTS_VIEW.RAW_RESPONSE,
+    label: 'Raw response',
+  },
+];
 
 export function SimplifiedSearchResults(props: SimplifiedSearchResultsProps) {
   const generatedQuery = getGeneratedQueryFromResponse(props.searchResponse);
@@ -49,20 +64,7 @@ export function SimplifiedSearchResults(props: SimplifiedSearchResultsProps) {
         <EuiFlexItem grow={false}>
           <EuiSmallButtonGroup
             legend="Results View"
-            options={[
-              {
-                id: RESULTS_VIEW.HITS,
-                label: 'Hits',
-              },
-              {
-                id: RESULTS_VIEW.GENERATED_PIPELINE,
-                label: 'Generated search pipeline',
-              },
-              {
-                id: RESULTS_VIEW.RAW_RESPONSE,
-                label: 'Raw response',
-              },
-            ]}
+            options={RESULTS_VIEW_OPTIONS}
             idSelected={selectedView}
             onChange={handleViewChange}
             isFullWidth={false}
@@ -110,7 +112,7 @@ export function SimplifiedSearchResults(props: SimplifiedSearchResultsProps) {
                 </EuiText>
               )}
             </>
-          ) : selectedView === RESULTS_VIEW.GENERATED_PIPELINE ? (
+          ) : selectedView === RESULTS_VIEW.GENERATED_QUERY ? (
             <>
               {generatedQuery !== undefined ? (
                 <EuiCodeBlock
