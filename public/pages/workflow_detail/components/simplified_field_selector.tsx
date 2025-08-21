@@ -6,7 +6,13 @@
 import React, { useState, useEffect } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import { cloneDeep, get, isEmpty } from 'lodash';
-import { EuiFormRow, EuiComboBox } from '@elastic/eui';
+import {
+  EuiFormRow,
+  EuiComboBox,
+  EuiToolTip,
+  EuiIcon,
+  EuiComboBoxOptionOption,
+} from '@elastic/eui';
 import {
   customStringify,
   IndexMappings,
@@ -37,7 +43,7 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
 
   const [fieldMappings, setFieldMappings] = useState<any>(null);
   const [selectedFields, setSelectedFields] = useState<
-    Array<{ label: string; value: string; type: string }>
+    EuiComboBoxOptionOption<string>[]
   >([]);
 
   // whenever the index is populated (changed or initialized), fetch the latest index mappings
@@ -76,14 +82,27 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
           label: `${fieldName} (${fieldType})`,
           value: fieldName,
           type: fieldType,
-        };
+        } as EuiComboBoxOptionOption<string>;
       }
     );
   };
 
   return (
     <EuiFormRow
-      label="Select fields to query"
+      label={
+        <>
+          <p>
+            Query fields <i>{`(optional)`}</i>
+            <EuiToolTip content="Specify the set of query fields you want to target in your final search">
+              <EuiIcon
+                type="questionInCircle"
+                color="subdued"
+                style={{ marginLeft: '4px' }}
+              />
+            </EuiToolTip>
+          </p>
+        </>
+      }
       helpText="Choose specific fields to include in your query"
       fullWidth
     >
@@ -92,6 +111,16 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
         options={getFieldOptions(fieldMappings)}
         selectedOptions={selectedFields}
         onChange={(options) => setSelectedFields(options)}
+        onCreateOption={(searchValue, options) =>
+          setSelectedFields([
+            ...selectedFields,
+            {
+              label: searchValue,
+              value: searchValue,
+              type: undefined,
+            } as EuiComboBoxOptionOption<string>,
+          ])
+        }
         isClearable={true}
         isDisabled={false}
         fullWidth
