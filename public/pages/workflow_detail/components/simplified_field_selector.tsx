@@ -122,7 +122,7 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
         <>
           <p>
             Query fields <i>{`(optional)`}</i>
-            <EuiToolTip content="Specify the set of query fields you want to target in your final search">
+            <EuiToolTip content="Specify the set of query fields you want to target in your search">
               <EuiIcon
                 type="questionInCircle"
                 color="subdued"

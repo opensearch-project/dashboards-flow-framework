@@ -211,7 +211,7 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
                 <SimplifiedJsonField
                   value={customStringify(finalQuery)}
                   onChange={handleAdvancedQueryChange}
-                  editorHeight="200px"
+                  editorHeight="400px"
                   isInvalid={!!jsonError}
                   helpText="Edit the full OpenSearch DSL query with agentic search parameters"
                 />
