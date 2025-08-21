@@ -33,13 +33,6 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
     WorkflowFormValues
   >();
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
-  const finalQuery = (() => {
-    try {
-      return JSON.parse(getIn(values, 'search.request', '{}'));
-    } catch (e) {
-      return {};
-    }
-  })();
 
   const [fieldMappings, setFieldMappings] = useState<any>(null);
   const [selectedFields, setSelectedFields] = useState<
@@ -63,9 +56,22 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
     }
   }, [selectedIndexId]);
 
-  // whenever the selected fields changes, update the final query
+  // whenever the selected fields changes, if it changes the query fields, update the final query
   useEffect(() => {
-    if (finalQuery?.query?.agentic?.query_fields !== undefined) {
+    const finalQuery = (() => {
+      try {
+        return JSON.parse(getIn(values, 'search.request', '{}'));
+      } catch (e) {
+        return {};
+      }
+    })();
+    if (
+      finalQuery?.query?.agentic?.query_fields !== undefined &&
+      !fieldArraysEqual(
+        finalQuery?.query?.agentic?.query_fields,
+        selectedFields
+      )
+    ) {
       const updatedQuery = cloneDeep(finalQuery);
       updatedQuery.query.agentic.query_fields = selectedFields.map(
         (option) => option.value
@@ -73,6 +79,29 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
       setFieldValue('search.request', customStringify(updatedQuery));
     }
   }, [selectedFields]);
+
+  // whenever the query is updated, if it changes the query fields, update the selected fields
+  useEffect(() => {
+    const finalQuery = (() => {
+      try {
+        return JSON.parse(getIn(values, 'search.request', '{}'));
+      } catch (e) {
+        return {};
+      }
+    })();
+    if (
+      finalQuery?.query?.agentic?.query_fields !== undefined &&
+      !fieldArraysEqual(
+        finalQuery?.query?.agentic?.query_fields,
+        selectedFields
+      )
+    ) {
+      const curQueryFields = finalQuery?.query?.agentic?.query_fields;
+      const curFieldOptions = getFieldOptions(fieldMappings);
+      setSelectedFields(getNewFieldOptions(curQueryFields, curFieldOptions));
+    } else {
+    }
+  }, [getIn(values, 'search.request')]);
 
   const getFieldOptions = (mappings: any) => {
     return Object.entries(get(mappings, 'properties', {})).map(
@@ -126,5 +155,48 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
         fullWidth
       />
     </EuiFormRow>
+  );
+}
+
+// compare the rendered field options in the combo box, with the string list in the underlying DSL query.
+// used for keeping them consistent across views, if the values differ as users edit the combo box list and/or the DSL query.
+function fieldArraysEqual(
+  queryFields: string[],
+  comboBoxFields: EuiComboBoxOptionOption<string>[]
+): boolean {
+  if (!Array.isArray(queryFields) || !Array.isArray(comboBoxFields))
+    return false;
+  if (queryFields.length !== comboBoxFields.length) return false;
+
+  for (let i = 0; i < queryFields.length; i++) {
+    if (typeof queryFields[i] !== 'string') return false;
+    if (!comboBoxFields[i] || typeof comboBoxFields[i].value !== 'string')
+      return false;
+    if (queryFields[i] !== comboBoxFields[i].value) return false;
+  }
+
+  return true;
+}
+
+// update the combo box options if the query field list in the DSL query is updated.
+// add custom fields with unknown type if it is not in the known mappings options list.
+function getNewFieldOptions(
+  queryFields: string[],
+  comboBoxFields: EuiComboBoxOptionOption<string>[]
+): EuiComboBoxOptionOption<string>[] {
+  const comboBoxMap = new Map(comboBoxFields.map((obj) => [obj.value, obj]));
+
+  return (
+    queryFields.map((str) => {
+      if (comboBoxMap.has(str)) {
+        return comboBoxMap.get(str) as EuiComboBoxOptionOption<string>;
+      } else {
+        return {
+          label: str,
+          value: str,
+          type: undefined,
+        } as EuiComboBoxOptionOption<string>;
+      }
+    }) || []
   );
 }
