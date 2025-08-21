@@ -6,7 +6,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
-import { isEmpty } from 'lodash';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -15,6 +14,7 @@ import {
   EuiFormRow,
   EuiToolTip,
   EuiIcon,
+  EuiButtonIcon,
 } from '@elastic/eui';
 import { AppState, searchAgents, useAppDispatch } from '../../../store';
 import { FETCH_ALL_QUERY_LARGE, WorkflowFormValues } from '../../../../common';
@@ -52,7 +52,7 @@ export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
       label={
         <>
           Agent
-          <EuiToolTip content="Select or create an AI agent that will interpret your natural language query and convert it to a search query">
+          <EuiToolTip content="Choose an AI agent that will interpret your natural language query and convert it to a search query">
             <EuiIcon
               type="questionInCircle"
               color="subdued"
@@ -83,9 +83,27 @@ export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
               }}
               aria-label="Select agent"
               placeholder="Select an agent"
-              hasNoInitialSelection={isEmpty(selectedAgentId)}
+              hasNoInitialSelection={true}
               fullWidth
             />
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiToolTip content="Refresh">
+              <EuiButtonIcon
+                size="s"
+                display="base"
+                onClick={() =>
+                  dispatch(
+                    searchAgents({
+                      apiBody: FETCH_ALL_QUERY_LARGE,
+                      dataSourceId,
+                    })
+                  )
+                }
+                iconType="refresh"
+                aria-label="Refresh"
+              />
+            </EuiToolTip>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton
