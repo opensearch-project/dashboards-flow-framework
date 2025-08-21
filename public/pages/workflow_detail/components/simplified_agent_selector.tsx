@@ -26,7 +26,9 @@ interface SimplifiedAgentSelectorProps {}
 export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
+  const { values, setFieldValue, setFieldTouched } = useFormikContext<
+    WorkflowFormValues
+  >();
   const selectedAgentId = getIn(values, 'search.agentId');
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -76,6 +78,7 @@ export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
                 const value = e.target.value;
                 if (value) {
                   setFieldValue('search.agentId', value);
+                  setFieldTouched('search.agentId', true);
                 }
               }}
               aria-label="Select agent"

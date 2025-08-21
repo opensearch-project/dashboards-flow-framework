@@ -28,7 +28,9 @@ interface SimplifiedIndexSelectorProps {}
 export function SimplifiedIndexSelector(props: SimplifiedIndexSelectorProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
+  const { values, setFieldValue, setFieldTouched } = useFormikContext<
+    WorkflowFormValues
+  >();
 
   const { indices, loading: opensearchLoading } = useSelector(
     (state: AppState) => state.opensearch
@@ -83,6 +85,7 @@ export function SimplifiedIndexSelector(props: SimplifiedIndexSelectorProps) {
           onChange={(e) => {
             const value = e.target.value;
             setFieldValue('search.index.name', value);
+            setFieldTouched('search.index.name', true);
           }}
           aria-label="Select index"
           placeholder="Select an index"

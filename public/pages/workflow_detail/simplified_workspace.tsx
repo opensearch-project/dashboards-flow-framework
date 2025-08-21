@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
 import {
   AppState,
@@ -39,6 +39,7 @@ import { SimplifiedSearchQuery } from './components/simplified_search_query';
 import { SimplifiedIndexSelector } from './components/simplified_index_selector';
 import { SimplifiedSearchResults } from './components/simplified_search_results';
 import { SimplifiedAgenticInfoModal } from './components/simplified_agentic_info_modal';
+import { SimplifiedFieldSelector } from './components/simplified_field_selector';
 import { formikToUiConfig, reduceToTemplate } from '../../utils';
 import { getCore } from '../../services';
 
@@ -65,13 +66,14 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
     values,
     setFieldValue,
     dirty,
+    touched,
     submitForm,
     validateForm,
     resetForm,
     setTouched,
   } = useFormikContext<WorkflowFormValues>();
-  const selectedIndexId = getIn(values, 'search.index.name');
-  const selectedAgentId = getIn(values, 'search.agentId');
+  const selectedIndexId = getIn(values, 'search.index.name', '') as string;
+  const selectedAgentId = getIn(values, 'search.agentId', '') as string;
   const finalQuery = (() => {
     try {
       return JSON.parse(getIn(values, 'search.request', '{}'));
@@ -85,7 +87,9 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isSearching, setIsSearching] = useState<boolean>(false);
-  const [searchResults, setSearchResults] = useState<any | null>(null);
+  const [searchResults, setSearchResults] = useState<any | undefined>(
+    undefined
+  );
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -106,13 +110,15 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
 
   // Update finalQuery when agent changes (and if the agent_id key exists)
   useEffect(() => {
-    try {
-      let updatedQuery = cloneDeep(finalQuery);
-      if (updatedQuery?.query?.agentic?.agent_id !== undefined) {
-        updatedQuery.query.agentic.agent_id = selectedAgentId || '';
-        setFieldValue('search.request', customStringify(updatedQuery));
-      }
-    } catch {}
+    if (!isEmpty(selectedAgentId) && touched?.search?.agentId === true) {
+      try {
+        let updatedQuery = cloneDeep(finalQuery);
+        if (updatedQuery?.query?.agentic?.agent_id !== undefined) {
+          updatedQuery.query.agentic.agent_id = selectedAgentId || '';
+          setFieldValue('search.request', customStringify(updatedQuery));
+        }
+      } catch {}
+    }
   }, [selectedAgentId]);
 
   // Utility fn to validate the form and update the workflow if valid
@@ -122,7 +128,9 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
     await validateForm()
       .then(async (validationResults) => {
         const { search } = validationResults;
-        if (search !== undefined && Object.keys(search)?.length > 0) {
+        // TODO: currently don't do any validation, as no resources are created. Just save whatever the users have filled out in the form.
+        //if (search !== undefined && Object.keys(search)?.length > 0) {
+        if (false) {
           getCore().notifications.toasts.addDanger('Missing or invalid fields');
         } else {
           setTouched({});
@@ -164,7 +172,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
   }
 
   const handleClear = () => {
-    setSearchResults(null);
+    setSearchResults(undefined);
     setError(null);
   };
 
@@ -280,6 +288,9 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
           <SimplifiedAgentSelector />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
+          <SimplifiedFieldSelector uiConfig={props.uiConfig} />
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
           <SimplifiedSearchQuery setSearchPipeline={setRuntimeSearchPipeline} />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
@@ -322,12 +333,11 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <SimplifiedSearchResults
-            searchResults={searchResults}
-            isLoading={isSearching || opensearchLoading}
-          />
-        </EuiFlexItem>
+        {searchResults !== undefined && (
+          <EuiFlexItem grow={false}>
+            <SimplifiedSearchResults searchResults={searchResults} />
+          </EuiFlexItem>
+        )}
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row">
             <EuiFlexItem grow={false}>

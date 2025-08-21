@@ -4,45 +4,24 @@
  */
 
 import React from 'react';
-import {
-  EuiPanel,
-  EuiText,
-  EuiSpacer,
-} from '@elastic/eui';
+import { EuiPanel, EuiText, EuiSpacer } from '@elastic/eui';
 
 interface SimplifiedSearchResultsProps {
   searchResults: any | null;
-  isLoading: boolean;
 }
 
 export function SimplifiedSearchResults(props: SimplifiedSearchResultsProps) {
-  const { searchResults, isLoading } = props;
-
-  if (isLoading) {
-    return (
-      <EuiPanel color="subdued" hasShadow={false} paddingSize="m">
-        <EuiText size="s">
-          <p>Loading search results...</p>
-        </EuiText>
-      </EuiPanel>
-    );
-  }
-
-  if (!searchResults && !isLoading) {
-    return null;
-  }
+  const { searchResults } = props;
 
   return (
     <EuiPanel color="subdued" hasShadow={false} paddingSize="m">
       <EuiText size="s">
         <h4>Results</h4>
         <p>
-          Found {searchResults.hits?.total?.value || 'unknown number of'} documents 
-          in {searchResults.took}ms
+          Found {searchResults?.hits?.total?.value || 'unknown number of'}{' '}
+          documents in {searchResults?.took}ms
         </p>
       </EuiText>
-
-      {/* Display additional agentic search information if available */}
       {searchResults.ext?.agent_search && (
         <>
           <EuiSpacer size="s" />
@@ -67,8 +46,6 @@ export function SimplifiedSearchResults(props: SimplifiedSearchResultsProps) {
       )}
 
       <EuiSpacer size="s" />
-
-      {/* Display search hits */}
       {searchResults.hits?.hits?.length > 0 ? (
         <>
           <EuiText size="s">

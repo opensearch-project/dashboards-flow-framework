@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getIn, useFormikContext } from 'formik';
-import { cloneDeep, get, isEmpty, set } from 'lodash';
+import { cloneDeep, isEmpty, set } from 'lodash';
 import {
   EuiFieldSearch,
   EuiFormRow,
@@ -16,17 +16,9 @@ import {
   EuiSmallButtonGroup,
   EuiCheckbox,
   EuiSpacer,
-  EuiText,
-  EuiComboBox,
 } from '@elastic/eui';
 import { SimplifiedJsonField } from './simplified_json_field';
-import {
-  customStringify,
-  IndexMappings,
-  WorkflowFormValues,
-} from '../../../../common';
-import { getMappings, useAppDispatch } from '../../../store';
-import { getDataSourceId } from '../../../utils';
+import { customStringify, WorkflowFormValues } from '../../../../common';
 
 interface SimplifiedSearchQueryProps {
   setSearchPipeline: (searchPipeline: {}) => void;
@@ -41,11 +33,8 @@ enum QUERY_MODE {
 }
 
 export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
-  const dispatch = useAppDispatch();
-  const dataSourceId = getDataSourceId();
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   const agentId = getIn(values, 'search.agentId');
-  const selectedIndexId = getIn(values, 'search.index.name');
   const finalQuery = (() => {
     try {
       return JSON.parse(getIn(values, 'search.request', '{}'));
@@ -68,30 +57,9 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [useAutoPipeline, setUseAutoPipeline] = useState<boolean>(true);
 
-  const [fieldMappings, setFieldMappings] = useState<any>(null);
-  const [selectedFields, setSelectedFields] = useState<
-    Array<{ label: string; value: string; type: string }>
-  >([]); // Track selected fields
-
   useEffect(() => {
     setSimpleSearchQuery(finalQuery?.query?.agentic?.query_text || '');
   }, [finalQuery]);
-
-  // Fetch index mappings when selected index changes
-  useEffect(() => {
-    if (selectedIndexId) {
-      dispatch(getMappings({ index: selectedIndexId, dataSourceId }))
-        .unwrap()
-        .then((response: IndexMappings) => {
-          setFieldMappings(response);
-        })
-        .catch((error) => {});
-    } else {
-      setFieldMappings(null);
-    }
-    setSelectedFields([]);
-    handleFieldSelectionChange([]);
-  }, [selectedIndexId]);
 
   // update the auto-generated pipeline when a new agent is selected
   useEffect(() => {
@@ -185,33 +153,6 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
     } catch (error) {}
   };
 
-  const getFieldOptions = (mappings: any) => {
-    return Object.entries(get(mappings, 'properties', {})).map(
-      ([fieldName, fieldInfo]: [string, any]) => {
-        const fieldType = fieldInfo.type || 'object';
-        return {
-          label: `${fieldName} (${fieldType})`,
-          value: fieldName,
-          type: fieldType,
-        };
-      }
-    );
-  };
-
-  // Handle field selection change
-  const handleFieldSelectionChange = (
-    selectedOptions: Array<{ label: string; value: string; type: string }>
-  ) => {
-    setSelectedFields(selectedOptions);
-    if (finalQuery?.query?.agentic?.query_fields !== undefined) {
-      const updatedQuery = cloneDeep(finalQuery);
-      updatedQuery.query.agentic.query_fields = selectedOptions.map(
-        (option) => option.value
-      );
-      setFieldValue('search.request', customStringify(updatedQuery));
-    }
-  };
-
   return (
     <>
       <EuiFormRow
@@ -266,31 +207,6 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
                     helpText="Edit the default search pipeline to be used alongside the search query"
                   />
                 )}
-                <EuiSpacer size="s" />
-                <EuiFormRow
-                  label="Select fields to query"
-                  helpText="Choose specific fields to include in your query"
-                  fullWidth
-                >
-                  <>
-                    {!isEmpty(fieldMappings) ? (
-                      // @ts-ignore
-                      <EuiComboBox
-                        placeholder="Select fields"
-                        options={getFieldOptions(fieldMappings)}
-                        selectedOptions={selectedFields}
-                        onChange={handleFieldSelectionChange}
-                        isClearable={true}
-                        isDisabled={false}
-                        fullWidth
-                      />
-                    ) : (
-                      <EuiText size="s" color="subdued">
-                        No field mappings available for this index.
-                      </EuiText>
-                    )}
-                  </>
-                </EuiFormRow>
                 <EuiSpacer size="s" />
                 <SimplifiedJsonField
                   value={customStringify(finalQuery)}
