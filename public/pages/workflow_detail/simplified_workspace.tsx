@@ -19,12 +19,10 @@ import {
   EuiFlexItem,
   EuiText,
   EuiSmallButton,
-  EuiBetaBadge,
   EuiSpacer,
   EuiCallOut,
   EuiToolTip,
   EuiButtonEmpty,
-  EuiSmallButtonIcon,
   EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import {
@@ -90,7 +88,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
   const [searchResponse, setSearchResponse] = useState<any | undefined>(
     undefined
   );
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const {
     loading: opensearchLoading,
@@ -126,6 +124,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
     await submitForm();
     await validateForm()
       .then(async (validationResults) => {
+        // @ts-ignore
         const { search } = validationResults;
         // TODO: currently don't do any validation, as no resources are created. Just save whatever the users have filled out in the form.
         //if (search !== undefined && Object.keys(search)?.length > 0) {
@@ -172,10 +171,13 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
 
   const handleClear = () => {
     setSearchResponse(undefined);
-    setError(null);
+    setError(undefined);
   };
 
   const handleSearch = () => {
+    // "Autosave" by updating the workflow after every search is run.
+    validateAndUpdateWorkflow();
+
     // Validate that all required fields are selected
     if (!finalQuery?.query?.agentic?.query_text) {
       setError('Please enter a search query');
@@ -194,7 +196,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
 
     // All validations passed, proceed with search
     setIsSearching(true);
-    setError(null);
+    setError(undefined);
 
     dispatch(
       searchIndex({
@@ -259,11 +261,35 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
               </EuiFlexGroup>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiBetaBadge
-                label="Experimental"
-                tooltipContent="This feature is experimental and may change in future releases"
-                size="s"
-              />
+              <EuiFlexGroup direction="row" gutterSize="s">
+                <EuiFlexItem grow={false}>
+                  <EuiSmallButtonEmpty
+                    disabled={!dirty}
+                    isLoading={workflowsLoading}
+                    onClick={async () => {
+                      await validateAndUpdateWorkflow();
+                    }}
+                  >
+                    {workflowsLoading
+                      ? 'Saving'
+                      : !dirty
+                      ? 'All changes saved'
+                      : 'Save'}
+                  </EuiSmallButtonEmpty>
+                </EuiFlexItem>
+                {dirty && (
+                  <EuiFlexItem grow={false}>
+                    <EuiSmallButtonEmpty
+                      disabled={workflowsLoading}
+                      onClick={() => revertUnsavedChanges()}
+                      iconSide="right"
+                      iconType="editorUndo"
+                    >
+                      {'Undo'}
+                    </EuiSmallButtonEmpty>
+                  </EuiFlexItem>
+                )}
+              </EuiFlexGroup>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="m" />
@@ -272,14 +298,6 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
           <SimplifiedAgenticInfoModal
             onClose={() => setIsModalVisible(false)}
           />
-        )}
-        {error && (
-          <EuiFlexItem grow={false}>
-            <EuiCallOut title="Error" color="danger" iconType="alert">
-              <p>{error}</p>
-            </EuiCallOut>
-            <EuiSpacer size="m" />
-          </EuiFlexItem>
         )}
         <EuiFlexItem grow={false} style={{ maxWidth: FORM_WIDTH }}>
           <SimplifiedIndexSelector />
@@ -297,34 +315,6 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
               <EuiFlexGroup direction="row" gutterSize="s">
-                <EuiFlexItem grow={false}>
-                  <EuiSmallButton
-                    fill={true}
-                    disabled={!dirty}
-                    isLoading={workflowsLoading}
-                    onClick={async () => {
-                      await validateAndUpdateWorkflow();
-                    }}
-                  >
-                    {workflowsLoading
-                      ? 'Saving'
-                      : !dirty
-                      ? 'All changes saved'
-                      : 'Save configuration'}
-                  </EuiSmallButton>
-                </EuiFlexItem>
-                {dirty && (
-                  <EuiFlexItem grow={false}>
-                    <EuiSmallButtonIcon
-                      iconType={'editorUndo'}
-                      aria-label="undo"
-                      display="base"
-                      iconSize="l"
-                      isDisabled={workflowsLoading}
-                      onClick={() => revertUnsavedChanges()}
-                    />
-                  </EuiFlexItem>
-                )}
                 <EuiFlexItem grow={false}>
                   <EuiToolTip
                     content={
@@ -367,6 +357,14 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
+        {error !== undefined && (
+          <EuiFlexItem grow={false}>
+            <EuiCallOut title="Error" color="danger" iconType="alert">
+              <p>{error}</p>
+            </EuiCallOut>
+            <EuiSpacer size="m" />
+          </EuiFlexItem>
+        )}
         {searchResponse !== undefined && (
           <EuiFlexItem grow={false}>
             <SimplifiedSearchResults searchResponse={searchResponse} />
