@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
@@ -14,14 +14,18 @@ import {
   EuiIcon,
   EuiLoadingSpinner,
   EuiCallOut,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiButtonEmpty,
 } from '@elastic/eui';
-import { AppState, useAppDispatch } from '../../../store';
+import { AppState, useAppDispatch, getIndex } from '../../../store';
 import { getDataSourceId } from '../../../utils/utils';
 import { catIndices } from '../../../store';
 import {
   OMIT_SYSTEM_INDEX_PATTERN,
   WorkflowFormValues,
 } from '../../../../common';
+import { SimplifiedIndexDetailsModal } from './simplified_index_details_modal';
 
 interface SimplifiedIndexSelectorProps {}
 
@@ -31,6 +35,9 @@ export function SimplifiedIndexSelector(props: SimplifiedIndexSelectorProps) {
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
+  const [isDetailsModalVisible, setIsDetailsModalVisible] = useState<boolean>(
+    false
+  );
 
   const { indices, loading: opensearchLoading } = useSelector(
     (state: AppState) => state.opensearch
@@ -79,19 +86,50 @@ export function SimplifiedIndexSelector(props: SimplifiedIndexSelectorProps) {
           </p>
         </EuiCallOut>
       ) : (
-        <EuiSelect
-          options={indexOptions}
-          value={getIn(values, 'search.index.name')}
-          onChange={(e) => {
-            const value = e.target.value;
-            setFieldValue('search.index.name', value);
-            setFieldTouched('search.index.name', true);
-          }}
-          aria-label="Select index"
-          placeholder="Select an index"
-          hasNoInitialSelection={isEmpty(getIn(values, 'search.index.name'))}
-          fullWidth
-        />
+        <>
+          {isDetailsModalVisible && (
+            <SimplifiedIndexDetailsModal
+              onClose={() => setIsDetailsModalVisible(false)}
+              indexName={getIn(values, 'search.index.name')}
+            />
+          )}
+          <EuiFlexGroup gutterSize="s">
+            <EuiFlexItem>
+              <EuiSelect
+                options={indexOptions}
+                value={getIn(values, 'search.index.name')}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFieldValue('search.index.name', value);
+                  setFieldTouched('search.index.name', true);
+                }}
+                aria-label="Select index"
+                placeholder="Select an index"
+                hasNoInitialSelection={isEmpty(
+                  getIn(values, 'search.index.name')
+                )}
+                fullWidth
+              />
+            </EuiFlexItem>
+            {!isEmpty(getIn(values, 'search.index.name')) && (
+              <EuiFlexItem grow={false}>
+                <EuiButtonEmpty
+                  size="s"
+                  onClick={async () => {
+                    const indexName = getIn(values, 'search.index.name');
+                    await dispatch(getIndex({ index: indexName, dataSourceId }))
+                      .unwrap()
+                      .then(() => {
+                        setIsDetailsModalVisible(true);
+                      });
+                  }}
+                >
+                  View details
+                </EuiButtonEmpty>
+              </EuiFlexItem>
+            )}
+          </EuiFlexGroup>
+        </>
       )}
     </EuiFormRow>
   );
