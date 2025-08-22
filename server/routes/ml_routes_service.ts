@@ -18,6 +18,8 @@ import {
   SEARCH_CONNECTORS_NODE_API_PATH,
   REGISTER_AGENT_NODE_API_PATH,
   SEARCH_AGENTS_NODE_API_PATH,
+  GET_AGENT_NODE_API_PATH,
+  Agent,
 } from '../../common';
 import {
   generateCustomError,
@@ -121,6 +123,31 @@ export function registerMLRoutes(
       },
     },
     mlRoutesService.searchAgents
+  );
+
+  router.get(
+    {
+      path: `${GET_AGENT_NODE_API_PATH}/{agent_id}`,
+      validate: {
+        params: schema.object({
+          agent_id: schema.string(),
+        }),
+      },
+    },
+    mlRoutesService.getAgent
+  );
+
+  router.get(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/agent/{agent_id}`,
+      validate: {
+        params: schema.object({
+          data_source_id: schema.string(),
+          agent_id: schema.string(),
+        }),
+      },
+    },
+    mlRoutesService.getAgent
   );
 }
 
@@ -257,6 +284,41 @@ export class MLRoutesService {
       }
 
       return res.ok({ body: { agents } });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  getAgent = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    try {
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
+      const { agent_id } = req.params as { agent_id: string };
+
+      const callWithRequest = getClientBasedOnDataSource(
+        context,
+        this.dataSourceEnabled,
+        req,
+        data_source_id,
+        this.client
+      );
+      const response = await callWithRequest('mlClient.getAgent', {
+        agent_id,
+      });
+
+      // Format the response
+      const agent = {
+        id: agent_id,
+        name: response.name,
+        type: response.type,
+        description: response.description,
+        tools: response.tools,
+      } as Agent;
+
+      return res.ok({ body: { agent } });
     } catch (err: any) {
       return generateCustomError(res, err);
     }

@@ -15,11 +15,19 @@ import {
   EuiToolTip,
   EuiIcon,
   EuiButtonIcon,
+  EuiButtonEmpty,
 } from '@elastic/eui';
-import { AppState, searchAgents, useAppDispatch } from '../../../store';
+import {
+  AppState,
+  getAgent,
+  searchAgents,
+  useAppDispatch,
+} from '../../../store';
 import { FETCH_ALL_QUERY_LARGE, WorkflowFormValues } from '../../../../common';
 import { getDataSourceId } from '../../../utils/utils';
 import { SimplifiedAgentCreationModal } from './simplified_agent_creation_modal';
+import { SimplifiedAgentDetailsModal } from './simplified_agent_details_modal';
+import { isEmpty } from 'lodash';
 
 interface SimplifiedAgentSelectorProps {}
 
@@ -29,9 +37,12 @@ export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
-  const selectedAgentId = getIn(values, 'search.agentId');
+  const selectedAgentId = getIn(values, 'search.agentId', '') as string;
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isDetailsModalVisible, setIsDetailsModalVisible] = useState<boolean>(
+    false
+  );
 
   const { agents } = useSelector((state: AppState) => state.ml);
 
@@ -67,6 +78,12 @@ export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
         {isModalVisible && (
           <SimplifiedAgentCreationModal
             onClose={() => setIsModalVisible(false)}
+          />
+        )}
+        {isDetailsModalVisible && selectedAgentId && (
+          <SimplifiedAgentDetailsModal
+            onClose={() => setIsDetailsModalVisible(false)}
+            agentId={selectedAgentId}
           />
         )}
         <EuiFlexGroup gutterSize="s" alignItems="center">
@@ -114,6 +131,24 @@ export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
               Create new
             </EuiButton>
           </EuiFlexItem>
+          {!isEmpty(selectedAgentId) && (
+            <EuiFlexItem grow={false}>
+              <EuiButtonEmpty
+                size="s"
+                onClick={async () => {
+                  await dispatch(
+                    getAgent({ agentId: selectedAgentId, dataSourceId })
+                  )
+                    .unwrap()
+                    .then(() => {
+                      setIsDetailsModalVisible(true);
+                    });
+                }}
+              >
+                View details
+              </EuiButtonEmpty>
+            </EuiFlexItem>
+          )}
         </EuiFlexGroup>
       </>
     </EuiFormRow>

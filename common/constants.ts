@@ -35,6 +35,7 @@ export const ML_SEARCH_MODELS_ROUTE = `${ML_MODEL_ROUTE_PREFIX}/_search`;
 export const ML_SEARCH_CONNECTORS_ROUTE = `${ML_CONNECTOR_ROUTE_PREFIX}/_search`;
 export const ML_REGISTER_AGENT_ROUTE = `${ML_AGENT_ROUTE_PREFIX}/_register`;
 export const ML_SEARCH_AGENTS_ROUTE = `${ML_AGENT_ROUTE_PREFIX}/_search`;
+export const ML_GET_AGENT_ROUTE = `${ML_AGENT_ROUTE_PREFIX}/{agentId}`;
 
 /**
  * OpenSearch APIs
@@ -78,6 +79,7 @@ export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
 export const SEARCH_CONNECTORS_NODE_API_PATH = `${BASE_CONNECTOR_NODE_API_PATH}/search`;
 export const REGISTER_AGENT_NODE_API_PATH = `${BASE_AGENT_NODE_API_PATH}/register`;
 export const SEARCH_AGENTS_NODE_API_PATH = `${BASE_AGENT_NODE_API_PATH}/search`;
+export const GET_AGENT_NODE_API_PATH = `${BASE_AGENT_NODE_API_PATH}`;
 
 /**
  * Remote model dimensions. Used for attempting to pre-fill dimension size

@@ -493,11 +493,18 @@ export type ConnectorDict = {
   [connectorId: string]: Connector;
 };
 
+export type Tool = {
+  type: string;
+  description?: string;
+  parameters: any;
+};
+
 export type Agent = {
   id: string;
   name: string;
   type: string;
   description?: string;
+  tools: Tool[];
 };
 
 export type AgentDict = {

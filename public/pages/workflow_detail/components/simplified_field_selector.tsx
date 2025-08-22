@@ -80,7 +80,8 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
     }
   }, [selectedFields]);
 
-  // whenever the query is updated, if it changes the query fields, update the selected fields
+  // whenever the query is updated, if it changes the query fields, update the selected fields.
+  // always wait for the field mappings to be initialized before populating to add metadata (e.g., field type)
   useEffect(() => {
     const finalQuery = (() => {
       try {
@@ -91,6 +92,7 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
     })();
     if (
       finalQuery?.query?.agentic?.query_fields !== undefined &&
+      !isEmpty(fieldMappings) &&
       !fieldArraysEqual(
         finalQuery?.query?.agentic?.query_fields,
         selectedFields
@@ -101,7 +103,7 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
       setSelectedFields(getNewFieldOptions(curQueryFields, curFieldOptions));
     } else {
     }
-  }, [getIn(values, 'search.request')]);
+  }, [getIn(values, 'search.request'), fieldMappings]);
 
   const getFieldOptions = (mappings: any) => {
     return Object.entries(get(mappings, 'properties', {})).map(

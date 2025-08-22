@@ -31,6 +31,7 @@ import {
   GET_INDEX_NODE_API_PATH,
   REGISTER_AGENT_NODE_API_PATH,
   SEARCH_AGENTS_NODE_API_PATH,
+  GET_AGENT_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -139,6 +140,10 @@ export interface RouteService {
   ) => Promise<any | HttpFetchError>;
   searchAgents: (
     body: {},
+    dataSourceId?: string
+  ) => Promise<any | HttpFetchError>;
+  getAgent: (
+    agentId: string,
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
   simulatePipeline: (
@@ -456,7 +461,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    
+
     registerAgent: async (body: {}, dataSourceId?: string) => {
       try {
         const url = dataSourceId
@@ -470,7 +475,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
-    
+
     searchAgents: async (body: {}, dataSourceId?: string) => {
       try {
         const url = dataSourceId
@@ -484,6 +489,21 @@ export function configureRoutes(core: CoreStart): RouteService {
         return e as HttpFetchError;
       }
     },
+
+    getAgent: async (agentId: string, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/agent`
+          : GET_AGENT_NODE_API_PATH;
+        const response = await core.http.get<{ respString: string }>(
+          `${url}/${agentId}`
+        );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+
     simulatePipeline: async (
       body: {
         pipeline?: IngestPipelineConfig;
