@@ -31,7 +31,7 @@ export function SimplifiedIndexDetailsModal(
   const indexDetail = indexDetails[props.indexName];
 
   return (
-    <EuiModal onClose={props.onClose} maxWidth={800}>
+    <EuiModal onClose={props.onClose}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>Index Details</EuiModalHeaderTitle>
       </EuiModalHeader>

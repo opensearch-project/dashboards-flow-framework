@@ -55,7 +55,7 @@ interface SimplifiedWorkspaceProps {
  * This component provides a streamlined UI with just a search bar and two dropdowns.
  */
 // Constant for consistent form widths
-const FORM_WIDTH = '750px';
+const FORM_WIDTH = '50vw';
 
 export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
   const dispatch = useAppDispatch();

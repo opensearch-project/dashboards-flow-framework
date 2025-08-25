@@ -31,7 +31,7 @@ export function SimplifiedAgentDetailsModal(
   const agent = agents[agentId];
 
   return (
-    <EuiModal onClose={onClose} maxWidth={800}>
+    <EuiModal onClose={onClose}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>Agent Details</EuiModalHeaderTitle>
       </EuiModalHeader>
