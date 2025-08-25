@@ -13,13 +13,17 @@ import {
   EuiIcon,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiSmallButtonGroup,
   EuiCheckbox,
   EuiSpacer,
+  EuiButtonGroup,
 } from '@elastic/eui';
 import { SimplifiedJsonField } from './simplified_json_field';
 import { SimplifiedFieldSelector } from './simplified_field_selector';
-import { customStringify, WorkflowFormValues, WorkflowConfig } from '../../../../common';
+import {
+  customStringify,
+  WorkflowFormValues,
+  WorkflowConfig,
+} from '../../../../common';
 
 interface SimplifiedSearchQueryProps {
   setSearchPipeline: (searchPipeline: {}) => void;
@@ -173,24 +177,6 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
         fullWidth
       >
         <EuiFlexGroup direction="column" gutterSize="s">
-          <EuiFlexItem grow={false}>
-            <EuiSmallButtonGroup
-              legend="Search Mode"
-              options={[
-                {
-                  id: QUERY_MODE.SIMPLE,
-                  label: 'Simple',
-                },
-                {
-                  id: QUERY_MODE.ADVANCED,
-                  label: 'Advanced',
-                },
-              ]}
-              idSelected={queryModeSelected}
-              onChange={handleModeSwitch}
-              isFullWidth={false}
-            />
-          </EuiFlexItem>
           <EuiFlexItem>
             {queryModeSelected === QUERY_MODE.ADVANCED ? (
               <>
@@ -232,6 +218,27 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
                 <SimplifiedFieldSelector uiConfig={props.uiConfig} />
               </>
             )}
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiSpacer size="s" />
+            <EuiButtonGroup
+              style={{ maxWidth: '120px' }}
+              buttonSize="compressed"
+              legend="Search Mode"
+              options={[
+                {
+                  id: QUERY_MODE.SIMPLE,
+                  label: 'Form',
+                },
+                {
+                  id: QUERY_MODE.ADVANCED,
+                  label: 'JSON',
+                },
+              ]}
+              idSelected={queryModeSelected}
+              onChange={handleModeSwitch}
+              isFullWidth={false}
+            />
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiFormRow>
