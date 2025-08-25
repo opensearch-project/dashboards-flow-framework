@@ -18,10 +18,12 @@ import {
   EuiSpacer,
 } from '@elastic/eui';
 import { SimplifiedJsonField } from './simplified_json_field';
-import { customStringify, WorkflowFormValues } from '../../../../common';
+import { SimplifiedFieldSelector } from './simplified_field_selector';
+import { customStringify, WorkflowFormValues, WorkflowConfig } from '../../../../common';
 
 interface SimplifiedSearchQueryProps {
   setSearchPipeline: (searchPipeline: {}) => void;
+  uiConfig?: WorkflowConfig;
 }
 
 /**
@@ -217,14 +219,18 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
                 />
               </>
             ) : (
-              <EuiFieldSearch
-                placeholder="Enter your question or query here..."
-                value={simpleSearchQuery}
-                onChange={handleSimpleQueryChange}
-                fullWidth
-                isClearable
-                aria-label="Enter search query"
-              />
+              <>
+                <EuiFieldSearch
+                  placeholder="Enter your question or query here..."
+                  value={simpleSearchQuery}
+                  onChange={handleSimpleQueryChange}
+                  fullWidth
+                  isClearable
+                  aria-label="Enter search query"
+                />
+                <EuiSpacer size="s" />
+                <SimplifiedFieldSelector uiConfig={props.uiConfig} />
+              </>
             )}
           </EuiFlexItem>
         </EuiFlexGroup>

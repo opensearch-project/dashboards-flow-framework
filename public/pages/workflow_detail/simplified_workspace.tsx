@@ -37,7 +37,6 @@ import { SimplifiedSearchQuery } from './components/simplified_search_query';
 import { SimplifiedIndexSelector } from './components/simplified_index_selector';
 import { SimplifiedSearchResults } from './components/simplified_search_results';
 import { SimplifiedAgenticInfoModal } from './components/simplified_agentic_info_modal';
-import { SimplifiedFieldSelector } from './components/simplified_field_selector';
 import { formikToUiConfig, reduceToTemplate } from '../../utils';
 import { getCore } from '../../services';
 
@@ -299,17 +298,21 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
             onClose={() => setIsModalVisible(false)}
           />
         )}
-        <EuiFlexItem grow={false} style={{ maxWidth: FORM_WIDTH }}>
-          <SimplifiedIndexSelector />
-        </EuiFlexItem>
-        <EuiFlexItem grow={false} style={{ maxWidth: FORM_WIDTH }}>
-          <SimplifiedAgentSelector />
-        </EuiFlexItem>
-        <EuiFlexItem grow={false} style={{ maxWidth: FORM_WIDTH }}>
-          <SimplifiedFieldSelector uiConfig={props.uiConfig} />
+        <EuiFlexItem grow={false}>
+          <EuiFlexGroup gutterSize="m">
+            <EuiFlexItem>
+              <SimplifiedIndexSelector />
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <SimplifiedAgentSelector />
+            </EuiFlexItem>
+          </EuiFlexGroup>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <SimplifiedSearchQuery setSearchPipeline={setRuntimeSearchPipeline} />
+          <SimplifiedSearchQuery
+            setSearchPipeline={setRuntimeSearchPipeline}
+            uiConfig={props.uiConfig}
+          />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
