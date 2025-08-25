@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import { cloneDeep, get, isEmpty } from 'lodash';
 import {
@@ -12,6 +12,7 @@ import {
   EuiToolTip,
   EuiIcon,
   EuiComboBoxOptionOption,
+  EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -38,6 +39,8 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
   const [selectedFields, setSelectedFields] = useState<
     EuiComboBoxOptionOption<string>[]
   >([]);
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  const comboBoxRef = useRef<HTMLElement | null>(null);
 
   // whenever the index is populated (changed or initialized), fetch the latest index mappings
   useEffect(() => {
@@ -118,44 +121,93 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
     );
   };
 
-  return (
-    <EuiFormRow
-      label={
-        <>
-          <p>
-            Query fields <i>{`(optional)`}</i>
-            <EuiToolTip content="Choose the set of query fields you want to target in your search">
-              <EuiIcon
-                type="questionInCircle"
-                color="subdued"
-                style={{ marginLeft: '4px' }}
-              />
-            </EuiToolTip>
-          </p>
-        </>
-      }
-      fullWidth
-    >
-      <EuiComboBox
-        placeholder="Select fields"
-        options={getFieldOptions(fieldMappings)}
-        selectedOptions={selectedFields}
-        onChange={(options) => setSelectedFields(options)}
-        onCreateOption={(searchValue, options) =>
-          setSelectedFields([
-            ...selectedFields,
-            {
-              label: searchValue,
-              value: searchValue,
-              type: undefined,
-            } as EuiComboBoxOptionOption<string>,
-          ])
+  // When the button is clicked, show dropdown and auto-open it
+  const handleAddQueryFields = () => {
+    setShowDropdown(true);
+    setTimeout(() => {
+      if (comboBoxRef.current) {
+        const inputElement = comboBoxRef.current.querySelector('input');
+        if (inputElement) {
+          (inputElement as HTMLElement).click();
+          (inputElement as HTMLElement).focus();
         }
-        isClearable={true}
-        isDisabled={false}
-        fullWidth
-      />
-    </EuiFormRow>
+      }
+    }, 50);
+  };
+
+  const handleDropdownClose = (options: EuiComboBoxOptionOption<string>[]) => {
+    if (options.length === 0) {
+      setShowDropdown(false);
+    }
+  };
+
+  return (
+    <>
+      {selectedFields.length === 0 && !showDropdown ? (
+        <div style={{ display: 'inline-block' }}>
+          <EuiSmallButtonEmpty
+            onClick={handleAddQueryFields}
+            iconType="plusInCircle"
+            data-test-subj="add-query-fields-button"
+          >
+            Add query fields
+          </EuiSmallButtonEmpty>
+        </div>
+      ) : (
+        <EuiFormRow
+          label={
+            <>
+              Query fields
+              <EuiToolTip content="Choose the set of query fields you want to target in your search">
+                <EuiIcon
+                  type="questionInCircle"
+                  color="subdued"
+                  style={{ marginLeft: '4px' }}
+                />
+              </EuiToolTip>
+            </>
+          }
+          fullWidth
+        >
+          {/**
+           * Wrap the combobox dropdown in a ref to automatically click & focus on the component,
+           * if a user clicks "Add query fields"
+           */}
+          <div ref={comboBoxRef as React.RefObject<HTMLDivElement>}>
+            <EuiComboBox
+              style={{ width: '50vw' }}
+              placeholder="Select fields"
+              options={getFieldOptions(fieldMappings)}
+              selectedOptions={selectedFields}
+              onChange={(options) => {
+                setSelectedFields(options);
+                handleDropdownClose(options);
+              }}
+              onCreateOption={(searchValue) =>
+                setSelectedFields([
+                  ...selectedFields,
+                  {
+                    label: searchValue,
+                    value: searchValue,
+                    type: undefined,
+                  } as EuiComboBoxOptionOption<string>,
+                ])
+              }
+              isClearable={true}
+              isDisabled={false}
+              fullWidth
+              onBlur={() => {
+                // If dropdown is closed and no selections, go back to button
+                if (selectedFields.length === 0) {
+                  setShowDropdown(false);
+                }
+              }}
+              data-test-subj="query-fields-combo-box"
+            />
+          </div>
+        </EuiFormRow>
+      )}
+    </>
   );
 }
 

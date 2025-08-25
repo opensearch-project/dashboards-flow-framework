@@ -301,18 +301,24 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
         <EuiFlexItem grow={false}>
           <EuiFlexGroup gutterSize="m">
             <EuiFlexItem>
-              <SimplifiedIndexSelector />
+              <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
+                <SimplifiedIndexSelector />
+              </EuiPanel>
             </EuiFlexItem>
             <EuiFlexItem>
-              <SimplifiedAgentSelector />
+              <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
+                <SimplifiedAgentSelector />
+              </EuiPanel>
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <SimplifiedSearchQuery
-            setSearchPipeline={setRuntimeSearchPipeline}
-            uiConfig={props.uiConfig}
-          />
+          <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
+            <SimplifiedSearchQuery
+              setSearchPipeline={setRuntimeSearchPipeline}
+              uiConfig={props.uiConfig}
+            />
+          </EuiPanel>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row" justifyContent="spaceBetween">
