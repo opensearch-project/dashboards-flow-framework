@@ -40,8 +40,8 @@ import {
 } from '../../../utils';
 import { getCore } from '../../../services';
 import {
-  AgentSelector,
   AgentInfoModal,
+  AgentConfiguration,
   IndexSelector,
   SearchQuery,
   SearchResults,
@@ -324,18 +324,12 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
           <AgentInfoModal onClose={() => setIsModalVisible(false)} />
         )}
         <EuiFlexItem grow={false}>
-          <EuiFlexGroup gutterSize="m">
-            <EuiFlexItem>
-              <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
-                <IndexSelector />
-              </EuiPanel>
-            </EuiFlexItem>
-            <EuiFlexItem>
-              <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
-                <AgentSelector />
-              </EuiPanel>
-            </EuiFlexItem>
-          </EuiFlexGroup>
+          <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
+            <IndexSelector />
+          </EuiPanel>
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <AgentConfiguration />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiPanel color="subdued" hasShadow={false} paddingSize="s">

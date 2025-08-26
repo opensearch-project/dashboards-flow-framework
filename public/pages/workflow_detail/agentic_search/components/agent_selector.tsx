@@ -9,12 +9,10 @@ import { getIn, useFormikContext } from 'formik';
 import {
   EuiFlexGroup,
   EuiFlexItem,
-  EuiButton,
   EuiSelect,
   EuiFormRow,
   EuiToolTip,
   EuiIcon,
-  EuiButtonIcon,
   EuiButtonEmpty,
 } from '@elastic/eui';
 import {
@@ -32,7 +30,9 @@ import { CreateAgentModal } from './create_agent_modal';
 import { AgentDetailsModal } from './agent_details_modal';
 import { isEmpty } from 'lodash';
 
-interface AgentSelectorProps {}
+interface AgentSelectorProps {
+  onCreateNew: () => void;
+}
 
 export function AgentSelector(props: AgentSelectorProps) {
   const dispatch = useAppDispatch();
@@ -106,31 +106,13 @@ export function AgentSelector(props: AgentSelectorProps) {
             />
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiToolTip content="Refresh">
-              <EuiButtonIcon
-                size="s"
-                display="base"
-                onClick={() =>
-                  dispatch(
-                    searchAgents({
-                      apiBody: FETCH_ALL_QUERY_LARGE,
-                      dataSourceId,
-                    })
-                  )
-                }
-                iconType="refresh"
-                aria-label="Refresh"
-              />
-            </EuiToolTip>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton
+            <EuiButtonEmpty
               size="s"
-              onClick={() => setIsModalVisible(true)}
+              onClick={props.onCreateNew}
               iconType="plusInCircle"
             >
               Create new
-            </EuiButton>
+            </EuiButtonEmpty>
           </EuiFlexItem>
           {!isEmpty(selectedAgentId) && (
             <EuiFlexItem grow={false}>
