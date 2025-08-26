@@ -91,10 +91,9 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   );
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const {
-    loading: opensearchLoading,
-    errorMessage: opensearchError,
-  } = useSelector((state: AppState) => state.opensearch);
+  const { errorMessage: opensearchError } = useSelector(
+    (state: AppState) => state.opensearch
+  );
 
   const { loading: workflowsLoading } = useSelector(
     (state: AppState) => state.workflows

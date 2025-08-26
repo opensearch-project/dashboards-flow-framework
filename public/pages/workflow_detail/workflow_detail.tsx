@@ -303,7 +303,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                     {loading && workflow === undefined ? (
                       <EuiLoadingSpinner size="xl" />
                     ) : workflow?.ui_metadata?.type ===
-                      WORKFLOW_TYPE.AGENTIC_SEARCH_SIMPLIFIED ? (
+                      WORKFLOW_TYPE.AGENTIC_SEARCH ? (
                       <AgenticSearchWorkspace
                         workflow={workflow}
                         uiConfig={uiConfig}
