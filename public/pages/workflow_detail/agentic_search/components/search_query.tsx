@@ -181,6 +181,15 @@ export function SearchQuery(props: SearchQueryProps) {
           <EuiFlexItem>
             {queryModeSelected === QUERY_MODE.ADVANCED ? (
               <>
+                <SimplifiedJsonField
+                  value={customStringify(finalQuery)}
+                  onChange={handleAdvancedQueryChange}
+                  editorHeight="400px"
+                  isInvalid={!!jsonError}
+                  helpText="Edit the full OpenSearch DSL query with agentic search parameters"
+                />
+                <EuiSpacer size="s" />
+
                 <EuiCheckbox
                   id="useAutoPipelineCheckbox"
                   label="Use auto-generated search pipeline"
@@ -196,14 +205,6 @@ export function SearchQuery(props: SearchQueryProps) {
                     helpText="Edit the default search pipeline to be used alongside the search query"
                   />
                 )}
-                <EuiSpacer size="s" />
-                <SimplifiedJsonField
-                  value={customStringify(finalQuery)}
-                  onChange={handleAdvancedQueryChange}
-                  editorHeight="400px"
-                  isInvalid={!!jsonError}
-                  helpText="Edit the full OpenSearch DSL query with agentic search parameters"
-                />
               </>
             ) : (
               <>

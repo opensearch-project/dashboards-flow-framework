@@ -7,11 +7,10 @@ import React, { useState } from 'react';
 import {
   EuiPanel,
   EuiText,
-  EuiSpacer,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiSmallButtonGroup,
   EuiCodeBlock,
+  EuiButtonGroup,
 } from '@elastic/eui';
 import { customStringify } from '../../../../../common';
 
@@ -57,34 +56,52 @@ export function SearchResults(props: SearchResultsProps) {
     <EuiPanel color="subdued" hasShadow={false} paddingSize="m">
       <EuiFlexGroup direction="column" gutterSize="s">
         <EuiFlexItem grow={false}>
-          <EuiText size="s">
-            <h4>Results</h4>
-          </EuiText>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiSmallButtonGroup
-            legend="Results View"
-            options={RESULTS_VIEW_OPTIONS}
-            idSelected={selectedView}
-            onChange={handleViewChange}
-            isFullWidth={false}
-          />
+          <EuiFlexGroup
+            gutterSize="s"
+            alignItems="center"
+            justifyContent="spaceBetween"
+          >
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup gutterSize="s" alignItems="center">
+                <EuiFlexItem grow={false}>
+                  <EuiText size="s">
+                    <h4>Results</h4>
+                  </EuiText>
+                </EuiFlexItem>
+                {props.searchResponse && (
+                  <EuiFlexItem>
+                    <EuiText size="xs" color="subdued">
+                      {props.searchResponse?.hits?.total?.value !==
+                        undefined && (
+                        <span>
+                          {props.searchResponse.hits.total.value} documents
+                        </span>
+                      )}
+                      {props.searchResponse?.took !== undefined && (
+                        <span> · {props.searchResponse.took}ms</span>
+                      )}
+                    </EuiText>
+                  </EuiFlexItem>
+                )}
+              </EuiFlexGroup>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButtonGroup
+                buttonSize="compressed"
+                legend="Results View"
+                options={RESULTS_VIEW_OPTIONS}
+                idSelected={selectedView}
+                onChange={handleViewChange}
+                isFullWidth={false}
+              />
+            </EuiFlexItem>
+          </EuiFlexGroup>
         </EuiFlexItem>
         <EuiFlexItem>
           {selectedView === RESULTS_VIEW.HITS ? (
             <>
-              <EuiText size="s">
-                <p>
-                  Found {props.searchResponse?.hits?.total?.value} documents in{' '}
-                  {props.searchResponse?.took}ms
-                </p>
-              </EuiText>
-              <EuiSpacer size="s" />
               {props.searchResponse?.hits?.hits?.length > 0 ? (
                 <>
-                  <EuiText size="s">
-                    <h5>Documents</h5>
-                  </EuiText>
                   {props.searchResponse.hits.hits.map(
                     (hit: any, index: number) => (
                       <EuiPanel
@@ -119,7 +136,6 @@ export function SearchResults(props: SearchResultsProps) {
                   language="json"
                   fontSize="s"
                   paddingSize="m"
-                  overflowHeight={400}
                   isCopyable
                 >
                   {customStringify(generatedQuery)}
@@ -136,7 +152,6 @@ export function SearchResults(props: SearchResultsProps) {
                 language="json"
                 fontSize="s"
                 paddingSize="m"
-                overflowHeight={400}
                 isCopyable
               >
                 {customStringify(props.searchResponse)}
