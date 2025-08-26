@@ -54,8 +54,7 @@ interface AgenticSearchWorkspaceProps {
 }
 
 /**
- * Simplified workspace component for the Agentic Search (Simplified) workflow type.
- * This component provides a streamlined UI with just a search bar and two dropdowns.
+ * Basic UI for configuring and testing agentic search workflows.
  */
 export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   const dispatch = useAppDispatch();

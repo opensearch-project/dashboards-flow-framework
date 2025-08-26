@@ -328,10 +328,6 @@ export function fetchHybridSearchWithRAGMetadata(version: string): UIState {
 export function fetchAgenticSearchMetadata(version: string): UIState {
   let baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.AGENTIC_SEARCH;
-  // Simplified agentic search has the same setup as regular agentic search
-  // but with a streamlined UI and potentially different defaults
-  // baseState.config.ingest.enrich.processors = [];
-  // baseState.config.ingest.index.name.value = generateId('simple_index', 6);
   baseState.config.ingest.enabled = {
     id: 'enabled',
     type: 'boolean',
