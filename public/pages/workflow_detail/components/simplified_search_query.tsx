@@ -28,6 +28,7 @@ import {
 interface SimplifiedSearchQueryProps {
   setSearchPipeline: (searchPipeline: {}) => void;
   uiConfig?: WorkflowConfig;
+  fieldMappings: any;
 }
 
 /**
@@ -215,7 +216,10 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
                   aria-label="Enter search query"
                 />
                 <EuiSpacer size="s" />
-                <SimplifiedFieldSelector uiConfig={props.uiConfig} />
+                <SimplifiedFieldSelector
+                  uiConfig={props.uiConfig}
+                  fieldMappings={props.fieldMappings}
+                />
               </>
             )}
           </EuiFlexItem>

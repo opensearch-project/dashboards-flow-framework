@@ -16,51 +16,28 @@ import {
 } from '@elastic/eui';
 import {
   customStringify,
-  IndexMappings,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../common';
-import { getMappings, useAppDispatch } from '../../../store';
-import { getDataSourceId } from '../../../utils';
 
 interface SimplifiedFieldSelectorProps {
   uiConfig: WorkflowConfig | undefined;
+  fieldMappings: any;
 }
 
 export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
-  const dispatch = useAppDispatch();
-  const dataSourceId = getDataSourceId();
-  const { values, touched, setFieldValue } = useFormikContext<
-    WorkflowFormValues
-  >();
-  const selectedIndexId = getIn(values, 'search.index.name', '') as string;
-
-  const [fieldMappings, setFieldMappings] = useState<any>(null);
+  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
+  // interim state to properly render the dropdown list of fields with added metadata (e.g., field mapping type)
   const [selectedFields, setSelectedFields] = useState<
     EuiComboBoxOptionOption<string>[]
   >([]);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const comboBoxRef = useRef<HTMLElement | null>(null);
 
-  // whenever the index is populated (changed or initialized), fetch the latest index mappings
-  useEffect(() => {
-    if (!isEmpty(selectedIndexId)) {
-      dispatch(getMappings({ index: selectedIndexId, dataSourceId }))
-        .unwrap()
-        .then((response: IndexMappings) => {
-          setFieldMappings(response);
-        })
-        .catch((error) => {});
-    } else {
-      setFieldMappings(null);
-    }
-    if (!isEmpty(selectedIndexId) && touched?.search?.index?.name === true) {
-      setSelectedFields([]);
-    }
-  }, [selectedIndexId]);
-
-  // whenever the selected fields changes, if it changes the query fields, update the final query
-  useEffect(() => {
+  // update query DSL on field options change
+  function handleOptionsChange(
+    options: EuiComboBoxOptionOption<string>[]
+  ): void {
     const finalQuery = (() => {
       try {
         return JSON.parse(getIn(values, 'search.request', '{}'));
@@ -68,20 +45,14 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
         return {};
       }
     })();
-    if (
-      finalQuery?.query?.agentic?.query_fields !== undefined &&
-      !fieldArraysEqual(
-        finalQuery?.query?.agentic?.query_fields,
-        selectedFields
-      )
-    ) {
+    if (!fieldArraysEqual(finalQuery?.query?.agentic?.query_fields, options)) {
       const updatedQuery = cloneDeep(finalQuery);
-      updatedQuery.query.agentic.query_fields = selectedFields.map(
+      updatedQuery.query.agentic.query_fields = options.map(
         (option) => option.value
       );
       setFieldValue('search.request', customStringify(updatedQuery));
     }
-  }, [selectedFields]);
+  }
 
   // whenever the query is updated, if it changes the query fields, update the selected fields.
   // always wait for the field mappings to be initialized before populating to add metadata (e.g., field type)
@@ -95,45 +66,18 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
     })();
     if (
       finalQuery?.query?.agentic?.query_fields !== undefined &&
-      !isEmpty(fieldMappings) &&
+      !isEmpty(props.fieldMappings) &&
       !fieldArraysEqual(
         finalQuery?.query?.agentic?.query_fields,
         selectedFields
       )
     ) {
       const curQueryFields = finalQuery?.query?.agentic?.query_fields;
-      const curFieldOptions = getFieldOptions(fieldMappings);
+      const curFieldOptions = getFieldOptions(props.fieldMappings);
       setSelectedFields(getNewFieldOptions(curQueryFields, curFieldOptions));
     } else {
     }
-  }, [getIn(values, 'search.request'), fieldMappings]);
-
-  const getFieldOptions = (mappings: any) => {
-    return Object.entries(get(mappings, 'properties', {})).map(
-      ([fieldName, fieldInfo]: [string, any]) => {
-        const fieldType = fieldInfo.type || 'object';
-        return {
-          label: `${fieldName} (${fieldType})`,
-          value: fieldName,
-          type: fieldType,
-        } as EuiComboBoxOptionOption<string>;
-      }
-    );
-  };
-
-  // When the button is clicked, show dropdown and auto-open it
-  const handleAddQueryFields = () => {
-    setShowDropdown(true);
-    setTimeout(() => {
-      if (comboBoxRef.current) {
-        const inputElement = comboBoxRef.current.querySelector('input');
-        if (inputElement) {
-          (inputElement as HTMLElement).click();
-          (inputElement as HTMLElement).focus();
-        }
-      }
-    }, 50);
-  };
+  }, [getIn(values, 'search.request'), props.fieldMappings]);
 
   const handleDropdownClose = (options: EuiComboBoxOptionOption<string>[]) => {
     if (options.length === 0) {
@@ -146,7 +90,21 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
       {selectedFields.length === 0 && !showDropdown ? (
         <div style={{ display: 'inline-block' }}>
           <EuiSmallButtonEmpty
-            onClick={handleAddQueryFields}
+            // show the dropdown and auto-open it
+            onClick={() => {
+              setShowDropdown(true);
+              setTimeout(() => {
+                if (comboBoxRef.current) {
+                  const inputElement = comboBoxRef.current.querySelector(
+                    'input'
+                  );
+                  if (inputElement) {
+                    (inputElement as HTMLElement).click();
+                    (inputElement as HTMLElement).focus();
+                  }
+                }
+              }, 50);
+            }}
             iconType="plusInCircle"
             data-test-subj="add-query-fields-button"
           >
@@ -177,14 +135,14 @@ export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
             <EuiComboBox
               style={{ width: '50vw' }}
               placeholder="Select fields"
-              options={getFieldOptions(fieldMappings)}
+              options={getFieldOptions(props.fieldMappings)}
               selectedOptions={selectedFields}
               onChange={(options) => {
-                setSelectedFields(options);
+                handleOptionsChange(options);
                 handleDropdownClose(options);
               }}
               onCreateOption={(searchValue) =>
-                setSelectedFields([
+                handleOptionsChange([
                   ...selectedFields,
                   {
                     label: searchValue,
@@ -227,8 +185,19 @@ function fieldArraysEqual(
       return false;
     if (queryFields[i] !== comboBoxFields[i].value) return false;
   }
-
   return true;
+}
+function getFieldOptions(mappings: any): EuiComboBoxOptionOption<string>[] {
+  return Object.entries(get(mappings, 'properties', {})).map(
+    ([fieldName, fieldInfo]: [string, any]) => {
+      const fieldType = fieldInfo.type || 'object';
+      return {
+        label: `${fieldName} (${fieldType})`,
+        value: fieldName,
+        type: fieldType,
+      } as EuiComboBoxOptionOption<string>;
+    }
+  );
 }
 
 // update the combo box options if the query field list in the DSL query is updated.

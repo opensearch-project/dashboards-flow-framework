@@ -9,6 +9,7 @@ import { cloneDeep, isEmpty } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
 import {
   AppState,
+  getMappings,
   searchIndex,
   updateWorkflow,
   useAppDispatch,
@@ -27,6 +28,7 @@ import {
 } from '@elastic/eui';
 import {
   customStringify,
+  IndexMappings,
   Workflow,
   WorkflowConfig,
   WorkflowFormValues,
@@ -53,9 +55,6 @@ interface SimplifiedWorkspaceProps {
  * Simplified workspace component for the Agentic Search (Simplified) workflow type.
  * This component provides a streamlined UI with just a search bar and two dropdowns.
  */
-// Constant for consistent form widths
-const FORM_WIDTH = '50vw';
-
 export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
@@ -69,6 +68,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
     resetForm,
     setTouched,
   } = useFormikContext<WorkflowFormValues>();
+  const [fieldMappings, setFieldMappings] = useState<any>(null);
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
   const selectedAgentId = getIn(values, 'search.agentId', '') as string;
   const finalQuery = (() => {
@@ -104,6 +104,20 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
     }
   }, [opensearchError]);
 
+  // fetch field mappings on init and for any selected index changes
+  useEffect(() => {
+    if (!isEmpty(selectedIndexId)) {
+      dispatch(getMappings({ index: selectedIndexId, dataSourceId }))
+        .unwrap()
+        .then((response: IndexMappings) => {
+          setFieldMappings(response);
+        })
+        .catch((error) => {});
+    } else {
+      setFieldMappings(null);
+    }
+  }, [selectedIndexId]);
+
   // Update finalQuery when agent changes (and if the agent_id key exists)
   useEffect(() => {
     if (!isEmpty(selectedAgentId) && touched?.search?.agentId === true) {
@@ -116,6 +130,19 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
       } catch {}
     }
   }, [selectedAgentId]);
+
+  // Clear out any query_fields on index change (if the arr exists)
+  useEffect(() => {
+    if (!isEmpty(fieldMappings) && touched?.search?.index?.name === true) {
+      try {
+        let updatedQuery = cloneDeep(finalQuery);
+        if (updatedQuery?.query?.agentic?.query_fields !== undefined) {
+          updatedQuery.query.agentic.query_fields = [];
+          setFieldValue('search.request', customStringify(updatedQuery));
+        }
+      } catch {}
+    }
+  }, [fieldMappings]);
 
   // Utility fn to validate the form and update the workflow if valid
   async function validateAndUpdateWorkflow(): Promise<boolean> {
@@ -317,6 +344,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
             <SimplifiedSearchQuery
               setSearchPipeline={setRuntimeSearchPipeline}
               uiConfig={props.uiConfig}
+              fieldMappings={fieldMappings}
             />
           </EuiPanel>
         </EuiFlexItem>
