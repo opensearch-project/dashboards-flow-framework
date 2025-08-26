@@ -14,17 +14,15 @@ import {
   EuiCodeBlock,
 } from '@elastic/eui';
 import { useSelector } from 'react-redux';
-import { AppState } from '../../../store';
-import { customStringify } from '../../../../common';
+import { AppState } from '../../../../store';
+import { customStringify } from '../../../../../common';
 
-interface SimplifiedAgentDetailsModalProps {
+interface AgentDetailsModalProps {
   onClose: () => void;
   agentId: string;
 }
 
-export function SimplifiedAgentDetailsModal(
-  props: SimplifiedAgentDetailsModalProps
-) {
+export function AgentDetailsModal(props: AgentDetailsModalProps) {
   const { onClose, agentId } = props;
 
   const { agents } = useSelector((state: AppState) => state.ml);

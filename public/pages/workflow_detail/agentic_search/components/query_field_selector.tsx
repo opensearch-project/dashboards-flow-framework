@@ -18,14 +18,14 @@ import {
   customStringify,
   WorkflowConfig,
   WorkflowFormValues,
-} from '../../../../common';
+} from '../../../../../common';
 
-interface SimplifiedFieldSelectorProps {
+interface QueryFieldSelectorProps {
   uiConfig: WorkflowConfig | undefined;
   fieldMappings: any;
 }
 
-export function SimplifiedFieldSelector(props: SimplifiedFieldSelectorProps) {
+export function QueryFieldSelector(props: QueryFieldSelectorProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   // interim state to properly render the dropdown list of fields with added metadata (e.g., field mapping type)
   const [selectedFields, setSelectedFields] = useState<

@@ -13,9 +13,9 @@ import {
   EuiSmallButtonGroup,
   EuiCodeBlock,
 } from '@elastic/eui';
-import { customStringify } from '../../../../common';
+import { customStringify } from '../../../../../common';
 
-interface SimplifiedSearchResultsProps {
+interface SearchResultsProps {
   searchResponse?: any;
 }
 
@@ -43,7 +43,7 @@ const RESULTS_VIEW_OPTIONS = [
   },
 ];
 
-export function SimplifiedSearchResults(props: SimplifiedSearchResultsProps) {
+export function SearchResults(props: SearchResultsProps) {
   const generatedQuery = getGeneratedQueryFromResponse(props.searchResponse);
   const [selectedView, setSelectedView] = useState<RESULTS_VIEW>(
     RESULTS_VIEW.HITS

@@ -22,16 +22,19 @@ import {
   getAgent,
   searchAgents,
   useAppDispatch,
-} from '../../../store';
-import { FETCH_ALL_QUERY_LARGE, WorkflowFormValues } from '../../../../common';
-import { getDataSourceId } from '../../../utils/utils';
-import { SimplifiedAgentCreationModal } from './simplified_agent_creation_modal';
-import { SimplifiedAgentDetailsModal } from './simplified_agent_details_modal';
+} from '../../../../store';
+import {
+  FETCH_ALL_QUERY_LARGE,
+  WorkflowFormValues,
+} from '../../../../../common';
+import { getDataSourceId } from '../../../../utils';
+import { CreateAgentModal } from './create_agent_modal';
+import { AgentDetailsModal } from './agent_details_modal';
 import { isEmpty } from 'lodash';
 
-interface SimplifiedAgentSelectorProps {}
+interface AgentSelectorProps {}
 
-export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
+export function AgentSelector(props: AgentSelectorProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
@@ -76,12 +79,10 @@ export function SimplifiedAgentSelector(props: SimplifiedAgentSelectorProps) {
     >
       <>
         {isModalVisible && (
-          <SimplifiedAgentCreationModal
-            onClose={() => setIsModalVisible(false)}
-          />
+          <CreateAgentModal onClose={() => setIsModalVisible(false)} />
         )}
         {isDetailsModalVisible && selectedAgentId && (
-          <SimplifiedAgentDetailsModal
+          <AgentDetailsModal
             onClose={() => setIsDetailsModalVisible(false)}
             agentId={selectedAgentId}
           />

@@ -21,18 +21,19 @@ import {
   EuiTextArea,
   EuiCallOut,
 } from '@elastic/eui';
-import { MODEL_STATE, ModelFormValue } from '../../../../common';
-import { WorkflowFormValues } from '../../../../common/interfaces';
-import { AppState, registerAgent, useAppDispatch } from '../../../store';
-import { getDataSourceId } from '../../../utils';
+import {
+  MODEL_STATE,
+  ModelFormValue,
+  WorkflowFormValues,
+} from '../../../../../common';
+import { AppState, registerAgent, useAppDispatch } from '../../../../store';
+import { getDataSourceId } from '../../../../utils';
 
-interface SimplifiedAgentCreationModalProps {
+interface CreateAgentModalProps {
   onClose: () => void;
 }
 
-export function SimplifiedAgentCreationModal(
-  props: SimplifiedAgentCreationModalProps
-) {
+export function CreateAgentModal(props: CreateAgentModalProps) {
   const { onClose } = props;
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();

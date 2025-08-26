@@ -39,7 +39,7 @@ import {
   useAppDispatch,
 } from '../../store';
 import { ResizableWorkspace } from './resizable_workspace';
-import { SimplifiedWorkspace } from './simplified_workspace';
+import { AgenticSearchWorkspace } from './agentic_search';
 import {
   CachedFormikState,
   ERROR_GETTING_WORKFLOW_MSG,
@@ -304,7 +304,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                       <EuiLoadingSpinner size="xl" />
                     ) : workflow?.ui_metadata?.type ===
                       WORKFLOW_TYPE.AGENTIC_SEARCH_SIMPLIFIED ? (
-                      <SimplifiedWorkspace
+                      <AgenticSearchWorkspace
                         workflow={workflow}
                         uiConfig={uiConfig}
                         setBlockNavigation={setBlockNavigation}

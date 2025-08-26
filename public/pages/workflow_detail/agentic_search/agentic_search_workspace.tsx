@@ -13,7 +13,7 @@ import {
   searchIndex,
   updateWorkflow,
   useAppDispatch,
-} from '../../store';
+} from '../../../store';
 import {
   EuiPanel,
   EuiFlexGroup,
@@ -32,20 +32,22 @@ import {
   Workflow,
   WorkflowConfig,
   WorkflowFormValues,
-} from '../../../common';
-import { getDataSourceId } from '../../utils/utils';
-import { SimplifiedAgentSelector } from './components/simplified_agent_selector';
-import { SimplifiedSearchQuery } from './components/simplified_search_query';
-import { SimplifiedIndexSelector } from './components/simplified_index_selector';
-import { SimplifiedSearchResults } from './components/simplified_search_results';
-import { SimplifiedAgenticInfoModal } from './components/simplified_agentic_info_modal';
-import { formikToUiConfig, reduceToTemplate } from '../../utils';
-import { getCore } from '../../services';
+} from '../../../../common';
+import {
+  formikToUiConfig,
+  reduceToTemplate,
+  getDataSourceId,
+} from '../../../utils';
+import { getCore } from '../../../services';
+import {
+  AgentSelector,
+  AgentInfoModal,
+  IndexSelector,
+  SearchQuery,
+  SearchResults,
+} from './components';
 
-// styling
-import '../../global-styles.scss';
-
-interface SimplifiedWorkspaceProps {
+interface AgenticSearchWorkspaceProps {
   workflow: Workflow | undefined;
   uiConfig: WorkflowConfig | undefined;
   setBlockNavigation: (blockNavigation: boolean) => void; // TODO: block if unsaved changes.
@@ -55,7 +57,7 @@ interface SimplifiedWorkspaceProps {
  * Simplified workspace component for the Agentic Search (Simplified) workflow type.
  * This component provides a streamlined UI with just a search bar and two dropdowns.
  */
-export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
+export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const {
@@ -321,27 +323,25 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
           <EuiSpacer size="m" />
         </EuiFlexItem>
         {isModalVisible && (
-          <SimplifiedAgenticInfoModal
-            onClose={() => setIsModalVisible(false)}
-          />
+          <AgentInfoModal onClose={() => setIsModalVisible(false)} />
         )}
         <EuiFlexItem grow={false}>
           <EuiFlexGroup gutterSize="m">
             <EuiFlexItem>
               <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
-                <SimplifiedIndexSelector />
+                <IndexSelector />
               </EuiPanel>
             </EuiFlexItem>
             <EuiFlexItem>
               <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
-                <SimplifiedAgentSelector />
+                <AgentSelector />
               </EuiPanel>
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
-            <SimplifiedSearchQuery
+            <SearchQuery
               setSearchPipeline={setRuntimeSearchPipeline}
               uiConfig={props.uiConfig}
               fieldMappings={fieldMappings}
@@ -366,7 +366,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
                       onClick={handleSearch}
                       fill
                       iconType="search"
-                      isLoading={isSearching || opensearchLoading}
+                      isLoading={isSearching}
                       isDisabled={
                         !finalQuery?.query?.agentic?.query_text ||
                         !selectedIndexId ||
@@ -404,7 +404,7 @@ export function SimplifiedWorkspace(props: SimplifiedWorkspaceProps) {
         )}
         {searchResponse !== undefined && (
           <EuiFlexItem grow={false}>
-            <SimplifiedSearchResults searchResponse={searchResponse} />
+            <SearchResults searchResponse={searchResponse} />
           </EuiFlexItem>
         )}
         <EuiFlexItem />

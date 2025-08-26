@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { EuiCodeEditor, EuiFormRow, EuiLink, EuiText } from '@elastic/eui';
-import { customStringify } from '../../../../common';
+import { customStringify } from '../../../../../common';
 
 interface SimplifiedJsonFieldProps {
   label?: string;

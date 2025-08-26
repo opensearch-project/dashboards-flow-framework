@@ -12,24 +12,23 @@ import {
   EuiFormRow,
   EuiToolTip,
   EuiIcon,
-  EuiLoadingSpinner,
   EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiButtonEmpty,
 } from '@elastic/eui';
-import { AppState, useAppDispatch, getIndex } from '../../../store';
-import { getDataSourceId } from '../../../utils/utils';
-import { catIndices } from '../../../store';
+import { AppState, useAppDispatch, getIndex } from '../../../../store';
+import { getDataSourceId } from '../../../../utils/utils';
+import { catIndices } from '../../../../store';
 import {
   OMIT_SYSTEM_INDEX_PATTERN,
   WorkflowFormValues,
-} from '../../../../common';
-import { SimplifiedIndexDetailsModal } from './simplified_index_details_modal';
+} from '../../../../../common';
+import { IndexDetailsModal } from './index_details_modal';
 
-interface SimplifiedIndexSelectorProps {}
+interface IndexSelectorProps {}
 
-export function SimplifiedIndexSelector(props: SimplifiedIndexSelectorProps) {
+export function IndexSelector(props: IndexSelectorProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
@@ -39,9 +38,7 @@ export function SimplifiedIndexSelector(props: SimplifiedIndexSelectorProps) {
     false
   );
 
-  const { indices, loading: opensearchLoading } = useSelector(
-    (state: AppState) => state.opensearch
-  );
+  const { indices } = useSelector((state: AppState) => state.opensearch);
 
   // Fetch indices on initial load
   useEffect(() => {
@@ -71,9 +68,7 @@ export function SimplifiedIndexSelector(props: SimplifiedIndexSelectorProps) {
       }
       fullWidth
     >
-      {opensearchLoading ? (
-        <EuiLoadingSpinner size="m" />
-      ) : indexOptions.length === 0 ? (
+      {indexOptions.length === 0 ? (
         <EuiCallOut
           title="No indices available"
           color="warning"
@@ -88,7 +83,7 @@ export function SimplifiedIndexSelector(props: SimplifiedIndexSelectorProps) {
       ) : (
         <>
           {isDetailsModalVisible && (
-            <SimplifiedIndexDetailsModal
+            <IndexDetailsModal
               onClose={() => setIsDetailsModalVisible(false)}
               indexName={getIn(values, 'search.index.name')}
             />

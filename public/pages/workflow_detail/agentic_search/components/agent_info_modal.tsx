@@ -14,13 +14,11 @@ import {
   EuiText,
 } from '@elastic/eui';
 
-interface SimplifiedAgenticInfoModalProps {
+interface AgentInfoModalProps {
   onClose: () => void;
 }
 
-export function SimplifiedAgenticInfoModal(
-  props: SimplifiedAgenticInfoModalProps
-) {
+export function AgentInfoModal(props: AgentInfoModalProps) {
   return (
     <EuiModal onClose={props.onClose}>
       <EuiModalHeader>

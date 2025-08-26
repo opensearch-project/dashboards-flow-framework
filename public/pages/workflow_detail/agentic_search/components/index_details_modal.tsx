@@ -14,17 +14,15 @@ import {
   EuiCodeBlock,
 } from '@elastic/eui';
 import { useSelector } from 'react-redux';
-import { AppState } from '../../../store';
-import { customStringify } from '../../../../common';
+import { AppState } from '../../../../store';
+import { customStringify } from '../../../../../common';
 
-interface SimplifiedIndexDetailsModalProps {
+interface IndexDetailsModalProps {
   onClose: () => void;
   indexName: string;
 }
 
-export function SimplifiedIndexDetailsModal(
-  props: SimplifiedIndexDetailsModalProps
-) {
+export function IndexDetailsModal(props: IndexDetailsModalProps) {
   const { indexDetails } = useSelector((state: AppState) => state.opensearch);
 
   // Get the index details from the redux store

@@ -18,14 +18,14 @@ import {
   EuiButtonGroup,
 } from '@elastic/eui';
 import { SimplifiedJsonField } from './simplified_json_field';
-import { SimplifiedFieldSelector } from './simplified_field_selector';
+import { QueryFieldSelector } from './query_field_selector';
 import {
   customStringify,
   WorkflowFormValues,
   WorkflowConfig,
-} from '../../../../common';
+} from '../../../../../common';
 
-interface SimplifiedSearchQueryProps {
+interface SearchQueryProps {
   setSearchPipeline: (searchPipeline: {}) => void;
   uiConfig?: WorkflowConfig;
   fieldMappings: any;
@@ -39,7 +39,7 @@ enum QUERY_MODE {
   ADVANCED = 'advanced',
 }
 
-export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
+export function SearchQuery(props: SearchQueryProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   const agentId = getIn(values, 'search.agentId');
   const finalQuery = (() => {
@@ -216,7 +216,7 @@ export function SimplifiedSearchQuery(props: SimplifiedSearchQueryProps) {
                   aria-label="Enter search query"
                 />
                 <EuiSpacer size="s" />
-                <SimplifiedFieldSelector
+                <QueryFieldSelector
                   uiConfig={props.uiConfig}
                   fieldMappings={props.fieldMappings}
                 />
