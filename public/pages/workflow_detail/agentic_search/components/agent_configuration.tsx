@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { getIn, useFormikContext } from 'formik';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -15,25 +16,49 @@ import {
   EuiTextArea,
   EuiSelect,
   EuiAccordion,
-  EuiButton,
+  EuiToolTip,
+  EuiIcon,
+  EuiButtonEmpty,
+  EuiSmallButton,
+  EuiText,
 } from '@elastic/eui';
-import { MODEL_STATE, ModelFormValue } from '../../../../../common';
-import { AppState, useAppDispatch } from '../../../../store';
-import { AgentSelector } from './agent_selector';
+import {
+  FETCH_ALL_QUERY_LARGE,
+  MODEL_STATE,
+  ModelFormValue,
+  WorkflowConfig,
+  WorkflowFormValues,
+} from '../../../../../common';
+import {
+  AppState,
+  getAgent,
+  registerAgent,
+  searchAgents,
+  useAppDispatch,
+} from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
+import { isEmpty } from 'lodash';
+import { AgentDetailsModal } from './agent_details_modal';
 
 interface AgentConfigurationProps {
-  // Will add more props as needed when expanding functionality
+  uiConfig: WorkflowConfig | undefined;
 }
 
+const AGENT_ID_PATH = 'search.agentId';
+const NEW_AGENT_PLACEHOLDER = 'new_agent';
+
 /**
- * Parent component for all agent configuration elements
+ * Configure agents. Select from existing agents, update existing agents, or create new agents altogether.
  */
 export function AgentConfiguration(props: AgentConfigurationProps) {
   // These will be used later when implementing save functionality
-  // const dispatch = useAppDispatch();
-  // const dataSourceId = getDataSourceId();
+  const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
+  const { values, setFieldValue, setFieldTouched } = useFormikContext<
+    WorkflowFormValues
+  >();
   const { models } = useSelector((state: AppState) => state.ml);
+  const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
 
   // State for agent configuration form fields
   const [agentName, setAgentName] = useState<string>('');
@@ -45,15 +70,28 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
 
   const [isAccordionOpen, setIsAccordionOpen] = useState<boolean>(false);
 
-  // Handle save button click
-  const handleSave = () => {
-    setIsSaving(true);
-    // This is where you would actually implement the save functionality
-    // For now, just simulate a save with a timeout
-    setTimeout(() => {
-      setIsSaving(false);
-    }, 500);
-  };
+  const [isDetailsModalVisible, setIsDetailsModalVisible] = useState<boolean>(
+    false
+  );
+  const [newAndUnsaved, setNewAndUnsaved] = useState<boolean>(false);
+
+  const { agents } = useSelector((state: AppState) => state.ml);
+  const [agentOptions, setAgentOptions] = useState<
+    { value: string; text: string }[]
+  >([]);
+
+  // Fetch agents (and populate the agent options in the dropdown) on initial load
+  useEffect(() => {
+    dispatch(searchAgents({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId }));
+  }, []);
+  useEffect(() => {
+    setAgentOptions(
+      Object.values(agents || {}).map((agent) => ({
+        value: agent.id,
+        text: agent.name,
+      }))
+    );
+  }, [agents]);
 
   // Create model options for the dropdown
   const modelOptions = Object.values(models || {})
@@ -63,78 +101,231 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
       text: model.name || model.id,
     }));
 
-  // do several actions if user wants to create a new agent, including:
-  // - open the configuration accordion
-  // - clear any existing selected agent and put a placeholder value there
+  // open the accordion, and add a placeholder "New agent (unsaved)" option in the dropdown.
   function onCreateNew() {
     setIsAccordionOpen(true);
-    // TODO integrate more with the dropdown
+    setNewAndUnsaved(true);
+  }
+  useEffect(() => {
+    if (newAndUnsaved) {
+      setFieldValue(AGENT_ID_PATH, NEW_AGENT_PLACEHOLDER);
+      setFieldTouched(AGENT_ID_PATH, true);
+      setAgentOptions([
+        ...agentOptions,
+        {
+          value: NEW_AGENT_PLACEHOLDER,
+          text: 'New agent (unsaved)',
+        },
+      ]);
+      // new and unsaved was triggered to false (either by user discarding the changes, or a new agent created).
+      // either way, we want to remove the placeholder option in the dropdown.
+    } else {
+      setAgentOptions(
+        agentOptions.filter((option) => option.value !== NEW_AGENT_PLACEHOLDER)
+      );
+    }
+  }, [newAndUnsaved]);
+
+  function onDiscardDraft() {
+    setNewAndUnsaved(false);
+    setFieldValue(
+      AGENT_ID_PATH,
+      props.uiConfig?.search?.agentId?.value || undefined
+    );
+    setIsAccordionOpen(false);
+  }
+
+  async function onCreateAgent(
+    name: string,
+    description: string,
+    modelId: string
+  ) {
+    setIsSaving(true);
+    try {
+      const newAgent = {
+        name,
+        type: 'flow',
+        description:
+          description || `Agent created for an agentic search workflow.`,
+        tools: [
+          {
+            type: 'QueryPlanningTool',
+            description: 'A general tool to answer any question',
+            parameters: {
+              model_id: modelId || 'claude3-haiku-20240307',
+              response_filter: '$.output.message.content[0].text',
+            },
+          },
+        ],
+      };
+      const response = await dispatch(
+        registerAgent({
+          apiBody: newAgent,
+          dataSourceId,
+        })
+      ).unwrap();
+      if (response && response.agent && response.agent.id) {
+        setFieldValue(AGENT_ID_PATH, response.agent.id);
+      } else {
+      }
+    } catch (error) {
+    } finally {
+      setIsSaving(false);
+      setNewAndUnsaved(false);
+    }
   }
 
   return (
     <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
-      <EuiFlexGroup direction="column" gutterSize="m">
-        <EuiFlexItem>
-          <AgentSelector onCreateNew={onCreateNew} />
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiAccordion
-            id="agentConfigAccordion"
-            buttonContent="Configuration"
-            paddingSize="s"
-            initialIsOpen={false}
-            onToggle={(isOpen) => setIsAccordionOpen(isOpen)}
-            data-test-subj="agentConfigAccordion"
-            forceState={isAccordionOpen ? 'open' : 'closed'}
-          >
-            <EuiSpacer size="s" />
-            <EuiFormRow label="Name">
-              <EuiFieldText
-                value={agentName}
-                onChange={(e) => setAgentName(e.target.value)}
-                placeholder="Enter agent name"
-                aria-label="Enter agent name"
-                fullWidth
+      {isDetailsModalVisible && selectedAgentId && (
+        <AgentDetailsModal
+          onClose={() => setIsDetailsModalVisible(false)}
+          agentId={selectedAgentId}
+        />
+      )}
+      <EuiFormRow
+        label={
+          <>
+            Agent
+            <EuiToolTip content="Choose an AI agent that will interpret your natural language query and convert it to a search query">
+              <EuiIcon
+                type="questionInCircle"
+                color="subdued"
+                style={{ marginLeft: '4px' }}
               />
-            </EuiFormRow>
-            <EuiSpacer size="s" />
-            <EuiFormRow label="Description">
-              <EuiTextArea
-                value={agentDescription}
-                onChange={(e) => setAgentDescription(e.target.value)}
-                placeholder="Enter description"
-                aria-label="Enter description"
-                rows={3}
-                fullWidth
-              />
-            </EuiFormRow>
-            <EuiSpacer size="s" />
-            <EuiFormRow label="Model">
-              <EuiSelect
-                options={modelOptions}
-                value={selectedModelId.id}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setSelectedModelId({ id: value });
-                }}
-                aria-label="Select model"
-                placeholder="Select a model"
-                hasNoInitialSelection={!selectedModelId.id}
-                fullWidth
-              />
-            </EuiFormRow>
-            <EuiSpacer size="m" />
-            <EuiButton
-              onClick={handleSave}
-              fill
-              isDisabled={!agentName.trim()}
-              isLoading={isSaving}
+            </EuiToolTip>
+          </>
+        }
+        fullWidth
+      >
+        <EuiFlexGroup direction="column" gutterSize="m">
+          <EuiFlexItem>
+            <EuiFlexGroup gutterSize="s" alignItems="center">
+              <EuiFlexItem>
+                <EuiSelect
+                  options={agentOptions}
+                  value={selectedAgentId}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value !== NEW_AGENT_PLACEHOLDER) {
+                      setNewAndUnsaved(false);
+                    }
+                    if (value) {
+                      setFieldValue(AGENT_ID_PATH, value);
+                      setFieldTouched(AGENT_ID_PATH, true);
+                    }
+                  }}
+                  aria-label="Select agent"
+                  placeholder="Select an agent"
+                  hasNoInitialSelection={true}
+                  fullWidth
+                />
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButtonEmpty
+                  size="s"
+                  onClick={onCreateNew}
+                  iconType="plusInCircle"
+                >
+                  Create new
+                </EuiButtonEmpty>
+              </EuiFlexItem>
+              {!isEmpty(selectedAgentId) && (
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="s"
+                    onClick={async () => {
+                      await dispatch(
+                        getAgent({ agentId: selectedAgentId, dataSourceId })
+                      )
+                        .unwrap()
+                        .then(() => {
+                          setIsDetailsModalVisible(true);
+                        });
+                    }}
+                  >
+                    View details
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+              )}
+            </EuiFlexGroup>
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiAccordion
+              id="agentConfigAccordion"
+              buttonContent={<EuiText size="s">Details</EuiText>}
+              paddingSize="s"
+              initialIsOpen={false}
+              onToggle={(isOpen) => setIsAccordionOpen(isOpen)}
+              data-test-subj="agentConfigAccordion"
+              forceState={isAccordionOpen ? 'open' : 'closed'}
             >
-              Save
-            </EuiButton>
-          </EuiAccordion>
-        </EuiFlexItem>
-      </EuiFlexGroup>
+              <EuiSpacer size="s" />
+              <EuiFormRow label="Name">
+                <EuiFieldText
+                  value={agentName}
+                  onChange={(e) => setAgentName(e.target.value)}
+                  placeholder="Enter agent name"
+                  aria-label="Enter agent name"
+                  fullWidth
+                />
+              </EuiFormRow>
+              <EuiSpacer size="s" />
+              <EuiFormRow label="Description">
+                <EuiTextArea
+                  value={agentDescription}
+                  onChange={(e) => setAgentDescription(e.target.value)}
+                  placeholder="Enter description"
+                  aria-label="Enter description"
+                  rows={3}
+                  fullWidth
+                />
+              </EuiFormRow>
+              <EuiSpacer size="s" />
+              <EuiFormRow label="Model">
+                <EuiSelect
+                  options={modelOptions}
+                  value={selectedModelId.id}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSelectedModelId({ id: value });
+                  }}
+                  aria-label="Select model"
+                  placeholder="Select a model"
+                  hasNoInitialSelection={!selectedModelId.id}
+                  fullWidth
+                />
+              </EuiFormRow>
+              <EuiSpacer size="m" />
+              <EuiFlexGroup direction="row" gutterSize="s">
+                <EuiFlexItem grow={false}>
+                  <EuiSmallButton
+                    onClick={() => {
+                      onCreateAgent(
+                        agentName,
+                        agentDescription,
+                        selectedModelId.id
+                      );
+                    }}
+                    fill
+                    isDisabled={!agentName.trim()}
+                    isLoading={isSaving}
+                  >
+                    Save
+                  </EuiSmallButton>
+                </EuiFlexItem>
+                {newAndUnsaved && (
+                  <EuiFlexItem grow={false}>
+                    <EuiSmallButton fill={false} onClick={onDiscardDraft}>
+                      Discard draft
+                    </EuiSmallButton>
+                  </EuiFlexItem>
+                )}
+              </EuiFlexGroup>
+            </EuiAccordion>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </EuiFormRow>
     </EuiPanel>
   );
 }

@@ -329,7 +329,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
           </EuiPanel>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <AgentConfiguration />
+          <AgentConfiguration uiConfig={props.uiConfig} />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
