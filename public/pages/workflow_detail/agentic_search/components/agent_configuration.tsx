@@ -33,6 +33,7 @@ import {
   AppState,
   getAgent,
   registerAgent,
+  updateAgent,
   searchAgents,
   useAppDispatch,
 } from '../../../../store';
@@ -57,7 +58,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
-  const { models } = useSelector((state: AppState) => state.ml);
+  const { models, agents } = useSelector((state: AppState) => state.ml);
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
 
   // State for agent configuration form fields
@@ -66,16 +67,27 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   const [selectedModelId, setSelectedModelId] = useState<ModelFormValue>({
     id: '',
   });
+  useEffect(() => {
+    const selectedAgentIdForm = getIn(values, AGENT_ID_PATH, '') as string;
+    const agent = agents[selectedAgentIdForm];
+    if (!isEmpty(selectedAgentIdForm) && !isEmpty(agent)) {
+      setAgentName(agent.name);
+      setAgentDescription(agent.description || '');
+    } else {
+      setAgentName('');
+      setAgentDescription('');
+      setSelectedModelId({
+        id: '',
+      });
+    }
+  }, [getIn(values, AGENT_ID_PATH), agents]);
+
   const [isSaving, setIsSaving] = useState<boolean>(false);
-
   const [isAccordionOpen, setIsAccordionOpen] = useState<boolean>(false);
-
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState<boolean>(
     false
   );
   const [newAndUnsaved, setNewAndUnsaved] = useState<boolean>(false);
-
-  const { agents } = useSelector((state: AppState) => state.ml);
   const [agentOptions, setAgentOptions] = useState<
     { value: string; text: string }[]
   >([]);
@@ -135,24 +147,20 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
     setIsAccordionOpen(false);
   }
 
-  async function onCreateAgent(
-    name: string,
-    description: string,
-    modelId: string
-  ) {
+  async function onCreateAgent() {
     setIsSaving(true);
     try {
       const newAgent = {
-        name,
+        name: agentName,
         type: 'flow',
         description:
-          description || `Agent created for an agentic search workflow.`,
+          agentDescription || `Agent created for an agentic search workflow.`,
         tools: [
           {
             type: 'QueryPlanningTool',
             description: 'A general tool to answer any question',
             parameters: {
-              model_id: modelId || 'claude3-haiku-20240307',
+              model_id: selectedModelId.id || 'claude3-haiku-20240307',
               response_filter: '$.output.message.content[0].text',
             },
           },
@@ -172,6 +180,43 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
     } finally {
       setIsSaving(false);
       setNewAndUnsaved(false);
+    }
+  }
+
+  async function onUpdateAgent() {
+    setIsSaving(true);
+    try {
+      const updatedAgent = {
+        name: agentName,
+        type: 'flow',
+        description:
+          agentDescription || `Agent created for an agentic search workflow.`,
+        tools: [
+          {
+            type: 'QueryPlanningTool',
+            description: 'A general tool to answer any question',
+            parameters: {
+              model_id: selectedModelId.id || 'claude3-haiku-20240307',
+              response_filter: '$.output.message.content[0].text',
+            },
+          },
+        ],
+      };
+      await dispatch(
+        updateAgent({
+          agentId: selectedAgentId,
+          body: updatedAgent,
+          dataSourceId,
+        })
+      )
+        .unwrap()
+        .then((resp) => {})
+        .catch((e) => {
+          // console.error(e);
+        });
+    } catch (error) {
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -198,7 +243,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
         }
         fullWidth
       >
-        <EuiFlexGroup direction="column" gutterSize="m">
+        <EuiFlexGroup direction="column" gutterSize="s">
           <EuiFlexItem>
             <EuiFlexGroup gutterSize="s" alignItems="center">
               <EuiFlexItem>
@@ -301,13 +346,14 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 <EuiFlexItem grow={false}>
                   <EuiSmallButton
                     onClick={() => {
-                      onCreateAgent(
-                        agentName,
-                        agentDescription,
-                        selectedModelId.id
-                      );
+                      if (newAndUnsaved) {
+                        onCreateAgent();
+                      } else {
+                        onUpdateAgent();
+                      }
                     }}
                     fill
+                    // TODO: disable if an existing agent, with no changes.
                     isDisabled={!agentName.trim()}
                     isLoading={isSaving}
                   >

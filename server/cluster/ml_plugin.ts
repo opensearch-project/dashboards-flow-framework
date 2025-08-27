@@ -47,6 +47,20 @@ export function mlPlugin(Client: any, config: any, components: any) {
     method: 'POST',
   });
 
+  mlClient.updateAgent = ca({
+    url: {
+      fmt: `${ML_AGENT_ROUTE_PREFIX}/<%=agent_id%>`,
+      req: {
+        agent_id: {
+          type: 'string',
+          required: true,
+        },
+      },
+    },
+    needBody: true,
+    method: 'PUT',
+  });
+
   mlClient.searchAgents = ca({
     url: {
       fmt: ML_SEARCH_AGENTS_ROUTE,

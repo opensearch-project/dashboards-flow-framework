@@ -22,6 +22,7 @@ const AGENTS_ACTION_PREFIX = 'agents';
 const SEARCH_MODELS_ACTION = `${MODELS_ACTION_PREFIX}/search`;
 const SEARCH_CONNECTORS_ACTION = `${CONNECTORS_ACTION_PREFIX}/search`;
 const REGISTER_AGENT_ACTION = `${AGENTS_ACTION_PREFIX}/register`;
+const UPDATE_AGENT_ACTION = `${AGENTS_ACTION_PREFIX}/update`;
 const SEARCH_AGENTS_ACTION = `${AGENTS_ACTION_PREFIX}/search`;
 const GET_AGENT_ACTION = `${AGENTS_ACTION_PREFIX}/getAgent`;
 
@@ -109,6 +110,29 @@ export const searchAgents = createAsyncThunk(
   }
 );
 
+export const updateAgent = createAsyncThunk(
+  UPDATE_AGENT_ACTION,
+  async (
+    {
+      agentId,
+      body,
+      dataSourceId,
+    }: { agentId: string; body: {}; dataSourceId?: string },
+    { rejectWithValue }
+  ) => {
+    const response: any | HttpFetchError = await getRouteService().updateAgent(
+      agentId,
+      body,
+      dataSourceId
+    );
+    if (response instanceof HttpFetchError) {
+      return rejectWithValue('Error updating agent: ' + response.body.message);
+    } else {
+      return response;
+    }
+  }
+);
+
 export const getAgent = createAsyncThunk(
   GET_AGENT_ACTION,
   async (
@@ -146,6 +170,10 @@ const mlSlice = createSlice({
         state.loading = true;
         state.errorMessage = '';
       })
+      .addCase(updateAgent.pending, (state) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
       .addCase(searchAgents.pending, (state) => {
         state.loading = true;
         state.errorMessage = '';
@@ -168,6 +196,17 @@ const mlSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(registerAgent.fulfilled, (state, action) => {
+        const { agent } = action.payload as { agent: Agent };
+        if (agent && agent.id) {
+          state.agents = {
+            ...state.agents,
+            [agent.id]: agent,
+          };
+        }
+        state.loading = false;
+        state.errorMessage = '';
+      })
+      .addCase(updateAgent.fulfilled, (state, action) => {
         const { agent } = action.payload as { agent: Agent };
         if (agent && agent.id) {
           state.agents = {
@@ -205,6 +244,10 @@ const mlSlice = createSlice({
         state.loading = false;
       })
       .addCase(registerAgent.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(updateAgent.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       })

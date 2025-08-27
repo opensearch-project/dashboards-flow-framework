@@ -19,6 +19,7 @@ import {
   REGISTER_AGENT_NODE_API_PATH,
   SEARCH_AGENTS_NODE_API_PATH,
   GET_AGENT_NODE_API_PATH,
+  UPDATE_AGENT_NODE_API_PATH,
   Agent,
 } from '../../common';
 import {
@@ -148,6 +149,33 @@ export function registerMLRoutes(
       },
     },
     mlRoutesService.getAgent
+  );
+
+  router.put(
+    {
+      path: `${UPDATE_AGENT_NODE_API_PATH}/{agent_id}`,
+      validate: {
+        body: schema.any(),
+        params: schema.object({
+          agent_id: schema.string(),
+        }),
+      },
+    },
+    mlRoutesService.updateAgent
+  );
+
+  router.put(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/agent/update/{agent_id}`,
+      validate: {
+        body: schema.any(),
+        params: schema.object({
+          data_source_id: schema.string(),
+          agent_id: schema.string(),
+        }),
+      },
+    },
+    mlRoutesService.updateAgent
   );
 }
 
@@ -316,6 +344,45 @@ export class MLRoutesService {
         type: response.type,
         description: response.description,
         tools: response.tools,
+      } as Agent;
+
+      return res.ok({ body: { agent } });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  updateAgent = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    try {
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
+      const { agent_id } = req.params as { agent_id: string };
+      const body = req.body as Partial<Agent>;
+
+      const callWithRequest = getClientBasedOnDataSource(
+        context,
+        this.dataSourceEnabled,
+        req,
+        data_source_id,
+        this.client
+      );
+
+      await callWithRequest('mlClient.updateAgent', {
+        agent_id,
+        body,
+      });
+
+      // format the response to be what was passed to the API call, since the update API does not
+      // return the updated agent body itself.
+      const agent = {
+        id: agent_id,
+        name: body.name,
+        type: body.type,
+        description: body.description,
+        tools: body.tools,
       } as Agent;
 
       return res.ok({ body: { agent } });

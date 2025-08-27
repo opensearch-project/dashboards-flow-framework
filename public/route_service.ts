@@ -32,6 +32,7 @@ import {
   REGISTER_AGENT_NODE_API_PATH,
   SEARCH_AGENTS_NODE_API_PATH,
   GET_AGENT_NODE_API_PATH,
+  UPDATE_AGENT_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -135,6 +136,11 @@ export interface RouteService {
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
   registerAgent: (
+    body: {},
+    dataSourceId?: string
+  ) => Promise<any | HttpFetchError>;
+  updateAgent: (
+    agentId: string,
     body: {},
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
@@ -468,6 +474,21 @@ export function configureRoutes(core: CoreStart): RouteService {
           ? `${BASE_NODE_API_PATH}/${dataSourceId}/agent/register`
           : REGISTER_AGENT_NODE_API_PATH;
         const response = await core.http.post<{ respString: string }>(url, {
+          body: JSON.stringify(body),
+        });
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+
+    updateAgent: async (agentId: string, body: {}, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/agent/update`
+          : UPDATE_AGENT_NODE_API_PATH;
+        const finalUrl = `${url}/${agentId}`;
+        const response = await core.http.put<{ respString: string }>(finalUrl, {
           body: JSON.stringify(body),
         });
         return response;
