@@ -1007,3 +1007,16 @@ export enum COMPONENT_ID {
 // We have to persist a standalone string to override 'style' component, as setting className does
 // not override the default styles from the EuiCard component.
 export const LEFT_NAV_SELECTED_STYLE = '2px solid rgba(128, 128, 128, 0.8)';
+
+// Derived from https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/agents/index/
+export enum AGENT_TYPE {
+  FLOW = 'flow',
+  CONVERSATIONAL = 'conversational',
+}
+
+// Tool types supported by agents.
+// Derived from https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/index/
+export enum TOOL_TYPE {
+  QUERY_PLANNING = 'QueryPlanningTool',
+  SEARCH_INDEX = 'SearchIndexTool',
+}

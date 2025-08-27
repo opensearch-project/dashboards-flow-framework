@@ -23,9 +23,10 @@ import {
   EuiText,
 } from '@elastic/eui';
 import {
+  Agent,
+  AGENT_TYPE,
   FETCH_ALL_QUERY_LARGE,
   MODEL_STATE,
-  ModelFormValue,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
@@ -40,6 +41,7 @@ import {
 import { getDataSourceId } from '../../../../utils';
 import { isEmpty } from 'lodash';
 import { AgentDetailsModal } from './agent_details_modal';
+import { AgentTools } from './agent_tools';
 
 interface AgentConfigurationProps {
   uiConfig: WorkflowConfig | undefined;
@@ -47,6 +49,12 @@ interface AgentConfigurationProps {
 
 const AGENT_ID_PATH = 'search.agentId';
 const NEW_AGENT_PLACEHOLDER = 'new_agent';
+const EMPTY_AGENT = {
+  type: AGENT_TYPE.FLOW,
+  name: '',
+  description: '',
+  tools: [],
+};
 
 /**
  * Configure agents. Select from existing agents, update existing agents, or create new agents altogether.
@@ -61,24 +69,15 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   const { models, agents } = useSelector((state: AppState) => state.ml);
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
 
-  // State for agent configuration form fields
-  const [agentName, setAgentName] = useState<string>('');
-  const [agentDescription, setAgentDescription] = useState<string>('');
-  const [selectedModelId, setSelectedModelId] = useState<ModelFormValue>({
-    id: '',
-  });
+  const [agentForm, setAgentForm] = useState<Partial<Agent>>(EMPTY_AGENT);
+
   useEffect(() => {
     const selectedAgentIdForm = getIn(values, AGENT_ID_PATH, '') as string;
     const agent = agents[selectedAgentIdForm];
     if (!isEmpty(selectedAgentIdForm) && !isEmpty(agent)) {
-      setAgentName(agent.name);
-      setAgentDescription(agent.description || '');
+      setAgentForm(agent);
     } else {
-      setAgentName('');
-      setAgentDescription('');
-      setSelectedModelId({
-        id: '',
-      });
+      setAgentForm(EMPTY_AGENT);
     }
   }, [getIn(values, AGENT_ID_PATH), agents]);
 
@@ -150,25 +149,9 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   async function onCreateAgent() {
     setIsSaving(true);
     try {
-      const newAgent = {
-        name: agentName,
-        type: 'flow',
-        description:
-          agentDescription || `Agent created for an agentic search workflow.`,
-        tools: [
-          {
-            type: 'QueryPlanningTool',
-            description: 'A general tool to answer any question',
-            parameters: {
-              model_id: selectedModelId.id || 'claude3-haiku-20240307',
-              response_filter: '$.output.message.content[0].text',
-            },
-          },
-        ],
-      };
       const response = await dispatch(
         registerAgent({
-          apiBody: newAgent,
+          apiBody: agentForm,
           dataSourceId,
         })
       ).unwrap();
@@ -186,26 +169,10 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   async function onUpdateAgent() {
     setIsSaving(true);
     try {
-      const updatedAgent = {
-        name: agentName,
-        type: 'flow',
-        description:
-          agentDescription || `Agent created for an agentic search workflow.`,
-        tools: [
-          {
-            type: 'QueryPlanningTool',
-            description: 'A general tool to answer any question',
-            parameters: {
-              model_id: selectedModelId.id || 'claude3-haiku-20240307',
-              response_filter: '$.output.message.content[0].text',
-            },
-          },
-        ],
-      };
       await dispatch(
         updateAgent({
           agentId: selectedAgentId,
-          body: updatedAgent,
+          body: agentForm,
           dataSourceId,
         })
       )
@@ -308,8 +275,10 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
               <EuiSpacer size="s" />
               <EuiFormRow label="Name">
                 <EuiFieldText
-                  value={agentName}
-                  onChange={(e) => setAgentName(e.target.value)}
+                  value={agentForm.name}
+                  onChange={(e) =>
+                    setAgentForm({ ...agentForm, name: e.target.value })
+                  }
                   placeholder="Enter agent name"
                   aria-label="Enter agent name"
                   fullWidth
@@ -318,8 +287,10 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
               <EuiSpacer size="s" />
               <EuiFormRow label="Description">
                 <EuiTextArea
-                  value={agentDescription}
-                  onChange={(e) => setAgentDescription(e.target.value)}
+                  value={agentForm.description}
+                  onChange={(e) =>
+                    setAgentForm({ ...agentForm, description: e.target.value })
+                  }
                   placeholder="Enter description"
                   aria-label="Enter description"
                   rows={3}
@@ -327,7 +298,10 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 />
               </EuiFormRow>
               <EuiSpacer size="s" />
-              <EuiFormRow label="Model">
+              <EuiFormRow label="Tools">
+                <AgentTools agentForm={agentForm} setAgentForm={setAgentForm} />
+              </EuiFormRow>
+              {/* <EuiFormRow label="Model">
                 <EuiSelect
                   options={modelOptions}
                   value={selectedModelId.id}
@@ -340,7 +314,8 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   hasNoInitialSelection={!selectedModelId.id}
                   fullWidth
                 />
-              </EuiFormRow>
+              </EuiFormRow> */}
+
               <EuiSpacer size="m" />
               <EuiFlexGroup direction="row" gutterSize="s">
                 <EuiFlexItem grow={false}>
@@ -354,7 +329,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                     }}
                     fill
                     // TODO: disable if an existing agent, with no changes.
-                    isDisabled={!agentName.trim()}
+                    isDisabled={!agentForm.name?.trim()}
                     isLoading={isSaving}
                   >
                     Save

@@ -300,13 +300,14 @@ export class MLRoutesService {
       const agents = {};
       if (response.hits && response.hits.hits) {
         for (const hit of response.hits.hits) {
-          const source = hit._source;
+          const source = hit._source as Agent;
           // @ts-ignore
           agents[hit._id] = {
             id: hit._id,
-            name: source.name,
-            type: source.type,
-            description: source.description,
+            name: source?.name,
+            type: source?.type,
+            description: source?.description,
+            tools: source?.tools,
           };
         }
       }
@@ -333,9 +334,9 @@ export class MLRoutesService {
         data_source_id,
         this.client
       );
-      const response = await callWithRequest('mlClient.getAgent', {
+      const response = (await callWithRequest('mlClient.getAgent', {
         agent_id,
-      });
+      })) as Agent;
 
       // Format the response
       const agent = {
