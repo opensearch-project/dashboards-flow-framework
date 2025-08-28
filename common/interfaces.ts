@@ -9,6 +9,7 @@ import { ObjectSchema } from 'yup';
 import {
   COMPONENT_CLASS,
   PROCESSOR_TYPE,
+  TOOL_TYPE,
   TRANSFORM_TYPE,
   WORKFLOW_TYPE,
 } from './constants';
@@ -493,10 +494,14 @@ export type ConnectorDict = {
   [connectorId: string]: Connector;
 };
 
+export type ToolParameters = {
+  [key: string]: any;
+};
+
 export type Tool = {
-  type: string;
+  type: TOOL_TYPE;
   description?: string;
-  parameters: any;
+  parameters: ToolParameters;
 };
 
 export type Agent = {

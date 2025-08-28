@@ -20,27 +20,25 @@ import {
   EuiIcon,
   EuiButtonEmpty,
   EuiSmallButton,
+  EuiSmallButtonEmpty,
   EuiText,
 } from '@elastic/eui';
 import {
   Agent,
   AGENT_TYPE,
   FETCH_ALL_QUERY_LARGE,
-  MODEL_STATE,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
 import {
   AppState,
-  getAgent,
   registerAgent,
   updateAgent,
   searchAgents,
   useAppDispatch,
 } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
-import { isEmpty } from 'lodash';
-import { AgentDetailsModal } from './agent_details_modal';
+import { isEmpty, isEqual } from 'lodash';
 import { AgentTools } from './agent_tools';
 
 interface AgentConfigurationProps {
@@ -66,7 +64,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
-  const { models, agents } = useSelector((state: AppState) => state.ml);
+  const { agents } = useSelector((state: AppState) => state.ml);
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
 
   const [agentForm, setAgentForm] = useState<Partial<Agent>>(EMPTY_AGENT);
@@ -83,10 +81,10 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
 
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isAccordionOpen, setIsAccordionOpen] = useState<boolean>(false);
-  const [isDetailsModalVisible, setIsDetailsModalVisible] = useState<boolean>(
-    false
-  );
   const [newAndUnsaved, setNewAndUnsaved] = useState<boolean>(false);
+  const existingAndUnsaved =
+    selectedAgentId !== NEW_AGENT_PLACEHOLDER &&
+    !isEqual(getIn(agents, selectedAgentId, {}), agentForm);
   const [agentOptions, setAgentOptions] = useState<
     { value: string; text: string }[]
   >([]);
@@ -103,14 +101,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
       }))
     );
   }, [agents]);
-
-  // Create model options for the dropdown
-  const modelOptions = Object.values(models || {})
-    .filter((model) => model.state === MODEL_STATE.DEPLOYED)
-    .map((model) => ({
-      value: model.id,
-      text: model.name || model.id,
-    }));
 
   // open the accordion, and add a placeholder "New agent (unsaved)" option in the dropdown.
   function onCreateNew() {
@@ -143,7 +133,15 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
       AGENT_ID_PATH,
       props.uiConfig?.search?.agentId?.value || undefined
     );
-    setIsAccordionOpen(false);
+  }
+
+  function onRevertChanges() {
+    const agent = getIn(agents, selectedAgentId, {});
+    if (!isEmpty(agent)) {
+      setAgentForm(agent);
+    } else {
+      setAgentForm(EMPTY_AGENT);
+    }
   }
 
   async function onCreateAgent() {
@@ -189,12 +187,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
 
   return (
     <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
-      {isDetailsModalVisible && selectedAgentId && (
-        <AgentDetailsModal
-          onClose={() => setIsDetailsModalVisible(false)}
-          agentId={selectedAgentId}
-        />
-      )}
       <EuiFormRow
         label={
           <>
@@ -233,30 +225,14 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   fullWidth
                 />
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiButtonEmpty
-                  size="s"
-                  onClick={onCreateNew}
-                  iconType="plusInCircle"
-                >
-                  Create new
-                </EuiButtonEmpty>
-              </EuiFlexItem>
-              {!isEmpty(selectedAgentId) && (
+              {!newAndUnsaved && (
                 <EuiFlexItem grow={false}>
                   <EuiButtonEmpty
                     size="s"
-                    onClick={async () => {
-                      await dispatch(
-                        getAgent({ agentId: selectedAgentId, dataSourceId })
-                      )
-                        .unwrap()
-                        .then(() => {
-                          setIsDetailsModalVisible(true);
-                        });
-                    }}
+                    onClick={onCreateNew}
+                    iconType="plusInCircle"
                   >
-                    View details
+                    Create new
                   </EuiButtonEmpty>
                 </EuiFlexItem>
               )}
@@ -301,21 +277,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
               <EuiFormRow label="Tools">
                 <AgentTools agentForm={agentForm} setAgentForm={setAgentForm} />
               </EuiFormRow>
-              {/* <EuiFormRow label="Model">
-                <EuiSelect
-                  options={modelOptions}
-                  value={selectedModelId.id}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setSelectedModelId({ id: value });
-                  }}
-                  aria-label="Select model"
-                  placeholder="Select a model"
-                  hasNoInitialSelection={!selectedModelId.id}
-                  fullWidth
-                />
-              </EuiFormRow> */}
-
               <EuiSpacer size="m" />
               <EuiFlexGroup direction="row" gutterSize="s">
                 <EuiFlexItem grow={false}>
@@ -328,18 +289,28 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                       }
                     }}
                     fill
-                    // TODO: disable if an existing agent, with no changes.
-                    isDisabled={!agentForm.name?.trim()}
+                    isDisabled={
+                      isEqual(getIn(agents, selectedAgentId, {}), agentForm) ||
+                      !agentForm?.name?.trim()
+                    }
                     isLoading={isSaving}
                   >
                     Save
                   </EuiSmallButton>
                 </EuiFlexItem>
+                {existingAndUnsaved && (
+                  <EuiFlexItem grow={false}>
+                    <EuiSmallButtonEmpty onClick={onRevertChanges}>
+                      Discard changes
+                    </EuiSmallButtonEmpty>
+                  </EuiFlexItem>
+                )}
+
                 {newAndUnsaved && (
                   <EuiFlexItem grow={false}>
-                    <EuiSmallButton fill={false} onClick={onDiscardDraft}>
+                    <EuiSmallButtonEmpty onClick={onDiscardDraft}>
                       Discard draft
-                    </EuiSmallButton>
+                    </EuiSmallButtonEmpty>
                   </EuiFlexItem>
                 )}
               </EuiFlexGroup>

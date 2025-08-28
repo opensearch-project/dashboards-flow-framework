@@ -4,6 +4,9 @@
  */
 
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { getIn } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   EuiAccordion,
   EuiSpacer,
@@ -12,13 +15,15 @@ import {
   EuiFlexItem,
   EuiText,
   EuiFormRow,
-  EuiTextArea,
   EuiSmallButtonEmpty,
   EuiPopover,
   EuiContextMenuItem,
+  EuiPanel,
+  EuiSelect,
+  EuiFieldText,
 } from '@elastic/eui';
-import { Agent, Tool } from '../../../../../common';
-import { TOOL_TYPE } from '../../../../../common/constants';
+import { Agent, MODEL_STATE, Tool, TOOL_TYPE } from '../../../../../common';
+import { AppState } from '../../../../store';
 
 interface AgentToolsProps {
   agentForm: Partial<Agent>;
@@ -26,7 +31,7 @@ interface AgentToolsProps {
 }
 
 const EMPTY_TOOL: Tool = {
-  type: '',
+  type: '' as TOOL_TYPE,
   description: '',
   parameters: {},
 };
@@ -40,13 +45,22 @@ const TOOL_TYPE_OPTIONS = Object.entries(TOOL_TYPE).map(([key, value]) => ({
 }));
 
 export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
+  // get model options if a tool that requires a model is needed
+  const { models } = useSelector((state: AppState) => state.ml);
+  const modelOptions = Object.values(models || {})
+    .filter((model) => model.state === MODEL_STATE.DEPLOYED)
+    .map((model) => ({
+      value: model.id,
+      text: model.name || model.id,
+    }));
+
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [openAccordionIndex, setOpenAccordionIndex] = useState<
     number | undefined
   >(undefined);
   const tools = agentForm?.tools || [];
 
-  const addTool = (toolType: string = '') => {
+  const addTool = (toolType: TOOL_TYPE) => {
     const newTool: Tool = {
       ...EMPTY_TOOL,
       type: toolType,
@@ -72,7 +86,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
     setAgentForm({ ...agentForm, tools: updatedTools });
   };
 
-  const getDefaultParameters = (toolType: string) => {
+  const getDefaultParameters = (toolType: TOOL_TYPE) => {
     switch (toolType) {
       case TOOL_TYPE.QUERY_PLANNING:
         return {
@@ -86,76 +100,129 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
     }
   };
 
+  const renderToolForm = (toolType: TOOL_TYPE, index: number): any => {
+    const toolsForm = getIn(agentForm, 'tools');
+    const toolForm = getIn(agentForm, `tools.${index}`) as Tool;
+    switch (toolType) {
+      case TOOL_TYPE.QUERY_PLANNING:
+        const selectedModelId = toolForm?.parameters?.model_id;
+        const responseFilter = toolForm?.parameters?.response_filter;
+        return (
+          <>
+            <EuiFormRow label="Model">
+              <EuiSelect
+                options={modelOptions}
+                value={selectedModelId}
+                onChange={(e) => {
+                  // TODO: make this onChange generic. Also consider debouncing or only doing
+                  // for onBlur for text fields with constant changes to improve performance
+                  const updatedTool = {
+                    ...toolForm,
+                    parameters: {
+                      ...toolForm.parameters,
+                      model_id: e.target.value,
+                    },
+                  };
+                  setAgentForm({
+                    ...agentForm,
+                    tools: toolsForm.map((tool: Tool, i: number) =>
+                      i === index ? updatedTool : tool
+                    ),
+                  });
+                }}
+                aria-label="Select model"
+                placeholder="Select a model"
+                hasNoInitialSelection={isEmpty(selectedModelId)}
+                fullWidth
+              />
+            </EuiFormRow>
+            <EuiFormRow label="Response filter">
+              <EuiFieldText
+                value={responseFilter}
+                onChange={(e) => {
+                  const updatedTool = {
+                    ...toolForm,
+                    parameters: {
+                      ...toolForm.parameters,
+                      response_filter: e.target.value,
+                    },
+                  };
+                  setAgentForm({
+                    ...agentForm,
+                    tools: toolsForm.map((tool: Tool, i: number) =>
+                      i === index ? updatedTool : tool
+                    ),
+                  });
+                }}
+                aria-label="Specify a response filter"
+                placeholder="Response filter"
+                fullWidth
+              />
+            </EuiFormRow>
+          </>
+        );
+      case TOOL_TYPE.SEARCH_INDEX:
+        return (
+          <EuiText size="s" color="subdued">
+            Nothing to configure!
+          </EuiText>
+        );
+      default:
+        return {};
+    }
+  };
+
   return (
     <>
       {tools.map((tool, index) => (
-        <div key={index}>
-          <EuiAccordion
-            id={`tool-accordion-${index}`}
-            buttonContent={
-              <EuiFlexGroup alignItems="center" gutterSize="s">
-                <EuiFlexItem>
-                  <EuiText size="s">
-                    {
-                      TOOL_TYPE_OPTIONS.find(
-                        (option) => option.value === tool.type
-                      )?.text
-                    }
-                  </EuiText>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiButtonIcon
-                    aria-label="Remove tool"
-                    iconType="trash"
-                    color="danger"
-                    onClick={() => {
-                      removeTool(index);
-                    }}
-                  />
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            }
+        <>
+          <EuiPanel
+            key={index}
+            color="transparent"
             paddingSize="s"
-            forceState={openAccordionIndex === index ? 'open' : undefined}
-            onToggle={(isOpen) => {
-              setOpenAccordionIndex(isOpen ? index : undefined);
-            }}
+            style={{ paddingBottom: '0px' }}
           >
-            <EuiFormRow label="Description">
-              <EuiTextArea
-                value={tool.description || ''}
-                onChange={(e) => {
-                  updateTool(index, {
-                    ...tool,
-                    description: e.target.value,
-                  });
-                }}
-                rows={2}
-                fullWidth
-              />
-            </EuiFormRow>
+            <EuiAccordion
+              id={`tool-accordion-${index}`}
+              buttonContent={
+                <EuiFlexGroup
+                  justifyContent="spaceBetween"
+                  gutterSize="s"
+                  style={{ width: '350px' }}
+                >
+                  <EuiFlexItem>
+                    <EuiText size="s">
+                      {
+                        TOOL_TYPE_OPTIONS.find(
+                          (option) => option.value === tool.type
+                        )?.text
+                      }
+                    </EuiText>
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <EuiButtonIcon
+                      aria-label="Remove tool"
+                      iconType="trash"
+                      color="danger"
+                      onClick={() => {
+                        removeTool(index);
+                      }}
+                    />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+              }
+              paddingSize="s"
+              forceState={openAccordionIndex === index ? 'open' : undefined}
+              onToggle={(isOpen) => {
+                setOpenAccordionIndex(isOpen ? index : undefined);
+              }}
+            >
+              {renderToolForm(tool.type, index)}
+            </EuiAccordion>
             <EuiSpacer size="s" />
-            <EuiFormRow label="Parameters">
-              <EuiTextArea
-                value={JSON.stringify(tool.parameters || {}, null, 2)}
-                onChange={(e) => {
-                  try {
-                    const parsedParams = JSON.parse(e.target.value);
-                    updateTool(index, {
-                      ...tool,
-                      parameters: parsedParams,
-                    });
-                  } catch (error) {
-                    // If JSON is invalid, don't update
-                  }
-                }}
-                rows={5}
-                fullWidth
-              />
-            </EuiFormRow>
-          </EuiAccordion>
+          </EuiPanel>
           <EuiSpacer size="s" />
-        </div>
+        </>
       ))}
       <EuiPopover
         button={
