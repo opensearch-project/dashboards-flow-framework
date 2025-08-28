@@ -7,6 +7,7 @@ import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
 import {
+  AGENT_TYPE,
   COMPONENT_CLASS,
   PROCESSOR_TYPE,
   TOOL_TYPE,
@@ -507,7 +508,7 @@ export type Tool = {
 export type Agent = {
   id: string;
   name: string;
-  type: string;
+  type: AGENT_TYPE;
   description?: string;
   tools: Tool[];
 };

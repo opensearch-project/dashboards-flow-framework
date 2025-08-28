@@ -38,7 +38,7 @@ import {
   useAppDispatch,
 } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
-import { isEmpty, isEqual } from 'lodash';
+import { capitalize, isEmpty, isEqual } from 'lodash';
 import { AgentTools } from './agent_tools';
 
 interface AgentConfigurationProps {
@@ -49,10 +49,14 @@ const AGENT_ID_PATH = 'search.agentId';
 const NEW_AGENT_PLACEHOLDER = 'new_agent';
 const EMPTY_AGENT = {
   type: AGENT_TYPE.FLOW,
-  name: '',
+  name: 'my_agent',
   description: '',
   tools: [],
 };
+const AGENT_TYPE_OPTIONS = Object.values(AGENT_TYPE).map((agentType) => ({
+  value: agentType,
+  text: capitalize(agentType),
+}));
 
 /**
  * Configure agents. Select from existing agents, update existing agents, or create new agents altogether.
@@ -257,6 +261,21 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   }
                   placeholder="Enter agent name"
                   aria-label="Enter agent name"
+                  fullWidth
+                />
+              </EuiFormRow>
+              <EuiFormRow label="Type">
+                <EuiSelect
+                  options={AGENT_TYPE_OPTIONS}
+                  value={agentForm?.type}
+                  onChange={(e) => {
+                    setAgentForm({
+                      ...agentForm,
+                      type: e.target.value as AGENT_TYPE,
+                    });
+                  }}
+                  aria-label="Agent type"
+                  placeholder="Agent type"
                   fullWidth
                 />
               </EuiFormRow>
