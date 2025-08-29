@@ -290,6 +290,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   aria-label="Enter description"
                   rows={3}
                   fullWidth
+                  compressed
                 />
               </EuiFormRow>
               <EuiSpacer size="s" />

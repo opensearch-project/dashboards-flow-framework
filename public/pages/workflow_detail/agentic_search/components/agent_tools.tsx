@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
-import { isEmpty } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import {
   EuiAccordion,
   EuiSpacer,
@@ -21,6 +21,7 @@ import {
   EuiPanel,
   EuiSelect,
   EuiFieldText,
+  EuiTextArea,
 } from '@elastic/eui';
 import { Agent, MODEL_STATE, Tool, TOOL_TYPE } from '../../../../../common';
 import { AppState } from '../../../../store';
@@ -43,6 +44,9 @@ const TOOL_TYPE_OPTIONS = Object.entries(TOOL_TYPE).map(([key, value]) => ({
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase()),
 }));
+
+const DEFAULT_SYSTEM_PROMPT_QUERY_PLANNING_TOOL =
+  'You are an OpenSearch Query DSL generation assistant, translating natural language questions to OpenSeach DSL Queries';
 
 export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
   // get model options if a tool that requires a model is needed
@@ -80,18 +84,13 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
     setAgentForm({ ...agentForm, tools: updatedTools });
   };
 
-  const updateTool = (index: number, updatedTool: Tool) => {
-    const updatedTools = [...tools];
-    updatedTools[index] = updatedTool;
-    setAgentForm({ ...agentForm, tools: updatedTools });
-  };
-
   const getDefaultParameters = (toolType: TOOL_TYPE) => {
     switch (toolType) {
       case TOOL_TYPE.QUERY_PLANNING:
         return {
           model_id: '',
           response_filter: '$.output.message.content[0].text',
+          system_prompt: DEFAULT_SYSTEM_PROMPT_QUERY_PLANNING_TOOL,
         };
       case TOOL_TYPE.SEARCH_INDEX:
         return {};
@@ -100,35 +99,46 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
     }
   };
 
-  const renderToolForm = (toolType: TOOL_TYPE, index: number): any => {
+  // reusable fn for updating single parameter values for a given tool (tool is determined based on index)
+  function updateParameterValue(
+    parameterName: string,
+    parameterValue: string,
+    index: number
+  ) {
     const toolsForm = getIn(agentForm, 'tools');
+    const toolForm = getIn(agentForm, `tools.${index}`) as Tool;
+    const updatedTool = {
+      ...toolForm,
+      parameters: {
+        ...toolForm.parameters,
+        [parameterName]: parameterValue,
+      },
+    };
+    setAgentForm({
+      ...agentForm,
+      tools: toolsForm.map((tool: Tool, i: number) =>
+        i === index ? updatedTool : tool
+      ),
+    });
+  }
+
+  const renderToolForm = (toolType: TOOL_TYPE, index: number): any => {
     const toolForm = getIn(agentForm, `tools.${index}`) as Tool;
     switch (toolType) {
       case TOOL_TYPE.QUERY_PLANNING:
         const selectedModelId = toolForm?.parameters?.model_id;
         const responseFilter = toolForm?.parameters?.response_filter;
+        const systemPrompt = toolForm?.parameters?.system_prompt;
         return (
           <>
             <EuiFormRow label="Model">
               <EuiSelect
                 options={modelOptions}
                 value={selectedModelId}
+                // // TODO: consider debouncing or only doing
+                // // for onBlur for text fields with constant changes to improve performance
                 onChange={(e) => {
-                  // TODO: make this onChange generic. Also consider debouncing or only doing
-                  // for onBlur for text fields with constant changes to improve performance
-                  const updatedTool = {
-                    ...toolForm,
-                    parameters: {
-                      ...toolForm.parameters,
-                      model_id: e.target.value,
-                    },
-                  };
-                  setAgentForm({
-                    ...agentForm,
-                    tools: toolsForm.map((tool: Tool, i: number) =>
-                      i === index ? updatedTool : tool
-                    ),
-                  });
+                  updateParameterValue('model_id', e.target.value, index);
                 }}
                 aria-label="Select model"
                 placeholder="Select a model"
@@ -140,24 +150,50 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
               <EuiFieldText
                 value={responseFilter}
                 onChange={(e) => {
-                  const updatedTool = {
-                    ...toolForm,
-                    parameters: {
-                      ...toolForm.parameters,
-                      response_filter: e.target.value,
-                    },
-                  };
-                  setAgentForm({
-                    ...agentForm,
-                    tools: toolsForm.map((tool: Tool, i: number) =>
-                      i === index ? updatedTool : tool
-                    ),
-                  });
+                  updateParameterValue(
+                    'response_filter',
+                    e.target.value,
+                    index
+                  );
                 }}
                 aria-label="Specify a response filter"
                 placeholder="Response filter"
                 fullWidth
               />
+            </EuiFormRow>
+            <EuiFormRow label="System prompt">
+              <>
+                <EuiTextArea
+                  value={systemPrompt}
+                  onChange={(e) => {
+                    updateParameterValue(
+                      'system_prompt',
+                      e.target.value,
+                      index
+                    );
+                  }}
+                  aria-label="Specify a system prompt"
+                  placeholder="System prompt"
+                  fullWidth
+                  compressed
+                />
+                <EuiSmallButtonEmpty
+                  style={{ marginLeft: '-8px', marginTop: '-8px' }}
+                  disabled={isEqual(
+                    DEFAULT_SYSTEM_PROMPT_QUERY_PLANNING_TOOL,
+                    toolForm?.parameters?.system_prompt
+                  )}
+                  onClick={() => {
+                    updateParameterValue(
+                      'system_prompt',
+                      DEFAULT_SYSTEM_PROMPT_QUERY_PLANNING_TOOL,
+                      index
+                    );
+                  }}
+                >
+                  <EuiText size="xs">Reset to default</EuiText>
+                </EuiSmallButtonEmpty>
+              </>
             </EuiFormRow>
           </>
         );
