@@ -45,7 +45,7 @@ interface AgentConfigurationProps {
   uiConfig: WorkflowConfig | undefined;
 }
 
-const AGENT_ID_PATH = 'search.agentId';
+const AGENT_ID_PATH = 'search.requestAgentId';
 const NEW_AGENT_PLACEHOLDER = 'new_agent';
 const EMPTY_AGENT = {
   type: AGENT_TYPE.FLOW,
@@ -135,7 +135,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
     setNewAndUnsaved(false);
     setFieldValue(
       AGENT_ID_PATH,
-      props.uiConfig?.search?.agentId?.value || undefined
+      props.uiConfig?.search?.requestAgentId?.value || undefined
     );
   }
 

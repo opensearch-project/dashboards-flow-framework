@@ -71,7 +71,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   } = useFormikContext<WorkflowFormValues>();
   const [fieldMappings, setFieldMappings] = useState<any>(null);
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
-  const selectedAgentId = getIn(values, 'search.agentId', '') as string;
+  const selectedAgentId = getIn(values, 'search.requestAgentId', '') as string;
   const finalQuery = (() => {
     try {
       return JSON.parse(getIn(values, 'search.request', '{}'));
@@ -120,7 +120,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
 
   // Update finalQuery when agent changes (and if the agent_id key exists)
   useEffect(() => {
-    if (!isEmpty(selectedAgentId) && touched?.search?.agentId === true) {
+    if (!isEmpty(selectedAgentId) && touched?.search?.requestAgentId === true) {
       try {
         let updatedQuery = cloneDeep(finalQuery);
         if (updatedQuery?.query?.agentic?.agent_id !== undefined) {

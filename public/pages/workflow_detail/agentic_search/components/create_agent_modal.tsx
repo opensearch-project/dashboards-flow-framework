@@ -90,7 +90,7 @@ export function CreateAgentModal(props: CreateAgentModalProps) {
 
       if (response && response.agent && response.agent.id) {
         // Set the newly created agent as the selected one
-        setFieldValue('search.agentId', response.agent.id);
+        setFieldValue('search.requestAgentId', response.agent.id);
 
         // Close the modal
         props.onClose();

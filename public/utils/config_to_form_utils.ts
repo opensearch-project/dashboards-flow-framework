@@ -107,10 +107,11 @@ function searchConfigToFormik(
     searchFormikValues['enrichResponse'] = processorsConfigToFormik(
       searchConfig.enrichResponse
     );
-    // Handle optional agentId field if present
-    if (searchConfig.agentId) {
-      searchFormikValues['agentId'] =
-        searchConfig.agentId.value || getInitialValue(searchConfig.agentId.type);
+    // Handle optional agent fields if present
+    if (searchConfig.requestAgentId) {
+      searchFormikValues['requestAgentId'] =
+        searchConfig.requestAgentId.value ||
+        getInitialValue(searchConfig.requestAgentId.type);
     }
   }
   return searchFormikValues;

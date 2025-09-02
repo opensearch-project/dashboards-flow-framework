@@ -82,6 +82,7 @@ export type IngestConfig = {
   pipelineName: IConfigField;
   enrich: ProcessorsConfig;
   index: IndexConfig;
+  agentId?: IConfigField;
 };
 
 export type SearchConfig = {
@@ -90,7 +91,8 @@ export type SearchConfig = {
   pipelineName: IConfigField;
   enrichRequest: ProcessorsConfig;
   enrichResponse: ProcessorsConfig;
-  agentId?: IConfigField;
+  requestAgentId?: IConfigField;
+  responseAgentId?: IConfigField;
 };
 
 export type WorkflowConfig = {

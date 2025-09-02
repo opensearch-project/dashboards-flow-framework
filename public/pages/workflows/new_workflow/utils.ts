@@ -338,8 +338,8 @@ export function fetchAgenticSearchMetadata(version: string): UIState {
   baseState.config.search.request.value = customStringify(AGENTIC_SEARCH_QUERY);
   baseState.config.search.enrichRequest.processors = [];
   baseState.config.search.enrichResponse.processors = [];
-  baseState.config.search.agentId = {
-    id: 'agentId',
+  baseState.config.search.requestAgentId = {
+    id: 'requestAgentId',
     type: 'string',
     value: '',
   };

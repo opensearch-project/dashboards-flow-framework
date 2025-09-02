@@ -103,14 +103,17 @@ function formikToSearchUiConfig(
     ),
   };
 
-  // Handle optional agentId field
-  if (existingConfig.agentId && searchFormValues['agentId'] !== undefined) {
-    updatedConfig.agentId = {
-      ...existingConfig.agentId,
-      value: searchFormValues['agentId'],
+  // Handle optional agent fields
+  if (
+    existingConfig.requestAgentId &&
+    searchFormValues['requestAgentId'] !== undefined
+  ) {
+    updatedConfig.requestAgentId = {
+      ...existingConfig.requestAgentId,
+      value: searchFormValues['requestAgentId'],
     };
   }
-  
+
   return updatedConfig;
 }
 

@@ -41,7 +41,7 @@ enum QUERY_MODE {
 
 export function SearchQuery(props: SearchQueryProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
-  const agentId = getIn(values, 'search.agentId');
+  const agentId = getIn(values, 'search.requestAgentId');
   const finalQuery = (() => {
     try {
       return JSON.parse(getIn(values, 'search.request', '{}'));
