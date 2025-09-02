@@ -204,14 +204,18 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
           </EuiText>
         );
       default:
-        return {};
+        return (
+          <EuiText size="s" color="subdued">
+            Unsupported tool type. Please edit directly with the JSON editor.
+          </EuiText>
+        );
     }
   };
 
   return (
     <>
       {tools.map((tool, index) => (
-        <>
+        <div key={`tool_${index}`}>
           <EuiPanel
             key={index}
             color="transparent"
@@ -228,11 +232,11 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 >
                   <EuiFlexItem>
                     <EuiText size="s">
-                      {
-                        TOOL_TYPE_OPTIONS.find(
-                          (option) => option.value === tool.type
-                        )?.text
-                      }
+                      {TOOL_TYPE_OPTIONS.find(
+                        (option) => option.value === tool.type
+                      )?.text ||
+                        tool?.type ||
+                        'Unknown tool'}
                     </EuiText>
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
@@ -258,7 +262,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
             <EuiSpacer size="s" />
           </EuiPanel>
           <EuiSpacer size="s" />
-        </>
+        </div>
       ))}
       <EuiPopover
         button={

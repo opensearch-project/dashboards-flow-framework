@@ -10,7 +10,8 @@ import { customStringify } from '../../../../../common';
 interface SimplifiedJsonFieldProps {
   label?: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
+  onBlur: (value: string) => void;
   helpLink?: string;
   helpText?: string;
   editorHeight?: string;
@@ -54,12 +55,15 @@ export function SimplifiedJsonField(props: SimplifiedJsonFieldProps) {
         value={jsonStr}
         onChange={(input) => {
           setJsonStr(input);
+          if (props.onChange !== undefined) {
+            props.onChange(input);
+          }
         }}
         onBlur={() => {
           try {
             const formattedJson = customStringify(JSON.parse(jsonStr));
             setJsonStr(formattedJson);
-            props.onChange(formattedJson);
+            props.onBlur(formattedJson);
           } catch (error) {}
         }}
         readOnly={props.readOnly || false}

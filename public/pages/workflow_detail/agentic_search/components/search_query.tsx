@@ -149,7 +149,7 @@ export function SearchQuery(props: SearchQueryProps) {
       setFieldValue('search.request', customStringify(parsedQuery));
       setJsonError(null);
     } catch (error) {
-      setJsonError('Invalid JSON: ' + (error as Error).message);
+      setJsonError('Invalid JSON: ' + (error as Error)?.message || '');
     }
   };
 
@@ -183,7 +183,7 @@ export function SearchQuery(props: SearchQueryProps) {
               <>
                 <SimplifiedJsonField
                   value={customStringify(finalQuery)}
-                  onChange={handleAdvancedQueryChange}
+                  onBlur={handleAdvancedQueryChange}
                   editorHeight="400px"
                   isInvalid={!!jsonError}
                   helpText="Edit the full OpenSearch DSL query with agentic search parameters"
@@ -199,7 +199,7 @@ export function SearchQuery(props: SearchQueryProps) {
                 {!useAutoPipeline && (
                   <SimplifiedJsonField
                     value={customStringify(customPipeline)}
-                    onChange={handleCustomPipelineChange}
+                    onBlur={handleCustomPipelineChange}
                     editorHeight="200px"
                     isInvalid={!!jsonError}
                     helpText="Edit the default search pipeline to be used alongside the search query"

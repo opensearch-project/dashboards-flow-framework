@@ -22,10 +22,12 @@ import {
   EuiSmallButton,
   EuiSmallButtonEmpty,
   EuiText,
+  EuiButtonGroup,
 } from '@elastic/eui';
 import {
   Agent,
   AGENT_TYPE,
+  customStringify,
   FETCH_ALL_QUERY_LARGE,
   WorkflowConfig,
   WorkflowFormValues,
@@ -40,6 +42,7 @@ import {
 import { getDataSourceId } from '../../../../utils';
 import { capitalize, isEmpty, isEqual } from 'lodash';
 import { AgentTools } from './agent_tools';
+import { SimplifiedJsonField } from './simplified_json_field';
 
 interface AgentConfigurationProps {
   uiConfig: WorkflowConfig | undefined;
@@ -57,6 +60,13 @@ const AGENT_TYPE_OPTIONS = Object.values(AGENT_TYPE).map((agentType) => ({
   value: agentType,
   text: capitalize(agentType),
 }));
+/**
+ * Enum for agent config toggle options
+ */
+enum CONFIG_MODE {
+  SIMPLE = 'simple',
+  ADVANCED = 'advanced',
+}
 
 /**
  * Configure agents. Select from existing agents, update existing agents, or create new agents altogether.
@@ -72,6 +82,11 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
 
   const [agentForm, setAgentForm] = useState<Partial<Agent>>(EMPTY_AGENT);
+  const { id, ...agentFormNoId } = agentForm;
+  const [configModeSelected, setConfigModeSelected] = useState<CONFIG_MODE>(
+    CONFIG_MODE.SIMPLE
+  );
+  const [jsonError, setJsonError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const selectedAgentIdForm = getIn(values, AGENT_ID_PATH, '') as string;
@@ -92,6 +107,14 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   const [agentOptions, setAgentOptions] = useState<
     { value: string; text: string }[]
   >([]);
+  const agentTypeInvalid = !Object.values(AGENT_TYPE).includes(
+    agentForm.type as AGENT_TYPE
+  );
+
+  const handleModeSwitch = (queryMode: string) => {
+    // TODO: we may need to handle more logic in the future as agent config fields grow, if we need further custom rendering etc.
+    setConfigModeSelected(queryMode as CONFIG_MODE);
+  };
 
   // Fetch agents (and populate the agent options in the dropdown) on initial load
   useEffect(() => {
@@ -253,50 +276,87 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
               forceState={isAccordionOpen ? 'open' : 'closed'}
             >
               <EuiSpacer size="s" />
-              <EuiFormRow label="Name">
-                <EuiFieldText
-                  value={agentForm.name}
-                  onChange={(e) =>
-                    setAgentForm({ ...agentForm, name: e.target.value })
-                  }
-                  placeholder="Enter agent name"
-                  aria-label="Enter agent name"
-                  fullWidth
-                />
-              </EuiFormRow>
-              <EuiFormRow label="Type">
-                <EuiSelect
-                  options={AGENT_TYPE_OPTIONS}
-                  value={agentForm?.type}
-                  onChange={(e) => {
-                    setAgentForm({
-                      ...agentForm,
-                      type: e.target.value as AGENT_TYPE,
-                    });
+              {configModeSelected === CONFIG_MODE.SIMPLE ? (
+                <>
+                  <EuiFormRow label="Name">
+                    <EuiFieldText
+                      value={agentForm.name}
+                      onChange={(e) =>
+                        setAgentForm({ ...agentForm, name: e.target.value })
+                      }
+                      placeholder="Enter agent name"
+                      aria-label="Enter agent name"
+                      fullWidth
+                    />
+                  </EuiFormRow>
+                  <EuiFormRow
+                    label="Type"
+                    isInvalid={agentTypeInvalid}
+                    error={`Unknown agent type: '${agentForm?.type}'`}
+                  >
+                    <EuiSelect
+                      options={AGENT_TYPE_OPTIONS}
+                      value={agentTypeInvalid ? undefined : agentForm?.type}
+                      onChange={(e) => {
+                        setAgentForm({
+                          ...agentForm,
+                          type: e.target.value as AGENT_TYPE,
+                        });
+                      }}
+                      aria-label="Agent type"
+                      placeholder="Agent type"
+                      fullWidth
+                      isInvalid={agentTypeInvalid}
+                      hasNoInitialSelection={true}
+                    />
+                  </EuiFormRow>
+                  <EuiSpacer size="s" />
+                  <EuiFormRow label="Description">
+                    <EuiTextArea
+                      value={agentForm.description}
+                      onChange={(e) =>
+                        setAgentForm({
+                          ...agentForm,
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder="Enter description"
+                      aria-label="Enter description"
+                      rows={3}
+                      fullWidth
+                      compressed
+                    />
+                  </EuiFormRow>
+                  <EuiSpacer size="s" />
+                  <EuiFormRow label="Tools">
+                    <AgentTools
+                      agentForm={agentForm}
+                      setAgentForm={setAgentForm}
+                    />
+                  </EuiFormRow>
+                </>
+              ) : (
+                <SimplifiedJsonField
+                  value={customStringify(agentFormNoId)}
+                  onBlur={(e) => {
+                    try {
+                      const agentFormUpdated = JSON.parse(e);
+                      setAgentForm({
+                        id: agentForm.id,
+                        ...agentFormUpdated,
+                      });
+                      setJsonError(undefined);
+                    } catch (error) {
+                      setJsonError(
+                        'Invalid JSON: ' + (error as Error)?.message || ''
+                      );
+                    }
                   }}
-                  aria-label="Agent type"
-                  placeholder="Agent type"
-                  fullWidth
+                  editorHeight="800px"
+                  isInvalid={jsonError !== undefined}
+                  helpText="Edit the full agent configuration directly"
                 />
-              </EuiFormRow>
-              <EuiSpacer size="s" />
-              <EuiFormRow label="Description">
-                <EuiTextArea
-                  value={agentForm.description}
-                  onChange={(e) =>
-                    setAgentForm({ ...agentForm, description: e.target.value })
-                  }
-                  placeholder="Enter description"
-                  aria-label="Enter description"
-                  rows={3}
-                  fullWidth
-                  compressed
-                />
-              </EuiFormRow>
-              <EuiSpacer size="s" />
-              <EuiFormRow label="Tools">
-                <AgentTools agentForm={agentForm} setAgentForm={setAgentForm} />
-              </EuiFormRow>
+              )}
               <EuiSpacer size="m" />
               <EuiFlexGroup direction="row" gutterSize="s">
                 <EuiFlexItem grow={false}>
@@ -334,6 +394,27 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   </EuiFlexItem>
                 )}
               </EuiFlexGroup>
+              <EuiFlexItem grow={false} style={{ marginLeft: '-2px' }}>
+                <EuiSpacer size="m" />
+                <EuiButtonGroup
+                  style={{ maxWidth: '115px' }}
+                  buttonSize="compressed"
+                  legend="Config Mode"
+                  options={[
+                    {
+                      id: CONFIG_MODE.SIMPLE,
+                      label: 'Form',
+                    },
+                    {
+                      id: CONFIG_MODE.ADVANCED,
+                      label: 'JSON',
+                    },
+                  ]}
+                  idSelected={configModeSelected}
+                  onChange={handleModeSwitch}
+                  isFullWidth={false}
+                />
+              </EuiFlexItem>
             </EuiAccordion>
           </EuiFlexItem>
         </EuiFlexGroup>
