@@ -352,7 +352,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
                       !selectedIndexId ||
                       !selectedAgentId
                         ? 'Select an index and agent, and enter a search query'
-                        : 'Search using AI agent'
+                        : 'Search using a configured agent'
                     }
                   >
                     <EuiSmallButton

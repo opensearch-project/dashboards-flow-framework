@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   EuiPanel,
   EuiText,
@@ -24,6 +24,7 @@ interface SearchResultsProps {
 enum RESULTS_VIEW {
   GENERATED_QUERY = 'generated_pipeline',
   HITS = 'hits',
+  AGGREGATIONS = 'aggregations',
   RAW_RESPONSE = 'raw_response',
 }
 
@@ -37,16 +38,42 @@ const RESULTS_VIEW_OPTIONS = [
     label: 'Hits',
   },
   {
+    id: RESULTS_VIEW.AGGREGATIONS,
+    label: 'Aggregations',
+  },
+  {
     id: RESULTS_VIEW.RAW_RESPONSE,
     label: 'Raw response',
   },
 ];
+
+function hasHits(searchResponse?: any): boolean {
+  return Boolean(searchResponse?.hits?.hits?.length > 0);
+}
+function hasAggregations(searchResponse?: any): boolean {
+  return Boolean(
+    searchResponse?.aggregations &&
+      Object.keys(searchResponse?.aggregations || {}).length > 0
+  );
+}
 
 export function SearchResults(props: SearchResultsProps) {
   const generatedQuery = getGeneratedQueryFromResponse(props.searchResponse);
   const [selectedView, setSelectedView] = useState<RESULTS_VIEW>(
     RESULTS_VIEW.HITS
   );
+
+  // Intelligently select the most appropriate tab based on search response content
+  useEffect(() => {
+    if (!props.searchResponse) return;
+    if (hasHits(props.searchResponse)) {
+      setSelectedView(RESULTS_VIEW.HITS);
+    } else if (hasAggregations(props.searchResponse)) {
+      setSelectedView(RESULTS_VIEW.AGGREGATIONS);
+    } else {
+      setSelectedView(RESULTS_VIEW.RAW_RESPONSE);
+    }
+  }, [props.searchResponse]);
 
   const handleViewChange = (viewId: string) => {
     setSelectedView(viewId as RESULTS_VIEW);
@@ -100,7 +127,7 @@ export function SearchResults(props: SearchResultsProps) {
         <EuiFlexItem>
           {selectedView === RESULTS_VIEW.HITS ? (
             <>
-              {props.searchResponse?.hits?.hits?.length > 0 ? (
+              {hasHits(props.searchResponse) ? (
                 <>
                   {props.searchResponse.hits.hits.map(
                     (hit: any, index: number) => (
@@ -143,6 +170,23 @@ export function SearchResults(props: SearchResultsProps) {
               ) : (
                 <EuiText size="s">
                   <p>No agentic query translator processor results available</p>
+                </EuiText>
+              )}
+            </>
+          ) : selectedView === RESULTS_VIEW.AGGREGATIONS ? (
+            <>
+              {hasAggregations(props.searchResponse) ? (
+                <EuiCodeBlock
+                  language="json"
+                  fontSize="s"
+                  paddingSize="m"
+                  isCopyable
+                >
+                  {customStringify(props.searchResponse.aggregations)}
+                </EuiCodeBlock>
+              ) : (
+                <EuiText size="s">
+                  <p>No aggregations found</p>
                 </EuiText>
               )}
             </>
