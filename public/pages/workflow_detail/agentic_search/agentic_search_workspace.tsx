@@ -118,18 +118,19 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
     }
   }, [selectedIndexId]);
 
+  // TODO: add back once agent_id can be passed as a query parameter.
   // Update finalQuery when agent changes (and if the agent_id key exists)
-  useEffect(() => {
-    if (!isEmpty(selectedAgentId) && touched?.search?.requestAgentId === true) {
-      try {
-        let updatedQuery = cloneDeep(finalQuery);
-        if (updatedQuery?.query?.agentic?.agent_id !== undefined) {
-          updatedQuery.query.agentic.agent_id = selectedAgentId || '';
-          setFieldValue('search.request', customStringify(updatedQuery));
-        }
-      } catch {}
-    }
-  }, [selectedAgentId]);
+  // useEffect(() => {
+  //   if (!isEmpty(selectedAgentId) && touched?.search?.requestAgentId === true) {
+  //     try {
+  //       let updatedQuery = cloneDeep(finalQuery);
+  //       if (updatedQuery?.query?.agentic?.agent_id !== undefined) {
+  //         updatedQuery.query.agentic.agent_id = selectedAgentId || '';
+  //         setFieldValue('search.request', customStringify(updatedQuery));
+  //       }
+  //     } catch {}
+  //   }
+  // }, [selectedAgentId]);
 
   // Clear out any query_fields on index change (if the arr exists)
   useEffect(() => {
