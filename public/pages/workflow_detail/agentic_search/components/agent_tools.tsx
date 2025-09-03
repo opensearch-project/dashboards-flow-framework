@@ -131,12 +131,12 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
         const systemPrompt = toolForm?.parameters?.system_prompt;
         return (
           <>
-            <EuiFormRow label="Model">
+            <EuiFormRow label="Model" fullWidth>
               <EuiSelect
                 options={modelOptions}
                 value={selectedModelId}
-                // // TODO: consider debouncing or only doing
-                // // for onBlur for text fields with constant changes to improve performance
+                // TODO: consider debouncing or only doing
+                // for onBlur for text fields with constant changes to improve performance
                 onChange={(e) => {
                   updateParameterValue('model_id', e.target.value, index);
                 }}
@@ -146,7 +146,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 fullWidth
               />
             </EuiFormRow>
-            <EuiFormRow label="Response filter">
+            <EuiFormRow label="Response filter" fullWidth>
               <EuiFieldText
                 value={responseFilter}
                 onChange={(e) => {
@@ -161,7 +161,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 fullWidth
               />
             </EuiFormRow>
-            <EuiFormRow label="System prompt">
+            <EuiFormRow label="System prompt" fullWidth>
               <>
                 <EuiTextArea
                   value={systemPrompt}
@@ -224,32 +224,24 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
           >
             <EuiAccordion
               id={`tool-accordion-${index}`}
+              extraAction={
+                <EuiButtonIcon
+                  aria-label="Remove tool"
+                  iconType="trash"
+                  color="danger"
+                  onClick={() => {
+                    removeTool(index);
+                  }}
+                />
+              }
               buttonContent={
-                <EuiFlexGroup
-                  justifyContent="spaceBetween"
-                  gutterSize="s"
-                  style={{ width: '350px' }}
-                >
-                  <EuiFlexItem>
-                    <EuiText size="s">
-                      {TOOL_TYPE_OPTIONS.find(
-                        (option) => option.value === tool.type
-                      )?.text ||
-                        tool?.type ||
-                        'Unknown tool'}
-                    </EuiText>
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <EuiButtonIcon
-                      aria-label="Remove tool"
-                      iconType="trash"
-                      color="danger"
-                      onClick={() => {
-                        removeTool(index);
-                      }}
-                    />
-                  </EuiFlexItem>
-                </EuiFlexGroup>
+                <EuiText size="s">
+                  {TOOL_TYPE_OPTIONS.find(
+                    (option) => option.value === tool.type
+                  )?.text ||
+                    tool?.type ||
+                    'Unknown tool'}
+                </EuiText>
               }
               paddingSize="s"
               forceState={openAccordionIndex === index ? 'open' : undefined}

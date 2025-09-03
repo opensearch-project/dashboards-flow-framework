@@ -277,64 +277,70 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
             >
               <EuiSpacer size="s" />
               {configModeSelected === CONFIG_MODE.SIMPLE ? (
-                <>
-                  <EuiFormRow label="Name">
-                    <EuiFieldText
-                      value={agentForm.name}
-                      onChange={(e) =>
-                        setAgentForm({ ...agentForm, name: e.target.value })
-                      }
-                      placeholder="Enter agent name"
-                      aria-label="Enter agent name"
-                      fullWidth
-                    />
-                  </EuiFormRow>
-                  <EuiFormRow
-                    label="Type"
-                    isInvalid={agentTypeInvalid}
-                    error={`Unknown agent type: '${agentForm?.type}'`}
-                  >
-                    <EuiSelect
-                      options={AGENT_TYPE_OPTIONS}
-                      value={agentTypeInvalid ? undefined : agentForm?.type}
-                      onChange={(e) => {
-                        setAgentForm({
-                          ...agentForm,
-                          type: e.target.value as AGENT_TYPE,
-                        });
-                      }}
-                      aria-label="Agent type"
-                      placeholder="Agent type"
-                      fullWidth
+                <EuiFlexGroup gutterSize="l">
+                  <EuiFlexItem>
+                    <EuiFormRow label="Name" fullWidth>
+                      <EuiFieldText
+                        value={agentForm.name}
+                        onChange={(e) =>
+                          setAgentForm({ ...agentForm, name: e.target.value })
+                        }
+                        placeholder="Enter agent name"
+                        aria-label="Enter agent name"
+                        fullWidth
+                        maxLength={50}
+                      />
+                    </EuiFormRow>
+                    <EuiSpacer size="s" />
+                    <EuiFormRow
+                      label="Type"
                       isInvalid={agentTypeInvalid}
-                      hasNoInitialSelection={true}
-                    />
-                  </EuiFormRow>
-                  <EuiSpacer size="s" />
-                  <EuiFormRow label="Description">
-                    <EuiTextArea
-                      value={agentForm.description}
-                      onChange={(e) =>
-                        setAgentForm({
-                          ...agentForm,
-                          description: e.target.value,
-                        })
-                      }
-                      placeholder="Enter description"
-                      aria-label="Enter description"
-                      rows={3}
+                      error={`Unknown agent type: '${agentForm?.type}'`}
                       fullWidth
-                      compressed
-                    />
-                  </EuiFormRow>
-                  <EuiSpacer size="s" />
-                  <EuiFormRow label="Tools">
-                    <AgentTools
-                      agentForm={agentForm}
-                      setAgentForm={setAgentForm}
-                    />
-                  </EuiFormRow>
-                </>
+                    >
+                      <EuiSelect
+                        options={AGENT_TYPE_OPTIONS}
+                        value={agentTypeInvalid ? undefined : agentForm?.type}
+                        onChange={(e) => {
+                          setAgentForm({
+                            ...agentForm,
+                            type: e.target.value as AGENT_TYPE,
+                          });
+                        }}
+                        aria-label="Agent type"
+                        placeholder="Agent type"
+                        fullWidth
+                        isInvalid={agentTypeInvalid}
+                        hasNoInitialSelection={true}
+                      />
+                    </EuiFormRow>
+                    <EuiSpacer size="s" />
+                    <EuiFormRow label="Description" fullWidth>
+                      <EuiTextArea
+                        value={agentForm.description}
+                        onChange={(e) =>
+                          setAgentForm({
+                            ...agentForm,
+                            description: e.target.value,
+                          })
+                        }
+                        placeholder="Enter description"
+                        aria-label="Enter description"
+                        rows={8}
+                        fullWidth
+                        compressed
+                      />
+                    </EuiFormRow>
+                  </EuiFlexItem>
+                  <EuiFlexItem>
+                    <EuiFormRow label="Tools" fullWidth>
+                      <AgentTools
+                        agentForm={agentForm}
+                        setAgentForm={setAgentForm}
+                      />
+                    </EuiFormRow>
+                  </EuiFlexItem>
+                </EuiFlexGroup>
               ) : (
                 <SimplifiedJsonField
                   value={customStringify(agentFormNoId)}
