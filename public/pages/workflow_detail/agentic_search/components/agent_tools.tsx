@@ -46,7 +46,7 @@ const TOOL_TYPE_OPTIONS = Object.entries(TOOL_TYPE).map(([key, value]) => ({
 }));
 
 const DEFAULT_SYSTEM_PROMPT_QUERY_PLANNING_TOOL =
-  'You are an OpenSearch Query DSL generation assistant, translating natural language questions to OpenSeach DSL Queries';
+  'You are an OpenSearch Query DSL generation assistant, translating natural language questions to OpenSearch DSL Queries';
 
 export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
   // get model options if a tool that requires a model is needed
