@@ -270,8 +270,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
           <EuiFlexGroup
             gutterSize="m"
             alignItems="center"
-            // change to "spaceBetween" to move the info tool to left-hand side
-            justifyContent="flexEnd"
+            justifyContent="spaceBetween"
           >
             <EuiFlexItem grow={false}>
               <EuiFlexGroup gutterSize="xs" alignItems="center">

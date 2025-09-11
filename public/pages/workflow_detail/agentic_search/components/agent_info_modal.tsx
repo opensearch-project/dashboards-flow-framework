@@ -39,7 +39,6 @@ export function AgentInfoModal(props: AgentInfoModalProps) {
             <li>
               The AI agent converts your question into an optimized search query
             </li>
-            <li>View search results with AI-generated explanations</li>
           </ol>
           <h4>Example questions:</h4>
           <ul>
