@@ -14,7 +14,6 @@ import { customStringify } from './utils';
 
 export const PLUGIN_ID = 'opensearch-flow';
 export const PLUGIN_NAME = 'AI Search Flows'; // visible plugin name in the context of OSD
-export const OPENSEARCH_FLOW = 'OpenSearch Flow'; // overall feature / name that the plugin encapsulates
 
 /**
  * BACKEND FLOW FRAMEWORK APIs
@@ -321,6 +320,10 @@ export const UPDATE_MODEL_DOCS_LINK =
 export const JSONLINES_LINK = 'https://jsonlines.org/';
 export const EXPANDED_FORM_QUERY_ISSUE =
   'https://github.com/opensearch-project/OpenSearch/issues/17358';
+export const AGENT_MAIN_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/agents/index/';
+export const AGENTIC_SEARCH_DOCS_LINK =
+  'https://docs.opensearch.org/latest/vector-search/ai-search/agentic-search/';
 
 // Large Language Models Documentation Links
 export const BEDROCK_CLAUDE_3_SONNET_DOCS_LINK =

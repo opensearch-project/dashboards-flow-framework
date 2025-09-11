@@ -263,26 +263,25 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
       }}
     >
       <EuiFlexGroup direction="column" gutterSize="m">
-        <EuiFlexItem grow={false}>
+        <EuiFlexItem
+          grow={false}
+          style={{ marginTop: '-8px', marginBottom: '-16px' }}
+        >
           <EuiFlexGroup
             gutterSize="m"
             alignItems="center"
-            justifyContent="spaceBetween"
+            // change to "spaceBetween" to move the info tool to left-hand side
+            justifyContent="flexEnd"
           >
             <EuiFlexItem grow={false}>
               <EuiFlexGroup gutterSize="xs" alignItems="center">
-                <EuiFlexItem grow={false}>
-                  <EuiText size="m">
-                    <h2>Agentic Search</h2>
-                  </EuiText>
-                </EuiFlexItem>
                 <EuiFlexItem grow={false}>
                   <EuiButtonEmpty
                     size="s"
                     iconType="questionInCircle"
                     onClick={() => setIsModalVisible(true)}
                   >
-                    Learn more
+                    What is agentic search?
                   </EuiButtonEmpty>
                 </EuiFlexItem>
               </EuiFlexGroup>
