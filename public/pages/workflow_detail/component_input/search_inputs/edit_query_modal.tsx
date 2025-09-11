@@ -4,11 +4,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
-
 import { useSelector } from 'react-redux';
 import { Formik, getIn, useFormikContext } from 'formik';
 import * as yup from 'yup';
-import { isEmpty, get } from 'lodash';
+import { isEmpty } from 'lodash';
 import {
   EuiSmallButton,
   EuiContextMenu,
@@ -25,14 +24,9 @@ import {
   EuiEmptyPrompt,
   EuiCallOut,
   EuiSpacer,
-  EuiTabs,
-  EuiTab,
-  EuiBetaBadge,
 } from '@elastic/eui';
 import { JsonField } from '../input_fields';
 import {
-  customStringify,
-  FETCH_ALL_QUERY_LARGE,
   IConfigField,
   QUERY_PRESETS,
   QueryParam,
@@ -51,25 +45,13 @@ import {
   injectParameters,
   injectPlaceholdersInQueryString,
 } from '../../../../utils';
-import {
-  AppState,
-  searchIndex,
-  searchAgents,
-  useAppDispatch,
-  searchModels,
-} from '../../../../store';
+import { AppState, searchIndex, useAppDispatch } from '../../../../store';
 import { QueryParamsList, Results } from '../../../../general_components';
 import '../../../../global-styles.scss';
-import { AgentConfigurationForm } from './agent_configuration_form';
 
 interface EditQueryModalProps {
   queryFieldPath: string;
   setModalOpen(isOpen: boolean): void;
-}
-
-enum QueryEditorTab {
-  QUERY = 'query',
-  AGENT = 'agent',
 }
 
 /**
@@ -115,35 +97,6 @@ export function EditQueryModal(props: EditQueryModalProps) {
   // query/request params state
   const [queryParams, setQueryParams] = useState<QueryParam[]>([]);
 
-  // Agent-related state
-  const [isAgenticSearch, setIsAgenticSearch] = useState<boolean>(false);
-  const [selectedAgentId, setSelectedAgentId] = useState<string>('');
-  const [selectedTab, setSelectedTab] = useState<QueryEditorTab>(
-    QueryEditorTab.QUERY
-  );
-
-  const isAgenticSearchQuery = (query: string): boolean => {
-    try {
-      const parsedQuery = JSON.parse(query);
-      return !!get(parsedQuery, 'query.agentic');
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const injectAgentId = (agentId: string, request: any) => {
-    try {
-      let updatedQuery = JSON.parse(request);
-      updatedQuery.query.agentic = {
-        ...updatedQuery.query.agentic,
-        agent_id: agentId,
-      };
-      return customStringify(updatedQuery);
-    } catch (e) {
-      console.error('Error updating agent in query: ', e);
-    }
-  };
-
   // Do a few things when the request is changed:
   // 1. Check if there is a new set of query parameters, and if so,
   //    reset the form.
@@ -173,39 +126,6 @@ export function EditQueryModal(props: EditQueryModalProps) {
   useEffect(() => {
     setTempResultsError('');
   }, [queryParams]);
-
-  // Check if the query is an agentic search when it changes
-  useEffect(() => {
-    const isAgentic = isAgenticSearchQuery(tempRequest);
-    setIsAgenticSearch(isAgentic);
-    if (isAgentic) {
-      try {
-        const parsedQuery = JSON.parse(tempRequest);
-        const agentId = get(parsedQuery, 'query.agentic.agent_id');
-        if (agentId) {
-          setSelectedAgentId(agentId);
-        }
-      } catch (e) {}
-    }
-  }, [tempRequest]);
-
-  // Fetch agents & models when agent tab is selected
-  useEffect(() => {
-    if (selectedTab === QueryEditorTab.AGENT) {
-      dispatch(
-        searchAgents({
-          apiBody: FETCH_ALL_QUERY_LARGE,
-          dataSourceId,
-        })
-      );
-      dispatch(
-        searchModels({
-          apiBody: FETCH_ALL_QUERY_LARGE,
-          dataSourceId,
-        })
-      );
-    }
-  }, [selectedTab, dataSourceId, dispatch]);
 
   function executeSearch() {
     dispatch(
@@ -276,150 +196,83 @@ export function EditQueryModal(props: EditQueryModalProps) {
                 <EuiFlexItem>
                   <EuiFlexGroup direction="column">
                     <EuiFlexItem grow={false}>
-                      <EuiTabs>
-                        <EuiTab
-                          onClick={() => {
-                            setSelectedTab(QueryEditorTab.QUERY);
-                          }}
-                          isSelected={selectedTab === QueryEditorTab.QUERY}
-                          data-test-subj="queryTab"
-                        >
-                          Query Definition
-                        </EuiTab>
-                        {isAgenticSearch && (
-                          <EuiTab
-                            onClick={() => setSelectedTab(QueryEditorTab.AGENT)}
-                            isSelected={selectedTab === QueryEditorTab.AGENT}
-                            data-test-subj="agentTab"
-                          >
-                            <EuiFlexGroup gutterSize="xs" alignItems="center">
-                              <EuiFlexItem grow={false}>
-                                Agent Configuration
-                              </EuiFlexItem>
-                              <EuiFlexItem grow={false}>
-                                <EuiBetaBadge
-                                  label="Experimental"
-                                  tooltipContent="This feature is experimental and may change in future releases"
+                      <EuiFlexGroup
+                        direction="row"
+                        justifyContent="spaceBetween"
+                      >
+                        <EuiFlexItem grow={false}>
+                          <EuiText size="m">Query definition</EuiText>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiFlexGroup direction="row" gutterSize="s">
+                            <EuiFlexItem grow={false}>
+                              <EuiPopover
+                                button={
+                                  <EuiSmallButton
+                                    onClick={() => setPopoverOpen(!popoverOpen)}
+                                    data-testid="searchQueryPresetButton"
+                                    iconSide="right"
+                                    iconType="arrowDown"
+                                  >
+                                    Query samples
+                                  </EuiSmallButton>
+                                }
+                                isOpen={popoverOpen}
+                                closePopover={() => setPopoverOpen(false)}
+                                anchorPosition="downLeft"
+                              >
+                                <EuiContextMenu
                                   size="s"
-                                />
-                              </EuiFlexItem>
-                            </EuiFlexGroup>
-                          </EuiTab>
-                        )}
-                      </EuiTabs>
-                    </EuiFlexItem>
-
-                    {selectedTab === QueryEditorTab.QUERY && (
-                      <EuiFlexItem grow={false}>
-                        <EuiFlexGroup
-                          direction="row"
-                          justifyContent="spaceBetween"
-                        >
-                          <EuiFlexItem grow={false}>
-                            <EuiText size="m">Query definition</EuiText>
-                          </EuiFlexItem>
-                          <EuiFlexItem grow={false}>
-                            <EuiFlexGroup direction="row" gutterSize="s">
-                              <EuiFlexItem grow={false}>
-                                <EuiPopover
-                                  button={
-                                    <EuiSmallButton
-                                      onClick={() =>
-                                        setPopoverOpen(!popoverOpen)
-                                      }
-                                      data-testid="searchQueryPresetButton"
-                                      iconSide="right"
-                                      iconType="arrowDown"
-                                    >
-                                      Query samples
-                                    </EuiSmallButton>
-                                  }
-                                  isOpen={popoverOpen}
-                                  closePopover={() => setPopoverOpen(false)}
-                                  anchorPosition="downLeft"
-                                >
-                                  <EuiContextMenu
-                                    size="s"
-                                    initialPanelId={0}
-                                    panels={[
-                                      {
-                                        id: 0,
-                                        items: QUERY_PRESETS.map(
-                                          (preset: QueryPreset) => ({
-                                            name: preset.name,
-                                            onClick: () => {
-                                              const queryString = injectPlaceholdersInQueryString(
+                                  initialPanelId={0}
+                                  panels={[
+                                    {
+                                      id: 0,
+                                      items: QUERY_PRESETS.map(
+                                        (preset: QueryPreset) => ({
+                                          name: preset.name,
+                                          onClick: () => {
+                                            formikProps.setFieldValue(
+                                              'request',
+                                              injectPlaceholdersInQueryString(
                                                 preset.query
-                                              );
-                                              formikProps.setFieldValue(
-                                                'request',
-                                                queryString
-                                              );
-                                              setPopoverOpen(false);
-
-                                              // Check if this is an agentic search query - no additional action needed
-                                              preset.name === 'Agentic search';
-                                            },
-                                          })
-                                        ),
-                                      },
-                                    ]}
-                                  />
-                                </EuiPopover>
-                              </EuiFlexItem>
-                              <EuiFlexItem grow={false}>
-                                <EuiSmallButton
-                                  data-testid="showOrHideSearchPanelButton"
-                                  fill={false}
-                                  iconType={
-                                    searchPanelOpen ? 'menuRight' : 'menuLeft'
-                                  }
-                                  iconSide="right"
-                                  onClick={() => {
-                                    setSearchPanelOpen(!searchPanelOpen);
-                                  }}
-                                >
-                                  Test query
-                                </EuiSmallButton>
-                              </EuiFlexItem>
-                            </EuiFlexGroup>
-                          </EuiFlexItem>
-                        </EuiFlexGroup>
-                      </EuiFlexItem>
-                    )}
-
-                    {selectedTab === QueryEditorTab.AGENT && (
-                      <EuiFlexItem>
-                        <AgentConfigurationForm
-                          selectedAgentId={selectedAgentId}
-                          onAgentSelected={(agentId: string) => {
-                            setSelectedAgentId(agentId);
-                            const requestWithAgentId = injectAgentId(
-                              agentId,
-                              formikProps.values.request
-                            );
-                            if (requestWithAgentId !== undefined) {
-                              formikProps.setFieldValue(
-                                'request',
-                                requestWithAgentId
-                              );
-                            }
-                          }}
-                          selectedIndex={values?.search?.index?.name}
-                        />
-                      </EuiFlexItem>
-                    )}
-
-                    {selectedTab === QueryEditorTab.QUERY && (
-                      <EuiFlexItem>
-                        <JsonField
-                          label="Query"
-                          fieldPath={'request'}
-                          editorHeight="50vh"
-                          readOnly={false}
-                        />
-                      </EuiFlexItem>
-                    )}
+                                              )
+                                            );
+                                            setPopoverOpen(false);
+                                          },
+                                        })
+                                      ),
+                                    },
+                                  ]}
+                                />
+                              </EuiPopover>
+                            </EuiFlexItem>
+                            <EuiFlexItem grow={false}>
+                              <EuiSmallButton
+                                data-testid="showOrHideSearchPanelButton"
+                                fill={false}
+                                iconType={
+                                  searchPanelOpen ? 'menuRight' : 'menuLeft'
+                                }
+                                iconSide="right"
+                                onClick={() => {
+                                  setSearchPanelOpen(!searchPanelOpen);
+                                }}
+                              >
+                                Test query
+                              </EuiSmallButton>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <JsonField
+                        label="Query"
+                        fieldPath={'request'}
+                        editorHeight="50vh"
+                        readOnly={false}
+                      />
+                    </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
                 {searchPanelOpen && (
