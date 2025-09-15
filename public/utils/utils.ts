@@ -131,7 +131,7 @@ export function getObjFromJsonOrYamlString(
   } catch (e) {}
   try {
     // @ts-ignore
-    const yamlObj = yaml.load(fileContents) as object;
+    const yamlObj = yaml.safeLoad(fileContents) as object;
     return yamlObj;
   } catch (e) {}
   return undefined;
