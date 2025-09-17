@@ -337,6 +337,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
                 className="workspace-panel"
                 borderRadius="l"
                 style={{
+                  // TODO: adjust for MDS enabled
                   height: 'calc(100% - 52px)',
                   overflowX: 'hidden',
                   overflowY: 'scroll',
@@ -349,9 +350,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
                     </EuiTitle>
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
-                    <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
-                      <IndexSelector />
-                    </EuiPanel>
+                    <IndexSelector />
                   </EuiFlexItem>
                   <EuiFlexItem>
                     <AgentConfiguration uiConfig={props.uiConfig} />
@@ -376,6 +375,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
                 className="workspace-panel"
                 borderRadius="l"
                 style={{
+                  // TODO: adjust for MDS enabled
                   height: 'calc(100% - 52px)',
                   overflowX: 'hidden',
                   overflowY: 'scroll',
@@ -388,13 +388,11 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
                     </EuiTitle>
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
-                    <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
-                      <SearchQuery
-                        setSearchPipeline={setRuntimeSearchPipeline}
-                        uiConfig={props.uiConfig}
-                        fieldMappings={fieldMappings}
-                      />
-                    </EuiPanel>
+                    <SearchQuery
+                      setSearchPipeline={setRuntimeSearchPipeline}
+                      uiConfig={props.uiConfig}
+                      fieldMappings={fieldMappings}
+                    />
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiFlexGroup direction="row" justifyContent="spaceBetween">

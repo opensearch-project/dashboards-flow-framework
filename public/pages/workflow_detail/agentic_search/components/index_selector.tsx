@@ -88,7 +88,7 @@ export function IndexSelector(props: IndexSelectorProps) {
               indexName={getIn(values, 'search.index.name')}
             />
           )}
-          <EuiFlexGroup gutterSize="s">
+          <EuiFlexGroup gutterSize="s" alignItems="center">
             <EuiFlexItem>
               <EuiSelect
                 options={indexOptions}
