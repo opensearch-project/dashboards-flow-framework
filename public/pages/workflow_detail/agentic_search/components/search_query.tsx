@@ -178,6 +178,32 @@ export function SearchQuery(props: SearchQueryProps) {
         fullWidth
       >
         <EuiFlexGroup direction="column" gutterSize="s">
+          {queryModeSelected === QUERY_MODE.ADVANCED && (
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup direction="row" justifyContent="flexEnd">
+                <EuiFlexItem grow={false}>
+                  <EuiButtonGroup
+                    style={{ maxWidth: '120px' }}
+                    buttonSize="compressed"
+                    legend="Search Mode"
+                    options={[
+                      {
+                        id: QUERY_MODE.SIMPLE,
+                        label: 'Form',
+                      },
+                      {
+                        id: QUERY_MODE.ADVANCED,
+                        label: 'JSON',
+                      },
+                    ]}
+                    idSelected={queryModeSelected}
+                    onChange={handleModeSwitch}
+                    isFullWidth={false}
+                  />
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          )}
           <EuiFlexItem>
             {queryModeSelected === QUERY_MODE.ADVANCED ? (
               <>
@@ -208,14 +234,42 @@ export function SearchQuery(props: SearchQueryProps) {
               </>
             ) : (
               <>
-                <EuiFieldSearch
-                  placeholder="Enter your question or query here..."
-                  value={simpleSearchQuery}
-                  onChange={handleSimpleQueryChange}
-                  fullWidth
-                  isClearable
-                  aria-label="Enter search query"
-                />
+                <EuiFlexGroup
+                  direction="row"
+                  alignItems="center"
+                  gutterSize="s"
+                >
+                  <EuiFlexItem>
+                    <EuiFieldSearch
+                      placeholder="Enter your question or query here..."
+                      value={simpleSearchQuery}
+                      onChange={handleSimpleQueryChange}
+                      fullWidth
+                      isClearable
+                      aria-label="Enter search query"
+                    />
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <EuiButtonGroup
+                      //style={{ maxWidth: '120px' }}
+                      buttonSize="compressed"
+                      legend="Search Mode"
+                      options={[
+                        {
+                          id: QUERY_MODE.SIMPLE,
+                          label: 'Form',
+                        },
+                        {
+                          id: QUERY_MODE.ADVANCED,
+                          label: 'JSON',
+                        },
+                      ]}
+                      idSelected={queryModeSelected}
+                      onChange={handleModeSwitch}
+                      isFullWidth={false}
+                    />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
                 <EuiSpacer size="s" />
                 <QueryFieldSelector
                   uiConfig={props.uiConfig}
@@ -223,27 +277,6 @@ export function SearchQuery(props: SearchQueryProps) {
                 />
               </>
             )}
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiSpacer size="s" />
-            <EuiButtonGroup
-              style={{ maxWidth: '120px' }}
-              buttonSize="compressed"
-              legend="Search Mode"
-              options={[
-                {
-                  id: QUERY_MODE.SIMPLE,
-                  label: 'Form',
-                },
-                {
-                  id: QUERY_MODE.ADVANCED,
-                  label: 'JSON',
-                },
-              ]}
-              idSelected={queryModeSelected}
-              onChange={handleModeSwitch}
-              isFullWidth={false}
-            />
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiFormRow>

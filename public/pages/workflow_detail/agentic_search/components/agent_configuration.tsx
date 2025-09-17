@@ -263,6 +263,26 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   </EuiButtonEmpty>
                 </EuiFlexItem>
               )}
+              <EuiFlexItem grow={false}>
+                <EuiButtonGroup
+                  buttonSize="compressed"
+                  legend="Config Mode"
+                  options={[
+                    {
+                      id: CONFIG_MODE.SIMPLE,
+                      label: 'Form',
+                    },
+                    {
+                      id: CONFIG_MODE.ADVANCED,
+                      label: 'JSON',
+                    },
+                  ]}
+                  idSelected={configModeSelected}
+                  onChange={handleModeSwitch}
+                  isFullWidth={false}
+                  style={{ marginLeft: '8px' }}
+                />
+              </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
           <EuiFlexItem>
@@ -400,27 +420,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   </EuiFlexItem>
                 )}
               </EuiFlexGroup>
-              <EuiFlexItem grow={false} style={{ marginLeft: '-2px' }}>
-                <EuiSpacer size="m" />
-                <EuiButtonGroup
-                  style={{ maxWidth: '115px' }}
-                  buttonSize="compressed"
-                  legend="Config Mode"
-                  options={[
-                    {
-                      id: CONFIG_MODE.SIMPLE,
-                      label: 'Form',
-                    },
-                    {
-                      id: CONFIG_MODE.ADVANCED,
-                      label: 'JSON',
-                    },
-                  ]}
-                  idSelected={configModeSelected}
-                  onChange={handleModeSwitch}
-                  isFullWidth={false}
-                />
-              </EuiFlexItem>
             </EuiAccordion>
           </EuiFlexItem>
         </EuiFlexGroup>
