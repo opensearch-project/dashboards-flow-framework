@@ -331,13 +331,13 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
               scrollable={false}
             >
               <EuiPanel
-                data-testid="componentInputPanel"
+                data-testid="agenticSearchInputPanel"
                 paddingSize="s"
                 grow={true}
                 className="workspace-panel"
                 borderRadius="l"
                 style={{
-                  height: '100%',
+                  height: 'calc(100% - 52px)',
                   overflowX: 'hidden',
                   overflowY: 'scroll',
                 }}
@@ -370,13 +370,13 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
               borderRadius="l"
             >
               <EuiPanel
-                data-testid="componentInputPanel"
+                data-testid="agenticSearchTestPanel"
                 paddingSize="s"
                 grow={true}
                 className="workspace-panel"
                 borderRadius="l"
                 style={{
-                  height: '100%',
+                  height: 'calc(100% - 52px)',
                   overflowX: 'hidden',
                   overflowY: 'scroll',
                 }}
