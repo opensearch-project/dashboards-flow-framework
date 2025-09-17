@@ -6,7 +6,16 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import yaml from 'js-yaml';
 import { JSONPath } from 'jsonpath-plus';
-import { capitalize, escape, findKey, get, isEmpty, set, unset } from 'lodash';
+import {
+  capitalize,
+  escape,
+  findKey,
+  get,
+  isEmpty,
+  isString,
+  set,
+  unset,
+} from 'lodash';
 import { EuiText } from '@elastic/eui';
 import semver from 'semver';
 import queryString from 'query-string';
@@ -1063,4 +1072,15 @@ export function getTransformedQuery(
     }
   });
   return transformedQuery;
+}
+
+// Some parameters in a config may be stored as stringified JSON. This util
+// is meant to automatically parse it into an object, if applicable.
+export function parseStringOrJson(value: any): string | {} | [] {
+  if (!value || !isString(value)) return value;
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return value;
+  }
 }

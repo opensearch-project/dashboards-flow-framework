@@ -33,6 +33,7 @@ import {
   SEARCH_AGENTS_NODE_API_PATH,
   GET_AGENT_NODE_API_PATH,
   UPDATE_AGENT_NODE_API_PATH,
+  GET_SEARCH_TEMPLATES_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -169,6 +170,7 @@ export interface RouteService {
     pipelineId: string,
     dataSourceId?: string
   ) => Promise<any | HttpFetchError>;
+  getSearchTemplates: (dataSourceId?: string) => Promise<any | HttpFetchError>;
   getLocalClusterVersion: () => Promise<any | HttpFetchError>;
 }
 
@@ -558,6 +560,17 @@ export function configureRoutes(core: CoreStart): RouteService {
         const response = await core.http.get<{ respString: string }>(
           `${url}/${pipelineId}`
         );
+        return response;
+      } catch (e: any) {
+        return e as HttpFetchError;
+      }
+    },
+    getSearchTemplates: async (dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/getSearchTemplates`
+          : GET_SEARCH_TEMPLATES_NODE_API_PATH;
+        const response = await core.http.get<{ respString: string }>(url);
         return response;
       } catch (e: any) {
         return e as HttpFetchError;

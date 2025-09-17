@@ -290,6 +290,12 @@ export type SearchPipelineConfig = {
   phase_results_processors?: SearchPhaseResultsProcessor[];
 };
 
+export type SearchTemplateConfig = {
+  lang: string;
+  source: any;
+  options: any;
+};
+
 export type MLInferenceProcessor = IngestProcessor & {
   ml_inference: {
     model_id: string;
