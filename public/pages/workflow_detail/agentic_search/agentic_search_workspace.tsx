@@ -18,14 +18,12 @@ import {
   EuiPanel,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiText,
   EuiSmallButton,
   EuiSpacer,
   EuiCallOut,
   EuiToolTip,
-  EuiButtonEmpty,
-  EuiSmallButtonEmpty,
   EuiResizableContainer,
+  EuiTitle,
 } from '@elastic/eui';
 import {
   customStringify,
@@ -255,96 +253,101 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   }
 
   return (
-    <EuiPanel
-      paddingSize="l"
-      style={{
-        height: '100%',
-        display: 'flex',
-        //flexDirection: 'column',
-        overflow: 'hidden',
-        padding: '16px',
-        marginBottom: '-16px',
-      }}
-    >
-      <EuiFlexGroup direction="column" gutterSize="s">
-        <EuiFlexItem
-          grow={false}
-          style={{ marginTop: '-8px', marginBottom: '-16px' }}
-        >
-          <EuiFlexGroup
-            gutterSize="m"
-            alignItems="center"
-            justifyContent="spaceBetween"
-          >
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup gutterSize="xs" alignItems="center">
-                <EuiFlexItem grow={false}>
-                  <EuiButtonEmpty
-                    size="s"
-                    iconType="questionInCircle"
-                    onClick={() => setIsModalVisible(true)}
-                  >
-                    What is agentic search?
-                  </EuiButtonEmpty>
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup direction="row" gutterSize="s">
-                <EuiFlexItem grow={false}>
-                  <EuiSmallButtonEmpty
-                    disabled={!dirty}
-                    isLoading={workflowsLoading}
-                    onClick={async () => {
-                      await validateAndUpdateWorkflow();
-                    }}
-                  >
-                    {workflowsLoading
-                      ? 'Saving'
-                      : !dirty
-                      ? 'All changes saved'
-                      : 'Save'}
-                  </EuiSmallButtonEmpty>
-                </EuiFlexItem>
-                {dirty && (
-                  <EuiFlexItem grow={false}>
-                    <EuiSmallButtonEmpty
-                      disabled={workflowsLoading}
-                      onClick={() => revertUnsavedChanges()}
-                      iconSide="right"
-                      iconType="editorUndo"
-                    >
-                      {'Undo'}
-                    </EuiSmallButtonEmpty>
-                  </EuiFlexItem>
-                )}
-              </EuiFlexGroup>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <EuiSpacer size="m" />
-        </EuiFlexItem>
-
-        {isModalVisible && (
-          <AgentInfoModal onClose={() => setIsModalVisible(false)} />
-        )}
-        <EuiResizableContainer
-          direction="horizontal"
-          style={{ height: '100%' }}
-        >
-          {(EuiResizablePanel, EuiResizableButton) => (
-            <>
-              <EuiResizablePanel
-                initialSize={50}
-                minSize="30%"
-                mode="main"
+    // <EuiFlexItem
+    //   grow={false}
+    //   style={{ marginTop: '-8px', marginBottom: '-16px' }}
+    // >
+    //   <EuiFlexGroup
+    //     gutterSize="m"
+    //     alignItems="center"
+    //     justifyContent="spaceBetween"
+    //   >
+    //     <EuiFlexItem grow={false}>
+    //       <EuiFlexGroup gutterSize="xs" alignItems="center">
+    //         <EuiFlexItem grow={false}>
+    //           <EuiButtonEmpty
+    //             size="s"
+    //             iconType="questionInCircle"
+    //             onClick={() => setIsModalVisible(true)}
+    //           >
+    //             What is agentic search?
+    //           </EuiButtonEmpty>
+    //         </EuiFlexItem>
+    //       </EuiFlexGroup>
+    //     </EuiFlexItem>
+    //     <EuiFlexItem grow={false}>
+    //       <EuiFlexGroup direction="row" gutterSize="s">
+    //         <EuiFlexItem grow={false}>
+    //           <EuiSmallButtonEmpty
+    //             disabled={!dirty}
+    //             isLoading={workflowsLoading}
+    //             onClick={async () => {
+    //               await validateAndUpdateWorkflow();
+    //             }}
+    //           >
+    //             {workflowsLoading
+    //               ? 'Saving'
+    //               : !dirty
+    //               ? 'All changes saved'
+    //               : 'Save'}
+    //           </EuiSmallButtonEmpty>
+    //         </EuiFlexItem>
+    //         {dirty && (
+    //           <EuiFlexItem grow={false}>
+    //             <EuiSmallButtonEmpty
+    //               disabled={workflowsLoading}
+    //               onClick={() => revertUnsavedChanges()}
+    //               iconSide="right"
+    //               iconType="editorUndo"
+    //             >
+    //               {'Undo'}
+    //             </EuiSmallButtonEmpty>
+    //           </EuiFlexItem>
+    //         )}
+    //       </EuiFlexGroup>
+    //     </EuiFlexItem>
+    //   </EuiFlexGroup>
+    //   <EuiSpacer size="m" />
+    // </EuiFlexItem>
+    <>
+      {/* {isModalVisible && (
+        <AgentInfoModal onClose={() => setIsModalVisible(false)} />
+      )} */}
+      <EuiResizableContainer
+        direction="horizontal"
+        className="stretch-absolute"
+        style={{
+          width: '100%',
+          gap: '4px',
+        }}
+      >
+        {(EuiResizablePanel, EuiResizableButton) => (
+          <>
+            <EuiResizablePanel
+              mode="main"
+              initialSize={50}
+              minSize="25%"
+              paddingSize="none"
+              scrollable={false}
+            >
+              <EuiPanel
+                data-testid="componentInputPanel"
                 paddingSize="s"
-                //style={{ paddingRight: '-24px' }}
+                grow={true}
+                className="workspace-panel"
+                borderRadius="l"
+                style={{
+                  height: '100%',
+                  overflowX: 'hidden',
+                  overflowY: 'scroll',
+                }}
               >
-                <EuiFlexGroup
-                  direction="column"
-                  gutterSize="m"
-                  style={{ height: '100%' }}
-                >
+                <EuiFlexGroup direction="column" gutterSize="m">
+                  <EuiFlexItem grow={false}>
+                    <EuiTitle>
+                      <h3>Flow overview</h3>
+                    </EuiTitle>
+                  </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
                       <IndexSelector />
@@ -354,21 +357,36 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
                     <AgentConfiguration uiConfig={props.uiConfig} />
                   </EuiFlexItem>
                 </EuiFlexGroup>
-              </EuiResizablePanel>
+              </EuiPanel>
+            </EuiResizablePanel>
 
-              <EuiResizableButton />
+            <EuiResizableButton />
 
-              <EuiResizablePanel
-                initialSize={50}
-                minSize="30%"
-                mode="collapsible"
+            <EuiResizablePanel
+              mode="collapsible"
+              initialSize={50}
+              minSize="25%"
+              paddingSize="none"
+              borderRadius="l"
+            >
+              <EuiPanel
+                data-testid="componentInputPanel"
                 paddingSize="s"
+                grow={true}
+                className="workspace-panel"
+                borderRadius="l"
+                style={{
+                  height: '100%',
+                  overflowX: 'hidden',
+                  overflowY: 'scroll',
+                }}
               >
-                <EuiFlexGroup
-                  direction="column"
-                  gutterSize="m"
-                  style={{ height: '100%', overflowX: 'hidden' }}
-                >
+                <EuiFlexGroup direction="column" gutterSize="m">
+                  <EuiFlexItem grow={false}>
+                    <EuiTitle>
+                      <h3>Test flow</h3>
+                    </EuiTitle>
+                  </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiPanel color="subdued" hasShadow={false} paddingSize="s">
                       <SearchQuery
@@ -441,11 +459,11 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
                     </EuiFlexItem>
                   )}
                 </EuiFlexGroup>
-              </EuiResizablePanel>
-            </>
-          )}
-        </EuiResizableContainer>
-      </EuiFlexGroup>
-    </EuiPanel>
+              </EuiPanel>
+            </EuiResizablePanel>
+          </>
+        )}
+      </EuiResizableContainer>
+    </>
   );
 }

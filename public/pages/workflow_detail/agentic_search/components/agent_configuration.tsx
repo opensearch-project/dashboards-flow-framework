@@ -229,7 +229,15 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
         }
         fullWidth
       >
-        <EuiFlexGroup direction="column" gutterSize="s">
+        <EuiFlexGroup
+          direction="column"
+          justifyContent="spaceBetween"
+          gutterSize="none"
+          style={{
+            height: '100%',
+            gap: '16px',
+          }}
+        >
           <EuiFlexItem>
             <EuiFlexGroup gutterSize="s" alignItems="center">
               <EuiFlexItem>
