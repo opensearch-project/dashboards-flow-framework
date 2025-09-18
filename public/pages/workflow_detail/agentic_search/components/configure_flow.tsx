@@ -162,7 +162,10 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
           </EuiFlexGroup>
         </EuiPanel>
       </EuiFlexItem>
-      <EuiFlexItem grow={false}>
+      <EuiFlexItem
+        grow={false}
+        style={{ marginBottom: '-8px', marginTop: '0px' }}
+      >
         <EuiFlexGroup direction="row" gutterSize="s">
           <EuiFlexItem grow={false}>
             <EuiSmallButton

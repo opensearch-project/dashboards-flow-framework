@@ -31,8 +31,7 @@ import {
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
-import { AppState, useAppDispatch } from '../../../../store';
-import { getDataSourceId } from '../../../../utils';
+import { AppState } from '../../../../store';
 import { AgentTools } from './agent_tools';
 import { SimplifiedJsonField } from './simplified_json_field';
 
@@ -62,8 +61,6 @@ enum CONFIG_MODE {
  * Configure agents. Select from existing agents, update existing agents, or create new agents altogether.
  */
 export function AgentConfiguration(props: AgentConfigurationProps) {
-  const dispatch = useAppDispatch();
-  const dataSourceId = getDataSourceId();
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
@@ -164,6 +161,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
         style={{
           height: '100%',
           gap: '16px',
+          overflow: 'hidden',
         }}
       >
         <EuiFlexItem>
