@@ -218,7 +218,7 @@ export function SearchQuery(props: SearchQueryProps) {
             <EuiFlexItem>
               <EuiSmallButton
                 onClick={props.handleSearch}
-                fill
+                fill={false}
                 iconType="search"
                 isLoading={props.isSearching}
                 isDisabled={

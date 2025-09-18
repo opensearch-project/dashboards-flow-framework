@@ -17,9 +17,9 @@ import {
   EuiSelect,
   EuiToolTip,
   EuiIcon,
-  EuiButtonEmpty,
   EuiButtonGroup,
   EuiTitle,
+  EuiSmallButton,
 } from '@elastic/eui';
 import {
   Agent,
@@ -165,20 +165,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
           </EuiFlexGroup>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiFlexGroup direction="row" gutterSize="none">
-            {!props.newAndUnsaved && (
-              <EuiFlexItem grow={false}>
-                <EuiButtonEmpty
-                  size="s"
-                  onClick={() => {
-                    props.onCreateNew();
-                  }}
-                  iconType="plusInCircle"
-                >
-                  Create new
-                </EuiButtonEmpty>
-              </EuiFlexItem>
-            )}
+          <EuiFlexGroup direction="row" gutterSize="s">
             <EuiFlexItem grow={false}>
               <EuiButtonGroup
                 buttonSize="compressed"
@@ -199,6 +186,19 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 style={{ marginLeft: '8px' }}
               />
             </EuiFlexItem>
+            {!props.newAndUnsaved && (
+              <EuiFlexItem grow={false}>
+                <EuiSmallButton
+                  fill={false}
+                  onClick={() => {
+                    props.onCreateNew();
+                  }}
+                  iconType="plusInCircle"
+                >
+                  Create new
+                </EuiSmallButton>
+              </EuiFlexItem>
+            )}
           </EuiFlexGroup>
         </EuiFlexItem>
       </EuiFlexGroup>

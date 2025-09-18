@@ -130,7 +130,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
     >
       <EuiFlexItem grow={false}>
         <EuiTitle>
-          <h3>Flow overview</h3>
+          <h3>Configure flow</h3>
         </EuiTitle>
       </EuiFlexItem>
       <EuiFlexItem
