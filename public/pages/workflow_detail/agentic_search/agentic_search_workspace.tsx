@@ -4,30 +4,16 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { cloneDeep, isEmpty, isEqual } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
 import {
-  AppState,
   getMappings,
   searchAgents,
-  searchIndex,
   updateWorkflow,
   useAppDispatch,
 } from '../../../store';
+import { EuiPanel, EuiResizableContainer } from '@elastic/eui';
 import {
-  EuiPanel,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiSmallButton,
-  EuiSpacer,
-  EuiCallOut,
-  EuiToolTip,
-  EuiResizableContainer,
-  EuiTitle,
-} from '@elastic/eui';
-import {
-  customStringify,
   FETCH_ALL_QUERY_LARGE,
   IndexMappings,
   NEW_AGENT_PLACEHOLDER,
@@ -41,7 +27,7 @@ import {
   getDataSourceId,
 } from '../../../utils';
 import { getCore } from '../../../services';
-import { SearchQuery, SearchResults, ConfigureFlow } from './components';
+import { ConfigureFlow, TestFlow } from './components';
 
 interface AgenticSearchWorkspaceProps {
   workflow: Workflow | undefined;
@@ -55,48 +41,16 @@ interface AgenticSearchWorkspaceProps {
 export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const {
-    values,
-    setFieldValue,
-    touched,
-    submitForm,
-    validateForm,
-    setTouched,
-  } = useFormikContext<WorkflowFormValues>();
+  const { values, submitForm, validateForm, setTouched } = useFormikContext<
+    WorkflowFormValues
+  >();
   const [fieldMappings, setFieldMappings] = useState<any>(null);
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
-  const selectedAgentId = getIn(values, 'search.requestAgentId', '') as string;
-  const finalQuery = (() => {
-    try {
-      return JSON.parse(getIn(values, 'search.request', '{}'));
-    } catch (e) {
-      return {};
-    }
-  })();
 
   // fetch all existing agents on initial load
   useEffect(() => {
     dispatch(searchAgents({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId }));
   }, []);
-
-  // the runtime-specific pipeline to be ran inline with the search query
-  const [runtimeSearchPipeline, setRuntimeSearchPipeline] = useState<{}>({});
-
-  const [isSearching, setIsSearching] = useState<boolean>(false);
-  const [searchResponse, setSearchResponse] = useState<any | undefined>(
-    undefined
-  );
-  const [error, setError] = useState<string | undefined>(undefined);
-
-  const { errorMessage: opensearchError } = useSelector(
-    (state: AppState) => state.opensearch
-  );
-
-  useEffect(() => {
-    if (opensearchError) {
-      setError(opensearchError);
-    }
-  }, [opensearchError]);
 
   // fetch field mappings on init and for any selected index changes
   useEffect(() => {
@@ -111,33 +65,6 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
       setFieldMappings(null);
     }
   }, [selectedIndexId]);
-
-  // TODO: add back once agent_id can be passed as a query parameter.
-  // Update finalQuery when agent changes (and if the agent_id key exists)
-  // useEffect(() => {
-  //   if (!isEmpty(selectedAgentId) && touched?.search?.requestAgentId === true) {
-  //     try {
-  //       let updatedQuery = cloneDeep(finalQuery);
-  //       if (updatedQuery?.query?.agentic?.agent_id !== undefined) {
-  //         updatedQuery.query.agentic.agent_id = selectedAgentId || '';
-  //         setFieldValue('search.request', customStringify(updatedQuery));
-  //       }
-  //     } catch {}
-  //   }
-  // }, [selectedAgentId]);
-
-  // Clear out any query_fields on index change (if the arr exists)
-  useEffect(() => {
-    if (!isEmpty(fieldMappings) && touched?.search?.index?.name === true) {
-      try {
-        let updatedQuery = cloneDeep(finalQuery);
-        if (updatedQuery?.query?.agentic?.query_fields !== undefined) {
-          updatedQuery.query.agentic.query_fields = [];
-          setFieldValue('search.request', customStringify(updatedQuery));
-        }
-      } catch {}
-    }
-  }, [fieldMappings]);
 
   // Utility fn to validate the form and update the workflow if valid
   async function validateAndUpdateWorkflow(): Promise<boolean> {
@@ -212,261 +139,72 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
     props.uiConfig,
   ]);
 
-  const handleClear = () => {
-    setSearchResponse(undefined);
-    setError(undefined);
-  };
-
-  const handleSearch = () => {
-    // "Autosave" by updating the workflow after every search is run.
-    validateAndUpdateWorkflow();
-
-    // Validate that all required fields are selected
-    if (!finalQuery?.query?.agentic?.query_text) {
-      setError('Please enter a search query');
-      return;
-    }
-
-    if (!selectedIndexId) {
-      setError('Please select an index');
-      return;
-    }
-
-    if (!selectedAgentId) {
-      setError('Please select an agent');
-      return;
-    }
-
-    // All validations passed, proceed with search
-    setIsSearching(true);
-    setError(undefined);
-
-    dispatch(
-      searchIndex({
-        apiBody: {
-          index: selectedIndexId,
-          body: injectPipelineIntoQuery(finalQuery),
-        },
-        dataSourceId,
-        verbose: true,
-      })
-    )
-      .unwrap()
-      .then((response) => {
-        setIsSearching(false);
-        setSearchResponse(response);
-      })
-      .catch((error) => {
-        setIsSearching(false);
-        setError(`Search failed: ${error}`);
-      });
-  };
-
-  function injectPipelineIntoQuery(finalQuery: any): {} {
-    return {
-      ...finalQuery,
-      search_pipeline: runtimeSearchPipeline,
-    };
-  }
-
   return (
-    // <EuiFlexItem
-    //   grow={false}
-    //   style={{ marginTop: '-8px', marginBottom: '-16px' }}
-    // >
-    //   <EuiFlexGroup
-    //     gutterSize="m"
-    //     alignItems="center"
-    //     justifyContent="spaceBetween"
-    //   >
-    //     <EuiFlexItem grow={false}>
-    //       <EuiFlexGroup gutterSize="xs" alignItems="center">
-    //         <EuiFlexItem grow={false}>
-    //           <EuiButtonEmpty
-    //             size="s"
-    //             iconType="questionInCircle"
-    //             onClick={() => setIsModalVisible(true)}
-    //           >
-    //             What is agentic search?
-    //           </EuiButtonEmpty>
-    //         </EuiFlexItem>
-    //       </EuiFlexGroup>
-    //     </EuiFlexItem>
-    //     <EuiFlexItem grow={false}>
-    //       <EuiFlexGroup direction="row" gutterSize="s">
-    //         <EuiFlexItem grow={false}>
-    //           <EuiSmallButtonEmpty
-    //             disabled={!dirty}
-    //             isLoading={workflowsLoading}
-    //             onClick={async () => {
-    //               await validateAndUpdateWorkflow();
-    //             }}
-    //           >
-    //             {workflowsLoading
-    //               ? 'Saving'
-    //               : !dirty
-    //               ? 'All changes saved'
-    //               : 'Save'}
-    //           </EuiSmallButtonEmpty>
-    //         </EuiFlexItem>
-    //         {dirty && (
-    //           <EuiFlexItem grow={false}>
-    //             <EuiSmallButtonEmpty
-    //               disabled={workflowsLoading}
-    //               onClick={() => revertUnsavedChanges()}
-    //               iconSide="right"
-    //               iconType="editorUndo"
-    //             >
-    //               {'Undo'}
-    //             </EuiSmallButtonEmpty>
-    //           </EuiFlexItem>
-    //         )}
-    //       </EuiFlexGroup>
-    //     </EuiFlexItem>
-    //   </EuiFlexGroup>
-    //   <EuiSpacer size="m" />
-    // </EuiFlexItem>
-    <>
-      {/* {isModalVisible && (
-        <AgentInfoModal onClose={() => setIsModalVisible(false)} />
-      )} */}
-      <EuiResizableContainer
-        direction="horizontal"
-        className="stretch-absolute"
-        style={{
-          width: '100%',
-          gap: '4px',
-        }}
-      >
-        {(EuiResizablePanel, EuiResizableButton) => (
-          <>
-            <EuiResizablePanel
-              mode="main"
-              initialSize={50}
-              minSize="25%"
-              paddingSize="none"
-              scrollable={false}
-            >
-              <EuiPanel
-                data-testid="agenticSearchInputPanel"
-                paddingSize="s"
-                grow={true}
-                className="workspace-panel"
-                borderRadius="l"
-                style={{
-                  // TODO: adjust for MDS enabled
-                  height: 'calc(100% - 40px)',
-                  overflowX: 'hidden',
-                  overflowY: 'scroll',
-                }}
-              >
-                <ConfigureFlow uiConfig={props.uiConfig} />
-              </EuiPanel>
-            </EuiResizablePanel>
-
-            <EuiResizableButton />
-
-            <EuiResizablePanel
-              mode="collapsible"
-              initialSize={50}
-              minSize="25%"
-              paddingSize="none"
+    <EuiResizableContainer
+      direction="horizontal"
+      className="stretch-absolute"
+      style={{
+        width: '100%',
+        gap: '4px',
+      }}
+    >
+      {(EuiResizablePanel, EuiResizableButton) => (
+        <>
+          <EuiResizablePanel
+            mode="main"
+            initialSize={50}
+            minSize="25%"
+            paddingSize="none"
+            scrollable={false}
+          >
+            <EuiPanel
+              data-testid="agenticSearchInputPanel"
+              paddingSize="s"
+              grow={true}
+              className="workspace-panel"
               borderRadius="l"
+              style={{
+                // TODO: adjust for MDS enabled
+                height: 'calc(100% - 40px)',
+                overflowX: 'hidden',
+                overflowY: 'scroll',
+              }}
             >
-              <EuiPanel
-                data-testid="agenticSearchTestPanel"
-                paddingSize="s"
-                grow={true}
-                className="workspace-panel"
-                borderRadius="l"
-                style={{
-                  // TODO: adjust for MDS enabled
-                  height: 'calc(100% - 52px)',
-                  overflowX: 'hidden',
-                  overflowY: 'scroll',
-                }}
-              >
-                <EuiFlexGroup direction="column" gutterSize="m">
-                  <EuiFlexItem grow={false}>
-                    <EuiTitle>
-                      <h3>Test flow</h3>
-                    </EuiTitle>
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <SearchQuery
-                      setSearchPipeline={setRuntimeSearchPipeline}
-                      uiConfig={props.uiConfig}
-                      fieldMappings={fieldMappings}
-                    />
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                      <EuiFlexItem grow={false}>
-                        <EuiFlexGroup direction="row" gutterSize="s">
-                          <EuiFlexItem grow={false}>
-                            <EuiToolTip
-                              content={
-                                !finalQuery?.query?.agentic?.query_text ||
-                                !selectedIndexId ||
-                                !selectedAgentId
-                                  ? 'Select an index and agent, and enter a search query'
-                                  : 'Search using a configured agent'
-                              }
-                            >
-                              <EuiSmallButton
-                                onClick={handleSearch}
-                                fill
-                                iconType="search"
-                                isLoading={isSearching}
-                                isDisabled={
-                                  !finalQuery?.query?.agentic?.query_text ||
-                                  !selectedIndexId ||
-                                  !selectedAgentId
-                                }
-                              >
-                                Search
-                              </EuiSmallButton>
-                            </EuiToolTip>
-                          </EuiFlexItem>
-                        </EuiFlexGroup>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiFlexGroup direction="row" gutterSize="s">
-                          {searchResponse && (
-                            <EuiFlexItem grow={false}>
-                              <EuiToolTip content="Clear search results and form">
-                                <EuiSmallButton
-                                  onClick={handleClear}
-                                  iconType="eraser"
-                                >
-                                  Clear results
-                                </EuiSmallButton>
-                              </EuiToolTip>
-                            </EuiFlexItem>
-                          )}
-                        </EuiFlexGroup>
-                      </EuiFlexItem>
-                    </EuiFlexGroup>
-                  </EuiFlexItem>
-                  {error !== undefined && (
-                    <EuiFlexItem grow={false}>
-                      <EuiCallOut title="Error" color="danger" iconType="alert">
-                        <p>{error}</p>
-                      </EuiCallOut>
-                      <EuiSpacer size="m" />
-                    </EuiFlexItem>
-                  )}
-                  {searchResponse !== undefined && (
-                    <EuiFlexItem>
-                      <SearchResults searchResponse={searchResponse} />
-                    </EuiFlexItem>
-                  )}
-                </EuiFlexGroup>
-              </EuiPanel>
-            </EuiResizablePanel>
-          </>
-        )}
-      </EuiResizableContainer>
-    </>
+              <ConfigureFlow uiConfig={props.uiConfig} />
+            </EuiPanel>
+          </EuiResizablePanel>
+
+          <EuiResizableButton />
+
+          <EuiResizablePanel
+            mode="collapsible"
+            initialSize={50}
+            minSize="25%"
+            paddingSize="none"
+            borderRadius="l"
+          >
+            <EuiPanel
+              data-testid="agenticSearchTestPanel"
+              paddingSize="s"
+              grow={true}
+              className="workspace-panel"
+              borderRadius="l"
+              style={{
+                // TODO: adjust for MDS enabled
+                height: 'calc(100% - 52px)',
+                overflowX: 'hidden',
+                overflowY: 'scroll',
+              }}
+            >
+              <TestFlow
+                uiConfig={props.uiConfig}
+                fieldMappings={fieldMappings}
+                saveWorkflow={validateAndUpdateWorkflow}
+              />
+            </EuiPanel>
+          </EuiResizablePanel>
+        </>
+      )}
+    </EuiResizableContainer>
   );
 }
