@@ -61,6 +61,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
     !isEmpty(selectedAgentId) &&
     selectedAgentId !== NEW_AGENT_PLACEHOLDER &&
     !isEqual(getIn(agents, selectedAgentId, {}), agentForm);
+  const unsaved = newAndUnsaved || existingAndUnsaved;
 
   function onCreateNew() {
     setNewAndUnsaved(true);
@@ -122,7 +123,11 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
   }
 
   return (
-    <EuiFlexGroup direction="column" gutterSize="m" style={{ height: '100%' }}>
+    <EuiFlexGroup
+      direction="column"
+      gutterSize="m"
+      style={{ height: '100%', overflow: 'hidden' }}
+    >
       <EuiFlexItem grow={false}>
         <EuiTitle>
           <h3>Flow overview</h3>
@@ -144,10 +149,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
             </EuiFlexItem>
             <EuiFlexItem
               style={{
-                overflowY: 'auto',
-                scrollbarGutter: 'auto',
-                scrollbarWidth: 'auto',
-                overflowX: 'hidden',
+                overflow: 'hidden',
               }}
             >
               <AgentConfiguration
@@ -162,48 +164,47 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
           </EuiFlexGroup>
         </EuiPanel>
       </EuiFlexItem>
-      <EuiFlexItem
-        grow={false}
-        style={{ marginBottom: '-8px', marginTop: '0px' }}
-      >
-        <EuiFlexGroup direction="row" gutterSize="s">
-          <EuiFlexItem grow={false}>
-            <EuiSmallButton
-              onClick={() => {
-                if (newAndUnsaved) {
-                  onCreateAgent();
-                } else {
-                  onUpdateAgent();
+      {unsaved && (
+        <EuiFlexItem grow={false} style={{ marginTop: '4px' }}>
+          <EuiFlexGroup direction="row" gutterSize="s">
+            <EuiFlexItem grow={false}>
+              <EuiSmallButton
+                onClick={() => {
+                  if (newAndUnsaved) {
+                    onCreateAgent();
+                  } else {
+                    onUpdateAgent();
+                  }
+                }}
+                fill
+                isDisabled={
+                  isEqual(getIn(agents, selectedAgentId, {}), agentForm) ||
+                  isEmpty(selectedAgentId) ||
+                  !agentForm?.name?.trim()
                 }
-              }}
-              fill
-              isDisabled={
-                isEqual(getIn(agents, selectedAgentId, {}), agentForm) ||
-                isEmpty(selectedAgentId) ||
-                !agentForm?.name?.trim()
-              }
-              isLoading={isSaving}
-            >
-              Save
-            </EuiSmallButton>
-          </EuiFlexItem>
-          {existingAndUnsaved && (
-            <EuiFlexItem grow={false}>
-              <EuiSmallButtonEmpty onClick={onRevertChanges}>
-                Discard changes
-              </EuiSmallButtonEmpty>
+                isLoading={isSaving}
+              >
+                Save
+              </EuiSmallButton>
             </EuiFlexItem>
-          )}
+            {existingAndUnsaved && (
+              <EuiFlexItem grow={false}>
+                <EuiSmallButtonEmpty onClick={onRevertChanges}>
+                  Discard changes
+                </EuiSmallButtonEmpty>
+              </EuiFlexItem>
+            )}
 
-          {newAndUnsaved && (
-            <EuiFlexItem grow={false}>
-              <EuiSmallButtonEmpty onClick={onDiscardDraft}>
-                Discard draft
-              </EuiSmallButtonEmpty>
-            </EuiFlexItem>
-          )}
-        </EuiFlexGroup>
-      </EuiFlexItem>
+            {newAndUnsaved && (
+              <EuiFlexItem grow={false}>
+                <EuiSmallButtonEmpty onClick={onDiscardDraft}>
+                  Discard draft
+                </EuiSmallButtonEmpty>
+              </EuiFlexItem>
+            )}
+          </EuiFlexGroup>
+        </EuiFlexItem>
+      )}
     </EuiFlexGroup>
   );
 }

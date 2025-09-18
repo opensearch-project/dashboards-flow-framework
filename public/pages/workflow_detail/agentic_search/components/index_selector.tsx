@@ -9,13 +9,14 @@ import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
   EuiSelect,
-  EuiFormRow,
   EuiToolTip,
   EuiIcon,
   EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiButtonEmpty,
+  EuiTitle,
+  EuiSpacer,
 } from '@elastic/eui';
 import { AppState, useAppDispatch, getIndex } from '../../../../store';
 import { getDataSourceId } from '../../../../utils/utils';
@@ -53,21 +54,57 @@ export function IndexSelector(props: IndexSelectorProps) {
     }));
 
   return (
-    <EuiFormRow
-      label={
-        <>
-          Index
-          <EuiToolTip content="Choose the index that contains the data you want to search">
-            <EuiIcon
-              type="questionInCircle"
-              color="subdued"
-              style={{ marginLeft: '4px' }}
-            />
-          </EuiToolTip>
-        </>
-      }
-      fullWidth
-    >
+    <>
+      <EuiFlexGroup
+        direction="row"
+        justifyContent="spaceBetween"
+        alignItems="center"
+        style={{ paddingLeft: '2px' }}
+      >
+        <EuiFlexItem grow={false}>
+          <EuiFlexGroup direction="row" gutterSize="none" alignItems="center">
+            <EuiFlexItem grow={false} style={{ marginRight: '4px' }}>
+              <EuiIcon type="document" />
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiTitle size="xs">
+                <h5>Index</h5>
+              </EuiTitle>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiToolTip content="Choose the index that contains the data you want to search">
+                <EuiIcon
+                  type="questionInCircle"
+                  color="subdued"
+                  style={{ marginLeft: '4px' }}
+                />
+              </EuiToolTip>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiFlexGroup direction="row">
+            {!isEmpty(getIn(values, 'search.index.name')) && (
+              <EuiFlexItem grow={false}>
+                <EuiButtonEmpty
+                  size="s"
+                  onClick={async () => {
+                    const indexName = getIn(values, 'search.index.name');
+                    await dispatch(getIndex({ index: indexName, dataSourceId }))
+                      .unwrap()
+                      .then(() => {
+                        setIsDetailsModalVisible(true);
+                      });
+                  }}
+                >
+                  View details
+                </EuiButtonEmpty>
+              </EuiFlexItem>
+            )}
+          </EuiFlexGroup>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+      <EuiSpacer size="s" />
       {indexOptions.length === 0 ? (
         <EuiCallOut
           title="No indices available"
@@ -106,26 +143,9 @@ export function IndexSelector(props: IndexSelectorProps) {
                 fullWidth
               />
             </EuiFlexItem>
-            {!isEmpty(getIn(values, 'search.index.name')) && (
-              <EuiFlexItem grow={false}>
-                <EuiButtonEmpty
-                  size="s"
-                  onClick={async () => {
-                    const indexName = getIn(values, 'search.index.name');
-                    await dispatch(getIndex({ index: indexName, dataSourceId }))
-                      .unwrap()
-                      .then(() => {
-                        setIsDetailsModalVisible(true);
-                      });
-                  }}
-                >
-                  View details
-                </EuiButtonEmpty>
-              </EuiFlexItem>
-            )}
           </EuiFlexGroup>
         </>
       )}
-    </EuiFormRow>
+    </>
   );
 }
