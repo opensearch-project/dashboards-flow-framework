@@ -14,6 +14,7 @@ import {
   EuiTitle,
   EuiSpacer,
   EuiSmallButton,
+  EuiPanel,
 } from '@elastic/eui';
 import { AppState, searchIndex, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils/utils';
@@ -119,78 +120,98 @@ export function TestFlow(props: TestFlowProps) {
   }
 
   return (
-    <EuiFlexGroup direction="column" gutterSize="m">
+    <EuiFlexGroup
+      direction="column"
+      gutterSize="m"
+      style={{ height: '100%', overflow: 'hidden' }}
+    >
       <EuiFlexItem grow={false}>
         <EuiTitle>
           <h3>Test flow</h3>
         </EuiTitle>
       </EuiFlexItem>
-      <EuiFlexItem grow={false}>
-        <SearchQuery
-          setSearchPipeline={setRuntimeSearchPipeline}
-          uiConfig={props.uiConfig}
-          fieldMappings={props.fieldMappings}
-        />
-      </EuiFlexItem>
-      <EuiFlexItem grow={false}>
-        <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-          <EuiFlexItem grow={false}>
-            <EuiFlexGroup direction="row" gutterSize="s">
-              <EuiFlexItem grow={false}>
-                <EuiToolTip
-                  content={
-                    !finalQuery?.query?.agentic?.query_text ||
-                    !selectedIndexId ||
-                    !selectedAgentId
-                      ? 'Select an index and agent, and enter a search query'
-                      : 'Search using a configured agent'
-                  }
-                >
-                  <EuiSmallButton
-                    onClick={handleSearch}
-                    fill
-                    iconType="search"
-                    isLoading={isSearching}
-                    isDisabled={
-                      !finalQuery?.query?.agentic?.query_text ||
-                      !selectedIndexId ||
-                      !selectedAgentId
-                    }
-                  >
-                    Search
-                  </EuiSmallButton>
-                </EuiToolTip>
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiFlexGroup direction="row" gutterSize="s">
-              {searchResponse && (
+      <EuiFlexItem
+        style={{
+          overflowY: 'auto',
+          scrollbarGutter: 'auto',
+          scrollbarWidth: 'auto',
+          overflowX: 'hidden',
+        }}
+      >
+        <EuiPanel color="subdued" paddingSize="s">
+          <EuiFlexGroup direction="column" gutterSize="m">
+            <EuiFlexItem grow={false}>
+              <SearchQuery
+                setSearchPipeline={setRuntimeSearchPipeline}
+                uiConfig={props.uiConfig}
+                fieldMappings={props.fieldMappings}
+              />
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup direction="row" justifyContent="spaceBetween">
                 <EuiFlexItem grow={false}>
-                  <EuiToolTip content="Clear search results and form">
-                    <EuiSmallButton onClick={handleClear} iconType="eraser">
-                      Clear results
-                    </EuiSmallButton>
-                  </EuiToolTip>
+                  <EuiFlexGroup direction="row" gutterSize="s">
+                    <EuiFlexItem grow={false}>
+                      <EuiToolTip
+                        content={
+                          !finalQuery?.query?.agentic?.query_text ||
+                          !selectedIndexId ||
+                          !selectedAgentId
+                            ? 'Select an index and agent, and enter a search query'
+                            : 'Search using a configured agent'
+                        }
+                      >
+                        <EuiSmallButton
+                          onClick={handleSearch}
+                          fill
+                          iconType="search"
+                          isLoading={isSearching}
+                          isDisabled={
+                            !finalQuery?.query?.agentic?.query_text ||
+                            !selectedIndexId ||
+                            !selectedAgentId
+                          }
+                        >
+                          Search
+                        </EuiSmallButton>
+                      </EuiToolTip>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
                 </EuiFlexItem>
-              )}
-            </EuiFlexGroup>
-          </EuiFlexItem>
-        </EuiFlexGroup>
+                <EuiFlexItem grow={false}>
+                  <EuiFlexGroup direction="row" gutterSize="s">
+                    {searchResponse && (
+                      <EuiFlexItem grow={false}>
+                        <EuiToolTip content="Clear search results and form">
+                          <EuiSmallButton
+                            onClick={handleClear}
+                            iconType="eraser"
+                          >
+                            Clear results
+                          </EuiSmallButton>
+                        </EuiToolTip>
+                      </EuiFlexItem>
+                    )}
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+            {error !== undefined && (
+              <EuiFlexItem grow={false}>
+                <EuiCallOut title="Error" color="danger" iconType="alert">
+                  <p>{error}</p>
+                </EuiCallOut>
+                <EuiSpacer size="m" />
+              </EuiFlexItem>
+            )}
+            {searchResponse !== undefined && (
+              <EuiFlexItem>
+                <SearchResults searchResponse={searchResponse} />
+              </EuiFlexItem>
+            )}
+          </EuiFlexGroup>
+        </EuiPanel>
       </EuiFlexItem>
-      {error !== undefined && (
-        <EuiFlexItem grow={false}>
-          <EuiCallOut title="Error" color="danger" iconType="alert">
-            <p>{error}</p>
-          </EuiCallOut>
-          <EuiSpacer size="m" />
-        </EuiFlexItem>
-      )}
-      {searchResponse !== undefined && (
-        <EuiFlexItem>
-          <SearchResults searchResponse={searchResponse} />
-        </EuiFlexItem>
-      )}
     </EuiFlexGroup>
   );
 }

@@ -135,7 +135,6 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
       </EuiFlexItem>
       <EuiFlexItem
         style={{
-          // TODO: move this (and the nested flexitem) as a persisted style somewhere?
           overflowY: 'auto',
           scrollbarGutter: 'auto',
           scrollbarWidth: 'auto',
@@ -165,7 +164,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
         </EuiPanel>
       </EuiFlexItem>
       {unsaved && (
-        <EuiFlexItem grow={false} style={{ marginTop: '4px' }}>
+        <EuiFlexItem grow={false} style={{ marginTop: '0px' }}>
           <EuiFlexGroup direction="row" gutterSize="s">
             <EuiFlexItem grow={false}>
               <EuiSmallButton

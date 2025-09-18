@@ -165,7 +165,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
               borderRadius="l"
               style={{
                 // TODO: adjust for MDS enabled
-                height: 'calc(100% - 40px)',
+                height: 'calc(100% - 36px)',
                 overflowX: 'hidden',
                 overflowY: 'scroll',
               }}
@@ -191,7 +191,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
               borderRadius="l"
               style={{
                 // TODO: adjust for MDS enabled
-                height: 'calc(100% - 52px)',
+                height: 'calc(100% - 36px)',
                 overflowX: 'hidden',
                 overflowY: 'scroll',
               }}
