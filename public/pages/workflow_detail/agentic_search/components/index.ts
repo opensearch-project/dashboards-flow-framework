@@ -4,7 +4,7 @@
  */
 
 export * from './agent_info_modal';
-export * from './agent_configuration';
 export * from './index_selector';
 export * from './search_query';
 export * from './search_results';
+export * from './configure_flow';

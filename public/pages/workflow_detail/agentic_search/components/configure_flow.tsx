@@ -1,0 +1,206 @@
+/*
+ * Copyright OpenSearch Contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { getIn, useFormikContext } from 'formik';
+import { isEmpty, isEqual } from 'lodash';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiSmallButton,
+  EuiSmallButtonEmpty,
+  EuiTitle,
+  EuiPanel,
+} from '@elastic/eui';
+import {
+  Agent,
+  AGENT_TYPE,
+  WorkflowConfig,
+  WorkflowFormValues,
+} from '../../../../../common';
+import {
+  AppState,
+  registerAgent,
+  updateAgent,
+  useAppDispatch,
+} from '../../../../store';
+import { getDataSourceId } from '../../../../utils';
+import { IndexSelector } from './index_selector';
+import { AgentConfiguration } from './agent_configuration';
+
+interface ConfigureFlowProps {
+  uiConfig: WorkflowConfig | undefined;
+}
+
+const AGENT_ID_PATH = 'search.requestAgentId';
+const NEW_AGENT_PLACEHOLDER = 'new_agent';
+const EMPTY_AGENT = {
+  type: AGENT_TYPE.FLOW,
+  name: 'my_agent',
+  description: '',
+  tools: [],
+};
+
+/**
+ * The base component for all of the agentic search flow configuration, including
+ * index and agent selections
+ */
+export function ConfigureFlow(props: ConfigureFlowProps) {
+  const dispatch = useAppDispatch();
+  const dataSourceId = getDataSourceId();
+  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
+  const { agents } = useSelector((state: AppState) => state.ml);
+  const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
+  const [agentForm, setAgentForm] = useState<Partial<Agent>>(EMPTY_AGENT);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [newAndUnsaved, setNewAndUnsaved] = useState<boolean>(false);
+  const existingAndUnsaved =
+    !isEmpty(selectedAgentId) &&
+    selectedAgentId !== NEW_AGENT_PLACEHOLDER &&
+    !isEqual(getIn(agents, selectedAgentId, {}), agentForm);
+
+  function onCreateNew() {
+    setNewAndUnsaved(true);
+  }
+  function onDiscardDraft() {
+    setNewAndUnsaved(false);
+    setFieldValue(
+      AGENT_ID_PATH,
+      props.uiConfig?.search?.requestAgentId?.value || undefined
+    );
+  }
+  function onRevertChanges() {
+    const agent = getIn(agents, selectedAgentId, {});
+    if (!isEmpty(agent)) {
+      setAgentForm(agent);
+    } else {
+      setAgentForm(EMPTY_AGENT);
+    }
+  }
+  async function onCreateAgent() {
+    setIsSaving(true);
+    try {
+      const response = await dispatch(
+        registerAgent({
+          apiBody: agentForm,
+          dataSourceId,
+        })
+      ).unwrap();
+      if (response && response.agent && response.agent.id) {
+        setFieldValue(AGENT_ID_PATH, response.agent.id);
+      } else {
+      }
+    } catch (error) {
+    } finally {
+      setIsSaving(false);
+      setNewAndUnsaved(false);
+    }
+  }
+
+  async function onUpdateAgent() {
+    setIsSaving(true);
+    try {
+      await dispatch(
+        updateAgent({
+          agentId: selectedAgentId,
+          body: agentForm,
+          dataSourceId,
+        })
+      )
+        .unwrap()
+        .then((resp) => {})
+        .catch((e) => {
+          // console.error(e);
+        });
+    } catch (error) {
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return (
+    <EuiFlexGroup direction="column" gutterSize="m" style={{ height: '100%' }}>
+      <EuiFlexItem grow={false}>
+        <EuiTitle>
+          <h3>Flow overview</h3>
+        </EuiTitle>
+      </EuiFlexItem>
+      <EuiFlexItem
+        style={{
+          // TODO: move this (and the nested flexitem) as a persisted style somewhere?
+          overflowY: 'auto',
+          scrollbarGutter: 'auto',
+          scrollbarWidth: 'auto',
+          overflowX: 'hidden',
+        }}
+      >
+        <EuiPanel color="subdued" paddingSize="s">
+          <EuiFlexGroup direction="column">
+            <EuiFlexItem grow={false}>
+              <IndexSelector />
+            </EuiFlexItem>
+            <EuiFlexItem
+              style={{
+                overflowY: 'auto',
+                scrollbarGutter: 'auto',
+                scrollbarWidth: 'auto',
+                overflowX: 'hidden',
+              }}
+            >
+              <AgentConfiguration
+                uiConfig={props.uiConfig}
+                onCreateNew={onCreateNew}
+                newAndUnsaved={newAndUnsaved}
+                setNewAndUnsaved={setNewAndUnsaved}
+                agentForm={agentForm}
+                setAgentForm={setAgentForm}
+              />
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiPanel>
+      </EuiFlexItem>
+      <EuiFlexItem grow={false}>
+        <EuiFlexGroup direction="row" gutterSize="s">
+          <EuiFlexItem grow={false}>
+            <EuiSmallButton
+              onClick={() => {
+                if (newAndUnsaved) {
+                  onCreateAgent();
+                } else {
+                  onUpdateAgent();
+                }
+              }}
+              fill
+              isDisabled={
+                isEqual(getIn(agents, selectedAgentId, {}), agentForm) ||
+                isEmpty(selectedAgentId) ||
+                !agentForm?.name?.trim()
+              }
+              isLoading={isSaving}
+            >
+              Save
+            </EuiSmallButton>
+          </EuiFlexItem>
+          {existingAndUnsaved && (
+            <EuiFlexItem grow={false}>
+              <EuiSmallButtonEmpty onClick={onRevertChanges}>
+                Discard changes
+              </EuiSmallButtonEmpty>
+            </EuiFlexItem>
+          )}
+
+          {newAndUnsaved && (
+            <EuiFlexItem grow={false}>
+              <EuiSmallButtonEmpty onClick={onDiscardDraft}>
+                Discard draft
+              </EuiSmallButtonEmpty>
+            </EuiFlexItem>
+          )}
+        </EuiFlexGroup>
+      </EuiFlexItem>
+    </EuiFlexGroup>
+  );
+}

@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
+import { capitalize, isEmpty } from 'lodash';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -18,8 +19,6 @@ import {
   EuiToolTip,
   EuiIcon,
   EuiButtonEmpty,
-  EuiSmallButton,
-  EuiSmallButtonEmpty,
   EuiText,
   EuiButtonGroup,
 } from '@elastic/eui';
@@ -27,34 +26,26 @@ import {
   Agent,
   AGENT_TYPE,
   customStringify,
-  FETCH_ALL_QUERY_LARGE,
+  EMPTY_AGENT,
+  NEW_AGENT_PLACEHOLDER,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
-import {
-  AppState,
-  registerAgent,
-  updateAgent,
-  searchAgents,
-  useAppDispatch,
-} from '../../../../store';
+import { AppState, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
-import { capitalize, isEmpty, isEqual } from 'lodash';
 import { AgentTools } from './agent_tools';
 import { SimplifiedJsonField } from './simplified_json_field';
 
 interface AgentConfigurationProps {
   uiConfig: WorkflowConfig | undefined;
+  onCreateNew: () => void;
+  newAndUnsaved: boolean;
+  setNewAndUnsaved: (newAndUnsaved: boolean) => void;
+  agentForm: Partial<Agent>;
+  setAgentForm: (agentForm: Partial<Agent>) => void;
 }
 
 const AGENT_ID_PATH = 'search.requestAgentId';
-const NEW_AGENT_PLACEHOLDER = 'new_agent';
-const EMPTY_AGENT = {
-  type: AGENT_TYPE.FLOW,
-  name: 'my_agent',
-  description: '',
-  tools: [],
-};
 const AGENT_TYPE_OPTIONS = Object.values(AGENT_TYPE).map((agentType) => ({
   value: agentType,
   text: capitalize(agentType),
@@ -71,7 +62,6 @@ enum CONFIG_MODE {
  * Configure agents. Select from existing agents, update existing agents, or create new agents altogether.
  */
 export function AgentConfiguration(props: AgentConfigurationProps) {
-  // These will be used later when implementing save functionality
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
@@ -80,45 +70,24 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   const { agents } = useSelector((state: AppState) => state.ml);
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
 
-  const [agentForm, setAgentForm] = useState<Partial<Agent>>(EMPTY_AGENT);
-  const { id, ...agentFormNoId } = agentForm;
+  const { id, ...agentFormNoId } = props.agentForm;
   const [configModeSelected, setConfigModeSelected] = useState<CONFIG_MODE>(
     CONFIG_MODE.SIMPLE
   );
   const [jsonError, setJsonError] = useState<string | undefined>(undefined);
 
+  // listen to agent ID changes. update the agent config form values appropriately
   useEffect(() => {
     const selectedAgentIdForm = getIn(values, AGENT_ID_PATH, '') as string;
     const agent = agents[selectedAgentIdForm];
     if (!isEmpty(selectedAgentIdForm) && !isEmpty(agent)) {
-      setAgentForm(agent);
+      props.setAgentForm(agent);
     } else {
-      setAgentForm(EMPTY_AGENT);
+      props.setAgentForm(EMPTY_AGENT);
     }
   }, [getIn(values, AGENT_ID_PATH), agents]);
 
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [isAccordionOpen, setIsAccordionOpen] = useState<boolean>(false);
-  const [newAndUnsaved, setNewAndUnsaved] = useState<boolean>(false);
-  const existingAndUnsaved =
-    selectedAgentId !== NEW_AGENT_PLACEHOLDER &&
-    !isEqual(getIn(agents, selectedAgentId, {}), agentForm);
-  const [agentOptions, setAgentOptions] = useState<
-    { value: string; text: string }[]
-  >([]);
-  const agentTypeInvalid = !Object.values(AGENT_TYPE).includes(
-    agentForm.type as AGENT_TYPE
-  );
-
-  const handleModeSwitch = (queryMode: string) => {
-    // TODO: we may need to handle more logic in the future as agent config fields grow, if we need further custom rendering etc.
-    setConfigModeSelected(queryMode as CONFIG_MODE);
-  };
-
-  // Fetch agents (and populate the agent options in the dropdown) on initial load
-  useEffect(() => {
-    dispatch(searchAgents({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId }));
-  }, []);
+  // Populate the agent options in the dropdown on initial load
   useEffect(() => {
     setAgentOptions(
       Object.values(agents || {}).map((agent) => ({
@@ -128,13 +97,32 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
     );
   }, [agents]);
 
-  // open the accordion, and add a placeholder "New agent (unsaved)" option in the dropdown.
-  function onCreateNew() {
-    setIsAccordionOpen(true);
-    setNewAndUnsaved(true);
-  }
+  const [isAccordionOpen, setIsAccordionOpen] = useState<boolean>(false);
+
+  // get initial agent options for the dropdown
+  const [agentOptions, setAgentOptions] = useState<
+    { value: string; text: string }[]
+  >([]);
   useEffect(() => {
-    if (newAndUnsaved) {
+    setAgentOptions(
+      Object.values(agents || {}).map((agent) => ({
+        value: agent.id,
+        text: agent.name,
+      }))
+    );
+  }, [agents]);
+  const agentTypeInvalid = !Object.values(AGENT_TYPE).includes(
+    props.agentForm.type as AGENT_TYPE
+  );
+
+  const handleModeSwitch = (queryMode: string) => {
+    // TODO: we may need to handle more logic in the future as agent config fields grow, if we need further custom rendering etc.
+    setConfigModeSelected(queryMode as CONFIG_MODE);
+  };
+
+  // update different agent options in the dropdown based on if a user is creating a new agent or not
+  useEffect(() => {
+    if (props.newAndUnsaved) {
       setFieldValue(AGENT_ID_PATH, NEW_AGENT_PLACEHOLDER);
       setFieldTouched(AGENT_ID_PATH, true);
       setAgentOptions([
@@ -151,65 +139,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
         agentOptions.filter((option) => option.value !== NEW_AGENT_PLACEHOLDER)
       );
     }
-  }, [newAndUnsaved]);
-
-  function onDiscardDraft() {
-    setNewAndUnsaved(false);
-    setFieldValue(
-      AGENT_ID_PATH,
-      props.uiConfig?.search?.requestAgentId?.value || undefined
-    );
-  }
-
-  function onRevertChanges() {
-    const agent = getIn(agents, selectedAgentId, {});
-    if (!isEmpty(agent)) {
-      setAgentForm(agent);
-    } else {
-      setAgentForm(EMPTY_AGENT);
-    }
-  }
-
-  async function onCreateAgent() {
-    setIsSaving(true);
-    try {
-      const response = await dispatch(
-        registerAgent({
-          apiBody: agentForm,
-          dataSourceId,
-        })
-      ).unwrap();
-      if (response && response.agent && response.agent.id) {
-        setFieldValue(AGENT_ID_PATH, response.agent.id);
-      } else {
-      }
-    } catch (error) {
-    } finally {
-      setIsSaving(false);
-      setNewAndUnsaved(false);
-    }
-  }
-
-  async function onUpdateAgent() {
-    setIsSaving(true);
-    try {
-      await dispatch(
-        updateAgent({
-          agentId: selectedAgentId,
-          body: agentForm,
-          dataSourceId,
-        })
-      )
-        .unwrap()
-        .then((resp) => {})
-        .catch((e) => {
-          // console.error(e);
-        });
-    } catch (error) {
-    } finally {
-      setIsSaving(false);
-    }
-  }
+  }, [props.newAndUnsaved]);
 
   return (
     <EuiFormRow
@@ -245,7 +175,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 onChange={(e) => {
                   const value = e.target.value;
                   if (value !== NEW_AGENT_PLACEHOLDER) {
-                    setNewAndUnsaved(false);
+                    props.setNewAndUnsaved(false);
                   }
                   if (value) {
                     setFieldValue(AGENT_ID_PATH, value);
@@ -258,11 +188,14 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 fullWidth
               />
             </EuiFlexItem>
-            {!newAndUnsaved && (
+            {!props.newAndUnsaved && (
               <EuiFlexItem grow={false}>
                 <EuiButtonEmpty
                   size="s"
-                  onClick={onCreateNew}
+                  onClick={() => {
+                    props.onCreateNew();
+                    setIsAccordionOpen(true);
+                  }}
                   iconType="plusInCircle"
                 >
                   Create new
@@ -307,9 +240,12 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 <EuiFlexItem>
                   <EuiFormRow label="Name" fullWidth>
                     <EuiFieldText
-                      value={agentForm.name}
+                      value={props.agentForm.name}
                       onChange={(e) =>
-                        setAgentForm({ ...agentForm, name: e.target.value })
+                        props.setAgentForm({
+                          ...props.agentForm,
+                          name: e.target.value,
+                        })
                       }
                       placeholder="Enter agent name"
                       aria-label="Enter agent name"
@@ -321,15 +257,17 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   <EuiFormRow
                     label="Type"
                     isInvalid={agentTypeInvalid}
-                    error={`Unknown agent type: '${agentForm?.type}'`}
+                    error={`Unknown agent type: '${props.agentForm?.type}'`}
                     fullWidth
                   >
                     <EuiSelect
                       options={AGENT_TYPE_OPTIONS}
-                      value={agentTypeInvalid ? undefined : agentForm?.type}
+                      value={
+                        agentTypeInvalid ? undefined : props.agentForm?.type
+                      }
                       onChange={(e) => {
-                        setAgentForm({
-                          ...agentForm,
+                        props.setAgentForm({
+                          ...props.agentForm,
                           type: e.target.value as AGENT_TYPE,
                         });
                       }}
@@ -343,10 +281,10 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   <EuiSpacer size="s" />
                   <EuiFormRow label="Description" fullWidth>
                     <EuiTextArea
-                      value={agentForm.description}
+                      value={props.agentForm.description}
                       onChange={(e) =>
-                        setAgentForm({
-                          ...agentForm,
+                        props.setAgentForm({
+                          ...props.agentForm,
                           description: e.target.value,
                         })
                       }
@@ -361,8 +299,8 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 <EuiFlexItem>
                   <EuiFormRow label="Tools" fullWidth>
                     <AgentTools
-                      agentForm={agentForm}
-                      setAgentForm={setAgentForm}
+                      agentForm={props.agentForm}
+                      setAgentForm={props.setAgentForm}
                     />
                   </EuiFormRow>
                 </EuiFlexItem>
@@ -373,8 +311,8 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 onBlur={(e) => {
                   try {
                     const agentFormUpdated = JSON.parse(e);
-                    setAgentForm({
-                      id: agentForm.id,
+                    props.setAgentForm({
+                      id: props.agentForm.id,
                       ...agentFormUpdated,
                     });
                     setJsonError(undefined);
@@ -390,42 +328,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
               />
             )}
             <EuiSpacer size="m" />
-            <EuiFlexGroup direction="row" gutterSize="s">
-              <EuiFlexItem grow={false}>
-                <EuiSmallButton
-                  onClick={() => {
-                    if (newAndUnsaved) {
-                      onCreateAgent();
-                    } else {
-                      onUpdateAgent();
-                    }
-                  }}
-                  fill
-                  isDisabled={
-                    isEqual(getIn(agents, selectedAgentId, {}), agentForm) ||
-                    !agentForm?.name?.trim()
-                  }
-                  isLoading={isSaving}
-                >
-                  Save
-                </EuiSmallButton>
-              </EuiFlexItem>
-              {existingAndUnsaved && (
-                <EuiFlexItem grow={false}>
-                  <EuiSmallButtonEmpty onClick={onRevertChanges}>
-                    Discard changes
-                  </EuiSmallButtonEmpty>
-                </EuiFlexItem>
-              )}
-
-              {newAndUnsaved && (
-                <EuiFlexItem grow={false}>
-                  <EuiSmallButtonEmpty onClick={onDiscardDraft}>
-                    Discard draft
-                  </EuiSmallButtonEmpty>
-                </EuiFlexItem>
-              )}
-            </EuiFlexGroup>
           </EuiAccordion>
         </EuiFlexItem>
       </EuiFlexGroup>

@@ -3,13 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { cloneDeep, isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, isEqual } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
 import {
   AppState,
   getMappings,
+  searchAgents,
   searchIndex,
   updateWorkflow,
   useAppDispatch,
@@ -27,7 +28,9 @@ import {
 } from '@elastic/eui';
 import {
   customStringify,
+  FETCH_ALL_QUERY_LARGE,
   IndexMappings,
+  NEW_AGENT_PLACEHOLDER,
   Workflow,
   WorkflowConfig,
   WorkflowFormValues,
@@ -38,13 +41,7 @@ import {
   getDataSourceId,
 } from '../../../utils';
 import { getCore } from '../../../services';
-import {
-  AgentInfoModal,
-  AgentConfiguration,
-  IndexSelector,
-  SearchQuery,
-  SearchResults,
-} from './components';
+import { SearchQuery, SearchResults, ConfigureFlow } from './components';
 
 interface AgenticSearchWorkspaceProps {
   workflow: Workflow | undefined;
@@ -61,11 +58,9 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   const {
     values,
     setFieldValue,
-    dirty,
     touched,
     submitForm,
     validateForm,
-    resetForm,
     setTouched,
   } = useFormikContext<WorkflowFormValues>();
   const [fieldMappings, setFieldMappings] = useState<any>(null);
@@ -79,10 +74,14 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
     }
   })();
 
+  // fetch all existing agents on initial load
+  useEffect(() => {
+    dispatch(searchAgents({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId }));
+  }, []);
+
   // the runtime-specific pipeline to be ran inline with the search query
   const [runtimeSearchPipeline, setRuntimeSearchPipeline] = useState<{}>({});
 
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchResponse, setSearchResponse] = useState<any | undefined>(
     undefined
@@ -91,10 +90,6 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
 
   const { errorMessage: opensearchError } = useSelector(
     (state: AppState) => state.opensearch
-  );
-
-  const { loading: workflowsLoading } = useSelector(
-    (state: AppState) => state.workflows
   );
 
   useEffect(() => {
@@ -190,10 +185,32 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
     return success;
   }
 
-  // Utility fn to revert any unsaved changes, reset the form
-  function revertUnsavedChanges(): void {
-    resetForm();
-  }
+  // Listen on changes in the form, and compare to what's persisted in the stored config.
+  // If there are valid changes made, automatically save the workflow.
+  useEffect(() => {
+    // index field
+    const persistedIndexName = props.uiConfig?.search?.index?.name?.value;
+    const formIndexName = getIn(values, 'search.index.name');
+    const indexNameChanged =
+      !isEmpty(formIndexName) && !isEqual(persistedIndexName, formIndexName);
+
+    // agent field
+    const persistedAgentId = props.uiConfig?.search?.requestAgentId?.value;
+    const formAgentId = getIn(values, 'search.requestAgentId');
+    const agentIdChanged =
+      !isEmpty(formAgentId) &&
+      !isEqual(formAgentId, NEW_AGENT_PLACEHOLDER) &&
+      !isEqual(persistedAgentId, formAgentId);
+
+    // TODO: add for search query as well.
+    if (indexNameChanged || agentIdChanged) {
+      validateAndUpdateWorkflow();
+    }
+  }, [
+    getIn(values, 'search.index.name'),
+    getIn(values, 'search.requestAgentId'),
+    props.uiConfig,
+  ]);
 
   const handleClear = () => {
     setSearchResponse(undefined);
@@ -343,19 +360,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
                   overflowY: 'scroll',
                 }}
               >
-                <EuiFlexGroup direction="column" gutterSize="m">
-                  <EuiFlexItem grow={false}>
-                    <EuiTitle>
-                      <h3>Flow overview</h3>
-                    </EuiTitle>
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <IndexSelector />
-                  </EuiFlexItem>
-                  <EuiFlexItem>
-                    <AgentConfiguration uiConfig={props.uiConfig} />
-                  </EuiFlexItem>
-                </EuiFlexGroup>
+                <ConfigureFlow uiConfig={props.uiConfig} />
               </EuiPanel>
             </EuiResizablePanel>
 

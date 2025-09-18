@@ -4,6 +4,7 @@
  */
 
 import {
+  Agent,
   InputMapEntry,
   MapEntry,
   PromptPreset,
@@ -1018,6 +1019,14 @@ export enum AGENT_TYPE {
   FLOW = 'flow',
   CONVERSATIONAL = 'conversational',
 }
+
+export const NEW_AGENT_PLACEHOLDER = 'new_agent';
+export const EMPTY_AGENT = {
+  type: AGENT_TYPE.FLOW,
+  name: 'my_agent',
+  description: '',
+  tools: [],
+} as Partial<Agent>;
 
 // Tool types supported by agents.
 // Derived from https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/index/

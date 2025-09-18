@@ -59,11 +59,11 @@ const GENERATION_TYPE_OPTIONS = [
 
 interface SearchTemplateField {
   template_id: string;
-  description: string;
+  template_description: string;
 }
 const DEFAULT_SEARCH_TEMPLATE: SearchTemplateField = {
   template_id: '',
-  description: '',
+  template_description: '',
 };
 
 export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
@@ -356,7 +356,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                                 <EuiSpacer size="s" />
                                 <EuiFormRow label="Description" fullWidth>
                                   <EuiTextArea
-                                    value={template.description}
+                                    value={template.template_description}
                                     onChange={(e) => {
                                       updateSearchTemplate(
                                         templateIndex,
