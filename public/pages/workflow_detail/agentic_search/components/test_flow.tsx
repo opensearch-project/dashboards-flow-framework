@@ -7,7 +7,6 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import {
-  EuiToolTip,
   EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
@@ -87,7 +86,6 @@ export function TestFlow(props: TestFlowProps) {
       return;
     }
 
-    // All validations passed, proceed with search
     setIsSearching(true);
     setError(undefined);
 
@@ -145,57 +143,17 @@ export function TestFlow(props: TestFlowProps) {
                 setSearchPipeline={setRuntimeSearchPipeline}
                 uiConfig={props.uiConfig}
                 fieldMappings={props.fieldMappings}
+                handleSearch={handleSearch}
+                isSearching={isSearching}
               />
             </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                <EuiFlexItem grow={false}>
-                  <EuiFlexGroup direction="row" gutterSize="s">
-                    <EuiFlexItem grow={false}>
-                      <EuiToolTip
-                        content={
-                          !finalQuery?.query?.agentic?.query_text ||
-                          !selectedIndexId ||
-                          !selectedAgentId
-                            ? 'Select an index and agent, and enter a search query'
-                            : 'Search using a configured agent'
-                        }
-                      >
-                        <EuiSmallButton
-                          onClick={handleSearch}
-                          fill
-                          iconType="search"
-                          isLoading={isSearching}
-                          isDisabled={
-                            !finalQuery?.query?.agentic?.query_text ||
-                            !selectedIndexId ||
-                            !selectedAgentId
-                          }
-                        >
-                          Search
-                        </EuiSmallButton>
-                      </EuiToolTip>
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiFlexGroup direction="row" gutterSize="s">
-                    {searchResponse && (
-                      <EuiFlexItem grow={false}>
-                        <EuiToolTip content="Clear search results and form">
-                          <EuiSmallButton
-                            onClick={handleClear}
-                            iconType="eraser"
-                          >
-                            Clear results
-                          </EuiSmallButton>
-                        </EuiToolTip>
-                      </EuiFlexItem>
-                    )}
-                  </EuiFlexGroup>
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiFlexItem>
+            {searchResponse && (
+              <EuiFlexItem grow={false}>
+                <EuiSmallButton onClick={handleClear} iconType="eraser">
+                  Clear results
+                </EuiSmallButton>
+              </EuiFlexItem>
+            )}
             {error !== undefined && (
               <EuiFlexItem grow={false}>
                 <EuiCallOut title="Error" color="danger" iconType="alert">

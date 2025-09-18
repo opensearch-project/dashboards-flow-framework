@@ -8,7 +8,6 @@ import { getIn, useFormikContext } from 'formik';
 import { cloneDeep, isEmpty, set } from 'lodash';
 import {
   EuiFieldSearch,
-  EuiFormRow,
   EuiToolTip,
   EuiIcon,
   EuiFlexGroup,
@@ -16,6 +15,8 @@ import {
   EuiCheckbox,
   EuiSpacer,
   EuiButtonGroup,
+  EuiTitle,
+  EuiSmallButton,
 } from '@elastic/eui';
 import { SimplifiedJsonField } from './simplified_json_field';
 import { QueryFieldSelector } from './query_field_selector';
@@ -29,6 +30,8 @@ interface SearchQueryProps {
   setSearchPipeline: (searchPipeline: {}) => void;
   uiConfig?: WorkflowConfig;
   fieldMappings: any;
+  handleSearch(): void;
+  isSearching: boolean;
 }
 
 /**
@@ -41,7 +44,8 @@ enum QUERY_MODE {
 
 export function SearchQuery(props: SearchQueryProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
-  const agentId = getIn(values, 'search.requestAgentId');
+  const selectedIndexId = getIn(values, 'search.index.name', '') as string;
+  const selectedAgentId = getIn(values, 'search.requestAgentId', '') as string;
   const finalQuery = (() => {
     try {
       return JSON.parse(getIn(values, 'search.request', '{}'));
@@ -70,12 +74,12 @@ export function SearchQuery(props: SearchQueryProps) {
 
   // update the auto-generated pipeline when a new agent is selected
   useEffect(() => {
-    if (!isEmpty(agentId)) {
+    if (!isEmpty(selectedAgentId)) {
       setAutoPipeline({
         request_processors: [
           {
             agentic_query_translator: {
-              agent_id: agentId,
+              agent_id: selectedAgentId,
             },
           },
         ],
@@ -94,12 +98,12 @@ export function SearchQuery(props: SearchQueryProps) {
         set(
           customPipelineUpdated,
           'request_processors.0.agentic_query_translator.agent_id',
-          agentId
+          selectedAgentId
         );
         setCustomPipeline(customPipelineUpdated);
       }
     }
-  }, [agentId]);
+  }, [selectedAgentId]);
 
   // reset the custom pipeline to match the auto-generated one, whenever the checkmark is disabled.
   // always reset the upstream persisted search pipeline when either are toggled, back to the default
@@ -162,124 +166,125 @@ export function SearchQuery(props: SearchQueryProps) {
 
   return (
     <>
-      <EuiFormRow
-        label={
-          <>
-            Search Query
-            <EuiToolTip content="Enter your question or query in natural language. The AI agent will convert it to an optimized search query">
-              <EuiIcon
-                type="questionInCircle"
-                color="subdued"
-                style={{ marginLeft: '4px' }}
-              />
-            </EuiToolTip>
-          </>
-        }
-        fullWidth
+      <EuiFlexGroup
+        direction="row"
+        justifyContent="spaceBetween"
+        alignItems="center"
+        style={{ paddingLeft: '2px' }}
       >
-        <EuiFlexGroup direction="column" gutterSize="s">
-          {queryModeSelected === QUERY_MODE.ADVANCED && (
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup direction="row" justifyContent="flexEnd">
-                <EuiFlexItem grow={false}>
-                  <EuiButtonGroup
-                    style={{ maxWidth: '120px' }}
-                    buttonSize="compressed"
-                    legend="Search Mode"
-                    options={[
-                      {
-                        id: QUERY_MODE.SIMPLE,
-                        label: 'Form',
-                      },
-                      {
-                        id: QUERY_MODE.ADVANCED,
-                        label: 'JSON',
-                      },
-                    ]}
-                    idSelected={queryModeSelected}
-                    onChange={handleModeSwitch}
-                    isFullWidth={false}
-                  />
-                </EuiFlexItem>
-              </EuiFlexGroup>
+        <EuiFlexItem grow={false}>
+          <EuiFlexGroup direction="row" gutterSize="none" alignItems="center">
+            <EuiFlexItem grow={false} style={{ marginRight: '4px' }}>
+              <EuiIcon type="search" />
             </EuiFlexItem>
-          )}
-          <EuiFlexItem>
-            {queryModeSelected === QUERY_MODE.ADVANCED ? (
-              <>
-                <SimplifiedJsonField
-                  value={customStringify(finalQuery)}
-                  onBlur={handleAdvancedQueryChange}
-                  editorHeight="400px"
-                  isInvalid={!!jsonError}
-                  helpText="Edit the full OpenSearch DSL query with agentic search parameters"
+            <EuiFlexItem grow={false}>
+              <EuiTitle size="xs">
+                <h5>Query</h5>
+              </EuiTitle>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiToolTip content="Enter your question or query in natural language. The AI agent will convert it to an optimized search query">
+                <EuiIcon
+                  type="questionInCircle"
+                  color="subdued"
+                  style={{ marginLeft: '4px' }}
                 />
-                <EuiSpacer size="s" />
+              </EuiToolTip>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiFlexGroup direction="row" gutterSize="s">
+            <EuiFlexItem grow={false}>
+              <EuiButtonGroup
+                buttonSize="compressed"
+                legend="Config Mode"
+                options={[
+                  {
+                    id: QUERY_MODE.SIMPLE,
+                    label: 'Form',
+                  },
+                  {
+                    id: QUERY_MODE.ADVANCED,
+                    label: 'JSON',
+                  },
+                ]}
+                idSelected={queryModeSelected}
+                onChange={handleModeSwitch}
+                isFullWidth={false}
+                style={{ marginLeft: '8px' }}
+              />
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <EuiSmallButton
+                onClick={props.handleSearch}
+                fill
+                iconType="search"
+                isLoading={props.isSearching}
+                isDisabled={
+                  !finalQuery?.query?.agentic?.query_text ||
+                  !selectedIndexId ||
+                  !selectedAgentId
+                }
+              >
+                Search
+              </EuiSmallButton>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+      <EuiSpacer size="s" />
+      <EuiFlexGroup direction="column" gutterSize="s">
+        <EuiFlexItem>
+          {queryModeSelected === QUERY_MODE.ADVANCED ? (
+            <>
+              <SimplifiedJsonField
+                value={customStringify(finalQuery)}
+                onBlur={handleAdvancedQueryChange}
+                editorHeight="400px"
+                isInvalid={!!jsonError}
+                helpText="Edit the full OpenSearch DSL query with agentic search parameters"
+              />
+              <EuiSpacer size="s" />
 
-                <EuiCheckbox
-                  id="useAutoPipelineCheckbox"
-                  label="Use auto-generated search pipeline"
-                  checked={useAutoPipeline}
-                  onChange={() => setUseAutoPipeline(!useAutoPipeline)}
+              <EuiCheckbox
+                id="useAutoPipelineCheckbox"
+                label="Use auto-generated search pipeline"
+                checked={useAutoPipeline}
+                onChange={() => setUseAutoPipeline(!useAutoPipeline)}
+              />
+              {!useAutoPipeline && (
+                <SimplifiedJsonField
+                  value={customStringify(customPipeline)}
+                  onBlur={handleCustomPipelineChange}
+                  editorHeight="200px"
+                  isInvalid={!!jsonError}
+                  helpText="Edit the default search pipeline to be used alongside the search query"
                 />
-                {!useAutoPipeline && (
-                  <SimplifiedJsonField
-                    value={customStringify(customPipeline)}
-                    onBlur={handleCustomPipelineChange}
-                    editorHeight="200px"
-                    isInvalid={!!jsonError}
-                    helpText="Edit the default search pipeline to be used alongside the search query"
-                  />
-                )}
-              </>
-            ) : (
-              <>
-                <EuiFlexGroup
-                  direction="row"
-                  alignItems="center"
-                  gutterSize="s"
-                >
-                  <EuiFlexItem>
-                    <EuiFieldSearch
-                      placeholder="Enter your question or query here..."
-                      value={simpleSearchQuery}
-                      onChange={handleSimpleQueryChange}
-                      fullWidth
-                      isClearable
-                      aria-label="Enter search query"
-                    />
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <EuiButtonGroup
-                      //style={{ maxWidth: '120px' }}
-                      buttonSize="compressed"
-                      legend="Search Mode"
-                      options={[
-                        {
-                          id: QUERY_MODE.SIMPLE,
-                          label: 'Form',
-                        },
-                        {
-                          id: QUERY_MODE.ADVANCED,
-                          label: 'JSON',
-                        },
-                      ]}
-                      idSelected={queryModeSelected}
-                      onChange={handleModeSwitch}
-                      isFullWidth={false}
-                    />
-                  </EuiFlexItem>
-                </EuiFlexGroup>
-                <EuiSpacer size="s" />
+              )}
+            </>
+          ) : (
+            <EuiFlexGroup direction="column" gutterSize="s">
+              <EuiFlexItem>
+                <EuiFieldSearch
+                  placeholder="Enter your question or query here..."
+                  value={simpleSearchQuery}
+                  onChange={handleSimpleQueryChange}
+                  fullWidth
+                  isClearable
+                  aria-label="Enter search query"
+                />
+              </EuiFlexItem>
+              <EuiFlexItem>
                 <QueryFieldSelector
                   uiConfig={props.uiConfig}
                   fieldMappings={props.fieldMappings}
                 />
-              </>
-            )}
-          </EuiFlexItem>
-        </EuiFlexGroup>
-      </EuiFormRow>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          )}
+        </EuiFlexItem>
+      </EuiFlexGroup>
     </>
   );
 }
