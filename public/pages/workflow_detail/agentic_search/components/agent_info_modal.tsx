@@ -12,7 +12,9 @@ import {
   EuiModalFooter,
   EuiButton,
   EuiText,
+  EuiLink,
 } from '@elastic/eui';
+import { AGENTIC_SEARCH_DOCS_LINK } from '../../../../../common';
 
 interface AgentInfoModalProps {
   onClose: () => void;
@@ -40,15 +42,12 @@ export function AgentInfoModal(props: AgentInfoModalProps) {
               The AI agent converts your question into an optimized search query
             </li>
           </ol>
-          <h4>Example questions:</h4>
-          <ul>
-            <li>"What's the average CPU usage across my servers last week?"</li>
-            <li>"Find documents about machine learning in healthcare"</li>
-            <li>
-              "Show me the most recent customer complaints about shipping
-              delays"
-            </li>
-          </ul>
+          <p>
+            For more information and examples, check out the{' '}
+            <EuiLink target="_blank" href={AGENTIC_SEARCH_DOCS_LINK}>
+              documentation
+            </EuiLink>{' '}
+          </p>
         </EuiText>
       </EuiModalBody>
       <EuiModalFooter>

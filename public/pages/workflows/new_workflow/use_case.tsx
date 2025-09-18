@@ -45,8 +45,8 @@ export function UseCase(props: UseCaseProps) {
               WORKFLOW_TYPE.AGENTIC_SEARCH && (
               <EuiFlexItem grow={false}>
                 <EuiBetaBadge
-                  label="Experimental"
-                  tooltipContent="This feature is experimental and may change in future releases"
+                  label="BETA"
+                  tooltipContent="This UI feature is in beta and may change in future releases"
                   size="s"
                 />
               </EuiFlexItem>
