@@ -55,7 +55,16 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
-  const { agents } = useSelector((state: AppState) => state.ml);
+  const { agents, loading: mlLoading } = useSelector(
+    (state: AppState) => state.ml
+  );
+  const { loading: workflowsLoading } = useSelector(
+    (state: AppState) => state.workflows
+  );
+  const { loading: opensearchLoading } = useSelector(
+    (state: AppState) => state.opensearch
+  );
+  const isLoading = mlLoading || workflowsLoading || opensearchLoading;
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
   const [agentForm, setAgentForm] = useState<Partial<Agent>>(EMPTY_AGENT);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -143,8 +152,8 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
             </EuiFlexItem>
             <EuiFlexItem grow={false} style={{ marginTop: '12px' }}>
               <EuiBetaBadge
-                label="BETA"
-                tooltipContent="Configuring agentic search flows is in beta and may change in future releases"
+                label="EXPERIMENTAL"
+                tooltipContent="Configuring agentic search flows is an experimental feature and may change in future releases"
                 size="s"
               />
             </EuiFlexItem>
@@ -190,7 +199,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
             </EuiFlexGroup>
           </EuiPanel>
         </EuiFlexItem>
-        {unsaved && (
+        {unsaved && !isLoading && !isEmpty(props.uiConfig) && (
           <EuiFlexItem grow={false} style={{ marginTop: '0px' }}>
             <EuiFlexGroup direction="row" gutterSize="s">
               <EuiFlexItem grow={false}>
@@ -210,7 +219,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
                   }
                   isLoading={isSaving}
                 >
-                  Save
+                  {newAndUnsaved ? 'Create agent' : 'Update agent'}
                 </EuiSmallButton>
               </EuiFlexItem>
               {existingAndUnsaved && (

@@ -450,7 +450,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
         button={
           <EuiSmallButtonEmpty
             iconType="plusInCircle"
-            onClick={() => setIsPopoverOpen(true)}
+            onClick={() => setIsPopoverOpen(!isPopoverOpen)}
           >
             Add tool
           </EuiSmallButtonEmpty>
