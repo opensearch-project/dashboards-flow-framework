@@ -5,7 +5,6 @@
 
 import React, { useEffect, useState } from 'react';
 import {
-  EuiPanel,
   EuiText,
   EuiFlexGroup,
   EuiFlexItem,
@@ -17,6 +16,7 @@ import {
   EuiSmallButtonEmpty,
 } from '@elastic/eui';
 import { customStringify } from '../../../../../common';
+import { ResultsTable } from '../../../../general_components/';
 
 interface SearchResultsProps {
   handleClear(): void;
@@ -144,30 +144,7 @@ export function SearchResults(props: SearchResultsProps) {
             {selectedView === RESULTS_VIEW.HITS ? (
               <>
                 {hasHits(props.searchResponse) ? (
-                  <>
-                    {props.searchResponse.hits.hits.map(
-                      (hit: any, index: number) => (
-                        <EuiPanel
-                          key={index}
-                          hasBorder
-                          paddingSize="s"
-                          style={{ marginTop: '8px' }}
-                        >
-                          <EuiText size="s">
-                            <h6>Document {index + 1}</h6>
-                            <p>
-                              <strong>Score:</strong> {hit._score}
-                            </p>
-                            <pre
-                              style={{ maxHeight: '200px', overflow: 'auto' }}
-                            >
-                              {customStringify(hit._source)}
-                            </pre>
-                          </EuiText>
-                        </EuiPanel>
-                      )
-                    )}
-                  </>
+                  <ResultsTable hits={props.searchResponse?.hits?.hits || []} />
                 ) : (
                   <EuiText size="s">
                     <p>No documents found</p>
