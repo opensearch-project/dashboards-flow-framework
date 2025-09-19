@@ -61,6 +61,7 @@ export function ResultsTable(props: ResultsTableProps) {
 
   return (
     <EuiInMemoryTable
+      id={customStringify(props.hits?.length)}
       itemId="_id"
       itemIdToExpandedRowMap={itemIdToExpandedRowMap}
       items={props.hits}
