@@ -131,13 +131,17 @@ export function SearchResults(props: SearchResultsProps) {
             />
           </EuiFlexItem>
           <EuiFlexItem>
-            <EuiText size="xs" color="subdued">
-              {props.searchResponse?.hits?.total?.value !== undefined && (
-                <span>{props.searchResponse.hits.total.value} documents</span>
-              )}
-              {props.searchResponse?.took !== undefined && (
-                <span> · {props.searchResponse.took}ms</span>
-              )}
+            <EuiText size="xs" color="subdued" style={{ marginLeft: '4px' }}>
+              <i>
+                {props.searchResponse?.hits?.total?.value !== undefined && (
+                  <span>{props.searchResponse.hits.total.value} documents</span>
+                )}
+              </i>
+              <i>
+                {props.searchResponse?.took !== undefined && (
+                  <span> · {props.searchResponse.took}ms</span>
+                )}
+              </i>
             </EuiText>
           </EuiFlexItem>
           <EuiFlexItem>
