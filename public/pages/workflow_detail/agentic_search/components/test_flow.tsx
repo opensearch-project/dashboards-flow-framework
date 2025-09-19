@@ -4,7 +4,6 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import {
   EuiCallOut,
@@ -14,7 +13,7 @@ import {
   EuiSpacer,
   EuiPanel,
 } from '@elastic/eui';
-import { AppState, searchIndex, useAppDispatch } from '../../../../store';
+import { searchIndex, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils/utils';
 import { WorkflowConfig, WorkflowFormValues } from '../../../../../common';
 import { SearchQuery } from './search_query';
@@ -30,10 +29,6 @@ export function TestFlow(props: TestFlowProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
-
-  const { errorMessage: opensearchError } = useSelector(
-    (state: AppState) => state.opensearch
-  );
 
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
   const selectedAgentId = getIn(values, 'search.requestAgentId', '') as string;
@@ -52,17 +47,11 @@ export function TestFlow(props: TestFlowProps) {
   const [searchResponse, setSearchResponse] = useState<any | undefined>(
     undefined
   );
-  const [error, setError] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (opensearchError) {
-      setError(opensearchError);
-    }
-  }, [opensearchError]);
+  const [searchError, setSearchError] = useState<string | undefined>(undefined);
+  const [formError, setFormError] = useState<string | undefined>(undefined);
 
   const handleClear = () => {
     setSearchResponse(undefined);
-    setError(undefined);
   };
 
   const handleSearch = () => {
@@ -71,22 +60,23 @@ export function TestFlow(props: TestFlowProps) {
 
     // Validate that all required fields are selected
     if (!finalQuery?.query?.agentic?.query_text) {
-      setError('Please enter a search query');
+      setFormError('Please enter a search query');
       return;
     }
 
     if (!selectedIndexId) {
-      setError('Please select an index');
+      setFormError('Please select an index');
       return;
     }
 
     if (!selectedAgentId) {
-      setError('Please select an agent');
+      setFormError('Please select an agent');
       return;
     }
 
     setIsSearching(true);
-    setError(undefined);
+    setSearchError(undefined);
+    setFormError(undefined);
 
     dispatch(
       searchIndex({
@@ -100,12 +90,14 @@ export function TestFlow(props: TestFlowProps) {
     )
       .unwrap()
       .then((response) => {
-        setIsSearching(false);
         setSearchResponse(response);
       })
       .catch((error) => {
+        setSearchError(error);
+        setSearchResponse(undefined);
+      })
+      .finally(() => {
         setIsSearching(false);
-        setError(`Search failed: ${error}`);
       });
   };
 
@@ -137,6 +129,32 @@ export function TestFlow(props: TestFlowProps) {
       >
         <EuiPanel color="subdued" paddingSize="s">
           <EuiFlexGroup direction="column" gutterSize="m">
+            {formError !== undefined && (
+              <EuiFlexItem grow={false} style={{ marginBottom: '-12px' }}>
+                <EuiCallOut
+                  size="s"
+                  title="Error"
+                  color="danger"
+                  iconType="alert"
+                >
+                  <p>{formError}</p>
+                </EuiCallOut>
+                <EuiSpacer size="m" />
+              </EuiFlexItem>
+            )}
+            {searchError !== undefined && (
+              <EuiFlexItem grow={false} style={{ marginBottom: '-12px' }}>
+                <EuiCallOut
+                  size="s"
+                  title="Error running search"
+                  color="danger"
+                  iconType="alert"
+                >
+                  <p>{searchError}</p>
+                </EuiCallOut>
+                <EuiSpacer size="m" />
+              </EuiFlexItem>
+            )}
             <EuiFlexItem grow={false}>
               <SearchQuery
                 setSearchPipeline={setRuntimeSearchPipeline}
@@ -146,14 +164,6 @@ export function TestFlow(props: TestFlowProps) {
                 isSearching={isSearching}
               />
             </EuiFlexItem>
-            {error !== undefined && (
-              <EuiFlexItem grow={false}>
-                <EuiCallOut title="Error" color="danger" iconType="alert">
-                  <p>{error}</p>
-                </EuiCallOut>
-                <EuiSpacer size="m" />
-              </EuiFlexItem>
-            )}
             <EuiFlexItem>
               <SearchResults
                 searchResponse={searchResponse}

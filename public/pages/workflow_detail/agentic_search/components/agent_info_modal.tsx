@@ -10,11 +10,12 @@ import {
   EuiModalHeaderTitle,
   EuiModalBody,
   EuiModalFooter,
-  EuiButton,
+  EuiSmallButton,
   EuiText,
   EuiLink,
 } from '@elastic/eui';
 import { AGENTIC_SEARCH_DOCS_LINK } from '../../../../../common';
+import '../../../../global-styles.scss';
 
 interface AgentInfoModalProps {
   onClose: () => void;
@@ -22,7 +23,7 @@ interface AgentInfoModalProps {
 
 export function AgentInfoModal(props: AgentInfoModalProps) {
   return (
-    <EuiModal onClose={props.onClose}>
+    <EuiModal className="configuration-modal" onClose={props.onClose}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>What is Agentic Search?</EuiModalHeaderTitle>
       </EuiModalHeader>
@@ -51,9 +52,9 @@ export function AgentInfoModal(props: AgentInfoModalProps) {
         </EuiText>
       </EuiModalBody>
       <EuiModalFooter>
-        <EuiButton onClick={props.onClose} fill>
+        <EuiSmallButton onClick={props.onClose} fill>
           Got it
-        </EuiButton>
+        </EuiSmallButton>
       </EuiModalFooter>
     </EuiModal>
   );

@@ -11,6 +11,7 @@ import {
   EuiCodeBlock,
   EuiButtonGroup,
   EuiIcon,
+  EuiSpacer,
   EuiTitle,
   EuiEmptyPrompt,
   EuiSmallButtonEmpty,
@@ -36,7 +37,21 @@ enum RESULTS_VIEW {
 const RESULTS_VIEW_OPTIONS = [
   {
     id: RESULTS_VIEW.GENERATED_QUERY,
-    label: 'Generated query',
+    label: (
+      <EuiFlexGroup
+        direction="row"
+        gutterSize="xs"
+        alignItems="center"
+        style={{ width: '140px' }}
+      >
+        <EuiFlexItem grow={false}>
+          <EuiIcon type="generate" />
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <EuiText size="s">Generated query</EuiText>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    ),
   },
   {
     id: RESULTS_VIEW.HITS,
@@ -127,7 +142,7 @@ export function SearchResults(props: SearchResultsProps) {
               idSelected={selectedView}
               onChange={handleViewChange}
               isFullWidth={false}
-              style={{ width: '410px' }}
+              style={{ width: '425px' }}
             />
           </EuiFlexItem>
           <EuiFlexItem>
@@ -158,19 +173,26 @@ export function SearchResults(props: SearchResultsProps) {
             ) : selectedView === RESULTS_VIEW.GENERATED_QUERY ? (
               <>
                 {generatedQuery !== undefined ? (
-                  <EuiCodeBlock
-                    language="json"
-                    fontSize="s"
-                    paddingSize="m"
-                    isCopyable
-                  >
-                    {customStringify(generatedQuery)}
-                  </EuiCodeBlock>
+                  <>
+                    <EuiText size="s" color="subdued">
+                      <i>
+                        The agent-generated query DSL that was run against your
+                        OpenSearch index.
+                      </i>
+                    </EuiText>
+                    <EuiSpacer size="s" />
+                    <EuiCodeBlock
+                      language="json"
+                      fontSize="s"
+                      paddingSize="m"
+                      isCopyable
+                    >
+                      {customStringify(generatedQuery)}
+                    </EuiCodeBlock>
+                  </>
                 ) : (
                   <EuiText size="s">
-                    <p>
-                      No agentic query translator processor results available
-                    </p>
+                    <p>No generated query found</p>
                   </EuiText>
                 )}
               </>

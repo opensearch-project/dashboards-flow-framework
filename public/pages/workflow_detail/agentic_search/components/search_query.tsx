@@ -53,6 +53,10 @@ export function SearchQuery(props: SearchQueryProps) {
       return {};
     }
   })();
+  const searchDisabled =
+    !finalQuery?.query?.agentic?.query_text ||
+    !selectedIndexId ||
+    !selectedAgentId;
   const [autoPipeline, setAutoPipeline] = useState<{}>({});
   const [customPipeline, setCustomPipeline] = useState<{}>({
     request_processors: [],
@@ -221,11 +225,7 @@ export function SearchQuery(props: SearchQueryProps) {
                 fill={false}
                 iconType="search"
                 isLoading={props.isSearching}
-                isDisabled={
-                  !finalQuery?.query?.agentic?.query_text ||
-                  !selectedIndexId ||
-                  !selectedAgentId
-                }
+                isDisabled={false}
               >
                 Search
               </EuiSmallButton>

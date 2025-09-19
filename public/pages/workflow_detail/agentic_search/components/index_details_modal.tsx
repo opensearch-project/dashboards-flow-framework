@@ -10,12 +10,13 @@ import {
   EuiModalHeaderTitle,
   EuiModalBody,
   EuiModalFooter,
-  EuiButton,
   EuiCodeBlock,
+  EuiSmallButton,
 } from '@elastic/eui';
 import { useSelector } from 'react-redux';
 import { AppState } from '../../../../store';
 import { customStringify } from '../../../../../common';
+import '../../../../global-styles.scss';
 
 interface IndexDetailsModalProps {
   onClose: () => void;
@@ -29,7 +30,7 @@ export function IndexDetailsModal(props: IndexDetailsModalProps) {
   const indexDetail = indexDetails[props.indexName];
 
   return (
-    <EuiModal onClose={props.onClose}>
+    <EuiModal className="configuration-modal" onClose={props.onClose}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>Index Details</EuiModalHeaderTitle>
       </EuiModalHeader>
@@ -46,9 +47,9 @@ export function IndexDetailsModal(props: IndexDetailsModalProps) {
       </EuiModalBody>
 
       <EuiModalFooter>
-        <EuiButton onClick={props.onClose} fill>
+        <EuiSmallButton onClick={props.onClose} fill>
           Close
-        </EuiButton>
+        </EuiSmallButton>
       </EuiModalFooter>
     </EuiModal>
   );
