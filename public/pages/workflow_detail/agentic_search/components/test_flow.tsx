@@ -12,7 +12,6 @@ import {
   EuiFlexItem,
   EuiTitle,
   EuiSpacer,
-  EuiSmallButton,
   EuiPanel,
 } from '@elastic/eui';
 import { AppState, searchIndex, useAppDispatch } from '../../../../store';
@@ -147,13 +146,6 @@ export function TestFlow(props: TestFlowProps) {
                 isSearching={isSearching}
               />
             </EuiFlexItem>
-            {searchResponse && (
-              <EuiFlexItem grow={false}>
-                <EuiSmallButton onClick={handleClear} iconType="eraser">
-                  Clear results
-                </EuiSmallButton>
-              </EuiFlexItem>
-            )}
             {error !== undefined && (
               <EuiFlexItem grow={false}>
                 <EuiCallOut title="Error" color="danger" iconType="alert">
@@ -162,11 +154,12 @@ export function TestFlow(props: TestFlowProps) {
                 <EuiSpacer size="m" />
               </EuiFlexItem>
             )}
-            {searchResponse !== undefined && (
-              <EuiFlexItem>
-                <SearchResults searchResponse={searchResponse} />
-              </EuiFlexItem>
-            )}
+            <EuiFlexItem>
+              <SearchResults
+                searchResponse={searchResponse}
+                handleClear={handleClear}
+              />
+            </EuiFlexItem>
           </EuiFlexGroup>
         </EuiPanel>
       </EuiFlexItem>
