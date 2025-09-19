@@ -144,32 +144,54 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
         <>
           <TopNavMenu
             appName={PLUGIN_ID}
-            config={[
-              {
-                iconType: 'exit',
-                tooltip: 'Return to workflows',
-                ariaLabel: 'Exit',
-                href: constructHrefWithDataSourceId(
-                  APP_PATH.WORKFLOWS,
-                  dataSourceId
-                ),
-                controlType: 'icon',
-              } as TopNavMenuIconData,
-              {
-                iconType: 'iInCircle',
-                tooltip: 'How it works',
-                ariaLabel: 'How it works',
-                run: () => setIntroFlyoutOpened(true),
-                controlType: 'icon',
-              } as TopNavMenuIconData,
-              {
-                iconType: 'gear',
-                tooltip: 'Edit workflow settings',
-                ariaLabel: 'Edit workflow settings',
-                run: () => setIsEditWorkflowModalOpen(true),
-                controlType: 'icon',
-              } as TopNavMenuIconData,
-            ]}
+            config={
+              props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.AGENTIC_SEARCH
+                ? [
+                    {
+                      iconType: 'exit',
+                      tooltip: 'Return to workflows',
+                      ariaLabel: 'Exit',
+                      href: constructHrefWithDataSourceId(
+                        APP_PATH.WORKFLOWS,
+                        dataSourceId
+                      ),
+                      controlType: 'icon',
+                    } as TopNavMenuIconData,
+                    {
+                      iconType: 'gear',
+                      tooltip: 'Edit workflow settings',
+                      ariaLabel: 'Edit workflow settings',
+                      run: () => setIsEditWorkflowModalOpen(true),
+                      controlType: 'icon',
+                    } as TopNavMenuIconData,
+                  ]
+                : [
+                    {
+                      iconType: 'exit',
+                      tooltip: 'Return to workflows',
+                      ariaLabel: 'Exit',
+                      href: constructHrefWithDataSourceId(
+                        APP_PATH.WORKFLOWS,
+                        dataSourceId
+                      ),
+                      controlType: 'icon',
+                    } as TopNavMenuIconData,
+                    {
+                      iconType: 'iInCircle',
+                      tooltip: 'How it works',
+                      ariaLabel: 'How it works',
+                      run: () => setIntroFlyoutOpened(true),
+                      controlType: 'icon',
+                    } as TopNavMenuIconData,
+                    {
+                      iconType: 'gear',
+                      tooltip: 'Edit workflow settings',
+                      ariaLabel: 'Edit workflow settings',
+                      run: () => setIsEditWorkflowModalOpen(true),
+                      controlType: 'icon',
+                    } as TopNavMenuIconData,
+                  ]
+            }
             screenTitle={workflowName}
             showDataSourceMenu={dataSourceEnabled}
             dataSourceMenuConfig={
@@ -240,37 +262,64 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
                 </EuiFlexItem>
               </EuiFlexGroup>
             }
-            rightSideItems={[
-              <EuiSmallButton
-                fill={true}
-                onClick={() => {
-                  setIsExportModalOpen(true);
-                }}
-                data-testid="exportButton"
-              >
-                Export
-              </EuiSmallButton>,
-              <EuiSmallButtonEmpty
-                href={constructHrefWithDataSourceId(
-                  APP_PATH.WORKFLOWS,
-                  dataSourceId
-                )}
-                data-testid="closeButton"
-              >
-                Close
-              </EuiSmallButtonEmpty>,
-              <EuiSmallButtonEmpty
-                disabled={false}
-                onClick={() => {
-                  setIntroFlyoutOpened(true);
-                }}
-              >
-                {`How it works`}
-              </EuiSmallButtonEmpty>,
-              <EuiText color="subdued" size="s">
-                {`Last saved: ${workflowLastUpdated}`}
-              </EuiText>,
-            ]}
+            rightSideItems={
+              props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.AGENTIC_SEARCH
+                ? [
+                    <EuiSmallButton
+                      fill={true}
+                      onClick={() => {
+                        setIsExportModalOpen(true);
+                      }}
+                      data-testid="exportButton"
+                    >
+                      Export
+                    </EuiSmallButton>,
+                    <EuiSmallButtonEmpty
+                      href={constructHrefWithDataSourceId(
+                        APP_PATH.WORKFLOWS,
+                        dataSourceId
+                      )}
+                      data-testid="closeButton"
+                    >
+                      Close
+                    </EuiSmallButtonEmpty>,
+
+                    <EuiText color="subdued" size="s">
+                      {`Last saved: ${workflowLastUpdated}`}
+                    </EuiText>,
+                  ]
+                : [
+                    <EuiSmallButton
+                      fill={true}
+                      onClick={() => {
+                        setIsExportModalOpen(true);
+                      }}
+                      data-testid="exportButton"
+                    >
+                      Export
+                    </EuiSmallButton>,
+                    <EuiSmallButtonEmpty
+                      href={constructHrefWithDataSourceId(
+                        APP_PATH.WORKFLOWS,
+                        dataSourceId
+                      )}
+                      data-testid="closeButton"
+                    >
+                      Close
+                    </EuiSmallButtonEmpty>,
+                    <EuiSmallButtonEmpty
+                      disabled={false}
+                      onClick={() => {
+                        setIntroFlyoutOpened(true);
+                      }}
+                    >
+                      {`How it works`}
+                    </EuiSmallButtonEmpty>,
+                    <EuiText color="subdued" size="s">
+                      {`Last saved: ${workflowLastUpdated}`}
+                    </EuiText>,
+                  ]
+            }
             bottomBorder={false}
             rightSideGroupProps={{
               alignItems: 'center',

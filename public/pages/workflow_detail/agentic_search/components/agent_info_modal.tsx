@@ -30,8 +30,7 @@ export function AgentInfoModal(props: AgentInfoModalProps) {
         <EuiText>
           <p>
             Agentic Search uses AI to interpret natural language queries and
-            convert them into optimized search queries. Ask questions in plain
-            English, and the AI agent will help find the most relevant results.
+            help find the most relevant results in your OpenSearch cluster.
           </p>
           <h4>How it works:</h4>
           <ol>
@@ -39,7 +38,8 @@ export function AgentInfoModal(props: AgentInfoModalProps) {
             <li>Choose or create an AI agent to interpret your queries</li>
             <li>Enter your question in natural language</li>
             <li>
-              The AI agent converts your question into an optimized search query
+              The agent will take the question, generate a query, and return
+              relevant results
             </li>
           </ol>
           <p>
