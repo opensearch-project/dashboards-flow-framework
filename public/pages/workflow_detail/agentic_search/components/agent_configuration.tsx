@@ -390,7 +390,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 {(agentType === AGENT_TYPE.CONVERSATIONAL ||
                   agentType === AGENT_TYPE.PLAN_EXECUTE_REFLECT) && (
                   <EuiFlexItem>
-                    <EuiFormRow label="LLM" fullWidth>
+                    <EuiFormRow label="Large language model" fullWidth>
                       <AgentLLMFields
                         agentForm={props.agentForm}
                         setAgentForm={props.setAgentForm}

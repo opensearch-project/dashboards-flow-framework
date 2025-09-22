@@ -511,7 +511,7 @@ export type AgentConfigParameters = {
 export type Tool = {
   type: TOOL_TYPE;
   description?: string;
-  parameters: AgentConfigParameters;
+  parameters?: AgentConfigParameters;
 };
 
 export type AgentLLM = {

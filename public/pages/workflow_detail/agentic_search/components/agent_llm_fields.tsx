@@ -18,6 +18,7 @@ import {
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { SimplifiedJsonField } from './simplified_json_field';
+import { NoDeployedModelsCallout } from './no_deployed_models_callout';
 
 interface AgentLLMFieldsProps {
   agentForm: Partial<Agent>;
@@ -55,34 +56,40 @@ export function AgentLLMFields({
         isInvalid={!modelFound && !modelEmpty}
         error="Model not found"
       >
-        <EuiSelect
-          options={
-            modelFound || modelEmpty
-              ? modelOptions
-              : [
-                  ...modelOptions,
-                  {
-                    value: selectedModelId,
-                    text: `Unknown model (ID: ${selectedModelId})`,
+        <>
+          {modelOptions.length === 0 ? (
+            <NoDeployedModelsCallout />
+          ) : (
+            <EuiSelect
+              options={
+                modelFound || modelEmpty
+                  ? modelOptions
+                  : [
+                      ...modelOptions,
+                      {
+                        value: selectedModelId,
+                        text: `Unknown model (ID: ${selectedModelId})`,
+                      },
+                    ]
+              }
+              value={selectedModelId}
+              onChange={(e) => {
+                setAgentForm({
+                  ...agentForm,
+                  llm: {
+                    ...agentForm?.llm,
+                    model_id: e.target.value as string,
                   },
-                ]
-          }
-          value={selectedModelId}
-          onChange={(e) => {
-            setAgentForm({
-              ...agentForm,
-              llm: {
-                ...agentForm?.llm,
-                model_id: e.target.value as string,
-              },
-            });
-          }}
-          aria-label="Select model"
-          placeholder="Select a model"
-          hasNoInitialSelection={true}
-          isInvalid={!modelFound && !modelEmpty}
-          fullWidth
-        />
+                });
+              }}
+              aria-label="Select model"
+              placeholder="Select a model"
+              hasNoInitialSelection={true}
+              isInvalid={!modelFound && !modelEmpty}
+              fullWidth
+            />
+          )}
+        </>
       </EuiFormRow>
       <EuiFormRow label="Parameters" fullWidth>
         <SimplifiedJsonField

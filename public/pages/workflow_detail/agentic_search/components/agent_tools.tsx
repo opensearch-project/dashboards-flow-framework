@@ -32,6 +32,7 @@ import {
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { parseStringOrJson } from '../../../../utils';
+import { NoDeployedModelsCallout } from './no_deployed_models_callout';
 
 interface AgentToolsProps {
   agentForm: Partial<Agent>;
@@ -222,28 +223,34 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
               isInvalid={!modelFound && !modelEmpty}
               error="Model not found"
             >
-              <EuiSelect
-                options={
-                  modelFound || modelEmpty
-                    ? modelOptions
-                    : [
-                        ...modelOptions,
-                        {
-                          value: selectedModelId,
-                          text: `Unknown model (ID: ${selectedModelId})`,
-                        },
-                      ]
-                }
-                value={selectedModelId}
-                onChange={(e) => {
-                  updateParameterValue('model_id', e.target.value, index);
-                }}
-                aria-label="Select model"
-                placeholder="Select a model"
-                hasNoInitialSelection={true}
-                isInvalid={!modelFound && !modelEmpty}
-                fullWidth
-              />
+              <>
+                {modelOptions.length === 0 ? (
+                  <NoDeployedModelsCallout />
+                ) : (
+                  <EuiSelect
+                    options={
+                      modelFound || modelEmpty
+                        ? modelOptions
+                        : [
+                            ...modelOptions,
+                            {
+                              value: selectedModelId,
+                              text: `Unknown model (ID: ${selectedModelId})`,
+                            },
+                          ]
+                    }
+                    value={selectedModelId}
+                    onChange={(e) => {
+                      updateParameterValue('model_id', e.target.value, index);
+                    }}
+                    aria-label="Select model"
+                    placeholder="Select a model"
+                    hasNoInitialSelection={true}
+                    isInvalid={!modelFound && !modelEmpty}
+                    fullWidth
+                  />
+                )}
+              </>
             </EuiFormRow>
             <EuiFormRow label="Response filter" fullWidth>
               <EuiFieldText

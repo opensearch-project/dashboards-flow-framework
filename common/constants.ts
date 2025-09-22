@@ -1021,14 +1021,6 @@ export enum AGENT_TYPE {
   PLAN_EXECUTE_REFLECT = 'plan_execute_and_reflect',
 }
 
-export const NEW_AGENT_PLACEHOLDER = 'new_agent';
-export const EMPTY_AGENT = {
-  type: AGENT_TYPE.FLOW,
-  name: 'my_agent',
-  description: '',
-  tools: [],
-} as Partial<Agent>;
-
 // Tool types supported by agents.
 // Derived from https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/index/
 export enum TOOL_TYPE {
@@ -1043,3 +1035,11 @@ export enum TOOL_TYPE {
 export enum AGENT_MEMORY_TYPE {
   CONVERSATION_INDEX = 'conversation_index',
 }
+
+export const NEW_AGENT_PLACEHOLDER = 'new_agent';
+export const EMPTY_AGENT = {
+  type: AGENT_TYPE.CONVERSATIONAL,
+  name: 'My agent',
+  description: '',
+  tools: [{ type: TOOL_TYPE.QUERY_PLANNING }],
+} as Partial<Agent>;
