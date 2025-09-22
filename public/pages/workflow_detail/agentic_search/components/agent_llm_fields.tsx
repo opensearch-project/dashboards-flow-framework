@@ -54,7 +54,6 @@ export function AgentLLMFields({
         label="Model"
         fullWidth
         isInvalid={!modelFound && !modelEmpty}
-        error="Model not found"
       >
         <>
           {modelOptions.length === 0 ? (

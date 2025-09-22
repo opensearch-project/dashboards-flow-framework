@@ -30,7 +30,6 @@ import {
   useAppDispatch,
 } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
-import { IndexSelector } from './index_selector';
 import { AgentConfiguration } from './agent_configuration';
 import { AgentInfoModal } from './agent_info_modal';
 
@@ -201,9 +200,6 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
         >
           <EuiPanel color="subdued" paddingSize="s">
             <EuiFlexGroup direction="column">
-              <EuiFlexItem grow={false}>
-                <IndexSelector />
-              </EuiFlexItem>
               <EuiFlexItem>
                 <AgentConfiguration
                   uiConfig={props.uiConfig}

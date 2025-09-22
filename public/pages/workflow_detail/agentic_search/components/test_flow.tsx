@@ -18,6 +18,7 @@ import { getDataSourceId } from '../../../../utils/utils';
 import { WorkflowConfig, WorkflowFormValues } from '../../../../../common';
 import { SearchQuery } from './search_query';
 import { SearchResults } from './search_results';
+import { IndexSelector } from './index_selector';
 
 interface TestFlowProps {
   uiConfig: WorkflowConfig | undefined;
@@ -61,11 +62,6 @@ export function TestFlow(props: TestFlowProps) {
     // Validate that all required fields are selected
     if (!finalQuery?.query?.agentic?.query_text) {
       setFormError('Please enter a search query');
-      return;
-    }
-
-    if (!selectedIndexId) {
-      setFormError('Please select an index');
       return;
     }
 
@@ -155,6 +151,9 @@ export function TestFlow(props: TestFlowProps) {
                 <EuiSpacer size="m" />
               </EuiFlexItem>
             )}
+            <EuiFlexItem grow={false}>
+              <IndexSelector />
+            </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <SearchQuery
                 setSearchPipeline={setRuntimeSearchPipeline}

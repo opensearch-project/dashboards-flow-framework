@@ -118,6 +118,35 @@ export function registerOpenSearchRoutes(
   );
   router.post(
     {
+      path: SEARCH_INDEX_NODE_API_PATH,
+      validate: {
+        body: schema.any(),
+        query: schema.object({
+          verbose: schema.boolean(),
+          data_source_version: schema.maybe(schema.string()),
+        }),
+      },
+    },
+    opensearchRoutesService.searchIndex
+  );
+  router.post(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/search`,
+      validate: {
+        params: schema.object({
+          data_source_id: schema.string(),
+        }),
+        body: schema.any(),
+        query: schema.object({
+          verbose: schema.boolean(),
+          data_source_version: schema.maybe(schema.string()),
+        }),
+      },
+    },
+    opensearchRoutesService.searchIndex
+  );
+  router.post(
+    {
       path: `${SEARCH_INDEX_NODE_API_PATH}/{index}`,
       validate: {
         params: schema.object({
@@ -526,7 +555,7 @@ export class OpenSearchRoutesService {
       // If verbose is false/undefined, or the version isn't eligible, omit the verbose param when searching.
       if (!verbose || isPreV219) {
         response = await callWithRequest('search', {
-          index,
+          index: index || '',
           body,
           search_pipeline,
         });

@@ -119,7 +119,8 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
     const persistedIndexName = props.uiConfig?.search?.index?.name?.value;
     const formIndexName = getIn(values, 'search.index.name');
     const indexNameChanged =
-      !isEmpty(formIndexName) && !isEqual(persistedIndexName, formIndexName);
+      formIndexName !== undefined &&
+      !isEqual(persistedIndexName, formIndexName);
 
     // agent field
     const persistedAgentId = props.uiConfig?.search?.requestAgentId?.value;

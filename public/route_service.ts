@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { isEmpty } from 'lodash';
 import { CoreStart, HttpFetchError } from '../../../src/core/public';
 import {
   CREATE_WORKFLOW_NODE_API_PATH,
@@ -389,7 +390,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         const url = dataSourceId
           ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/search`
           : SEARCH_INDEX_NODE_API_PATH;
-        const basePath = `${url}/${index}`;
+        const basePath = !isEmpty(index) ? `${url}/${index}` : url; // no index is valid, if the search is against all indices
         const path = searchPipeline
           ? `${basePath}/${searchPipeline}`
           : basePath;

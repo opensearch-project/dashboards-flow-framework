@@ -221,7 +221,6 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
               label="Model"
               fullWidth
               isInvalid={!modelFound && !modelEmpty}
-              error="Model not found"
             >
               <>
                 {modelOptions.length === 0 ? (

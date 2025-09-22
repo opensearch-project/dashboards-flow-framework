@@ -29,16 +29,19 @@ import { IndexDetailsModal } from './index_details_modal';
 
 interface IndexSelectorProps {}
 
+const INDEX_NAME_PATH = 'search.index.name';
+const ALL_INDICES = 'All indices';
+
 export function IndexSelector(props: IndexSelectorProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
   >();
+  const selectedIndexName = getIn(values, INDEX_NAME_PATH);
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState<boolean>(
     false
   );
-
   const { indices } = useSelector((state: AppState) => state.opensearch);
 
   // Fetch indices on initial load
@@ -46,12 +49,18 @@ export function IndexSelector(props: IndexSelectorProps) {
     dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
   }, []);
 
-  const indexOptions = Object.values(indices || {})
-    .filter((index) => !index.name.startsWith('.')) // Filter out system indices
-    .map((index) => ({
-      value: index.name,
-      text: index.name,
-    }));
+  const indexOptions = [
+    {
+      text: ALL_INDICES,
+      value: '',
+    },
+    ...Object.values(indices || {})
+      .filter((index) => !index.name.startsWith('.')) // Filter out system indices
+      .map((index) => ({
+        value: index.name,
+        text: index.name,
+      })),
+  ];
 
   return (
     <>
@@ -72,7 +81,7 @@ export function IndexSelector(props: IndexSelectorProps) {
               </EuiTitle>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiToolTip content="Choose the index that contains the data you want to search">
+              <EuiToolTip content="Choose the index that contains the data you want to search, or search against all indices.">
                 <EuiIcon
                   type="questionInCircle"
                   color="subdued"
@@ -84,23 +93,23 @@ export function IndexSelector(props: IndexSelectorProps) {
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row">
-            {!isEmpty(getIn(values, 'search.index.name')) && (
-              <EuiFlexItem grow={false}>
-                <EuiButtonEmpty
-                  size="s"
-                  onClick={async () => {
-                    const indexName = getIn(values, 'search.index.name');
-                    await dispatch(getIndex({ index: indexName, dataSourceId }))
-                      .unwrap()
-                      .then(() => {
-                        setIsDetailsModalVisible(true);
-                      });
-                  }}
-                >
-                  View details
-                </EuiButtonEmpty>
-              </EuiFlexItem>
-            )}
+            <EuiFlexItem grow={false}>
+              <EuiButtonEmpty
+                size="s"
+                disabled={isEmpty(selectedIndexName)}
+                onClick={async () => {
+                  await dispatch(
+                    getIndex({ index: selectedIndexName, dataSourceId })
+                  )
+                    .unwrap()
+                    .then(() => {
+                      setIsDetailsModalVisible(true);
+                    });
+                }}
+              >
+                View details
+              </EuiButtonEmpty>
+            </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
       </EuiFlexGroup>
@@ -129,17 +138,16 @@ export function IndexSelector(props: IndexSelectorProps) {
             <EuiFlexItem>
               <EuiSelect
                 options={indexOptions}
-                value={getIn(values, 'search.index.name')}
+                value={
+                  isEmpty(selectedIndexName) ? ALL_INDICES : selectedIndexName
+                }
                 onChange={(e) => {
                   const value = e.target.value;
-                  setFieldValue('search.index.name', value);
-                  setFieldTouched('search.index.name', true);
+                  setFieldValue(INDEX_NAME_PATH, value);
+                  setFieldTouched(INDEX_NAME_PATH, true);
                 }}
                 aria-label="Select index"
-                placeholder="Select an index"
-                hasNoInitialSelection={isEmpty(
-                  getIn(values, 'search.index.name')
-                )}
+                hasNoInitialSelection={false}
                 fullWidth
               />
             </EuiFlexItem>
