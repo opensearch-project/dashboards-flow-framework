@@ -22,7 +22,14 @@ import {
   EuiTextArea,
   EuiRadioGroup,
 } from '@elastic/eui';
-import { Agent, MODEL_STATE, Tool, TOOL_TYPE } from '../../../../../common';
+import {
+  Agent,
+  Model,
+  MODEL_STATE,
+  ModelDict,
+  Tool,
+  TOOL_TYPE,
+} from '../../../../../common';
 import { AppState } from '../../../../store';
 import { parseStringOrJson } from '../../../../utils';
 
@@ -148,7 +155,6 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
     const toolForm = getIn(agentForm, `tools.${index}`) as Tool;
     switch (toolType) {
       case TOOL_TYPE.QUERY_PLANNING:
-        const selectedModelId = toolForm?.parameters?.model_id;
         const responseFilter = toolForm?.parameters?.response_filter;
         const systemPrompt = toolForm?.parameters?.system_prompt;
         const generationType =
@@ -160,6 +166,10 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
           id: option.value,
           label: option.text,
         }));
+        const selectedModelId = toolForm?.parameters?.model_id;
+        const modelFound = Object.values(models || ({} as ModelDict)).some(
+          (model: Model) => model.id === selectedModelId
+        );
 
         const addSearchTemplate = () => {
           const updatedTemplates = [
@@ -202,16 +212,32 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
 
         return (
           <>
-            <EuiFormRow label="Model" fullWidth>
+            <EuiFormRow
+              label="Model"
+              fullWidth
+              isInvalid={!modelFound}
+              error="Model not found"
+            >
               <EuiSelect
-                options={modelOptions}
+                options={
+                  modelFound
+                    ? modelOptions
+                    : [
+                        ...modelOptions,
+                        {
+                          value: selectedModelId,
+                          text: `Unknown model (ID: ${selectedModelId})`,
+                        },
+                      ]
+                }
                 value={selectedModelId}
                 onChange={(e) => {
                   updateParameterValue('model_id', e.target.value, index);
                 }}
                 aria-label="Select model"
                 placeholder="Select a model"
-                hasNoInitialSelection={isEmpty(selectedModelId)}
+                hasNoInitialSelection={true}
+                isInvalid={!modelFound}
                 fullWidth
               />
             </EuiFormRow>

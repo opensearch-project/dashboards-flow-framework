@@ -7,6 +7,7 @@ import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
 import {
+  AGENT_MEMORY_TYPE,
   AGENT_TYPE,
   COMPONENT_CLASS,
   PROCESSOR_TYPE,
@@ -503,14 +504,23 @@ export type ConnectorDict = {
   [connectorId: string]: Connector;
 };
 
-export type ToolParameters = {
+export type AgentConfigParameters = {
   [key: string]: any;
 };
 
 export type Tool = {
   type: TOOL_TYPE;
   description?: string;
-  parameters: ToolParameters;
+  parameters: AgentConfigParameters;
+};
+
+export type AgentLLM = {
+  model_id: string;
+  parameters?: AgentConfigParameters;
+};
+
+export type AgentMemory = {
+  type: AGENT_MEMORY_TYPE;
 };
 
 export type Agent = {
@@ -519,6 +529,9 @@ export type Agent = {
   type: AGENT_TYPE;
   description?: string;
   tools: Tool[];
+  llm?: AgentLLM;
+  memory?: AgentMemory;
+  parameters?: AgentConfigParameters;
 };
 
 export type AgentDict = {

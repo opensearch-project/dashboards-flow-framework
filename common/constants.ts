@@ -1018,6 +1018,7 @@ export const LEFT_NAV_SELECTED_STYLE = '2px solid rgba(128, 128, 128, 0.8)';
 export enum AGENT_TYPE {
   FLOW = 'flow',
   CONVERSATIONAL = 'conversational',
+  PLAN_EXECUTE_REFLECT = 'plan_execute_and_reflect',
 }
 
 export const NEW_AGENT_PLACEHOLDER = 'new_agent';
@@ -1033,4 +1034,10 @@ export const EMPTY_AGENT = {
 export enum TOOL_TYPE {
   QUERY_PLANNING = 'QueryPlanningTool',
   SEARCH_INDEX = 'SearchIndexTool',
+}
+
+// Memory types supported by agents.
+// Derived from https://docs.opensearch.org/latest/ml-commons-plugin/api/agent-apis/register-agent/
+export enum AGENT_MEMORY_TYPE {
+  CONVERSATION_INDEX = 'conversation_index',
 }

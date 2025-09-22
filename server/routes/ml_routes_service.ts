@@ -308,6 +308,9 @@ export class MLRoutesService {
             type: source?.type,
             description: source?.description,
             tools: source?.tools,
+            llm: source?.llm,
+            memory: source?.memory,
+            parameters: source?.parameters,
           };
         }
       }
@@ -345,6 +348,9 @@ export class MLRoutesService {
         type: response.type,
         description: response.description,
         tools: response.tools,
+        llm: response.llm,
+        memory: response.memory,
+        parameters: response.parameters,
       } as Agent;
 
       return res.ok({ body: { agent } });
@@ -384,6 +390,9 @@ export class MLRoutesService {
         type: body.type,
         description: body.description,
         tools: body.tools,
+        llm: body.llm,
+        memory: body.memory,
+        parameters: body.parameters,
       } as Agent;
 
       return res.ok({ body: { agent } });
