@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty, isEqual } from 'lodash';
@@ -69,17 +69,34 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
   const [agentForm, setAgentForm] = useState<Partial<Agent>>(EMPTY_AGENT);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  // persist unsaved states when users are creating new / updating existing agents.
+  // keep these states as 'true' if errors when trying to execute the respective
+  // create/update agent API calls.
   const [newAndUnsaved, setNewAndUnsaved] = useState<boolean>(false);
-  const existingAndUnsaved =
-    !isEmpty(selectedAgentId) &&
-    selectedAgentId !== NEW_AGENT_PLACEHOLDER &&
-    !isEqual(getIn(agents, selectedAgentId, {}), agentForm);
+  const [existingAndUnsaved, setExistingAndUnsaved] = useState<boolean>(false);
+  useEffect(() => {
+    setExistingAndUnsaved(
+      !isEmpty(selectedAgentId) &&
+        selectedAgentId !== NEW_AGENT_PLACEHOLDER &&
+        !isEqual(getIn(agents, selectedAgentId, {}), agentForm)
+    );
+  }, [selectedAgentId, agents, agentForm]);
   const unsaved = newAndUnsaved || existingAndUnsaved;
+
+  // fine-grained error handling states
+  const [errorCreatingAgent, setErrorCreatingAgent] = useState<string>('');
+  const [errorUpdatingAgent, setErrorUpdatingAgent] = useState<string>('');
+  function clearAgentErrors() {
+    setErrorCreatingAgent('');
+    setErrorUpdatingAgent('');
+  }
 
   function onCreateNew() {
     setNewAndUnsaved(true);
   }
   function onDiscardDraft() {
+    clearAgentErrors();
     setNewAndUnsaved(false);
     setFieldValue(
       AGENT_ID_PATH,
@@ -87,6 +104,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
     );
   }
   function onRevertChanges() {
+    clearAgentErrors();
     const agent = getIn(agents, selectedAgentId, {});
     if (!isEmpty(agent)) {
       setAgentForm(agent);
@@ -96,6 +114,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
   }
   async function onCreateAgent() {
     setIsSaving(true);
+    let errorOnCreate = false;
     try {
       const response = await dispatch(
         registerAgent({
@@ -105,17 +124,20 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
       ).unwrap();
       if (response && response.agent && response.agent.id) {
         setFieldValue(AGENT_ID_PATH, response.agent.id);
-      } else {
       }
+      clearAgentErrors();
     } catch (error) {
+      errorOnCreate = true;
+      setErrorCreatingAgent(error);
     } finally {
       setIsSaving(false);
-      setNewAndUnsaved(false);
+      setNewAndUnsaved(errorOnCreate ? true : false);
     }
   }
 
   async function onUpdateAgent() {
     setIsSaving(true);
+    let errorOnUpdate = false;
     try {
       await dispatch(
         updateAgent({
@@ -123,15 +145,13 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
           body: agentForm,
           dataSourceId,
         })
-      )
-        .unwrap()
-        .then((resp) => {})
-        .catch((e) => {
-          // console.error(e);
-        });
+      ).unwrap();
+      clearAgentErrors();
     } catch (error) {
+      errorOnUpdate = true;
     } finally {
       setIsSaving(false);
+      setExistingAndUnsaved(errorOnUpdate ? true : false);
     }
   }
 
@@ -194,6 +214,8 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
                   setNewAndUnsaved={setNewAndUnsaved}
                   agentForm={agentForm}
                   setAgentForm={setAgentForm}
+                  errorCreatingAgent={errorCreatingAgent}
+                  errorUpdatingAgent={errorUpdatingAgent}
                 />
               </EuiFlexItem>
             </EuiFlexGroup>

@@ -170,6 +170,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
         const modelFound = Object.values(models || ({} as ModelDict)).some(
           (model: Model) => model.id === selectedModelId
         );
+        const modelEmpty = isEmpty(selectedModelId);
 
         const addSearchTemplate = () => {
           const updatedTemplates = [
@@ -215,12 +216,12 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
             <EuiFormRow
               label="Model"
               fullWidth
-              isInvalid={!modelFound}
+              isInvalid={!modelFound && !modelEmpty}
               error="Model not found"
             >
               <EuiSelect
                 options={
-                  modelFound
+                  modelFound || modelEmpty
                     ? modelOptions
                     : [
                         ...modelOptions,
@@ -237,7 +238,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 aria-label="Select model"
                 placeholder="Select a model"
                 hasNoInitialSelection={true}
-                isInvalid={!modelFound}
+                isInvalid={!modelFound && !modelEmpty}
                 fullWidth
               />
             </EuiFormRow>

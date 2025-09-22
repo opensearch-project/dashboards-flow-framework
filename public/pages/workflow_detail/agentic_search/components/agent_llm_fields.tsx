@@ -6,6 +6,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
+import { isEmpty } from 'lodash';
 import { EuiFormRow, EuiPanel, EuiSelect } from '@elastic/eui';
 import {
   Agent,
@@ -44,18 +45,19 @@ export function AgentLLMFields({
   const modelFound = Object.values(models || ({} as ModelDict)).some(
     (model: Model) => model.id === selectedModelId
   );
+  const modelEmpty = isEmpty(selectedModelId);
 
   return (
     <EuiPanel color="transparent" paddingSize="s">
       <EuiFormRow
         label="Model"
         fullWidth
-        isInvalid={!modelFound}
+        isInvalid={!modelFound && !modelEmpty}
         error="Model not found"
       >
         <EuiSelect
           options={
-            modelFound
+            modelFound || modelEmpty
               ? modelOptions
               : [
                   ...modelOptions,
@@ -78,7 +80,7 @@ export function AgentLLMFields({
           aria-label="Select model"
           placeholder="Select a model"
           hasNoInitialSelection={true}
-          isInvalid={!modelFound}
+          isInvalid={!modelFound && !modelEmpty}
           fullWidth
         />
       </EuiFormRow>

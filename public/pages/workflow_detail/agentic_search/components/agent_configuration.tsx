@@ -44,6 +44,8 @@ interface AgentConfigurationProps {
   setNewAndUnsaved: (newAndUnsaved: boolean) => void;
   agentForm: Partial<Agent>;
   setAgentForm: (agentForm: Partial<Agent>) => void;
+  errorCreatingAgent: string;
+  errorUpdatingAgent: string;
 }
 
 const AGENT_ID_PATH = 'search.requestAgentId';
@@ -259,6 +261,24 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 fullWidth
               />
             </EuiFlexItem>
+            {(!isEmpty(props.errorCreatingAgent) ||
+              !isEmpty(props.errorUpdatingAgent)) && (
+              <EuiCallOut
+                size="s"
+                color="danger"
+                iconType="alert"
+                title={`Error ${
+                  !isEmpty(props.errorCreatingAgent) ? 'creating' : 'updating'
+                } agent`}
+                style={{ marginBottom: '8px' }}
+              >
+                <p>
+                  {!isEmpty(props.errorCreatingAgent)
+                    ? props.errorCreatingAgent
+                    : props.errorUpdatingAgent}
+                </p>
+              </EuiCallOut>
+            )}
             {agentType !== AGENT_TYPE.FLOW && (
               <EuiCallOut
                 size="s"
