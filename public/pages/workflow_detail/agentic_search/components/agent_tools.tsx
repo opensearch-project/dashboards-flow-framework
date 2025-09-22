@@ -103,7 +103,10 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
     };
     const updatedTools = [...tools, newTool];
     setAgentForm({ ...agentForm, tools: updatedTools });
-    setOpenAccordionIndex(updatedTools.length - 1);
+    // for other basic tools, don't open by default, as we don't expose anything to configure for them.
+    if (toolType === TOOL_TYPE.QUERY_PLANNING) {
+      setOpenAccordionIndex(updatedTools.length - 1);
+    }
   };
 
   const removeTool = (index: number) => {
@@ -414,7 +417,12 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
             )}
           </>
         );
+      // In general, users should be using these in conjunction with conversational agents,
+      // which will determine the tool inputs. So, we expose no explicit fields to configure on the form.
+      // If it is needed, users can edit via JSON directly.
       case TOOL_TYPE.SEARCH_INDEX:
+      case TOOL_TYPE.LIST_INDEX:
+      case TOOL_TYPE.INDEX_MAPPING:
         return (
           <EuiText size="s" color="subdued">
             Nothing to configure!
@@ -496,12 +504,27 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 addTool(option.value);
                 setIsPopoverOpen(false);
               }}
+              disabled={alreadyContainsTool(option.value, tools)}
             >
-              {option.text}
+              {`${option.text}${
+                alreadyContainsTool(option.value, tools) ? ' (configured)' : ''
+              }`}
             </EuiContextMenuItem>
           ))}
         </div>
       </EuiPopover>
     </>
+  );
+}
+
+// util fn to determine if a tool is already chosen. Duplicate tools are not allowed and will fail
+// during agent update/creation
+function alreadyContainsTool(
+  toolType: TOOL_TYPE,
+  selectedTools: Tool[]
+): boolean {
+  const selectedToolTypes = selectedTools.map((tool) => tool.type);
+  return selectedToolTypes.some(
+    (selectedToolType) => selectedToolType === toolType
   );
 }

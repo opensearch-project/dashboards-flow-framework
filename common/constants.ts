@@ -1034,6 +1034,8 @@ export const EMPTY_AGENT = {
 export enum TOOL_TYPE {
   QUERY_PLANNING = 'QueryPlanningTool',
   SEARCH_INDEX = 'SearchIndexTool',
+  LIST_INDEX = 'ListIndexTool',
+  INDEX_MAPPING = 'IndexMappingTool',
 }
 
 // Memory types supported by agents.
