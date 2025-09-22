@@ -94,6 +94,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
 
   function onCreateNew() {
     setNewAndUnsaved(true);
+    clearAgentErrors();
   }
   function onDiscardDraft() {
     clearAgentErrors();
@@ -149,6 +150,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
       clearAgentErrors();
     } catch (error) {
       errorOnUpdate = true;
+      setErrorUpdatingAgent(error);
     } finally {
       setIsSaving(false);
       setExistingAndUnsaved(errorOnUpdate ? true : false);

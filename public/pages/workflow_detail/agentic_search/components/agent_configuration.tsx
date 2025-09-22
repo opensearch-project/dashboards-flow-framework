@@ -36,6 +36,8 @@ import { AppState } from '../../../../store';
 import { AgentTools } from './agent_tools';
 import { SimplifiedJsonField } from './simplified_json_field';
 import { AgentLLMFields } from './agent_llm_fields';
+import { AgentParameters } from './agent_parameters';
+import { AgentMemory } from './agent_memory';
 
 interface AgentConfigurationProps {
   uiConfig: WorkflowConfig | undefined;
@@ -287,7 +289,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 title="Need more customization?"
               >
                 <p>
-                  Use the JSON editor for full customization of your agent
+                  Switch to the JSON editor for full control of your agent
                   configuration.
                 </p>
               </EuiCallOut>
@@ -395,9 +397,31 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                     </EuiFormRow>
                   </EuiFlexItem>
                 )}
+                {/**
+                 * For agent types that allow for memory, provide custom form inputs for that.
+                 */}
+                {(agentType === AGENT_TYPE.CONVERSATIONAL ||
+                  agentType === AGENT_TYPE.PLAN_EXECUTE_REFLECT) && (
+                  <EuiFlexItem>
+                    <EuiFormRow label="Memory (optional)" fullWidth>
+                      <AgentMemory
+                        agentForm={props.agentForm}
+                        setAgentForm={props.setAgentForm}
+                      />
+                    </EuiFormRow>
+                  </EuiFlexItem>
+                )}
                 <EuiFlexItem>
                   <EuiFormRow label="Tools" fullWidth>
                     <AgentTools
+                      agentForm={props.agentForm}
+                      setAgentForm={props.setAgentForm}
+                    />
+                  </EuiFormRow>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <EuiFormRow label="General parameters" fullWidth>
+                    <AgentParameters
                       agentForm={props.agentForm}
                       setAgentForm={props.setAgentForm}
                     />
