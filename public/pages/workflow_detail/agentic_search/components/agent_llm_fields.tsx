@@ -106,7 +106,6 @@ export function AgentLLMFields({
           }}
           editorHeight="120px"
           // isInvalid={jsonError !== undefined}
-          helpText="Custom LLM parameters"
         />
       </EuiFormRow>
     </EuiPanel>

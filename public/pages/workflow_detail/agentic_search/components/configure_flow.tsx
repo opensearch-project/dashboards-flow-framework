@@ -204,11 +204,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
               <EuiFlexItem grow={false}>
                 <IndexSelector />
               </EuiFlexItem>
-              <EuiFlexItem
-                style={{
-                  overflow: 'hidden',
-                }}
-              >
+              <EuiFlexItem>
                 <AgentConfiguration
                   uiConfig={props.uiConfig}
                   onCreateNew={onCreateNew}

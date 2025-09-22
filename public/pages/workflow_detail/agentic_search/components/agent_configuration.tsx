@@ -22,9 +22,13 @@ import {
   EuiSmallButton,
   EuiLoadingSpinner,
   EuiCallOut,
+  EuiAccordion,
+  EuiText,
+  EuiLink,
 } from '@elastic/eui';
 import {
   Agent,
+  AGENT_MAIN_DOCS_LINK,
   AGENT_TYPE,
   customStringify,
   EMPTY_AGENT,
@@ -186,7 +190,17 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   </EuiTitle>
                 </EuiFlexItem>
                 <EuiFlexItem grow={false}>
-                  <EuiToolTip content="Choose an AI agent that will interpret your natural language query and convert it to a search query">
+                  <EuiToolTip
+                    content={
+                      <p>
+                        Choose or create an AI agent that will interpret your
+                        natural language query and convert it to a search query.{' '}
+                        <i>
+                          For full advanced control, try out the JSON editor.
+                        </i>
+                      </p>
+                    }
+                  >
                     <EuiIcon
                       type="questionInCircle"
                       color="subdued"
@@ -197,7 +211,14 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
               </EuiFlexGroup>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiFlexGroup direction="row" gutterSize="s">
+              <EuiFlexGroup direction="row" gutterSize="s" alignItems="center">
+                <EuiFlexItem grow={false}>
+                  <EuiText size="s" color="subdued">
+                    <EuiLink target="_blank" href={AGENT_MAIN_DOCS_LINK}>
+                      Documentation
+                    </EuiLink>
+                  </EuiText>
+                </EuiFlexItem>
                 <EuiFlexItem grow={false}>
                   <EuiButtonGroup
                     buttonSize="compressed"
@@ -235,14 +256,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiSpacer size="s" />
-          <EuiFlexGroup
-            direction="column"
-            gutterSize="s"
-            style={{
-              height: '100%',
-              overflow: 'hidden',
-            }}
-          >
+          <EuiFlexGroup direction="column" gutterSize="s">
             <EuiFlexItem>
               <EuiSelect
                 options={agentOptions}
@@ -278,19 +292,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   {!isEmpty(props.errorCreatingAgent)
                     ? props.errorCreatingAgent
                     : props.errorUpdatingAgent}
-                </p>
-              </EuiCallOut>
-            )}
-            {agentType !== AGENT_TYPE.FLOW && (
-              <EuiCallOut
-                size="s"
-                color="primary"
-                iconType="help"
-                title="Need more customization?"
-              >
-                <p>
-                  Switch to the JSON editor for full control of your agent
-                  configuration.
                 </p>
               </EuiCallOut>
             )}
@@ -397,20 +398,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                     </EuiFormRow>
                   </EuiFlexItem>
                 )}
-                {/**
-                 * For agent types that allow for memory, provide custom form inputs for that.
-                 */}
-                {(agentType === AGENT_TYPE.CONVERSATIONAL ||
-                  agentType === AGENT_TYPE.PLAN_EXECUTE_REFLECT) && (
-                  <EuiFlexItem>
-                    <EuiFormRow label="Memory (optional)" fullWidth>
-                      <AgentMemory
-                        agentForm={props.agentForm}
-                        setAgentForm={props.setAgentForm}
-                      />
-                    </EuiFormRow>
-                  </EuiFlexItem>
-                )}
                 <EuiFlexItem>
                   <EuiFormRow label="Tools" fullWidth>
                     <AgentTools
@@ -419,13 +406,36 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                     />
                   </EuiFormRow>
                 </EuiFlexItem>
-                <EuiFlexItem>
-                  <EuiFormRow label="General parameters" fullWidth>
-                    <AgentParameters
-                      agentForm={props.agentForm}
-                      setAgentForm={props.setAgentForm}
-                    />
-                  </EuiFormRow>
+                <EuiFlexItem grow={false}>
+                  <EuiAccordion
+                    id="agentAdvancedSettings"
+                    initialIsOpen={false}
+                    buttonContent="Advanced settings"
+                  >
+                    <EuiSpacer size="s" />
+                    {/**
+                     * For agent types that allow for memory, provide custom form inputs for that.
+                     */}
+                    {(agentType === AGENT_TYPE.CONVERSATIONAL ||
+                      agentType === AGENT_TYPE.PLAN_EXECUTE_REFLECT) && (
+                      <EuiFlexItem>
+                        <EuiFormRow label={'Memory (optional)'} fullWidth>
+                          <AgentMemory
+                            agentForm={props.agentForm}
+                            setAgentForm={props.setAgentForm}
+                          />
+                        </EuiFormRow>
+                      </EuiFlexItem>
+                    )}
+                    <EuiFlexItem>
+                      <EuiFormRow label="Parameters" fullWidth>
+                        <AgentParameters
+                          agentForm={props.agentForm}
+                          setAgentForm={props.setAgentForm}
+                        />
+                      </EuiFormRow>
+                    </EuiFlexItem>
+                  </EuiAccordion>
                 </EuiFlexItem>
               </>
             )}
