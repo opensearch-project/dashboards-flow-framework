@@ -513,7 +513,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
               disabled={alreadyContainsTool(option.value, tools)}
             >
               {`${option.text}${
-                alreadyContainsTool(option.value, tools) ? ' (configured)' : ''
+                alreadyContainsTool(option.value, tools) ? ' (Configured)' : ''
               }`}
             </EuiContextMenuItem>
           ))}

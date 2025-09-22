@@ -130,7 +130,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
       !isEqual(formAgentId, NEW_AGENT_PLACEHOLDER) &&
       !isEqual(persistedAgentId, formAgentId);
 
-    // TODO: add for search query as well.
+    // Only handle for index or agent changes. For search query changes, we "autosave" on search.
     if (indexNameChanged || agentIdChanged) {
       validateAndUpdateWorkflow();
     }
