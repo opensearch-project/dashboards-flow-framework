@@ -326,6 +326,8 @@ export const AGENT_MAIN_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/agents/index/';
 export const AGENTIC_SEARCH_DOCS_LINK =
   'https://docs.opensearch.org/latest/vector-search/ai-search/agentic-search/';
+export const MCP_AGENT_CONFIG_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/mcp/mcp-connector/#step-3-register-an-agent-for-accessing-mcp-tools';
 
 // Large Language Models Documentation Links
 export const BEDROCK_CLAUDE_3_SONNET_DOCS_LINK =
@@ -1042,4 +1044,5 @@ export const EMPTY_AGENT = {
   name: 'My agent',
   description: '',
   tools: [{ type: TOOL_TYPE.QUERY_PLANNING }],
+  parameters: {},
 } as Partial<Agent>;

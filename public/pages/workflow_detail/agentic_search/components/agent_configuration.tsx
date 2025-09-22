@@ -418,14 +418,17 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                      */}
                     {(agentType === AGENT_TYPE.CONVERSATIONAL ||
                       agentType === AGENT_TYPE.PLAN_EXECUTE_REFLECT) && (
-                      <EuiFlexItem>
-                        <EuiFormRow label={'Memory (optional)'} fullWidth>
-                          <AgentMemory
-                            agentForm={props.agentForm}
-                            setAgentForm={props.setAgentForm}
-                          />
-                        </EuiFormRow>
-                      </EuiFlexItem>
+                      <>
+                        <EuiFlexItem>
+                          <EuiFormRow label={'Memory (optional)'} fullWidth>
+                            <AgentMemory
+                              agentForm={props.agentForm}
+                              setAgentForm={props.setAgentForm}
+                            />
+                          </EuiFormRow>
+                        </EuiFlexItem>
+                        <EuiSpacer size="s" />
+                      </>
                     )}
                     <EuiFlexItem>
                       <EuiFormRow label="Parameters" fullWidth>
