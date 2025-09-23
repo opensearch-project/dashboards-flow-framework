@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
-import { isEmpty, isEqual } from 'lodash';
+import { isEmpty } from 'lodash';
 import {
   EuiAccordion,
   EuiSpacer,
@@ -24,6 +24,7 @@ import {
 } from '@elastic/eui';
 import {
   Agent,
+  AGENT_TYPE,
   Model,
   MODEL_STATE,
   ModelDict,
@@ -86,6 +87,14 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
       value: model.id,
       text: model.name || model.id,
     }));
+
+  // only expose the QPT for flow agents
+  const toolTypeOptions =
+    agentForm.type !== AGENT_TYPE.FLOW
+      ? TOOL_TYPE_OPTIONS
+      : TOOL_TYPE_OPTIONS.filter(
+          (tooltype) => tooltype.value === TOOL_TYPE.QUERY_PLANNING
+        );
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [openAccordionIndex, setOpenAccordionIndex] = useState<
@@ -162,8 +171,6 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
     const toolForm = getIn(agentForm, `tools.${index}`) as Tool;
     switch (toolType) {
       case TOOL_TYPE.QUERY_PLANNING:
-        const responseFilter = toolForm?.parameters?.response_filter;
-        const systemPrompt = toolForm?.parameters?.system_prompt;
         const generationType =
           toolForm?.parameters?.generation_type || GENERATION_TYPE.LLM;
         const searchTemplatesForm = parseStringOrJson(
@@ -253,56 +260,6 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                     compressed
                   />
                 )}
-              </>
-            </EuiFormRow>
-            <EuiFormRow label="Response filter" fullWidth>
-              <EuiFieldText
-                value={responseFilter}
-                onChange={(e) => {
-                  updateParameterValue(
-                    'response_filter',
-                    e.target.value,
-                    index
-                  );
-                }}
-                aria-label="Specify a response filter"
-                placeholder="Response filter"
-                fullWidth
-                compressed
-              />
-            </EuiFormRow>
-            <EuiFormRow label="System prompt" fullWidth>
-              <>
-                <EuiTextArea
-                  value={systemPrompt}
-                  onChange={(e) => {
-                    updateParameterValue(
-                      'system_prompt',
-                      e.target.value,
-                      index
-                    );
-                  }}
-                  aria-label="Specify a system prompt"
-                  placeholder="System prompt"
-                  fullWidth
-                  compressed
-                />
-                <EuiSmallButtonEmpty
-                  style={{ marginLeft: '-8px', marginTop: '-8px' }}
-                  disabled={isEqual(
-                    DEFAULT_SYSTEM_PROMPT_QUERY_PLANNING_TOOL,
-                    toolForm?.parameters?.system_prompt
-                  )}
-                  onClick={() => {
-                    updateParameterValue(
-                      'system_prompt',
-                      DEFAULT_SYSTEM_PROMPT_QUERY_PLANNING_TOOL,
-                      index
-                    );
-                  }}
-                >
-                  <EuiText size="xs">Reset to default</EuiText>
-                </EuiSmallButtonEmpty>
               </>
             </EuiFormRow>
             <EuiFormRow label="Generation type" fullWidth>
@@ -430,7 +387,6 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
           </>
         );
       case TOOL_TYPE.WEB_SEARCH:
-        const input = toolForm?.parameters?.input;
         const engine = toolForm?.parameters?.engine;
         return (
           <>
@@ -441,19 +397,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                   updateParameterValue('engine', e.target.value, index);
                 }}
                 aria-label="Specify the engine"
-                placeholder="Engine"
-                fullWidth
-                compressed
-              />
-            </EuiFormRow>
-            <EuiFormRow label="Input" fullWidth>
-              <EuiFieldText
-                value={input}
-                onChange={(e) => {
-                  updateParameterValue('input', e.target.value, index);
-                }}
-                aria-label="Specify the input"
-                placeholder="Input"
+                placeholder="Search engine - for example, duckduckgo"
                 fullWidth
                 compressed
               />
@@ -539,7 +483,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
         anchorPosition="downLeft"
       >
         <div style={{ width: '300px' }}>
-          {TOOL_TYPE_OPTIONS.map((option) => (
+          {toolTypeOptions.map((option) => (
             <EuiContextMenuItem
               size="s"
               key={option.value}

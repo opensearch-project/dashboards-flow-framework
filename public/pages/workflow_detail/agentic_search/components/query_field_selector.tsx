@@ -88,7 +88,7 @@ export function QueryFieldSelector(props: QueryFieldSelectorProps) {
   return (
     <>
       {selectedFields.length === 0 && !showDropdown ? (
-        <div style={{ display: 'inline-block' }}>
+        <div style={{ display: 'inline-block', marginLeft: '-6px' }}>
           <EuiSmallButtonEmpty
             // show the dropdown and auto-open it
             onClick={() => {

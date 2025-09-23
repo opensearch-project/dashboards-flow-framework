@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
-import { capitalize, isEmpty } from 'lodash';
+import { capitalize, cloneDeep, isEmpty } from 'lodash';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -330,9 +330,20 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                             options={dynamicAgentTypeOptions}
                             value={agentTypeInvalid ? undefined : agentType}
                             onChange={(e) => {
+                              const agentFormCopy = cloneDeep(props.agentForm);
+                              const proposedAgentType = e.target
+                                .value as AGENT_TYPE;
+
+                              // remove invalid fields if switching to flow agent
+                              if (proposedAgentType === AGENT_TYPE.FLOW) {
+                                delete agentFormCopy.llm;
+                                delete agentFormCopy.parameters?._llm_interface;
+                                delete agentFormCopy.memory;
+                              }
+
                               props.setAgentForm({
-                                ...props.agentForm,
-                                type: e.target.value as AGENT_TYPE,
+                                ...agentFormCopy,
+                                type: proposedAgentType,
                               });
                             }}
                             aria-label="Agent type"

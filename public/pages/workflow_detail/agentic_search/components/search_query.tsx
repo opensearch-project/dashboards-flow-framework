@@ -268,7 +268,7 @@ export function SearchQuery(props: SearchQueryProps) {
             </EuiFlexGroup>
           )}
           <EuiSpacer size="s" />
-          <EuiFlexItem grow={false}>
+          <EuiFlexItem grow={false} style={{ marginLeft: '2px' }}>
             <EuiCheckbox
               id="useAutoPipelineCheckbox"
               label={
