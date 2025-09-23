@@ -149,6 +149,7 @@ export function IndexSelector(props: IndexSelectorProps) {
                 aria-label="Select index"
                 hasNoInitialSelection={false}
                 fullWidth
+                compressed
               />
             </EuiFlexItem>
           </EuiFlexGroup>

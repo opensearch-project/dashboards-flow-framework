@@ -86,6 +86,7 @@ export function AgentLLMFields({
               hasNoInitialSelection={true}
               isInvalid={!modelFound && !modelEmpty}
               fullWidth
+              compressed
             />
           )}
         </>

@@ -105,7 +105,10 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
     const updatedTools = [...tools, newTool];
     setAgentForm({ ...agentForm, tools: updatedTools });
     // for other basic tools, don't open by default, as we don't expose anything to configure for them.
-    if (toolType === TOOL_TYPE.QUERY_PLANNING) {
+    if (
+      toolType === TOOL_TYPE.QUERY_PLANNING ||
+      toolType === TOOL_TYPE.WEB_SEARCH
+    ) {
       setOpenAccordionIndex(updatedTools.length - 1);
     }
   };
@@ -247,6 +250,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                     hasNoInitialSelection={true}
                     isInvalid={!modelFound && !modelEmpty}
                     fullWidth
+                    compressed
                   />
                 )}
               </>
@@ -264,6 +268,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 aria-label="Specify a response filter"
                 placeholder="Response filter"
                 fullWidth
+                compressed
               />
             </EuiFormRow>
             <EuiFormRow label="System prompt" fullWidth>
@@ -384,6 +389,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                                     }}
                                     placeholder="Select a template"
                                     fullWidth
+                                    compressed
                                     hasNoInitialSelection={isEmpty(
                                       template.template_id
                                     )}
@@ -421,6 +427,37 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 </div>
               </>
             )}
+          </>
+        );
+      case TOOL_TYPE.WEB_SEARCH:
+        const input = toolForm?.parameters?.input;
+        const engine = toolForm?.parameters?.engine;
+        return (
+          <>
+            <EuiFormRow label="Engine" fullWidth>
+              <EuiFieldText
+                value={engine}
+                onChange={(e) => {
+                  updateParameterValue('engine', e.target.value, index);
+                }}
+                aria-label="Specify the engine"
+                placeholder="Engine"
+                fullWidth
+                compressed
+              />
+            </EuiFormRow>
+            <EuiFormRow label="Input" fullWidth>
+              <EuiFieldText
+                value={input}
+                onChange={(e) => {
+                  updateParameterValue('input', e.target.value, index);
+                }}
+                aria-label="Specify the input"
+                placeholder="Input"
+                fullWidth
+                compressed
+              />
+            </EuiFormRow>
           </>
         );
       // In general, users should be using these in conjunction with conversational agents,

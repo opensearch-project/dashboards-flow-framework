@@ -1030,6 +1030,7 @@ export enum TOOL_TYPE {
   SEARCH_INDEX = 'SearchIndexTool',
   LIST_INDEX = 'ListIndexTool',
   INDEX_MAPPING = 'IndexMappingTool',
+  WEB_SEARCH = 'WebSearchTool',
 }
 
 // Memory types supported by agents.

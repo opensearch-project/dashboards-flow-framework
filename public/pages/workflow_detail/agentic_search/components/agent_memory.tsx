@@ -56,6 +56,7 @@ export function AgentMemory({ agentForm, setAgentForm }: AgentMemoryProps) {
       hasNoInitialSelection={true}
       isInvalid={!memoryFound && !memoryEmpty}
       fullWidth
+      compressed
     />
   );
 }

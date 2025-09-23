@@ -275,6 +275,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 placeholder="Select an agent"
                 hasNoInitialSelection={true}
                 fullWidth
+                compressed
               />
             </EuiFlexItem>
             {(!isEmpty(props.errorCreatingAgent) ||
@@ -313,6 +314,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                             placeholder="Enter agent name"
                             aria-label="Enter agent name"
                             fullWidth
+                            compressed
                             maxLength={50}
                           />
                         </EuiFormRow>
@@ -336,6 +338,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                             aria-label="Agent type"
                             placeholder="Agent type"
                             fullWidth
+                            compressed
                             isInvalid={agentTypeInvalid}
                             hasNoInitialSelection={true}
                           />

@@ -271,6 +271,7 @@ export function SearchQuery(props: SearchQueryProps) {
                   value={simpleSearchQuery}
                   onChange={handleSimpleQueryChange}
                   fullWidth
+                  compressed
                   isClearable
                   aria-label="Enter search query"
                 />
