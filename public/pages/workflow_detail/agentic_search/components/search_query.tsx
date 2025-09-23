@@ -17,6 +17,7 @@ import {
   EuiButtonGroup,
   EuiTitle,
   EuiSmallButton,
+  EuiText,
 } from '@elastic/eui';
 import { SimplifiedJsonField } from './simplified_json_field';
 import { QueryFieldSelector } from './query_field_selector';
@@ -241,27 +242,9 @@ export function SearchQuery(props: SearchQueryProps) {
               <SimplifiedJsonField
                 value={customStringify(finalQuery)}
                 onBlur={handleAdvancedQueryChange}
-                editorHeight="400px"
+                editorHeight="200px"
                 isInvalid={!!jsonError}
-                helpText="Edit the full OpenSearch DSL query with agentic search parameters"
               />
-              <EuiSpacer size="s" />
-
-              <EuiCheckbox
-                id="useAutoPipelineCheckbox"
-                label="Use auto-generated search pipeline"
-                checked={useAutoPipeline}
-                onChange={() => setUseAutoPipeline(!useAutoPipeline)}
-              />
-              {!useAutoPipeline && (
-                <SimplifiedJsonField
-                  value={customStringify(customPipeline)}
-                  onBlur={handleCustomPipelineChange}
-                  editorHeight="200px"
-                  isInvalid={!!jsonError}
-                  helpText="Edit the default search pipeline to be used alongside the search query"
-                />
-              )}
             </>
           ) : (
             <EuiFlexGroup direction="column" gutterSize="s">
@@ -283,6 +266,28 @@ export function SearchQuery(props: SearchQueryProps) {
                 />
               </EuiFlexItem>
             </EuiFlexGroup>
+          )}
+          <EuiSpacer size="s" />
+          <EuiFlexItem grow={false}>
+            <EuiCheckbox
+              id="useAutoPipelineCheckbox"
+              label={
+                <EuiText size="s" color="subdued">
+                  Use auto-generated search pipeline
+                </EuiText>
+              }
+              checked={useAutoPipeline}
+              onChange={() => setUseAutoPipeline(!useAutoPipeline)}
+            />
+          </EuiFlexItem>
+          {!useAutoPipeline && (
+            <SimplifiedJsonField
+              value={customStringify(customPipeline)}
+              onBlur={handleCustomPipelineChange}
+              editorHeight="200px"
+              isInvalid={!!jsonError}
+              helpText="Edit the default search pipeline to be used alongside the search query"
+            />
           )}
         </EuiFlexItem>
       </EuiFlexGroup>
