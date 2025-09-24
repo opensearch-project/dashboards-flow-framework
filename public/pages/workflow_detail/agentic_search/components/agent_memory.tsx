@@ -6,7 +6,12 @@
 import React from 'react';
 import { getIn } from 'formik';
 import { isEmpty } from 'lodash';
-import { EuiSelect } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiSelect,
+  EuiSmallButtonEmpty,
+} from '@elastic/eui';
 import { Agent, AGENT_MEMORY_TYPE } from '../../../../../common';
 import { sanitizeStringInput } from '../../../../utils';
 
@@ -33,34 +38,53 @@ export function AgentMemory({ agentForm, setAgentForm }: AgentMemoryProps) {
   const memoryEmpty = isEmpty(memoryForm);
 
   return (
-    <EuiSelect
-      options={
-        memoryFound || memoryEmpty
-          ? memoryOptions
-          : [
-              ...memoryOptions,
-              {
-                value: memoryForm,
-                text: `Unknown memory type: ${memoryForm}`,
+    <EuiFlexGroup direction="row" gutterSize="s" alignItems="center">
+      <EuiFlexItem>
+        <EuiSelect
+          options={
+            memoryFound || memoryEmpty
+              ? memoryOptions
+              : [
+                  ...memoryOptions,
+                  {
+                    value: memoryForm,
+                    text: `Unknown memory type: ${memoryForm}`,
+                  },
+                ]
+          }
+          value={memoryForm}
+          onChange={(e) => {
+            setAgentForm({
+              ...agentForm,
+              memory: {
+                ...agentForm?.memory,
+                type: (e.target.value as string) as AGENT_MEMORY_TYPE,
               },
-            ]
-      }
-      value={memoryForm}
-      onChange={(e) => {
-        setAgentForm({
-          ...agentForm,
-          memory: {
-            ...agentForm?.memory,
-            type: (e.target.value as string) as AGENT_MEMORY_TYPE,
-          },
-        });
-      }}
-      aria-label="Select memory type"
-      placeholder="Select a memory type"
-      hasNoInitialSelection={true}
-      isInvalid={!memoryFound && !memoryEmpty}
-      fullWidth
-      compressed
-    />
+            });
+          }}
+          aria-label="Select memory type"
+          placeholder="Select a memory type"
+          hasNoInitialSelection={true}
+          isInvalid={!memoryFound && !memoryEmpty}
+          fullWidth
+          compressed
+        />
+      </EuiFlexItem>
+      {memoryFound && (
+        <EuiFlexItem grow={false}>
+          <EuiSmallButtonEmpty
+            color="danger"
+            onClick={() => {
+              setAgentForm({
+                ...agentForm,
+                memory: undefined,
+              });
+            }}
+          >
+            Remove
+          </EuiSmallButtonEmpty>
+        </EuiFlexItem>
+      )}
+    </EuiFlexGroup>
   );
 }

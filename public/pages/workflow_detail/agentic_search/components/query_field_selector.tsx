@@ -116,7 +116,7 @@ export function QueryFieldSelector(props: QueryFieldSelectorProps) {
           label={
             <>
               Query fields
-              <EuiToolTip content="Choose the set of query fields you want to target in your search">
+              <EuiToolTip content="Choose the set of fields in your selected index you want to target in your search">
                 <EuiIcon
                   type="questionInCircle"
                   color="subdued"

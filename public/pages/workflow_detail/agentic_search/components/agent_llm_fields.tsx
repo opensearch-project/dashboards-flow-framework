@@ -7,10 +7,19 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
 import { isEmpty } from 'lodash';
-import { EuiComboBox, EuiFormRow, EuiPanel, EuiSelect } from '@elastic/eui';
+import {
+  EuiComboBox,
+  EuiFormRow,
+  EuiLink,
+  EuiPanel,
+  EuiSelect,
+  EuiText,
+} from '@elastic/eui';
 import {
   Agent,
+  AGENT_FIELDS_DOCS_LINK,
   AGENT_LLM_INTERFACE_TYPE,
+  AGENTIC_SEARCH_DOCS_LINK,
   AgentLLM,
   Model,
   MODEL_STATE,
@@ -62,6 +71,13 @@ export function AgentLLMFields({
       <EuiFormRow
         label="Model"
         fullWidth
+        labelAppend={
+          <EuiText size="xs">
+            <EuiLink href={AGENTIC_SEARCH_DOCS_LINK} target="_blank">
+              Learn more
+            </EuiLink>
+          </EuiText>
+        }
         isInvalid={!modelFound && !modelEmpty}
       >
         <>
@@ -100,7 +116,17 @@ export function AgentLLMFields({
           )}
         </>
       </EuiFormRow>
-      <EuiFormRow label="Interface" fullWidth>
+      <EuiFormRow
+        label="Interface"
+        labelAppend={
+          <EuiText size="xs">
+            <EuiLink href={AGENT_FIELDS_DOCS_LINK} target="_blank">
+              Learn more
+            </EuiLink>
+          </EuiText>
+        }
+        fullWidth
+      >
         <EuiComboBox
           options={LLM_INTERFACE_OPTIONS}
           selectedOptions={[

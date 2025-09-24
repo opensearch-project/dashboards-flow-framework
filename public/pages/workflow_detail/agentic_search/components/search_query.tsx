@@ -45,7 +45,6 @@ enum QUERY_MODE {
 
 export function SearchQuery(props: SearchQueryProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
-  const selectedIndexId = getIn(values, 'search.index.name', '') as string;
   const selectedAgentId = getIn(values, 'search.requestAgentId', '') as string;
   const finalQuery = (() => {
     try {
@@ -54,11 +53,15 @@ export function SearchQuery(props: SearchQueryProps) {
       return {};
     }
   })();
-  const searchDisabled =
-    !finalQuery?.query?.agentic?.query_text ||
-    !selectedIndexId ||
-    !selectedAgentId;
-  const [autoPipeline, setAutoPipeline] = useState<{}>({});
+  const [autoPipeline, setAutoPipeline] = useState<{}>({
+    request_processors: [
+      {
+        agentic_query_translator: {
+          agent_id: '',
+        },
+      },
+    ],
+  });
   const [customPipeline, setCustomPipeline] = useState<{}>({
     request_processors: [],
     phase_results_processors: [],
@@ -270,9 +273,10 @@ export function SearchQuery(props: SearchQueryProps) {
           <EuiSpacer size="s" />
           <EuiFlexItem grow={false} style={{ marginLeft: '2px' }}>
             <EuiCheckbox
+              compressed
               id="useAutoPipelineCheckbox"
               label={
-                <EuiText size="s" color="subdued">
+                <EuiText size="xs" color="subdued">
                   Use auto-generated search pipeline
                 </EuiText>
               }

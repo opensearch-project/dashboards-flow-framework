@@ -32,7 +32,9 @@ import {
   AGENT_TYPE,
   customStringify,
   EMPTY_AGENT,
+  MEMORY_DOCS_LINK,
   NEW_AGENT_PLACEHOLDER,
+  TOOLS_DOCS_LINK,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
@@ -423,7 +425,17 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   </EuiFlexItem>
                 )}
                 <EuiFlexItem>
-                  <EuiFormRow label="Tools" fullWidth>
+                  <EuiFormRow
+                    label="Tools"
+                    labelAppend={
+                      <EuiText size="xs">
+                        <EuiLink href={TOOLS_DOCS_LINK} target="_blank">
+                          Learn more
+                        </EuiLink>
+                      </EuiText>
+                    }
+                    fullWidth
+                  >
                     <AgentTools
                       agentForm={props.agentForm}
                       setAgentForm={props.setAgentForm}
@@ -444,7 +456,20 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                       agentType === AGENT_TYPE.PLAN_EXECUTE_REFLECT) && (
                       <>
                         <EuiFlexItem>
-                          <EuiFormRow label={'Memory (optional)'} fullWidth>
+                          <EuiFormRow
+                            label={'Memory (optional)'}
+                            labelAppend={
+                              <EuiText size="xs">
+                                <EuiLink
+                                  href={MEMORY_DOCS_LINK}
+                                  target="_blank"
+                                >
+                                  Learn more
+                                </EuiLink>
+                              </EuiText>
+                            }
+                            fullWidth
+                          >
                             <AgentMemory
                               agentForm={props.agentForm}
                               setAgentForm={props.setAgentForm}
