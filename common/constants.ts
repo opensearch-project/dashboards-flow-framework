@@ -1041,8 +1041,8 @@ export enum AGENT_MEMORY_TYPE {
 
 export enum AGENT_LLM_INTERFACE_TYPE {
   OPENAI = 'openai/v1/chat/completions',
-  CLAUDE = 'bedrock/converse/claude',
-  DEEPSEEK = 'bedrock/converse/deepseek_r1',
+  BEDROCK_CLAUDE = 'bedrock/converse/claude',
+  BEDROCK_DEEPSEEK = 'bedrock/converse/deepseek_r1',
 }
 
 export const NEW_AGENT_PLACEHOLDER = 'new_agent';

@@ -142,10 +142,10 @@ function getReadableInterface(interfaceType: AGENT_LLM_INTERFACE_TYPE): string {
   switch (interfaceType) {
     case AGENT_LLM_INTERFACE_TYPE.OPENAI:
       return 'OpenAI';
-    case AGENT_LLM_INTERFACE_TYPE.CLAUDE:
-      return 'Claude';
-    case AGENT_LLM_INTERFACE_TYPE.DEEPSEEK:
-      return 'DeepSeek';
+    case AGENT_LLM_INTERFACE_TYPE.BEDROCK_CLAUDE:
+      return 'Bedrock Claude';
+    case AGENT_LLM_INTERFACE_TYPE.BEDROCK_DEEPSEEK:
+      return 'Bedrock DeepSeek';
     default:
       return interfaceType;
   }
