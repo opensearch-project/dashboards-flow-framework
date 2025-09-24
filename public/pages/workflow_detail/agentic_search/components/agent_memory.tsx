@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { getIn } from 'formik';
-import { capitalize, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import { EuiSelect } from '@elastic/eui';
 import { Agent, AGENT_MEMORY_TYPE } from '../../../../../common';
 
@@ -21,7 +21,10 @@ export function AgentMemory({ agentForm, setAgentForm }: AgentMemoryProps) {
   const memoryForm = getIn(agentForm, 'memory.type');
   const memoryOptions = Object.values(AGENT_MEMORY_TYPE).map((memoryType) => ({
     value: memoryType,
-    text: capitalize(memoryType),
+    text:
+      memoryType === AGENT_MEMORY_TYPE.CONVERSATION_INDEX
+        ? 'Conversation index'
+        : memoryType,
   }));
   const memoryFound = memoryOptions.some(
     (memory) => memory.value === memoryForm
