@@ -42,6 +42,7 @@ import { SimplifiedJsonField } from './simplified_json_field';
 import { AgentLLMFields } from './agent_llm_fields';
 import { AgentParameters } from './agent_parameters';
 import { AgentMemory } from './agent_memory';
+import { sanitizeJSON, sanitizeStringInput } from '../../../../utils';
 
 interface AgentConfigurationProps {
   uiConfig: WorkflowConfig | undefined;
@@ -87,12 +88,17 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   );
   const [jsonError, setJsonError] = useState<string | undefined>(undefined);
 
+  const agentName = sanitizeStringInput(props.agentForm?.name || '');
+  const agentDescription = sanitizeStringInput(
+    props.agentForm?.description || ''
+  );
   // Fetch the agent type, and if not supported OOTB on the UI, still render appropriately for consistency.
-  const agentType = (props.agentForm?.type ?? '')?.toLowerCase();
+  const agentType = sanitizeStringInput(
+    props.agentForm?.type || ''
+  )?.toLowerCase();
   const agentTypeInvalid = isEmpty(agentType);
   const dynamicAgentTypeOptions = React.useMemo(() => {
     const knownOptions = AGENT_TYPE_OPTIONS;
-
     if (
       !agentType ||
       knownOptions.some((o) => o.value.toLowerCase() === agentType)
@@ -305,7 +311,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                       <EuiFlexItem>
                         <EuiFormRow label="Name" fullWidth>
                           <EuiFieldText
-                            value={props.agentForm.name}
+                            value={agentName}
                             onChange={(e) =>
                               props.setAgentForm({
                                 ...props.agentForm,
@@ -363,9 +369,12 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                       onBlur={(e) => {
                         try {
                           const agentFormUpdated = JSON.parse(e);
+                          const agentFormSanitized = sanitizeJSON(
+                            agentFormUpdated
+                          );
                           props.setAgentForm({
                             id: props.agentForm.id,
-                            ...agentFormUpdated,
+                            ...agentFormSanitized,
                           });
                           setJsonError(undefined);
                         } catch (error) {
@@ -384,7 +393,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 <EuiFlexItem grow={false}>
                   <EuiFormRow label="Description" fullWidth>
                     <EuiTextArea
-                      value={props.agentForm.description}
+                      value={agentDescription}
                       onChange={(e) =>
                         props.setAgentForm({
                           ...props.agentForm,

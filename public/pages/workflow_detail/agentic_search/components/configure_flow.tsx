@@ -86,7 +86,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
   const createOrUpdateDisabled =
     isEqual(getIn(agents, selectedAgentId, {}), agentForm) ||
     isEmpty(selectedAgentId) ||
-    !agentForm?.name?.trim() ||
+    isEmpty(agentForm?.name) ||
     (agentForm.type !== AGENT_TYPE.FLOW && isEmpty(agentForm.llm?.model_id)) ||
     (agentForm.type !== AGENT_TYPE.FLOW &&
       isEmpty(agentForm.parameters?._llm_interface));

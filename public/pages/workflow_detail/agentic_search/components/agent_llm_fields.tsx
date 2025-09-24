@@ -18,6 +18,7 @@ import {
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { NoDeployedModelsCallout } from './no_deployed_models_callout';
+import { sanitizeStringInput } from '../../../../utils';
 
 interface AgentLLMFieldsProps {
   agentForm: Partial<Agent>;
@@ -47,11 +48,9 @@ export function AgentLLMFields({
       text: model.name || model.id,
     }));
   const llmForm = getIn(agentForm, `llm`) as AgentLLM;
-  const selectedModelId = getIn(llmForm, 'model_id', '') as string;
-  const selectedModelInterface = getIn(
-    agentForm,
-    'parameters._llm_interface',
-    ''
+  const selectedModelId = sanitizeStringInput(getIn(llmForm, 'model_id', ''));
+  const selectedModelInterface = sanitizeStringInput(
+    getIn(agentForm, 'parameters._llm_interface', '')
   ) as AGENT_LLM_INTERFACE_TYPE;
   const modelFound = Object.values(models || ({} as ModelDict)).some(
     (model: Model) => model.id === selectedModelId

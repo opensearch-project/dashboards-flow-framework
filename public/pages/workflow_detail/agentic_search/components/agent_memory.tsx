@@ -8,6 +8,7 @@ import { getIn } from 'formik';
 import { isEmpty } from 'lodash';
 import { EuiSelect } from '@elastic/eui';
 import { Agent, AGENT_MEMORY_TYPE } from '../../../../../common';
+import { sanitizeStringInput } from '../../../../utils';
 
 interface AgentMemoryProps {
   agentForm: Partial<Agent>;
@@ -18,7 +19,7 @@ interface AgentMemoryProps {
  * The general component containing all of the memory-related fields for an agent.
  */
 export function AgentMemory({ agentForm, setAgentForm }: AgentMemoryProps) {
-  const memoryForm = getIn(agentForm, 'memory.type');
+  const memoryForm = sanitizeStringInput(getIn(agentForm, 'memory.type'));
   const memoryOptions = Object.values(AGENT_MEMORY_TYPE).map((memoryType) => ({
     value: memoryType,
     text:

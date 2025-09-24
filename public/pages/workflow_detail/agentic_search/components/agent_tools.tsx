@@ -32,7 +32,7 @@ import {
   TOOL_TYPE,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
-import { parseStringOrJson } from '../../../../utils';
+import { parseStringOrJson, sanitizeArrayInput } from '../../../../utils';
 import { NoDeployedModelsCallout } from './no_deployed_models_callout';
 
 interface AgentToolsProps {
@@ -103,7 +103,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
   const [openTemplateAccordionIndex, setOpenTemplateAccordionIndex] = useState<
     number | undefined
   >(undefined);
-  const tools = agentForm?.tools || [];
+  const tools = sanitizeArrayInput(agentForm?.tools || []);
 
   const addTool = (toolType: TOOL_TYPE) => {
     const newTool: Tool = {
@@ -228,7 +228,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
         return (
           <>
             <EuiFormRow
-              label="Model"
+              label="Query planning model"
               fullWidth
               isInvalid={!modelFound && !modelEmpty}
             >
@@ -426,48 +426,60 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
 
   return (
     <>
-      {tools.map((tool, index) => (
-        <div key={`tool_${index}`}>
-          <EuiPanel
-            key={index}
-            color="transparent"
-            paddingSize="s"
-            style={{ paddingBottom: '0px' }}
-          >
-            <EuiAccordion
-              id={`tool-accordion-${index}`}
-              extraAction={
-                <EuiButtonIcon
-                  aria-label="Remove tool"
-                  iconType="trash"
-                  color="danger"
-                  onClick={() => {
-                    removeTool(index);
-                  }}
-                />
-              }
-              buttonContent={
-                <EuiText size="s">
-                  {TOOL_TYPE_OPTIONS.find(
-                    (option) => option.value === tool.type
-                  )?.text ||
-                    tool?.type ||
-                    'Unknown tool'}
-                </EuiText>
-              }
+      {tools.map((tool, index) => {
+        const isConfigurable =
+          tool.type === TOOL_TYPE.QUERY_PLANNING ||
+          tool.type === TOOL_TYPE.WEB_SEARCH;
+        const accordionTitle =
+          TOOL_TYPE_OPTIONS.find((option) => option.value === tool.type)
+            ?.text ||
+          tool?.type ||
+          'Unknown tool';
+
+        return (
+          <div key={`tool_${index}`}>
+            <EuiPanel
+              key={index}
+              color="transparent"
               paddingSize="s"
-              forceState={openAccordionIndex === index ? 'open' : undefined}
-              onToggle={(isOpen) => {
-                setOpenAccordionIndex(isOpen ? index : undefined);
-              }}
+              style={{ paddingBottom: '0px' }}
             >
-              {renderToolForm(tool.type, index)}
-            </EuiAccordion>
+              <EuiAccordion
+                id={`tool-accordion-${index}`}
+                arrowDisplay={isConfigurable ? 'left' : 'none'}
+                extraAction={
+                  <EuiButtonIcon
+                    aria-label="Remove tool"
+                    iconType="trash"
+                    color="danger"
+                    onClick={() => {
+                      removeTool(index);
+                    }}
+                  />
+                }
+                buttonContent={<EuiText size="s">{accordionTitle}</EuiText>}
+                paddingSize="s"
+                forceState={
+                  isConfigurable
+                    ? openAccordionIndex === index
+                      ? 'open'
+                      : undefined
+                    : 'closed'
+                }
+                onToggle={(isOpen) => {
+                  if (isConfigurable) {
+                    setOpenAccordionIndex(isOpen ? index : undefined);
+                  }
+                }}
+              >
+                {renderToolForm(tool.type, index)}
+              </EuiAccordion>
+              <EuiSpacer size="s" />
+            </EuiPanel>
             <EuiSpacer size="s" />
-          </EuiPanel>
-          <EuiSpacer size="s" />
-        </div>
-      ))}
+          </div>
+        );
+      })}
       <EuiPopover
         button={
           <EuiSmallButtonEmpty
