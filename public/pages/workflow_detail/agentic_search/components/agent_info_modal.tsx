@@ -34,8 +34,8 @@ export function AgentInfoModal(props: AgentInfoModalProps) {
           </p>
           <h4>How it works:</h4>
           <ol>
-            <li>Select the index containing your data</li>
             <li>Choose or create an AI agent to interpret your queries</li>
+            <li>Select the index or indices containing your data</li>
             <li>Enter your question in natural language</li>
             <li>
               The agent will take the question, generate a query, and return

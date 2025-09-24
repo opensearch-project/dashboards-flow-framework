@@ -334,6 +334,12 @@ export const TOOLS_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/index/';
 export const MEMORY_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/api/memory-apis/index/';
+export const QUERY_PLANNING_TOOL_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/query-planning-tool#register-parameters';
+export const QUERY_PLANNING_MODEL_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/query-planning-tool/#step-2-register-and-deploy-a-model';
+export const WEB_SEARCH_TOOL_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/web-search-tool/#register-parameters';
 
 // Large Language Models Documentation Links
 export const BEDROCK_CLAUDE_3_SONNET_DOCS_LINK =

@@ -21,6 +21,7 @@ import {
   EuiFieldText,
   EuiTextArea,
   EuiRadioGroup,
+  EuiLink,
 } from '@elastic/eui';
 import {
   Agent,
@@ -28,8 +29,11 @@ import {
   Model,
   MODEL_STATE,
   ModelDict,
+  QUERY_PLANNING_MODEL_DOCS_LINK,
+  QUERY_PLANNING_TOOL_DOCS_LINK,
   Tool,
   TOOL_TYPE,
+  WEB_SEARCH_TOOL_DOCS_LINK,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { parseStringOrJson, sanitizeArrayInput } from '../../../../utils';
@@ -229,6 +233,16 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
           <>
             <EuiFormRow
               label="Query planning model"
+              labelAppend={
+                <EuiText size="xs">
+                  <EuiLink
+                    href={QUERY_PLANNING_MODEL_DOCS_LINK}
+                    target="_blank"
+                  >
+                    Learn more
+                  </EuiLink>
+                </EuiText>
+              }
               fullWidth
               isInvalid={!modelFound && !modelEmpty}
             >
@@ -262,7 +276,17 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 )}
               </>
             </EuiFormRow>
-            <EuiFormRow label="Generation type" fullWidth>
+            <EuiFormRow
+              label="Generation type"
+              labelAppend={
+                <EuiText size="xs">
+                  <EuiLink href={QUERY_PLANNING_TOOL_DOCS_LINK} target="_blank">
+                    Learn more
+                  </EuiLink>
+                </EuiText>
+              }
+              fullWidth
+            >
               <EuiRadioGroup
                 options={generationTypeRadios}
                 idSelected={generationType}
@@ -390,7 +414,17 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
         const engine = toolForm?.parameters?.engine;
         return (
           <>
-            <EuiFormRow label="Engine" fullWidth>
+            <EuiFormRow
+              label="Engine"
+              labelAppend={
+                <EuiText size="xs">
+                  <EuiLink href={WEB_SEARCH_TOOL_DOCS_LINK} target="_blank">
+                    Learn more
+                  </EuiLink>
+                </EuiText>
+              }
+              fullWidth
+            >
               <EuiFieldText
                 value={engine}
                 onChange={(e) => {
