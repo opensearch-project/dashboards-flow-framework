@@ -87,7 +87,9 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
     isEqual(getIn(agents, selectedAgentId, {}), agentForm) ||
     isEmpty(selectedAgentId) ||
     !agentForm?.name?.trim() ||
-    (agentForm.type !== AGENT_TYPE.FLOW && isEmpty(agentForm.llm?.model_id));
+    (agentForm.type !== AGENT_TYPE.FLOW && isEmpty(agentForm.llm?.model_id)) ||
+    (agentForm.type !== AGENT_TYPE.FLOW &&
+      isEmpty(agentForm.parameters?._llm_interface));
 
   // fine-grained error handling states
   const [errorCreatingAgent, setErrorCreatingAgent] = useState<string>('');

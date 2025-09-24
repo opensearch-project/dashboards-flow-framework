@@ -7,6 +7,7 @@ import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
 import {
+  AGENT_LLM_INTERFACE_TYPE,
   AGENT_MEMORY_TYPE,
   AGENT_TYPE,
   COMPONENT_CLASS,
@@ -505,6 +506,7 @@ export type ConnectorDict = {
 };
 
 export type AgentConfigParameters = {
+  _llm_interface?: AGENT_LLM_INTERFACE_TYPE;
   [key: string]: any;
 };
 

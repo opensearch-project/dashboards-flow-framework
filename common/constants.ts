@@ -1039,11 +1039,22 @@ export enum AGENT_MEMORY_TYPE {
   CONVERSATION_INDEX = 'conversation_index',
 }
 
+export enum AGENT_LLM_INTERFACE_TYPE {
+  OPENAI = 'openai/v1/chat/completions',
+  CLAUDE = 'bedrock/converse/claude',
+  DEEPSEEK = 'bedrock/converse/deepseek_r1',
+}
+
 export const NEW_AGENT_PLACEHOLDER = 'new_agent';
 export const EMPTY_AGENT = {
   type: AGENT_TYPE.CONVERSATIONAL,
   name: 'My agent',
   description: '',
   tools: [],
-  parameters: {},
+  llm: {
+    model_id: '',
+  },
+  parameters: {
+    _llm_interface: '' as AGENT_LLM_INTERFACE_TYPE,
+  },
 } as Partial<Agent>;
