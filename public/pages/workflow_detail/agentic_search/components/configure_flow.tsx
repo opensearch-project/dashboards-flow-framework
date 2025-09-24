@@ -65,6 +65,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
   );
   const isLoading = mlLoading || workflowsLoading || opensearchLoading;
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
+  // TODO: long-term, wrap all agent fields in a nested formik form for consistent validation/touch/submit actions
   const [agentForm, setAgentForm] = useState<Partial<Agent>>(EMPTY_AGENT);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -82,6 +83,11 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
     );
   }, [selectedAgentId, agents, agentForm]);
   const unsaved = newAndUnsaved || existingAndUnsaved;
+  const createOrUpdateDisabled =
+    isEqual(getIn(agents, selectedAgentId, {}), agentForm) ||
+    isEmpty(selectedAgentId) ||
+    !agentForm?.name?.trim() ||
+    (agentForm.type !== AGENT_TYPE.FLOW && isEmpty(agentForm.llm?.model_id));
 
   // fine-grained error handling states
   const [errorCreatingAgent, setErrorCreatingAgent] = useState<string>('');
@@ -228,11 +234,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
                     }
                   }}
                   fill
-                  isDisabled={
-                    isEqual(getIn(agents, selectedAgentId, {}), agentForm) ||
-                    isEmpty(selectedAgentId) ||
-                    !agentForm?.name?.trim()
-                  }
+                  isDisabled={createOrUpdateDisabled}
                   isLoading={isSaving}
                 >
                   {newAndUnsaved ? 'Create agent' : 'Update agent'}
@@ -245,7 +247,6 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
                   </EuiSmallButtonEmpty>
                 </EuiFlexItem>
               )}
-
               {newAndUnsaved && (
                 <EuiFlexItem grow={false}>
                   <EuiSmallButtonEmpty onClick={onDiscardDraft}>

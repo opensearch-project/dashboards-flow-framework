@@ -280,21 +280,22 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
             </EuiFlexItem>
             {(!isEmpty(props.errorCreatingAgent) ||
               !isEmpty(props.errorUpdatingAgent)) && (
-              <EuiCallOut
-                size="s"
-                color="danger"
-                iconType="alert"
-                title={`Error ${
-                  !isEmpty(props.errorCreatingAgent) ? 'creating' : 'updating'
-                } agent`}
-                style={{ marginBottom: '8px' }}
-              >
-                <p>
-                  {!isEmpty(props.errorCreatingAgent)
-                    ? props.errorCreatingAgent
-                    : props.errorUpdatingAgent}
-                </p>
-              </EuiCallOut>
+              <EuiFlexItem grow={false}>
+                <EuiCallOut
+                  size="s"
+                  color="danger"
+                  iconType="alert"
+                  title={`Error ${
+                    !isEmpty(props.errorCreatingAgent) ? 'creating' : 'updating'
+                  } agent`}
+                >
+                  <p>
+                    {!isEmpty(props.errorCreatingAgent)
+                      ? props.errorCreatingAgent
+                      : props.errorUpdatingAgent}
+                  </p>
+                </EuiCallOut>
+              </EuiFlexItem>
             )}
             {!isEmpty(selectedAgentId) && (
               <>

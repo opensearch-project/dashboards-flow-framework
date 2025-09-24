@@ -7,17 +7,15 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
 import { isEmpty } from 'lodash';
-import { EuiFormRow, EuiPanel, EuiSelect } from '@elastic/eui';
+import { EuiFormRow, EuiSelect } from '@elastic/eui';
 import {
   Agent,
   AgentLLM,
-  customStringify,
   Model,
   MODEL_STATE,
   ModelDict,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
-import { SimplifiedJsonField } from './simplified_json_field';
 import { NoDeployedModelsCallout } from './no_deployed_models_callout';
 
 interface AgentLLMFieldsProps {
@@ -42,79 +40,48 @@ export function AgentLLMFields({
     }));
   const llmForm = getIn(agentForm, `llm`) as AgentLLM;
   const selectedModelId = getIn(llmForm, 'model_id', '') as string;
-  const modelParameters = getIn(llmForm, 'parameters', {}) as {};
   const modelFound = Object.values(models || ({} as ModelDict)).some(
     (model: Model) => model.id === selectedModelId
   );
   const modelEmpty = isEmpty(selectedModelId);
 
   return (
-    <EuiPanel color="transparent" paddingSize="s">
-      <EuiFormRow
-        label="Model"
-        fullWidth
-        isInvalid={!modelFound && !modelEmpty}
-      >
-        <>
-          {modelOptions.length === 0 ? (
-            <NoDeployedModelsCallout />
-          ) : (
-            <EuiSelect
-              options={
-                modelFound || modelEmpty
-                  ? modelOptions
-                  : [
-                      ...modelOptions,
-                      {
-                        value: selectedModelId,
-                        text: `Unknown model (ID: ${selectedModelId})`,
-                      },
-                    ]
-              }
-              value={selectedModelId}
-              onChange={(e) => {
-                setAgentForm({
-                  ...agentForm,
-                  llm: {
-                    ...agentForm?.llm,
-                    model_id: e.target.value as string,
-                  },
-                });
-              }}
-              aria-label="Select model"
-              placeholder="Select a model"
-              hasNoInitialSelection={true}
-              isInvalid={!modelFound && !modelEmpty}
-              fullWidth
-              compressed
-            />
-          )}
-        </>
-      </EuiFormRow>
-      <EuiFormRow label="Parameters" fullWidth>
-        <SimplifiedJsonField
-          value={customStringify(modelParameters)}
-          onBlur={(e) => {
-            try {
-              const llmParametersUpdated = JSON.parse(e);
+    <EuiFormRow fullWidth isInvalid={!modelFound && !modelEmpty}>
+      <>
+        {modelOptions.length === 0 ? (
+          <NoDeployedModelsCallout />
+        ) : (
+          <EuiSelect
+            options={
+              modelFound || modelEmpty
+                ? modelOptions
+                : [
+                    ...modelOptions,
+                    {
+                      value: selectedModelId,
+                      text: `Unknown model (ID: ${selectedModelId})`,
+                    },
+                  ]
+            }
+            value={selectedModelId}
+            onChange={(e) => {
               setAgentForm({
                 ...agentForm,
                 llm: {
-                  ...agentForm.llm,
-                  parameters: llmParametersUpdated,
+                  ...agentForm?.llm,
+                  model_id: e.target.value as string,
                 },
               });
-              //setJsonError(undefined);
-            } catch (error) {
-              //   setJsonError(
-              //     'Invalid JSON: ' + (error as Error)?.message || ''
-              //   );
-            }
-          }}
-          editorHeight="120px"
-          // isInvalid={jsonError !== undefined}
-        />
-      </EuiFormRow>
-    </EuiPanel>
+            }}
+            aria-label="Select model"
+            placeholder="Select a model"
+            hasNoInitialSelection={true}
+            isInvalid={!modelFound && !modelEmpty}
+            fullWidth
+            compressed
+          />
+        )}
+      </>
+    </EuiFormRow>
   );
 }

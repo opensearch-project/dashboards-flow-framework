@@ -1044,6 +1044,6 @@ export const EMPTY_AGENT = {
   type: AGENT_TYPE.CONVERSATIONAL,
   name: 'My agent',
   description: '',
-  tools: [{ type: TOOL_TYPE.QUERY_PLANNING }],
+  tools: [],
   parameters: {},
 } as Partial<Agent>;
