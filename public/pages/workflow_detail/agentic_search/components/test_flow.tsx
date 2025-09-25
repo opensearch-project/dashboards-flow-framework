@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { getIn, useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import {
   EuiCallOut,
   EuiFlexGroup,
@@ -12,6 +13,7 @@ import {
   EuiTitle,
   EuiSpacer,
   EuiPanel,
+  EuiHorizontalRule,
 } from '@elastic/eui';
 import { searchIndex, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils/utils';
@@ -19,6 +21,7 @@ import { WorkflowConfig, WorkflowFormValues } from '../../../../../common';
 import { SearchQuery } from './search_query';
 import { SearchResults } from './search_results';
 import { IndexSelector } from './index_selector';
+import { GeneratedQuery } from './generated_query';
 
 interface TestFlowProps {
   uiConfig: WorkflowConfig | undefined;
@@ -48,12 +51,10 @@ export function TestFlow(props: TestFlowProps) {
   const [searchResponse, setSearchResponse] = useState<any | undefined>(
     undefined
   );
+  const generatedQuery = getGeneratedQueryFromResponse(searchResponse);
+
   const [searchError, setSearchError] = useState<string | undefined>(undefined);
   const [formError, setFormError] = useState<string | undefined>(undefined);
-
-  const handleClear = () => {
-    setSearchResponse(undefined);
-  };
 
   const handleSearch = () => {
     // "Autosave" by updating the workflow after every search is run.
@@ -163,15 +164,54 @@ export function TestFlow(props: TestFlowProps) {
                 isSearching={isSearching}
               />
             </EuiFlexItem>
-            <EuiFlexItem>
-              <SearchResults
-                searchResponse={searchResponse}
-                handleClear={handleClear}
-              />
-            </EuiFlexItem>
+            {!isSearching && !isEmpty(generatedQuery) && (
+              <>
+                <EuiFlexItem
+                  grow={false}
+                  style={{ marginTop: '0px', marginBottom: '0px' }}
+                >
+                  <EuiHorizontalRule margin="none" />
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <GeneratedQuery query={generatedQuery} />
+                </EuiFlexItem>
+              </>
+            )}
+            {!isSearching && !isEmpty(searchResponse) && (
+              <>
+                <EuiFlexItem
+                  grow={false}
+                  style={{ marginTop: '0px', marginBottom: '0px' }}
+                >
+                  <EuiHorizontalRule margin="none" />
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <SearchResults searchResponse={searchResponse} />
+                </EuiFlexItem>
+              </>
+            )}
           </EuiFlexGroup>
         </EuiPanel>
       </EuiFlexItem>
     </EuiFlexGroup>
   );
+}
+
+// Util fn to extract the generated search query from the agentic_query_translator processor via the verbose search response
+function getGeneratedQueryFromResponse(searchResponse?: any): {} | undefined {
+  if (!searchResponse?.processor_results) {
+    return undefined;
+  }
+
+  // Loop through all processor results to find the agentic_query_translator
+  const processorResults = searchResponse.processor_results;
+  for (const processor of processorResults) {
+    if (
+      processor.processor_name === 'agentic_query_translator' &&
+      processor.output_data
+    ) {
+      return processor.output_data as {};
+    }
+  }
+  return undefined;
 }

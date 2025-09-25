@@ -12,12 +12,10 @@ import {
   EuiIcon,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiCheckbox,
   EuiSpacer,
   EuiButtonGroup,
   EuiTitle,
   EuiSmallButton,
-  EuiText,
 } from '@elastic/eui';
 import { SimplifiedJsonField } from './simplified_json_field';
 import { QueryFieldSelector } from './query_field_selector';
@@ -270,8 +268,11 @@ export function SearchQuery(props: SearchQueryProps) {
               </EuiFlexItem>
             </EuiFlexGroup>
           )}
-          <EuiSpacer size="s" />
-          <EuiFlexItem grow={false} style={{ marginLeft: '2px' }}>
+          {/**
+           * TODO: in the future, may expose this again to allow users more flexibility
+           * for explicit pipeline creation
+           */}
+          {/* <EuiFlexItem grow={false} style={{ marginLeft: '2px' }}>
             <EuiCheckbox
               compressed
               id="useAutoPipelineCheckbox"
@@ -292,7 +293,7 @@ export function SearchQuery(props: SearchQueryProps) {
               isInvalid={!!jsonError}
               helpText="Edit the default search pipeline to be used alongside the search query"
             />
-          )}
+          )} */}
         </EuiFlexItem>
       </EuiFlexGroup>
     </>

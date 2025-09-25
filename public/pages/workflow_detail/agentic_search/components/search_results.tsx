@@ -11,16 +11,14 @@ import {
   EuiCodeBlock,
   EuiButtonGroup,
   EuiIcon,
-  EuiSpacer,
   EuiTitle,
   EuiEmptyPrompt,
-  EuiSmallButtonEmpty,
+  EuiSmallButtonIcon,
 } from '@elastic/eui';
 import { customStringify } from '../../../../../common';
 import { ResultsTable } from '../../../../general_components/';
 
 interface SearchResultsProps {
-  handleClear(): void;
   searchResponse?: any;
 }
 
@@ -35,24 +33,6 @@ enum RESULTS_VIEW {
 }
 
 const RESULTS_VIEW_OPTIONS = [
-  {
-    id: RESULTS_VIEW.GENERATED_QUERY,
-    label: (
-      <EuiFlexGroup
-        direction="row"
-        gutterSize="xs"
-        alignItems="center"
-        style={{ width: '140px' }}
-      >
-        <EuiFlexItem grow={false}>
-          <EuiIcon type="generate" />
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiText size="s">Generated query</EuiText>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    ),
-  },
   {
     id: RESULTS_VIEW.HITS,
     label: 'Hits',
@@ -78,10 +58,10 @@ function hasAggregations(searchResponse?: any): boolean {
 }
 
 export function SearchResults(props: SearchResultsProps) {
-  const generatedQuery = getGeneratedQueryFromResponse(props.searchResponse);
   const [selectedView, setSelectedView] = useState<RESULTS_VIEW>(
     RESULTS_VIEW.HITS
   );
+  const [showResults, setShowResults] = useState<boolean>(true);
 
   // Intelligently select the most appropriate tab based on search response content
   useEffect(() => {
@@ -122,17 +102,16 @@ export function SearchResults(props: SearchResultsProps) {
           </EuiFlexItem>
           {props.searchResponse && (
             <EuiFlexItem grow={false}>
-              <EuiSmallButtonEmpty
-                onClick={props.handleClear}
-                iconType="eraser"
-              >
-                Clear results
-              </EuiSmallButtonEmpty>
+              <EuiSmallButtonIcon
+                aria-label="hideShowButton"
+                onClick={() => setShowResults(!showResults)}
+                iconType={showResults ? 'eye' : 'eyeClosed'}
+              ></EuiSmallButtonIcon>
             </EuiFlexItem>
           )}
         </EuiFlexGroup>
       </EuiFlexItem>
-      {props.searchResponse ? (
+      {props.searchResponse && showResults ? (
         <EuiFlexGroup direction="column" gutterSize="s">
           <EuiFlexItem grow={false}>
             <EuiButtonGroup
@@ -142,7 +121,7 @@ export function SearchResults(props: SearchResultsProps) {
               idSelected={selectedView}
               onChange={handleViewChange}
               isFullWidth={false}
-              style={{ width: '425px' }}
+              style={{ width: '275px' }}
             />
           </EuiFlexItem>
           <EuiFlexItem>
@@ -167,32 +146,6 @@ export function SearchResults(props: SearchResultsProps) {
                 ) : (
                   <EuiText size="s">
                     <p>No documents found</p>
-                  </EuiText>
-                )}
-              </>
-            ) : selectedView === RESULTS_VIEW.GENERATED_QUERY ? (
-              <>
-                {generatedQuery !== undefined ? (
-                  <>
-                    <EuiText size="s" color="subdued">
-                      <i>
-                        The agent-generated query DSL that was run against your
-                        OpenSearch index.
-                      </i>
-                    </EuiText>
-                    <EuiSpacer size="s" />
-                    <EuiCodeBlock
-                      language="json"
-                      fontSize="s"
-                      paddingSize="m"
-                      isCopyable
-                    >
-                      {customStringify(generatedQuery)}
-                    </EuiCodeBlock>
-                  </>
-                ) : (
-                  <EuiText size="s">
-                    <p>No generated query found</p>
                   </EuiText>
                 )}
               </>
@@ -227,7 +180,7 @@ export function SearchResults(props: SearchResultsProps) {
             )}
           </EuiFlexItem>
         </EuiFlexGroup>
-      ) : (
+      ) : props.searchResponse && !showResults ? undefined : (
         <EuiEmptyPrompt
           iconType={'search'}
           title={<h4>Run a search to view results</h4>}
@@ -236,23 +189,4 @@ export function SearchResults(props: SearchResultsProps) {
       )}
     </EuiFlexGroup>
   );
-}
-
-//Util fn to extract the generated search query from the agentic_query_translator processor
-function getGeneratedQueryFromResponse(searchResponse?: any): {} | undefined {
-  if (!searchResponse?.processor_results) {
-    return undefined;
-  }
-
-  // Loop through all processor results to find the agentic_query_translator
-  const processorResults = searchResponse.processor_results;
-  for (const processor of processorResults) {
-    if (
-      processor.processor_name === 'agentic_query_translator' &&
-      processor.output_data
-    ) {
-      return processor.output_data as {};
-    }
-  }
-  return undefined;
 }
