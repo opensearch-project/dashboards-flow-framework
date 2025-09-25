@@ -1032,7 +1032,8 @@ export const LEFT_NAV_SELECTED_STYLE = '2px solid rgba(128, 128, 128, 0.8)';
 export enum AGENT_TYPE {
   FLOW = 'flow',
   CONVERSATIONAL = 'conversational',
-  PLAN_EXECUTE_REFLECT = 'plan_execute_and_reflect',
+  // TODO: add back PER when there is concrete examples / models to give to users as reference
+  // PLAN_EXECUTE_REFLECT = 'plan_execute_and_reflect',
 }
 
 // Tool types supported by agents.
@@ -1058,6 +1059,7 @@ export enum AGENT_LLM_INTERFACE_TYPE {
 }
 
 export const NEW_AGENT_PLACEHOLDER = 'new_agent';
+export const NEW_AGENT_ID_PLACEHOLDER = 'New agent (unsaved)';
 export const EMPTY_AGENT = {
   type: '' as AGENT_TYPE,
   name: '',
@@ -1074,5 +1076,5 @@ export const DEFAULT_AGENT = {
   ...EMPTY_AGENT,
   type: AGENT_TYPE.CONVERSATIONAL,
   name: 'My agent',
-  description: 'My agent configured for agentic search.',
+  description: '',
 } as Partial<Agent>;

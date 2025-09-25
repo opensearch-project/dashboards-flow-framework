@@ -25,6 +25,7 @@ import {
   EuiAccordion,
   EuiText,
   EuiLink,
+  EuiSuperSelect,
 } from '@elastic/eui';
 import {
   Agent,
@@ -34,6 +35,7 @@ import {
   DEFAULT_AGENT,
   EMPTY_AGENT,
   MEMORY_DOCS_LINK,
+  NEW_AGENT_ID_PLACEHOLDER,
   NEW_AGENT_PLACEHOLDER,
   WorkflowConfig,
   WorkflowFormValues,
@@ -60,11 +62,7 @@ interface AgentConfigurationProps {
 const AGENT_ID_PATH = 'search.requestAgentId';
 const AGENT_TYPE_OPTIONS = Object.values(AGENT_TYPE).map((agentType) => ({
   value: agentType,
-  text:
-    // custom name rendering for plan-execute-reflect agents
-    agentType === AGENT_TYPE.PLAN_EXECUTE_REFLECT
-      ? 'Plan-execute-reflect'
-      : capitalize(agentType),
+  text: capitalize(agentType),
 }));
 /**
  * Enum for agent config toggle options
@@ -131,14 +129,36 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   }, [agents]);
 
   // get initial agent options for the dropdown
-  const [agentOptions, setAgentOptions] = useState<
-    { value: string; text: string }[]
-  >([]);
+  const [agentOptions, setAgentOptions] = useState<any[]>([]);
   useEffect(() => {
     setAgentOptions(
       Object.values(agents || {}).map((agent) => ({
         value: agent.id,
         text: agent.name,
+        inputDisplay: agent.name,
+        dropdownDisplay: (
+          <>
+            <EuiText size="s">
+              {agent.name}
+              {!isEmpty(agent.description) && (
+                <EuiText size="xs" color="subdued">
+                  <span
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      minWidth: 0,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    <i> {agent.description}</i>
+                  </span>
+                </EuiText>
+              )}
+            </EuiText>
+          </>
+        ),
       }))
     );
   }, [agents]);
@@ -157,7 +177,11 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
         ...agentOptions,
         {
           value: NEW_AGENT_PLACEHOLDER,
-          text: 'New agent (unsaved)',
+          text: NEW_AGENT_ID_PLACEHOLDER,
+          inputDisplay: NEW_AGENT_ID_PLACEHOLDER,
+          dropdownDisplay: (
+            <EuiText size="s">{NEW_AGENT_ID_PLACEHOLDER}</EuiText>
+          ),
         },
       ]);
       // new and unsaved was triggered to false (either by user discarding the changes, or a new agent created).
@@ -264,11 +288,10 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
           <EuiSpacer size="s" />
           <EuiFlexGroup direction="column" gutterSize="s">
             <EuiFlexItem>
-              <EuiSelect
+              <EuiSuperSelect
                 options={agentOptions}
-                value={selectedAgentId}
-                onChange={(e) => {
-                  const value = e.target.value;
+                valueOfSelected={selectedAgentId}
+                onChange={(value) => {
                   if (value !== NEW_AGENT_PLACEHOLDER) {
                     props.setNewAndUnsaved(false);
                   }
@@ -277,11 +300,9 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                     setFieldTouched(AGENT_ID_PATH, true);
                   }
                 }}
-                aria-label="Select agent"
                 placeholder="Select an agent"
-                hasNoInitialSelection={true}
-                fullWidth
                 compressed
+                fullWidth
               />
             </EuiFlexItem>
             {(!isEmpty(props.errorCreatingAgent) ||
@@ -405,8 +426,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 {/**
                  * For agent types that require and LLM for orchestration, provide custom form inputs for that.
                  */}
-                {(agentType === AGENT_TYPE.CONVERSATIONAL ||
-                  agentType === AGENT_TYPE.PLAN_EXECUTE_REFLECT) && (
+                {agentType === AGENT_TYPE.CONVERSATIONAL && (
                   <EuiFlexItem>
                     <EuiFormRow label="Large language model" fullWidth>
                       <AgentLLMFields
@@ -434,8 +454,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                     {/**
                      * For agent types that allow for memory, provide custom form inputs for that.
                      */}
-                    {(agentType === AGENT_TYPE.CONVERSATIONAL ||
-                      agentType === AGENT_TYPE.PLAN_EXECUTE_REFLECT) && (
+                    {agentType === AGENT_TYPE.CONVERSATIONAL && (
                       <>
                         <EuiFlexItem>
                           <EuiFormRow
