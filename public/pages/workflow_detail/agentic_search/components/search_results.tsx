@@ -12,7 +12,6 @@ import {
   EuiButtonGroup,
   EuiIcon,
   EuiTitle,
-  EuiEmptyPrompt,
   EuiSmallButtonIcon,
 } from '@elastic/eui';
 import { customStringify } from '../../../../../common';

@@ -20,6 +20,8 @@ import {
 import {
   Agent,
   AGENT_TYPE,
+  EMPTY_AGENT,
+  NEW_AGENT_PLACEHOLDER,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
@@ -38,13 +40,6 @@ interface ConfigureFlowProps {
 }
 
 const AGENT_ID_PATH = 'search.requestAgentId';
-const NEW_AGENT_PLACEHOLDER = 'new_agent';
-const EMPTY_AGENT = {
-  type: AGENT_TYPE.FLOW,
-  name: 'my_agent',
-  description: '',
-  tools: [],
-};
 
 /**
  * The base component for all of the agentic search flow configuration, including

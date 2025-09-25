@@ -31,6 +31,7 @@ import {
   AGENT_MAIN_DOCS_LINK,
   AGENT_TYPE,
   customStringify,
+  DEFAULT_AGENT,
   EMPTY_AGENT,
   MEMORY_DOCS_LINK,
   NEW_AGENT_PLACEHOLDER,
@@ -94,7 +95,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
 
   // Fetch the agent type, and if not supported OOTB on the UI, still render appropriately for consistency.
   const agentType = (props.agentForm?.type || '').toLowerCase();
-  const agentTypeInvalid = isEmpty(agentType);
   const dynamicAgentTypeOptions = React.useMemo(() => {
     const knownOptions = AGENT_TYPE_OPTIONS;
     if (
@@ -113,6 +113,8 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
     const agent = agents[selectedAgentIdForm];
     if (!isEmpty(selectedAgentIdForm) && !isEmpty(agent)) {
       props.setAgentForm(agent);
+    } else if (selectedAgentIdForm === NEW_AGENT_PLACEHOLDER) {
+      props.setAgentForm(DEFAULT_AGENT);
     } else {
       props.setAgentForm(EMPTY_AGENT);
     }
@@ -325,15 +327,10 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                         </EuiFormRow>
                       </EuiFlexItem>
                       <EuiFlexItem>
-                        <EuiFormRow
-                          label="Type"
-                          isInvalid={agentTypeInvalid}
-                          error={'No agent type configured'}
-                          fullWidth
-                        >
+                        <EuiFormRow label="Type" isInvalid={false} fullWidth>
                           <EuiSelect
                             options={dynamicAgentTypeOptions}
-                            value={agentTypeInvalid ? undefined : agentType}
+                            value={agentType}
                             onChange={(e) => {
                               const agentFormCopy = cloneDeep(props.agentForm);
                               const proposedAgentType = e.target
@@ -355,7 +352,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                             placeholder="Agent type"
                             fullWidth
                             compressed
-                            isInvalid={agentTypeInvalid}
                             hasNoInitialSelection={true}
                           />
                         </EuiFormRow>

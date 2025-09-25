@@ -1059,8 +1059,8 @@ export enum AGENT_LLM_INTERFACE_TYPE {
 
 export const NEW_AGENT_PLACEHOLDER = 'new_agent';
 export const EMPTY_AGENT = {
-  type: AGENT_TYPE.CONVERSATIONAL,
-  name: 'My agent',
+  type: '' as AGENT_TYPE,
+  name: '',
   description: '',
   tools: [],
   llm: {
@@ -1069,4 +1069,10 @@ export const EMPTY_AGENT = {
   parameters: {
     _llm_interface: '' as AGENT_LLM_INTERFACE_TYPE,
   },
+} as Partial<Agent>;
+export const DEFAULT_AGENT = {
+  ...EMPTY_AGENT,
+  type: AGENT_TYPE.CONVERSATIONAL,
+  name: 'My agent',
+  description: 'My agent configured for agentic search.',
 } as Partial<Agent>;
