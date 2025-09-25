@@ -13,7 +13,6 @@ import {
   MCP_AGENT_CONFIG_DOCS_LINK,
 } from '../../../../../common';
 import { SimplifiedJsonField } from './simplified_json_field';
-import { sanitizeObjInput } from '../../../../utils';
 
 interface AgentParametersProps {
   agentForm: Partial<Agent>;
@@ -27,8 +26,10 @@ export function AgentParameters({
   agentForm,
   setAgentForm,
 }: AgentParametersProps) {
-  const parametersForm = sanitizeObjInput(
-    getIn(agentForm, `parameters`)
+  const parametersForm = getIn(
+    agentForm,
+    `parameters`,
+    {}
   ) as AgentConfigParameters;
 
   return (

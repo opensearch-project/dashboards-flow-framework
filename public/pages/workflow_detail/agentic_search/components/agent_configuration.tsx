@@ -44,7 +44,7 @@ import { SimplifiedJsonField } from './simplified_json_field';
 import { AgentLLMFields } from './agent_llm_fields';
 import { AgentParameters } from './agent_parameters';
 import { AgentMemory } from './agent_memory';
-import { sanitizeJSON, sanitizeStringInput } from '../../../../utils';
+import { sanitizeJSON } from '../../../../utils';
 
 interface AgentConfigurationProps {
   uiConfig: WorkflowConfig | undefined;
@@ -90,14 +90,11 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   );
   const [jsonError, setJsonError] = useState<string | undefined>(undefined);
 
-  const agentName = sanitizeStringInput(props.agentForm?.name || '');
-  const agentDescription = sanitizeStringInput(
-    props.agentForm?.description || ''
-  );
+  const agentName = props.agentForm?.name || '';
+  const agentDescription = props.agentForm?.description || '';
+
   // Fetch the agent type, and if not supported OOTB on the UI, still render appropriately for consistency.
-  const agentType = sanitizeStringInput(
-    props.agentForm?.type || ''
-  )?.toLowerCase();
+  const agentType = (props.agentForm?.type || '').toLowerCase();
   const agentTypeInvalid = isEmpty(agentType);
   const dynamicAgentTypeOptions = React.useMemo(() => {
     const knownOptions = AGENT_TYPE_OPTIONS;

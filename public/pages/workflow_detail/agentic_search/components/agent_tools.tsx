@@ -36,7 +36,7 @@ import {
   WEB_SEARCH_TOOL_DOCS_LINK,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
-import { parseStringOrJson, sanitizeArrayInput } from '../../../../utils';
+import { parseStringOrJson } from '../../../../utils';
 import { NoDeployedModelsCallout } from './no_deployed_models_callout';
 
 interface AgentToolsProps {
@@ -107,7 +107,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
   const [openTemplateAccordionIndex, setOpenTemplateAccordionIndex] = useState<
     number | undefined
   >(undefined);
-  const tools = sanitizeArrayInput(agentForm?.tools || []);
+  const tools = agentForm?.tools || [];
 
   const addTool = (toolType: TOOL_TYPE) => {
     const newTool: Tool = {

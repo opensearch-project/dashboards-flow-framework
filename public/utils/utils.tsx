@@ -1085,8 +1085,11 @@ export function parseStringOrJson(value: any): string | {} | [] {
   }
 }
 
-// Util fn to sanitize user-provided JSON, and prevent prototype pollution,
-// including reserved fields, and event-handler fields.
+/**
+ * Util fn to sanitize user-provided JSON.
+ * Prevent prototype pollution, and ensure all known/expected fields
+ * are appropriately-typed (string/obj/arrays, etc.)
+ */
 export function sanitizeJSON(inputJson: any): any {
   if (typeof inputJson === 'string') {
     return inputJson.trim();
@@ -1094,12 +1097,34 @@ export function sanitizeJSON(inputJson: any): any {
     return inputJson.map(sanitizeJSON);
   } else if (typeof inputJson === 'object') {
     const clean = Object.create(null);
-    for (const [key, value] of Object.entries(inputJson)) {
+    for (let [key, value] of Object.entries(inputJson)) {
       const lower = key.toLowerCase();
       // reserved fields
       if (['__proto__', 'constructor', 'prototype'].includes(lower)) continue;
       // event-handler fields
       if (lower.startsWith('on')) continue;
+      // expected inputs of type string
+      if (
+        [
+          'name',
+          'type',
+          'description',
+          'app_type',
+          'datetime_format',
+          '_llm_interface',
+          'model_id',
+        ].includes(lower)
+      ) {
+        value = sanitizeStringInput(value);
+      }
+      // expected inputs of type obj
+      if (['llm', 'parameters'].includes(lower)) {
+        value = sanitizeObjInput(value);
+      }
+      // expected inputs of type arr
+      if (['tools'].includes(lower)) {
+        value = sanitizeArrayInput(value);
+      }
       clean[key] = sanitizeJSON(value);
     }
     return clean;
@@ -1107,16 +1132,12 @@ export function sanitizeJSON(inputJson: any): any {
     return {};
   }
 }
-
-// Set of util fns to handle unexpected input types when parsing user inputs.
-// Particularly, when parsing user-input agent JSON configs, where the input
-// is more free-form (e.g., user puts an object for a name instead of string)
-export function sanitizeStringInput(formField: any): string {
+function sanitizeStringInput(formField: any): string {
   return typeof formField === 'string' ? formField : '';
 }
-export function sanitizeArrayInput(formField: any): any[] {
+function sanitizeArrayInput(formField: any): any[] {
   return Array.isArray(formField) ? formField : [];
 }
-export function sanitizeObjInput(formField: any): {} {
+function sanitizeObjInput(formField: any): {} {
   return typeof formField === 'object' ? formField : {};
 }
