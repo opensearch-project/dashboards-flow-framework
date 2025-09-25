@@ -34,7 +34,6 @@ import {
   EMPTY_AGENT,
   MEMORY_DOCS_LINK,
   NEW_AGENT_PLACEHOLDER,
-  TOOLS_DOCS_LINK,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
@@ -422,17 +421,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   </EuiFlexItem>
                 )}
                 <EuiFlexItem>
-                  <EuiFormRow
-                    label="Tools"
-                    labelAppend={
-                      <EuiText size="xs">
-                        <EuiLink href={TOOLS_DOCS_LINK} target="_blank">
-                          Learn more
-                        </EuiLink>
-                      </EuiText>
-                    }
-                    fullWidth
-                  >
+                  <EuiFormRow label="Tools" fullWidth>
                     <AgentTools
                       agentForm={props.agentForm}
                       setAgentForm={props.setAgentForm}

@@ -22,6 +22,8 @@ import {
   EuiTextArea,
   EuiRadioGroup,
   EuiLink,
+  EuiFlexGroup,
+  EuiFlexItem,
 } from '@elastic/eui';
 import {
   Agent,
@@ -57,9 +59,6 @@ const TOOL_TYPE_OPTIONS = Object.entries(TOOL_TYPE).map(([key, value]) => ({
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase()),
 }));
-
-const DEFAULT_SYSTEM_PROMPT_QUERY_PLANNING_TOOL =
-  'You are an OpenSearch Query DSL generation assistant, translating natural language questions to OpenSearch DSL Queries';
 
 enum GENERATION_TYPE {
   LLM = 'llmGenerated',
@@ -136,8 +135,6 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
       case TOOL_TYPE.QUERY_PLANNING:
         return {
           model_id: '',
-          response_filter: '$.output.message.content[0].text',
-          system_prompt: DEFAULT_SYSTEM_PROMPT_QUERY_PLANNING_TOOL,
           generation_type: GENERATION_TYPE.LLM,
           search_templates: [],
         };
@@ -469,7 +466,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
             ?.text ||
           tool?.type ||
           'Unknown tool';
-
+        const accordionDescription = getToolDescription(tool.type);
         return (
           <div key={`tool_${index}`}>
             <EuiPanel
@@ -491,7 +488,22 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                     }}
                   />
                 }
-                buttonContent={<EuiText size="s">{accordionTitle}</EuiText>}
+                buttonContent={
+                  <EuiFlexGroup
+                    direction="row"
+                    alignItems="center"
+                    gutterSize="m"
+                  >
+                    <EuiFlexItem grow={false}>
+                      <EuiText size="s">{accordionTitle}</EuiText>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiText size="xs" color="subdued">
+                        <i>{accordionDescription}</i>
+                      </EuiText>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                }
                 paddingSize="s"
                 forceState={
                   isConfigurable
@@ -560,4 +572,21 @@ function alreadyContainsTool(
   return selectedToolTypes.some(
     (selectedToolType) => selectedToolType === toolType
   );
+}
+
+function getToolDescription(toolType: TOOL_TYPE): string {
+  switch (toolType) {
+    case TOOL_TYPE.INDEX_MAPPING:
+      return 'Retrieves index mapping and setting information for an index';
+    case TOOL_TYPE.LIST_INDEX:
+      return 'Retrieves index information for the OpenSearch cluster';
+    case TOOL_TYPE.QUERY_PLANNING:
+      return 'Generates an OpenSearch query domain-specific language (DSL) query from a natural language question';
+    case TOOL_TYPE.SEARCH_INDEX:
+      return 'Searches an index using a query written in query domain-specific language (DSL)';
+    case TOOL_TYPE.WEB_SEARCH:
+      return 'Answers a user’s question using a web search';
+    default:
+      return '';
+  }
 }
