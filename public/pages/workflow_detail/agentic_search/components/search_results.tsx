@@ -111,7 +111,7 @@ export function SearchResults(props: SearchResultsProps) {
           )}
         </EuiFlexGroup>
       </EuiFlexItem>
-      {props.searchResponse && showResults ? (
+      {props.searchResponse && showResults && (
         <EuiFlexGroup direction="column" gutterSize="s">
           <EuiFlexItem grow={false}>
             <EuiButtonGroup
@@ -180,12 +180,6 @@ export function SearchResults(props: SearchResultsProps) {
             )}
           </EuiFlexItem>
         </EuiFlexGroup>
-      ) : props.searchResponse && !showResults ? undefined : (
-        <EuiEmptyPrompt
-          iconType={'search'}
-          title={<h4>Run a search to view results</h4>}
-          titleSize="xs"
-        />
       )}
     </EuiFlexGroup>
   );

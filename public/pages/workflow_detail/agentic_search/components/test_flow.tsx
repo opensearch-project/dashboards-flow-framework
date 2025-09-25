@@ -14,6 +14,7 @@ import {
   EuiSpacer,
   EuiPanel,
   EuiHorizontalRule,
+  EuiEmptyPrompt,
 } from '@elastic/eui';
 import { searchIndex, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils/utils';
@@ -189,6 +190,13 @@ export function TestFlow(props: TestFlowProps) {
                   <SearchResults searchResponse={searchResponse} />
                 </EuiFlexItem>
               </>
+            )}
+            {isEmpty(searchResponse) && (
+              <EuiEmptyPrompt
+                iconType={'search'}
+                title={<h4>Run a search to view results</h4>}
+                titleSize="xs"
+              />
             )}
           </EuiFlexGroup>
         </EuiPanel>
