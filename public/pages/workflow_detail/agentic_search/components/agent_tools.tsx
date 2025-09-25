@@ -587,6 +587,6 @@ function getToolDescription(toolType: TOOL_TYPE): string {
     case TOOL_TYPE.WEB_SEARCH:
       return 'Answers a user’s question using a web search';
     default:
-      return '';
+      return 'No tool description available';
   }
 }

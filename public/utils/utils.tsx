@@ -1095,6 +1095,8 @@ export function sanitizeJSON(inputJson: any): any {
     return inputJson.trim();
   } else if (Array.isArray(inputJson)) {
     return inputJson.map(sanitizeJSON);
+  } else if (typeof inputJson === 'boolean') {
+    return inputJson;
   } else if (typeof inputJson === 'object') {
     const clean = Object.create(null);
     for (let [key, value] of Object.entries(inputJson)) {
@@ -1125,6 +1127,10 @@ export function sanitizeJSON(inputJson: any): any {
       if (['tools'].includes(lower)) {
         value = sanitizeArrayInput(value);
       }
+      // expected inputs of type bool
+      if (['include_output_in_agent_response'].includes(lower)) {
+        value = sanitizeBooleanInput(value);
+      }
       clean[key] = sanitizeJSON(value);
     }
     return clean;
@@ -1140,4 +1146,7 @@ function sanitizeArrayInput(formField: any): any[] {
 }
 function sanitizeObjInput(formField: any): {} {
   return typeof formField === 'object' ? formField : {};
+}
+function sanitizeBooleanInput(formField: any): boolean {
+  return typeof formField === 'boolean' ? formField : false;
 }
