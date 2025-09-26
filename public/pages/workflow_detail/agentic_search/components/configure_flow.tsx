@@ -179,7 +179,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
           <EuiFlexGroup direction="row" alignItems="center" gutterSize="s">
             <EuiFlexItem grow={false}>
               <EuiTitle>
-                <h3>Configure flow</h3>
+                <h3>Configure agent</h3>
               </EuiTitle>
             </EuiFlexItem>
             <EuiFlexItem grow={false} style={{ marginTop: '12px' }}>

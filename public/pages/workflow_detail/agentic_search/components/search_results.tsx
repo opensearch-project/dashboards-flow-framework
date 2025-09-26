@@ -143,9 +143,7 @@ export function SearchResults(props: SearchResultsProps) {
                 {hasHits(props.searchResponse) ? (
                   <ResultsTable hits={props.searchResponse?.hits?.hits || []} />
                 ) : (
-                  <EuiText size="s">
-                    <p>No documents found</p>
-                  </EuiText>
+                  <EuiText size="s">No documents found</EuiText>
                 )}
               </>
             ) : selectedView === RESULTS_VIEW.AGGREGATIONS ? (
@@ -160,9 +158,7 @@ export function SearchResults(props: SearchResultsProps) {
                     {customStringify(props.searchResponse.aggregations)}
                   </EuiCodeBlock>
                 ) : (
-                  <EuiText size="s">
-                    <p>No aggregations found</p>
-                  </EuiText>
+                  <EuiText size="s">No aggregations found</EuiText>
                 )}
               </>
             ) : (

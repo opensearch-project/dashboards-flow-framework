@@ -189,7 +189,7 @@ export function SearchQuery(props: SearchQueryProps) {
               </EuiTitle>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiToolTip content="Enter your question or query in natural language. The AI agent will convert it to an optimized search query">
+              <EuiToolTip content="Enter your question or query in natural language. The AI agent will convert it to an optimized search query.">
                 <EuiIcon
                   type="questionInCircle"
                   color="subdued"
