@@ -241,6 +241,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 <i>{getToolDescription(toolType)}</i>
               </EuiText>
             </EuiFlexItem>
+            <EuiSpacer size="s" />
             <EuiFormRow
               label="Query planning model"
               labelAppend={
@@ -429,6 +430,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 <i>{getToolDescription(toolType)}</i>
               </EuiText>
             </EuiFlexItem>
+            <EuiSpacer size="s" />
             <EuiFormRow
               label="Engine"
               labelAppend={
