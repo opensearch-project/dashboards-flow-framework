@@ -22,6 +22,7 @@ import {
   AGENT_TYPE,
   EMPTY_AGENT,
   NEW_AGENT_PLACEHOLDER,
+  TOOL_TYPE,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
@@ -84,7 +85,14 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
     isEmpty(agentForm?.name) ||
     (agentForm.type !== AGENT_TYPE.FLOW && isEmpty(agentForm.llm?.model_id)) ||
     (agentForm.type !== AGENT_TYPE.FLOW &&
-      isEmpty(agentForm.parameters?._llm_interface));
+      isEmpty(agentForm.parameters?._llm_interface)) ||
+    (!isEmpty(
+      agentForm?.tools?.find((tool) => tool.type === TOOL_TYPE.QUERY_PLANNING)
+    ) &&
+      isEmpty(
+        agentForm?.tools?.find((tool) => tool.type === TOOL_TYPE.QUERY_PLANNING)
+          ?.parameters?.model_id
+      ));
 
   // fine-grained error handling states
   const [errorCreatingAgent, setErrorCreatingAgent] = useState<string>('');

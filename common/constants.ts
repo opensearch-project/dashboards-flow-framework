@@ -1077,4 +1077,5 @@ export const DEFAULT_AGENT = {
   type: AGENT_TYPE.CONVERSATIONAL,
   name: 'My agent',
   description: '',
+  tools: [],
 } as Partial<Agent>;
