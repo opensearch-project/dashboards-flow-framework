@@ -14,16 +14,14 @@ import {
   EuiText,
   EuiFormRow,
   EuiSmallButtonEmpty,
-  EuiPopover,
-  EuiContextMenuItem,
   EuiPanel,
   EuiSelect,
   EuiFieldText,
   EuiTextArea,
   EuiRadioGroup,
   EuiLink,
-  EuiFlexGroup,
   EuiFlexItem,
+  EuiCompressedSwitch,
 } from '@elastic/eui';
 import {
   Agent,
@@ -91,22 +89,39 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
       text: model.name || model.id,
     }));
 
-  // only expose the QPT for flow agents
-  const toolTypeOptions =
-    agentForm.type !== AGENT_TYPE.FLOW
-      ? TOOL_TYPE_OPTIONS
-      : TOOL_TYPE_OPTIONS.filter(
-          (tooltype) => tooltype.value === TOOL_TYPE.QUERY_PLANNING
-        );
+  // Persist state for each tool accordion. Automatically open/close based on users
+  // enabling/disabling the individual tools
+  const [openAccordionIndices, setOpenAccordionIndices] = useState<number[]>(
+    []
+  );
+  function addOpenAccordionIndex(index: number): void {
+    setOpenAccordionIndices([...openAccordionIndices, index]);
+  }
+  function removeOpenAccordionIndex(index: number): void {
+    setOpenAccordionIndices(
+      openAccordionIndices.filter((accordionIndex) => accordionIndex !== index)
+    );
+  }
 
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [openAccordionIndex, setOpenAccordionIndex] = useState<
-    number | undefined
-  >(undefined);
+  // Persist state for each search template accordion. Only support one at a time
   const [openTemplateAccordionIndex, setOpenTemplateAccordionIndex] = useState<
     number | undefined
   >(undefined);
+
+  // Display the list of available configurable tools. Note we hide certain tools for flow agents,
+  // and also display any custom/unknown/unsupported tools, if configured separately via JSON editor
+  // or created outside of the plugin.
   const tools = agentForm?.tools || [];
+  const knownToolTypes =
+    agentForm?.type === AGENT_TYPE.FLOW
+      ? [TOOL_TYPE.QUERY_PLANNING]
+      : Object.values(TOOL_TYPE);
+  const availableToolTypes = [
+    ...knownToolTypes,
+    ...tools
+      .filter((tool) => !knownToolTypes.includes(tool.type))
+      .map((tool) => tool.type),
+  ];
 
   const addTool = (toolType: TOOL_TYPE) => {
     const newTool: Tool = {
@@ -116,17 +131,10 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
     };
     const updatedTools = [...tools, newTool];
     setAgentForm({ ...agentForm, tools: updatedTools });
-    // for other basic tools, don't open by default, as we don't expose anything to configure for them.
-    if (
-      toolType === TOOL_TYPE.QUERY_PLANNING ||
-      toolType === TOOL_TYPE.WEB_SEARCH
-    ) {
-      setOpenAccordionIndex(updatedTools.length - 1);
-    }
   };
 
-  const removeTool = (index: number) => {
-    const updatedTools = tools.filter((_, i) => i !== index);
+  const removeTool = (toolType: TOOL_TYPE) => {
+    const updatedTools = tools.filter((tool) => tool.type !== toolType);
     setAgentForm({ ...agentForm, tools: updatedTools });
   };
 
@@ -228,6 +236,11 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
 
         return (
           <>
+            <EuiFlexItem grow={false}>
+              <EuiText size="xs" color="subdued">
+                <i>{getToolDescription(toolType)}</i>
+              </EuiText>
+            </EuiFlexItem>
             <EuiFormRow
               label="Query planning model"
               labelAppend={
@@ -411,6 +424,11 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
         const engine = toolForm?.parameters?.engine;
         return (
           <>
+            <EuiFlexItem grow={false}>
+              <EuiText size="xs" color="subdued">
+                <i>{getToolDescription(toolType)}</i>
+              </EuiText>
+            </EuiFlexItem>
             <EuiFormRow
               label="Engine"
               labelAppend={
@@ -442,13 +460,15 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
       case TOOL_TYPE.LIST_INDEX:
       case TOOL_TYPE.INDEX_MAPPING:
         return (
-          <EuiText size="s" color="subdued">
-            Nothing to configure!
-          </EuiText>
+          <EuiFlexItem grow={false}>
+            <EuiText size="xs" color="subdued">
+              <i>{getToolDescription(toolType)}</i>
+            </EuiText>
+          </EuiFlexItem>
         );
       default:
         return (
-          <EuiText size="s" color="subdued">
+          <EuiText size="xs" color="subdued">
             Unsupported tool type. Please edit directly with the JSON editor.
           </EuiText>
         );
@@ -457,68 +477,59 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
 
   return (
     <>
-      {tools.map((tool, index) => {
-        const isConfigurable =
-          tool.type === TOOL_TYPE.QUERY_PLANNING ||
-          tool.type === TOOL_TYPE.WEB_SEARCH;
+      {availableToolTypes.map((toolType, index) => {
         const accordionTitle =
-          TOOL_TYPE_OPTIONS.find((option) => option.value === tool.type)
-            ?.text ||
-          tool?.type ||
+          TOOL_TYPE_OPTIONS.find((option) => option.value === toolType)?.text ||
+          toolType ||
           'Unknown tool';
-        const accordionDescription = getToolDescription(tool.type);
+        const toolEnabled = !isEmpty(
+          tools.find((tool) => tool.type === toolType)
+        );
         return (
-          <div key={`tool_${index}`}>
+          <div key={`tool_${toolType || index}`}>
             <EuiPanel
-              key={index}
+              key={toolType || index}
               color="transparent"
               paddingSize="s"
               style={{ paddingBottom: '0px' }}
             >
               <EuiAccordion
                 id={`tool-accordion-${index}`}
-                arrowDisplay={isConfigurable ? 'left' : 'none'}
+                arrowDisplay="left"
                 extraAction={
-                  <EuiButtonIcon
-                    aria-label="Remove tool"
-                    iconType="trash"
-                    color="danger"
-                    onClick={() => {
-                      removeTool(index);
+                  <EuiCompressedSwitch
+                    label="Enable"
+                    checked={toolEnabled}
+                    onChange={(e) => {
+                      const checked = e.target.checked as boolean;
+                      if (checked) {
+                        addTool(toolType);
+                        addOpenAccordionIndex(index);
+                      } else {
+                        removeTool(toolType);
+                        removeOpenAccordionIndex(index);
+                      }
                     }}
                   />
                 }
                 buttonContent={
-                  <EuiFlexGroup
-                    direction="row"
-                    alignItems="center"
-                    gutterSize="m"
-                  >
-                    <EuiFlexItem grow={false}>
-                      <EuiText size="s">{accordionTitle}</EuiText>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiText size="xs" color="subdued">
-                        <i>{accordionDescription}</i>
-                      </EuiText>
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
+                  <EuiFlexItem grow={false}>
+                    <EuiText size="s">{accordionTitle}</EuiText>
+                  </EuiFlexItem>
                 }
                 paddingSize="s"
                 forceState={
-                  isConfigurable
-                    ? openAccordionIndex === index
-                      ? 'open'
-                      : undefined
-                    : 'closed'
+                  openAccordionIndices.includes(index) ? 'open' : 'closed'
                 }
                 onToggle={(isOpen) => {
-                  if (isConfigurable) {
-                    setOpenAccordionIndex(isOpen ? index : undefined);
+                  if (isOpen) {
+                    addOpenAccordionIndex(index);
+                  } else {
+                    removeOpenAccordionIndex(index);
                   }
                 }}
               >
-                {renderToolForm(tool.type, index)}
+                {renderToolForm(toolType, index)}
               </EuiAccordion>
               <EuiSpacer size="s" />
             </EuiPanel>
@@ -526,51 +537,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
           </div>
         );
       })}
-      <EuiPopover
-        button={
-          <EuiSmallButtonEmpty
-            iconType="plusInCircle"
-            onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-          >
-            Add tool
-          </EuiSmallButtonEmpty>
-        }
-        isOpen={isPopoverOpen}
-        closePopover={() => setIsPopoverOpen(false)}
-        panelPaddingSize="s"
-        anchorPosition="downLeft"
-      >
-        <div style={{ width: '300px' }}>
-          {toolTypeOptions.map((option) => (
-            <EuiContextMenuItem
-              size="s"
-              key={option.value}
-              onClick={() => {
-                addTool(option.value);
-                setIsPopoverOpen(false);
-              }}
-              disabled={alreadyContainsTool(option.value, tools)}
-            >
-              {`${option.text}${
-                alreadyContainsTool(option.value, tools) ? ' (Configured)' : ''
-              }`}
-            </EuiContextMenuItem>
-          ))}
-        </div>
-      </EuiPopover>
     </>
-  );
-}
-
-// util fn to determine if a tool is already chosen. Duplicate tools are not allowed and will fail
-// during agent update/creation
-function alreadyContainsTool(
-  toolType: TOOL_TYPE,
-  selectedTools: Tool[]
-): boolean {
-  const selectedToolTypes = selectedTools.map((tool) => tool.type);
-  return selectedToolTypes.some(
-    (selectedToolType) => selectedToolType === toolType
   );
 }
 
