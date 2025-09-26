@@ -16,11 +16,11 @@ import {
 } from '@elastic/eui';
 import { AGENTIC_SEARCH_DOCS_LINK } from '../../../../../common';
 
-interface AgentInfoModalProps {
+interface AgenticSearchInfoModalProps {
   onClose: () => void;
 }
 
-export function AgentInfoModal(props: AgentInfoModalProps) {
+export function AgenticSearchInfoModal(props: AgenticSearchInfoModalProps) {
   return (
     <EuiModal onClose={props.onClose}>
       <EuiModalHeader>

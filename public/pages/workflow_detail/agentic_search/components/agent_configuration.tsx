@@ -64,9 +64,6 @@ const AGENT_TYPE_OPTIONS = Object.values(AGENT_TYPE).map((agentType) => ({
   value: agentType,
   text: capitalize(agentType),
 }));
-/**
- * Enum for agent config toggle options
- */
 enum CONFIG_MODE {
   SIMPLE = 'simple',
   ADVANCED = 'advanced',
@@ -164,7 +161,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   }, [agents]);
 
   const handleModeSwitch = (queryMode: string) => {
-    // TODO: we may need to handle more logic in the future as agent config fields grow, if we need further custom rendering etc.
     setConfigModeSelected(queryMode as CONFIG_MODE);
   };
 

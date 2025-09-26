@@ -309,7 +309,6 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                       <AgenticSearchWorkspace
                         workflow={workflow}
                         uiConfig={uiConfig}
-                        setBlockNavigation={setBlockNavigation}
                       />
                     ) : (
                       <ResizableWorkspace

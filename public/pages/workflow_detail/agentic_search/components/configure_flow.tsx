@@ -34,7 +34,7 @@ import {
 } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
 import { AgentConfiguration } from './agent_configuration';
-import { AgentInfoModal } from './agent_info_modal';
+import { AgenticSearchInfoModal } from './agentic_search_info_modal';
 
 interface ConfigureFlowProps {
   uiConfig: WorkflowConfig | undefined;
@@ -43,8 +43,9 @@ interface ConfigureFlowProps {
 const AGENT_ID_PATH = 'search.requestAgentId';
 
 /**
- * The base component for all of the agentic search flow configuration, including
- * index and agent selections
+ * The base component for all of the agentic search flow configuration.
+ * Note: Currently, this just involves agent configuration, as we are
+ * hiding (and auto-generating) search pipelines for the user.
  */
 export function ConfigureFlow(props: ConfigureFlowProps) {
   const dispatch = useAppDispatch();
@@ -169,7 +170,9 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
 
   return (
     <>
-      {isModalOpen && <AgentInfoModal onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && (
+        <AgenticSearchInfoModal onClose={() => setIsModalOpen(false)} />
+      )}
       <EuiFlexGroup
         direction="column"
         gutterSize="m"

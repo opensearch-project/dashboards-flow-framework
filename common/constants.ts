@@ -686,8 +686,6 @@ export const AGENTIC_SEARCH_QUERY = {
     agentic: {
       query_text: '',
       query_fields: [],
-      // TODO: add back once agent_id is available as a query param.
-      // agent_id: AGENT_ID_PATTERN,
     },
   },
 };

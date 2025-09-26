@@ -32,11 +32,10 @@ import { ConfigureFlow, TestFlow } from './components';
 interface AgenticSearchWorkspaceProps {
   workflow: Workflow | undefined;
   uiConfig: WorkflowConfig | undefined;
-  setBlockNavigation: (blockNavigation: boolean) => void; // TODO: block if unsaved changes.
 }
 
 /**
- * Basic UI for configuring and testing agentic search workflows.
+ * Resizable workspace for configuring agents and executing agentic search.
  */
 export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   const dispatch = useAppDispatch();

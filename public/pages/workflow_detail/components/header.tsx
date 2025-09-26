@@ -49,7 +49,6 @@ import {
 import { MountPoint } from '../../../../../../src/core/public';
 import { EditWorkflowMetadataModal } from './edit_workflow_metadata_modal';
 import { IntroFlyout } from './intro_flyout';
-import { AgenticSearchIntroFlyout } from './agentic_search_intro_flyout';
 
 interface WorkflowDetailHeaderProps {
   workflow?: Workflow;
@@ -121,12 +120,6 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
       {introFlyoutOpened &&
         props.workflow?.ui_metadata?.type !== WORKFLOW_TYPE.AGENTIC_SEARCH && (
           <IntroFlyout onClose={() => setIntroFlyoutOpened(false)} />
-        )}
-      {introFlyoutOpened &&
-        props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.AGENTIC_SEARCH && (
-          <AgenticSearchIntroFlyout
-            onClose={() => setIntroFlyoutOpened(false)}
-          />
         )}
       {isExportModalOpen && (
         <ExportModal
