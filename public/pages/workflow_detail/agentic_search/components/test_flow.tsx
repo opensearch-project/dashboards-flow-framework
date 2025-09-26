@@ -15,6 +15,7 @@ import {
   EuiPanel,
   EuiHorizontalRule,
   EuiEmptyPrompt,
+  EuiText,
 } from '@elastic/eui';
 import { searchIndex, useAppDispatch } from '../../../../store';
 import { getDataSourceId } from '../../../../utils/utils';
@@ -140,19 +141,6 @@ export function TestFlow(props: TestFlowProps) {
                 <EuiSpacer size="m" />
               </EuiFlexItem>
             )}
-            {searchError !== undefined && (
-              <EuiFlexItem grow={false} style={{ marginBottom: '-12px' }}>
-                <EuiCallOut
-                  size="s"
-                  title="Error running search"
-                  color="danger"
-                  iconType="alert"
-                >
-                  <p>{searchError}</p>
-                </EuiCallOut>
-                <EuiSpacer size="m" />
-              </EuiFlexItem>
-            )}
             <EuiFlexItem grow={false}>
               <IndexSelector />
             </EuiFlexItem>
@@ -191,11 +179,33 @@ export function TestFlow(props: TestFlowProps) {
                 </EuiFlexItem>
               </>
             )}
-            {isEmpty(searchResponse) && (
+            {isSearching && (
               <EuiEmptyPrompt
-                iconType={'search'}
-                title={<h4>Run a search to view results</h4>}
+                iconType={'generate'}
+                title={<h4>Searching...</h4>}
                 titleSize="xs"
+              />
+            )}
+            {isEmpty(searchResponse) &&
+              isEmpty(searchError) &&
+              !isSearching && (
+                <EuiEmptyPrompt
+                  iconType={'search'}
+                  title={<h4>Run a search to view results</h4>}
+                  titleSize="xs"
+                />
+              )}
+            {searchError !== undefined && (
+              <EuiEmptyPrompt
+                iconType={'alert'}
+                iconColor="danger"
+                title={<h4>Error running search</h4>}
+                titleSize="xs"
+                body={
+                  <EuiText size="xs" style={{ textAlign: 'left' }}>
+                    {searchError}
+                  </EuiText>
+                }
               />
             )}
           </EuiFlexGroup>
