@@ -18,9 +18,13 @@ import {
   EuiTitle,
   EuiSpacer,
 } from '@elastic/eui';
-import { AppState, useAppDispatch, getIndex } from '../../../../store';
-import { getDataSourceId } from '../../../../utils/utils';
-import { catIndices } from '../../../../store';
+import {
+  AppState,
+  useAppDispatch,
+  getIndex,
+  catIndices,
+} from '../../../../store';
+import { getDataSourceId } from '../../../../utils';
 import {
   OMIT_SYSTEM_INDEX_PATTERN,
   WorkflowFormValues,

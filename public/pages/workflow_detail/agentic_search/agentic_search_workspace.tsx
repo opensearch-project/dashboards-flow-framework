@@ -27,7 +27,8 @@ import {
   getDataSourceId,
 } from '../../../utils';
 import { getCore } from '../../../services';
-import { ConfigureFlow, TestFlow } from './components';
+import { ConfigureFlow } from './configure_flow';
+import { TestFlow } from './test_flow';
 
 interface AgenticSearchWorkspaceProps {
   workflow: Workflow | undefined;

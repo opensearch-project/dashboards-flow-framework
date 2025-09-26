@@ -15,7 +15,7 @@ import {
   EuiSmallButtonIcon,
 } from '@elastic/eui';
 import { customStringify } from '../../../../../common';
-import { ResultsTable } from '../../../../general_components/';
+import { ResultsTable } from '../../../../general_components';
 
 interface SearchResultsProps {
   searchResponse?: any;

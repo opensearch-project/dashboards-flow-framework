@@ -17,7 +17,7 @@ import {
   EuiTitle,
   EuiSmallButton,
 } from '@elastic/eui';
-import { SimplifiedJsonField } from './simplified_json_field';
+import { SimplifiedJsonField } from '../components';
 import { QueryFieldSelector } from './query_field_selector';
 import {
   customStringify,

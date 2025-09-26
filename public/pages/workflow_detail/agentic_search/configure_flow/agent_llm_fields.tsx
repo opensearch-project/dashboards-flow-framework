@@ -26,7 +26,7 @@ import {
   ModelDict,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
-import { NoDeployedModelsCallout } from './no_deployed_models_callout';
+import { NoDeployedModelsCallout } from '../components';
 
 interface AgentLLMFieldsProps {
   agentForm: Partial<Agent>;

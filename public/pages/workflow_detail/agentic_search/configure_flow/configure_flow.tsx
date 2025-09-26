@@ -34,7 +34,7 @@ import {
 } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
 import { AgentConfiguration } from './agent_configuration';
-import { AgenticSearchInfoModal } from './agentic_search_info_modal';
+import { AgenticSearchInfoModal } from '../components';
 
 interface ConfigureFlowProps {
   uiConfig: WorkflowConfig | undefined;

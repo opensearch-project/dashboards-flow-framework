@@ -12,7 +12,7 @@ import {
   customStringify,
   MCP_AGENT_CONFIG_DOCS_LINK,
 } from '../../../../../common';
-import { SimplifiedJsonField } from './simplified_json_field';
+import { SimplifiedJsonField } from '../components';
 
 interface AgentParametersProps {
   agentForm: Partial<Agent>;

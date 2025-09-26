@@ -37,7 +37,7 @@ import {
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { parseStringOrJson } from '../../../../utils';
-import { NoDeployedModelsCallout } from './no_deployed_models_callout';
+import { NoDeployedModelsCallout } from '../components';
 
 interface AgentToolsProps {
   agentForm: Partial<Agent>;

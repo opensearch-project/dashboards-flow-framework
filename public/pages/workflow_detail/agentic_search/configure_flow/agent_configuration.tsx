@@ -42,7 +42,7 @@ import {
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { AgentTools } from './agent_tools';
-import { SimplifiedJsonField } from './simplified_json_field';
+import { SimplifiedJsonField } from '../components';
 import { AgentLLMFields } from './agent_llm_fields';
 import { AgentParameters } from './agent_parameters';
 import { AgentMemory } from './agent_memory';
