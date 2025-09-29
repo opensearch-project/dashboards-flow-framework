@@ -30,6 +30,7 @@ import {
   WorkflowFormValues,
 } from '../../../../../common';
 import { IndexDetailsModal } from './index_details_modal';
+import { NoIndicesCallout } from '../components';
 
 interface IndexSelectorProps {}
 
@@ -52,19 +53,36 @@ export function IndexSelector(props: IndexSelectorProps) {
   useEffect(() => {
     dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
   }, []);
+  const [indexOptions, setIndexOptions] = useState<
+    { value: string; text: string }[]
+  >([]);
+  useEffect(() => {
+    setIndexOptions([
+      {
+        text: ALL_INDICES,
+        value: '',
+      },
+      ...Object.values(indices || {})
+        .filter((index) => !index.name.startsWith('.')) // Filter out system indices
+        .map((index) => ({
+          value: index.name,
+          text: index.name,
+        })),
+    ]);
+  }, [indices]);
 
-  const indexOptions = [
-    {
-      text: ALL_INDICES,
-      value: '',
-    },
-    ...Object.values(indices || {})
-      .filter((index) => !index.name.startsWith('.')) // Filter out system indices
-      .map((index) => ({
-        value: index.name,
-        text: index.name,
-      })),
-  ];
+  // const indexOptions = [
+  //   {
+  //     text: ALL_INDICES,
+  //     value: '',
+  //   },
+  //   ...Object.values(indices || {})
+  //     .filter((index) => !index.name.startsWith('.')) // Filter out system indices
+  //     .map((index) => ({
+  //       value: index.name,
+  //       text: index.name,
+  //     })),
+  // ];
 
   return (
     <>
@@ -119,17 +137,7 @@ export function IndexSelector(props: IndexSelectorProps) {
       </EuiFlexGroup>
       <EuiSpacer size="s" />
       {indexOptions.length === 0 ? (
-        <EuiCallOut
-          title="No indices available"
-          color="warning"
-          iconType="alert"
-          size="s"
-        >
-          <p>
-            No indices are available. Please create an index using the standard
-            workflow interface first.
-          </p>
-        </EuiCallOut>
+        <NoIndicesCallout />
       ) : (
         <>
           {isDetailsModalVisible && (

@@ -142,7 +142,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
       clearAgentErrors();
     } catch (error) {
       errorOnCreate = true;
-      setErrorCreatingAgent(error);
+      setErrorCreatingAgent(String(error));
     } finally {
       setIsSaving(false);
       setNewAndUnsaved(errorOnCreate ? true : false);

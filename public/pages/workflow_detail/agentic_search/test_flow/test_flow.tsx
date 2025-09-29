@@ -164,7 +164,7 @@ export function TestFlow(props: TestFlowProps) {
                 isSearching={isSearching}
               />
             </EuiFlexItem>
-            {!isSearching && !isEmpty(generatedQuery) && (
+            {!isSearching && generatedQuery !== undefined && (
               <>
                 <EuiFlexItem
                   grow={false}

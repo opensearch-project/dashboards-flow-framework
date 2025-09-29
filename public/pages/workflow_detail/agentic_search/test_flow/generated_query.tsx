@@ -16,7 +16,7 @@ import {
 import { customStringify } from '../../../../../common';
 
 interface GeneratedQueryProps {
-  query?: any;
+  query: {};
 }
 
 export function GeneratedQuery(props: GeneratedQueryProps) {
