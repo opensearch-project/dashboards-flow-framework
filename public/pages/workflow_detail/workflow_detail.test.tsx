@@ -16,19 +16,6 @@ import { createMemoryHistory } from 'history';
 import { MINIMUM_FULL_SUPPORTED_VERSION, WORKFLOW_TYPE } from '../../../common';
 import { sleep } from '../../utils';
 
-// // Mock the AgenticSearchWorkspace component
-// jest.mock('./agentic_search/agentic_search_workspace', () => ({
-//   AgenticSearchWorkspace: () => (
-//     <div data-testid="mockAgenticSearchWorkspace">
-//       <div data-testid="agenticSearchInputPanel">
-//         <h3>Configure agent</h3>
-//         <span>EXPERIMENTAL</span>
-//       </div>
-//       <div data-testid="agenticSearchTestPanel">Test Flow Panel</div>
-//     </div>
-//   ),
-// }));
-
 jest.mock('../../services', () => {
   const { mockCoreServices } = require('../../../test');
   return {
