@@ -19,6 +19,8 @@ interface AgentMemoryProps {
   setAgentForm: (agentForm: Partial<Agent>) => void;
 }
 
+const CONVERSATION_INDEX_DISPLAY_TEXT = 'Conversation index';
+
 /**
  * The general component containing all of the memory-related fields for an agent.
  */
@@ -28,7 +30,7 @@ export function AgentMemory({ agentForm, setAgentForm }: AgentMemoryProps) {
     value: memoryType,
     text:
       memoryType === AGENT_MEMORY_TYPE.CONVERSATION_INDEX
-        ? 'Conversation index'
+        ? CONVERSATION_INDEX_DISPLAY_TEXT
         : memoryType,
   }));
   const memoryFound = memoryOptions.some(

@@ -340,6 +340,8 @@ export const QUERY_PLANNING_MODEL_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/query-planning-tool/#step-2-register-and-deploy-a-model';
 export const WEB_SEARCH_TOOL_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/web-search-tool/#register-parameters';
+export const SEARCH_TEMPLATES_DOCS_LINK =
+  'https://docs.opensearch.org/latest/api-reference/search-apis/search-template/index/';
 
 // Large Language Models Documentation Links
 export const BEDROCK_CLAUDE_3_SONNET_DOCS_LINK =
@@ -1058,6 +1060,7 @@ export enum AGENT_LLM_INTERFACE_TYPE {
 
 export const NEW_AGENT_PLACEHOLDER = 'new_agent';
 export const NEW_AGENT_ID_PLACEHOLDER = 'New agent (unsaved)';
+export const AGENT_ID_PATH = 'search.requestAgentId';
 export const EMPTY_AGENT = {
   type: '' as AGENT_TYPE,
   name: '',
@@ -1075,5 +1078,9 @@ export const DEFAULT_AGENT = {
   type: AGENT_TYPE.CONVERSATIONAL,
   name: 'My agent',
   description: '',
-  tools: [],
+  tools: [
+    {
+      type: TOOL_TYPE.QUERY_PLANNING,
+    },
+  ],
 } as Partial<Agent>;

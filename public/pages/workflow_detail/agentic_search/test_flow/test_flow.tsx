@@ -18,16 +18,24 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { searchIndex, useAppDispatch } from '../../../../store';
-import { getDataSourceId } from '../../../../utils/utils';
-import { WorkflowConfig, WorkflowFormValues } from '../../../../../common';
+import {
+  AGENT_ID_PATH,
+  IndexMappings,
+  WorkflowConfig,
+  WorkflowFormValues,
+} from '../../../../../common';
 import { SearchQuery } from './search_query';
 import { SearchResults } from './search_results';
 import { IndexSelector } from './index_selector';
 import { GeneratedQuery } from './generated_query';
+import {
+  AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT,
+  getDataSourceId,
+} from '../../../../utils';
 
 interface TestFlowProps {
   uiConfig: WorkflowConfig | undefined;
-  fieldMappings: any;
+  fieldMappings: IndexMappings | undefined;
   saveWorkflow(): Promise<boolean>;
 }
 
@@ -37,7 +45,7 @@ export function TestFlow(props: TestFlowProps) {
   const { values } = useFormikContext<WorkflowFormValues>();
 
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
-  const selectedAgentId = getIn(values, 'search.requestAgentId', '') as string;
+  const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
   const finalQuery = (() => {
     try {
       return JSON.parse(getIn(values, 'search.request', '{}'));
@@ -111,7 +119,10 @@ export function TestFlow(props: TestFlowProps) {
     <EuiFlexGroup
       direction="column"
       gutterSize="m"
-      style={{ height: '100%', overflow: 'hidden' }}
+      style={{
+        height: AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT,
+        overflow: 'hidden',
+      }}
     >
       <EuiFlexItem grow={false}>
         <EuiTitle>

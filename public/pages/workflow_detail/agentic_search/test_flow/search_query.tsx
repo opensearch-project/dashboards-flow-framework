@@ -23,12 +23,14 @@ import {
   customStringify,
   WorkflowFormValues,
   WorkflowConfig,
+  IndexMappings,
+  AGENT_ID_PATH,
 } from '../../../../../common';
 
 interface SearchQueryProps {
   setSearchPipeline: (searchPipeline: {}) => void;
   uiConfig?: WorkflowConfig;
-  fieldMappings: any;
+  fieldMappings: IndexMappings | undefined;
   handleSearch(): void;
   isSearching: boolean;
 }
@@ -43,7 +45,7 @@ enum QUERY_MODE {
 
 export function SearchQuery(props: SearchQueryProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
-  const selectedAgentId = getIn(values, 'search.requestAgentId', '') as string;
+  const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
   const finalQuery = (() => {
     try {
       return JSON.parse(getIn(values, 'search.request', '{}'));

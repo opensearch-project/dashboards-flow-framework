@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getIn } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
   EuiAccordion,
@@ -25,19 +25,25 @@ import {
 } from '@elastic/eui';
 import {
   Agent,
+  AGENT_ID_PATH,
   AGENT_TYPE,
   Model,
   MODEL_STATE,
   ModelDict,
+  NEW_AGENT_PLACEHOLDER,
   QUERY_PLANNING_MODEL_DOCS_LINK,
   QUERY_PLANNING_TOOL_DOCS_LINK,
   Tool,
   TOOL_TYPE,
   WEB_SEARCH_TOOL_DOCS_LINK,
+  WorkflowFormValues,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { parseStringOrJson } from '../../../../utils';
-import { NoDeployedModelsCallout } from '../components';
+import {
+  NoDeployedModelsCallout,
+  NoSearchTemplatesCallout,
+} from '../components';
 
 interface AgentToolsProps {
   agentForm: Partial<Agent>;
@@ -77,23 +83,39 @@ const DEFAULT_SEARCH_TEMPLATE: SearchTemplateField = {
 };
 
 export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
+  const { values } = useFormikContext<WorkflowFormValues>();
+  const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
   // get redux store for models / search templates / etc. if needed in downstream tool configs
   const { models } = useSelector((state: AppState) => state.ml);
   const { searchTemplates } = useSelector(
     (state: AppState) => state.opensearch
   );
-  const modelOptions = Object.values(models || {})
-    .filter((model) => model.state === MODEL_STATE.DEPLOYED)
-    .map((model) => ({
-      value: model.id,
-      text: model.name || model.id,
-    }));
+  const [modelOptions, setModelOptions] = useState<
+    { value: string; text: string }[]
+  >([]);
+  useEffect(() => {
+    setModelOptions(
+      Object.values(models || {})
+        .filter((model) => model.state === MODEL_STATE.DEPLOYED)
+        .map((model) => ({
+          value: model.id,
+          text: model.name || model.id,
+        }))
+    );
+  }, [models]);
 
   // Persist state for each tool accordion. Automatically open/close based on users
-  // enabling/disabling the individual tools
+  // enabling/disabling the individual tools.
+  // Additionally, if a user creates a new agent, open the first accordion (the QPT)
+  // by default, as currently that will always be necesssary for users to configure.
   const [openAccordionIndices, setOpenAccordionIndices] = useState<number[]>(
     []
   );
+  useEffect(() => {
+    if (selectedAgentId === NEW_AGENT_PLACEHOLDER) {
+      setOpenAccordionIndices([0]);
+    }
+  }, [selectedAgentId]);
   function addOpenAccordionIndex(index: number): void {
     setOpenAccordionIndices([...openAccordionIndices, index]);
   }
@@ -156,7 +178,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
   // reusable fn for updating single parameter values for a given tool (tool is determined based on index)
   function updateParameterValue(
     parameterName: string,
-    parameterValue: string | any,
+    parameterValue: string,
     index: number
   ) {
     const toolsForm = getIn(agentForm, 'tools');
@@ -311,6 +333,9 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
               <>
                 <EuiSpacer size="s" />
                 <div>
+                  {searchTemplatesForm.length === 0 && (
+                    <NoSearchTemplatesCallout />
+                  )}
                   {searchTemplatesForm.length > 0 &&
                     searchTemplatesForm.map(
                       (

@@ -16,13 +16,14 @@ import {
 } from '@elastic/eui';
 import {
   customStringify,
+  IndexMappings,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
 
 interface QueryFieldSelectorProps {
   uiConfig: WorkflowConfig | undefined;
-  fieldMappings: any;
+  fieldMappings: IndexMappings | undefined;
 }
 
 export function QueryFieldSelector(props: QueryFieldSelectorProps) {
@@ -187,7 +188,9 @@ function fieldArraysEqual(
   }
   return true;
 }
-function getFieldOptions(mappings: any): EuiComboBoxOptionOption<string>[] {
+function getFieldOptions(
+  mappings: IndexMappings | undefined
+): EuiComboBoxOptionOption<string>[] {
   return Object.entries(get(mappings, 'properties', {})).map(
     ([fieldName, fieldInfo]: [string, any]) => {
       const fieldType = fieldInfo.type || 'object';

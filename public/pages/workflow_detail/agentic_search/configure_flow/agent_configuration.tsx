@@ -29,6 +29,7 @@ import {
 } from '@elastic/eui';
 import {
   Agent,
+  AGENT_ID_PATH,
   AGENT_MAIN_DOCS_LINK,
   AGENT_TYPE,
   customStringify,
@@ -59,7 +60,6 @@ interface AgentConfigurationProps {
   errorUpdatingAgent: string;
 }
 
-const AGENT_ID_PATH = 'search.requestAgentId';
 const AGENT_TYPE_OPTIONS = Object.values(AGENT_TYPE).map((agentType) => ({
   value: agentType,
   text: capitalize(agentType),
@@ -115,16 +115,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
     }
   }, [getIn(values, AGENT_ID_PATH), agents]);
 
-  // Populate the agent options in the dropdown on initial load
-  useEffect(() => {
-    setAgentOptions(
-      Object.values(agents || {}).map((agent) => ({
-        value: agent.id,
-        text: agent.name,
-      }))
-    );
-  }, [agents]);
-
   // get initial agent options for the dropdown
   const [agentOptions, setAgentOptions] = useState<any[]>([]);
   useEffect(() => {
@@ -169,7 +159,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
     if (props.newAndUnsaved) {
       setFieldValue(AGENT_ID_PATH, NEW_AGENT_PLACEHOLDER);
       setFieldTouched(AGENT_ID_PATH, true);
-      setAgentOptions([
+      setAgentOptions((agentOptions) => [
         ...agentOptions,
         {
           value: NEW_AGENT_PLACEHOLDER,

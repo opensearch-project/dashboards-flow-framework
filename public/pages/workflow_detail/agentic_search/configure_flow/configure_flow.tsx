@@ -19,6 +19,7 @@ import {
 } from '@elastic/eui';
 import {
   Agent,
+  AGENT_ID_PATH,
   AGENT_TYPE,
   EMPTY_AGENT,
   NEW_AGENT_PLACEHOLDER,
@@ -32,15 +33,16 @@ import {
   updateAgent,
   useAppDispatch,
 } from '../../../../store';
-import { getDataSourceId } from '../../../../utils';
+import {
+  AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT,
+  getDataSourceId,
+} from '../../../../utils';
 import { AgentConfiguration } from './agent_configuration';
 import { AgenticSearchInfoModal } from '../components';
 
 interface ConfigureFlowProps {
   uiConfig: WorkflowConfig | undefined;
 }
-
-const AGENT_ID_PATH = 'search.requestAgentId';
 
 /**
  * The base component for all of the agentic search flow configuration.
@@ -176,7 +178,10 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
       <EuiFlexGroup
         direction="column"
         gutterSize="m"
-        style={{ height: '100%', overflow: 'hidden' }}
+        style={{
+          height: AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT,
+          overflow: 'hidden',
+        }}
       >
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row" alignItems="center" gutterSize="s">

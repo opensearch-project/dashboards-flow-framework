@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
 import { isEmpty } from 'lodash';
@@ -49,12 +49,19 @@ export function AgentLLMFields({
 }: AgentLLMFieldsProps) {
   // get redux store for models / search templates / etc. if needed in downstream tool configs
   const { models } = useSelector((state: AppState) => state.ml);
-  const modelOptions = Object.values(models || {})
-    .filter((model) => model.state === MODEL_STATE.DEPLOYED)
-    .map((model) => ({
-      value: model.id,
-      text: model.name || model.id,
-    }));
+  const [modelOptions, setModelOptions] = useState<
+    { value: string; text: string }[]
+  >([]);
+  useEffect(() => {
+    setModelOptions(
+      Object.values(models || {})
+        .filter((model) => model.state === MODEL_STATE.DEPLOYED)
+        .map((model) => ({
+          value: model.id,
+          text: model.name || model.id,
+        }))
+    );
+  }, [models]);
   const llmForm = getIn(agentForm, `llm`) as AgentLLM;
   const selectedModelId = getIn(llmForm, 'model_id', '');
   const selectedModelInterface = getIn(

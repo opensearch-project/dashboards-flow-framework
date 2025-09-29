@@ -14,6 +14,7 @@ import {
 } from '../../../store';
 import { EuiPanel, EuiResizableContainer } from '@elastic/eui';
 import {
+  AGENT_ID_PATH,
   FETCH_ALL_QUERY_LARGE,
   IndexMappings,
   NEW_AGENT_PLACEHOLDER,
@@ -25,6 +26,7 @@ import {
   formikToUiConfig,
   reduceToTemplate,
   getDataSourceId,
+  AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
 } from '../../../utils';
 import { getCore } from '../../../services';
 import { ConfigureFlow } from './configure_flow';
@@ -44,7 +46,9 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   const { values, submitForm, validateForm, setTouched } = useFormikContext<
     WorkflowFormValues
   >();
-  const [fieldMappings, setFieldMappings] = useState<any>(null);
+  const [fieldMappings, setFieldMappings] = useState<IndexMappings | undefined>(
+    undefined
+  );
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
 
   // fetch all existing agents on initial load
@@ -60,9 +64,11 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
         .then((response: IndexMappings) => {
           setFieldMappings(response);
         })
-        .catch((error) => {});
+        .catch((error) => {
+          setFieldMappings(undefined);
+        });
     } else {
-      setFieldMappings(null);
+      setFieldMappings(undefined);
     }
   }, [selectedIndexId]);
 
@@ -124,7 +130,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
 
     // agent field
     const persistedAgentId = props.uiConfig?.search?.requestAgentId?.value;
-    const formAgentId = getIn(values, 'search.requestAgentId');
+    const formAgentId = getIn(values, AGENT_ID_PATH);
     const agentIdChanged =
       !isEmpty(formAgentId) &&
       !isEqual(formAgentId, NEW_AGENT_PLACEHOLDER) &&
@@ -136,7 +142,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
     }
   }, [
     getIn(values, 'search.index.name'),
-    getIn(values, 'search.requestAgentId'),
+    getIn(values, AGENT_ID_PATH),
     props.uiConfig,
   ]);
 
@@ -165,8 +171,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
               className="workspace-panel"
               borderRadius="l"
               style={{
-                // TODO: adjust for MDS enabled
-                height: 'calc(100% - 36px)',
+                height: AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
                 overflowX: 'hidden',
                 overflowY: 'scroll',
               }}
@@ -191,8 +196,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
               className="workspace-panel"
               borderRadius="l"
               style={{
-                // TODO: adjust for MDS enabled
-                height: 'calc(100% - 36px)',
+                height: AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
                 overflowX: 'hidden',
                 overflowY: 'scroll',
               }}
