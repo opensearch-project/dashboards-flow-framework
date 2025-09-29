@@ -19,6 +19,7 @@ import {
   EuiModalFooter,
   EuiSmallButtonEmpty,
   EuiSmallButtonGroup,
+  EuiCallOut,
 } from '@elastic/eui';
 import {
   CREATE_WORKFLOW_LINK,
@@ -89,6 +90,14 @@ export function ExportModal(props: ExportModalProps) {
       </EuiModalHeader>
       <EuiModalBody>
         <EuiFlexGroup direction="column">
+          {isEmpty(props.workflow?.workflows) && (
+            <EuiFlexItem grow={false}>
+              <EuiCallOut color="warning" size="s" iconType={'alert'}>
+                This workflow will provision no resources. You may still export
+                to save your configuration.
+              </EuiCallOut>
+            </EuiFlexItem>
+          )}
           <EuiFlexItem grow={false}>
             <EuiText size="s">
               {`To build identical resources in other environments, create and provision a workflow following the below template.`}{' '}

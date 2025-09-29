@@ -45,7 +45,7 @@ function ingestConfigToSchema(
   indices: { [key: string]: Index }
 ): ObjectSchema<any> {
   const ingestSchemaObj = {} as { [key: string]: Schema };
-  if (ingestConfig?.enabled) {
+  if (ingestConfig?.enabled?.value === true) {
     ingestSchemaObj['docs'] = getFieldSchema({
       type: 'jsonLines',
     } as IConfigField);
@@ -106,6 +106,12 @@ function searchConfigToSchema(
     searchSchemaObj['enrichResponse'] = processorsConfigToSchema(
       searchConfig.enrichResponse
     );
+    // Handle optional agent fields if present
+    if (searchConfig.requestAgentId) {
+      searchSchemaObj['requestAgentId'] = getFieldSchema(
+        searchConfig.requestAgentId
+      );
+    }
   }
   return yup.object(searchSchemaObj);
 }

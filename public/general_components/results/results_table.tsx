@@ -61,37 +61,52 @@ export function ResultsTable(props: ResultsTableProps) {
 
   return (
     <EuiInMemoryTable
+      id={customStringify(props.hits?.length)}
       itemId="_id"
       itemIdToExpandedRowMap={itemIdToExpandedRowMap}
       items={props.hits}
       isExpandable={true}
       compressed={true}
       pagination={true}
-      tableLayout="auto"
+      tableLayout="fixed"
       columns={[
         {
           field: '_id',
-          name: '',
+          name: 'Document hits',
           sortable: false,
+          truncateText: true,
           render: (_, item: SearchHit) => {
             return (
               <EuiText
                 size="s"
                 color="subdued"
                 style={{
+                  display: 'block',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
-                  width: '25vw',
+                  textOverflow: 'ellipsis',
+                  maxWidth: '100%',
                 }}
               >
-                {customStringify(item._source)}
+                <span
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    minWidth: 0,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {customStringify(item._source)}
+                </span>
               </EuiText>
             );
           },
         },
         {
           align: RIGHT_ALIGNMENT,
-          width: '40px',
+          width: '25px',
           isExpander: true,
           render: (item: SearchHit) => (
             <EuiButtonIcon

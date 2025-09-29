@@ -17,6 +17,7 @@ import {
 } from '../common/constants';
 import { UIState, Workflow, WorkflowDict } from '../common/interfaces';
 import {
+  fetchAgenticSearchMetadata,
   fetchEmptyMetadata,
   fetchHybridSearchMetadata,
   fetchMultimodalSearchMetadata,
@@ -85,6 +86,10 @@ function getConfig(workflowType: WORKFLOW_TYPE, version?: string) {
     }
     case WORKFLOW_TYPE.HYBRID_SEARCH: {
       uiMetadata = fetchHybridSearchMetadata(searchVersion);
+      break;
+    }
+    case WORKFLOW_TYPE.AGENTIC_SEARCH: {
+      uiMetadata = fetchAgenticSearchMetadata(searchVersion);
       break;
     }
     default: {

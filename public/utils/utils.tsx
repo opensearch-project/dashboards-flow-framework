@@ -6,7 +6,16 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import yaml from 'js-yaml';
 import { JSONPath } from 'jsonpath-plus';
-import { capitalize, escape, findKey, get, isEmpty, set, unset } from 'lodash';
+import {
+  capitalize,
+  escape,
+  findKey,
+  get,
+  isEmpty,
+  isString,
+  set,
+  unset,
+} from 'lodash';
 import { EuiText } from '@elastic/eui';
 import semver from 'semver';
 import queryString from 'query-string';
@@ -1063,4 +1072,81 @@ export function getTransformedQuery(
     }
   });
   return transformedQuery;
+}
+
+// Some parameters in a config may be stored as stringified JSON. This util
+// is meant to automatically parse it into an object, if applicable.
+export function parseStringOrJson(value: any): string | {} | [] {
+  if (!value || !isString(value)) return value;
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return value;
+  }
+}
+
+/**
+ * Util fn to sanitize user-provided JSON.
+ * Prevent prototype pollution, and ensure all known/expected fields
+ * are appropriately-typed (string/obj/arrays, etc.)
+ */
+export function sanitizeJSON(inputJson: any): any {
+  if (typeof inputJson === 'string') {
+    return inputJson.trim();
+  } else if (Array.isArray(inputJson)) {
+    return inputJson.map(sanitizeJSON);
+  } else if (typeof inputJson === 'boolean') {
+    return inputJson;
+  } else if (typeof inputJson === 'object') {
+    const clean = Object.create(null);
+    for (let [key, value] of Object.entries(inputJson)) {
+      const lower = key.toLowerCase();
+      // reserved fields
+      if (['__proto__', 'constructor', 'prototype'].includes(lower)) continue;
+      // event-handler fields
+      if (lower.startsWith('on')) continue;
+      // expected inputs of type string
+      if (
+        [
+          'name',
+          'type',
+          'description',
+          'app_type',
+          'datetime_format',
+          '_llm_interface',
+          'model_id',
+        ].includes(lower)
+      ) {
+        value = sanitizeStringInput(value);
+      }
+      // expected inputs of type obj
+      if (['llm', 'parameters'].includes(lower)) {
+        value = sanitizeObjInput(value);
+      }
+      // expected inputs of type arr
+      if (['tools'].includes(lower)) {
+        value = sanitizeArrayInput(value);
+      }
+      // expected inputs of type bool
+      if (['include_output_in_agent_response'].includes(lower)) {
+        value = sanitizeBooleanInput(value);
+      }
+      clean[key] = sanitizeJSON(value);
+    }
+    return clean;
+  } else {
+    return {};
+  }
+}
+function sanitizeStringInput(formField: any): string {
+  return typeof formField === 'string' ? formField : '';
+}
+function sanitizeArrayInput(formField: any): any[] {
+  return Array.isArray(formField) ? formField : [];
+}
+function sanitizeObjInput(formField: any): {} {
+  return typeof formField === 'object' ? formField : {};
+}
+function sanitizeBooleanInput(formField: any): boolean {
+  return typeof formField === 'boolean' ? formField : false;
 }

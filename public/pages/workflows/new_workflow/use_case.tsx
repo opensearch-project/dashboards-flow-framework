@@ -11,8 +11,9 @@ import {
   EuiCard,
   EuiSmallButton,
   EuiLink,
+  EuiBetaBadge,
 } from '@elastic/eui';
-import { Workflow } from '../../../../common';
+import { Workflow, WORKFLOW_TYPE } from '../../../../common';
 import { QuickConfigureModal } from './quick_configure_modal';
 import ReactMarkdown from 'react-markdown';
 
@@ -34,9 +35,23 @@ export function UseCase(props: UseCaseProps) {
       )}
       <EuiCard
         title={
-          <EuiText size="s">
-            <h3>{props.workflow.name}</h3>
-          </EuiText>
+          <EuiFlexGroup gutterSize="xs" alignItems="center">
+            <EuiFlexItem>
+              <EuiText size="s">
+                <h3>{props.workflow.name}</h3>
+              </EuiText>
+            </EuiFlexItem>
+            {props.workflow.ui_metadata?.type ===
+              WORKFLOW_TYPE.AGENTIC_SEARCH && (
+              <EuiFlexItem grow={false}>
+                <EuiBetaBadge
+                  label="EXPERIMENTAL"
+                  tooltipContent="Configuring agentic search flows is an experimental feature and may change in future releases"
+                  size="s"
+                />
+              </EuiFlexItem>
+            )}
+          </EuiFlexGroup>
         }
         titleSize="s"
         paddingSize="l"

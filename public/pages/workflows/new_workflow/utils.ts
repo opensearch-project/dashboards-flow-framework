@@ -30,6 +30,7 @@ import {
   HYBRID_SEARCH_QUERY_MATCH_NEURAL,
   MATCH_QUERY_TEXT,
   NEURAL_SPARSE_SEARCH_QUERY,
+  AGENTIC_SEARCH_QUERY,
 } from '../../../../common';
 import { generateId } from '../../../utils';
 import semver from 'semver';
@@ -67,6 +68,10 @@ export function enrichPresetWorkflowWithUiMetadata(
     }
     case WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS: {
       uiMetadata = fetchNeuralSparseSearchMetadata(workflowVersion);
+      break;
+    }
+    case WORKFLOW_TYPE.AGENTIC_SEARCH: {
+      uiMetadata = fetchAgenticSearchMetadata(workflowVersion);
       break;
     }
     default: {
@@ -190,16 +195,19 @@ export function fetchNeuralSparseSearchMetadata(version: string): UIState {
 
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
 
-  baseState.config.ingest.index.name.value = generateId('neural_sparse_index', 6);
+  baseState.config.ingest.index.name.value = generateId(
+    'neural_sparse_index',
+    6
+  );
   baseState.config.ingest.index.settings.value = customStringify({});
 
-    baseState.config.search.request.value = customStringify(MATCH_QUERY_TEXT);
+  baseState.config.search.request.value = customStringify(MATCH_QUERY_TEXT);
   baseState.config.search.enrichRequest.processors = [
-        injectQueryTemplateInProcessor(
-          new MLSearchRequestProcessor().toObj(),
-          NEURAL_SPARSE_SEARCH_QUERY
-        ),
-      ];
+    injectQueryTemplateInProcessor(
+      new MLSearchRequestProcessor().toObj(),
+      NEURAL_SPARSE_SEARCH_QUERY
+    ),
+  ];
 
   return baseState;
 }
@@ -314,6 +322,27 @@ export function fetchHybridSearchWithRAGMetadata(version: string): UIState {
     new NormalizationProcessor().toObj(),
     new MLSearchResponseProcessor().toObj(),
   ];
+  return baseState;
+}
+
+export function fetchAgenticSearchMetadata(version: string): UIState {
+  let baseState = fetchEmptyMetadata();
+  baseState.type = WORKFLOW_TYPE.AGENTIC_SEARCH;
+  baseState.config.ingest.enabled = {
+    id: 'enabled',
+    type: 'boolean',
+    value: false,
+  };
+
+  // Use the same agentic search query format
+  baseState.config.search.request.value = customStringify(AGENTIC_SEARCH_QUERY);
+  baseState.config.search.enrichRequest.processors = [];
+  baseState.config.search.enrichResponse.processors = [];
+  baseState.config.search.requestAgentId = {
+    id: 'requestAgentId',
+    type: 'string',
+    value: '',
+  };
   return baseState;
 }
 
