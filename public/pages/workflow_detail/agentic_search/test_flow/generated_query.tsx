@@ -38,7 +38,7 @@ export function GeneratedQuery(props: GeneratedQueryProps) {
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 <EuiTitle size="xs">
-                  <h5>Generated query</h5>
+                  <h5 data-testid="generatedQueryTitle">Generated query</h5>
                 </EuiTitle>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -59,6 +59,7 @@ export function GeneratedQuery(props: GeneratedQueryProps) {
             <EuiFlexItem grow={false}>
               <EuiSmallButtonIcon
                 aria-label="hideShowButton"
+                data-testid="hideShowQueryButton"
                 onClick={() => setShowQuery(!showQuery)}
                 iconType={showQuery ? 'eye' : 'eyeClosed'}
               ></EuiSmallButtonIcon>
@@ -68,7 +69,13 @@ export function GeneratedQuery(props: GeneratedQueryProps) {
       </EuiFlexItem>
       {showQuery && (
         <EuiFlexItem grow={false}>
-          <EuiCodeBlock language="json" fontSize="s" paddingSize="m" isCopyable>
+          <EuiCodeBlock
+            language="json"
+            fontSize="s"
+            paddingSize="m"
+            isCopyable
+            data-testid="generatedQueryCodeBlock"
+          >
             {customStringify(props.query)}
           </EuiCodeBlock>
         </EuiFlexItem>

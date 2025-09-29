@@ -16,6 +16,19 @@ import { createMemoryHistory } from 'history';
 import { MINIMUM_FULL_SUPPORTED_VERSION, WORKFLOW_TYPE } from '../../../common';
 import { sleep } from '../../utils';
 
+// // Mock the AgenticSearchWorkspace component
+// jest.mock('./agentic_search/agentic_search_workspace', () => ({
+//   AgenticSearchWorkspace: () => (
+//     <div data-testid="mockAgenticSearchWorkspace">
+//       <div data-testid="agenticSearchInputPanel">
+//         <h3>Configure agent</h3>
+//         <span>EXPERIMENTAL</span>
+//       </div>
+//       <div data-testid="agenticSearchTestPanel">Test Flow Panel</div>
+//     </div>
+//   ),
+// }));
+
 jest.mock('../../services', () => {
   const { mockCoreServices } = require('../../../test');
   return {
@@ -79,28 +92,38 @@ describe('WorkflowDetail Page with create ingestion option', () => {
 
   Object.values(WORKFLOW_TYPE).forEach((type) => {
     test(`renders the WorkflowDetail page with ${type} type`, async () => {
-      const { getAllByText, getByText, getByRole } = renderWithRouter(
-        workflowId,
-        workflowName,
-        type
-      );
+      const {
+        getAllByText,
+        getByText,
+        getByRole,
+        getByTestId,
+      } = renderWithRouter(workflowId, workflowName, type);
 
+      // All workflow types should have the same header content
       expect(getAllByText(workflowName).length).toBeGreaterThan(0);
-      expect(getAllByText('Flow overview').length).toBeGreaterThan(0);
-      expect(getAllByText('Ingest flow').length).toBeGreaterThan(0);
-      expect(getAllByText('Search flow').length).toBeGreaterThan(0);
-
-      expect(getAllByText('Inspect').length).toBeGreaterThan(0);
       expect(
         getAllByText((content) => content.startsWith('Last saved:')).length
       ).toBeGreaterThan(0);
       expect(getByText('Close')).toBeInTheDocument();
       expect(getByText('Export')).toBeInTheDocument();
-      expect(getByRole('tab', { name: 'Test flow' })).toBeInTheDocument();
-      expect(getByRole('tab', { name: 'Ingest response' })).toBeInTheDocument();
-      expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
-      expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
-      expect(getByRole('tab', { name: 'Preview' })).toBeInTheDocument();
+
+      // Agentic search vs. non-agentic search use cases have different content within the details page.
+      if (type === WORKFLOW_TYPE.AGENTIC_SEARCH) {
+        expect(getByTestId('agenticSearchInputPanel')).toBeInTheDocument();
+        expect(getByTestId('agenticSearchTestPanel')).toBeInTheDocument();
+      } else {
+        expect(getAllByText('Flow overview').length).toBeGreaterThan(0);
+        expect(getAllByText('Ingest flow').length).toBeGreaterThan(0);
+        expect(getAllByText('Search flow').length).toBeGreaterThan(0);
+        expect(getAllByText('Inspect').length).toBeGreaterThan(0);
+        expect(getByRole('tab', { name: 'Test flow' })).toBeInTheDocument();
+        expect(
+          getByRole('tab', { name: 'Ingest response' })
+        ).toBeInTheDocument();
+        expect(getByRole('tab', { name: 'Errors' })).toBeInTheDocument();
+        expect(getByRole('tab', { name: 'Resources' })).toBeInTheDocument();
+        expect(getByRole('tab', { name: 'Preview' })).toBeInTheDocument();
+      }
     });
   });
 });

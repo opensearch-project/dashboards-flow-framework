@@ -11,7 +11,6 @@ import {
   EuiSelect,
   EuiToolTip,
   EuiIcon,
-  EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
   EuiButtonEmpty,
@@ -70,19 +69,6 @@ export function IndexSelector(props: IndexSelectorProps) {
         })),
     ]);
   }, [indices]);
-
-  // const indexOptions = [
-  //   {
-  //     text: ALL_INDICES,
-  //     value: '',
-  //   },
-  //   ...Object.values(indices || {})
-  //     .filter((index) => !index.name.startsWith('.')) // Filter out system indices
-  //     .map((index) => ({
-  //       value: index.name,
-  //       text: index.name,
-  //     })),
-  // ];
 
   return (
     <>

@@ -94,7 +94,7 @@ export function SearchResults(props: SearchResultsProps) {
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 <EuiTitle size="xs">
-                  <h5>Search results</h5>
+                  <h5 data-testid="searchResultsTitle">Search results</h5>
                 </EuiTitle>
               </EuiFlexItem>
             </EuiFlexGroup>
@@ -103,6 +103,7 @@ export function SearchResults(props: SearchResultsProps) {
             <EuiFlexItem grow={false}>
               <EuiSmallButtonIcon
                 aria-label="hideShowButton"
+                data-testid="hideShowResultsButton"
                 onClick={() => setShowResults(!showResults)}
                 iconType={showResults ? 'eye' : 'eyeClosed'}
               ></EuiSmallButtonIcon>
@@ -121,6 +122,7 @@ export function SearchResults(props: SearchResultsProps) {
               onChange={handleViewChange}
               isFullWidth={false}
               style={{ width: '275px' }}
+              data-testid="resultsViewButtonGroup"
             />
           </EuiFlexItem>
           <EuiFlexItem>
@@ -141,9 +143,11 @@ export function SearchResults(props: SearchResultsProps) {
             {selectedView === RESULTS_VIEW.HITS ? (
               <>
                 {hasHits(props.searchResponse) ? (
-                  <ResultsTable hits={props.searchResponse?.hits?.hits || []} />
+                  <div data-testid="resultsTableContainer">
+                    <ResultsTable hits={props.searchResponse?.hits?.hits || []} />
+                  </div>
                 ) : (
-                  <EuiText size="s">No documents found</EuiText>
+                  <EuiText size="s" data-testid="noDocumentsMessage">No documents found</EuiText>
                 )}
               </>
             ) : selectedView === RESULTS_VIEW.AGGREGATIONS ? (
@@ -154,11 +158,12 @@ export function SearchResults(props: SearchResultsProps) {
                     fontSize="s"
                     paddingSize="m"
                     isCopyable
+                    data-testid="aggregationsCodeBlock"
                   >
                     {customStringify(props.searchResponse.aggregations)}
                   </EuiCodeBlock>
                 ) : (
-                  <EuiText size="s">No aggregations found</EuiText>
+                  <EuiText size="s" data-testid="noAggregationsMessage">No aggregations found</EuiText>
                 )}
               </>
             ) : (
@@ -168,6 +173,7 @@ export function SearchResults(props: SearchResultsProps) {
                   fontSize="s"
                   paddingSize="m"
                   isCopyable
+                  data-testid="rawResponseCodeBlock"
                 >
                   {customStringify(props.searchResponse)}
                 </EuiCodeBlock>

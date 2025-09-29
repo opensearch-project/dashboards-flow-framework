@@ -266,6 +266,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
             <EuiSpacer size="s" />
             <EuiFormRow
               label="Query planning model"
+              data-testid="queryPlanningModelField"
               labelAppend={
                 <EuiText size="xs">
                   <EuiLink
@@ -311,6 +312,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
             </EuiFormRow>
             <EuiFormRow
               label="Generation type"
+              data-testid="generationTypeField"
               labelAppend={
                 <EuiText size="xs">
                   <EuiLink href={QUERY_PLANNING_TOOL_DOCS_LINK} target="_blank">
@@ -327,6 +329,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                   updateParameterValue('generation_type', id, index);
                 }}
                 compressed
+                data-testid="generationTypeRadioGroup"
               />
             </EuiFormRow>
             {generationType === GENERATION_TYPE.SEARCH_TEMPLATES && (
@@ -438,6 +441,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                     style={{ marginLeft: '-8px' }}
                     iconType="plusInCircle"
                     onClick={addSearchTemplate}
+                    data-testid="addTemplateButton"
                   >
                     Add template
                   </EuiSmallButtonEmpty>
@@ -537,6 +541,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                         removeOpenAccordionIndex(index);
                       }
                     }}
+                    data-testid={`${toolType.toLowerCase()}ToolToggle`}
                   />
                 }
                 buttonContent={
