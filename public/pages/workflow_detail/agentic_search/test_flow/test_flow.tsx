@@ -106,7 +106,7 @@ export function TestFlow(props: TestFlowProps) {
           body: injectPipelineIntoQuery(finalQuery),
         },
         dataSourceId,
-        verbose: true,
+        verbose: false,
       })
     )
       .unwrap()
@@ -246,21 +246,12 @@ export function TestFlow(props: TestFlowProps) {
   );
 }
 
-// Util fn to extract the generated search query from the agentic_query_translator processor via the verbose search response
+// Util fn to extract the generated search query from the search response
 function getGeneratedQueryFromResponse(searchResponse?: any): {} | undefined {
-  if (!searchResponse?.processor_results) {
+  try {
+    return JSON.parse(searchResponse?.ext?.dsl_query);
+  } catch {}
+  {
     return undefined;
   }
-
-  // Loop through all processor results to find the agentic_query_translator
-  const processorResults = searchResponse.processor_results;
-  for (const processor of processorResults) {
-    if (
-      processor.processor_name === 'agentic_query_translator' &&
-      processor.output_data
-    ) {
-      return processor.output_data as {};
-    }
-  }
-  return undefined;
 }

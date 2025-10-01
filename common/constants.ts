@@ -245,6 +245,8 @@ export enum PROCESSOR_TYPE {
   TEXT_EMBEDDING = 'text_embedding',
   TEXT_IMAGE_EMBEDDING = 'text_image_embedding',
   COPY = 'copy',
+  AGENTIC_QUERY_TRANSLATOR = 'agentic_query_translator',
+  AGENTIC_CONTEXT = 'agentic_context',
 }
 
 export enum MODEL_TYPE {
