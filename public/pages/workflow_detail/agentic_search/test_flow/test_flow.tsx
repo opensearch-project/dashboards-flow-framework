@@ -24,10 +24,7 @@ import {
   Agent,
   AGENT_ID_PATH,
   AGENT_TYPE,
-  DEFAULT_AGENT,
-  EMPTY_AGENT,
   IndexMappings,
-  NEW_AGENT_PLACEHOLDER,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
@@ -64,13 +61,9 @@ export function TestFlow(props: TestFlowProps) {
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
   const [agent, setAgent] = useState<Partial<Agent>>({});
   useEffect(() => {
-    const agent = agents[selectedAgentId];
-    if (!isEmpty(selectedAgentId) && !isEmpty(agent)) {
-      setAgent(agent);
-    } else if (selectedAgentId === NEW_AGENT_PLACEHOLDER) {
-      setAgent(DEFAULT_AGENT);
-    } else {
-      setAgent(EMPTY_AGENT);
+    const agentRedux = agents[selectedAgentId];
+    if (!isEmpty(selectedAgentId) && !isEmpty(agentRedux)) {
+      setAgent(agentRedux);
     }
   }, [selectedAgentId, agents]);
 
@@ -91,13 +84,14 @@ export function TestFlow(props: TestFlowProps) {
     props.saveWorkflow();
 
     // Validate that all required fields are selected
-    if (!finalQuery?.query?.agentic?.query_text) {
-      setFormError('Please enter a search query');
-      return;
-    }
-
     if (!selectedAgentId) {
       setFormError('Please select an agent');
+      return;
+    } else if (isEmpty(selectedIndexId) && agent?.type === AGENT_TYPE.FLOW) {
+      setFormError('Please select an index');
+      return;
+    } else if (!finalQuery?.query?.agentic?.query_text) {
+      setFormError('Please enter a search query');
       return;
     }
 
