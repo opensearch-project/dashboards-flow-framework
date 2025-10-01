@@ -26,6 +26,7 @@ import {
   EuiText,
   EuiLink,
   EuiSuperSelect,
+  EuiEmptyPrompt,
 } from '@elastic/eui';
 import {
   Agent,
@@ -149,6 +150,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
       }))
     );
   }, [agents]);
+  const noAgentsFound = isEmpty(agentOptions) && !loading;
 
   const handleModeSwitch = (queryMode: string) => {
     setConfigModeSelected(queryMode as CONFIG_MODE);
@@ -235,27 +237,29 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                     </EuiLink>
                   </EuiText>
                 </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiButtonGroup
-                    buttonSize="compressed"
-                    legend="Config Mode"
-                    options={[
-                      {
-                        id: CONFIG_MODE.SIMPLE,
-                        label: 'Form',
-                      },
-                      {
-                        id: CONFIG_MODE.ADVANCED,
-                        label: 'JSON',
-                      },
-                    ]}
-                    idSelected={configModeSelected}
-                    onChange={handleModeSwitch}
-                    isFullWidth={false}
-                    style={{ marginLeft: '8px' }}
-                  />
-                </EuiFlexItem>
-                {!props.newAndUnsaved && (
+                {!noAgentsFound && (
+                  <EuiFlexItem grow={false}>
+                    <EuiButtonGroup
+                      buttonSize="compressed"
+                      legend="Config Mode"
+                      options={[
+                        {
+                          id: CONFIG_MODE.SIMPLE,
+                          label: 'Form',
+                        },
+                        {
+                          id: CONFIG_MODE.ADVANCED,
+                          label: 'JSON',
+                        },
+                      ]}
+                      idSelected={configModeSelected}
+                      onChange={handleModeSwitch}
+                      isFullWidth={false}
+                      style={{ marginLeft: '8px' }}
+                    />
+                  </EuiFlexItem>
+                )}
+                {!props.newAndUnsaved && !noAgentsFound && (
                   <EuiFlexItem grow={false}>
                     <EuiSmallButton
                       fill={false}
@@ -274,22 +278,41 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
           <EuiSpacer size="s" />
           <EuiFlexGroup direction="column" gutterSize="s">
             <EuiFlexItem>
-              <EuiSuperSelect
-                options={agentOptions}
-                valueOfSelected={selectedAgentId}
-                onChange={(value) => {
-                  if (value !== NEW_AGENT_PLACEHOLDER) {
-                    props.setNewAndUnsaved(false);
+              {noAgentsFound ? (
+                <EuiEmptyPrompt
+                  iconType={'generate'}
+                  title={<h4>Create an agent to get started</h4>}
+                  titleSize="xs"
+                  actions={
+                    <EuiSmallButton
+                      fill={false}
+                      onClick={() => {
+                        props.onCreateNew();
+                      }}
+                      iconType="plusInCircle"
+                    >
+                      Create new agent
+                    </EuiSmallButton>
                   }
-                  if (value) {
-                    setFieldValue(AGENT_ID_PATH, value);
-                    setFieldTouched(AGENT_ID_PATH, true);
-                  }
-                }}
-                placeholder="Select an agent"
-                compressed
-                fullWidth
-              />
+                />
+              ) : (
+                <EuiSuperSelect
+                  options={agentOptions}
+                  valueOfSelected={selectedAgentId}
+                  onChange={(value) => {
+                    if (value !== NEW_AGENT_PLACEHOLDER) {
+                      props.setNewAndUnsaved(false);
+                    }
+                    if (value) {
+                      setFieldValue(AGENT_ID_PATH, value);
+                      setFieldTouched(AGENT_ID_PATH, true);
+                    }
+                  }}
+                  placeholder="Select an agent"
+                  compressed
+                  fullWidth
+                />
+              )}
             </EuiFlexItem>
             {(!isEmpty(props.errorCreatingAgent) ||
               !isEmpty(props.errorUpdatingAgent)) && (
