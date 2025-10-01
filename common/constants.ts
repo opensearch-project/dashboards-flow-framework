@@ -1083,4 +1083,7 @@ export const DEFAULT_AGENT = {
       type: TOOL_TYPE.QUERY_PLANNING,
     },
   ],
+  memory: {
+    type: AGENT_MEMORY_TYPE.CONVERSATION_INDEX,
+  },
 } as Partial<Agent>;

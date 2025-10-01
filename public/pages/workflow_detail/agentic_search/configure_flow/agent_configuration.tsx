@@ -467,7 +467,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                       <>
                         <EuiFlexItem>
                           <EuiFormRow
-                            label={'Memory (optional)'}
+                            label={'Memory'}
                             labelAppend={
                               <EuiText size="xs">
                                 <EuiLink

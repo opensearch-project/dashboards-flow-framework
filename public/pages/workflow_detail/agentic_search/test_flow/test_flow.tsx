@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
@@ -16,11 +17,17 @@ import {
   EuiHorizontalRule,
   EuiEmptyPrompt,
   EuiText,
+  EuiLoadingSpinner,
 } from '@elastic/eui';
-import { searchIndex, useAppDispatch } from '../../../../store';
+import { AppState, searchIndex, useAppDispatch } from '../../../../store';
 import {
+  Agent,
   AGENT_ID_PATH,
+  AGENT_TYPE,
+  DEFAULT_AGENT,
+  EMPTY_AGENT,
   IndexMappings,
+  NEW_AGENT_PLACEHOLDER,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
@@ -43,9 +50,9 @@ export function TestFlow(props: TestFlowProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
+  const { agents, loading } = useSelector((state: AppState) => state.ml);
 
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
-  const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
   const finalQuery = (() => {
     try {
       return JSON.parse(getIn(values, 'search.request', '{}'));
@@ -53,6 +60,19 @@ export function TestFlow(props: TestFlowProps) {
       return {};
     }
   })();
+
+  const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
+  const [agent, setAgent] = useState<Partial<Agent>>({});
+  useEffect(() => {
+    const agent = agents[selectedAgentId];
+    if (!isEmpty(selectedAgentId) && !isEmpty(agent)) {
+      setAgent(agent);
+    } else if (selectedAgentId === NEW_AGENT_PLACEHOLDER) {
+      setAgent(DEFAULT_AGENT);
+    } else {
+      setAgent(EMPTY_AGENT);
+    }
+  }, [selectedAgentId, agents]);
 
   // the runtime-specific pipeline to be ran inline with the search query
   const [runtimeSearchPipeline, setRuntimeSearchPipeline] = useState<{}>({});
@@ -116,113 +136,119 @@ export function TestFlow(props: TestFlowProps) {
   }
 
   return (
-    <EuiFlexGroup
-      direction="column"
-      gutterSize="m"
-      style={{
-        height: AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT,
-        overflow: 'hidden',
-      }}
-    >
-      <EuiFlexItem grow={false}>
-        <EuiTitle>
-          <h3>Test flow</h3>
-        </EuiTitle>
-      </EuiFlexItem>
-      <EuiFlexItem
-        style={{
-          overflowY: 'auto',
-          scrollbarGutter: 'auto',
-          scrollbarWidth: 'auto',
-          overflowX: 'hidden',
-        }}
-      >
-        <EuiPanel color="subdued" paddingSize="s">
-          <EuiFlexGroup direction="column" gutterSize="m">
-            {formError !== undefined && (
-              <EuiFlexItem grow={false} style={{ marginBottom: '-12px' }}>
-                <EuiCallOut
-                  size="s"
-                  title="Error"
-                  color="danger"
-                  iconType="alert"
-                >
-                  <p>{formError}</p>
-                </EuiCallOut>
-                <EuiSpacer size="m" />
-              </EuiFlexItem>
-            )}
-            <EuiFlexItem grow={false}>
-              <IndexSelector />
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <SearchQuery
-                setSearchPipeline={setRuntimeSearchPipeline}
-                uiConfig={props.uiConfig}
-                fieldMappings={props.fieldMappings}
-                handleSearch={handleSearch}
-                isSearching={isSearching}
-              />
-            </EuiFlexItem>
-            {!isSearching && generatedQuery !== undefined && (
-              <>
-                <EuiFlexItem
-                  grow={false}
-                  style={{ marginTop: '0px', marginBottom: '0px' }}
-                >
-                  <EuiHorizontalRule margin="none" />
+    <>
+      {loading ? (
+        <EuiLoadingSpinner size="l" />
+      ) : (
+        <EuiFlexGroup
+          direction="column"
+          gutterSize="m"
+          style={{
+            height: AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT,
+            overflow: 'hidden',
+          }}
+        >
+          <EuiFlexItem grow={false}>
+            <EuiTitle>
+              <h3>Test flow</h3>
+            </EuiTitle>
+          </EuiFlexItem>
+          <EuiFlexItem
+            style={{
+              overflowY: 'auto',
+              scrollbarGutter: 'auto',
+              scrollbarWidth: 'auto',
+              overflowX: 'hidden',
+            }}
+          >
+            <EuiPanel color="subdued" paddingSize="s">
+              <EuiFlexGroup direction="column" gutterSize="m">
+                {formError !== undefined && (
+                  <EuiFlexItem grow={false} style={{ marginBottom: '-12px' }}>
+                    <EuiCallOut
+                      size="s"
+                      title="Error"
+                      color="danger"
+                      iconType="alert"
+                    >
+                      <p>{formError}</p>
+                    </EuiCallOut>
+                    <EuiSpacer size="m" />
+                  </EuiFlexItem>
+                )}
+                <EuiFlexItem grow={false}>
+                  <IndexSelector agentType={agent?.type} />
                 </EuiFlexItem>
-                <EuiFlexItem>
-                  <GeneratedQuery query={generatedQuery} />
+                <EuiFlexItem grow={false}>
+                  <SearchQuery
+                    setSearchPipeline={setRuntimeSearchPipeline}
+                    uiConfig={props.uiConfig}
+                    fieldMappings={props.fieldMappings}
+                    handleSearch={handleSearch}
+                    isSearching={isSearching}
+                  />
                 </EuiFlexItem>
-              </>
-            )}
-            {!isSearching && !isEmpty(searchResponse) && (
-              <>
-                <EuiFlexItem
-                  grow={false}
-                  style={{ marginTop: '0px', marginBottom: '0px' }}
-                >
-                  <EuiHorizontalRule margin="none" />
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  <SearchResults searchResponse={searchResponse} />
-                </EuiFlexItem>
-              </>
-            )}
-            {isSearching && (
-              <EuiEmptyPrompt
-                iconType={'generate'}
-                title={<h4>Searching...</h4>}
-                titleSize="xs"
-              />
-            )}
-            {isEmpty(searchResponse) &&
-              isEmpty(searchError) &&
-              !isSearching && (
-                <EuiEmptyPrompt
-                  iconType={'search'}
-                  title={<h4>Run a search to view results</h4>}
-                  titleSize="xs"
-                />
-              )}
-            {searchError !== undefined && (
-              <EuiEmptyPrompt
-                iconType={'alert'}
-                iconColor="danger"
-                title={<h4>Error running search</h4>}
-                titleSize="xs"
-                body={
-                  <EuiText size="xs" style={{ textAlign: 'left' }}>
-                    {searchError}
-                  </EuiText>
-                }
-              />
-            )}
-          </EuiFlexGroup>
-        </EuiPanel>
-      </EuiFlexItem>
-    </EuiFlexGroup>
+                {!isSearching && generatedQuery !== undefined && (
+                  <>
+                    <EuiFlexItem
+                      grow={false}
+                      style={{ marginTop: '0px', marginBottom: '0px' }}
+                    >
+                      <EuiHorizontalRule margin="none" />
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <GeneratedQuery query={generatedQuery} />
+                    </EuiFlexItem>
+                  </>
+                )}
+                {!isSearching && !isEmpty(searchResponse) && (
+                  <>
+                    <EuiFlexItem
+                      grow={false}
+                      style={{ marginTop: '0px', marginBottom: '0px' }}
+                    >
+                      <EuiHorizontalRule margin="none" />
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                      <SearchResults searchResponse={searchResponse} />
+                    </EuiFlexItem>
+                  </>
+                )}
+                {isSearching && (
+                  <EuiEmptyPrompt
+                    iconType={'generate'}
+                    title={<h4>Searching...</h4>}
+                    titleSize="xs"
+                  />
+                )}
+                {isEmpty(searchResponse) &&
+                  isEmpty(searchError) &&
+                  !isSearching && (
+                    <EuiEmptyPrompt
+                      iconType={'search'}
+                      title={<h4>Run a search to view results</h4>}
+                      titleSize="xs"
+                    />
+                  )}
+                {searchError !== undefined && (
+                  <EuiEmptyPrompt
+                    iconType={'alert'}
+                    iconColor="danger"
+                    title={<h4>Error running search</h4>}
+                    titleSize="xs"
+                    body={
+                      <EuiText size="xs" style={{ textAlign: 'left' }}>
+                        {searchError}
+                      </EuiText>
+                    }
+                  />
+                )}
+              </EuiFlexGroup>
+            </EuiPanel>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      )}
+    </>
   );
 }
 
