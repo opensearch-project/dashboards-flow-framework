@@ -25,6 +25,7 @@ import {
   WorkflowConfig,
   IndexMappings,
   AGENT_ID_PATH,
+  PROCESSOR_TYPE,
 } from '../../../../../common';
 
 interface SearchQueryProps {
@@ -56,8 +57,16 @@ export function SearchQuery(props: SearchQueryProps) {
   const [autoPipeline, setAutoPipeline] = useState<{}>({
     request_processors: [
       {
-        agentic_query_translator: {
+        [PROCESSOR_TYPE.AGENTIC_QUERY_TRANSLATOR]: {
           agent_id: '',
+        },
+      },
+    ],
+    response_processors: [
+      {
+        [PROCESSOR_TYPE.AGENTIC_CONTEXT]: {
+          agent_steps_summary: true,
+          dsl_query: true,
         },
       },
     ],
@@ -86,8 +95,16 @@ export function SearchQuery(props: SearchQueryProps) {
       setAutoPipeline({
         request_processors: [
           {
-            agentic_query_translator: {
+            [PROCESSOR_TYPE.AGENTIC_QUERY_TRANSLATOR]: {
               agent_id: selectedAgentId,
+            },
+          },
+        ],
+        response_processors: [
+          {
+            [PROCESSOR_TYPE.AGENTIC_CONTEXT]: {
+              agent_steps_summary: true,
+              dsl_query: true,
             },
           },
         ],
@@ -97,7 +114,7 @@ export function SearchQuery(props: SearchQueryProps) {
         !isEmpty(
           getIn(
             customPipeline,
-            'request_processors.0.agentic_query_translator.agent_id',
+            `request_processors.0.${PROCESSOR_TYPE.AGENTIC_QUERY_TRANSLATOR}.agent_id`,
             undefined
           )
         )
@@ -105,7 +122,7 @@ export function SearchQuery(props: SearchQueryProps) {
         let customPipelineUpdated = cloneDeep(customPipeline);
         set(
           customPipelineUpdated,
-          'request_processors.0.agentic_query_translator.agent_id',
+          `request_processors.0.${PROCESSOR_TYPE.AGENTIC_QUERY_TRANSLATOR}.agent_id`,
           selectedAgentId
         );
         setCustomPipeline(customPipelineUpdated);
