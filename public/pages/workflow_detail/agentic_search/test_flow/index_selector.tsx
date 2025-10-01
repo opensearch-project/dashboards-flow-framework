@@ -114,6 +114,7 @@ export function IndexSelector(props: IndexSelectorProps) {
           <EuiFlexGroup direction="row">
             <EuiFlexItem grow={false}>
               <EuiButtonEmpty
+                data-testid="viewIndexDetailsButton"
                 size="s"
                 disabled={isEmpty(selectedIndexName)}
                 onClick={async () => {
@@ -146,6 +147,7 @@ export function IndexSelector(props: IndexSelectorProps) {
           <EuiFlexGroup gutterSize="s" alignItems="center">
             <EuiFlexItem>
               <EuiSelect
+                data-testid="indexSelector"
                 options={indexOptions}
                 value={
                   isEmpty(selectedIndexName)
