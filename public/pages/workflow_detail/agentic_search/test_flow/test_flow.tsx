@@ -61,7 +61,7 @@ export function TestFlow(props: TestFlowProps) {
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
   const [agent, setAgent] = useState<Partial<Agent>>({});
   useEffect(() => {
-    const agentRedux = agents[selectedAgentId];
+    const agentRedux = getIn(agents, selectedAgentId, {});
     if (!isEmpty(selectedAgentId) && !isEmpty(agentRedux)) {
       setAgent(agentRedux);
     }
