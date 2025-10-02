@@ -22,6 +22,8 @@ import {
   UPDATE_AGENT_NODE_API_PATH,
   Agent,
   AgentDict,
+  ModelDict,
+  ConnectorDict,
 } from '../../common';
 import {
   generateCustomError,
@@ -214,6 +216,9 @@ export class MLRoutesService {
 
       return res.ok({ body: { models: modelDict } });
     } catch (err: any) {
+      if (isIgnorableError(err)) {
+        return res.ok({ body: { models: {} as ModelDict } });
+      }
       return generateCustomError(res, err);
     }
   };
@@ -245,6 +250,9 @@ export class MLRoutesService {
 
       return res.ok({ body: { connectors: connectorDict } });
     } catch (err: any) {
+      if (isIgnorableError(err)) {
+        return res.ok({ body: { connectors: {} as ConnectorDict } });
+      }
       return generateCustomError(res, err);
     }
   };
