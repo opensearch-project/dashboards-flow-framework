@@ -106,7 +106,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   // listen to agent ID changes. update the agent config form values appropriately
   useEffect(() => {
     const selectedAgentIdForm = getIn(values, AGENT_ID_PATH, '') as string;
-    const agent = agents[selectedAgentIdForm];
+    const agent = getIn(agents, selectedAgentIdForm, {});
     if (!isEmpty(selectedAgentIdForm) && !isEmpty(agent)) {
       props.setAgentForm(agent);
     } else if (selectedAgentIdForm === NEW_AGENT_PLACEHOLDER) {

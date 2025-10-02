@@ -21,11 +21,13 @@ import {
   GET_AGENT_NODE_API_PATH,
   UPDATE_AGENT_NODE_API_PATH,
   Agent,
+  AgentDict,
 } from '../../common';
 import {
   generateCustomError,
   getConnectorsFromResponses,
   getModelsFromResponses,
+  isIgnorableError,
 } from './helpers';
 import { getClientBasedOnDataSource } from '../utils/helpers';
 
@@ -317,6 +319,9 @@ export class MLRoutesService {
 
       return res.ok({ body: { agents } });
     } catch (err: any) {
+      if (isIgnorableError(err)) {
+        return res.ok({ body: { agents: {} as AgentDict } });
+      }
       return generateCustomError(res, err);
     }
   };
