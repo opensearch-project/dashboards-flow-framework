@@ -1150,3 +1150,7 @@ function sanitizeObjInput(formField: any): {} {
 function sanitizeBooleanInput(formField: any): boolean {
   return typeof formField === 'boolean' ? formField : false;
 }
+
+export function formatRouteServiceError(e: any, prefix: string) {
+  return `${prefix}: ${e.body?.message ?? e.message ?? 'Unknown error'}`;
+}
