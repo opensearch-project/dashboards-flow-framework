@@ -17,8 +17,10 @@ import {
   SimulateIngestPipelineDoc,
   SearchTemplateConfig,
 } from '../../../common';
-import { HttpFetchError } from '../../../../../src/core/public';
-import { parseErrorsFromIngestResponse } from '../../utils';
+import {
+  formatRouteServiceError,
+  parseErrorsFromIngestResponse,
+} from '../../utils';
 
 export const INITIAL_OPENSEARCH_STATE = {
   loading: false,
@@ -73,18 +75,14 @@ export const catIndices = createAsyncThunk(
     { pattern, dataSourceId }: { pattern: string; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    // defaulting to fetch everything except system indices (starting with '.')
-    const patternString = pattern || OMIT_SYSTEM_INDEX_PATTERN;
-    const response: any | HttpFetchError = await getRouteService().catIndices(
-      patternString,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      // defaulting to fetch everything except system indices (starting with '.')
+      const patternString = pattern || OMIT_SYSTEM_INDEX_PATTERN;
+      return await getRouteService().catIndices(patternString, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error running cat indices: ' + response.body.message
+        formatRouteServiceError(e, 'Error getting indices')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -95,16 +93,12 @@ export const getMappings = createAsyncThunk(
     { index, dataSourceId }: { index: string; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response: any | HttpFetchError = await getRouteService().getMappings(
-      index,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().getMappings(index, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error getting index mappings: ' + response.body.message
+        formatRouteServiceError(e, 'Error getting index mappings')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -115,16 +109,12 @@ export const getIndex = createAsyncThunk(
     { index, dataSourceId }: { index: string; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response: any | HttpFetchError = await getRouteService().getIndex(
-      index,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().getIndex(index, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error getting index settings and mappings: ' + response.body.message
+        formatRouteServiceError(e, 'Error getting index details')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -145,19 +135,20 @@ export const searchIndex = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    const { index, body, searchPipeline } = apiBody;
-    const response: any | HttpFetchError = await getRouteService().searchIndex({
-      index,
-      body,
-      dataSourceId,
-      dataSourceVersion,
-      searchPipeline,
-      verbose,
-    });
-    if (response instanceof HttpFetchError) {
-      return rejectWithValue('Error searching index: ' + response.body.message);
-    } else {
-      return response;
+    try {
+      const { index, body, searchPipeline } = apiBody;
+      return await getRouteService().searchIndex({
+        index,
+        body,
+        dataSourceId,
+        dataSourceVersion,
+        searchPipeline,
+        verbose,
+      });
+    } catch (e) {
+      return rejectWithValue(
+        formatRouteServiceError(e, 'Error searching index')
+      );
     }
   }
 );
@@ -174,18 +165,13 @@ export const ingest = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    const { index, doc } = apiBody;
-    const response: any | HttpFetchError = await getRouteService().ingest(
-      index,
-      doc,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      const { index, doc } = apiBody;
+      return await getRouteService().ingest(index, doc, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error ingesting document: ' + response.body.message
+        formatRouteServiceError(e, 'Error ingesting document')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -202,22 +188,27 @@ export const bulk = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    const { body, ingestPipeline } = apiBody;
-    const response: any | HttpFetchError = await getRouteService().bulk({
-      body,
-      dataSourceId,
-      ingestPipeline,
-    });
-    // Ingest errors may be hidden within a 2xx / success response.
-    // But, we want to propagate them more, so we surface it as if it was a normal, server-side error
-    const ingestErr = parseErrorsFromIngestResponse(response);
-    if (ingestErr !== undefined) {
-      return rejectWithValue('Error performing bulk: ' + ingestErr);
-    }
-    if (response instanceof HttpFetchError) {
-      return rejectWithValue('Error performing bulk: ' + response.body.message);
-    } else {
-      return response;
+    try {
+      const { body, ingestPipeline } = apiBody;
+      const response = await getRouteService().bulk({
+        body,
+        dataSourceId,
+        ingestPipeline,
+      });
+      // Ingest errors may be hidden within a 2xx / success response.
+      // But, we want to propagate them more, so we surface it as if it was a normal, server-side error
+      const ingestErr = parseErrorsFromIngestResponse(response);
+      if (ingestErr !== undefined) {
+        return rejectWithValue(
+          formatRouteServiceError(ingestErr, 'Error performing bulk')
+        );
+      } else {
+        return response;
+      }
+    } catch (e) {
+      return rejectWithValue(
+        formatRouteServiceError(e, 'Error performing bulk')
+      );
     }
   }
 );
@@ -241,20 +232,17 @@ export const simulatePipeline = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().simulatePipeline(
-      apiBody,
-      dataSourceId,
-      pipelineId,
-      verbose
-    );
-    if (response instanceof HttpFetchError) {
-      return rejectWithValue(
-        'Error simulating ingest pipeline: ' + response.body.message
+    try {
+      return await getRouteService().simulatePipeline(
+        apiBody,
+        dataSourceId,
+        pipelineId,
+        verbose
       );
-    } else {
-      return response;
+    } catch (e) {
+      return rejectWithValue(
+        formatRouteServiceError(e, 'Error simulating ingest pipeline')
+      );
     }
   }
 );
@@ -271,18 +259,15 @@ export const getSearchPipeline = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().getSearchPipeline(
-      pipelineId,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
-      return rejectWithValue(
-        'Error fetching search pipeline: ' + response.body.message
+    try {
+      return await getRouteService().getSearchPipeline(
+        pipelineId,
+        dataSourceId
       );
-    } else {
-      return response;
+    } catch (e) {
+      return rejectWithValue(
+        formatRouteServiceError(e, 'Error getting search pipeline')
+      );
     }
   }
 );
@@ -299,18 +284,15 @@ export const getIngestPipeline = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().getIngestPipeline(
-      pipelineId,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
-      return rejectWithValue(
-        'Error fetching ingest pipeline: ' + response.body.message
+    try {
+      return await getRouteService().getIngestPipeline(
+        pipelineId,
+        dataSourceId
       );
-    } else {
-      return response;
+    } catch (e) {
+      return rejectWithValue(
+        formatRouteServiceError(e, 'Error getting ingest pipeline')
+      );
     }
   }
 );
@@ -318,17 +300,12 @@ export const getIngestPipeline = createAsyncThunk(
 export const getSearchTemplates = createAsyncThunk(
   GET_SEARCH_TEMPLATES_ACTION,
   async ({ dataSourceId }: { dataSourceId?: string }, { rejectWithValue }) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().getSearchTemplates(
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().getSearchTemplates(dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error fetching search templates: ' + response.body.message
+        formatRouteServiceError(e, 'Error getting search templates')
       );
-    } else {
-      return response;
     }
   }
 );

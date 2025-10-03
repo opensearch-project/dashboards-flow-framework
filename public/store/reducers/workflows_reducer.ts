@@ -5,8 +5,8 @@
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { WorkflowDict, WorkflowTemplate } from '../../../common';
-import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
+import { formatRouteServiceError } from '../../utils';
 
 export const INITIAL_WORKFLOWS_STATE = {
   loading: false,
@@ -30,16 +30,12 @@ export const getWorkflow = createAsyncThunk(
     { workflowId, dataSourceId }: { workflowId: string; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response: any | HttpFetchError = await getRouteService().getWorkflow(
-      workflowId,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().getWorkflow(workflowId, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error getting workflow: ' + response.body.message
+        formatRouteServiceError(e, 'Error getting workflow')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -50,18 +46,12 @@ export const searchWorkflows = createAsyncThunk(
     { apiBody, dataSourceId }: { apiBody: {}; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().searchWorkflows(
-      apiBody,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().searchWorkflows(apiBody, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error searching workflows: ' + response.body.message
+        formatRouteServiceError(e, 'Error searching workflows')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -72,18 +62,12 @@ export const getWorkflowState = createAsyncThunk(
     { workflowId, dataSourceId }: { workflowId: string; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().getWorkflowState(
-      workflowId,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().getWorkflowState(workflowId, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error getting workflow state: ' + response.body.message
+        formatRouteServiceError(e, 'Error getting workflow state')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -94,18 +78,12 @@ export const createWorkflow = createAsyncThunk(
     { apiBody, dataSourceId }: { apiBody: {}; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().createWorkflow(
-      apiBody,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().createWorkflow(apiBody, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error creating workflow: ' + response.body.message
+        formatRouteServiceError(e, 'Error creating workflow')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -129,23 +107,25 @@ export const updateWorkflow = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    const { workflowId, workflowTemplate, updateFields, reprovision } = apiBody;
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().updateWorkflow(
-      workflowId,
-      workflowTemplate,
-      updateFields || false,
-      reprovision || false,
-      dataSourceId,
-      dataSourceVersion
-    );
-    if (response instanceof HttpFetchError) {
-      return rejectWithValue(
-        'Error updating workflow: ' + response.body.message
+    try {
+      const {
+        workflowId,
+        workflowTemplate,
+        updateFields,
+        reprovision,
+      } = apiBody;
+      return await getRouteService().updateWorkflow(
+        workflowId,
+        workflowTemplate,
+        updateFields || false,
+        reprovision || false,
+        dataSourceId,
+        dataSourceVersion
       );
-    } else {
-      return response;
+    } catch (e) {
+      return rejectWithValue(
+        formatRouteServiceError(e, 'Error updating workflow')
+      );
     }
   }
 );
@@ -164,19 +144,16 @@ export const provisionWorkflow = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().provisionWorkflow(
-      workflowId,
-      dataSourceId,
-      dataSourceVersion
-    );
-    if (response instanceof HttpFetchError) {
-      return rejectWithValue(
-        'Error provisioning workflow: ' + response.body.message
+    try {
+      return await getRouteService().provisionWorkflow(
+        workflowId,
+        dataSourceId,
+        dataSourceVersion
       );
-    } else {
-      return response;
+    } catch (e) {
+      return rejectWithValue(
+        formatRouteServiceError(e, 'Error provisioning workflow')
+      );
     }
   }
 );
@@ -193,20 +170,17 @@ export const deprovisionWorkflow = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
-    const { workflowId, resourceIds } = apiBody;
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().deprovisionWorkflow({
-      workflowId,
-      resourceIds,
-      dataSourceId,
-    });
-    if (response instanceof HttpFetchError) {
+    try {
+      const { workflowId, resourceIds } = apiBody;
+      return await getRouteService().deprovisionWorkflow({
+        workflowId,
+        resourceIds,
+        dataSourceId,
+      });
+    } catch (e) {
       return rejectWithValue(
-        'Error deprovisioning workflow: ' + response.body.message
+        formatRouteServiceError(e, 'Error deprovisioning workflow')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -217,18 +191,12 @@ export const deleteWorkflow = createAsyncThunk(
     { workflowId, dataSourceId }: { workflowId: string; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().deleteWorkflow(
-      workflowId,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().deleteWorkflow(workflowId, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error deleting workflow: ' + response.body.message
+        formatRouteServiceError(e, 'Error deleting workflow')
       );
-    } else {
-      return response;
     }
   }
 );

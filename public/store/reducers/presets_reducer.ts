@@ -5,8 +5,8 @@
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { WorkflowTemplate } from '../../../common';
-import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
+import { formatRouteServiceError } from '../../utils';
 
 export const INITIAL_PRESETS_STATE = {
   loading: false,
@@ -20,15 +20,12 @@ const GET_WORKFLOW_PRESETS_ACTION = `${PRESET_ACTION_PREFIX}/getPresets`;
 export const getWorkflowPresets = createAsyncThunk(
   GET_WORKFLOW_PRESETS_ACTION,
   async (_, { rejectWithValue }) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().getWorkflowPresets();
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().getWorkflowPresets();
+    } catch (e) {
       return rejectWithValue(
-        'Error getting workflow presets: ' + response.body.message
+        formatRouteServiceError(e, 'Error getting workflow presets')
       );
-    } else {
-      return response;
     }
   }
 );

@@ -5,8 +5,8 @@
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { Agent, AgentDict, ConnectorDict, ModelDict } from '../../../common';
-import { HttpFetchError } from '../../../../../src/core/public';
 import { getRouteService } from '../../services';
+import { formatRouteServiceError } from '../../utils';
 
 export const INITIAL_ML_STATE = {
   loading: false,
@@ -32,16 +32,12 @@ export const searchModels = createAsyncThunk(
     { apiBody, dataSourceId }: { apiBody: {}; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response: any | HttpFetchError = await getRouteService().searchModels(
-      apiBody,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().searchModels(apiBody, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error searching models: ' + response.body.message
+        formatRouteServiceError(e, 'Error searching models')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -52,18 +48,12 @@ export const searchConnectors = createAsyncThunk(
     { apiBody, dataSourceId }: { apiBody: {}; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().searchConnectors(
-      apiBody,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().searchConnectors(apiBody, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error searching connectors: ' + response.body.message
+        formatRouteServiceError(e, 'Error searching connectors')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -74,18 +64,12 @@ export const registerAgent = createAsyncThunk(
     { apiBody, dataSourceId }: { apiBody: {}; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response:
-      | any
-      | HttpFetchError = await getRouteService().registerAgent(
-      apiBody,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().registerAgent(apiBody, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error registering agent: ' + response.body.message
+        formatRouteServiceError(e, 'Error registering agent')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -96,16 +80,12 @@ export const searchAgents = createAsyncThunk(
     { apiBody, dataSourceId }: { apiBody: {}; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response: any | HttpFetchError = await getRouteService().searchAgents(
-      apiBody,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
+    try {
+      return await getRouteService().searchAgents(apiBody, dataSourceId);
+    } catch (e) {
       return rejectWithValue(
-        'Error searching agents: ' + response.body.message
+        formatRouteServiceError(e, 'Error searching agents')
       );
-    } else {
-      return response;
     }
   }
 );
@@ -120,15 +100,12 @@ export const updateAgent = createAsyncThunk(
     }: { agentId: string; body: {}; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response: any | HttpFetchError = await getRouteService().updateAgent(
-      agentId,
-      body,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
-      return rejectWithValue('Error updating agent: ' + response.body.message);
-    } else {
-      return response;
+    try {
+      return await getRouteService().updateAgent(agentId, body, dataSourceId);
+    } catch (e) {
+      return rejectWithValue(
+        formatRouteServiceError(e, 'Error updating agent')
+      );
     }
   }
 );
@@ -139,14 +116,10 @@ export const getAgent = createAsyncThunk(
     { agentId, dataSourceId }: { agentId: string; dataSourceId?: string },
     { rejectWithValue }
   ) => {
-    const response: any | HttpFetchError = await getRouteService().getAgent(
-      agentId,
-      dataSourceId
-    );
-    if (response instanceof HttpFetchError) {
-      return rejectWithValue('Error getting agent: ' + response.body.message);
-    } else {
-      return response;
+    try {
+      return await getRouteService().getAgent(agentId, dataSourceId);
+    } catch (e) {
+      return rejectWithValue(formatRouteServiceError(e, 'Error getting agent'));
     }
   }
 );
