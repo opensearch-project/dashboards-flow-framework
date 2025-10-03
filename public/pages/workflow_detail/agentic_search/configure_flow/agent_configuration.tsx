@@ -22,7 +22,6 @@ import {
   EuiSmallButton,
   EuiLoadingSpinner,
   EuiCallOut,
-  EuiAccordion,
   EuiText,
   EuiLink,
   EuiSuperSelect,
@@ -36,7 +35,6 @@ import {
   customStringify,
   DEFAULT_AGENT,
   EMPTY_AGENT,
-  MEMORY_DOCS_LINK,
   NEW_AGENT_ID_PLACEHOLDER,
   NEW_AGENT_PLACEHOLDER,
   WorkflowConfig,
@@ -46,9 +44,8 @@ import { AppState } from '../../../../store';
 import { AgentTools } from './agent_tools';
 import { SimplifiedJsonField } from '../components';
 import { AgentLLMFields } from './agent_llm_fields';
-import { AgentParameters } from './agent_parameters';
-import { AgentMemory } from './agent_memory';
 import { sanitizeJSON } from '../../../../utils';
+import { AgentAdvancedSettings } from './agent_advanced_settings';
 
 interface AgentConfigurationProps {
   uiConfig: WorkflowConfig | undefined;
@@ -433,16 +430,14 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   </EuiFormRow>
                 </EuiFlexItem>
                 {/**
-                 * For agent types that require and LLM for orchestration, provide custom form inputs for that.
+                 * Show the agent model dropdown if applicable
                  */}
                 {agentType === AGENT_TYPE.CONVERSATIONAL && (
                   <EuiFlexItem>
-                    <EuiFormRow label="Large language model" fullWidth>
-                      <AgentLLMFields
-                        agentForm={props.agentForm}
-                        setAgentForm={props.setAgentForm}
-                      />
-                    </EuiFormRow>
+                    <AgentLLMFields
+                      agentForm={props.agentForm}
+                      setAgentForm={props.setAgentForm}
+                    />
                   </EuiFlexItem>
                 )}
                 <EuiFlexItem>
@@ -454,50 +449,10 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   </EuiFormRow>
                 </EuiFlexItem>
                 <EuiFlexItem grow={false}>
-                  <EuiAccordion
-                    id="agentAdvancedSettings"
-                    initialIsOpen={false}
-                    buttonContent="Advanced settings"
-                  >
-                    <EuiSpacer size="s" />
-                    {/**
-                     * For agent types that allow for memory, provide custom form inputs for that.
-                     */}
-                    {agentType === AGENT_TYPE.CONVERSATIONAL && (
-                      <>
-                        <EuiFlexItem>
-                          <EuiFormRow
-                            label={'Memory'}
-                            labelAppend={
-                              <EuiText size="xs">
-                                <EuiLink
-                                  href={MEMORY_DOCS_LINK}
-                                  target="_blank"
-                                >
-                                  Learn more
-                                </EuiLink>
-                              </EuiText>
-                            }
-                            fullWidth
-                          >
-                            <AgentMemory
-                              agentForm={props.agentForm}
-                              setAgentForm={props.setAgentForm}
-                            />
-                          </EuiFormRow>
-                        </EuiFlexItem>
-                        <EuiSpacer size="s" />
-                      </>
-                    )}
-                    <EuiFlexItem>
-                      <EuiFormRow label="Parameters" fullWidth>
-                        <AgentParameters
-                          agentForm={props.agentForm}
-                          setAgentForm={props.setAgentForm}
-                        />
-                      </EuiFormRow>
-                    </EuiFlexItem>
-                  </EuiAccordion>
+                  <AgentAdvancedSettings
+                    agentForm={props.agentForm}
+                    setAgentForm={props.setAgentForm}
+                  />
                 </EuiFlexItem>
               </>
             )}
