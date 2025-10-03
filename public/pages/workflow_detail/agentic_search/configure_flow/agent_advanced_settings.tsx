@@ -41,22 +41,24 @@ const LLM_INTERFACE_OPTIONS = Object.values(AGENT_LLM_INTERFACE_TYPE).map(
  * Configure advanced settings for agents.
  */
 export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
-  const agentType = (props.agentForm?.type || '').toLowerCase();
-  const agentModelId = props.agentForm?.llm?.model_id;
-  const agentLlmInterface = props.agentForm?.parameters
-    ?._llm_interface as AGENT_LLM_INTERFACE_TYPE;
+  const agentType = getIn(props, 'agentForm.type', '').toLowerCase();
+  const agentModelId = getIn(props, 'agentForm.llm.model_id', '');
+  const agentLlmInterface = getIn(
+    props,
+    'agentForm.parameters._llm_interface',
+    ''
+  ) as AGENT_LLM_INTERFACE_TYPE;
 
-  // listen to model ID changes (for conversational agents). Try to automatically set the interface
-  // TODO: handle all of the use cases, include if something is just being loaded in first time, doesn't get into endless loop.
+  // listen to agent model changes. Try to automatically set the _llm_interface, if applicable
   useEffect(() => {
     if (agentType === AGENT_TYPE.CONVERSATIONAL && !isEmpty(agentModelId)) {
-      console.log(
-        'agent is conversational, and model id is set. attempt to set interface...'
-      );
-    } else if (isEmpty(agentLlmInterface)) {
-      console.log('removing any set llm interface');
-    } else {
-      console.log('do nothing');
+      props.setAgentForm({
+        ...props.agentForm,
+        parameters: {
+          ...props.agentForm?.parameters,
+          _llm_interface: getRelevantInterface(agentModelId),
+        },
+      });
     }
   }, [agentType, agentModelId, agentLlmInterface]);
 
@@ -163,4 +165,10 @@ function getReadableInterface(interfaceType: AGENT_LLM_INTERFACE_TYPE): string {
     default:
       return interfaceType;
   }
+}
+
+// TODO: stubbed
+// add logic to parse the upstream connector details and try to derive the inference endpoints
+function getRelevantInterface(modelId: string): AGENT_LLM_INTERFACE_TYPE {
+  return AGENT_LLM_INTERFACE_TYPE.OPENAI;
 }
