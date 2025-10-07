@@ -489,12 +489,15 @@ export type Model = {
   modelConfig?: ModelConfig;
   interface?: ModelInterface;
   connectorId?: string;
+  connector?: Partial<Connector>;
 };
 
 export type Connector = {
   id: string;
   name: string;
   parameters?: ConnectorParameters;
+  actions: {}[];
+  client_config: {};
 };
 
 export type ModelDict = {

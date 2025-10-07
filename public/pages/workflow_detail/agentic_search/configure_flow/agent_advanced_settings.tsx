@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
 import { isEmpty } from 'lodash';
 import {
@@ -20,10 +21,13 @@ import {
   AGENT_FIELDS_DOCS_LINK,
   AGENT_LLM_INTERFACE_TYPE,
   AGENT_TYPE,
+  ConnectorDict,
   MEMORY_DOCS_LINK,
+  ModelDict,
 } from '../../../../../common';
 import { AgentParameters } from './agent_parameters';
 import { AgentMemory } from './agent_memory';
+import { AppState } from '../../../../store';
 
 interface AgentAdvancedSettingsProps {
   agentForm: Partial<Agent>;
@@ -41,6 +45,7 @@ const LLM_INTERFACE_OPTIONS = Object.values(AGENT_LLM_INTERFACE_TYPE).map(
  * Configure advanced settings for agents.
  */
 export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
+  const { models, connectors } = useSelector((state: AppState) => state.ml);
   const agentType = getIn(props, 'agentForm.type', '').toLowerCase();
   const agentModelId = getIn(props, 'agentForm.llm.model_id', '');
   const agentLlmInterface = getIn(
@@ -56,7 +61,9 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
         ...props.agentForm,
         parameters: {
           ...props.agentForm?.parameters,
-          _llm_interface: getRelevantInterface(agentModelId),
+          _llm_interface:
+            getRelevantInterface(agentModelId, models, connectors) ||
+            agentLlmInterface,
         },
       });
     }
@@ -167,8 +174,40 @@ function getReadableInterface(interfaceType: AGENT_LLM_INTERFACE_TYPE): string {
   }
 }
 
-// TODO: stubbed
-// add logic to parse the upstream connector details and try to derive the inference endpoints
-function getRelevantInterface(modelId: string): AGENT_LLM_INTERFACE_TYPE {
-  return AGENT_LLM_INTERFACE_TYPE.OPENAI;
+// attempt to parse the upstream connector details and try to derive the inference endpoints
+// and remote model information. keep as 'undefined' if not found.
+function getRelevantInterface(
+  modelId: string,
+  models: ModelDict,
+  connectors: ConnectorDict
+): AGENT_LLM_INTERFACE_TYPE | undefined {
+  const model = getIn(models, modelId, {});
+  // A connector can be defined within a model, or a reference to a standalone connector ID.
+  const connector = !isEmpty(getIn(model, 'connector', {}))
+    ? getIn(model, 'connector', {})
+    : getIn(connectors, getIn(model, 'connectorId', ''), {});
+
+  const connectorModel = getIn(connector, 'parameters.model', '') as string;
+  const connectorServiceName = getIn(
+    connector,
+    'parameters.service_name',
+    ''
+  ) as string;
+  const remoteInferenceUrl = getIn(connector, 'actions.0.url', '') as string;
+
+  if (connectorModel.includes('gpt') || remoteInferenceUrl.includes('openai')) {
+    return AGENT_LLM_INTERFACE_TYPE.OPENAI;
+  } else if (
+    connectorModel.includes('claude') &&
+    connectorServiceName.includes('bedrock')
+  ) {
+    return AGENT_LLM_INTERFACE_TYPE.BEDROCK_CLAUDE;
+  } else if (
+    connectorModel.includes('deepseek') &&
+    connectorServiceName.includes('bedrock')
+  ) {
+    return AGENT_LLM_INTERFACE_TYPE.BEDROCK_DEEPSEEK;
+  } else {
+    return undefined;
+  }
 }
