@@ -22,6 +22,8 @@ import {
   EuiLink,
   EuiFlexItem,
   EuiCompressedSwitch,
+  EuiFlexGroup,
+  EuiIcon,
 } from '@elastic/eui';
 import {
   Agent,
@@ -265,7 +267,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
             </EuiFlexItem>
             <EuiSpacer size="s" />
             <EuiFormRow
-              label="Query planning model"
+              label="Model"
               data-testid="queryPlanningModelField"
               labelAppend={
                 <EuiText size="xs">
@@ -528,26 +530,48 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 id={`tool-accordion-${index}`}
                 arrowDisplay="left"
                 extraAction={
-                  <EuiCompressedSwitch
-                    label="Enable"
-                    checked={toolEnabled}
-                    onChange={(e) => {
-                      const checked = e.target.checked as boolean;
-                      if (checked) {
-                        addTool(toolType);
-                        addOpenAccordionIndex(index);
-                      } else {
-                        removeTool(toolType);
-                        removeOpenAccordionIndex(index);
-                      }
-                    }}
-                    data-testid={`${toolType.toLowerCase()}ToolToggle`}
-                  />
+                  <EuiFlexGroup
+                    direction="row"
+                    alignItems="center"
+                    gutterSize="s"
+                  >
+                    {toolType === TOOL_TYPE.QUERY_PLANNING && !toolEnabled && (
+                      <EuiFlexItem grow={false}>
+                        <EuiIcon type="alert" color="warning" />
+                      </EuiFlexItem>
+                    )}
+                    <EuiFlexItem grow={false}>
+                      <EuiCompressedSwitch
+                        label="Enable"
+                        checked={toolEnabled}
+                        onChange={(e) => {
+                          const checked = e.target.checked as boolean;
+                          if (checked) {
+                            addTool(toolType);
+                            addOpenAccordionIndex(index);
+                          } else {
+                            removeTool(toolType);
+                            removeOpenAccordionIndex(index);
+                          }
+                        }}
+                        data-testid={`${toolType.toLowerCase()}ToolToggle`}
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
                 }
                 buttonContent={
-                  <EuiFlexItem grow={false}>
-                    <EuiText size="s">{accordionTitle}</EuiText>
-                  </EuiFlexItem>
+                  <EuiFlexGroup direction="row" gutterSize="xs">
+                    <EuiFlexItem grow={false}>
+                      <EuiText size="s">{accordionTitle}</EuiText>
+                    </EuiFlexItem>
+                    {toolType === TOOL_TYPE.QUERY_PLANNING && (
+                      <EuiFlexItem grow={false}>
+                        <EuiText size="s">
+                          <i> - required</i>
+                        </EuiText>
+                      </EuiFlexItem>
+                    )}
+                  </EuiFlexGroup>
                 }
                 paddingSize="s"
                 forceState={
