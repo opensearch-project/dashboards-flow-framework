@@ -6,20 +6,24 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
-import { isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, set } from 'lodash';
 import { EuiFormRow, EuiLink, EuiSelect, EuiText } from '@elastic/eui';
 import {
   Agent,
+  AGENT_TYPE,
   AGENTIC_SEARCH_DOCS_LINK,
   AgentLLM,
   Model,
   MODEL_STATE,
   ModelDict,
+  Tool,
+  TOOL_TYPE,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { NoDeployedModelsCallout } from '../components';
 
 interface AgentLLMFieldsProps {
+  agentType: AGENT_TYPE;
   agentForm: Partial<Agent>;
   setAgentForm: (agentForm: Partial<Agent>) => void;
 }
@@ -28,6 +32,7 @@ interface AgentLLMFieldsProps {
  * The general component containing all of the "llm" config fields within an agent.
  */
 export function AgentLLMFields({
+  agentType,
   agentForm,
   setAgentForm,
 }: AgentLLMFieldsProps) {
@@ -47,7 +52,19 @@ export function AgentLLMFields({
     );
   }, [models]);
   const llmForm = getIn(agentForm, `llm`) as AgentLLM;
-  const selectedModelId = getIn(llmForm, 'model_id', '');
+  const toolsField = getIn(agentForm, 'tools', []) as Tool[];
+  const queryPlanningToolIndex = toolsField.findIndex(
+    (tool) => tool.type === TOOL_TYPE.QUERY_PLANNING
+  );
+  const selectedModelId =
+    agentType === AGENT_TYPE.FLOW
+      ? (getIn(
+          agentForm,
+          `tools.${queryPlanningToolIndex}.parameters.model_id`,
+          ''
+        ) as string)
+      : (getIn(llmForm, 'model_id', '') as string);
+
   const modelFound = Object.values(models || ({} as ModelDict)).some(
     (model: Model) => model.id === selectedModelId
   );
@@ -83,14 +100,21 @@ export function AgentLLMFields({
                   ]
             }
             value={selectedModelId}
+            // always update the query planning model ID, if applicable
+            // if a conversational agent, also set it as the main LLM orchestration agent
             onChange={(e) => {
-              setAgentForm({
-                ...agentForm,
-                llm: {
-                  ...agentForm?.llm,
-                  model_id: e.target.value as string,
-                },
-              });
+              let updatedAgentForm = cloneDeep(agentForm);
+              if (queryPlanningToolIndex !== -1) {
+                set(
+                  updatedAgentForm,
+                  `tools.${queryPlanningToolIndex}.parameters.model_id`,
+                  e.target.value
+                );
+              }
+              if (agentType === AGENT_TYPE.CONVERSATIONAL) {
+                set(updatedAgentForm, 'llm.model_id', e.target.value);
+              }
+              setAgentForm(updatedAgentForm);
             }}
             aria-label="Select model"
             placeholder="Select a model"

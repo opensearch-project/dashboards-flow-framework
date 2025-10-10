@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getIn, useFormikContext } from 'formik';
+import { getIn } from 'formik';
 import { isEmpty } from 'lodash';
 import {
   EuiAccordion,
@@ -27,18 +27,15 @@ import {
 } from '@elastic/eui';
 import {
   Agent,
-  AGENT_ID_PATH,
   AGENT_TYPE,
   Model,
   MODEL_STATE,
   ModelDict,
-  NEW_AGENT_PLACEHOLDER,
   QUERY_PLANNING_MODEL_DOCS_LINK,
   QUERY_PLANNING_TOOL_DOCS_LINK,
   Tool,
   TOOL_TYPE,
   WEB_SEARCH_TOOL_DOCS_LINK,
-  WorkflowFormValues,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { parseStringOrJson } from '../../../../utils';
@@ -85,8 +82,6 @@ const DEFAULT_SEARCH_TEMPLATE: SearchTemplateField = {
 };
 
 export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
-  const { values } = useFormikContext<WorkflowFormValues>();
-  const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
   // get redux store for models / search templates / etc. if needed in downstream tool configs
   const { models } = useSelector((state: AppState) => state.ml);
   const { searchTemplates } = useSelector(
@@ -108,16 +103,9 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
 
   // Persist state for each tool accordion. Automatically open/close based on users
   // enabling/disabling the individual tools.
-  // Additionally, if a user creates a new agent, open the first accordion (the QPT)
-  // by default, as currently that will always be necesssary for users to configure.
   const [openAccordionIndices, setOpenAccordionIndices] = useState<number[]>(
     []
   );
-  useEffect(() => {
-    if (selectedAgentId === NEW_AGENT_PLACEHOLDER) {
-      setOpenAccordionIndices([0]);
-    }
-  }, [selectedAgentId]);
   function addOpenAccordionIndex(index: number): void {
     setOpenAccordionIndices([...openAccordionIndices, index]);
   }

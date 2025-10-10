@@ -432,14 +432,13 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                 {/**
                  * Show the agent model dropdown if applicable
                  */}
-                {agentType === AGENT_TYPE.CONVERSATIONAL && (
-                  <EuiFlexItem>
-                    <AgentLLMFields
-                      agentForm={props.agentForm}
-                      setAgentForm={props.setAgentForm}
-                    />
-                  </EuiFlexItem>
-                )}
+                <EuiFlexItem>
+                  <AgentLLMFields
+                    agentType={agentType as AGENT_TYPE}
+                    agentForm={props.agentForm}
+                    setAgentForm={props.setAgentForm}
+                  />
+                </EuiFlexItem>
                 <EuiFlexItem>
                   <EuiFormRow label="Tools" fullWidth>
                     <AgentTools
