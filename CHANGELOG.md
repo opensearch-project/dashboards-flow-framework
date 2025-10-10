@@ -3,10 +3,10 @@ All notable changes to this project are documented in this file.
 
 Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
-## [Unreleased 3.3](https://github.com/opensearch-project/anomaly-detection/compare/2.x...HEAD)
+## [Unreleased 3.4](https://github.com/opensearch-project/anomaly-detection/compare/2.x...HEAD)
 ### Features
-- Support agentic search ([#775](https://github.com/opensearch-project/dashboards-flow-framework/pull/775))
 ### Enhancements
+- Clean up / hide complex fields on agent configuration ([#796](https://github.com/opensearch-project/dashboards-flow-framework/pull/796))
 ### Bug Fixes
 ### Infrastructure
 ### Documentation

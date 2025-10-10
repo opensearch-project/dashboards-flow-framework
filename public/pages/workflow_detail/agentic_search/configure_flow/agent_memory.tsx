@@ -6,12 +6,7 @@
 import React from 'react';
 import { getIn } from 'formik';
 import { isEmpty } from 'lodash';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiSelect,
-  EuiSmallButtonEmpty,
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiSelect } from '@elastic/eui';
 import { Agent, AGENT_MEMORY_TYPE } from '../../../../../common';
 
 interface AgentMemoryProps {
@@ -71,21 +66,6 @@ export function AgentMemory({ agentForm, setAgentForm }: AgentMemoryProps) {
           compressed
         />
       </EuiFlexItem>
-      {memoryFound && (
-        <EuiFlexItem grow={false}>
-          <EuiSmallButtonEmpty
-            color="danger"
-            onClick={() => {
-              setAgentForm({
-                ...agentForm,
-                memory: undefined,
-              });
-            }}
-          >
-            Remove
-          </EuiSmallButtonEmpty>
-        </EuiFlexItem>
-      )}
     </EuiFlexGroup>
   );
 }

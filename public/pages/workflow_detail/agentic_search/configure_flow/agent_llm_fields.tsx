@@ -6,44 +6,33 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
-import { isEmpty } from 'lodash';
-import {
-  EuiComboBox,
-  EuiFormRow,
-  EuiLink,
-  EuiPanel,
-  EuiSelect,
-  EuiText,
-} from '@elastic/eui';
+import { cloneDeep, isEmpty, set } from 'lodash';
+import { EuiFormRow, EuiLink, EuiSelect, EuiText } from '@elastic/eui';
 import {
   Agent,
-  AGENT_FIELDS_DOCS_LINK,
-  AGENT_LLM_INTERFACE_TYPE,
+  AGENT_TYPE,
   AGENTIC_SEARCH_DOCS_LINK,
   AgentLLM,
   Model,
   MODEL_STATE,
   ModelDict,
+  Tool,
+  TOOL_TYPE,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { NoDeployedModelsCallout } from '../components';
 
 interface AgentLLMFieldsProps {
+  agentType: AGENT_TYPE;
   agentForm: Partial<Agent>;
   setAgentForm: (agentForm: Partial<Agent>) => void;
 }
-
-const LLM_INTERFACE_OPTIONS = Object.values(AGENT_LLM_INTERFACE_TYPE).map(
-  (interfaceType) => ({
-    value: interfaceType,
-    label: getReadableInterface(interfaceType),
-  })
-);
 
 /**
  * The general component containing all of the "llm" config fields within an agent.
  */
 export function AgentLLMFields({
+  agentType,
   agentForm,
   setAgentForm,
 }: AgentLLMFieldsProps) {
@@ -63,124 +52,79 @@ export function AgentLLMFields({
     );
   }, [models]);
   const llmForm = getIn(agentForm, `llm`) as AgentLLM;
-  const selectedModelId = getIn(llmForm, 'model_id', '');
-  const selectedModelInterface = getIn(
-    agentForm,
-    'parameters._llm_interface',
-    ''
-  ) as AGENT_LLM_INTERFACE_TYPE;
+  const toolsField = getIn(agentForm, 'tools', []) as Tool[];
+  const queryPlanningToolIndex = toolsField.findIndex(
+    (tool) => tool.type === TOOL_TYPE.QUERY_PLANNING
+  );
+  const selectedModelId =
+    agentType === AGENT_TYPE.FLOW
+      ? (getIn(
+          agentForm,
+          `tools.${queryPlanningToolIndex}.parameters.model_id`,
+          ''
+        ) as string)
+      : (getIn(llmForm, 'model_id', '') as string);
+
   const modelFound = Object.values(models || ({} as ModelDict)).some(
     (model: Model) => model.id === selectedModelId
   );
   const modelEmpty = isEmpty(selectedModelId);
 
   return (
-    <EuiPanel color="transparent" paddingSize="s">
-      <EuiFormRow
-        label="Model"
-        fullWidth
-        labelAppend={
-          <EuiText size="xs">
-            <EuiLink href={AGENTIC_SEARCH_DOCS_LINK} target="_blank">
-              Learn more
-            </EuiLink>
-          </EuiText>
-        }
-        isInvalid={!modelFound && !modelEmpty}
-      >
-        <>
-          {modelOptions.length === 0 ? (
-            <NoDeployedModelsCallout />
-          ) : (
-            <EuiSelect
-              options={
-                modelFound || modelEmpty
-                  ? modelOptions
-                  : [
-                      ...modelOptions,
-                      {
-                        value: selectedModelId,
-                        text: `Unknown model (ID: ${selectedModelId})`,
-                      },
-                    ]
+    <EuiFormRow
+      label="Model"
+      fullWidth
+      labelAppend={
+        <EuiText size="xs">
+          <EuiLink href={AGENTIC_SEARCH_DOCS_LINK} target="_blank">
+            Learn more
+          </EuiLink>
+        </EuiText>
+      }
+      isInvalid={!modelFound && !modelEmpty}
+    >
+      <>
+        {modelOptions.length === 0 ? (
+          <NoDeployedModelsCallout />
+        ) : (
+          <EuiSelect
+            options={
+              modelFound || modelEmpty
+                ? modelOptions
+                : [
+                    ...modelOptions,
+                    {
+                      value: selectedModelId,
+                      text: `Unknown model (ID: ${selectedModelId})`,
+                    },
+                  ]
+            }
+            value={selectedModelId}
+            // always update the query planning model ID, if applicable
+            // if a conversational agent, also set it as the main LLM orchestration agent
+            onChange={(e) => {
+              let updatedAgentForm = cloneDeep(agentForm);
+              if (queryPlanningToolIndex !== -1) {
+                set(
+                  updatedAgentForm,
+                  `tools.${queryPlanningToolIndex}.parameters.model_id`,
+                  e.target.value
+                );
               }
-              value={selectedModelId}
-              onChange={(e) => {
-                setAgentForm({
-                  ...agentForm,
-                  llm: {
-                    ...agentForm?.llm,
-                    model_id: e.target.value as string,
-                  },
-                });
-              }}
-              aria-label="Select model"
-              placeholder="Select a model"
-              hasNoInitialSelection={true}
-              isInvalid={!modelFound && !modelEmpty}
-              fullWidth
-              compressed
-            />
-          )}
-        </>
-      </EuiFormRow>
-      <EuiFormRow
-        label="Interface"
-        labelAppend={
-          <EuiText size="xs">
-            <EuiLink href={AGENT_FIELDS_DOCS_LINK} target="_blank">
-              Learn more
-            </EuiLink>
-          </EuiText>
-        }
-        fullWidth
-      >
-        <EuiComboBox
-          options={LLM_INTERFACE_OPTIONS}
-          selectedOptions={[
-            { label: getReadableInterface(selectedModelInterface) },
-          ]}
-          onChange={(e) => {
-            const optionValue = getIn(e, '0.value', '');
-            setAgentForm({
-              ...agentForm,
-              parameters: {
-                ...agentForm?.parameters,
-                _llm_interface: optionValue as AGENT_LLM_INTERFACE_TYPE,
-              },
-            });
-          }}
-          onCreateOption={(modelInterface) => {
-            setAgentForm({
-              ...agentForm,
-              parameters: {
-                ...agentForm?.parameters,
-                _llm_interface: modelInterface as AGENT_LLM_INTERFACE_TYPE,
-              },
-            });
-          }}
-          customOptionText="Add {searchValue}"
-          placeholder="Select an LLM interface"
-          singleSelection={{ asPlainText: true }}
-          isClearable={false}
-          compressed
-          fullWidth
-        />
-      </EuiFormRow>
-    </EuiPanel>
+              if (agentType === AGENT_TYPE.CONVERSATIONAL) {
+                set(updatedAgentForm, 'llm.model_id', e.target.value);
+              }
+              setAgentForm(updatedAgentForm);
+            }}
+            aria-label="Select model"
+            placeholder="Select a model"
+            hasNoInitialSelection={true}
+            isInvalid={!modelFound && !modelEmpty}
+            fullWidth
+            compressed
+          />
+        )}
+      </>
+    </EuiFormRow>
   );
-}
-
-// Basic util fn to hide the interface complexity, and just display the model provider/company
-function getReadableInterface(interfaceType: AGENT_LLM_INTERFACE_TYPE): string {
-  switch (interfaceType) {
-    case AGENT_LLM_INTERFACE_TYPE.OPENAI:
-      return 'OpenAI';
-    case AGENT_LLM_INTERFACE_TYPE.BEDROCK_CLAUDE:
-      return 'Bedrock Claude';
-    case AGENT_LLM_INTERFACE_TYPE.BEDROCK_DEEPSEEK:
-      return 'Bedrock DeepSeek';
-    default:
-      return interfaceType;
-  }
 }

@@ -155,6 +155,7 @@ export function getModelsFromResponses(modelHits: SearchHit[]): ModelDict {
         },
         interface: modelInterface,
         connectorId: modelHit._source?.connector_id,
+        connector: modelHit._source?.connector,
       } as Model;
     }
   });
@@ -177,6 +178,8 @@ export function getConnectorsFromResponses(
         model: connectorHit._source?.parameters?.model,
         dimensions: connectorHit._source?.parameters.dimensions,
       },
+      actions: connectorHit._source?.actions || [],
+      client_config: connectorHit._source?.client_config || {},
     } as Connector;
   });
   return connectorDict;
