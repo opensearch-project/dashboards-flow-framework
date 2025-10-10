@@ -497,7 +497,7 @@ export type Connector = {
   name: string;
   parameters?: ConnectorParameters;
   actions: {}[];
-  client_config: {};
+  client_config?: {};
 };
 
 export type ModelDict = {
