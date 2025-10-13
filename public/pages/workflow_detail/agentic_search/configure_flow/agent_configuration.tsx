@@ -331,129 +331,133 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
               </EuiFlexItem>
             )}
             {!isEmpty(selectedAgentId) && (
-              <>
-                <EuiFlexItem>
-                  {configModeSelected === CONFIG_MODE.SIMPLE ? (
-                    <EuiFlexGroup direction="row" gutterSize="s">
-                      <EuiFlexItem>
-                        <EuiFormRow label="Name" fullWidth>
-                          <EuiFieldText
-                            value={agentName}
-                            onChange={(e) =>
-                              props.setAgentForm({
-                                ...props.agentForm,
-                                name: e.target.value,
-                              })
-                            }
-                            placeholder="Enter agent name"
-                            aria-label="Enter agent name"
-                            fullWidth
-                            compressed
-                            maxLength={50}
-                          />
-                        </EuiFormRow>
-                      </EuiFlexItem>
-                      <EuiFlexItem>
-                        <EuiFormRow label="Type" isInvalid={false} fullWidth>
-                          <EuiSelect
-                            options={dynamicAgentTypeOptions}
-                            value={agentType}
-                            onChange={(e) => {
-                              const agentFormCopy = cloneDeep(props.agentForm);
-                              const proposedAgentType = e.target
-                                .value as AGENT_TYPE;
-
-                              // remove invalid fields if switching to flow agent
-                              if (proposedAgentType === AGENT_TYPE.FLOW) {
-                                delete agentFormCopy.llm;
-                                delete agentFormCopy.parameters?._llm_interface;
-                                delete agentFormCopy.memory;
+              <EuiFlexItem>
+                {configModeSelected === CONFIG_MODE.SIMPLE ? (
+                  <EuiFlexGroup direction="column" gutterSize="s">
+                    <EuiFlexItem grow={false}>
+                      <EuiFlexGroup direction="row" gutterSize="s">
+                        <EuiFlexItem>
+                          <EuiFormRow label="Name" fullWidth>
+                            <EuiFieldText
+                              value={agentName}
+                              onChange={(e) =>
+                                props.setAgentForm({
+                                  ...props.agentForm,
+                                  name: e.target.value,
+                                })
                               }
+                              placeholder="Enter agent name"
+                              aria-label="Enter agent name"
+                              fullWidth
+                              compressed
+                              maxLength={50}
+                            />
+                          </EuiFormRow>
+                        </EuiFlexItem>
+                        <EuiFlexItem>
+                          <EuiFormRow label="Type" isInvalid={false} fullWidth>
+                            <EuiSelect
+                              options={dynamicAgentTypeOptions}
+                              value={agentType}
+                              onChange={(e) => {
+                                const agentFormCopy = cloneDeep(
+                                  props.agentForm
+                                );
+                                const proposedAgentType = e.target
+                                  .value as AGENT_TYPE;
 
-                              props.setAgentForm({
-                                ...agentFormCopy,
-                                type: proposedAgentType,
-                              });
-                            }}
-                            aria-label="Agent type"
-                            placeholder="Agent type"
-                            fullWidth
-                            compressed
-                            hasNoInitialSelection={true}
-                          />
-                        </EuiFormRow>
-                      </EuiFlexItem>
-                    </EuiFlexGroup>
-                  ) : (
-                    <SimplifiedJsonField
-                      value={customStringify(agentFormNoId)}
-                      onBlur={(e) => {
-                        try {
-                          const agentFormUpdated = JSON.parse(e);
-                          const agentFormSanitized = sanitizeJSON(
-                            agentFormUpdated
-                          );
-                          props.setAgentForm({
-                            id: props.agentForm.id,
-                            ...agentFormSanitized,
-                          });
-                          setJsonError(undefined);
-                        } catch (error) {
-                          setJsonError(
-                            'Invalid JSON: ' + (error as Error)?.message || ''
-                          );
-                        }
-                      }}
-                      editorHeight="800px"
-                      isInvalid={jsonError !== undefined}
-                      helpText="Edit the full agent configuration directly"
-                    />
-                  )}
-                  <EuiSpacer size="m" />
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiFormRow label="Description" fullWidth>
-                    <EuiTextArea
-                      value={agentDescription}
-                      onChange={(e) =>
+                                // remove invalid fields if switching to flow agent
+                                if (proposedAgentType === AGENT_TYPE.FLOW) {
+                                  delete agentFormCopy.llm;
+                                  delete agentFormCopy.parameters
+                                    ?._llm_interface;
+                                  delete agentFormCopy.memory;
+                                }
+
+                                props.setAgentForm({
+                                  ...agentFormCopy,
+                                  type: proposedAgentType,
+                                });
+                              }}
+                              aria-label="Agent type"
+                              placeholder="Agent type"
+                              fullWidth
+                              compressed
+                              hasNoInitialSelection={true}
+                            />
+                          </EuiFormRow>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiFormRow label="Description" fullWidth>
+                        <EuiTextArea
+                          value={agentDescription}
+                          onChange={(e) =>
+                            props.setAgentForm({
+                              ...props.agentForm,
+                              description: e.target.value,
+                            })
+                          }
+                          placeholder="Enter description"
+                          aria-label="Enter description"
+                          rows={2}
+                          fullWidth
+                          compressed
+                        />
+                      </EuiFormRow>
+                    </EuiFlexItem>
+                    {/**
+                     * Show the agent model dropdown if applicable
+                     */}
+                    <EuiFlexItem grow={false}>
+                      <AgentLLMFields
+                        agentType={agentType as AGENT_TYPE}
+                        agentForm={props.agentForm}
+                        setAgentForm={props.setAgentForm}
+                      />
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiFormRow label="Tools" fullWidth>
+                        <AgentTools
+                          agentForm={props.agentForm}
+                          setAgentForm={props.setAgentForm}
+                        />
+                      </EuiFormRow>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <AgentAdvancedSettings
+                        agentForm={props.agentForm}
+                        setAgentForm={props.setAgentForm}
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                ) : (
+                  <SimplifiedJsonField
+                    value={customStringify(agentFormNoId)}
+                    onBlur={(e) => {
+                      try {
+                        const agentFormUpdated = JSON.parse(e);
+                        const agentFormSanitized = sanitizeJSON(
+                          agentFormUpdated
+                        );
                         props.setAgentForm({
-                          ...props.agentForm,
-                          description: e.target.value,
-                        })
+                          id: props.agentForm.id,
+                          ...agentFormSanitized,
+                        });
+                        setJsonError(undefined);
+                      } catch (error) {
+                        setJsonError(
+                          'Invalid JSON: ' + (error as Error)?.message || ''
+                        );
                       }
-                      placeholder="Enter description"
-                      aria-label="Enter description"
-                      rows={2}
-                      fullWidth
-                      compressed
-                    />
-                  </EuiFormRow>
-                </EuiFlexItem>
-                {/**
-                 * Show the agent model dropdown if applicable
-                 */}
-                <EuiFlexItem>
-                  <AgentLLMFields
-                    agentType={agentType as AGENT_TYPE}
-                    agentForm={props.agentForm}
-                    setAgentForm={props.setAgentForm}
+                    }}
+                    editorHeight="800px"
+                    isInvalid={jsonError !== undefined}
+                    helpText="Edit the full agent configuration directly"
                   />
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  <EuiFormRow label="Tools" fullWidth>
-                    <AgentTools
-                      agentForm={props.agentForm}
-                      setAgentForm={props.setAgentForm}
-                    />
-                  </EuiFormRow>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <AgentAdvancedSettings
-                    agentForm={props.agentForm}
-                    setAgentForm={props.setAgentForm}
-                  />
-                </EuiFlexItem>
-              </>
+                )}
+              </EuiFlexItem>
             )}
           </EuiFlexGroup>
         </>
