@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getIn, useFormikContext } from 'formik';
+import { getIn } from 'formik';
 import { isEmpty } from 'lodash';
 import {
   EuiAccordion,
@@ -22,21 +22,20 @@ import {
   EuiLink,
   EuiFlexItem,
   EuiCompressedSwitch,
+  EuiFlexGroup,
+  EuiIcon,
 } from '@elastic/eui';
 import {
   Agent,
-  AGENT_ID_PATH,
   AGENT_TYPE,
   Model,
   MODEL_STATE,
   ModelDict,
-  NEW_AGENT_PLACEHOLDER,
   QUERY_PLANNING_MODEL_DOCS_LINK,
   QUERY_PLANNING_TOOL_DOCS_LINK,
   Tool,
   TOOL_TYPE,
   WEB_SEARCH_TOOL_DOCS_LINK,
-  WorkflowFormValues,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { parseStringOrJson } from '../../../../utils';
@@ -83,8 +82,6 @@ const DEFAULT_SEARCH_TEMPLATE: SearchTemplateField = {
 };
 
 export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
-  const { values } = useFormikContext<WorkflowFormValues>();
-  const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
   // get redux store for models / search templates / etc. if needed in downstream tool configs
   const { models } = useSelector((state: AppState) => state.ml);
   const { searchTemplates } = useSelector(
@@ -106,16 +103,9 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
 
   // Persist state for each tool accordion. Automatically open/close based on users
   // enabling/disabling the individual tools.
-  // Additionally, if a user creates a new agent, open the first accordion (the QPT)
-  // by default, as currently that will always be necesssary for users to configure.
   const [openAccordionIndices, setOpenAccordionIndices] = useState<number[]>(
     []
   );
-  useEffect(() => {
-    if (selectedAgentId === NEW_AGENT_PLACEHOLDER) {
-      setOpenAccordionIndices([0]);
-    }
-  }, [selectedAgentId]);
   function addOpenAccordionIndex(index: number): void {
     setOpenAccordionIndices([...openAccordionIndices, index]);
   }
@@ -265,7 +255,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
             </EuiFlexItem>
             <EuiSpacer size="s" />
             <EuiFormRow
-              label="Query planning model"
+              label="Model"
               data-testid="queryPlanningModelField"
               labelAppend={
                 <EuiText size="xs">
@@ -528,26 +518,48 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 id={`tool-accordion-${index}`}
                 arrowDisplay="left"
                 extraAction={
-                  <EuiCompressedSwitch
-                    label="Enable"
-                    checked={toolEnabled}
-                    onChange={(e) => {
-                      const checked = e.target.checked as boolean;
-                      if (checked) {
-                        addTool(toolType);
-                        addOpenAccordionIndex(index);
-                      } else {
-                        removeTool(toolType);
-                        removeOpenAccordionIndex(index);
-                      }
-                    }}
-                    data-testid={`${toolType.toLowerCase()}ToolToggle`}
-                  />
+                  <EuiFlexGroup
+                    direction="row"
+                    alignItems="center"
+                    gutterSize="s"
+                  >
+                    {toolType === TOOL_TYPE.QUERY_PLANNING && !toolEnabled && (
+                      <EuiFlexItem grow={false}>
+                        <EuiIcon type="alert" color="warning" />
+                      </EuiFlexItem>
+                    )}
+                    <EuiFlexItem grow={false}>
+                      <EuiCompressedSwitch
+                        label="Enable"
+                        checked={toolEnabled}
+                        onChange={(e) => {
+                          const checked = e.target.checked as boolean;
+                          if (checked) {
+                            addTool(toolType);
+                            addOpenAccordionIndex(index);
+                          } else {
+                            removeTool(toolType);
+                            removeOpenAccordionIndex(index);
+                          }
+                        }}
+                        data-testid={`${toolType.toLowerCase()}ToolToggle`}
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
                 }
                 buttonContent={
-                  <EuiFlexItem grow={false}>
-                    <EuiText size="s">{accordionTitle}</EuiText>
-                  </EuiFlexItem>
+                  <EuiFlexGroup direction="row" gutterSize="xs">
+                    <EuiFlexItem grow={false}>
+                      <EuiText size="s">{accordionTitle}</EuiText>
+                    </EuiFlexItem>
+                    {toolType === TOOL_TYPE.QUERY_PLANNING && (
+                      <EuiFlexItem grow={false}>
+                        <EuiText size="s">
+                          <i> - required</i>
+                        </EuiText>
+                      </EuiFlexItem>
+                    )}
+                  </EuiFlexGroup>
                 }
                 paddingSize="s"
                 forceState={
