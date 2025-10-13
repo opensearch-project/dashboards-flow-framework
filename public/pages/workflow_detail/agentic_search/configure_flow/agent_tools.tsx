@@ -190,7 +190,6 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
 
   const renderToolForm = (toolType: TOOL_TYPE): any => {
     const toolsForm = getIn(agentForm, 'tools', []) as Tool[];
-
     const toolIndex = toolsForm.findIndex((tool) => tool.type === toolType);
     const toolForm = getIn(agentForm, `tools.${toolIndex}`) as Tool;
     switch (toolType) {
