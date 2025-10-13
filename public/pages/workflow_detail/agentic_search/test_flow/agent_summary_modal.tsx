@@ -26,11 +26,13 @@ export function AgentSummaryModal(props: AgentSummaryModalProps) {
         <EuiModalHeaderTitle>Agent Summary</EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
-        <EuiText>
-          <i>{props.agentSummary}</i>
+        {/**
+         * Handle newline formatting, as the agent response will likely have plaintext "\n" characters.
+         */}
+        <EuiText style={{ whiteSpace: 'pre-wrap' }}>
+          <i>{props.agentSummary.replace(/\\n/g, '\n')}</i>
         </EuiText>
       </EuiModalBody>
-
       <EuiModalFooter>
         <EuiSmallButton onClick={props.onClose} fill>
           Close

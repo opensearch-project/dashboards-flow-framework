@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { isEmpty } from 'lodash';
+import { getIn } from 'formik';
 import {
   EuiText,
   EuiFlexGroup,
@@ -93,7 +94,11 @@ export function SearchResults(props: SearchResultsProps) {
       {showAgentSummaryModal && (
         <AgentSummaryModal
           onClose={() => setShowAgentSummaryModal(false)}
-          agentSummary={props.searchResponse?.ext?.agent_steps_summary}
+          agentSummary={getIn(
+            props,
+            'searchResponse.ext.agent_steps_summary',
+            ''
+          )}
         />
       )}
       <EuiFlexGroup direction="column" gutterSize="s">
