@@ -1,16 +1,17 @@
-# Default all changes to backporting to 2.x branch
-backport 2.x:
-- '*'
-- '*/*'
-- '*/**/*'
-- '*/**/**/*'
-- '*/**/**/**/*'
-- '*/**/**/**/**/*'
-- '*/**/**/**/**/**/*'
-- '*/**/**/**/**/**/**/*'
-- '*/**/**/**/**/**/**/**/*'
-- '*/**/**/**/**/**/**/**/**/*'
-- '.github/**/*'
+# Default all changes to backporting to 3.x branch
+# Currently, main is on 3.x instead of 4.x, so we don't follow this backport model until that happens
+# backport 2.x:
+# - '*'
+# - '*/*'
+# - '*/**/*'
+# - '*/**/**/*'
+# - '*/**/**/**/*'
+# - '*/**/**/**/**/*'
+# - '*/**/**/**/**/**/*'
+# - '*/**/**/**/**/**/**/*'
+# - '*/**/**/**/**/**/**/**/*'
+# - '*/**/**/**/**/**/**/**/**/*'
+# - '.github/**/*'
 
 # Adding "github actions" label to files in .github or its subdirectories
 github actions:
