@@ -35,6 +35,8 @@ import {
   customStringify,
   DEFAULT_AGENT,
   EMPTY_AGENT,
+  MAX_DESCRIPTION_LENGTH,
+  MAX_STRING_LENGTH,
   NEW_AGENT_ID_PLACEHOLDER,
   NEW_AGENT_PLACEHOLDER,
   WorkflowConfig,
@@ -350,7 +352,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                               aria-label="Enter agent name"
                               fullWidth
                               compressed
-                              maxLength={50}
+                              maxLength={MAX_STRING_LENGTH}
                             />
                           </EuiFormRow>
                         </EuiFlexItem>
@@ -404,6 +406,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                           rows={2}
                           fullWidth
                           compressed
+                          maxLength={MAX_DESCRIPTION_LENGTH}
                         />
                       </EuiFormRow>
                     </EuiFlexItem>

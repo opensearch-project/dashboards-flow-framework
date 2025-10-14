@@ -30,7 +30,7 @@ export function AgentSummaryModal(props: AgentSummaryModalProps) {
          * Handle newline formatting, as the agent response will likely have plaintext "\n" characters.
          */}
         <EuiText style={{ whiteSpace: 'pre-wrap' }}>
-          <i>{props.agentSummary.replace(/\\n/g, '\n')}</i>
+          <i>{props.agentSummary}</i>
         </EuiText>
       </EuiModalBody>
       <EuiModalFooter>
