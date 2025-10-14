@@ -43,10 +43,11 @@ import {
   WorkflowFormValues,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
+import { sanitizeJSON } from '../../../../utils';
 import { AgentTools } from './agent_tools';
 import { SimplifiedJsonField } from '../components';
 import { AgentLLMFields } from './agent_llm_fields';
-import { sanitizeJSON } from '../../../../utils';
+import { AgentMCPServers } from './agent_mcp_servers';
 import { AgentAdvancedSettings } from './agent_advanced_settings';
 
 interface AgentConfigurationProps {
@@ -423,6 +424,14 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                     <EuiFlexItem grow={false}>
                       <EuiFormRow label="Tools" fullWidth>
                         <AgentTools
+                          agentForm={props.agentForm}
+                          setAgentForm={props.setAgentForm}
+                        />
+                      </EuiFormRow>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiFormRow label="MCP servers" fullWidth>
+                        <AgentMCPServers
                           agentForm={props.agentForm}
                           setAgentForm={props.setAgentForm}
                         />

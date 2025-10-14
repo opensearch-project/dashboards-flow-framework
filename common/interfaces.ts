@@ -508,8 +508,14 @@ export type ConnectorDict = {
   [connectorId: string]: Connector;
 };
 
+export type MCPConnector = {
+  mcp_connector_id: string;
+  tool_filters: string[];
+};
+
 export type AgentConfigParameters = {
   _llm_interface?: AGENT_LLM_INTERFACE_TYPE;
+  mcp_connectors?: MCPConnector[];
   [key: string]: any;
 };
 
