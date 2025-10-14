@@ -188,8 +188,10 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
     });
   }
 
-  const renderToolForm = (toolType: TOOL_TYPE, index: number): any => {
-    const toolForm = getIn(agentForm, `tools.${index}`) as Tool;
+  const renderToolForm = (toolType: TOOL_TYPE): any => {
+    const toolsForm = getIn(agentForm, 'tools', []) as Tool[];
+    const toolIndex = toolsForm.findIndex((tool) => tool.type === toolType);
+    const toolForm = getIn(agentForm, `tools.${toolIndex}`) as Tool;
     switch (toolType) {
       case TOOL_TYPE.QUERY_PLANNING:
         const generationType =
@@ -215,7 +217,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
           updateParameterValue(
             'search_templates',
             JSON.stringify(updatedTemplates),
-            index
+            toolIndex
           );
           setOpenTemplateAccordionIndex(updatedTemplates.length - 1);
         };
@@ -232,7 +234,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
           updateParameterValue(
             'search_templates',
             JSON.stringify(updatedTemplates),
-            index
+            toolIndex
           );
         };
         const removeSearchTemplate = (templateIndex: number) => {
@@ -242,7 +244,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
           updateParameterValue(
             'search_templates',
             JSON.stringify(updatedTemplates),
-            index
+            toolIndex
           );
         };
 
@@ -288,7 +290,11 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                     }
                     value={selectedModelId}
                     onChange={(e) => {
-                      updateParameterValue('model_id', e.target.value, index);
+                      updateParameterValue(
+                        'model_id',
+                        e.target.value,
+                        toolIndex
+                      );
                     }}
                     aria-label="Select model"
                     placeholder="Select a model"
@@ -316,7 +322,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                 options={generationTypeRadios}
                 idSelected={generationType}
                 onChange={(id) => {
-                  updateParameterValue('generation_type', id, index);
+                  updateParameterValue('generation_type', id, toolIndex);
                 }}
                 compressed
                 data-testid="generationTypeRadioGroup"
@@ -464,7 +470,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
               <EuiFieldText
                 value={engine}
                 onChange={(e) => {
-                  updateParameterValue('engine', e.target.value, index);
+                  updateParameterValue('engine', e.target.value, toolIndex);
                 }}
                 aria-label="Specify the engine"
                 placeholder="Search engine - for example, duckduckgo"
@@ -573,7 +579,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                   }
                 }}
               >
-                {renderToolForm(toolType, index)}
+                {renderToolForm(toolType)}
               </EuiAccordion>
               <EuiSpacer size="s" />
             </EuiPanel>
