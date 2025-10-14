@@ -183,7 +183,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
           overflow: 'hidden',
         }}
       >
-        <EuiFlexItem grow={false}>
+        <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
           <EuiFlexGroup direction="row" alignItems="center" gutterSize="s">
             <EuiFlexItem grow={false}>
               <EuiTitle>
