@@ -48,16 +48,13 @@ export function AgentMCPServers({
     );
   }, [connectors]);
 
-  console.log('connectors: ', connectors);
-
-  // TODO: move this into a useEffect and do JSON.parse()
-  const mcpServersForm = (agentForm?.parameters?.mcp_connectors ||
-    []) as MCPConnector[];
-
-  console.log('mcp servers form: ', mcpServersForm);
+  const [mcpServers, setMcpServers] = useState<MCPConnector[]>([]);
+  useEffect(() => {
+    setMcpServers(getIn(agentForm, 'parameters.mcp_connectors', []));
+  }, [agentForm?.parameters?.mcp_connectors]);
 
   function addMCPServer() {
-    const updatedMCPServers = [...mcpServersForm, { ...DEFAULT_MCP_SERVER }];
+    const updatedMCPServers = [...mcpServers, { ...DEFAULT_MCP_SERVER }];
     setAgentForm({
       ...agentForm,
       parameters: {
@@ -68,7 +65,7 @@ export function AgentMCPServers({
   }
 
   function removeMCPServer(index: number) {
-    const updatedMCPServers = mcpServersForm.filter(
+    const updatedMCPServers = mcpServers.filter(
       (_: MCPConnector, i: number) => i !== index
     );
     setAgentForm({
@@ -81,7 +78,7 @@ export function AgentMCPServers({
   }
 
   function updateMCPServer(updatedMCPServer: MCPConnector, index: number) {
-    const updatedMCPServers = [...mcpServersForm];
+    const updatedMCPServers = [...mcpServers];
     updatedMCPServers[index] = updatedMCPServer;
     setAgentForm({
       ...agentForm,
@@ -95,75 +92,72 @@ export function AgentMCPServers({
   return (
     <>
       <div>
-        {[{ mcp_connector_id: '', tool_filters: [] }].map(
-          (server: MCPConnector, serverIndex: number) => (
-            <div key={serverIndex} style={{ marginBottom: '8px' }}>
-              <EuiPanel color="transparent" paddingSize="s">
-                <EuiAccordion
-                  id={`mcp-server-${serverIndex}`}
-                  buttonContent={
-                    <EuiText size="s">
-                      {server.mcp_connector_id ||
-                        `MCP Server ${serverIndex + 1}`}
-                    </EuiText>
-                  }
-                  extraAction={
-                    <EuiButtonIcon
-                      aria-label="Remove MCP server"
-                      iconType="trash"
-                      color="danger"
-                      onClick={(e: any) => {
-                        e.stopPropagation(); // Prevent accordion toggle
-                        removeMCPServer(serverIndex);
+        {mcpServers.map((server: MCPConnector, serverIndex: number) => (
+          <div key={serverIndex} style={{ marginBottom: '8px' }}>
+            <EuiPanel color="transparent" paddingSize="s">
+              <EuiAccordion
+                id={`mcp-server-${serverIndex}`}
+                buttonContent={
+                  <EuiText size="s">
+                    {server.mcp_connector_id || `MCP Server ${serverIndex + 1}`}
+                  </EuiText>
+                }
+                extraAction={
+                  <EuiButtonIcon
+                    aria-label="Remove MCP server"
+                    iconType="trash"
+                    color="danger"
+                    onClick={(e: any) => {
+                      e.stopPropagation(); // Prevent accordion toggle
+                      removeMCPServer(serverIndex);
+                    }}
+                  />
+                }
+                paddingSize="s"
+              >
+                <EuiPanel color="subdued" paddingSize="s" hasBorder={false}>
+                  <EuiFormRow label="MCP Server" fullWidth>
+                    <EuiSelect
+                      options={connectorOptions}
+                      value={server.mcp_connector_id}
+                      onChange={(e) => {
+                        updateMCPServer(
+                          {
+                            ...DEFAULT_MCP_SERVER,
+                            mcp_connector_id: e.target.value,
+                          } as MCPConnector,
+                          serverIndex
+                        );
                       }}
+                      placeholder="Select an MCP server"
+                      fullWidth
+                      compressed
+                      hasNoInitialSelection={isEmpty(server.mcp_connector_id)}
                     />
-                  }
-                  paddingSize="s"
-                >
-                  <EuiPanel color="subdued" paddingSize="s" hasBorder={false}>
-                    <EuiFormRow label="MCP Server" fullWidth>
-                      <EuiSelect
-                        options={connectorOptions}
-                        value={server.mcp_connector_id}
-                        onChange={(e) => {
-                          updateMCPServer(
-                            {
-                              ...DEFAULT_MCP_SERVER,
-                              mcp_connector_id: e.target.value,
-                            } as MCPConnector,
-                            serverIndex
-                          );
-                        }}
-                        placeholder="Select an MCP server"
-                        fullWidth
-                        compressed
-                        hasNoInitialSelection={isEmpty(server.mcp_connector_id)}
-                      />
-                    </EuiFormRow>
-                    <EuiSpacer size="s" />
-                    <EuiFormRow label="Tool filters" fullWidth>
-                      <EuiTextArea
-                        value={server.tool_filters}
-                        onChange={(e) => {
-                          updateMCPServer(
-                            {
-                              ...DEFAULT_MCP_SERVER,
-                              tool_filters: JSON.parse(e.target.value),
-                            } as MCPConnector,
-                            serverIndex
-                          );
-                        }}
-                        placeholder="Enter tool filters"
-                        fullWidth
-                        compressed
-                      />
-                    </EuiFormRow>
-                  </EuiPanel>
-                </EuiAccordion>
-              </EuiPanel>
-            </div>
-          )
-        )}
+                  </EuiFormRow>
+                  <EuiSpacer size="s" />
+                  <EuiFormRow label="Tool filters" fullWidth>
+                    <EuiTextArea
+                      value={server.tool_filters}
+                      onChange={(e) => {
+                        updateMCPServer(
+                          {
+                            ...DEFAULT_MCP_SERVER,
+                            tool_filters: JSON.parse(e.target.value),
+                          } as MCPConnector,
+                          serverIndex
+                        );
+                      }}
+                      placeholder="Enter tool filters"
+                      fullWidth
+                      compressed
+                    />
+                  </EuiFormRow>
+                </EuiPanel>
+              </EuiAccordion>
+            </EuiPanel>
+          </div>
+        ))}
         <EuiSmallButtonEmpty
           style={{ marginLeft: '-8px' }}
           iconType="plusInCircle"

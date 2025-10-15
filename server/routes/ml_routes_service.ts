@@ -27,9 +27,11 @@ import {
 } from '../../common';
 import {
   generateCustomError,
+  getAgentsFromResponses,
   getConnectorsFromResponses,
   getModelsFromResponses,
   isIgnorableError,
+  toAgentObj,
 } from './helpers';
 import { getClientBasedOnDataSource } from '../utils/helpers';
 
@@ -302,30 +304,14 @@ export class MLRoutesService {
         data_source_id,
         this.client
       );
-      const response = await callWithRequest('mlClient.searchAgents', {
+      const agentResponse = await callWithRequest('mlClient.searchAgents', {
         body,
       });
 
-      // Format the response into an AgentDict
-      const agents = {};
-      if (response.hits && response.hits.hits) {
-        for (const hit of response.hits.hits) {
-          const source = hit._source as Agent;
-          // @ts-ignore
-          agents[hit._id] = {
-            id: hit._id,
-            name: source?.name,
-            type: source?.type,
-            description: source?.description,
-            tools: source?.tools,
-            llm: source?.llm,
-            memory: source?.memory,
-            parameters: source?.parameters,
-          };
-        }
-      }
+      const agentHits = agentResponse.hits.hits as SearchHit[];
+      const agentDict = getAgentsFromResponses(agentHits);
 
-      return res.ok({ body: { agents } });
+      return res.ok({ body: { agents: agentDict } });
     } catch (err: any) {
       if (isIgnorableError(err)) {
         return res.ok({ body: { agents: {} as AgentDict } });
@@ -354,17 +340,7 @@ export class MLRoutesService {
         agent_id,
       })) as Agent;
 
-      // Format the response
-      const agent = {
-        id: agent_id,
-        name: response.name,
-        type: response.type,
-        description: response.description,
-        tools: response.tools,
-        llm: response.llm,
-        memory: response.memory,
-        parameters: response.parameters,
-      } as Agent;
+      const agent = toAgentObj(response, agent_id);
 
       return res.ok({ body: { agent } });
     } catch (err: any) {
@@ -382,6 +358,16 @@ export class MLRoutesService {
       const { agent_id } = req.params as { agent_id: string };
       const body = req.body as Partial<Agent>;
 
+      // There is a bug where the MCP connectors arr must be stringified in the request body, or it fails.
+      // See https://github.com/opensearch-project/ml-commons/issues/4321
+      const bodyWithStringifiedMcpConnectors = {
+        ...body,
+        parameters: {
+          ...body.parameters,
+          mcp_connectors: JSON.stringify(body.parameters?.mcp_connectors),
+        },
+      };
+
       const callWithRequest = getClientBasedOnDataSource(
         context,
         this.dataSourceEnabled,
@@ -392,21 +378,12 @@ export class MLRoutesService {
 
       await callWithRequest('mlClient.updateAgent', {
         agent_id,
-        body,
+        body: bodyWithStringifiedMcpConnectors,
       });
 
       // format the response to be what was passed to the API call, since the update API does not
       // return the updated agent body itself.
-      const agent = {
-        id: agent_id,
-        name: body.name,
-        type: body.type,
-        description: body.description,
-        tools: body.tools,
-        llm: body.llm,
-        memory: body.memory,
-        parameters: body.parameters,
-      } as Agent;
+      const agent = toAgentObj(bodyWithStringifiedMcpConnectors, agent_id);
 
       return res.ok({ body: { agent } });
     } catch (err: any) {
