@@ -48,6 +48,11 @@ export function AgentMCPServers({
     );
   }, [connectors]);
 
+  // Persist state for each search MCP server accordion. Only support one at a time
+  const [openAccordionIndex, setOpenAccordionIndex] = useState<
+    number | undefined
+  >(undefined);
+
   const [mcpServers, setMcpServers] = useState<MCPConnector[]>([]);
   useEffect(() => {
     setMcpServers(getIn(agentForm, 'parameters.mcp_connectors', []));
@@ -62,6 +67,7 @@ export function AgentMCPServers({
         mcp_connectors: updatedMCPServers,
       },
     });
+    setOpenAccordionIndex(updatedMCPServers.length - 1);
   }
 
   function removeMCPServer(index: number) {
@@ -97,9 +103,19 @@ export function AgentMCPServers({
             <EuiPanel color="transparent" paddingSize="s">
               <EuiAccordion
                 id={`mcp-server-${serverIndex}`}
+                forceState={
+                  openAccordionIndex === serverIndex ? 'open' : undefined
+                }
+                onToggle={(isOpen) => {
+                  setOpenAccordionIndex(isOpen ? serverIndex : undefined);
+                }}
                 buttonContent={
                   <EuiText size="s">
-                    {server.mcp_connector_id || `MCP Server ${serverIndex + 1}`}
+                    {getIn(
+                      connectors,
+                      `${server.mcp_connector_id}.name`,
+                      undefined
+                    ) || `MCP Server ${serverIndex + 1}`}
                   </EuiText>
                 }
                 extraAction={

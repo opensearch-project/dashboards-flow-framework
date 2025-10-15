@@ -37,6 +37,7 @@ import {
   EMPTY_AGENT,
   MAX_DESCRIPTION_LENGTH,
   MAX_STRING_LENGTH,
+  MCP_AGENT_CONFIG_DOCS_LINK,
   NEW_AGENT_ID_PLACEHOLDER,
   NEW_AGENT_PLACEHOLDER,
   WorkflowConfig,
@@ -430,7 +431,20 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                       </EuiFormRow>
                     </EuiFlexItem>
                     <EuiFlexItem grow={false}>
-                      <EuiFormRow label="MCP servers" fullWidth>
+                      <EuiFormRow
+                        label="MCP servers"
+                        labelAppend={
+                          <EuiText size="xs">
+                            <EuiLink
+                              href={MCP_AGENT_CONFIG_DOCS_LINK}
+                              target="_blank"
+                            >
+                              Learn more
+                            </EuiLink>
+                          </EuiText>
+                        }
+                        fullWidth
+                      >
                         <AgentMCPServers
                           agentForm={props.agentForm}
                           setAgentForm={props.setAgentForm}

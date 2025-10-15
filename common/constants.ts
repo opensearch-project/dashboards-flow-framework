@@ -329,7 +329,7 @@ export const AGENT_MAIN_DOCS_LINK =
 export const AGENTIC_SEARCH_DOCS_LINK =
   'https://docs.opensearch.org/latest/vector-search/ai-search/agentic-search/';
 export const MCP_AGENT_CONFIG_DOCS_LINK =
-  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/mcp/mcp-connector/#step-3-register-an-agent-for-accessing-mcp-tools';
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/mcp/mcp-connector';
 export const AGENT_FIELDS_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/api/agent-apis/register-agent/#request-body-fields';
 export const TOOLS_DOCS_LINK =

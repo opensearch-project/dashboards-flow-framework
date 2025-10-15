@@ -360,10 +360,8 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                               }}
                               buttonContent={
                                 <EuiText size="s">
-                                  <strong>
-                                    {template.template_id ||
-                                      `Template ${templateIndex + 1}`}
-                                  </strong>
+                                  {template.template_id ||
+                                    `Template ${templateIndex + 1}`}
                                 </EuiText>
                               }
                               extraAction={
