@@ -177,6 +177,7 @@ export function getConnectorsFromResponses(
     connectorDict[connectorId] = {
       id: connectorId,
       name: connectorHit._source?.name,
+      protocol: connectorHit._source?.protocol,
       parameters: {
         model: connectorHit._source?.parameters?.model,
         dimensions: connectorHit._source?.parameters.dimensions,

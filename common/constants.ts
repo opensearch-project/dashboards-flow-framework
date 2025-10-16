@@ -1057,6 +1057,13 @@ export enum AGENT_MEMORY_TYPE {
   CONVERSATION_INDEX = 'conversation_index',
 }
 
+export enum CONNECTOR_PROTOCOL {
+  AWS_SIGV4 = 'aws_sigv4',
+  HTTP = 'http',
+  MCP_SSE = 'mcp_sse',
+  MCP_STREAMABLE_HTTP = 'mcp_streamable_http',
+}
+
 export enum AGENT_LLM_INTERFACE_TYPE {
   OPENAI = 'openai/v1/chat/completions',
   BEDROCK_CLAUDE = 'bedrock/converse/claude',

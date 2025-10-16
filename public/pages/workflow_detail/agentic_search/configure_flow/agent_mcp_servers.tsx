@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { isEmpty } from 'lodash';
 import { getIn } from 'formik';
 import {
   EuiAccordion,
@@ -163,6 +164,10 @@ export function AgentMCPServers({
         style={{ marginLeft: '-8px' }}
         iconType="plusInCircle"
         onClick={addMCPServer}
+        disabled={
+          mcpServers.length > 0 &&
+          mcpServers.some((mcpServer) => isEmpty(mcpServer.mcp_connector_id))
+        }
         data-testid="addMCPServerButton"
       >
         Add MCP server

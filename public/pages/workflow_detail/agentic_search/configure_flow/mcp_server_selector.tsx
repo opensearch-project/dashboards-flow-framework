@@ -6,8 +6,12 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { isEmpty } from 'lodash';
-import { EuiSelect } from '@elastic/eui';
-import { DEFAULT_MCP_SERVER, MCPConnector } from '../../../../../common';
+import { EuiCallOut, EuiSelect } from '@elastic/eui';
+import {
+  CONNECTOR_PROTOCOL,
+  DEFAULT_MCP_SERVER,
+  MCPConnector,
+} from '../../../../../common';
 import { AppState } from '../../../../store';
 import { getIn } from 'formik';
 
@@ -40,6 +44,12 @@ export function MCPServerSelector(props: MCPServerSelectorProps) {
       setConnectorOptions(
         Object.values(connectors || {})
           .filter(
+            // pre-filter to only MCP connectors
+            (connector) =>
+              connector.protocol === CONNECTOR_PROTOCOL.MCP_SSE ||
+              connector.protocol === CONNECTOR_PROTOCOL.MCP_STREAMABLE_HTTP
+          )
+          .filter(
             (connector) => !otherSelectedConnectorIds.includes(connector.id)
           )
           .map((connector) => ({
@@ -51,22 +61,32 @@ export function MCPServerSelector(props: MCPServerSelectorProps) {
   }, [props.allServers]);
 
   return (
-    <EuiSelect
-      options={connectorOptions}
-      value={server.mcp_connector_id}
-      onChange={(e) => {
-        // if changing the selection, clear out any tool filters.
-        props.updateMCPServer(
-          {
-            ...DEFAULT_MCP_SERVER,
-            mcp_connector_id: e.target.value,
-          } as MCPConnector,
-          props.serverIndex
-        );
-      }}
-      fullWidth
-      compressed
-      hasNoInitialSelection={isEmpty(server.mcp_connector_id)}
-    />
+    <>
+      {connectorOptions.length > 0 ? (
+        <EuiSelect
+          options={connectorOptions}
+          value={server.mcp_connector_id}
+          onChange={(e) => {
+            // if changing the selection, clear out any tool filters.
+            props.updateMCPServer(
+              {
+                ...DEFAULT_MCP_SERVER,
+                mcp_connector_id: e.target.value,
+              } as MCPConnector,
+              props.serverIndex
+            );
+          }}
+          fullWidth
+          compressed
+          hasNoInitialSelection={isEmpty(server.mcp_connector_id)}
+        />
+      ) : (
+        <EuiCallOut size="s" color="warning" iconType={'alert'}>
+          {props.allServers.length === 1
+            ? 'No MCP connectors found'
+            : 'No more MCP connectors found'}
+        </EuiCallOut>
+      )}
+    </>
   );
 }
