@@ -119,47 +119,42 @@ export function AgentMCPServers({
               }
               paddingSize="s"
             >
-              <EuiPanel color="subdued" paddingSize="s" hasBorder={false}>
-                <EuiFormRow label="MCP Server" fullWidth>
-                  <MCPServerSelector
-                    allServers={mcpServers}
-                    serverIndex={serverIndex}
-                    updateMCPServer={updateMCPServer}
-                  />
-                </EuiFormRow>
-                <EuiSpacer size="s" />
-                <EuiFormRow
-                  label={
-                    <>
-                      Tool filters
-                      <EuiToolTip content="Define regular expressions that specify which tools from the MCP server to make available to the agent. If omitted, all tools exposed by the connector will be available.">
-                        <EuiIcon
-                          type="questionInCircle"
-                          color="subdued"
-                          style={{ marginLeft: '4px' }}
-                        />
-                      </EuiToolTip>
-                    </>
-                  }
-                  labelAppend={
-                    <EuiText size="xs">
-                      <EuiLink
-                        href={MCP_AGENT_CONFIG_DOCS_LINK}
-                        target="_blank"
-                      >
-                        Learn more
-                      </EuiLink>
-                    </EuiText>
-                  }
-                  fullWidth
-                >
-                  <MCPToolFilters
-                    mcpServer={server}
-                    index={serverIndex}
-                    updateMCPServer={updateMCPServer}
-                  />
-                </EuiFormRow>
-              </EuiPanel>
+              <EuiFormRow label="MCP Server" fullWidth>
+                <MCPServerSelector
+                  allServers={mcpServers}
+                  serverIndex={serverIndex}
+                  updateMCPServer={updateMCPServer}
+                />
+              </EuiFormRow>
+              <EuiSpacer size="s" />
+              <EuiFormRow
+                label={
+                  <>
+                    Tool filters
+                    <EuiToolTip content="Define regular expressions that specify which tools from the MCP server to make available to the agent. If omitted, all tools exposed by the connector will be available.">
+                      <EuiIcon
+                        type="questionInCircle"
+                        color="subdued"
+                        style={{ marginLeft: '4px' }}
+                      />
+                    </EuiToolTip>
+                  </>
+                }
+                labelAppend={
+                  <EuiText size="xs">
+                    <EuiLink href={MCP_AGENT_CONFIG_DOCS_LINK} target="_blank">
+                      Learn more
+                    </EuiLink>
+                  </EuiText>
+                }
+                fullWidth
+              >
+                <MCPToolFilters
+                  mcpServer={server}
+                  index={serverIndex}
+                  updateMCPServer={updateMCPServer}
+                />
+              </EuiFormRow>
             </EuiAccordion>
           </EuiPanel>
         </div>
