@@ -7,6 +7,7 @@ import {
   Agent,
   InputMapEntry,
   MapEntry,
+  MCPConnector,
   PromptPreset,
   QueryPreset,
   WORKFLOW_STATE,
@@ -1091,3 +1092,8 @@ export const DEFAULT_AGENT = {
     type: AGENT_MEMORY_TYPE.CONVERSATION_INDEX,
   },
 } as Partial<Agent>;
+
+export const DEFAULT_MCP_SERVER = {
+  mcp_connector_id: '',
+  tool_filters: [],
+} as MCPConnector;

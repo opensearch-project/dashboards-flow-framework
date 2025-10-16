@@ -6,7 +6,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
-import { isEmpty } from 'lodash';
 import {
   EuiAccordion,
   EuiSpacer,
@@ -15,45 +14,30 @@ import {
   EuiFormRow,
   EuiSmallButtonEmpty,
   EuiPanel,
-  EuiSelect,
   EuiToolTip,
   EuiIcon,
   EuiLink,
 } from '@elastic/eui';
 import {
   Agent,
+  DEFAULT_MCP_SERVER,
   MCP_AGENT_CONFIG_DOCS_LINK,
   MCPConnector,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
 import { MCPToolFilters } from './mcp_tool_filters';
+import { MCPServerSelector } from './mcp_server_selector';
 
 interface AgentMCPServersProps {
   agentForm: Partial<Agent>;
   setAgentForm: (agentForm: Partial<Agent>) => void;
 }
 
-const DEFAULT_MCP_SERVER = {
-  mcp_connector_id: '',
-  tool_filters: [],
-} as MCPConnector;
-
 export function AgentMCPServers({
   agentForm,
   setAgentForm,
 }: AgentMCPServersProps) {
   const { connectors } = useSelector((state: AppState) => state.ml);
-  const [connectorOptions, setConnectorOptions] = useState<
-    { value: string; text: string }[]
-  >([]);
-  useEffect(() => {
-    setConnectorOptions(
-      Object.values(connectors || {}).map((connector) => ({
-        value: connector.id,
-        text: connector.name,
-      }))
-    );
-  }, [connectors]);
 
   // Persist state for each search MCP server accordion. Only support one at a time
   const [openAccordionIndex, setOpenAccordionIndex] = useState<
@@ -76,7 +60,6 @@ export function AgentMCPServers({
     });
     setOpenAccordionIndex(updatedMCPServers.length - 1);
   }
-
   function removeMCPServer(index: number) {
     const updatedMCPServers = mcpServers.filter(
       (_: MCPConnector, i: number) => i !== index
@@ -89,7 +72,6 @@ export function AgentMCPServers({
       },
     });
   }
-
   function updateMCPServer(updatedMCPServer: MCPConnector, index: number) {
     const updatedMCPServers = [...mcpServers];
     updatedMCPServers[index] = updatedMCPServer;
@@ -103,107 +85,93 @@ export function AgentMCPServers({
   }
 
   return (
-    <>
-      <div>
-        {mcpServers.map((server: MCPConnector, serverIndex: number) => (
-          <div key={serverIndex} style={{ marginBottom: '8px' }}>
-            <EuiPanel color="transparent" paddingSize="s">
-              <EuiAccordion
-                id={`mcp-server-${serverIndex}`}
-                forceState={
-                  openAccordionIndex === serverIndex ? 'open' : undefined
-                }
-                onToggle={(isOpen) => {
-                  setOpenAccordionIndex(isOpen ? serverIndex : undefined);
-                }}
-                buttonContent={
-                  <EuiText size="s">
-                    {getIn(
-                      connectors,
-                      `${server.mcp_connector_id}.name`,
-                      undefined
-                    ) || `MCP Server ${serverIndex + 1}`}
-                  </EuiText>
-                }
-                extraAction={
-                  <EuiButtonIcon
-                    aria-label="Remove MCP server"
-                    iconType="trash"
-                    color="danger"
-                    onClick={(e: any) => {
-                      e.stopPropagation(); // Prevent accordion toggle
-                      removeMCPServer(serverIndex);
-                    }}
+    <div>
+      {mcpServers.map((server: MCPConnector, serverIndex: number) => (
+        <div key={serverIndex} style={{ marginBottom: '8px' }}>
+          <EuiPanel color="transparent" paddingSize="s">
+            <EuiAccordion
+              id={`mcp-server-${serverIndex}`}
+              forceState={
+                openAccordionIndex === serverIndex ? 'open' : undefined
+              }
+              onToggle={(isOpen) => {
+                setOpenAccordionIndex(isOpen ? serverIndex : undefined);
+              }}
+              buttonContent={
+                <EuiText size="s">
+                  {getIn(
+                    connectors,
+                    `${server.mcp_connector_id}.name`,
+                    undefined
+                  ) || `MCP Server ${serverIndex + 1}`}
+                </EuiText>
+              }
+              extraAction={
+                <EuiButtonIcon
+                  aria-label="Remove MCP server"
+                  iconType="trash"
+                  color="danger"
+                  onClick={(e: any) => {
+                    e.stopPropagation(); // Prevent accordion toggle
+                    removeMCPServer(serverIndex);
+                  }}
+                />
+              }
+              paddingSize="s"
+            >
+              <EuiPanel color="subdued" paddingSize="s" hasBorder={false}>
+                <EuiFormRow label="MCP Server" fullWidth>
+                  <MCPServerSelector
+                    allServers={mcpServers}
+                    serverIndex={serverIndex}
+                    updateMCPServer={updateMCPServer}
                   />
-                }
-                paddingSize="s"
-              >
-                <EuiPanel color="subdued" paddingSize="s" hasBorder={false}>
-                  <EuiFormRow label="MCP Server" fullWidth>
-                    <EuiSelect
-                      options={connectorOptions}
-                      value={server.mcp_connector_id}
-                      onChange={(e) => {
-                        updateMCPServer(
-                          {
-                            ...DEFAULT_MCP_SERVER,
-                            mcp_connector_id: e.target.value,
-                          } as MCPConnector,
-                          serverIndex
-                        );
-                      }}
-                      placeholder="Select an MCP server"
-                      fullWidth
-                      compressed
-                      hasNoInitialSelection={isEmpty(server.mcp_connector_id)}
-                    />
-                  </EuiFormRow>
-                  <EuiSpacer size="s" />
-                  <EuiFormRow
-                    label={
-                      <>
-                        Tool filters
-                        <EuiToolTip content="Define regular expressions that specify which tools from the MCP server to make available to the agent. If omitted, all tools exposed by the connector will be available.">
-                          <EuiIcon
-                            type="questionInCircle"
-                            color="subdued"
-                            style={{ marginLeft: '4px' }}
-                          />
-                        </EuiToolTip>
-                      </>
-                    }
-                    labelAppend={
-                      <EuiText size="xs">
-                        <EuiLink
-                          href={MCP_AGENT_CONFIG_DOCS_LINK}
-                          target="_blank"
-                        >
-                          Learn more
-                        </EuiLink>
-                      </EuiText>
-                    }
-                    fullWidth
-                  >
-                    <MCPToolFilters
-                      mcpServer={server}
-                      index={serverIndex}
-                      updateMCPServer={updateMCPServer}
-                    />
-                  </EuiFormRow>
-                </EuiPanel>
-              </EuiAccordion>
-            </EuiPanel>
-          </div>
-        ))}
-        <EuiSmallButtonEmpty
-          style={{ marginLeft: '-8px' }}
-          iconType="plusInCircle"
-          onClick={addMCPServer}
-          data-testid="addMCPServerButton"
-        >
-          Add MCP server
-        </EuiSmallButtonEmpty>
-      </div>
-    </>
+                </EuiFormRow>
+                <EuiSpacer size="s" />
+                <EuiFormRow
+                  label={
+                    <>
+                      Tool filters
+                      <EuiToolTip content="Define regular expressions that specify which tools from the MCP server to make available to the agent. If omitted, all tools exposed by the connector will be available.">
+                        <EuiIcon
+                          type="questionInCircle"
+                          color="subdued"
+                          style={{ marginLeft: '4px' }}
+                        />
+                      </EuiToolTip>
+                    </>
+                  }
+                  labelAppend={
+                    <EuiText size="xs">
+                      <EuiLink
+                        href={MCP_AGENT_CONFIG_DOCS_LINK}
+                        target="_blank"
+                      >
+                        Learn more
+                      </EuiLink>
+                    </EuiText>
+                  }
+                  fullWidth
+                >
+                  <MCPToolFilters
+                    mcpServer={server}
+                    index={serverIndex}
+                    updateMCPServer={updateMCPServer}
+                  />
+                </EuiFormRow>
+              </EuiPanel>
+            </EuiAccordion>
+          </EuiPanel>
+        </div>
+      ))}
+      <EuiSmallButtonEmpty
+        style={{ marginLeft: '-8px' }}
+        iconType="plusInCircle"
+        onClick={addMCPServer}
+        data-testid="addMCPServerButton"
+      >
+        Add MCP server
+      </EuiSmallButtonEmpty>
+    </div>
   );
 }
