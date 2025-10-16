@@ -16,10 +16,17 @@ import {
   EuiSmallButtonEmpty,
   EuiPanel,
   EuiSelect,
-  EuiTextArea,
+  EuiToolTip,
+  EuiIcon,
+  EuiLink,
 } from '@elastic/eui';
-import { Agent, MCPConnector } from '../../../../../common';
+import {
+  Agent,
+  MCP_AGENT_CONFIG_DOCS_LINK,
+  MCPConnector,
+} from '../../../../../common';
 import { AppState } from '../../../../store';
+import { MCPToolFilters } from './mcp_tool_filters';
 
 interface AgentMCPServersProps {
   agentForm: Partial<Agent>;
@@ -152,21 +159,35 @@ export function AgentMCPServers({
                     />
                   </EuiFormRow>
                   <EuiSpacer size="s" />
-                  <EuiFormRow label="Tool filters" fullWidth>
-                    <EuiTextArea
-                      value={server.tool_filters}
-                      onChange={(e) => {
-                        updateMCPServer(
-                          {
-                            ...DEFAULT_MCP_SERVER,
-                            tool_filters: JSON.parse(e.target.value),
-                          } as MCPConnector,
-                          serverIndex
-                        );
-                      }}
-                      placeholder="Enter tool filters"
-                      fullWidth
-                      compressed
+                  <EuiFormRow
+                    label={
+                      <>
+                        Tool filters
+                        <EuiToolTip content="Define regular expressions that specify which tools from the MCP server to make available to the agent. If omitted, all tools exposed by the connector will be available.">
+                          <EuiIcon
+                            type="questionInCircle"
+                            color="subdued"
+                            style={{ marginLeft: '4px' }}
+                          />
+                        </EuiToolTip>
+                      </>
+                    }
+                    labelAppend={
+                      <EuiText size="xs">
+                        <EuiLink
+                          href={MCP_AGENT_CONFIG_DOCS_LINK}
+                          target="_blank"
+                        >
+                          Learn more
+                        </EuiLink>
+                      </EuiText>
+                    }
+                    fullWidth
+                  >
+                    <MCPToolFilters
+                      mcpServer={server}
+                      index={serverIndex}
+                      updateMCPServer={updateMCPServer}
                     />
                   </EuiFormRow>
                 </EuiPanel>
