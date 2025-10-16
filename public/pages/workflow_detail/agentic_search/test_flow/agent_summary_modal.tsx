@@ -13,6 +13,7 @@ import {
   EuiSmallButton,
   EuiText,
 } from '@elastic/eui';
+import { TOOL_TYPE } from '../../../../../common';
 
 interface AgentSummaryModalProps {
   onClose: () => void;
@@ -26,11 +27,8 @@ export function AgentSummaryModal(props: AgentSummaryModalProps) {
         <EuiModalHeaderTitle>Agent Summary</EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
-        {/**
-         * Handle newline formatting, as the agent response will likely have plaintext "\n" characters.
-         */}
-        <EuiText style={{ whiteSpace: 'pre-wrap' }}>
-          <i>{props.agentSummary}</i>
+        <EuiText style={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+          {prettifyAgentSummary(props.agentSummary)}
         </EuiText>
       </EuiModalBody>
       <EuiModalFooter>
@@ -40,4 +38,35 @@ export function AgentSummaryModal(props: AgentSummaryModalProps) {
       </EuiModalFooter>
     </EuiModal>
   );
+}
+
+// Post-processing of the agent summary string returned from the LLM.
+// Clean up any escape characters, highlight the tools mentioned, and other
+// minor formatting / styling improvements
+function prettifyAgentSummary(text: string): any {
+  // rm backslashes before quotes
+  let updatedText = text.replace(/\\"/g, '"');
+
+  const tools = [
+    ...(Object.values(TOOL_TYPE) as string[]),
+    'query_planner_tool',
+  ];
+  updatedText = updatedText.replace(
+    new RegExp(`\\b(${tools.join('|')})\\b`, 'g'),
+    '**_$1_**'
+  );
+
+  return updatedText.split('\n').map((line, idx) => (
+    <div key={idx} style={{ marginBottom: '1rem' }}>
+      {line.split(/(\*\*.*?\*\*)/).map((segment, j) =>
+        segment.startsWith('**_') && segment.endsWith('_**') ? (
+          <strong key={j}>
+            <em>{segment.slice(3, -3)}</em>
+          </strong>
+        ) : (
+          segment
+        )
+      )}
+    </div>
+  ));
 }
