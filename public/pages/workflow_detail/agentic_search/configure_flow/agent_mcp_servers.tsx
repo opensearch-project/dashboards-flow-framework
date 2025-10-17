@@ -75,14 +75,16 @@ export function AgentMCPServers({
   }
   function updateMCPServer(updatedMCPServer: MCPConnector, index: number) {
     const updatedMCPServers = [...mcpServers];
-    updatedMCPServers[index] = updatedMCPServer;
-    setAgentForm({
-      ...agentForm,
-      parameters: {
-        ...agentForm?.parameters,
-        mcp_connectors: updatedMCPServers,
-      },
-    });
+    if (!isEmpty(updatedMCPServers[index])) {
+      updatedMCPServers[index] = updatedMCPServer;
+      setAgentForm({
+        ...agentForm,
+        parameters: {
+          ...agentForm?.parameters,
+          mcp_connectors: updatedMCPServers,
+        },
+      });
+    }
   }
 
   return (
@@ -93,7 +95,7 @@ export function AgentMCPServers({
             <EuiAccordion
               id={`mcp-server-${serverIndex}`}
               forceState={
-                openAccordionIndex === serverIndex ? 'open' : undefined
+                openAccordionIndex === serverIndex ? 'open' : 'closed'
               }
               onToggle={(isOpen) => {
                 setOpenAccordionIndex(isOpen ? serverIndex : undefined);

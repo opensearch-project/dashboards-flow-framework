@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { getIn } from 'formik';
 import { EuiComboBox } from '@elastic/eui';
 import { MCPConnector } from '../../../../../common';
 
@@ -17,7 +16,7 @@ interface MCPToolFiltersProps {
 export function MCPToolFilters(props: MCPToolFiltersProps) {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   useEffect(() => {
-    setSelectedFilters(getIn(props, 'mcpServer.tool_filters', []) as string[]);
+    setSelectedFilters(props.mcpServer?.tool_filters ?? []);
   }, [props.mcpServer]);
 
   function handleOptionsChange(updatedFilters: string[]): void {

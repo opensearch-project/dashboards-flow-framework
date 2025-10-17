@@ -351,7 +351,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                               forceState={
                                 openTemplateAccordionIndex === templateIndex
                                   ? 'open'
-                                  : undefined
+                                  : 'closed'
                               }
                               onToggle={(isOpen) => {
                                 setOpenTemplateAccordionIndex(

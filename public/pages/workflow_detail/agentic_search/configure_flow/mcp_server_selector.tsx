@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { isEmpty } from 'lodash';
 import { EuiCallOut, EuiSelect } from '@elastic/eui';
@@ -23,9 +23,6 @@ interface MCPServerSelectorProps {
 
 export function MCPServerSelector(props: MCPServerSelectorProps) {
   const { connectors } = useSelector((state: AppState) => state.ml);
-  const [connectorOptions, setConnectorOptions] = useState<
-    { value: string; text: string }[]
-  >([]);
   const server = getIn(
     props,
     `allServers.${props.serverIndex}`,
@@ -34,29 +31,31 @@ export function MCPServerSelector(props: MCPServerSelectorProps) {
 
   // Only show unchosen connectors in the dropdown, but still include the selected connector
   // for the particular MCP server, if applicable.
-  useEffect(() => {
+  const connectorOptions = useMemo(() => {
     if (!isEmpty(props.allServers)) {
       const otherSelectedConnectorIds = props.allServers
         ?.map((mcpConnector) => mcpConnector.mcp_connector_id)
         .filter(
           (connectorId) => connectorId !== server?.mcp_connector_id
         ) as string[];
-      setConnectorOptions(
-        Object.values(connectors || {})
-          .filter(
-            // pre-filter to only MCP connectors
-            (connector) =>
-              connector.protocol === CONNECTOR_PROTOCOL.MCP_SSE ||
-              connector.protocol === CONNECTOR_PROTOCOL.MCP_STREAMABLE_HTTP
-          )
-          .filter(
-            (connector) => !otherSelectedConnectorIds.includes(connector.id)
-          )
-          .map((connector) => ({
-            value: connector.id,
-            text: connector.name,
-          }))
-      );
+      return Object.values(connectors || {})
+        .filter(
+          // pre-filter to only MCP connectors
+          (connector) =>
+            [
+              CONNECTOR_PROTOCOL.MCP_SSE,
+              CONNECTOR_PROTOCOL.MCP_STREAMABLE_HTTP,
+            ].includes(connector.protocol)
+        )
+        .filter(
+          (connector) => !otherSelectedConnectorIds.includes(connector.id)
+        )
+        .map((connector) => ({
+          value: connector.id,
+          text: connector.name,
+        }));
+    } else {
+      return [];
     }
   }, [props.allServers]);
 
@@ -78,7 +77,7 @@ export function MCPServerSelector(props: MCPServerSelectorProps) {
           }}
           fullWidth
           compressed
-          hasNoInitialSelection={isEmpty(server.mcp_connector_id)}
+          hasNoInitialSelection={!server?.mcp_connector_id}
         />
       ) : (
         <EuiCallOut size="s" color="warning" iconType={'alert'}>
