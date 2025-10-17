@@ -8,6 +8,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Enhancements
 - Clean up / hide complex fields on agent configuration ([#796](https://github.com/opensearch-project/dashboards-flow-framework/pull/796))
 - Add agent summary ([#801](https://github.com/opensearch-project/dashboards-flow-framework/pull/801))
+- Clean up agent summary formatting ([#803](https://github.com/opensearch-project/dashboards-flow-framework/pull/803))
 ### Bug Fixes
 ### Infrastructure
 ### Documentation
