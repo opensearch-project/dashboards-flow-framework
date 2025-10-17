@@ -405,7 +405,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                           }
                           placeholder="Enter description"
                           aria-label="Enter description"
-                          rows={2}
+                          rows={1}
                           fullWidth
                           compressed
                           maxLength={MAX_DESCRIPTION_LENGTH}
