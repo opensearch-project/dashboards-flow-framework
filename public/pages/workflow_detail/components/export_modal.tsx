@@ -7,37 +7,39 @@ import React, { useEffect, useState } from 'react';
 import yaml from 'js-yaml';
 import { isEmpty, toLower } from 'lodash';
 import {
-  EuiCodeBlock,
   EuiFlexGroup,
-  EuiFlexItem,
-  EuiText,
-  EuiLink,
   EuiModal,
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiModalBody,
   EuiModalFooter,
   EuiSmallButtonEmpty,
-  EuiSmallButtonGroup,
-  EuiCallOut,
+  EuiTabs,
+  EuiTab,
+  EuiFlexItem,
 } from '@elastic/eui';
 import {
-  CREATE_WORKFLOW_LINK,
   Workflow,
+  WORKFLOW_TYPE,
   customStringify,
   getCharacterLimitedString,
 } from '../../../../common';
 import { reduceToTemplate } from '../../../utils';
 import '../../../global-styles.scss';
+import {
+  EXPORT_OPTION,
+  ExportTemplateContent,
+} from './export_template_content';
+import { ExportAgenticSearchContent } from './export_agentic_search_content';
 
 interface ExportModalProps {
   workflow?: Workflow;
   setIsExportModalOpen(isOpen: boolean): void;
 }
 
-enum EXPORT_OPTION {
-  JSON = 'JSON',
-  YAML = 'YAML',
+enum EXPORT_TAB {
+  TEMPLATE = 'TEMPLATE',
+  AGENTIC = 'AGENTIC',
 }
 
 /**
@@ -47,6 +49,13 @@ export function ExportModal(props: ExportModalProps) {
   // format type state
   const [selectedOption, setSelectedOption] = useState<EXPORT_OPTION>(
     EXPORT_OPTION.JSON
+  );
+
+  const isAgenticSearchType =
+    props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.AGENTIC_SEARCH;
+
+  const [selectedTab, setSelectedTab] = useState<EXPORT_TAB>(
+    isAgenticSearchType ? EXPORT_TAB.AGENTIC : EXPORT_TAB.TEMPLATE
   );
 
   // formatted string state
@@ -89,75 +98,46 @@ export function ExportModal(props: ExportModalProps) {
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
-        <EuiFlexGroup direction="column">
-          {isEmpty(props.workflow?.workflows) && (
-            <EuiFlexItem grow={false}>
-              <EuiCallOut color="warning" size="s" iconType={'alert'}>
-                This workflow will provision no resources. You may still export
-                to save your configuration.
-              </EuiCallOut>
-            </EuiFlexItem>
-          )}
-          <EuiFlexItem grow={false}>
-            <EuiText size="s">
-              {`To build identical resources in other environments, create and provision a workflow following the below template.`}{' '}
-              <EuiLink href={CREATE_WORKFLOW_LINK} target="_blank">
-                Learn more
-              </EuiLink>
-            </EuiText>
-            <EuiText
-              size="s"
-              color="subdued"
-            >{`Note: Certain resource IDs in the template, such as model IDs, may be specific to a cluster and not function properly 
-            in other clusters. Make sure to update these values before provisioning the workflow in a new cluster.`}</EuiText>
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-              <EuiFlexItem grow={false}>
-                <EuiSmallButtonGroup
-                  legend="Choose how to view your workflow"
-                  options={[
-                    {
-                      id: EXPORT_OPTION.JSON,
-                      label: EXPORT_OPTION.JSON,
-                    },
-                    {
-                      id: EXPORT_OPTION.YAML,
-                      label: EXPORT_OPTION.YAML,
-                    },
-                  ]}
-                  idSelected={selectedOption}
-                  onChange={(id) => setSelectedOption(id as EXPORT_OPTION)}
-                  data-testid="exportDataToggleButtonGroup"
-                />
-              </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiSmallButtonEmpty
-                  iconType="download"
-                  iconSide="right"
-                  href={formattedConfigHref}
-                  download={`${props.workflow?.name}.${toLower(
-                    selectedOption
-                  )}`}
-                  onClick={() => {}}
+        {isAgenticSearchType ? (
+          <EuiFlexGroup direction="column">
+            <EuiFlexItem>
+              <EuiTabs size="s">
+                <EuiTab
+                  onClick={() => setSelectedTab(EXPORT_TAB.AGENTIC)}
+                  isSelected={selectedTab === EXPORT_TAB.AGENTIC}
                 >
-                  {`Download ${selectedOption} file`}
-                </EuiSmallButtonEmpty>
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </EuiFlexItem>
-          {props.workflow !== undefined && (
-            <EuiFlexItem grow={false}>
-              <EuiCodeBlock
-                language={toLower(selectedOption)}
-                fontSize="m"
-                isCopyable={true}
-              >
-                {formattedConfig}
-              </EuiCodeBlock>
+                  Agentic search
+                </EuiTab>
+                <EuiTab
+                  onClick={() => setSelectedTab(EXPORT_TAB.TEMPLATE)}
+                  isSelected={selectedTab === EXPORT_TAB.TEMPLATE}
+                >
+                  Template
+                </EuiTab>
+              </EuiTabs>
             </EuiFlexItem>
-          )}
-        </EuiFlexGroup>
+
+            {selectedTab === EXPORT_TAB.TEMPLATE ? (
+              <ExportTemplateContent
+                workflow={props.workflow}
+                formattedConfig={formattedConfig}
+                formattedConfigHref={formattedConfigHref}
+                selectedOption={selectedOption}
+                setSelectedOption={setSelectedOption}
+              />
+            ) : (
+              <ExportAgenticSearchContent />
+            )}
+          </EuiFlexGroup>
+        ) : (
+          <ExportTemplateContent
+            workflow={props.workflow}
+            formattedConfig={formattedConfig}
+            formattedConfigHref={formattedConfigHref}
+            selectedOption={selectedOption}
+            setSelectedOption={setSelectedOption}
+          />
+        )}
       </EuiModalBody>
       <EuiModalFooter>
         <EuiSmallButtonEmpty
