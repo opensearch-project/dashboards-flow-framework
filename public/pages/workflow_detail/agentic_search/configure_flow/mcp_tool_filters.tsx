@@ -49,7 +49,7 @@ export function MCPToolFilters(props: MCPToolFiltersProps) {
       isClearable={true}
       isDisabled={false}
       fullWidth
-      data-test-subj="tool-filters-combo-box"
+      data-testid="toolFiltersComboBox"
     />
   );
 }

@@ -114,6 +114,7 @@ export function AgentMCPServers({
                   aria-label="Remove MCP server"
                   iconType="trash"
                   color="danger"
+                  data-testid="removeMCPServerButton"
                   onClick={(e: any) => {
                     e.stopPropagation(); // Prevent accordion toggle
                     removeMCPServer(serverIndex);
