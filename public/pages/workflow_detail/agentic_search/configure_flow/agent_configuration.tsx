@@ -37,16 +37,18 @@ import {
   EMPTY_AGENT,
   MAX_DESCRIPTION_LENGTH,
   MAX_STRING_LENGTH,
+  MCP_CONNECTOR_DOCS_LINK,
   NEW_AGENT_ID_PLACEHOLDER,
   NEW_AGENT_PLACEHOLDER,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
+import { sanitizeJSON } from '../../../../utils';
 import { AgentTools } from './agent_tools';
 import { SimplifiedJsonField } from '../components';
 import { AgentLLMFields } from './agent_llm_fields';
-import { sanitizeJSON } from '../../../../utils';
+import { AgentMCPServers } from './agent_mcp_servers';
 import { AgentAdvancedSettings } from './agent_advanced_settings';
 
 interface AgentConfigurationProps {
@@ -403,16 +405,13 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                           }
                           placeholder="Enter description"
                           aria-label="Enter description"
-                          rows={2}
+                          rows={1}
                           fullWidth
                           compressed
                           maxLength={MAX_DESCRIPTION_LENGTH}
                         />
                       </EuiFormRow>
                     </EuiFlexItem>
-                    {/**
-                     * Show the agent model dropdown if applicable
-                     */}
                     <EuiFlexItem grow={false}>
                       <AgentLLMFields
                         agentType={agentType as AGENT_TYPE}
@@ -428,6 +427,29 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                         />
                       </EuiFormRow>
                     </EuiFlexItem>
+                    {agentType === AGENT_TYPE.CONVERSATIONAL && (
+                      <EuiFlexItem grow={false}>
+                        <EuiFormRow
+                          label="MCP servers"
+                          labelAppend={
+                            <EuiText size="xs">
+                              <EuiLink
+                                href={MCP_CONNECTOR_DOCS_LINK}
+                                target="_blank"
+                              >
+                                Learn more
+                              </EuiLink>
+                            </EuiText>
+                          }
+                          fullWidth
+                        >
+                          <AgentMCPServers
+                            agentForm={props.agentForm}
+                            setAgentForm={props.setAgentForm}
+                          />
+                        </EuiFormRow>
+                      </EuiFlexItem>
+                    )}
                     <EuiFlexItem grow={false}>
                       <AgentAdvancedSettings
                         agentForm={props.agentForm}

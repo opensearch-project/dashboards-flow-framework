@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 import { getIn, useFormikContext } from 'formik';
 import { cloneDeep, isEmpty, set } from 'lodash';
 import {
-  EuiFieldSearch,
   EuiToolTip,
   EuiIcon,
   EuiFlexGroup,
@@ -16,6 +15,7 @@ import {
   EuiButtonGroup,
   EuiTitle,
   EuiSmallButton,
+  EuiTextArea,
 } from '@elastic/eui';
 import { SimplifiedJsonField } from '../components';
 import { QueryFieldSelector } from './query_field_selector';
@@ -269,14 +269,14 @@ export function SearchQuery(props: SearchQueryProps) {
           ) : (
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem>
-                <EuiFieldSearch
+                <EuiTextArea
                   placeholder="Enter your question or query here..."
+                  aria-label="Enter search query"
                   value={simpleSearchQuery}
                   onChange={handleSimpleQueryChange}
-                  fullWidth
                   compressed
-                  isClearable
-                  aria-label="Enter search query"
+                  fullWidth
+                  rows={1}
                 />
               </EuiFlexItem>
               <EuiFlexItem>

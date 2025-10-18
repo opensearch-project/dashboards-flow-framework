@@ -43,6 +43,12 @@ interface TestFlowProps {
   saveWorkflow(): Promise<boolean>;
 }
 
+const HorizontalRuleFlexItem = () => (
+  <EuiFlexItem grow={false} style={{ marginTop: '0px', marginBottom: '0px' }}>
+    <EuiHorizontalRule margin="none" />
+  </EuiFlexItem>
+);
+
 export function TestFlow(props: TestFlowProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
@@ -142,7 +148,7 @@ export function TestFlow(props: TestFlowProps) {
             overflow: 'hidden',
           }}
         >
-          <EuiFlexItem grow={false}>
+          <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
             <EuiTitle>
               <h3>Test flow</h3>
             </EuiTitle>
@@ -184,12 +190,7 @@ export function TestFlow(props: TestFlowProps) {
                 </EuiFlexItem>
                 {!isSearching && generatedQuery !== undefined && (
                   <>
-                    <EuiFlexItem
-                      grow={false}
-                      style={{ marginTop: '0px', marginBottom: '0px' }}
-                    >
-                      <EuiHorizontalRule margin="none" />
-                    </EuiFlexItem>
+                    <HorizontalRuleFlexItem />
                     <EuiFlexItem>
                       <GeneratedQuery query={generatedQuery} />
                     </EuiFlexItem>
@@ -197,15 +198,11 @@ export function TestFlow(props: TestFlowProps) {
                 )}
                 {!isSearching && !isEmpty(searchResponse) && (
                   <>
-                    <EuiFlexItem
-                      grow={false}
-                      style={{ marginTop: '0px', marginBottom: '0px' }}
-                    >
-                      <EuiHorizontalRule margin="none" />
-                    </EuiFlexItem>
+                    <HorizontalRuleFlexItem />
                     <EuiFlexItem>
                       <SearchResults searchResponse={searchResponse} />
                     </EuiFlexItem>
+                    <HorizontalRuleFlexItem />
                   </>
                 )}
                 {isSearching && (

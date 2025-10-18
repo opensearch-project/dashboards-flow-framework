@@ -22,7 +22,9 @@ import {
   AGENT_ID_PATH,
   AGENT_TYPE,
   EMPTY_AGENT,
+  MCPConnector,
   NEW_AGENT_PLACEHOLDER,
+  Tool,
   TOOL_TYPE,
   WorkflowConfig,
   WorkflowFormValues,
@@ -69,6 +71,15 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  // some agent fields, used in determining fine-grained validation
+  const agentType = getIn(agentForm, 'type', '').toLowerCase() as string;
+  const agentTools = getIn(agentForm, 'tools', []) as Tool[];
+  const agentMCPServers = getIn(
+    agentForm,
+    'parameters.mcp_connectors',
+    []
+  ) as MCPConnector[];
+
   // persist unsaved states when users are creating new / updating existing agents.
   // keep these states as 'true' if errors when trying to execute the respective
   // create/update agent API calls.
@@ -86,16 +97,18 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
     isEqual(getIn(agents, selectedAgentId, {}), agentForm) ||
     isEmpty(selectedAgentId) ||
     isEmpty(agentForm?.name) ||
-    (agentForm.type !== AGENT_TYPE.FLOW && isEmpty(agentForm.llm?.model_id)) ||
-    (agentForm.type !== AGENT_TYPE.FLOW &&
+    (agentType !== AGENT_TYPE.FLOW && isEmpty(agentForm.llm?.model_id)) ||
+    (agentType !== AGENT_TYPE.FLOW &&
       isEmpty(agentForm.parameters?._llm_interface)) ||
     (!isEmpty(
-      agentForm?.tools?.find((tool) => tool.type === TOOL_TYPE.QUERY_PLANNING)
+      agentTools.find((tool) => tool.type === TOOL_TYPE.QUERY_PLANNING)
     ) &&
       isEmpty(
-        agentForm?.tools?.find((tool) => tool.type === TOOL_TYPE.QUERY_PLANNING)
+        agentTools.find((tool) => tool.type === TOOL_TYPE.QUERY_PLANNING)
           ?.parameters?.model_id
-      ));
+      )) ||
+    (agentMCPServers.length > 0 &&
+      agentMCPServers.some((mcpServer) => isEmpty(mcpServer.mcp_connector_id)));
 
   // fine-grained error handling states
   const [errorCreatingAgent, setErrorCreatingAgent] = useState<string>('');
@@ -183,7 +196,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
           overflow: 'hidden',
         }}
       >
-        <EuiFlexItem grow={false}>
+        <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
           <EuiFlexGroup direction="row" alignItems="center" gutterSize="s">
             <EuiFlexItem grow={false}>
               <EuiTitle>

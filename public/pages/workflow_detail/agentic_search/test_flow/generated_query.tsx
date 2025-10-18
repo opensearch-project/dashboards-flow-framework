@@ -44,7 +44,7 @@ export function GeneratedQuery(props: GeneratedQueryProps) {
               <EuiFlexItem grow={false}>
                 <EuiToolTip
                   content="The agent-generated query DSL that was run against your
-                OpenSearch index"
+                OpenSearch cluster"
                 >
                   <EuiIcon
                     type="questionInCircle"

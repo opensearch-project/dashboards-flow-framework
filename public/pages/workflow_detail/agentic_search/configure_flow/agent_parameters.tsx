@@ -5,12 +5,10 @@
 
 import React from 'react';
 import { getIn } from 'formik';
-import { EuiLink, EuiText } from '@elastic/eui';
 import {
   Agent,
   AgentConfigParameters,
   customStringify,
-  MCP_AGENT_CONFIG_DOCS_LINK,
 } from '../../../../../common';
 import { SimplifiedJsonField } from '../components';
 
@@ -47,19 +45,6 @@ export function AgentParameters({
         }}
         editorHeight="120px"
       />
-      <EuiText
-        size="xs"
-        color="subdued"
-        style={{ marginLeft: '4px', marginTop: '4px' }}
-      >
-        <i>
-          Interested in integrating with MCP servers? Check out the example
-          agent configuration{' '}
-          <EuiLink href={MCP_AGENT_CONFIG_DOCS_LINK} target="_blank">
-            here
-          </EuiLink>{' '}
-        </i>
-      </EuiText>
     </>
   );
 }

@@ -4,11 +4,14 @@
  */
 
 import {
+  Agent,
+  AgentDict,
   Connector,
   ConnectorDict,
   DEFAULT_NEW_WORKFLOW_STATE_TYPE,
   INDEX_NOT_FOUND_EXCEPTION,
   INVALID_DATASOURCE_MSG,
+  MCPConnector,
   MODEL_ALGORITHM,
   MODEL_STATE,
   Model,
@@ -174,6 +177,7 @@ export function getConnectorsFromResponses(
     connectorDict[connectorId] = {
       id: connectorId,
       name: connectorHit._source?.name,
+      protocol: connectorHit._source?.protocol,
       parameters: {
         model: connectorHit._source?.parameters?.model,
         dimensions: connectorHit._source?.parameters.dimensions,
@@ -214,4 +218,38 @@ export function getResourcesCreatedFromResponse(
     });
   }
   return finalResources;
+}
+
+// Convert backend agent into a frontend agent obj
+export function toAgentObj(hitSource: any, id: string): Agent {
+  // MCP connectors are stringified when indexed. Convert back to an obj
+  // to be consistently stored on client-side.
+  let mcpConnectors;
+  try {
+    mcpConnectors = JSON.parse(
+      hitSource?.parameters?.mcp_connectors
+    ) as MCPConnector[];
+  } catch {}
+  return {
+    id,
+    name: hitSource?.name,
+    type: hitSource?.type,
+    description: hitSource?.description,
+    tools: hitSource?.tools,
+    llm: hitSource?.llm,
+    memory: hitSource?.memory,
+    parameters: { ...hitSource?.parameters, mcp_connectors: mcpConnectors },
+  } as Agent;
+}
+
+// Convert the agent hits into a readable/presentable state on frontend
+export function getAgentsFromResponses(agentHits: SearchHit[]): AgentDict {
+  const agents = {} as AgentDict;
+  for (const agentHit of agentHits) {
+    const source = agentHit._source as Agent;
+    const id = agentHit._id;
+    // @ts-ignore
+    agents[id] = toAgentObj(source, id);
+  }
+  return agents;
 }

@@ -7,6 +7,7 @@ import {
   Agent,
   InputMapEntry,
   MapEntry,
+  MCPConnector,
   PromptPreset,
   QueryPreset,
   WORKFLOW_STATE,
@@ -328,8 +329,10 @@ export const AGENT_MAIN_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/agents/index/';
 export const AGENTIC_SEARCH_DOCS_LINK =
   'https://docs.opensearch.org/latest/vector-search/ai-search/agentic-search/';
+export const MCP_CONNECTOR_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/mcp/mcp-connector';
 export const MCP_AGENT_CONFIG_DOCS_LINK =
-  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/mcp/mcp-connector/#step-3-register-an-agent-for-accessing-mcp-tools';
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/mcp/mcp-connector#step-3-register-an-agent-for-accessing-mcp-tools';
 export const AGENT_FIELDS_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/api/agent-apis/register-agent/#request-body-fields';
 export const TOOLS_DOCS_LINK =
@@ -1054,6 +1057,13 @@ export enum AGENT_MEMORY_TYPE {
   CONVERSATION_INDEX = 'conversation_index',
 }
 
+export enum CONNECTOR_PROTOCOL {
+  AWS_SIGV4 = 'aws_sigv4',
+  HTTP = 'http',
+  MCP_SSE = 'mcp_sse',
+  MCP_STREAMABLE_HTTP = 'mcp_streamable_http',
+}
+
 export enum AGENT_LLM_INTERFACE_TYPE {
   OPENAI = 'openai/v1/chat/completions',
   BEDROCK_CLAUDE = 'bedrock/converse/claude',
@@ -1089,3 +1099,8 @@ export const DEFAULT_AGENT = {
     type: AGENT_MEMORY_TYPE.CONVERSATION_INDEX,
   },
 } as Partial<Agent>;
+
+export const DEFAULT_MCP_SERVER = {
+  mcp_connector_id: '',
+  tool_filters: [],
+} as MCPConnector;
