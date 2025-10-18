@@ -34,6 +34,9 @@ interface AgentMCPServersProps {
   setAgentForm: (agentForm: Partial<Agent>) => void;
 }
 
+const TOOL_FILTERS_DESCRIPTION =
+  'Define regular expressions that specify which tools from the MCP server to make available to the agent. If omitted, all tools exposed by the connector will be available.';
+
 export function AgentMCPServers({
   agentForm,
   setAgentForm,
@@ -135,7 +138,7 @@ export function AgentMCPServers({
                 label={
                   <>
                     Tool filters
-                    <EuiToolTip content="Define regular expressions that specify which tools from the MCP server to make available to the agent. If omitted, all tools exposed by the connector will be available.">
+                    <EuiToolTip content={TOOL_FILTERS_DESCRIPTION}>
                       <EuiIcon
                         type="questionInCircle"
                         color="subdued"
