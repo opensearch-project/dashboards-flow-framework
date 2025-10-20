@@ -30,7 +30,7 @@ import {
   EXPORT_OPTION,
   ExportTemplateContent,
 } from './export_template_content';
-import { ExportAgenticSearchContent } from './export_agentic_search_content';
+import { ExportApplicationContent } from './export_application_content';
 
 interface ExportModalProps {
   workflow?: Workflow;
@@ -39,7 +39,7 @@ interface ExportModalProps {
 
 enum EXPORT_TAB {
   TEMPLATE = 'TEMPLATE',
-  AGENTIC = 'AGENTIC',
+  APPLICATION = 'APPLICATION',
 }
 
 /**
@@ -55,7 +55,7 @@ export function ExportModal(props: ExportModalProps) {
     props.workflow?.ui_metadata?.type === WORKFLOW_TYPE.AGENTIC_SEARCH;
 
   const [selectedTab, setSelectedTab] = useState<EXPORT_TAB>(
-    isAgenticSearchType ? EXPORT_TAB.AGENTIC : EXPORT_TAB.TEMPLATE
+    isAgenticSearchType ? EXPORT_TAB.APPLICATION : EXPORT_TAB.TEMPLATE
   );
 
   // formatted string state
@@ -99,14 +99,18 @@ export function ExportModal(props: ExportModalProps) {
       </EuiModalHeader>
       <EuiModalBody>
         {isAgenticSearchType ? (
-          <EuiFlexGroup direction="column">
-            <EuiFlexItem>
+          <EuiFlexGroup
+            direction="column"
+            gutterSize="s"
+            style={{ marginTop: '-16px' }}
+          >
+            <EuiFlexItem grow={false}>
               <EuiTabs size="s">
                 <EuiTab
-                  onClick={() => setSelectedTab(EXPORT_TAB.AGENTIC)}
-                  isSelected={selectedTab === EXPORT_TAB.AGENTIC}
+                  onClick={() => setSelectedTab(EXPORT_TAB.APPLICATION)}
+                  isSelected={selectedTab === EXPORT_TAB.APPLICATION}
                 >
-                  Agentic search
+                  Use in your application
                 </EuiTab>
                 <EuiTab
                   onClick={() => setSelectedTab(EXPORT_TAB.TEMPLATE)}
@@ -116,18 +120,19 @@ export function ExportModal(props: ExportModalProps) {
                 </EuiTab>
               </EuiTabs>
             </EuiFlexItem>
-
-            {selectedTab === EXPORT_TAB.TEMPLATE ? (
-              <ExportTemplateContent
-                workflow={props.workflow}
-                formattedConfig={formattedConfig}
-                formattedConfigHref={formattedConfigHref}
-                selectedOption={selectedOption}
-                setSelectedOption={setSelectedOption}
-              />
-            ) : (
-              <ExportAgenticSearchContent />
-            )}
+            <EuiFlexItem grow={false}>
+              {selectedTab === EXPORT_TAB.TEMPLATE ? (
+                <ExportTemplateContent
+                  workflow={props.workflow}
+                  formattedConfig={formattedConfig}
+                  formattedConfigHref={formattedConfigHref}
+                  selectedOption={selectedOption}
+                  setSelectedOption={setSelectedOption}
+                />
+              ) : (
+                <ExportApplicationContent />
+              )}
+            </EuiFlexItem>
           </EuiFlexGroup>
         ) : (
           <ExportTemplateContent

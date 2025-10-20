@@ -11,11 +11,14 @@ import {
   EuiFlexItem,
   EuiText,
   EuiLink,
-  EuiCallOut,
   EuiSmallButtonGroup,
   EuiSmallButtonEmpty,
 } from '@elastic/eui';
-import { CREATE_WORKFLOW_LINK, Workflow } from '../../../../common';
+import {
+  CREATE_WORKFLOW_LINK,
+  PLUGIN_NAME,
+  Workflow,
+} from '../../../../common';
 
 export enum EXPORT_OPTION {
   JSON = 'JSON',
@@ -42,26 +45,24 @@ export function ExportTemplateContent({
 }: ExportTemplateContentProps) {
   return (
     <EuiFlexGroup direction="column">
-      {isEmpty(workflow?.workflows) && (
-        <EuiFlexItem grow={false}>
-          <EuiCallOut color="warning" size="s" iconType={'alert'}>
-            This workflow will provision no resources. You may still export to
-            save your configuration.
-          </EuiCallOut>
-        </EuiFlexItem>
-      )}
       <EuiFlexItem grow={false}>
-        <EuiText size="s">
-          {`To build identical resources in other environments, create and provision a workflow following the below template.`}{' '}
-          <EuiLink href={CREATE_WORKFLOW_LINK} target="_blank">
-            Learn more
-          </EuiLink>
-        </EuiText>
-        <EuiText
-          size="s"
-          color="subdued"
-        >{`Note: Certain resource IDs in the template, such as model IDs, may be specific to a cluster and not function properly
-        in other clusters. Make sure to update these values before provisioning the workflow in a new cluster.`}</EuiText>
+        {isEmpty(workflow?.workflows) ? (
+          <EuiText size="s">{`Download the below workflow template to save your search configuration. Import on another cluster using ${PLUGIN_NAME}
+           to share identical configurations across your environments.`}</EuiText>
+        ) : (
+          <EuiText size="s">
+            {`To build identical resources in other environments, create and provision a workflow following the below template. `}
+            <EuiLink href={CREATE_WORKFLOW_LINK} target="_blank">
+              Learn more
+            </EuiLink>
+          </EuiText>
+        )}
+        <EuiFlexItem grow={false}>
+          <EuiText size="s" color="subdued">
+            <i>{`Note: Certain resource IDs in the template, such as model IDs, may be specific to a cluster and not function properly
+        in other clusters. Make sure to update these values before importing the workflow in a new cluster.`}</i>
+          </EuiText>
+        </EuiFlexItem>
       </EuiFlexItem>
       <EuiFlexItem>
         <EuiFlexGroup direction="row" justifyContent="spaceBetween">
