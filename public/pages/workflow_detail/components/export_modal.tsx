@@ -30,7 +30,7 @@ import {
   EXPORT_OPTION,
   ExportTemplateContent,
 } from './export_template_content';
-import { ExportApplicationContent } from './export_application_content';
+import { AgenticSearchApplicationContent } from './agentic_search_application_content';
 
 interface ExportModalProps {
   workflow?: Workflow;
@@ -130,7 +130,7 @@ export function ExportModal(props: ExportModalProps) {
                   setSelectedOption={setSelectedOption}
                 />
               ) : (
-                <ExportApplicationContent />
+                <AgenticSearchApplicationContent workflow={props.workflow} />
               )}
             </EuiFlexItem>
           </EuiFlexGroup>
