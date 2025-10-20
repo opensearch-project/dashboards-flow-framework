@@ -64,7 +64,11 @@ export function AgenticSearchApplicationContent(
     <EuiFlexGroup direction="column" gutterSize="s">
       {!selectedAgentId ? (
         <EuiFlexItem>
-          <EuiCallOut size="s" color="warning">
+          <EuiCallOut
+            size="s"
+            color="warning"
+            data-testid="noAgentFoundCallout"
+          >
             No agent found. Make sure to select an agent before trying to use
             agentic search in your application.
           </EuiCallOut>
@@ -89,6 +93,7 @@ export function AgenticSearchApplicationContent(
               initialIsOpen={true}
             >
               <EuiCodeBlock
+                data-testid="searchPipelineCodeBlock"
                 language="json"
                 fontSize="s"
                 paddingSize="s"
@@ -108,6 +113,7 @@ export function AgenticSearchApplicationContent(
               initialIsOpen={true}
             >
               <EuiCodeBlock
+                data-testid="agenticSearchCodeBlock"
                 language="json"
                 fontSize="s"
                 paddingSize="s"

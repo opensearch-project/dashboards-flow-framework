@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { isEmpty, toLower } from 'lodash';
+import yaml from 'js-yaml';
 import {
   EuiCodeBlock,
   EuiFlexGroup,
@@ -16,9 +17,11 @@ import {
 } from '@elastic/eui';
 import {
   CREATE_WORKFLOW_LINK,
+  customStringify,
   PLUGIN_NAME,
   Workflow,
 } from '../../../../common';
+import { reduceToTemplate } from '../../../utils';
 
 export enum EXPORT_OPTION {
   JSON = 'JSON',
@@ -27,26 +30,46 @@ export enum EXPORT_OPTION {
 
 interface ExportTemplateContentProps {
   workflow?: Workflow;
-  formattedConfig: string;
-  formattedConfigHref: string;
-  selectedOption: EXPORT_OPTION;
-  setSelectedOption: (option: EXPORT_OPTION) => void;
 }
 
 /**
  * Static content for general template exporting
  */
-export function ExportTemplateContent({
-  workflow,
-  formattedConfig,
-  formattedConfigHref,
-  selectedOption,
-  setSelectedOption,
-}: ExportTemplateContentProps) {
+export function ExportTemplateContent(props: ExportTemplateContentProps) {
+  // format type state
+  const [selectedOption, setSelectedOption] = useState<EXPORT_OPTION>(
+    EXPORT_OPTION.JSON
+  );
+
+  // formatted string state
+  const [formattedConfig, setFormattedConfig] = useState<string>('');
+  useEffect(() => {
+    if (props.workflow) {
+      const workflowTemplate = reduceToTemplate(props.workflow);
+      if (selectedOption === EXPORT_OPTION.JSON) {
+        setFormattedConfig(customStringify(workflowTemplate));
+      } else if (selectedOption === EXPORT_OPTION.YAML) {
+        setFormattedConfig(yaml.dump(workflowTemplate));
+      }
+    }
+  }, [props.workflow, selectedOption]);
+
+  // client-side file to be downloaded if the user so chooses. Generate a file
+  // and its corresponding URL.
+  const [formattedConfigHref, setFormattedConfigHref] = useState<string>('');
+  useEffect(() => {
+    if (!isEmpty(formattedConfig)) {
+      const formattedConfigFile = new Blob([formattedConfig], {
+        type: `text/${toLower(selectedOption)}`,
+      });
+      setFormattedConfigHref(URL.createObjectURL(formattedConfigFile));
+    }
+  }, [formattedConfig]);
+
   return (
     <EuiFlexGroup direction="column">
       <EuiFlexItem grow={false}>
-        {isEmpty(workflow?.workflows) ? (
+        {isEmpty(props.workflow?.workflows) ? (
           <EuiText size="s">{`Download the below workflow template to save your search configuration. Import on another cluster using ${PLUGIN_NAME}
            to share identical configurations across your environments.`}</EuiText>
         ) : (
@@ -89,7 +112,7 @@ export function ExportTemplateContent({
               iconType="download"
               iconSide="right"
               href={formattedConfigHref}
-              download={`${workflow?.name}.${toLower(selectedOption)}`}
+              download={`${props.workflow?.name}.${toLower(selectedOption)}`}
               onClick={() => {}}
             >
               {`Download ${selectedOption} file`}
@@ -97,7 +120,7 @@ export function ExportTemplateContent({
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiFlexItem>
-      {workflow !== undefined && (
+      {props.workflow !== undefined && (
         <EuiFlexItem grow={false}>
           <EuiCodeBlock
             language={toLower(selectedOption)}
