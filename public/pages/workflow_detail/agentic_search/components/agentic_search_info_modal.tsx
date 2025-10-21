@@ -14,7 +14,7 @@ import {
   EuiText,
   EuiLink,
 } from '@elastic/eui';
-import { AGENTIC_SEARCH_DOCS_LINK } from '../../../../../common';
+import { AGENTIC_SEARCH_AGENTS_DOCS_LINK } from '../../../../../common';
 
 interface AgenticSearchInfoModalProps {
   onClose: () => void;
@@ -43,8 +43,8 @@ export function AgenticSearchInfoModal(props: AgenticSearchInfoModalProps) {
             </li>
           </ol>
           <p>
-            For more information and examples, check out the{' '}
-            <EuiLink target="_blank" href={AGENTIC_SEARCH_DOCS_LINK}>
+            For more information on how to configure agents, check out the{' '}
+            <EuiLink target="_blank" href={AGENTIC_SEARCH_AGENTS_DOCS_LINK}>
               documentation
             </EuiLink>{' '}
           </p>
