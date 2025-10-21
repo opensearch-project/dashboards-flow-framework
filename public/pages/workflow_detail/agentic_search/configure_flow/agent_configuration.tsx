@@ -14,7 +14,6 @@ import {
   EuiFormRow,
   EuiFieldText,
   EuiTextArea,
-  EuiSelect,
   EuiToolTip,
   EuiIcon,
   EuiButtonGroup,
@@ -24,8 +23,12 @@ import {
   EuiCallOut,
   EuiText,
   EuiLink,
-  EuiSuperSelect,
   EuiEmptyPrompt,
+  EuiSmallButtonEmpty,
+  EuiBadge,
+  EuiPanel,
+  EuiComboBox,
+  EuiComboBoxOptionOption,
 } from '@elastic/eui';
 import {
   Agent,
@@ -38,6 +41,7 @@ import {
   EMPTY_AGENT,
   MAX_DESCRIPTION_LENGTH,
   MAX_STRING_LENGTH,
+  MCP_CONNECTOR_DOCS_LINK,
   NEW_AGENT_ID_PLACEHOLDER,
   NEW_AGENT_PLACEHOLDER,
   WorkflowConfig,
@@ -64,8 +68,8 @@ interface AgentConfigurationProps {
 
 const AGENT_TYPE_OPTIONS = Object.values(AGENT_TYPE).map((agentType) => ({
   value: agentType,
-  text: capitalize(agentType),
-}));
+  label: capitalize(agentType),
+})) as EuiComboBoxOptionOption<string>[];
 enum CONFIG_MODE {
   SIMPLE = 'simple',
   ADVANCED = 'advanced',
@@ -85,6 +89,11 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   const [configModeSelected, setConfigModeSelected] = useState<CONFIG_MODE>(
     CONFIG_MODE.SIMPLE
   );
+  const [isSelectingAgentType, setIsSelectingAgentType] = useState<boolean>(
+    false
+  );
+  const [isSelectingAgent, setIsSelectingAgent] = useState<boolean>(false);
+
   const [jsonError, setJsonError] = useState<string | undefined>(undefined);
 
   const agentName = props.agentForm?.name || '';
@@ -96,13 +105,19 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
     const knownOptions = AGENT_TYPE_OPTIONS;
     if (
       !agentType ||
-      knownOptions.some((o) => o.value.toLowerCase() === agentType)
+      knownOptions.some((o) => o.value?.toLowerCase() === agentType)
     ) {
       return knownOptions;
     } else {
-      return [{ value: agentType, text: agentType }, ...knownOptions];
+      return [
+        {
+          value: agentType,
+          label: capitalize(agentType),
+        },
+        ...knownOptions,
+      ];
     }
-  }, [AGENT_TYPE_OPTIONS, agentType]);
+  }, [AGENT_TYPE_OPTIONS, agentType]) as EuiComboBoxOptionOption<string>[];
 
   // listen to agent ID changes. update the agent config form values appropriately
   useEffect(() => {
@@ -118,36 +133,15 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   }, [getIn(values, AGENT_ID_PATH), agents]);
 
   // get initial agent options for the dropdown
-  const [agentOptions, setAgentOptions] = useState<any[]>([]);
+  const [agentOptions, setAgentOptions] = useState<
+    EuiComboBoxOptionOption<string>[]
+  >([]);
   useEffect(() => {
     setAgentOptions(
       Object.values(agents || {}).map((agent) => ({
         value: agent.id,
-        text: agent.name,
-        inputDisplay: agent.name,
-        dropdownDisplay: (
-          <>
-            <EuiText size="s">
-              {agent.name}
-              {!isEmpty(agent.description) && (
-                <EuiText size="xs" color="subdued">
-                  <span
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      minWidth: 0,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    <i> {agent.description}</i>
-                  </span>
-                </EuiText>
-              )}
-            </EuiText>
-          </>
-        ),
+        label: agent.name,
+        key: agent.id,
       }))
     );
   }, [agents]);
@@ -166,11 +160,8 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
         ...agentOptions,
         {
           value: NEW_AGENT_PLACEHOLDER,
-          text: NEW_AGENT_ID_PLACEHOLDER,
-          inputDisplay: NEW_AGENT_ID_PLACEHOLDER,
-          dropdownDisplay: (
-            <EuiText size="s">{NEW_AGENT_ID_PLACEHOLDER}</EuiText>
-          ),
+          label: NEW_AGENT_ID_PLACEHOLDER,
+          key: NEW_AGENT_PLACEHOLDER,
         },
       ]);
       // new and unsaved was triggered to false (either by user discarding the changes, or a new agent created).
@@ -231,16 +222,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiFlexGroup direction="row" gutterSize="s" alignItems="center">
-                <EuiFlexItem grow={false}>
-                  <EuiText size="s" color="subdued">
-                    <EuiLink
-                      target="_blank"
-                      href={AGENTIC_SEARCH_AGENTS_DOCS_LINK}
-                    >
-                      Documentation
-                    </EuiLink>
-                  </EuiText>
-                </EuiFlexItem>
                 {!noAgentsFound && (
                   <EuiFlexItem grow={false}>
                     <EuiButtonGroup
@@ -300,22 +281,60 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   }
                 />
               ) : (
-                <EuiSuperSelect
-                  options={agentOptions}
-                  valueOfSelected={selectedAgentId}
-                  onChange={(value) => {
-                    if (value !== NEW_AGENT_PLACEHOLDER) {
-                      props.setNewAndUnsaved(false);
-                    }
-                    if (value) {
-                      setFieldValue(AGENT_ID_PATH, value);
-                      setFieldTouched(AGENT_ID_PATH, true);
-                    }
-                  }}
-                  placeholder="Select an agent"
-                  compressed
-                  fullWidth
-                />
+                <EuiFlexGroup
+                  direction="row"
+                  gutterSize="s"
+                  alignItems="center"
+                  style={{ marginTop: '-12px' }}
+                >
+                  {!isSelectingAgent && !isEmpty(selectedAgentId) && (
+                    <EuiFlexItem grow={false} style={{ marginLeft: '8px' }}>
+                      <EuiText style={{ textDecoration: 'underline' }}>
+                        {props.newAndUnsaved
+                          ? NEW_AGENT_ID_PLACEHOLDER
+                          : agentName}
+                      </EuiText>
+                    </EuiFlexItem>
+                  )}
+                  <EuiFlexItem grow={false}>
+                    {isSelectingAgent || isEmpty(selectedAgentId) ? (
+                      <EuiComboBox
+                        style={{ width: '400px' }}
+                        singleSelection={{ asPlainText: true }}
+                        options={agentOptions}
+                        selectedOptions={[
+                          {
+                            value: selectedAgentId,
+                            label: agentName,
+                            key: selectedAgentId,
+                          },
+                        ]}
+                        onChange={(options) => {
+                          const value = getIn(options, '0.value', '');
+                          if (value !== NEW_AGENT_PLACEHOLDER) {
+                            props.setNewAndUnsaved(false);
+                          }
+                          if (value) {
+                            setFieldValue(AGENT_ID_PATH, value);
+                            setFieldTouched(AGENT_ID_PATH, true);
+                          }
+                          setIsSelectingAgent(false);
+                        }}
+                        onBlur={() => setIsSelectingAgent(false)}
+                        placeholder="Select an agent"
+                        compressed
+                        autoFocus
+                        isClearable={false}
+                      />
+                    ) : !props.newAndUnsaved ? (
+                      <EuiSmallButtonEmpty
+                        onClick={() => setIsSelectingAgent(true)}
+                      >
+                        Change
+                      </EuiSmallButtonEmpty>
+                    ) : undefined}
+                  </EuiFlexItem>
+                </EuiFlexGroup>
               )}
             </EuiFlexItem>
             {(!isEmpty(props.errorCreatingAgent) ||
@@ -339,152 +358,186 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
             )}
             {!isEmpty(selectedAgentId) && (
               <EuiFlexItem>
-                {configModeSelected === CONFIG_MODE.SIMPLE ? (
-                  <EuiFlexGroup direction="column" gutterSize="s">
-                    <EuiFlexItem grow={false}>
-                      <EuiFlexGroup direction="row" gutterSize="s">
-                        <EuiFlexItem>
-                          <EuiFormRow label="Name" fullWidth>
-                            <EuiFieldText
-                              value={agentName}
-                              onChange={(e) =>
-                                props.setAgentForm({
-                                  ...props.agentForm,
-                                  name: e.target.value,
-                                })
-                              }
-                              placeholder="Enter agent name"
-                              aria-label="Enter agent name"
-                              fullWidth
-                              compressed
-                              maxLength={MAX_STRING_LENGTH}
-                            />
-                          </EuiFormRow>
-                        </EuiFlexItem>
-                        <EuiFlexItem>
-                          <EuiFormRow label="Type" isInvalid={false} fullWidth>
-                            <EuiSelect
-                              options={dynamicAgentTypeOptions}
-                              value={agentType}
-                              onChange={(e) => {
-                                const agentFormCopy = cloneDeep(
-                                  props.agentForm
-                                );
-                                const proposedAgentType = e.target
-                                  .value as AGENT_TYPE;
-
-                                // remove invalid fields if switching to flow agent
-                                if (proposedAgentType === AGENT_TYPE.FLOW) {
-                                  delete agentFormCopy.llm;
-                                  delete agentFormCopy.parameters
-                                    ?._llm_interface;
-                                  delete agentFormCopy.memory;
+                <EuiPanel
+                  color="subdued"
+                  paddingSize="s"
+                  hasBorder={true}
+                  hasShadow={true}
+                >
+                  {configModeSelected === CONFIG_MODE.SIMPLE ? (
+                    <EuiFlexGroup direction="column" gutterSize="s">
+                      <EuiFlexItem grow={false}>
+                        <EuiFlexGroup
+                          direction="row"
+                          gutterSize="s"
+                          alignItems="center"
+                        >
+                          <EuiFlexItem>
+                            <EuiFormRow label="Name" fullWidth>
+                              <EuiFieldText
+                                value={agentName}
+                                onChange={(e) =>
+                                  props.setAgentForm({
+                                    ...props.agentForm,
+                                    name: e.target.value,
+                                  })
                                 }
+                                placeholder="Enter agent name"
+                                aria-label="Enter agent name"
+                                fullWidth
+                                compressed
+                                maxLength={MAX_STRING_LENGTH}
+                              />
+                            </EuiFormRow>
+                          </EuiFlexItem>
+                          <EuiFlexItem
+                            grow={false}
+                            style={{ marginTop: '24px' }}
+                          >
+                            {isSelectingAgentType ? (
+                              <EuiComboBox
+                                style={{ width: '200px' }}
+                                singleSelection={{ asPlainText: true }}
+                                options={dynamicAgentTypeOptions}
+                                selectedOptions={[
+                                  {
+                                    label: capitalize(agentType),
+                                    value: agentType,
+                                  },
+                                ]}
+                                onChange={(options) => {
+                                  const agentFormCopy = cloneDeep(
+                                    props.agentForm
+                                  );
+                                  const proposedAgentType = getIn(
+                                    options,
+                                    '0.value',
+                                    ''
+                                  ) as AGENT_TYPE;
 
-                                props.setAgentForm({
-                                  ...agentFormCopy,
-                                  type: proposedAgentType,
-                                });
-                              }}
-                              aria-label="Agent type"
-                              placeholder="Agent type"
-                              fullWidth
-                              compressed
-                              hasNoInitialSelection={true}
-                            />
-                          </EuiFormRow>
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiFormRow label="Description" fullWidth>
-                        <EuiTextArea
-                          value={agentDescription}
-                          onChange={(e) =>
-                            props.setAgentForm({
-                              ...props.agentForm,
-                              description: e.target.value,
-                            })
-                          }
-                          placeholder="Enter description"
-                          aria-label="Enter description"
-                          rows={1}
-                          fullWidth
-                          compressed
-                          maxLength={MAX_DESCRIPTION_LENGTH}
-                        />
-                      </EuiFormRow>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <AgentLLMFields
-                        agentType={agentType as AGENT_TYPE}
-                        agentForm={props.agentForm}
-                        setAgentForm={props.setAgentForm}
-                      />
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiFormRow label="Tools" fullWidth>
-                        <AgentTools
+                                  // remove invalid fields if switching to flow agent
+                                  if (proposedAgentType === AGENT_TYPE.FLOW) {
+                                    delete agentFormCopy.llm;
+                                    delete agentFormCopy.parameters
+                                      ?._llm_interface;
+                                    delete agentFormCopy.memory;
+                                  }
+                                  if (proposedAgentType) {
+                                    props.setAgentForm({
+                                      ...agentFormCopy,
+                                      type: proposedAgentType,
+                                    });
+                                  }
+                                  setIsSelectingAgentType(false);
+                                }}
+                                onBlur={() => setIsSelectingAgentType(false)}
+                                compressed
+                                autoFocus
+                                isClearable={false}
+                              />
+                            ) : (
+                              <EuiBadge
+                                onClick={() => {
+                                  setIsSelectingAgentType(true);
+                                }}
+                                onClickAriaLabel="Open agent type selector"
+                              >
+                                {capitalize(agentType)}
+                              </EuiBadge>
+                            )}
+                          </EuiFlexItem>
+                        </EuiFlexGroup>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiFormRow label="Description" fullWidth>
+                          <EuiTextArea
+                            value={agentDescription}
+                            onChange={(e) =>
+                              props.setAgentForm({
+                                ...props.agentForm,
+                                description: e.target.value,
+                              })
+                            }
+                            placeholder="Enter description"
+                            aria-label="Enter description"
+                            rows={1}
+                            fullWidth
+                            compressed
+                            maxLength={MAX_DESCRIPTION_LENGTH}
+                          />
+                        </EuiFormRow>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <AgentLLMFields
+                          agentType={agentType as AGENT_TYPE}
                           agentForm={props.agentForm}
                           setAgentForm={props.setAgentForm}
                         />
-                      </EuiFormRow>
-                    </EuiFlexItem>
-                    {agentType === AGENT_TYPE.CONVERSATIONAL && (
+                      </EuiFlexItem>
                       <EuiFlexItem grow={false}>
-                        <EuiFormRow
-                          label="MCP servers"
-                          labelAppend={
-                            <EuiText size="xs">
-                              <EuiLink
-                                href={AGENTIC_SEARCH_MCP_DOCS_LINK}
-                                target="_blank"
-                              >
-                                Learn more
-                              </EuiLink>
-                            </EuiText>
-                          }
-                          fullWidth
-                        >
-                          <AgentMCPServers
+                        <EuiFormRow label="Tools" fullWidth>
+                          <AgentTools
                             agentForm={props.agentForm}
                             setAgentForm={props.setAgentForm}
                           />
                         </EuiFormRow>
                       </EuiFlexItem>
-                    )}
-                    <EuiFlexItem grow={false}>
-                      <AgentAdvancedSettings
-                        agentForm={props.agentForm}
-                        setAgentForm={props.setAgentForm}
-                      />
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
-                ) : (
-                  <SimplifiedJsonField
-                    value={customStringify(agentFormNoId)}
-                    onBlur={(e) => {
-                      try {
-                        const agentFormUpdated = JSON.parse(e);
-                        const agentFormSanitized = sanitizeJSON(
-                          agentFormUpdated
-                        );
-                        props.setAgentForm({
-                          id: props.agentForm.id,
-                          ...agentFormSanitized,
-                        });
-                        setJsonError(undefined);
-                      } catch (error) {
-                        setJsonError(
-                          'Invalid JSON: ' + (error as Error)?.message || ''
-                        );
-                      }
-                    }}
-                    editorHeight="800px"
-                    isInvalid={jsonError !== undefined}
-                    helpText="Edit the full agent configuration directly"
-                  />
-                )}
+                      {agentType === AGENT_TYPE.CONVERSATIONAL && (
+                        <EuiFlexItem grow={false}>
+                          <EuiFormRow
+                            label="MCP servers"
+                            labelAppend={
+                              <EuiText size="xs">
+                                <EuiLink
+                                  href={AGENTIC_SEARCH_MCP_DOCS_LINK}
+                                  target="_blank"
+                                >
+                                  Learn more
+                                </EuiLink>
+                              </EuiText>
+                            }
+                            fullWidth
+                          >
+                            <AgentMCPServers
+                              agentForm={props.agentForm}
+                              setAgentForm={props.setAgentForm}
+                            />
+                          </EuiFormRow>
+                        </EuiFlexItem>
+                      )}
+                      <EuiFlexItem grow={false}>
+                        <AgentAdvancedSettings
+                          agentForm={props.agentForm}
+                          setAgentForm={props.setAgentForm}
+                        />
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
+                  ) : (
+                    <SimplifiedJsonField
+                      value={customStringify(agentFormNoId)}
+                      onBlur={(e) => {
+                        try {
+                          const agentFormUpdated = JSON.parse(e);
+                          const agentFormSanitized = sanitizeJSON(
+                            agentFormUpdated
+                          );
+                          props.setAgentForm({
+                            id: props.agentForm.id,
+                            ...agentFormSanitized,
+                          });
+                          setJsonError(undefined);
+                        } catch (error) {
+                          setJsonError(
+                            'Invalid JSON: ' + (error as Error)?.message || ''
+                          );
+                        }
+                      }}
+                      editorHeight="800px"
+                      isInvalid={jsonError !== undefined}
+                      helpText="Edit the full agent configuration directly"
+                    />
+                  )}
+                </EuiPanel>
               </EuiFlexItem>
             )}
           </EuiFlexGroup>
