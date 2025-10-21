@@ -36,6 +36,7 @@ import {
   AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT,
   getDataSourceId,
 } from '../../../../utils';
+import { NoIndicesCallout } from '../components';
 
 interface TestFlowProps {
   uiConfig: WorkflowConfig | undefined;
@@ -54,6 +55,9 @@ export function TestFlow(props: TestFlowProps) {
   const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
   const { agents, loading } = useSelector((state: AppState) => state.ml);
+  const { indices, loading: opensearchLoading } = useSelector(
+    (state: AppState) => state.opensearch
+  );
 
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
   const finalQuery = (() => {
@@ -174,6 +178,11 @@ export function TestFlow(props: TestFlowProps) {
           >
             <EuiPanel paddingSize="none" hasBorder={false} hasShadow={false}>
               <EuiFlexGroup direction="column" gutterSize="m">
+                {!opensearchLoading && Object.values(indices)?.length === 0 && (
+                  <EuiFlexItem grow={false}>
+                    <NoIndicesCallout />
+                  </EuiFlexItem>
+                )}
                 {formError !== undefined && (
                   <EuiFlexItem grow={false} style={{ marginBottom: '-12px' }}>
                     <EuiCallOut size="s" color="danger">

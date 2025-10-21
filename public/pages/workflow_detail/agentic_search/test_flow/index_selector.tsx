@@ -26,7 +26,6 @@ import {
   WorkflowFormValues,
 } from '../../../../../common';
 import { IndexDetailsModal } from './index_details_modal';
-import { NoIndicesCallout } from '../components';
 
 interface IndexSelectorProps {
   agentType?: AGENT_TYPE;
@@ -79,9 +78,7 @@ export function IndexSelector(props: IndexSelectorProps) {
 
   return (
     <>
-      {indexOptions.length === 0 ? (
-        <NoIndicesCallout />
-      ) : (
+      {indexOptions.length !== 0 && (
         <>
           {isDetailsModalVisible && (
             <IndexDetailsModal
