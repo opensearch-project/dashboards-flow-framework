@@ -30,14 +30,14 @@ import {
 import {
   Agent,
   AGENT_ID_PATH,
-  AGENT_MAIN_DOCS_LINK,
   AGENT_TYPE,
+  AGENTIC_SEARCH_AGENTS_DOCS_LINK,
+  AGENTIC_SEARCH_MCP_DOCS_LINK,
   customStringify,
   DEFAULT_AGENT,
   EMPTY_AGENT,
   MAX_DESCRIPTION_LENGTH,
   MAX_STRING_LENGTH,
-  MCP_CONNECTOR_DOCS_LINK,
   NEW_AGENT_ID_PLACEHOLDER,
   NEW_AGENT_PLACEHOLDER,
   WorkflowConfig,
@@ -233,7 +233,10 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
               <EuiFlexGroup direction="row" gutterSize="s" alignItems="center">
                 <EuiFlexItem grow={false}>
                   <EuiText size="s" color="subdued">
-                    <EuiLink target="_blank" href={AGENT_MAIN_DOCS_LINK}>
+                    <EuiLink
+                      target="_blank"
+                      href={AGENTIC_SEARCH_AGENTS_DOCS_LINK}
+                    >
                       Documentation
                     </EuiLink>
                   </EuiText>
@@ -434,7 +437,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                           labelAppend={
                             <EuiText size="xs">
                               <EuiLink
-                                href={MCP_CONNECTOR_DOCS_LINK}
+                                href={AGENTIC_SEARCH_MCP_DOCS_LINK}
                                 target="_blank"
                               >
                                 Learn more
