@@ -151,7 +151,7 @@ export function TestFlow(props: TestFlowProps) {
           <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
             <EuiFlexGroup
               direction="row"
-              gutterSize="none"
+              gutterSize="s"
               justifyContent="spaceBetween"
             >
               <EuiFlexItem grow={false}>
@@ -176,12 +176,7 @@ export function TestFlow(props: TestFlowProps) {
               <EuiFlexGroup direction="column" gutterSize="m">
                 {formError !== undefined && (
                   <EuiFlexItem grow={false} style={{ marginBottom: '-12px' }}>
-                    <EuiCallOut
-                      size="s"
-                      title="Error"
-                      color="danger"
-                      iconType="alert"
-                    >
+                    <EuiCallOut size="s" color="danger">
                       <p>{formError}</p>
                     </EuiCallOut>
                     <EuiSpacer size="m" />

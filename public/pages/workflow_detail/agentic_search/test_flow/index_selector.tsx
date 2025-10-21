@@ -89,7 +89,7 @@ export function IndexSelector(props: IndexSelectorProps) {
               indexName={selectedIndexName}
             />
           )}
-          <EuiFlexGroup gutterSize="s" direction="row" alignItems="center">
+          <EuiFlexGroup gutterSize="xs" direction="row" alignItems="center">
             <EuiFlexItem>
               <EuiSelect
                 prepend="Index"
