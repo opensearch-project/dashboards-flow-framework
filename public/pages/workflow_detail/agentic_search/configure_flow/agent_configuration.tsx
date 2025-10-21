@@ -21,11 +21,11 @@ import {
   EuiText,
   EuiLink,
   EuiEmptyPrompt,
-  EuiSmallButtonEmpty,
   EuiBadge,
   EuiPanel,
   EuiComboBox,
   EuiComboBoxOptionOption,
+  EuiSuperSelect,
 } from '@elastic/eui';
 import {
   Agent,
@@ -89,7 +89,6 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   const [isSelectingAgentType, setIsSelectingAgentType] = useState<boolean>(
     false
   );
-  const [isSelectingAgent, setIsSelectingAgent] = useState<boolean>(false);
 
   const [jsonError, setJsonError] = useState<string | undefined>(undefined);
 
@@ -130,15 +129,36 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   }, [getIn(values, AGENT_ID_PATH), agents]);
 
   // get initial agent options for the dropdown
-  const [agentOptions, setAgentOptions] = useState<
-    EuiComboBoxOptionOption<string>[]
-  >([]);
+  const [agentOptions, setAgentOptions] = useState<any[]>([]);
   useEffect(() => {
     setAgentOptions(
       Object.values(agents || {}).map((agent) => ({
         value: agent.id,
-        label: agent.name,
-        key: agent.id,
+        text: agent.name,
+        inputDisplay: agent.name,
+        dropdownDisplay: (
+          <>
+            <EuiText size="s">
+              {agent.name}
+              {!isEmpty(agent.description) && (
+                <EuiText size="xs" color="subdued">
+                  <span
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      minWidth: 0,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    <i> {agent.description}</i>
+                  </span>
+                </EuiText>
+              )}
+            </EuiText>
+          </>
+        ),
       }))
     );
   }, [agents]);
@@ -157,8 +177,11 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
         ...agentOptions,
         {
           value: NEW_AGENT_PLACEHOLDER,
-          label: NEW_AGENT_ID_PLACEHOLDER,
-          key: NEW_AGENT_PLACEHOLDER,
+          text: NEW_AGENT_ID_PLACEHOLDER,
+          inputDisplay: NEW_AGENT_ID_PLACEHOLDER,
+          dropdownDisplay: (
+            <EuiText size="s">{NEW_AGENT_ID_PLACEHOLDER}</EuiText>
+          ),
         },
       ]);
       // new and unsaved was triggered to false (either by user discarding the changes, or a new agent created).
@@ -199,68 +222,31 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
               ) : (
                 <EuiFlexGroup
                   direction="row"
-                  gutterSize="s"
+                  gutterSize="none"
                   alignItems="center"
                   justifyContent="spaceBetween"
                 >
-                  <EuiFlexItem grow={false}>
-                    <EuiFormRow label="Agent" style={{ marginLeft: '8px' }}>
-                      <EuiFlexGroup
-                        direction="row"
-                        gutterSize="s"
-                        alignItems="center"
-                      >
-                        {!isSelectingAgent && !isEmpty(selectedAgentId) && (
-                          <EuiFlexItem grow={false}>
-                            <EuiText style={{ textDecoration: 'underline' }}>
-                              {props.newAndUnsaved
-                                ? NEW_AGENT_ID_PLACEHOLDER
-                                : agentName}
-                            </EuiText>
-                          </EuiFlexItem>
-                        )}
-                        <EuiFlexItem grow={false}>
-                          {isSelectingAgent || isEmpty(selectedAgentId) ? (
-                            <EuiComboBox
-                              style={{ width: '400px' }}
-                              singleSelection={{ asPlainText: true }}
-                              options={agentOptions}
-                              selectedOptions={[
-                                {
-                                  value: selectedAgentId,
-                                  label: agentName,
-                                  key: selectedAgentId,
-                                },
-                              ]}
-                              onChange={(options) => {
-                                const value = getIn(options, '0.value', '');
-                                if (value !== NEW_AGENT_PLACEHOLDER) {
-                                  props.setNewAndUnsaved(false);
-                                }
-                                if (value) {
-                                  setFieldValue(AGENT_ID_PATH, value);
-                                  setFieldTouched(AGENT_ID_PATH, true);
-                                }
-                                setIsSelectingAgent(false);
-                              }}
-                              onBlur={() => setIsSelectingAgent(false)}
-                              placeholder="Select an agent"
-                              compressed
-                              autoFocus
-                              isClearable={false}
-                            />
-                          ) : !props.newAndUnsaved ? (
-                            <EuiSmallButtonEmpty
-                              onClick={() => setIsSelectingAgent(true)}
-                            >
-                              Change
-                            </EuiSmallButtonEmpty>
-                          ) : undefined}
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                    </EuiFormRow>
+                  <EuiFlexItem>
+                    <EuiSuperSelect
+                      prepend="Agent"
+                      options={agentOptions}
+                      valueOfSelected={selectedAgentId}
+                      onChange={(value) => {
+                        if (value !== NEW_AGENT_PLACEHOLDER) {
+                          props.setNewAndUnsaved(false);
+                        }
+                        if (value) {
+                          setFieldValue(AGENT_ID_PATH, value);
+                          setFieldTouched(AGENT_ID_PATH, true);
+                        }
+                      }}
+                      placeholder="Select an agent"
+                      compressed
+                      fullWidth
+                      isOpen={isEmpty(selectedAgentId)}
+                    />
                   </EuiFlexItem>
-                  <EuiFlexItem grow={false} style={{ marginTop: '24px' }}>
+                  <EuiFlexItem grow={false}>
                     <EuiFlexGroup
                       direction="row"
                       gutterSize="s"
