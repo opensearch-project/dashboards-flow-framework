@@ -1033,6 +1033,10 @@ export enum COMPONENT_ID {
 // not override the default styles from the EuiCard component.
 export const LEFT_NAV_SELECTED_STYLE = '2px solid rgba(128, 128, 128, 0.8)';
 
+/**
+ * Agents / tools constants
+ */
+
 // Derived from https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/agents/index/
 export enum AGENT_TYPE {
   FLOW = 'flow',
@@ -1104,3 +1108,31 @@ export const DEFAULT_MCP_SERVER = {
   mcp_connector_id: '',
   tool_filters: [],
 } as MCPConnector;
+
+export const EXAMPLE_PUT_AGENTIC_SEARCH_PIPELINE = `PUT _search/pipeline/agentic-pipeline
+{
+  "request_processors": [
+    {
+      "agentic_query_translator": {
+        "agent_id": "${AGENT_ID_PATTERN}"
+      }
+    }
+  ],
+  "response_processors": [
+    {
+      "agentic_context": {
+        "agent_steps_summary": true,
+        "dsl_query": true
+      }
+    }
+  ]
+}`;
+
+export const EXAMPLE_AGENTIC_SEARCH_QUERY = `GET <your-index>/_search?search_pipeline=agentic-pipeline
+{
+  "query": {
+    "agentic": {
+      "query_text": "<your-search-query>",
+    }
+  }
+}`;

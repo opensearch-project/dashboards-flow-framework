@@ -16,6 +16,8 @@ import {
 import {
   AGENT_ID_PATTERN,
   AGENTIC_SEARCH_DOCS_LINK,
+  EXAMPLE_AGENTIC_SEARCH_QUERY,
+  EXAMPLE_PUT_AGENTIC_SEARCH_PIPELINE,
   Workflow,
 } from '../../../../common';
 
@@ -23,33 +25,8 @@ interface AgenticSearchApplicationContentProps {
   workflow?: Workflow;
 }
 
-const PUT_AGENTIC_SEARCH_PIPELINE = `PUT _search/pipeline/agentic-pipeline
-{
-  "request_processors": [
-    {
-      "agentic_query_translator": {
-        "agent_id": "${AGENT_ID_PATTERN}"
-      }
-    }
-  ],
-  "response_processors": [
-    {
-      "agentic_context": {
-        "agent_steps_summary": true,
-        "dsl_query": true
-      }
-    }
-  ]
-}`;
-
-const AGENTIC_SEARCH_QUERY = `GET <your-index>/_search?search_pipeline=agentic-pipeline
-{
-  "query": {
-    "agentic": {
-      "query_text": "<your-search-query>",
-    }
-  }
-}`;
+const NO_AGENT_FOUND_TEXT =
+  'No agent found. Make sure to select an agent before trying to use agentic search in your application.';
 
 /**
  * Static content for next steps & how to use agentic search in your application
@@ -69,8 +46,7 @@ export function AgenticSearchApplicationContent(
             color="warning"
             data-testid="noAgentFoundCallout"
           >
-            No agent found. Make sure to select an agent before trying to use
-            agentic search in your application.
+            {NO_AGENT_FOUND_TEXT}
           </EuiCallOut>
         </EuiFlexItem>
       ) : (
@@ -101,7 +77,10 @@ export function AgenticSearchApplicationContent(
                 whiteSpace="pre"
                 isCopyable={true}
               >
-                {injectAgentId(PUT_AGENTIC_SEARCH_PIPELINE, selectedAgentId)}
+                {injectAgentId(
+                  EXAMPLE_PUT_AGENTIC_SEARCH_PIPELINE,
+                  selectedAgentId
+                )}
               </EuiCodeBlock>
             </EuiAccordion>
           </EuiFlexItem>
@@ -121,7 +100,7 @@ export function AgenticSearchApplicationContent(
                 whiteSpace="pre"
                 isCopyable={true}
               >
-                {AGENTIC_SEARCH_QUERY}
+                {EXAMPLE_AGENTIC_SEARCH_QUERY}
               </EuiCodeBlock>
             </EuiAccordion>
           </EuiFlexItem>

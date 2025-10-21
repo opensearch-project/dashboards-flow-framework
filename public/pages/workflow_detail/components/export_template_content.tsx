@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { isEmpty, toLower } from 'lodash';
 import yaml from 'js-yaml';
 import {
@@ -56,13 +56,12 @@ export function ExportTemplateContent(props: ExportTemplateContentProps) {
 
   // client-side file to be downloaded if the user so chooses. Generate a file
   // and its corresponding URL.
-  const [formattedConfigHref, setFormattedConfigHref] = useState<string>('');
-  useEffect(() => {
+  const formattedConfigHref = useMemo(() => {
     if (!isEmpty(formattedConfig)) {
       const formattedConfigFile = new Blob([formattedConfig], {
         type: `text/${toLower(selectedOption)}`,
       });
-      setFormattedConfigHref(URL.createObjectURL(formattedConfigFile));
+      return URL.createObjectURL(formattedConfigFile);
     }
   }, [formattedConfig]);
 
