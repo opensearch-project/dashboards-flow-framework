@@ -10,6 +10,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Add agent summary ([#801](https://github.com/opensearch-project/dashboards-flow-framework/pull/801))
 - Clean up agent summary formatting ([#803](https://github.com/opensearch-project/dashboards-flow-framework/pull/803))
 - [Agentic Search] Add MCP server support ([#802](https://github.com/opensearch-project/dashboards-flow-framework/pull/802))
+- [Agentic Search] Improve export / next steps UX ([#805](https://github.com/opensearch-project/dashboards-flow-framework/pull/805))
 ### Bug Fixes
 ### Infrastructure
 ### Documentation

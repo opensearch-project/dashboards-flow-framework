@@ -11,7 +11,7 @@ import { EuiFormRow, EuiLink, EuiSelect, EuiText } from '@elastic/eui';
 import {
   Agent,
   AGENT_TYPE,
-  AGENTIC_SEARCH_DOCS_LINK,
+  AGENTIC_SEARCH_MODELS_DOCS_LINK,
   AgentLLM,
   Model,
   MODEL_STATE,
@@ -76,7 +76,7 @@ export function AgentLLMFields({
       fullWidth
       labelAppend={
         <EuiText size="xs">
-          <EuiLink href={AGENTIC_SEARCH_DOCS_LINK} target="_blank">
+          <EuiLink href={AGENTIC_SEARCH_MODELS_DOCS_LINK} target="_blank">
             Learn more
           </EuiLink>
         </EuiText>
