@@ -149,9 +149,20 @@ export function TestFlow(props: TestFlowProps) {
           }}
         >
           <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
-            <EuiTitle>
-              <h3>Test flow</h3>
-            </EuiTitle>
+            <EuiFlexGroup
+              direction="row"
+              gutterSize="none"
+              justifyContent="spaceBetween"
+            >
+              <EuiFlexItem grow={false}>
+                <EuiTitle>
+                  <h3>Test flow</h3>
+                </EuiTitle>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false} style={{ width: '400px' }}>
+                <IndexSelector agentType={agent?.type} />
+              </EuiFlexItem>
+            </EuiFlexGroup>
           </EuiFlexItem>
           <EuiFlexItem
             style={{
@@ -161,7 +172,7 @@ export function TestFlow(props: TestFlowProps) {
               overflowX: 'hidden',
             }}
           >
-            <EuiPanel color="subdued" paddingSize="s">
+            <EuiPanel paddingSize="none" hasBorder={false} hasShadow={false}>
               <EuiFlexGroup direction="column" gutterSize="m">
                 {formError !== undefined && (
                   <EuiFlexItem grow={false} style={{ marginBottom: '-12px' }}>
@@ -176,9 +187,6 @@ export function TestFlow(props: TestFlowProps) {
                     <EuiSpacer size="m" />
                   </EuiFlexItem>
                 )}
-                <EuiFlexItem grow={false}>
-                  <IndexSelector agentType={agent?.type} />
-                </EuiFlexItem>
                 <EuiFlexItem grow={false}>
                   <SearchQuery
                     setSearchPipeline={setRuntimeSearchPipeline}

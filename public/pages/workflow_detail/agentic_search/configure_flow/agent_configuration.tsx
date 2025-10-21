@@ -225,6 +225,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                   gutterSize="none"
                   alignItems="center"
                   justifyContent="spaceBetween"
+                  style={{ marginTop: '-8px' }}
                 >
                   <EuiFlexItem>
                     <EuiSuperSelect
