@@ -396,6 +396,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                                   onClick={() => {
                                     setIsSelectingAgentType(true);
                                   }}
+                                  color="hollow"
                                   onClickAriaLabel="Open agent type selector"
                                 >
                                   {agentType
