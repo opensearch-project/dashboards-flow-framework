@@ -12,7 +12,6 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiTitle,
-  EuiSpacer,
   EuiPanel,
   EuiHorizontalRule,
   EuiEmptyPrompt,
@@ -58,6 +57,7 @@ export function TestFlow(props: TestFlowProps) {
   const { indices, loading: opensearchLoading } = useSelector(
     (state: AppState) => state.opensearch
   );
+  const noIndices = Object.values(indices ?? {}).length === 0;
 
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
   const finalQuery = (() => {
@@ -178,17 +178,16 @@ export function TestFlow(props: TestFlowProps) {
           >
             <EuiPanel paddingSize="none" hasBorder={false} hasShadow={false}>
               <EuiFlexGroup direction="column" gutterSize="m">
-                {!opensearchLoading && Object.values(indices)?.length === 0 && (
+                {!opensearchLoading && noIndices && (
                   <EuiFlexItem grow={false}>
                     <NoIndicesCallout />
                   </EuiFlexItem>
                 )}
                 {formError !== undefined && (
-                  <EuiFlexItem grow={false} style={{ marginBottom: '-12px' }}>
+                  <EuiFlexItem grow={false}>
                     <EuiCallOut size="s" color="danger">
                       <p>{formError}</p>
                     </EuiCallOut>
-                    <EuiSpacer size="m" />
                   </EuiFlexItem>
                 )}
                 <EuiFlexItem grow={false}>

@@ -351,12 +351,16 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                                   style={{ width: '200px' }}
                                   singleSelection={{ asPlainText: true }}
                                   options={dynamicAgentTypeOptions}
-                                  selectedOptions={[
-                                    {
-                                      label: capitalize(agentType),
-                                      value: agentType,
-                                    },
-                                  ]}
+                                  selectedOptions={
+                                    agentType
+                                      ? [
+                                          {
+                                            label: capitalize(agentType),
+                                            value: agentType,
+                                          },
+                                        ]
+                                      : []
+                                  }
                                   onChange={(options) => {
                                     const agentFormCopy = cloneDeep(
                                       props.agentForm
@@ -394,7 +398,9 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                                   }}
                                   onClickAriaLabel="Open agent type selector"
                                 >
-                                  {capitalize(agentType)}
+                                  {agentType
+                                    ? capitalize(agentType)
+                                    : 'No type configured'}
                                 </EuiBadge>
                               )}
                             </EuiFormRow>
