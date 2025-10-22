@@ -31,7 +31,7 @@ export function IndexDetailsModal(props: IndexDetailsModalProps) {
   return (
     <EuiModal style={{ width: '70vw' }} onClose={props.onClose}>
       <EuiModalHeader>
-        <EuiModalHeaderTitle>Index Details</EuiModalHeaderTitle>
+        <EuiModalHeaderTitle>{`Index '${props.indexName}'`}</EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
         <EuiCodeBlock

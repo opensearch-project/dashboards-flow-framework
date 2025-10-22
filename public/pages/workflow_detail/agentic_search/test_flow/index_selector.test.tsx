@@ -102,13 +102,10 @@ describe('IndexSelector', () => {
     jest.clearAllMocks();
   });
 
-  test('renders the component', () => {
+  test('renders the component ', () => {
     renderIndexSelector(AGENT_TYPE.FLOW);
 
     expect(screen.getByText('Index')).toBeInTheDocument();
-
-    const viewDetailsButton = screen.getByTestId('viewIndexDetailsButton');
-    expect(viewDetailsButton).toBeInTheDocument();
 
     const indexSelector = screen.getByTestId('indexSelector');
     expect(indexSelector).toBeInTheDocument();

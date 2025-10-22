@@ -276,7 +276,7 @@ export function SearchQuery(props: SearchQueryProps) {
                   onChange={handleSimpleQueryChange}
                   compressed
                   fullWidth
-                  rows={1}
+                  rows={2}
                 />
               </EuiFlexItem>
               <EuiFlexItem>

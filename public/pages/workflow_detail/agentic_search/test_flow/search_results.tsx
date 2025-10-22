@@ -138,97 +138,103 @@ export function SearchResults(props: SearchResultsProps) {
           </EuiFlexGroup>
         </EuiFlexItem>
         {props.searchResponse && showResults && (
-          <EuiFlexGroup direction="column" gutterSize="s">
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup direction="row" justifyContent="spaceBetween">
-                <EuiFlexItem grow={false}>
-                  <EuiButtonGroup
-                    buttonSize="compressed"
-                    legend="Results View"
-                    options={RESULTS_VIEW_OPTIONS}
-                    idSelected={selectedView}
-                    onChange={handleViewChange}
-                    isFullWidth={false}
-                    style={{ width: '275px' }}
-                    data-testid="resultsViewButtonGroup"
-                  />
-                </EuiFlexItem>
-                {hasAgentSummary(props.searchResponse) && (
+          <EuiFlexItem grow={false}>
+            <EuiFlexGroup direction="column" gutterSize="s">
+              <EuiFlexItem grow={false}>
+                <EuiFlexGroup direction="row" justifyContent="spaceBetween">
                   <EuiFlexItem grow={false}>
-                    <EuiSmallButtonEmpty
-                      iconType="generate"
-                      onClick={() => setShowAgentSummaryModal(true)}
-                    >
-                      View agent summary
-                    </EuiSmallButtonEmpty>
+                    <EuiButtonGroup
+                      buttonSize="compressed"
+                      legend="Results View"
+                      options={RESULTS_VIEW_OPTIONS}
+                      idSelected={selectedView}
+                      onChange={handleViewChange}
+                      isFullWidth={false}
+                      style={{ width: '275px' }}
+                      data-testid="resultsViewButtonGroup"
+                    />
                   </EuiFlexItem>
-                )}
-              </EuiFlexGroup>
-            </EuiFlexItem>
-            <EuiFlexItem>
-              <EuiText size="xs" color="subdued" style={{ marginLeft: '4px' }}>
-                <i>
-                  {props.searchResponse?.hits?.total?.value !== undefined && (
-                    <span>
-                      {props.searchResponse.hits.total.value} documents
-                    </span>
+                  {hasAgentSummary(props.searchResponse) && (
+                    <EuiFlexItem grow={false}>
+                      <EuiSmallButtonEmpty
+                        iconType="generate"
+                        onClick={() => setShowAgentSummaryModal(true)}
+                      >
+                        View agent summary
+                      </EuiSmallButtonEmpty>
+                    </EuiFlexItem>
                   )}
-                </i>
-                <i>
-                  {props.searchResponse?.took !== undefined && (
-                    <span> · {props.searchResponse.took}ms</span>
-                  )}
-                </i>
-              </EuiText>
-            </EuiFlexItem>
-            <EuiFlexItem>
-              {selectedView === RESULTS_VIEW.HITS ? (
-                <>
-                  {hasHits(props.searchResponse) ? (
-                    <div data-testid="resultsTableContainer">
-                      <ResultsTable
-                        hits={props.searchResponse?.hits?.hits || []}
-                      />
-                    </div>
-                  ) : (
-                    <EuiText size="s" data-testid="noDocumentsMessage">
-                      No documents found
-                    </EuiText>
-                  )}
-                </>
-              ) : selectedView === RESULTS_VIEW.AGGREGATIONS ? (
-                <>
-                  {hasAggregations(props.searchResponse) ? (
+                </EuiFlexGroup>
+              </EuiFlexItem>
+              <EuiFlexItem>
+                <EuiText
+                  size="xs"
+                  color="subdued"
+                  style={{ marginLeft: '4px' }}
+                >
+                  <i>
+                    {props.searchResponse?.hits?.total?.value !== undefined && (
+                      <span>
+                        {props.searchResponse.hits.total.value} documents
+                      </span>
+                    )}
+                  </i>
+                  <i>
+                    {props.searchResponse?.took !== undefined && (
+                      <span> · {props.searchResponse.took}ms</span>
+                    )}
+                  </i>
+                </EuiText>
+              </EuiFlexItem>
+              <EuiFlexItem>
+                {selectedView === RESULTS_VIEW.HITS ? (
+                  <>
+                    {hasHits(props.searchResponse) ? (
+                      <div data-testid="resultsTableContainer">
+                        <ResultsTable
+                          hits={props.searchResponse?.hits?.hits || []}
+                        />
+                      </div>
+                    ) : (
+                      <EuiText size="s" data-testid="noDocumentsMessage">
+                        No documents found
+                      </EuiText>
+                    )}
+                  </>
+                ) : selectedView === RESULTS_VIEW.AGGREGATIONS ? (
+                  <>
+                    {hasAggregations(props.searchResponse) ? (
+                      <EuiCodeBlock
+                        language="json"
+                        fontSize="s"
+                        paddingSize="m"
+                        isCopyable
+                        data-testid="aggregationsCodeBlock"
+                      >
+                        {customStringify(props.searchResponse.aggregations)}
+                      </EuiCodeBlock>
+                    ) : (
+                      <EuiText size="s" data-testid="noAggregationsMessage">
+                        No aggregations found
+                      </EuiText>
+                    )}
+                  </>
+                ) : (
+                  <>
                     <EuiCodeBlock
                       language="json"
                       fontSize="s"
                       paddingSize="m"
                       isCopyable
-                      data-testid="aggregationsCodeBlock"
+                      data-testid="rawResponseCodeBlock"
                     >
-                      {customStringify(props.searchResponse.aggregations)}
+                      {customStringify(props.searchResponse)}
                     </EuiCodeBlock>
-                  ) : (
-                    <EuiText size="s" data-testid="noAggregationsMessage">
-                      No aggregations found
-                    </EuiText>
-                  )}
-                </>
-              ) : (
-                <>
-                  <EuiCodeBlock
-                    language="json"
-                    fontSize="s"
-                    paddingSize="m"
-                    isCopyable
-                    data-testid="rawResponseCodeBlock"
-                  >
-                    {customStringify(props.searchResponse)}
-                  </EuiCodeBlock>
-                </>
-              )}
-            </EuiFlexItem>
-          </EuiFlexGroup>
+                  </>
+                )}
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </EuiFlexItem>
         )}
       </EuiFlexGroup>
     </>

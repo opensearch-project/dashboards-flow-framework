@@ -134,7 +134,6 @@ export function QueryFieldSelector(props: QueryFieldSelectorProps) {
            */}
           <div ref={comboBoxRef as React.RefObject<HTMLDivElement>}>
             <EuiComboBox
-              style={{ width: '50vw' }}
               placeholder="Select fields"
               options={getFieldOptions(props.fieldMappings)}
               selectedOptions={selectedFields}
@@ -154,6 +153,7 @@ export function QueryFieldSelector(props: QueryFieldSelectorProps) {
               }
               isClearable={true}
               isDisabled={false}
+              compressed
               fullWidth
               onBlur={() => {
                 // If dropdown is closed and no selections, go back to button

@@ -9,13 +9,9 @@ import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
   EuiSelect,
-  EuiToolTip,
-  EuiIcon,
   EuiFlexGroup,
   EuiFlexItem,
   EuiButtonEmpty,
-  EuiTitle,
-  EuiSpacer,
 } from '@elastic/eui';
 import {
   AppState,
@@ -30,7 +26,6 @@ import {
   WorkflowFormValues,
 } from '../../../../../common';
 import { IndexDetailsModal } from './index_details_modal';
-import { NoIndicesCallout } from '../components';
 
 interface IndexSelectorProps {
   agentType?: AGENT_TYPE;
@@ -83,60 +78,7 @@ export function IndexSelector(props: IndexSelectorProps) {
 
   return (
     <>
-      <EuiFlexGroup
-        direction="row"
-        justifyContent="spaceBetween"
-        alignItems="center"
-        style={{ paddingLeft: '2px' }}
-      >
-        <EuiFlexItem grow={false}>
-          <EuiFlexGroup direction="row" gutterSize="none" alignItems="center">
-            <EuiFlexItem grow={false} style={{ marginRight: '4px' }}>
-              <EuiIcon type="document" />
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiTitle size="xs">
-                <h5>Index</h5>
-              </EuiTitle>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiToolTip content="Choose the index that contains the data you want to search, or search against all indices.">
-                <EuiIcon
-                  type="questionInCircle"
-                  color="subdued"
-                  style={{ marginLeft: '4px' }}
-                />
-              </EuiToolTip>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiFlexGroup direction="row">
-            <EuiFlexItem grow={false}>
-              <EuiButtonEmpty
-                data-testid="viewIndexDetailsButton"
-                size="s"
-                disabled={isEmpty(selectedIndexName)}
-                onClick={async () => {
-                  await dispatch(
-                    getIndex({ index: selectedIndexName, dataSourceId })
-                  )
-                    .unwrap()
-                    .then(() => {
-                      setIsDetailsModalVisible(true);
-                    });
-                }}
-              >
-                View details
-              </EuiButtonEmpty>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-      <EuiSpacer size="s" />
-      {indexOptions.length === 0 ? (
-        <NoIndicesCallout />
-      ) : (
+      {indexOptions.length !== 0 && (
         <>
           {isDetailsModalVisible && (
             <IndexDetailsModal
@@ -144,9 +86,10 @@ export function IndexSelector(props: IndexSelectorProps) {
               indexName={selectedIndexName}
             />
           )}
-          <EuiFlexGroup gutterSize="s" alignItems="center">
+          <EuiFlexGroup gutterSize="xs" direction="row" alignItems="center">
             <EuiFlexItem>
               <EuiSelect
+                prepend="Index"
                 data-testid="indexSelector"
                 options={indexOptions}
                 value={
@@ -168,6 +111,25 @@ export function IndexSelector(props: IndexSelectorProps) {
                 compressed
               />
             </EuiFlexItem>
+            {!isEmpty(selectedIndexName) && (
+              <EuiFlexItem grow={false}>
+                <EuiButtonEmpty
+                  data-testid="viewIndexDetailsButton"
+                  size="s"
+                  onClick={async () => {
+                    await dispatch(
+                      getIndex({ index: selectedIndexName, dataSourceId })
+                    )
+                      .unwrap()
+                      .then(() => {
+                        setIsDetailsModalVisible(true);
+                      });
+                  }}
+                >
+                  View details
+                </EuiButtonEmpty>
+              </EuiFlexItem>
+            )}
           </EuiFlexGroup>
         </>
       )}

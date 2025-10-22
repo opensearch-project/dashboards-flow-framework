@@ -12,7 +12,6 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiTitle,
-  EuiSpacer,
   EuiPanel,
   EuiHorizontalRule,
   EuiEmptyPrompt,
@@ -36,6 +35,7 @@ import {
   AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT,
   getDataSourceId,
 } from '../../../../utils';
+import { NoIndicesCallout } from '../components';
 
 interface TestFlowProps {
   uiConfig: WorkflowConfig | undefined;
@@ -54,6 +54,10 @@ export function TestFlow(props: TestFlowProps) {
   const dataSourceId = getDataSourceId();
   const { values } = useFormikContext<WorkflowFormValues>();
   const { agents, loading } = useSelector((state: AppState) => state.ml);
+  const { indices, loading: opensearchLoading } = useSelector(
+    (state: AppState) => state.opensearch
+  );
+  const noIndices = Object.values(indices ?? {}).length === 0;
 
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
   const finalQuery = (() => {
@@ -149,9 +153,20 @@ export function TestFlow(props: TestFlowProps) {
           }}
         >
           <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
-            <EuiTitle>
-              <h3>Test flow</h3>
-            </EuiTitle>
+            <EuiFlexGroup
+              direction="row"
+              gutterSize="s"
+              justifyContent="spaceBetween"
+            >
+              <EuiFlexItem grow={false}>
+                <EuiTitle>
+                  <h3>Test flow</h3>
+                </EuiTitle>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false} style={{ width: '400px' }}>
+                <IndexSelector agentType={agent?.type} />
+              </EuiFlexItem>
+            </EuiFlexGroup>
           </EuiFlexItem>
           <EuiFlexItem
             style={{
@@ -161,24 +176,20 @@ export function TestFlow(props: TestFlowProps) {
               overflowX: 'hidden',
             }}
           >
-            <EuiPanel color="subdued" paddingSize="s">
+            <EuiPanel paddingSize="none" hasBorder={false} hasShadow={false}>
               <EuiFlexGroup direction="column" gutterSize="m">
-                {formError !== undefined && (
-                  <EuiFlexItem grow={false} style={{ marginBottom: '-12px' }}>
-                    <EuiCallOut
-                      size="s"
-                      title="Error"
-                      color="danger"
-                      iconType="alert"
-                    >
-                      <p>{formError}</p>
-                    </EuiCallOut>
-                    <EuiSpacer size="m" />
+                {!opensearchLoading && noIndices && (
+                  <EuiFlexItem grow={false}>
+                    <NoIndicesCallout />
                   </EuiFlexItem>
                 )}
-                <EuiFlexItem grow={false}>
-                  <IndexSelector agentType={agent?.type} />
-                </EuiFlexItem>
+                {formError !== undefined && (
+                  <EuiFlexItem grow={false}>
+                    <EuiCallOut size="s" color="danger">
+                      <p>{formError}</p>
+                    </EuiCallOut>
+                  </EuiFlexItem>
+                )}
                 <EuiFlexItem grow={false}>
                   <SearchQuery
                     setSearchPipeline={setRuntimeSearchPipeline}

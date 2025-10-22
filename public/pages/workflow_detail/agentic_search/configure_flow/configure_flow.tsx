@@ -230,7 +230,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
             overflowX: 'hidden',
           }}
         >
-          <EuiPanel color="subdued" paddingSize="s">
+          <EuiPanel paddingSize="none" hasBorder={false} hasShadow={false}>
             <EuiFlexGroup direction="column">
               <EuiFlexItem>
                 <AgentConfiguration
