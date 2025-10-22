@@ -95,7 +95,7 @@ export function IndexSelector(props: IndexSelectorProps) {
               {isSelectingIndex ? (
                 <EuiComboBox
                   data-testid="indexSelector"
-                  style={{ width: '200px' }}
+                  style={{ width: '400px' }}
                   singleSelection={{ asPlainText: true }}
                   options={indexOptions}
                   selectedOptions={
