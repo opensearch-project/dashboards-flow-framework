@@ -104,9 +104,6 @@ describe('AgentTools', () => {
       screen.getByTestId('queryplanningtoolToolToggle')
     ).toBeInTheDocument();
 
-    // Check that the model field is rendered
-    expect(screen.getByTestId('queryPlanningModelField')).toBeInTheDocument();
-
     // Check that the generation type field is rendered
     expect(screen.getByTestId('generationTypeField')).toBeInTheDocument();
     expect(screen.getByTestId('generationTypeRadioGroup')).toBeInTheDocument();

@@ -163,7 +163,7 @@ export function TestFlow(props: TestFlowProps) {
                   <h3>Test flow</h3>
                 </EuiTitle>
               </EuiFlexItem>
-              <EuiFlexItem grow={false} style={{ width: '400px' }}>
+              <EuiFlexItem grow={false}>
                 <IndexSelector agentType={agent?.type} />
               </EuiFlexItem>
             </EuiFlexGroup>

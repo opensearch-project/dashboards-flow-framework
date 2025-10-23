@@ -100,9 +100,10 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
     (agentType !== AGENT_TYPE.FLOW && isEmpty(agentForm.llm?.model_id)) ||
     (agentType !== AGENT_TYPE.FLOW &&
       isEmpty(agentForm.parameters?._llm_interface)) ||
-    (!isEmpty(
-      agentTools.find((tool) => tool.type === TOOL_TYPE.QUERY_PLANNING)
-    ) &&
+    (agentType === AGENT_TYPE.FLOW &&
+      !isEmpty(
+        agentTools.find((tool) => tool.type === TOOL_TYPE.QUERY_PLANNING)
+      ) &&
       isEmpty(
         agentTools.find((tool) => tool.type === TOOL_TYPE.QUERY_PLANNING)
           ?.parameters?.model_id

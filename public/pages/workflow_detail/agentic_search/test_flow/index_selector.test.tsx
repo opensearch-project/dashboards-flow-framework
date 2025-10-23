@@ -12,6 +12,7 @@ import { AGENT_TYPE } from '../../../../../common';
 import { FormikContext, FormikContextType } from 'formik';
 import configureStore from 'redux-mock-store';
 import { INITIAL_OPENSEARCH_STATE } from '../../../../store';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('../../../../services', () => {
   const { mockCoreServices } = require('../../../../../test/mocks');
@@ -102,49 +103,49 @@ describe('IndexSelector', () => {
     jest.clearAllMocks();
   });
 
-  test('renders the component ', () => {
+  test('renders badge by default', () => {
     renderIndexSelector(AGENT_TYPE.FLOW);
 
-    expect(screen.getByText('Index')).toBeInTheDocument();
+    const indexBadge = screen.getByTestId('indexBadge');
+    expect(indexBadge).toBeInTheDocument();
+  });
 
+  test('clicking badge opens selector', async () => {
+    renderIndexSelector(AGENT_TYPE.FLOW);
+
+    const indexBadge = screen.getByTestId('indexBadge');
+    await userEvent.click(indexBadge);
     const indexSelector = screen.getByTestId('indexSelector');
     expect(indexSelector).toBeInTheDocument();
   });
 
-  test('system indices hidden', () => {
+  test('system indices hidden', async () => {
     renderIndexSelector(AGENT_TYPE.FLOW);
 
-    expect(screen.getByText('Index')).toBeInTheDocument();
-
-    const indexSelector = screen.getByTestId('indexSelector');
-    indexSelector.click();
-
+    const indexBadge = screen.getByTestId('indexBadge');
+    await userEvent.click(indexBadge);
     expect(screen.queryByText('.system')).not.toBeInTheDocument();
   });
 
-  test('all indices option is hidden for flow agents', () => {
+  test('all indices option is hidden for flow agents', async () => {
     renderIndexSelector(AGENT_TYPE.FLOW);
 
-    expect(screen.getByText('Index')).toBeInTheDocument();
-
-    const indexSelector = screen.getByTestId('indexSelector');
-    indexSelector.click();
+    const indexBadge = screen.getByTestId('indexBadge');
+    await userEvent.click(indexBadge);
 
     expect(screen.getByText('index1')).toBeInTheDocument();
     expect(screen.getByText('index2')).toBeInTheDocument();
     expect(screen.queryByText('All indices')).not.toBeInTheDocument();
   });
 
-  test('all indices option is visible for conversational agents', () => {
+  test('all indices option is visible for conversational agents', async () => {
     renderIndexSelector(AGENT_TYPE.CONVERSATIONAL);
 
-    expect(screen.getByText('Index')).toBeInTheDocument();
-
-    const indexSelector = screen.getByTestId('indexSelector');
-    indexSelector.click();
+    const indexBadge = screen.getByTestId('indexBadge');
+    await userEvent.click(indexBadge);
 
     expect(screen.getByText('index1')).toBeInTheDocument();
     expect(screen.getByText('index2')).toBeInTheDocument();
-    expect(screen.getByText('All indices')).toBeInTheDocument();
+    expect(screen.getAllByText('All indices').length).toBeGreaterThanOrEqual(2); // The same text should be visible in the badge
   });
 });

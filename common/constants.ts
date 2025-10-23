@@ -1061,6 +1061,14 @@ export enum TOOL_TYPE {
   WEB_SEARCH = 'WebSearchTool',
 }
 
+export enum TOOL_DESCRIPTION {
+  QUERY_PLANNING = 'Generates an OpenSearch query domain-specific language (DSL) query from a natural language question',
+  SEARCH_INDEX = 'Searches an index using a query written in query domain-specific language (DSL)',
+  LIST_INDEX = 'Retrieves index information for the OpenSearch cluster',
+  INDEX_MAPPING = 'Retrieves index mapping and setting information for an index',
+  WEB_SEARCH = 'Answers a user’s question using a web search',
+}
+
 // Memory types supported by agents.
 // Derived from https://docs.opensearch.org/latest/ml-commons-plugin/api/agent-apis/register-agent/
 export enum AGENT_MEMORY_TYPE {

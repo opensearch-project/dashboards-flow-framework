@@ -25,7 +25,6 @@ import {
   MEMORY_DOCS_LINK,
   ModelDict,
 } from '../../../../../common';
-import { AgentParameters } from './agent_parameters';
 import { AgentMemory } from './agent_memory';
 import { AppState } from '../../../../store';
 
@@ -148,14 +147,6 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
           <EuiSpacer size="s" />
         </>
       )}
-      <EuiFlexItem>
-        <EuiFormRow label="Parameters" fullWidth>
-          <AgentParameters
-            agentForm={props.agentForm}
-            setAgentForm={props.setAgentForm}
-          />
-        </EuiFormRow>
-      </EuiFlexItem>
     </EuiAccordion>
   );
 }

@@ -100,17 +100,9 @@ export function AgentLLMFields({
                   ]
             }
             value={selectedModelId}
-            // always update the query planning model ID, if applicable
             // if a conversational agent, also set it as the main LLM orchestration agent
             onChange={(e) => {
               let updatedAgentForm = cloneDeep(agentForm);
-              if (queryPlanningToolIndex !== -1) {
-                set(
-                  updatedAgentForm,
-                  `tools.${queryPlanningToolIndex}.parameters.model_id`,
-                  e.target.value
-                );
-              }
               if (agentType === AGENT_TYPE.CONVERSATIONAL) {
                 set(updatedAgentForm, 'llm.model_id', e.target.value);
               }
