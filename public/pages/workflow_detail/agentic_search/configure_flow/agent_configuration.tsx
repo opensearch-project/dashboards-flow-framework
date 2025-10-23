@@ -418,7 +418,8 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                                                   setIsSelectingAgentType(true);
                                                 }
                                           }
-                                          color="hollow"
+                                          color={'hollow'}
+                                          isDisabled={!props.newAndUnsaved}
                                           onClickAriaLabel="Open agent type selector"
                                         >
                                           {agentType
@@ -426,21 +427,26 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                                             : 'No type configured'}
                                         </EuiBadge>
                                       </EuiFlexItem>
-                                      {!props.newAndUnsaved && (
-                                        <EuiFlexItem grow={false}>
-                                          <EuiToolTip
-                                            content={
-                                              'Agent types cannot be changed after agent creation.'
+                                      <EuiFlexItem
+                                        grow={false}
+                                        style={{ marginBottom: '4px' }}
+                                      >
+                                        <EuiToolTip
+                                          content={
+                                            'Agent types cannot be changed after agent creation.'
+                                          }
+                                        >
+                                          <EuiIcon
+                                            type={
+                                              props.newAndUnsaved
+                                                ? 'lockOpen'
+                                                : 'lock'
                                             }
-                                          >
-                                            <EuiIcon
-                                              type="lock"
-                                              size="s"
-                                              color="subdued"
-                                            />
-                                          </EuiToolTip>
-                                        </EuiFlexItem>
-                                      )}
+                                            size="s"
+                                            color="subdued"
+                                          />
+                                        </EuiToolTip>
+                                      </EuiFlexItem>
                                     </EuiFlexGroup>
                                   )}
                                 </EuiFormRow>
