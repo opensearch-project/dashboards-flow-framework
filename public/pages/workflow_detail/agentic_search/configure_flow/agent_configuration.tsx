@@ -26,6 +26,8 @@ import {
   EuiComboBox,
   EuiComboBoxOptionOption,
   EuiSuperSelect,
+  EuiToolTip,
+  EuiIcon,
 } from '@elastic/eui';
 import {
   Agent,
@@ -345,7 +347,23 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                             </EuiFormRow>
                           </EuiFlexItem>
                           <EuiFlexItem grow={false}>
-                            <EuiFormRow label="Type" fullWidth>
+                            <EuiFormRow
+                              label="Type"
+                              labelAppend={
+                                <EuiToolTip
+                                  content={
+                                    'Agent types cannot be changed after agent creation.'
+                                  }
+                                >
+                                  <EuiIcon
+                                    type="questionInCircle"
+                                    color="subdued"
+                                    style={{ marginLeft: '4px' }}
+                                  />
+                                </EuiToolTip>
+                              }
+                              fullWidth
+                            >
                               {isSelectingAgentType ? (
                                 <EuiComboBox
                                   style={{ width: '200px' }}
@@ -393,9 +411,13 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                                 />
                               ) : (
                                 <EuiBadge
-                                  onClick={() => {
-                                    setIsSelectingAgentType(true);
-                                  }}
+                                  onClick={
+                                    !props.newAndUnsaved
+                                      ? undefined
+                                      : () => {
+                                          setIsSelectingAgentType(true);
+                                        }
+                                  }
                                   color="hollow"
                                   onClickAriaLabel="Open agent type selector"
                                 >
