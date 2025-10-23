@@ -23,9 +23,9 @@ import {
 } from '@elastic/eui';
 import {
   Agent,
+  AGENT_TYPE,
   Model,
   MODEL_STATE,
-  ModelDict,
   QUERY_PLANNING_MODEL_DOCS_LINK,
   QUERY_PLANNING_TOOL_DOCS_LINK,
   Tool,
@@ -81,7 +81,7 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
         }))
     );
   }, [models]);
-
+  const agentType = getIn(props.agentForm, 'type', '').toLowerCase() as string;
   const toolForm = getIn(props.agentForm, `tools.${props.toolIndex}`) as Tool;
   const generationType =
     toolForm?.parameters?.generation_type || GENERATION_TYPE.LLM;
@@ -93,9 +93,8 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
     label: option.text,
   }));
   const selectedModelId = toolForm?.parameters?.model_id;
-  const modelFound = Object.values(models || ({} as ModelDict)).some(
-    (model: Model) => model.id === selectedModelId
-  );
+  const selectedModel = getIn(models, selectedModelId) as Model | undefined;
+  const modelFound = selectedModel !== undefined;
   const modelEmpty = isEmpty(selectedModelId);
 
   /**
@@ -159,55 +158,57 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
         </EuiText>
       </EuiFlexItem>
       <EuiSpacer size="s" />
-      <EuiFormRow
-        label="Model"
-        data-testid="queryPlanningModelField"
-        labelAppend={
-          <EuiText size="xs">
-            <EuiLink href={QUERY_PLANNING_MODEL_DOCS_LINK} target="_blank">
-              Learn more
-            </EuiLink>
-          </EuiText>
-        }
-        fullWidth
-        isInvalid={!modelFound && !modelEmpty}
-      >
-        <>
-          {modelOptions.length === 0 ? (
-            <NoDeployedModelsCallout />
-          ) : (
-            <EuiSelect
-              options={
-                modelFound || modelEmpty
-                  ? modelOptions
-                  : [
-                      ...modelOptions,
-                      {
-                        value: selectedModelId,
-                        text: `Unknown model (ID: ${selectedModelId})`,
-                      },
-                    ]
-              }
-              value={selectedModelId}
-              onChange={(e) => {
-                updateParameterValue(
-                  props.agentForm,
-                  props.setAgentForm,
-                  props.toolIndex,
-                  'model_id',
-                  e.target.value
-                );
-              }}
-              aria-label="Select model"
-              placeholder="Select a model"
-              hasNoInitialSelection={true}
-              isInvalid={!modelFound && !modelEmpty}
-              fullWidth
-              compressed
-            />
-          )}
-        </>
-      </EuiFormRow>
+      {agentType === AGENT_TYPE.FLOW && (
+        <EuiFormRow
+          label="Model"
+          data-testid="queryPlanningModelField"
+          labelAppend={
+            <EuiText size="xs">
+              <EuiLink href={QUERY_PLANNING_MODEL_DOCS_LINK} target="_blank">
+                Learn more
+              </EuiLink>
+            </EuiText>
+          }
+          fullWidth
+          isInvalid={!modelFound && !modelEmpty}
+        >
+          <>
+            {modelOptions.length === 0 ? (
+              <NoDeployedModelsCallout />
+            ) : (
+              <EuiSelect
+                options={
+                  modelFound || modelEmpty
+                    ? modelOptions
+                    : [
+                        ...modelOptions,
+                        {
+                          value: selectedModelId,
+                          text: `Unknown model (ID: ${selectedModelId})`,
+                        },
+                      ]
+                }
+                value={selectedModelId}
+                onChange={(e) => {
+                  updateParameterValue(
+                    props.agentForm,
+                    props.setAgentForm,
+                    props.toolIndex,
+                    'model_id',
+                    e.target.value
+                  );
+                }}
+                aria-label="Select model"
+                placeholder="Select a model"
+                hasNoInitialSelection={true}
+                isInvalid={!modelFound && !modelEmpty}
+                fullWidth
+                compressed
+              />
+            )}
+          </>
+        </EuiFormRow>
+      )}
       <EuiFormRow
         label="Generation type"
         data-testid="generationTypeField"

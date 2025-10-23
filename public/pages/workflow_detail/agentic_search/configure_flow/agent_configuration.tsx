@@ -427,13 +427,15 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                           />
                         </EuiFormRow>
                       </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <AgentLLMFields
-                          agentType={agentType as AGENT_TYPE}
-                          agentForm={props.agentForm}
-                          setAgentForm={props.setAgentForm}
-                        />
-                      </EuiFlexItem>
+                      {agentType !== AGENT_TYPE.FLOW && (
+                        <EuiFlexItem grow={false}>
+                          <AgentLLMFields
+                            agentType={agentType as AGENT_TYPE}
+                            agentForm={props.agentForm}
+                            setAgentForm={props.setAgentForm}
+                          />
+                        </EuiFlexItem>
+                      )}
                       <EuiFlexItem grow={false}>
                         <EuiFormRow label="Tools" fullWidth>
                           <AgentTools

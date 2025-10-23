@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getIn } from 'formik';
 import { isEmpty } from 'lodash';
 import {
@@ -78,6 +78,25 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
       .filter((tool) => !knownToolTypes.includes(tool.type))
       .map((tool) => tool.type),
   ];
+
+  // automatically open the QPT for flow agents, if the model id is still missing
+  useEffect(() => {
+    if (agentForm?.type === AGENT_TYPE.FLOW) {
+      const qptToolIndex = agentForm?.tools?.findIndex(
+        (tool) => tool.type === TOOL_TYPE.QUERY_PLANNING
+      );
+      if (
+        qptToolIndex !== undefined &&
+        qptToolIndex !== -1 &&
+        isEmpty(
+          getIn(agentForm, `tools.${qptToolIndex}.parameters.model_id`) &&
+            !openAccordionIndices.includes(qptToolIndex)
+        )
+      ) {
+        addOpenAccordionIndex(qptToolIndex);
+      }
+    }
+  }, [agentForm?.type]);
 
   const addTool = (toolType: TOOL_TYPE) => {
     const newTool: Tool = {
@@ -162,6 +181,9 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
         const toolEnabled = !isEmpty(
           tools.find((tool) => tool.type === toolType)
         );
+        const missingModelId = isEmpty(
+          getIn(tools, `${index}.parameters.model_id`)
+        );
         return (
           <div key={`tool_${toolType || index}`}>
             <EuiPanel
@@ -179,11 +201,14 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
                     alignItems="center"
                     gutterSize="s"
                   >
-                    {toolType === TOOL_TYPE.QUERY_PLANNING && !toolEnabled && (
-                      <EuiFlexItem grow={false}>
-                        <EuiIcon type="alert" color="warning" />
-                      </EuiFlexItem>
-                    )}
+                    {toolType === TOOL_TYPE.QUERY_PLANNING &&
+                      (!toolEnabled ||
+                        (agentForm?.type === AGENT_TYPE.FLOW &&
+                          missingModelId)) && (
+                        <EuiFlexItem grow={false}>
+                          <EuiIcon type="alert" color="warning" />
+                        </EuiFlexItem>
+                      )}
                     <EuiFlexItem grow={false}>
                       <EuiCompressedSwitch
                         label="Enable"
