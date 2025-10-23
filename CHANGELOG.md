@@ -12,7 +12,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - [Agentic Search] Add MCP server support ([#802](https://github.com/opensearch-project/dashboards-flow-framework/pull/802))
 - [Agentic Search] Improve export / next steps UX ([#805](https://github.com/opensearch-project/dashboards-flow-framework/pull/805))
 - [Agentic Search] Simplify form inputs ([#807](https://github.com/opensearch-project/dashboards-flow-framework/pull/807))
-- Simplify index selector ([#808](https://github.com/opensearch-project/dashboards-flow-framework/pull/808))
+- [Agentic Search] Simplify form inputs II ([#808](https://github.com/opensearch-project/dashboards-flow-framework/pull/808))
 ### Bug Fixes
 ### Infrastructure
 ### Documentation
