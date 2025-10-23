@@ -78,25 +78,26 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
       .filter((tool) => !knownToolTypes.includes(tool.type))
       .map((tool) => tool.type),
   ];
+  const qptToolIndex = agentForm?.tools?.findIndex(
+    (tool) => tool.type === TOOL_TYPE.QUERY_PLANNING
+  );
+  const qptTool = getIn(agentForm, `tools.${qptToolIndex}`, undefined) as
+    | Tool
+    | undefined;
 
   // automatically open the QPT for flow agents, if the model id is still missing
   useEffect(() => {
     if (agentForm?.type === AGENT_TYPE.FLOW) {
-      const qptToolIndex = agentForm?.tools?.findIndex(
-        (tool) => tool.type === TOOL_TYPE.QUERY_PLANNING
-      );
       if (
         qptToolIndex !== undefined &&
-        qptToolIndex !== -1 &&
-        isEmpty(
-          getIn(agentForm, `tools.${qptToolIndex}.parameters.model_id`) &&
-            !openAccordionIndices.includes(qptToolIndex)
-        )
+        qptTool !== undefined &&
+        isEmpty(getIn(qptTool, 'parameters.model_id')) &&
+        !openAccordionIndices.includes(qptToolIndex)
       ) {
         addOpenAccordionIndex(qptToolIndex);
       }
     }
-  }, [agentForm?.type]);
+  }, [agentForm?.type, qptTool, qptToolIndex]);
 
   const addTool = (toolType: TOOL_TYPE) => {
     const newTool: Tool = {
