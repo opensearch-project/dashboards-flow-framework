@@ -99,7 +99,9 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   const agentType = (props.agentForm?.type || '').toLowerCase();
   const supportedAgentType =
     !isEmpty(agentType) &&
-    (agentType === AGENT_TYPE.CONVERSATIONAL || agentType === AGENT_TYPE.FLOW);
+    [AGENT_TYPE.CONVERSATIONAL, AGENT_TYPE.FLOW].includes(
+      agentType as AGENT_TYPE
+    );
 
   const dynamicAgentTypeOptions = React.useMemo(() => {
     const knownOptions = AGENT_TYPE_OPTIONS;
@@ -384,8 +386,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                                           proposedAgentType === AGENT_TYPE.FLOW
                                         ) {
                                           delete agentFormCopy.llm;
-                                          delete agentFormCopy.parameters
-                                            ?._llm_interface;
+                                          delete agentFormCopy.parameters;
                                           delete agentFormCopy.memory;
                                         }
                                         if (proposedAgentType) {

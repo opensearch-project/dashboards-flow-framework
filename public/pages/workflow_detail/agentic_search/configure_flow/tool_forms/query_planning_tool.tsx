@@ -241,7 +241,9 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
         <>
           <EuiSpacer size="s" />
           <div>
-            {searchTemplatesForm.length === 0 && <NoSearchTemplatesCallout />}
+            {Object.keys(searchTemplates || {}).length === 0 && (
+              <NoSearchTemplatesCallout />
+            )}
             {searchTemplatesForm.length > 0 &&
               searchTemplatesForm.map(
                 (template: SearchTemplateField, templateIndex: number) => (
@@ -317,7 +319,7 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
                               onChange={(e) => {
                                 updateSearchTemplate(
                                   templateIndex,
-                                  'description',
+                                  'template_description',
                                   e.target.value
                                 );
                               }}

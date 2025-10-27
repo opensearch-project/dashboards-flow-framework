@@ -78,9 +78,10 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
       .filter((tool) => !knownToolTypes.includes(tool.type))
       .map((tool) => tool.type),
   ];
-  const qptToolIndex = agentForm?.tools?.findIndex(
-    (tool) => tool.type === TOOL_TYPE.QUERY_PLANNING
-  );
+  const qptToolIndex =
+    agentForm?.tools?.findIndex(
+      (tool) => tool.type === TOOL_TYPE.QUERY_PLANNING
+    ) ?? -1;
   const qptTool = getIn(agentForm, `tools.${qptToolIndex}`, undefined) as
     | Tool
     | undefined;
@@ -89,7 +90,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
   useEffect(() => {
     if (agentForm?.type === AGENT_TYPE.FLOW) {
       if (
-        qptToolIndex !== undefined &&
+        qptToolIndex > -1 &&
         qptTool !== undefined &&
         isEmpty(getIn(qptTool, 'parameters.model_id')) &&
         !openAccordionIndices.includes(qptToolIndex)
