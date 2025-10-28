@@ -335,6 +335,8 @@ export const AGENTIC_SEARCH_AGENTS_DOCS_LINK =
   'https://docs.opensearch.org/latest/vector-search/ai-search/agentic-search/agent-customization/';
 export const AGENTIC_SEARCH_MCP_DOCS_LINK =
   'https://docs.opensearch.org/latest/vector-search/ai-search/agentic-search/mcp-server/';
+export const AGENTIC_QUERY_DSL_DOCS_LINK =
+  'https://docs.opensearch.org/latest/query-dsl/specialized/agentic/';
 export const MCP_CONNECTOR_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/mcp/mcp-connector';
 export const MCP_AGENT_CONFIG_DOCS_LINK =

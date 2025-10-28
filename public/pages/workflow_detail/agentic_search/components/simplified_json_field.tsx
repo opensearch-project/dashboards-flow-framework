@@ -13,7 +13,7 @@ interface SimplifiedJsonFieldProps {
   onChange?: (value: string) => void;
   onBlur: (value: string) => void;
   helpLink?: string;
-  helpText?: string;
+  helpText?: string | React.JSX.Element;
   editorHeight?: string;
   readOnly?: boolean;
   isInvalid?: boolean;
