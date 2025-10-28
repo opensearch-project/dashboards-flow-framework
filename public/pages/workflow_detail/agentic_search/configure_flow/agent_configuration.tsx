@@ -245,6 +245,26 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                         if (value) {
                           setFieldValue(AGENT_ID_PATH, value);
                           setFieldTouched(AGENT_ID_PATH, true);
+
+                          // clear out any memory ID if selecting a flow agent
+                          try {
+                            const agent = agents[value];
+                            if (agent.type === AGENT_TYPE.FLOW) {
+                              let updatedQuery = JSON.parse(
+                                getIn(values, 'search.request')
+                              );
+                              if (
+                                updatedQuery?.query?.agentic?.memory_id !==
+                                undefined
+                              ) {
+                                delete updatedQuery.query.agentic.memory_id;
+                                setFieldValue(
+                                  'search.request',
+                                  customStringify(updatedQuery)
+                                );
+                              }
+                            }
+                          } catch {}
                         }
                       }}
                       placeholder="Select an agent"

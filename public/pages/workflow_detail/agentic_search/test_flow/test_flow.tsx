@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
-import { isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, set } from 'lodash';
 import {
   EuiCallOut,
   EuiFlexGroup,
@@ -23,6 +23,7 @@ import {
   Agent,
   AGENT_ID_PATH,
   AGENT_TYPE,
+  customStringify,
   IndexMappings,
   WorkflowConfig,
   WorkflowFormValues,
@@ -52,7 +53,7 @@ const HorizontalRuleFlexItem = () => (
 export function TestFlow(props: TestFlowProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const { values } = useFormikContext<WorkflowFormValues>();
+  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   const { agents, loading } = useSelector((state: AppState) => state.ml);
   const { indices, loading: opensearchLoading } = useSelector(
     (state: AppState) => state.opensearch
@@ -60,13 +61,13 @@ export function TestFlow(props: TestFlowProps) {
   const noIndices = Object.values(indices ?? {}).length === 0;
 
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
-  const finalQuery = (() => {
+  const finalQuery = useMemo(() => {
     try {
       return JSON.parse(getIn(values, 'search.request', '{}'));
     } catch (e) {
       return {};
     }
-  })();
+  }, [getIn(values, 'search.request')]);
 
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
   const [agent, setAgent] = useState<Partial<Agent>>({});
@@ -122,6 +123,16 @@ export function TestFlow(props: TestFlowProps) {
       .unwrap()
       .then((response) => {
         setSearchResponse(response);
+        const respMemoryId = response?.ext?.memory_id ?? '';
+        const existingMemoryId = finalQuery?.query?.agentic?.memory_id ?? '';
+
+        // add the memory ID to the query by default, whether it overrides
+        // an existing ID, or is creating a brand-new one.
+        if (respMemoryId !== '' && existingMemoryId !== respMemoryId) {
+          let updatedQuery = cloneDeep(finalQuery);
+          set(updatedQuery, 'query.agentic.memory_id', respMemoryId);
+          setFieldValue('search.request', customStringify(updatedQuery));
+        }
       })
       .catch((error) => {
         setSearchError(error);
