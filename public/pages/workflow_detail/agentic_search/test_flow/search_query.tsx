@@ -50,6 +50,8 @@ enum QUERY_MODE {
   ADVANCED = 'advanced',
 }
 
+export const QUERY_PLACEHOLDER_CONTENT = 'Enter your question or query here...';
+
 const CLEAR_MEMORY_TOOLTIP_CONTENT =
   'Remove the memory ID associated with the query. No conversational history will be passed to the agent.';
 
@@ -323,7 +325,7 @@ export function SearchQuery(props: SearchQueryProps) {
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem>
                 <EuiTextArea
-                  placeholder="Enter your question or query here..."
+                  placeholder={QUERY_PLACEHOLDER_CONTENT}
                   aria-label="Enter search query"
                   value={simpleSearchQuery}
                   onChange={handleSimpleQueryChange}
