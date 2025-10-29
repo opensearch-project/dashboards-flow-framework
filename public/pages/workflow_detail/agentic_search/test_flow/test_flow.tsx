@@ -6,7 +6,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
-import { cloneDeep, isEmpty, set } from 'lodash';
+import { isEmpty } from 'lodash';
 import {
   EuiCallOut,
   EuiFlexGroup,
@@ -23,7 +23,6 @@ import {
   Agent,
   AGENT_ID_PATH,
   AGENT_TYPE,
-  customStringify,
   IndexMappings,
   WorkflowConfig,
   WorkflowFormValues,
@@ -90,6 +89,9 @@ export function TestFlow(props: TestFlowProps) {
   const [searchError, setSearchError] = useState<string | undefined>(undefined);
   const [formError, setFormError] = useState<string | undefined>(undefined);
 
+  // persist the most recent memory ID, if found in the search response
+  const [memoryId, setMemoryId] = useState<string>('');
+
   const handleSearch = () => {
     // "Autosave" by updating the workflow after every search is run.
     props.saveWorkflow();
@@ -123,15 +125,12 @@ export function TestFlow(props: TestFlowProps) {
       .unwrap()
       .then((response) => {
         setSearchResponse(response);
+
+        // persist a new memory ID to be optionally injected into the query from the user.
         const respMemoryId = response?.ext?.memory_id ?? '';
         const existingMemoryId = finalQuery?.query?.agentic?.memory_id ?? '';
-
-        // add the memory ID to the query by default, whether it overrides
-        // an existing ID, or is creating a brand-new one.
         if (respMemoryId !== '' && existingMemoryId !== respMemoryId) {
-          let updatedQuery = cloneDeep(finalQuery);
-          set(updatedQuery, 'query.agentic.memory_id', respMemoryId);
-          setFieldValue('search.request', customStringify(updatedQuery));
+          setMemoryId(respMemoryId);
         }
       })
       .catch((error) => {
@@ -208,6 +207,8 @@ export function TestFlow(props: TestFlowProps) {
                     fieldMappings={props.fieldMappings}
                     handleSearch={handleSearch}
                     isSearching={isSearching}
+                    agentType={agent?.type}
+                    memoryId={memoryId}
                   />
                 </EuiFlexItem>
                 {!isSearching && generatedQuery !== undefined && (

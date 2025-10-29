@@ -32,6 +32,7 @@ import {
   AGENT_ID_PATH,
   PROCESSOR_TYPE,
   AGENTIC_QUERY_DSL_DOCS_LINK,
+  AGENT_TYPE,
 } from '../../../../../common';
 
 interface SearchQueryProps {
@@ -40,6 +41,8 @@ interface SearchQueryProps {
   fieldMappings: IndexMappings | undefined;
   handleSearch(): void;
   isSearching: boolean;
+  agentType?: AGENT_TYPE;
+  memoryId?: string;
 }
 
 /**
@@ -54,6 +57,9 @@ export const QUERY_PLACEHOLDER_CONTENT = 'Enter your question or query here...';
 
 const CLEAR_MEMORY_TOOLTIP_CONTENT =
   'Remove the memory ID associated with the query. No conversational history will be passed to the agent.';
+
+const CONTINUE_CONVERSATION_TOOLTIP_CONTENT =
+  'Add the recent memory ID into the query to pass conversational history to the agent.';
 
 export function SearchQuery(props: SearchQueryProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
@@ -231,6 +237,10 @@ export function SearchQuery(props: SearchQueryProps) {
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row" gutterSize="s">
+            {/**
+             * If there is an existing memory ID found, show a button to let
+             * users easily remove it from the query DSL.
+             */}
             {!isEmpty(finalQuery?.query?.agentic?.memory_id ?? '') && (
               <EuiFlexItem grow={false}>
                 <EuiFlexGroup
@@ -240,6 +250,9 @@ export function SearchQuery(props: SearchQueryProps) {
                 >
                   <EuiFlexItem grow={false}>
                     <EuiSmallButtonEmpty
+                      iconSide="left"
+                      iconSize="s"
+                      iconType={'cross'}
                       onClick={() => {
                         let updatedQuery = cloneDeep(finalQuery);
                         if (
@@ -252,6 +265,7 @@ export function SearchQuery(props: SearchQueryProps) {
                           );
                         }
                       }}
+                      disabled={props.isSearching}
                     >
                       Clear conversation
                     </EuiSmallButtonEmpty>
@@ -265,6 +279,52 @@ export function SearchQuery(props: SearchQueryProps) {
                 </EuiFlexGroup>
               </EuiFlexItem>
             )}
+            {/**
+             * If there is a new memory ID found, show a button to let users
+             * easily inject it into the query DSL.
+             */}
+            {props.agentType === AGENT_TYPE.CONVERSATIONAL &&
+              isEmpty(finalQuery?.query?.agentic?.memory_id ?? '') &&
+              !isEmpty(props.memoryId) &&
+              (finalQuery?.query?.agentic?.memory_id ?? '') !==
+                props.memoryId && (
+                <EuiFlexItem grow={false}>
+                  <EuiFlexGroup
+                    direction="row"
+                    alignItems="center"
+                    gutterSize="none"
+                  >
+                    <EuiFlexItem grow={false}>
+                      <EuiSmallButtonEmpty
+                        iconSide="left"
+                        iconType={'chatLeft'}
+                        iconSize="s"
+                        onClick={() => {
+                          let updatedQuery = cloneDeep(finalQuery);
+                          set(
+                            updatedQuery,
+                            'query.agentic.memory_id',
+                            props.memoryId
+                          );
+                          setFieldValue(
+                            'search.request',
+                            customStringify(updatedQuery)
+                          );
+                        }}
+                        disabled={props.isSearching}
+                      >
+                        Continue conversation
+                      </EuiSmallButtonEmpty>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiIconTip
+                        content={CONTINUE_CONVERSATION_TOOLTIP_CONTENT}
+                        position="top"
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+              )}
             <EuiFlexItem grow={false}>
               <EuiButtonGroup
                 buttonSize="compressed"

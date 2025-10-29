@@ -8,6 +8,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { QUERY_PLACEHOLDER_CONTENT, SearchQuery } from './search_query';
 import { FormikContext } from 'formik';
+import { AGENT_TYPE } from '../../../../../common';
 
 const QUERY_NO_MEMORY_ID = JSON.stringify({
   query: {
@@ -32,6 +33,8 @@ describe('SearchQuery', () => {
     fieldMappings: undefined,
     handleSearch: jest.fn(),
     isSearching: false,
+    agentType: AGENT_TYPE.CONVERSATIONAL,
+    memoryId: '',
   };
 
   const renderComponent = (mockContext: any, props = defaultProps) => {
@@ -61,21 +64,28 @@ describe('SearchQuery', () => {
     expect(screen.getByText('Search')).toBeInTheDocument();
   });
 
-  test('shows clear conversation button when memory_id exists', () => {
-    renderComponent({
-      values: {
-        search: {
-          request: QUERY_WITH_MEMORY_ID,
+  test('shows appropriate buttons when memory_id exists', () => {
+    renderComponent(
+      {
+        values: {
+          search: {
+            request: QUERY_WITH_MEMORY_ID,
+          },
         },
       },
-    });
+      {
+        ...defaultProps,
+        memoryId: 'test-memory-id',
+      }
+    );
 
-    // Check that the clear conversation button is present
     const clearButton = screen.getByText('Clear conversation');
+    const continueButton = screen.queryByText('Continue conversation');
     expect(clearButton).toBeInTheDocument();
+    expect(continueButton).not.toBeInTheDocument();
   });
 
-  test('does not show clear conversation button when memory_id does not exist', () => {
+  test('shows appropriate buttons when memory_id does not exist and is not available', () => {
     renderComponent({
       values: {
         search: {
@@ -84,26 +94,79 @@ describe('SearchQuery', () => {
       },
     });
 
-    // Check that the clear conversation button is not present
+    const continueButton = screen.queryByText('Continue conversation');
     const clearButton = screen.queryByText('Clear conversation');
+    expect(continueButton).not.toBeInTheDocument();
+    expect(clearButton).not.toBeInTheDocument();
+  });
+
+  test('shows appropriate buttons when memory_id does not exist, but memory is available', () => {
+    renderComponent(
+      {
+        values: {
+          search: {
+            request: QUERY_NO_MEMORY_ID,
+          },
+        },
+      },
+      {
+        ...defaultProps,
+        memoryId: 'test-memory-id',
+      }
+    );
+
+    const continueButton = screen.getByText('Continue conversation');
+    const clearButton = screen.queryByText('Clear conversation');
+    expect(continueButton).toBeInTheDocument();
     expect(clearButton).not.toBeInTheDocument();
   });
 
   test('clicking clear conversation button removes memory_id', () => {
     const setFieldValueMock = jest.fn();
-    renderComponent({
-      values: {
-        search: {
-          request: QUERY_WITH_MEMORY_ID,
+    renderComponent(
+      {
+        values: {
+          search: {
+            request: QUERY_WITH_MEMORY_ID,
+          },
         },
+        setFieldValue: setFieldValueMock,
       },
-      setFieldValue: setFieldValueMock,
-    });
+      {
+        ...defaultProps,
+        memoryId: 'test-memory-id',
+      }
+    );
     // Click the clear conversation button
     const clearButton = screen.getByText('Clear conversation');
     fireEvent.click(clearButton);
 
     // Check that setFieldValue was called with the updated query (without memory_id)
+    expect(setFieldValueMock).toHaveBeenCalled();
+    expect(setFieldValueMock.mock.calls[0][0]).toBe('search.request');
+  });
+
+  test('clicking continue conversation button adds memory_id', () => {
+    const setFieldValueMock = jest.fn();
+    renderComponent(
+      {
+        values: {
+          search: {
+            request: QUERY_NO_MEMORY_ID,
+          },
+        },
+        setFieldValue: setFieldValueMock,
+      },
+      {
+        ...defaultProps,
+        memoryId: 'test-memory-id',
+      }
+    );
+    // Click the clear conversation button
+    const clearButton = screen.getByText('Continue conversation');
+    fireEvent.click(clearButton);
+
+    // Check that setFieldValue was called with the updated query (with memory_id)
     expect(setFieldValueMock).toHaveBeenCalled();
     expect(setFieldValueMock.mock.calls[0][0]).toBe('search.request');
   });
