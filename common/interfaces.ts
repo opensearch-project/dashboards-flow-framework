@@ -711,7 +711,7 @@ export type SearchResponse = {
     hits: SearchHit[];
   };
   aggregations?: {};
-  ext?: {};
+  ext?: any;
 };
 
 export type SearchProcessorInputData = {

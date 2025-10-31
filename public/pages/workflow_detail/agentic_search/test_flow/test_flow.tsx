@@ -24,6 +24,7 @@ import {
   AGENT_ID_PATH,
   AGENT_TYPE,
   IndexMappings,
+  SearchResponse,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
@@ -123,14 +124,18 @@ export function TestFlow(props: TestFlowProps) {
       })
     )
       .unwrap()
-      .then((response) => {
+      .then((response: SearchResponse) => {
         setSearchResponse(response);
 
         // persist a new memory ID to be optionally injected into the query from the user.
-        const respMemoryId = response?.ext?.memory_id ?? '';
-        const existingMemoryId = finalQuery?.query?.agentic?.memory_id ?? '';
-        if (respMemoryId !== '' && existingMemoryId !== respMemoryId) {
-          setMemoryId(respMemoryId);
+        const respMemoryId = response?.ext?.memory_id;
+        const respMemoryIdStr =
+          typeof respMemoryId === 'string' ? respMemoryId.trim() : '';
+        const existingMemoryId = finalQuery?.query?.agentic?.memory_id;
+        const existingMemoryIdStr =
+          typeof existingMemoryId === 'string' ? existingMemoryId.trim() : '';
+        if (respMemoryIdStr && existingMemoryIdStr !== respMemoryIdStr) {
+          setMemoryId(respMemoryIdStr);
         }
       })
       .catch((error) => {

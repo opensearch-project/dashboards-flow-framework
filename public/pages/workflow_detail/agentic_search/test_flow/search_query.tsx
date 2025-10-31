@@ -300,7 +300,7 @@ export function SearchQuery(props: SearchQueryProps) {
                         iconType={'chatLeft'}
                         iconSize="s"
                         onClick={() => {
-                          let updatedQuery = cloneDeep(finalQuery);
+                          let updatedQuery = cloneDeep(finalQuery ?? {});
                           set(
                             updatedQuery,
                             'query.agentic.memory_id',
@@ -374,7 +374,11 @@ export function SearchQuery(props: SearchQueryProps) {
                     For more information on configuring
                     <EuiCode transparentBackground>agentic</EuiCode>queries,
                     check out the{' '}
-                    <EuiLink href={AGENTIC_QUERY_DSL_DOCS_LINK} target="_blank">
+                    <EuiLink
+                      href={AGENTIC_QUERY_DSL_DOCS_LINK}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       documentation
                     </EuiLink>
                   </EuiText>
