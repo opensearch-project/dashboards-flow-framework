@@ -16,6 +16,11 @@ import {
   EuiTitle,
   EuiSmallButton,
   EuiTextArea,
+  EuiSmallButtonEmpty,
+  EuiIconTip,
+  EuiText,
+  EuiLink,
+  EuiCode,
 } from '@elastic/eui';
 import { SimplifiedJsonField } from '../components';
 import { QueryFieldSelector } from './query_field_selector';
@@ -26,6 +31,8 @@ import {
   IndexMappings,
   AGENT_ID_PATH,
   PROCESSOR_TYPE,
+  AGENTIC_QUERY_DSL_DOCS_LINK,
+  AGENT_TYPE,
 } from '../../../../../common';
 
 interface SearchQueryProps {
@@ -34,6 +41,8 @@ interface SearchQueryProps {
   fieldMappings: IndexMappings | undefined;
   handleSearch(): void;
   isSearching: boolean;
+  agentType?: AGENT_TYPE;
+  memoryId?: string;
 }
 
 /**
@@ -43,6 +52,14 @@ enum QUERY_MODE {
   SIMPLE = 'simple',
   ADVANCED = 'advanced',
 }
+
+export const QUERY_PLACEHOLDER_CONTENT = 'Enter your question or query here...';
+
+const CLEAR_MEMORY_TOOLTIP_CONTENT =
+  'Remove the memory ID associated with the query. No conversational history will be passed to the agent.';
+
+const CONTINUE_CONVERSATION_TOOLTIP_CONTENT =
+  'Add the recent memory ID into the query to pass conversational history to the agent.';
 
 export function SearchQuery(props: SearchQueryProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
@@ -220,6 +237,94 @@ export function SearchQuery(props: SearchQueryProps) {
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="row" gutterSize="s">
+            {/**
+             * If there is an existing memory ID found, show a button to let
+             * users easily remove it from the query DSL.
+             */}
+            {!isEmpty(finalQuery?.query?.agentic?.memory_id ?? '') && (
+              <EuiFlexItem grow={false}>
+                <EuiFlexGroup
+                  direction="row"
+                  alignItems="center"
+                  gutterSize="none"
+                >
+                  <EuiFlexItem grow={false}>
+                    <EuiSmallButtonEmpty
+                      iconSide="left"
+                      iconSize="s"
+                      iconType={'cross'}
+                      onClick={() => {
+                        let updatedQuery = cloneDeep(finalQuery);
+                        if (
+                          updatedQuery?.query?.agentic?.memory_id !== undefined
+                        ) {
+                          delete updatedQuery.query.agentic.memory_id;
+                          setFieldValue(
+                            'search.request',
+                            customStringify(updatedQuery)
+                          );
+                        }
+                      }}
+                      disabled={props.isSearching}
+                    >
+                      Clear conversation
+                    </EuiSmallButtonEmpty>
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <EuiIconTip
+                      content={CLEAR_MEMORY_TOOLTIP_CONTENT}
+                      position="top"
+                    />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+              </EuiFlexItem>
+            )}
+            {/**
+             * If there is a new memory ID found, show a button to let users
+             * easily inject it into the query DSL.
+             */}
+            {props.agentType === AGENT_TYPE.CONVERSATIONAL &&
+              isEmpty(finalQuery?.query?.agentic?.memory_id ?? '') &&
+              !isEmpty(props.memoryId) &&
+              (finalQuery?.query?.agentic?.memory_id ?? '') !==
+                props.memoryId && (
+                <EuiFlexItem grow={false}>
+                  <EuiFlexGroup
+                    direction="row"
+                    alignItems="center"
+                    gutterSize="none"
+                  >
+                    <EuiFlexItem grow={false}>
+                      <EuiSmallButtonEmpty
+                        iconSide="left"
+                        iconType={'chatLeft'}
+                        iconSize="s"
+                        onClick={() => {
+                          let updatedQuery = cloneDeep(finalQuery ?? {});
+                          set(
+                            updatedQuery,
+                            'query.agentic.memory_id',
+                            props.memoryId
+                          );
+                          setFieldValue(
+                            'search.request',
+                            customStringify(updatedQuery)
+                          );
+                        }}
+                        disabled={props.isSearching}
+                      >
+                        Continue conversation
+                      </EuiSmallButtonEmpty>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiIconTip
+                        content={CONTINUE_CONVERSATION_TOOLTIP_CONTENT}
+                        position="top"
+                      />
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+              )}
             <EuiFlexItem grow={false}>
               <EuiButtonGroup
                 buttonSize="compressed"
@@ -264,13 +369,27 @@ export function SearchQuery(props: SearchQueryProps) {
                 onBlur={handleAdvancedQueryChange}
                 editorHeight="200px"
                 isInvalid={!!jsonError}
+                helpText={
+                  <EuiText size="xs">
+                    For more information on configuring
+                    <EuiCode transparentBackground>agentic</EuiCode>queries,
+                    check out the{' '}
+                    <EuiLink
+                      href={AGENTIC_QUERY_DSL_DOCS_LINK}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      documentation
+                    </EuiLink>
+                  </EuiText>
+                }
               />
             </>
           ) : (
             <EuiFlexGroup direction="column" gutterSize="s">
               <EuiFlexItem>
                 <EuiTextArea
-                  placeholder="Enter your question or query here..."
+                  placeholder={QUERY_PLACEHOLDER_CONTENT}
                   aria-label="Enter search query"
                   value={simpleSearchQuery}
                   onChange={handleSimpleQueryChange}

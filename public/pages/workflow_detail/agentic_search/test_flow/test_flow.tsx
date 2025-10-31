@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
@@ -24,6 +24,7 @@ import {
   AGENT_ID_PATH,
   AGENT_TYPE,
   IndexMappings,
+  SearchResponse,
   WorkflowConfig,
   WorkflowFormValues,
 } from '../../../../../common';
@@ -52,7 +53,7 @@ const HorizontalRuleFlexItem = () => (
 export function TestFlow(props: TestFlowProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const { values } = useFormikContext<WorkflowFormValues>();
+  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   const { agents, loading } = useSelector((state: AppState) => state.ml);
   const { indices, loading: opensearchLoading } = useSelector(
     (state: AppState) => state.opensearch
@@ -60,13 +61,13 @@ export function TestFlow(props: TestFlowProps) {
   const noIndices = Object.values(indices ?? {}).length === 0;
 
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
-  const finalQuery = (() => {
+  const finalQuery = useMemo(() => {
     try {
       return JSON.parse(getIn(values, 'search.request', '{}'));
     } catch (e) {
       return {};
     }
-  })();
+  }, [getIn(values, 'search.request')]);
 
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
   const [agent, setAgent] = useState<Partial<Agent>>({});
@@ -88,6 +89,9 @@ export function TestFlow(props: TestFlowProps) {
 
   const [searchError, setSearchError] = useState<string | undefined>(undefined);
   const [formError, setFormError] = useState<string | undefined>(undefined);
+
+  // persist the most recent memory ID, if found in the search response
+  const [memoryId, setMemoryId] = useState<string>('');
 
   const handleSearch = () => {
     // "Autosave" by updating the workflow after every search is run.
@@ -120,8 +124,19 @@ export function TestFlow(props: TestFlowProps) {
       })
     )
       .unwrap()
-      .then((response) => {
+      .then((response: SearchResponse) => {
         setSearchResponse(response);
+
+        // persist a new memory ID to be optionally injected into the query from the user.
+        const respMemoryId = response?.ext?.memory_id;
+        const respMemoryIdStr =
+          typeof respMemoryId === 'string' ? respMemoryId.trim() : '';
+        const existingMemoryId = finalQuery?.query?.agentic?.memory_id;
+        const existingMemoryIdStr =
+          typeof existingMemoryId === 'string' ? existingMemoryId.trim() : '';
+        if (respMemoryIdStr && existingMemoryIdStr !== respMemoryIdStr) {
+          setMemoryId(respMemoryIdStr);
+        }
       })
       .catch((error) => {
         setSearchError(error);
@@ -197,6 +212,8 @@ export function TestFlow(props: TestFlowProps) {
                     fieldMappings={props.fieldMappings}
                     handleSearch={handleSearch}
                     isSearching={isSearching}
+                    agentType={agent?.type}
+                    memoryId={memoryId}
                   />
                 </EuiFlexItem>
                 {!isSearching && generatedQuery !== undefined && (

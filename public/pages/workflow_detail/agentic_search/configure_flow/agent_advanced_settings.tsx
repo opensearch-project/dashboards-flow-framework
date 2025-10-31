@@ -61,8 +61,8 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
         parameters: {
           ...props.agentForm?.parameters,
           _llm_interface:
-            getRelevantInterface(agentModelId, models, connectors) ||
-            agentLlmInterface,
+            agentLlmInterface ||
+            getRelevantInterface(agentModelId, models, connectors),
         },
       });
     }
