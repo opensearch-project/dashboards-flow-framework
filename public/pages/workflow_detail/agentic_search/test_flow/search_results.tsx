@@ -35,20 +35,32 @@ enum RESULTS_VIEW {
   RAW_RESPONSE = 'raw_response',
 }
 
-const RESULTS_VIEW_OPTIONS = [
-  {
-    id: RESULTS_VIEW.HITS,
-    label: 'Hits',
-  },
-  {
-    id: RESULTS_VIEW.AGGREGATIONS,
-    label: 'Aggregations',
-  },
-  {
+function getResultsViewOptions(searchResponse?: any) {
+  const options = [
+    {
+      id: RESULTS_VIEW.HITS,
+      label: 'Hits',
+    },
+  ];
+
+  if (hasAggregations(searchResponse)) {
+    options.push({
+      id: RESULTS_VIEW.AGGREGATIONS,
+      label: 'Aggregations',
+    });
+  }
+
+  options.push({
     id: RESULTS_VIEW.RAW_RESPONSE,
     label: 'Raw response',
-  },
-];
+  });
+
+  return options;
+}
+
+function getButtonGroupWidth(searchResponse?: any): string {
+  return hasAggregations(searchResponse) ? '275px' : '165px';
+}
 
 function hasHits(searchResponse?: any): boolean {
   return Boolean(searchResponse?.hits?.hits?.length > 0);
@@ -146,11 +158,13 @@ export function SearchResults(props: SearchResultsProps) {
                     <EuiButtonGroup
                       buttonSize="compressed"
                       legend="Results View"
-                      options={RESULTS_VIEW_OPTIONS}
+                      options={getResultsViewOptions(props.searchResponse)}
                       idSelected={selectedView}
                       onChange={handleViewChange}
                       isFullWidth={false}
-                      style={{ width: '275px' }}
+                      style={{
+                        width: getButtonGroupWidth(props.searchResponse),
+                      }}
                       data-testid="resultsViewButtonGroup"
                     />
                   </EuiFlexItem>
