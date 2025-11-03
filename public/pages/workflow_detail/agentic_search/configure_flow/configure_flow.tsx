@@ -41,6 +41,7 @@ import {
 } from '../../../../utils';
 import { AgentConfiguration } from './agent_configuration';
 import { AgenticSearchInfoModal } from '../components';
+import '../agentic_search_styles.scss';
 
 interface ConfigureFlowProps {
   uiConfig: WorkflowConfig | undefined;
@@ -239,14 +240,7 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>
-        <EuiFlexItem
-          style={{
-            overflowY: 'auto',
-            scrollbarGutter: 'auto',
-            scrollbarWidth: 'auto',
-            overflowX: 'hidden',
-          }}
-        >
+        <EuiFlexItem className="agentic-search-workspace-panel">
           <EuiPanel paddingSize="none" hasBorder={false} hasShadow={false}>
             <EuiFlexGroup direction="column">
               <EuiFlexItem>

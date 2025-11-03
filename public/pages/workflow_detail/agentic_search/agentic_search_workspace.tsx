@@ -195,7 +195,6 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
           borderRadius="l"
           style={{
             overflowX: 'hidden',
-            overflowY: 'scroll',
           }}
         >
           {configureAgentOpen ? (
@@ -220,7 +219,6 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
           borderRadius="l"
           style={{
             overflowX: 'hidden',
-            overflowY: 'scroll',
           }}
         >
           <TestFlow
