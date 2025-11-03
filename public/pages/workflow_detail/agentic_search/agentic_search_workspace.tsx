@@ -6,6 +6,8 @@
 import React, { useEffect, useState } from 'react';
 import { isEmpty, isEqual } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
+import { useLocation, useHistory } from 'react-router-dom';
+import queryString from 'query-string';
 import {
   getMappings,
   searchAgents,
@@ -42,11 +44,15 @@ interface AgenticSearchWorkspaceProps {
   uiConfig: WorkflowConfig | undefined;
 }
 
+const CONFIGURE_AGENT_QUERY_PARAM = 'configureAgent';
+
 /**
  * Resizable workspace for configuring agents and executing agentic search.
  */
 export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   const dispatch = useAppDispatch();
+  const location = useLocation();
+  const history = useHistory();
   const dataSourceId = getDataSourceId();
   const { values, submitForm, validateForm, setTouched } = useFormikContext<
     WorkflowFormValues
@@ -55,7 +61,26 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
     undefined
   );
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
-  const [configurePanelOpen, setConfigurePanelOpen] = useState<boolean>(true);
+
+  // Get configureAgentOpen from URL params, default to true
+  const queryParams = queryString.parse(location.search);
+  const configureAgentFromUrl = queryParams[CONFIGURE_AGENT_QUERY_PARAM];
+  const [configureAgentOpen, setConfigureAgentOpenState] = useState<boolean>(
+    configureAgentFromUrl === 'false' ? false : true
+  );
+
+  // Update URL when configureAgentOpen changes
+  const setConfigureAgentOpen = (open: boolean) => {
+    setConfigureAgentOpenState(open);
+    const newParams = {
+      ...queryParams,
+      [CONFIGURE_AGENT_QUERY_PARAM]: open.toString(),
+    };
+    history.replace({
+      ...location,
+      search: queryString.stringify(newParams),
+    });
+  };
 
   // fetch all existing agents on initial load
   useEffect(() => {
@@ -159,7 +184,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
       style={{ width: '100%' }}
       className="stretch-absolute"
     >
-      <EuiFlexItem grow={configurePanelOpen}>
+      <EuiFlexItem grow={configureAgentOpen}>
         <EuiPanel
           data-testid="agenticSearchInputPanel"
           paddingSize="s"
@@ -172,15 +197,15 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
             overflowY: 'scroll',
           }}
         >
-          {configurePanelOpen ? (
+          {configureAgentOpen ? (
             <ConfigureFlow
               uiConfig={props.uiConfig}
-              closePanel={() => setConfigurePanelOpen(false)}
+              closePanel={() => setConfigureAgentOpen(false)}
             />
           ) : (
             <EuiSmallButtonIcon
               iconType="menuRight"
-              onClick={() => setConfigurePanelOpen(true)}
+              onClick={() => setConfigureAgentOpen(true)}
               aria-label="openAgentConfig"
             />
           )}
@@ -203,7 +228,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
             uiConfig={props.uiConfig}
             fieldMappings={fieldMappings}
             saveWorkflow={validateAndUpdateWorkflow}
-            configurePanelOpen={configurePanelOpen}
+            configurePanelOpen={configureAgentOpen}
           />
         </EuiPanel>
       </EuiFlexItem>
