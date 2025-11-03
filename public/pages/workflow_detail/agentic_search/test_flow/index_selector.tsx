@@ -29,6 +29,8 @@ import {
 } from '../../../../../common';
 import { IndexDetailsModal } from './index_details_modal';
 
+const MAX_INDEX_BADGE_WIDTH = '200px';
+
 interface IndexSelectorProps {
   agentType?: AGENT_TYPE;
 }
@@ -128,6 +130,12 @@ export function IndexSelector(props: IndexSelectorProps) {
                   color="hollow"
                   onClickAriaLabel="Open index selector"
                   aria-label="Index badge"
+                  style={{
+                    maxWidth: MAX_INDEX_BADGE_WIDTH,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
                 >
                   {isEmpty(selectedIndexName) ? ALL_INDICES : selectedIndexName}
                 </EuiBadge>

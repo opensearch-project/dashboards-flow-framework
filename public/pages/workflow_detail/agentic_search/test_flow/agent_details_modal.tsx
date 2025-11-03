@@ -15,6 +15,8 @@ import {
 } from '@elastic/eui';
 import { Agent, customStringify } from '../../../../../common';
 
+const MAX_AGENT_TITLE_WIDTH = '50vw';
+
 interface AgentDetailsModalProps {
   onClose: () => void;
   agent: Agent;
@@ -24,7 +26,16 @@ export function AgentDetailsModal(props: AgentDetailsModalProps) {
   return (
     <EuiModal style={{ width: '70vw' }} onClose={props.onClose}>
       <EuiModalHeader>
-        <EuiModalHeaderTitle>{`Agent '${props.agent.name || props.agent.id}'`}</EuiModalHeaderTitle>
+        <EuiModalHeaderTitle
+          style={{
+            maxWidth: MAX_AGENT_TITLE_WIDTH,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {`Agent '${props.agent.name || props.agent.id}'`}
+        </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
         <EuiCodeBlock

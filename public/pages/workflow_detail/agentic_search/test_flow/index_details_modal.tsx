@@ -17,6 +17,8 @@ import { useSelector } from 'react-redux';
 import { AppState } from '../../../../store';
 import { customStringify } from '../../../../../common';
 
+const MAX_INDEX_TITLE_WIDTH = '50vw';
+
 interface IndexDetailsModalProps {
   onClose: () => void;
   indexName: string;
@@ -31,7 +33,16 @@ export function IndexDetailsModal(props: IndexDetailsModalProps) {
   return (
     <EuiModal style={{ width: '70vw' }} onClose={props.onClose}>
       <EuiModalHeader>
-        <EuiModalHeaderTitle>{`Index '${props.indexName}'`}</EuiModalHeaderTitle>
+        <EuiModalHeaderTitle
+          style={{
+            maxWidth: MAX_INDEX_TITLE_WIDTH,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {`Index '${props.indexName}'`}
+        </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
         <EuiCodeBlock

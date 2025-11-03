@@ -190,7 +190,7 @@ export function TestFlow(props: TestFlowProps) {
                     <AgentSelector />
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
-                    <EuiText color="subdued" style={{ marginLeft: '-8px' }}>
+                    <EuiText color="subdued" style={{ marginRight: '8px' }}>
                       |
                     </EuiText>
                   </EuiFlexItem>

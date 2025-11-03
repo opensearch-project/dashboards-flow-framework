@@ -18,6 +18,8 @@ import { AppState } from '../../../../store';
 import { AGENT_ID_PATH, WorkflowFormValues } from '../../../../../common';
 import { AgentDetailsModal } from './agent_details_modal';
 
+const MAX_AGENT_BADGE_WIDTH = '250px';
+
 export function AgentSelector() {
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
     WorkflowFormValues
@@ -93,6 +95,12 @@ export function AgentSelector() {
                   color="hollow"
                   onClickAriaLabel="Open agent selector"
                   aria-label="Agent badge"
+                  style={{
+                    maxWidth: MAX_AGENT_BADGE_WIDTH,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
                 >
                   {displayName}
                 </EuiBadge>
