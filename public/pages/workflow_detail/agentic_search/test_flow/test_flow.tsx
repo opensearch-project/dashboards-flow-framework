@@ -181,9 +181,18 @@ export function TestFlow(props: TestFlowProps) {
                 </EuiTitle>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
-                <EuiFlexGroup direction="row" gutterSize="s" alignItems="center">
+                <EuiFlexGroup
+                  direction="row"
+                  gutterSize="s"
+                  alignItems="center"
+                >
                   <EuiFlexItem grow={false}>
                     <AgentSelector />
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <EuiText color="subdued" style={{ marginLeft: '-8px' }}>
+                      |
+                    </EuiText>
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <IndexSelector agentType={agent?.type} />
