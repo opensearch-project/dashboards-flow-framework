@@ -44,6 +44,7 @@ import { AgenticSearchInfoModal } from '../components';
 
 interface ConfigureFlowProps {
   uiConfig: WorkflowConfig | undefined;
+  closePanel: () => void;
 }
 
 /**
@@ -198,27 +199,42 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
         }}
       >
         <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
-          <EuiFlexGroup direction="row" alignItems="center" gutterSize="s">
+          <EuiFlexGroup
+            direction="row"
+            justifyContent="spaceBetween"
+            gutterSize="s"
+          >
             <EuiFlexItem grow={false}>
-              <EuiTitle>
-                <h3>Configure agent</h3>
-              </EuiTitle>
+              <EuiFlexGroup direction="row" alignItems="center" gutterSize="s">
+                <EuiFlexItem grow={false}>
+                  <EuiTitle>
+                    <h3>Configure agent</h3>
+                  </EuiTitle>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false} style={{ marginTop: '12px' }}>
+                  <EuiBetaBadge
+                    label="EXPERIMENTAL"
+                    tooltipContent="Configuring agentic search flows is an experimental feature and may change in future releases"
+                    size="s"
+                  />
+                </EuiFlexItem>
+                <EuiFlexItem
+                  grow={false}
+                  style={{ marginTop: '12px', marginLeft: '0px' }}
+                >
+                  <EuiSmallButtonIcon
+                    aria-label="What is agentic search?"
+                    iconType="questionInCircle"
+                    onClick={() => setIsModalOpen(true)}
+                  />
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiFlexItem>
-            <EuiFlexItem grow={false} style={{ marginTop: '12px' }}>
-              <EuiBetaBadge
-                label="EXPERIMENTAL"
-                tooltipContent="Configuring agentic search flows is an experimental feature and may change in future releases"
-                size="s"
-              />
-            </EuiFlexItem>
-            <EuiFlexItem
-              grow={false}
-              style={{ marginTop: '12px', marginLeft: '0px' }}
-            >
+            <EuiFlexItem grow={false}>
               <EuiSmallButtonIcon
-                aria-label="What is agentic search?"
-                iconType="questionInCircle"
-                onClick={() => setIsModalOpen(true)}
+                iconType="menuLeft"
+                onClick={() => props.closePanel()}
+                aria-label="closeAgentConfig"
               />
             </EuiFlexItem>
           </EuiFlexGroup>

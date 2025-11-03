@@ -31,6 +31,7 @@ import {
 import { SearchQuery } from './search_query';
 import { SearchResults } from './search_results';
 import { IndexSelector } from './index_selector';
+import { AgentSelector } from './agent_selector';
 import { GeneratedQuery } from './generated_query';
 import {
   AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT,
@@ -42,6 +43,7 @@ interface TestFlowProps {
   uiConfig: WorkflowConfig | undefined;
   fieldMappings: IndexMappings | undefined;
   saveWorkflow(): Promise<boolean>;
+  configurePanelOpen: boolean;
 }
 
 const HorizontalRuleFlexItem = () => (
@@ -53,7 +55,7 @@ const HorizontalRuleFlexItem = () => (
 export function TestFlow(props: TestFlowProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
+  const { values } = useFormikContext<WorkflowFormValues>();
   const { agents, loading } = useSelector((state: AppState) => state.ml);
   const { indices, loading: opensearchLoading } = useSelector(
     (state: AppState) => state.opensearch
@@ -179,7 +181,14 @@ export function TestFlow(props: TestFlowProps) {
                 </EuiTitle>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
-                <IndexSelector agentType={agent?.type} />
+                <EuiFlexGroup direction="row" gutterSize="s" alignItems="center">
+                  <EuiFlexItem grow={false}>
+                    <AgentSelector />
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <IndexSelector agentType={agent?.type} />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
               </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>

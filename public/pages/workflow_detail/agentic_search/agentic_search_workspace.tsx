@@ -12,7 +12,12 @@ import {
   updateWorkflow,
   useAppDispatch,
 } from '../../../store';
-import { EuiPanel, EuiResizableContainer } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiPanel,
+  EuiSmallButtonIcon,
+} from '@elastic/eui';
 import {
   AGENT_ID_PATH,
   FETCH_ALL_QUERY_LARGE,
@@ -50,6 +55,7 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
     undefined
   );
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
+  const [configurePanelOpen, setConfigurePanelOpen] = useState<boolean>(true);
 
   // fetch all existing agents on initial load
   useEffect(() => {
@@ -147,69 +153,60 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   ]);
 
   return (
-    <EuiResizableContainer
-      direction="horizontal"
+    <EuiFlexGroup
+      direction="row"
+      gutterSize="s"
+      style={{ width: '100%' }}
       className="stretch-absolute"
-      style={{
-        width: '100%',
-        gap: '4px',
-      }}
     >
-      {(EuiResizablePanel, EuiResizableButton) => (
-        <>
-          <EuiResizablePanel
-            mode="main"
-            initialSize={50}
-            minSize="25%"
-            paddingSize="none"
-            scrollable={false}
-          >
-            <EuiPanel
-              data-testid="agenticSearchInputPanel"
-              paddingSize="s"
-              grow={true}
-              className="workspace-panel"
-              borderRadius="l"
-              style={{
-                height: AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
-                overflowX: 'hidden',
-                overflowY: 'scroll',
-              }}
-            >
-              <ConfigureFlow uiConfig={props.uiConfig} />
-            </EuiPanel>
-          </EuiResizablePanel>
-
-          <EuiResizableButton />
-
-          <EuiResizablePanel
-            mode="collapsible"
-            initialSize={50}
-            minSize="25%"
-            paddingSize="none"
-            borderRadius="l"
-          >
-            <EuiPanel
-              data-testid="agenticSearchTestPanel"
-              paddingSize="s"
-              grow={true}
-              className="workspace-panel"
-              borderRadius="l"
-              style={{
-                height: AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
-                overflowX: 'hidden',
-                overflowY: 'scroll',
-              }}
-            >
-              <TestFlow
-                uiConfig={props.uiConfig}
-                fieldMappings={fieldMappings}
-                saveWorkflow={validateAndUpdateWorkflow}
-              />
-            </EuiPanel>
-          </EuiResizablePanel>
-        </>
-      )}
-    </EuiResizableContainer>
+      <EuiFlexItem grow={configurePanelOpen}>
+        <EuiPanel
+          data-testid="agenticSearchInputPanel"
+          paddingSize="s"
+          grow={true}
+          className="workspace-panel"
+          borderRadius="l"
+          style={{
+            height: AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
+            overflowX: 'hidden',
+            overflowY: 'scroll',
+          }}
+        >
+          {configurePanelOpen ? (
+            <ConfigureFlow
+              uiConfig={props.uiConfig}
+              closePanel={() => setConfigurePanelOpen(false)}
+            />
+          ) : (
+            <EuiSmallButtonIcon
+              iconType="menuRight"
+              onClick={() => setConfigurePanelOpen(true)}
+              aria-label="openAgentConfig"
+            />
+          )}
+        </EuiPanel>
+      </EuiFlexItem>
+      <EuiFlexItem>
+        <EuiPanel
+          data-testid="agenticSearchTestPanel"
+          paddingSize="s"
+          grow={true}
+          className="workspace-panel"
+          borderRadius="l"
+          style={{
+            height: AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
+            overflowX: 'hidden',
+            overflowY: 'scroll',
+          }}
+        >
+          <TestFlow
+            uiConfig={props.uiConfig}
+            fieldMappings={fieldMappings}
+            saveWorkflow={validateAndUpdateWorkflow}
+            configurePanelOpen={configurePanelOpen}
+          />
+        </EuiPanel>
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 }
