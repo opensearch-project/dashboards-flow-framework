@@ -33,7 +33,7 @@ import {
   formikToUiConfig,
   reduceToTemplate,
   getDataSourceId,
-  AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
+  AGENTIC_SEARCH_WORKSPACE_HEIGHT,
 } from '../../../utils';
 import { getCore } from '../../../services';
 import { ConfigureFlow } from './configure_flow';
@@ -181,18 +181,19 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
     <EuiFlexGroup
       direction="row"
       gutterSize="s"
-      style={{ width: '100%' }}
       className="stretch-absolute"
+      style={{
+        // override height to be dependent on newHomePage setting
+        height: AGENTIC_SEARCH_WORKSPACE_HEIGHT,
+      }}
     >
       <EuiFlexItem grow={configureAgentOpen}>
         <EuiPanel
           data-testid="agenticSearchInputPanel"
           paddingSize="s"
           grow={true}
-          className="workspace-panel"
           borderRadius="l"
           style={{
-            height: AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
             overflowX: 'hidden',
             overflowY: 'scroll',
           }}
@@ -216,10 +217,8 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
           data-testid="agenticSearchTestPanel"
           paddingSize="s"
           grow={true}
-          className="workspace-panel"
           borderRadius="l"
           style={{
-            height: AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
             overflowX: 'hidden',
             overflowY: 'scroll',
           }}

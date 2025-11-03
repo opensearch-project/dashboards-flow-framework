@@ -35,12 +35,10 @@ export const BREADCRUMBS = Object.freeze({
 });
 
 export const USE_NEW_HOME_PAGE = getUISettings().get('home:useNewHomePage');
-export const AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT = USE_NEW_HOME_PAGE
-  ? '100%'
-  : 'calc(100% - 36px)';
-export const AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT = USE_NEW_HOME_PAGE
-  ? 'calc(100% + 14px)'
-  : 'calc(100% - 24px)';
+export const AGENTIC_SEARCH_WORKSPACE_HEIGHT = USE_NEW_HOME_PAGE
+  ? 'calc(100% + 6px)'
+  : 'calc(100% - 48px)';
+export const AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT = 'calc(100% + 14px)';
 
 export const getAppBasePath = () => {
   const currentPath = window.location.pathname;
