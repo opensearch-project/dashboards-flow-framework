@@ -15,6 +15,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - [Agentic Search] Simplify form inputs ([#807](https://github.com/opensearch-project/dashboards-flow-framework/pull/807))
 - [Agentic Search] Simplify form inputs II ([#808](https://github.com/opensearch-project/dashboards-flow-framework/pull/808))
 - Integrate with memory ([#809](https://github.com/opensearch-project/dashboards-flow-framework/pull/809))
+- Add version filtering on agentic search usecase ([#813](https://github.com/opensearch-project/dashboards-flow-framework/pull/813))
 ### Bug Fixes
 ### Infrastructure
 ### Documentation
