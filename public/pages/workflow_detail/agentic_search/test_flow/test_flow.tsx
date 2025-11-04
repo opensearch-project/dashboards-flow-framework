@@ -85,6 +85,7 @@ export function TestFlow(props: TestFlowProps) {
   const [runtimeSearchPipeline, setRuntimeSearchPipeline] = useState<{}>({});
 
   const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [isStopped, setIsStopped] = useState<boolean>(false);
   const [searchResponse, setSearchResponse] = useState<any | undefined>(
     undefined
   );
@@ -113,6 +114,7 @@ export function TestFlow(props: TestFlowProps) {
     }
 
     setIsSearching(true);
+    setIsStopped(false);
     setSearchError(undefined);
     setFormError(undefined);
 
@@ -148,6 +150,12 @@ export function TestFlow(props: TestFlowProps) {
       .finally(() => {
         setIsSearching(false);
       });
+  };
+
+  const handleStop = () => {
+    setIsSearching(false);
+    setIsStopped(true);
+    setSearchResponse(undefined);
   };
 
   function injectPipelineIntoQuery(finalQuery: any): {} {
@@ -223,6 +231,7 @@ export function TestFlow(props: TestFlowProps) {
                     uiConfig={props.uiConfig}
                     fieldMappings={props.fieldMappings}
                     handleSearch={handleSearch}
+                    handleStop={handleStop}
                     isSearching={isSearching}
                     agentType={agent?.type}
                     memoryId={memoryId}
@@ -252,9 +261,17 @@ export function TestFlow(props: TestFlowProps) {
                     titleSize="xs"
                   />
                 )}
+                {isStopped && (
+                  <EuiEmptyPrompt
+                    iconType={'stop'}
+                    title={<h4>Stopped</h4>}
+                    titleSize="xs"
+                  />
+                )}
                 {isEmpty(searchResponse) &&
                   isEmpty(searchError) &&
-                  !isSearching && (
+                  !isSearching &&
+                  !isStopped && (
                     <EuiEmptyPrompt
                       iconType={'search'}
                       title={<h4>Run a search to view results</h4>}
