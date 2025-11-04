@@ -232,6 +232,8 @@ export enum WORKFLOW_TYPE_LEGACY {
 export const MIN_SUPPORTED_VERSION = '2.17.0';
 // Min version to support ML processors
 export const MINIMUM_FULL_SUPPORTED_VERSION = '2.19.0';
+// Min version to support agentic search
+export const MINIMUM_AGENTIC_SEARCH_VERSION = '3.3.0';
 
 // the names should be consistent with the underlying implementation. used when generating the
 // final ingest/search pipeline configurations.
