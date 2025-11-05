@@ -199,7 +199,10 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
           overflow: 'hidden',
         }}
       >
-        <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
+        <EuiFlexItem
+          grow={false}
+          style={{ marginBottom: '0px', marginLeft: '12px' }}
+        >
           <EuiFlexGroup
             direction="row"
             justifyContent="spaceBetween"

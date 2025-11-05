@@ -6,19 +6,16 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
+import { isEmpty } from 'lodash';
 import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiComboBox,
-  EuiComboBoxOptionOption,
-  EuiBadge,
   EuiSmallButtonIcon,
+  EuiSuperSelect,
+  EuiSuperSelectOption,
+  EuiText,
 } from '@elastic/eui';
 import { AppState } from '../../../../store';
 import { AGENT_ID_PATH, WorkflowFormValues } from '../../../../../common';
 import { AgentDetailsModal } from './agent_details_modal';
-
-const MAX_AGENT_BADGE_WIDTH = '250px';
 
 export function AgentSelector() {
   const { values, setFieldValue, setFieldTouched } = useFormikContext<
@@ -30,22 +27,44 @@ export function AgentSelector() {
     false
   );
 
-  const [isSelectingAgent, setIsSelectingAgent] = useState<boolean>(false);
   const [agentOptions, setAgentOptions] = useState<
-    EuiComboBoxOptionOption<string>[]
+    EuiSuperSelectOption<string>[]
   >([]);
 
   // init with options once available from redux
   useEffect(() => {
     const options = Object.values(agents || {}).map((agent) => ({
       value: agent.id,
-      label: agent.name,
+      text: agent.name,
+      inputDisplay: agent.name,
+      dropdownDisplay: (
+        <>
+          <EuiText size="s">
+            {agent.name}
+            {!isEmpty(agent.description) && (
+              <EuiText size="xs" color="subdued">
+                <span
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    minWidth: 0,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  <i> {agent.description}</i>
+                </span>
+              </EuiText>
+            )}
+          </EuiText>
+        </>
+      ),
     }));
     setAgentOptions(options);
   }, [agents]);
 
   const selectedAgent = agents?.[selectedAgentId];
-  const displayName = selectedAgent?.name || 'Select agent';
 
   return (
     <>
@@ -57,66 +76,29 @@ export function AgentSelector() {
               agent={selectedAgent}
             />
           )}
-          <EuiFlexGroup gutterSize="xs" direction="row" alignItems="center">
-            <EuiFlexItem>
-              {isSelectingAgent ? (
-                <EuiComboBox
-                  data-testid="agentSelector"
-                  style={{ width: '300px' }}
-                  singleSelection={{ asPlainText: true }}
-                  options={agentOptions}
-                  selectedOptions={
-                    selectedAgentId
-                      ? [
-                          {
-                            label: selectedAgent?.name || '',
-                            value: selectedAgentId,
-                          },
-                        ]
-                      : []
-                  }
-                  onChange={(options) => {
-                    const value = getIn(options, '0.value', '') as string;
-                    setFieldValue(AGENT_ID_PATH, value);
-                    setFieldTouched(AGENT_ID_PATH, true);
-                    setIsSelectingAgent(false);
-                  }}
-                  onBlur={() => setIsSelectingAgent(false)}
-                  compressed
-                  autoFocus
-                  isClearable={false}
-                />
-              ) : (
-                <EuiBadge
-                  data-testid="agentBadge"
-                  iconType={'generate'}
-                  iconSide="left"
-                  onClick={() => setIsSelectingAgent(true)}
-                  color="hollow"
-                  onClickAriaLabel="Open agent selector"
-                  aria-label="Agent badge"
-                  style={{
-                    maxWidth: MAX_AGENT_BADGE_WIDTH,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {displayName}
-                </EuiBadge>
-              )}
-            </EuiFlexItem>
-            {selectedAgentId && selectedAgent && (
-              <EuiFlexItem grow={false}>
+          <EuiSuperSelect
+            data-testid="agentSelector"
+            prepend="Agent"
+            append={
+              selectedAgentId && selectedAgent ? (
                 <EuiSmallButtonIcon
                   iconType="inspect"
                   onClick={() => setIsDetailsModalVisible(true)}
                   aria-label="View agent details"
                   data-testid="viewAgentDetailsButton"
                 />
-              </EuiFlexItem>
-            )}
-          </EuiFlexGroup>
+              ) : undefined
+            }
+            options={agentOptions}
+            valueOfSelected={selectedAgentId}
+            onChange={(value) => {
+              setFieldValue(AGENT_ID_PATH, value);
+              setFieldTouched(AGENT_ID_PATH, true);
+            }}
+            placeholder="Select an agent"
+            compressed
+            fullWidth
+          />
         </>
       )}
     </>

@@ -178,7 +178,10 @@ export function TestFlow(props: TestFlowProps) {
             overflow: 'hidden',
           }}
         >
-          <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
+          <EuiFlexItem
+            grow={false}
+            style={{ marginBottom: '0px', marginLeft: '12px' }}
+          >
             <EuiFlexGroup
               direction="row"
               gutterSize="s"
@@ -189,24 +192,15 @@ export function TestFlow(props: TestFlowProps) {
                   <h3>Agentic search</h3>
                 </EuiTitle>
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiFlexGroup
-                  direction="row"
-                  gutterSize="s"
-                  alignItems="center"
-                >
-                  <EuiFlexItem grow={false}>
-                    <AgentSelector />
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <EuiText color="subdued" style={{ marginRight: '8px' }}>
-                      |
-                    </EuiText>
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <IndexSelector agentType={agent?.type} />
-                  </EuiFlexItem>
-                </EuiFlexGroup>
+            </EuiFlexGroup>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiFlexGroup direction="row" gutterSize="s">
+              <EuiFlexItem style={{ minWidth: 0, flex: '1 1 50%' }}>
+                <IndexSelector agentType={agent?.type} />
+              </EuiFlexItem>
+              <EuiFlexItem style={{ minWidth: 0, flex: '1 1 50%' }}>
+                <AgentSelector />
               </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
