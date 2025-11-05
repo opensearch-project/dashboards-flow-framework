@@ -20,6 +20,7 @@ import {
 } from '@elastic/eui';
 import { AppState, searchIndex, useAppDispatch } from '../../../../store';
 import {
+  ABORT_SEARCH_ERROR_MESSAGE,
   Agent,
   AGENT_ID_PATH,
   AGENT_TYPE,
@@ -86,6 +87,7 @@ export function TestFlow(props: TestFlowProps) {
 
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const isStopped = useRef<boolean>(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [searchResponse, setSearchResponse] = useState<any | undefined>(
     undefined
   );
@@ -118,6 +120,8 @@ export function TestFlow(props: TestFlowProps) {
     setSearchError(undefined);
     setFormError(undefined);
 
+    abortControllerRef.current = new AbortController();
+
     dispatch(
       searchIndex({
         apiBody: {
@@ -126,6 +130,7 @@ export function TestFlow(props: TestFlowProps) {
         },
         dataSourceId,
         verbose: false,
+        signal: abortControllerRef.current.signal,
       })
     )
       .unwrap()
@@ -148,8 +153,10 @@ export function TestFlow(props: TestFlowProps) {
         }
       })
       .catch((error) => {
-        setSearchError(error);
         setSearchResponse(undefined);
+        if (error !== ABORT_SEARCH_ERROR_MESSAGE) {
+          setSearchError(error);
+        }
       })
       .finally(() => {
         setIsSearching(false);
@@ -160,6 +167,11 @@ export function TestFlow(props: TestFlowProps) {
     setIsSearching(false);
     isStopped.current = true;
     setSearchResponse(undefined);
+
+    // Abort the ongoing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
   };
 
   function injectPipelineIntoQuery(finalQuery: any): {} {
@@ -264,6 +276,11 @@ export function TestFlow(props: TestFlowProps) {
                     iconType={'stop'}
                     title={<h4>Stopped</h4>}
                     titleSize="xs"
+                    body={
+                      <EuiText size="xs" style={{ textAlign: 'left' }}>
+                        {'Run a search to view results'}
+                      </EuiText>
+                    }
                   />
                 )}
                 {isEmpty(searchResponse) &&

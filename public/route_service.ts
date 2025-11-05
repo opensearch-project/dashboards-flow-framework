@@ -83,6 +83,7 @@ export interface RouteService {
     dataSourceVersion,
     searchPipeline,
     verbose,
+    signal,
   }: {
     index: string;
     body: {};
@@ -90,6 +91,7 @@ export interface RouteService {
     dataSourceVersion?: string;
     searchPipeline?: string;
     verbose?: boolean;
+    signal?: AbortSignal;
   }) => Promise<any>;
   ingest: (index: string, doc: {}, dataSourceId?: string) => Promise<any>;
   bulk: ({
@@ -335,6 +337,7 @@ export function configureRoutes(core: CoreStart): RouteService {
       dataSourceVersion,
       searchPipeline,
       verbose,
+      signal,
     }: {
       index: string;
       body: {};
@@ -342,6 +345,7 @@ export function configureRoutes(core: CoreStart): RouteService {
       dataSourceVersion?: string;
       searchPipeline?: string;
       verbose?: boolean;
+      signal?: AbortSignal;
     }) => {
       try {
         const url = dataSourceId
@@ -357,6 +361,7 @@ export function configureRoutes(core: CoreStart): RouteService {
             verbose: verbose ?? false,
             data_source_version: dataSourceVersion,
           },
+          signal,
         });
         return response;
       } catch (e: any) {

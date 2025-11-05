@@ -929,6 +929,8 @@ export const OUTPUT_TRANSFORM_OPTIONS = [
   },
 ];
 
+export const ABORT_SEARCH_ERROR_MESSAGE =
+  'Error searching index: signal is aborted without reason';
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';
 export const DEFAULT_NEW_WORKFLOW_STATE_TYPE = ('NOT_STARTED' as any) as typeof WORKFLOW_STATE;

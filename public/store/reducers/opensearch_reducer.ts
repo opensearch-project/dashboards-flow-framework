@@ -127,11 +127,13 @@ export const searchIndex = createAsyncThunk(
       dataSourceId,
       dataSourceVersion,
       verbose,
+      signal,
     }: {
       apiBody: { index: string; body: {}; searchPipeline?: string };
       dataSourceId?: string;
       dataSourceVersion?: string;
       verbose?: boolean;
+      signal?: AbortSignal;
     },
     { rejectWithValue }
   ) => {
@@ -144,6 +146,7 @@ export const searchIndex = createAsyncThunk(
         dataSourceVersion,
         searchPipeline,
         verbose,
+        signal,
       });
     } catch (e) {
       return rejectWithValue(

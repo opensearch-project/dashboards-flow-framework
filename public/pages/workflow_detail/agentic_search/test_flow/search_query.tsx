@@ -255,7 +255,6 @@ export function SearchQuery(props: SearchQueryProps) {
                   <EuiFlexItem grow={false}>
                     <EuiSmallButtonEmpty
                       iconSide="left"
-                      iconSize="s"
                       iconType={'cross'}
                       onClick={() => {
                         let updatedQuery = cloneDeep(finalQuery);
@@ -302,7 +301,6 @@ export function SearchQuery(props: SearchQueryProps) {
                       <EuiSmallButtonEmpty
                         iconSide="left"
                         iconType={'chatLeft'}
-                        iconSize="s"
                         onClick={() => {
                           let updatedQuery = cloneDeep(finalQuery ?? {});
                           set(
