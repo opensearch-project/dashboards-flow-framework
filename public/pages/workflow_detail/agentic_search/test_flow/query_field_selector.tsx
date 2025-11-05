@@ -26,6 +26,16 @@ interface QueryFieldSelectorProps {
   fieldMappings: IndexMappings | undefined;
 }
 
+const QueryFieldsTooltip = () => (
+  <EuiToolTip content="Choose the set of fields in your selected index you want to target in your search">
+    <EuiIcon
+      type="questionInCircle"
+      color="subdued"
+      style={{ marginLeft: '4px' }}
+    />
+  </EuiToolTip>
+);
+
 export function QueryFieldSelector(props: QueryFieldSelectorProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   // interim state to properly render the dropdown list of fields with added metadata (e.g., field mapping type)
@@ -111,19 +121,14 @@ export function QueryFieldSelector(props: QueryFieldSelectorProps) {
           >
             Add query fields
           </EuiSmallButtonEmpty>
+          <QueryFieldsTooltip />
         </div>
       ) : (
         <EuiFormRow
           label={
             <>
               Query fields
-              <EuiToolTip content="Choose the set of fields in your selected index you want to target in your search">
-                <EuiIcon
-                  type="questionInCircle"
-                  color="subdued"
-                  style={{ marginLeft: '4px' }}
-                />
-              </EuiToolTip>
+              <QueryFieldsTooltip />
             </>
           }
           fullWidth
