@@ -186,7 +186,7 @@ export function TestFlow(props: TestFlowProps) {
             >
               <EuiFlexItem grow={false}>
                 <EuiTitle>
-                  <h3>Test flow</h3>
+                  <h3>Agentic search</h3>
                 </EuiTitle>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>

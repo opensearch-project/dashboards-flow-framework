@@ -1000,7 +1000,7 @@ export enum INSPECTOR_TAB_ID {
 export const INSPECTOR_TABS = [
   {
     id: INSPECTOR_TAB_ID.TEST,
-    name: 'Test flow',
+    name: 'Agentic search',
     disabled: false,
   },
   {
