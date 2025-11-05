@@ -39,7 +39,7 @@ describe('AgentSelector', () => {
     opensearch: INITIAL_OPENSEARCH_STATE,
     workflows: {},
     presets: {},
-    ml: { 
+    ml: {
       agents: mockAgents,
       models: {},
       loading: false,
@@ -70,18 +70,9 @@ describe('AgentSelector', () => {
     jest.clearAllMocks();
   });
 
-  test('renders badge by default', () => {
+  test('renders selector', () => {
     renderAgentSelector();
 
-    const agentBadge = screen.getByTestId('agentBadge');
-    expect(agentBadge).toBeInTheDocument();
-  });
-
-  test('clicking badge opens selector', async () => {
-    renderAgentSelector();
-
-    const agentBadge = screen.getByTestId('agentBadge');
-    await userEvent.click(agentBadge);
     const agentSelector = screen.getByTestId('agentSelector');
     expect(agentSelector).toBeInTheDocument();
   });
@@ -89,8 +80,8 @@ describe('AgentSelector', () => {
   test('shows available agents', async () => {
     renderAgentSelector();
 
-    const agentBadge = screen.getByTestId('agentBadge');
-    await userEvent.click(agentBadge);
+    const agentSelector = screen.getByTestId('agentSelector');
+    await userEvent.click(agentSelector);
 
     expect(screen.getByText('Test Agent 1')).toBeInTheDocument();
     expect(screen.getByText('Test Agent 2')).toBeInTheDocument();
@@ -99,6 +90,6 @@ describe('AgentSelector', () => {
   test('shows select agent placeholder when no agent selected', () => {
     renderAgentSelector();
 
-    expect(screen.getByText('Select agent')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Select an agent')).toBeInTheDocument();
   });
 });
