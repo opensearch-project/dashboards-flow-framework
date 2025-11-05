@@ -32,6 +32,28 @@ describe('SearchResults', () => {
     },
   };
 
+  const mockSearchResponseWithImages = {
+    took: 4,
+    hits: {
+      total: { value: 2 },
+      hits: [
+        { _id: '1', _source: { title: 'Image 1', image_url: 'photo1.jpg' } },
+        { _id: '2', _source: { title: 'Image 2', thumbnail: 'image2.png' } },
+      ],
+    },
+  };
+
+  const mockSearchResponseNoImages = {
+    took: 2,
+    hits: {
+      total: { value: 2 },
+      hits: [
+        { _id: '1', _source: { title: 'Document 1', content: 'text content' } },
+        { _id: '2', _source: { title: 'Document 2', description: 'more text' } },
+      ],
+    },
+  };
+
   const mockEmptySearchResponse = {
     took: 1,
     hits: {
@@ -81,22 +103,15 @@ describe('SearchResults', () => {
     // Should default to hits view
     expect(screen.getByTestId('resultsTableContainer')).toBeInTheDocument();
 
-    // Click the Aggregations button
-    const aggregationsButton = screen.getByText('Aggregations');
-    fireEvent.click(aggregationsButton);
-
-    // Should show no aggregations message since our mock doesn't have aggregations
-    expect(screen.getByTestId('noAggregationsMessage')).toBeInTheDocument();
-
     // Click the Raw Response button
-    const rawResponseButton = screen.getByText('Raw response');
+    const rawResponseButton = screen.getByTestId('rawResponseButton');
     fireEvent.click(rawResponseButton);
 
     // Should show the raw response
     expect(screen.getByTestId('rawResponseCodeBlock')).toBeInTheDocument();
 
     // Back to hits view
-    const hitsButton = screen.getByText('Hits');
+    const hitsButton = screen.getByTestId('hitsButton');
     fireEvent.click(hitsButton);
 
     // Should show the hits table again
@@ -119,7 +134,7 @@ describe('SearchResults', () => {
 
     // Should auto-select aggregations tab when there are no hits but there are aggregations
     // Click the Aggregations button first since the default is hits view
-    const aggregationsButton = screen.getByText('Aggregations');
+    const aggregationsButton = screen.getByTestId('aggregationsButton');
     fireEvent.click(aggregationsButton);
 
     expect(screen.getByTestId('aggregationsCodeBlock')).toBeInTheDocument();
@@ -132,5 +147,30 @@ describe('SearchResults', () => {
 
     // By default the raw JSON response is shown when there are no hits and no aggregations
     expect(screen.getByTestId('rawResponseCodeBlock')).toBeInTheDocument();
+  });
+
+  test('visual button is not present when no image fields found', () => {
+    render(<SearchResults searchResponse={mockSearchResponseNoImages} />);
+
+    // Visual button should not be present
+    expect(screen.queryByTestId('visualButton')).not.toBeInTheDocument();
+    // Hits button should be present
+    expect(screen.getByTestId('hitsButton')).toBeInTheDocument();
+  });
+
+  test('aggregations button is present when aggs field found', () => {
+    render(<SearchResults searchResponse={mockSearchResponseWithAggregations} />);
+
+    // Aggregations button should be present
+    expect(screen.getByTestId('aggregationsButton')).toBeInTheDocument();
+  });
+
+  test('visual button is present when image field found', () => {
+    render(<SearchResults searchResponse={mockSearchResponseWithImages} />);
+
+    // Visual button should be present
+    expect(screen.getByTestId('visualButton')).toBeInTheDocument();
+    // Hits button should also be present
+    expect(screen.getByTestId('hitsButton')).toBeInTheDocument();
   });
 });

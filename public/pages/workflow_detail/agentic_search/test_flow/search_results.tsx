@@ -46,6 +46,7 @@ function getResultsViewOptions(searchResponse?: any) {
     options.push({
       id: RESULTS_VIEW.VISUAL_HITS,
       label: 'Visual',
+      'data-testid': 'visualButton',
     });
   }
 
@@ -53,6 +54,7 @@ function getResultsViewOptions(searchResponse?: any) {
     options.push({
       id: RESULTS_VIEW.HITS,
       label: 'Hits',
+      'data-testid': 'hitsButton',
     });
   }
 
@@ -60,12 +62,14 @@ function getResultsViewOptions(searchResponse?: any) {
     options.push({
       id: RESULTS_VIEW.AGGREGATIONS,
       label: 'Aggregations',
+      'data-testid': 'aggregationsButton',
     });
   }
 
   options.push({
     id: RESULTS_VIEW.RAW_RESPONSE,
     label: 'Raw response',
+    'data-testid': 'rawResponseButton',
   });
 
   return options;
