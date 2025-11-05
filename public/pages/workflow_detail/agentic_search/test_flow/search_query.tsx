@@ -63,7 +63,7 @@ const CONTINUE_CONVERSATION_TOOLTIP_CONTENT =
   'Add the recent memory ID into the query to pass conversational history to the agent.';
 
 const STOP_SEARCH_TOOLTIP_CONTENT =
-  'Stop the current search and run a new one. Note the current search may still run in the background.';
+  'Stop the current search to run a new one. Note the current search may still run in the background.';
 
 export function SearchQuery(props: SearchQueryProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();

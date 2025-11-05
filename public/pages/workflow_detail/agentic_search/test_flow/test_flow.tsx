@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
@@ -85,7 +85,7 @@ export function TestFlow(props: TestFlowProps) {
   const [runtimeSearchPipeline, setRuntimeSearchPipeline] = useState<{}>({});
 
   const [isSearching, setIsSearching] = useState<boolean>(false);
-  const [isStopped, setIsStopped] = useState<boolean>(false);
+  const isStopped = useRef<boolean>(false);
   const [searchResponse, setSearchResponse] = useState<any | undefined>(
     undefined
   );
@@ -114,7 +114,7 @@ export function TestFlow(props: TestFlowProps) {
     }
 
     setIsSearching(true);
-    setIsStopped(false);
+    isStopped.current = false;
     setSearchError(undefined);
     setFormError(undefined);
 
@@ -130,17 +130,21 @@ export function TestFlow(props: TestFlowProps) {
     )
       .unwrap()
       .then((response: SearchResponse) => {
-        setSearchResponse(response);
+        if (isStopped.current) {
+          setSearchResponse(undefined);
+        } else {
+          setSearchResponse(response);
 
-        // persist a new memory ID to be optionally injected into the query from the user.
-        const respMemoryId = response?.ext?.memory_id;
-        const respMemoryIdStr =
-          typeof respMemoryId === 'string' ? respMemoryId.trim() : '';
-        const existingMemoryId = finalQuery?.query?.agentic?.memory_id;
-        const existingMemoryIdStr =
-          typeof existingMemoryId === 'string' ? existingMemoryId.trim() : '';
-        if (respMemoryIdStr && existingMemoryIdStr !== respMemoryIdStr) {
-          setMemoryId(respMemoryIdStr);
+          // persist a new memory ID to be optionally injected into the query from the user.
+          const respMemoryId = response?.ext?.memory_id;
+          const respMemoryIdStr =
+            typeof respMemoryId === 'string' ? respMemoryId.trim() : '';
+          const existingMemoryId = finalQuery?.query?.agentic?.memory_id;
+          const existingMemoryIdStr =
+            typeof existingMemoryId === 'string' ? existingMemoryId.trim() : '';
+          if (respMemoryIdStr && existingMemoryIdStr !== respMemoryIdStr) {
+            setMemoryId(respMemoryIdStr);
+          }
         }
       })
       .catch((error) => {
@@ -154,7 +158,7 @@ export function TestFlow(props: TestFlowProps) {
 
   const handleStop = () => {
     setIsSearching(false);
-    setIsStopped(true);
+    isStopped.current = true;
     setSearchResponse(undefined);
   };
 
@@ -255,7 +259,7 @@ export function TestFlow(props: TestFlowProps) {
                     titleSize="xs"
                   />
                 )}
-                {isStopped && (
+                {isStopped.current && (
                   <EuiEmptyPrompt
                     iconType={'stop'}
                     title={<h4>Stopped</h4>}
@@ -265,7 +269,7 @@ export function TestFlow(props: TestFlowProps) {
                 {isEmpty(searchResponse) &&
                   isEmpty(searchError) &&
                   !isSearching &&
-                  !isStopped && (
+                  !isStopped.current && (
                     <EuiEmptyPrompt
                       iconType={'search'}
                       title={<h4>Run a search to view results</h4>}
