@@ -53,7 +53,7 @@ export function AgentSelector() {
                     textOverflow: 'ellipsis',
                   }}
                 >
-                  <i> {agent.description}</i>
+                  <i> {agent.description?.trim()}</i>
                 </span>
               </EuiText>
             )}

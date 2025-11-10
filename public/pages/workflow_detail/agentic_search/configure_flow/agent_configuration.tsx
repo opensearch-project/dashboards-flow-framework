@@ -162,7 +162,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                       textOverflow: 'ellipsis',
                     }}
                   >
-                    <i> {agent.description}</i>
+                    <i> {agent.description?.trim()}</i>
                   </span>
                 </EuiText>
               )}
