@@ -64,7 +64,9 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
 
   // Get configureAgentOpen from URL params, default to true
   const queryParams = queryString.parse(location.search);
-  const configureAgentFromUrl = queryParams[CONFIGURE_AGENT_QUERY_PARAM];
+  const configureAgentFromUrl = String(
+    queryParams[CONFIGURE_AGENT_QUERY_PARAM] ?? ''
+  );
   const [configureAgentOpen, setConfigureAgentOpenState] = useState<boolean>(
     configureAgentFromUrl === 'false' ? false : true
   );

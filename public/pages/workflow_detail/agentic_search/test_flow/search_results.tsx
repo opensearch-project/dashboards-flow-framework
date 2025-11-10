@@ -45,7 +45,7 @@ function getResultsViewOptions(searchResponse?: any) {
   if (hasImages(searchResponse)) {
     options.push({
       id: RESULTS_VIEW.VISUAL_HITS,
-      label: 'Visual',
+      label: 'Visual hits',
       'data-testid': 'visualButton',
     });
   }
@@ -53,7 +53,7 @@ function getResultsViewOptions(searchResponse?: any) {
   if (hasHits(searchResponse)) {
     options.push({
       id: RESULTS_VIEW.HITS,
-      label: 'Hits',
+      label: 'Search hits',
       'data-testid': 'hitsButton',
     });
   }
@@ -86,24 +86,11 @@ function hasAggregations(searchResponse?: any): boolean {
 }
 function hasImageField(hit: any): string | undefined {
   const source = hit._source || {};
-  const imageExtensions = [
-    '.jpg',
-    '.jpeg',
-    '.png',
-    '.gif',
-    '.bmp',
-    '.webp',
-    '.svg',
-    '.tiff',
-    '.ico',
-  ];
+  const imagePattern = /\.(jpe?g|png|gif|bmp|webp|svg|tiff?|ico)$/i;
 
   for (const [key, value] of Object.entries(source)) {
-    if (typeof value === 'string') {
-      const lowerValue = value.toLowerCase();
-      if (imageExtensions.some((ext) => lowerValue.endsWith(ext))) {
-        return key;
-      }
+    if (typeof value === 'string' && imagePattern.test(value)) {
+      return key;
     }
   }
   return undefined;
