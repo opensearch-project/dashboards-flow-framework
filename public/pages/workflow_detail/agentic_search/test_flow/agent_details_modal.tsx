@@ -13,35 +13,28 @@ import {
   EuiCodeBlock,
   EuiSmallButton,
 } from '@elastic/eui';
-import { useSelector } from 'react-redux';
-import { AppState } from '../../../../store';
-import { customStringify } from '../../../../../common';
+import { Agent, customStringify } from '../../../../../common';
 
-const MAX_INDEX_TITLE_WIDTH = '50vw';
+const MAX_AGENT_TITLE_WIDTH = '50vw';
 
-interface IndexDetailsModalProps {
+interface AgentDetailsModalProps {
   onClose: () => void;
-  indexName: string;
+  agent: Agent;
 }
 
-export function IndexDetailsModal(props: IndexDetailsModalProps) {
-  const { indexDetails } = useSelector((state: AppState) => state.opensearch);
-
-  // Get the index details from the redux store
-  const indexDetail = indexDetails[props.indexName];
-
+export function AgentDetailsModal(props: AgentDetailsModalProps) {
   return (
     <EuiModal style={{ width: '70vw' }} onClose={props.onClose}>
       <EuiModalHeader>
         <EuiModalHeaderTitle
           style={{
-            maxWidth: MAX_INDEX_TITLE_WIDTH,
+            maxWidth: MAX_AGENT_TITLE_WIDTH,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
           }}
         >
-          {`Index '${props.indexName}'`}
+          {`Agent '${props.agent.name || props.agent.id}'`}
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
@@ -52,7 +45,7 @@ export function IndexDetailsModal(props: IndexDetailsModalProps) {
           isCopyable
           overflowHeight={400}
         >
-          {customStringify(indexDetail)}
+          {customStringify(props.agent)}
         </EuiCodeBlock>
       </EuiModalBody>
 

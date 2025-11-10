@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
@@ -20,6 +20,7 @@ import {
 } from '@elastic/eui';
 import { AppState, searchIndex, useAppDispatch } from '../../../../store';
 import {
+  ABORT_SEARCH_ERROR_MESSAGE,
   Agent,
   AGENT_ID_PATH,
   AGENT_TYPE,
@@ -31,17 +32,20 @@ import {
 import { SearchQuery } from './search_query';
 import { SearchResults } from './search_results';
 import { IndexSelector } from './index_selector';
+import { AgentSelector } from './agent_selector';
 import { GeneratedQuery } from './generated_query';
 import {
   AGENTIC_SEARCH_COMPONENT_PANEL_HEIGHT,
   getDataSourceId,
 } from '../../../../utils';
 import { NoIndicesCallout } from '../components';
+import '../agentic_search_styles.scss';
 
 interface TestFlowProps {
   uiConfig: WorkflowConfig | undefined;
   fieldMappings: IndexMappings | undefined;
   saveWorkflow(): Promise<boolean>;
+  configurePanelOpen: boolean;
 }
 
 const HorizontalRuleFlexItem = () => (
@@ -53,7 +57,7 @@ const HorizontalRuleFlexItem = () => (
 export function TestFlow(props: TestFlowProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
+  const { values } = useFormikContext<WorkflowFormValues>();
   const { agents, loading } = useSelector((state: AppState) => state.ml);
   const { indices, loading: opensearchLoading } = useSelector(
     (state: AppState) => state.opensearch
@@ -82,6 +86,8 @@ export function TestFlow(props: TestFlowProps) {
   const [runtimeSearchPipeline, setRuntimeSearchPipeline] = useState<{}>({});
 
   const [isSearching, setIsSearching] = useState<boolean>(false);
+  const isStopped = useRef<boolean>(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [searchResponse, setSearchResponse] = useState<any | undefined>(
     undefined
   );
@@ -110,8 +116,11 @@ export function TestFlow(props: TestFlowProps) {
     }
 
     setIsSearching(true);
+    isStopped.current = false;
     setSearchError(undefined);
     setFormError(undefined);
+
+    abortControllerRef.current = new AbortController();
 
     dispatch(
       searchIndex({
@@ -121,30 +130,48 @@ export function TestFlow(props: TestFlowProps) {
         },
         dataSourceId,
         verbose: false,
+        signal: abortControllerRef.current.signal,
       })
     )
       .unwrap()
       .then((response: SearchResponse) => {
-        setSearchResponse(response);
+        if (isStopped.current) {
+          setSearchResponse(undefined);
+        } else {
+          setSearchResponse(response);
 
-        // persist a new memory ID to be optionally injected into the query from the user.
-        const respMemoryId = response?.ext?.memory_id;
-        const respMemoryIdStr =
-          typeof respMemoryId === 'string' ? respMemoryId.trim() : '';
-        const existingMemoryId = finalQuery?.query?.agentic?.memory_id;
-        const existingMemoryIdStr =
-          typeof existingMemoryId === 'string' ? existingMemoryId.trim() : '';
-        if (respMemoryIdStr && existingMemoryIdStr !== respMemoryIdStr) {
-          setMemoryId(respMemoryIdStr);
+          // persist a new memory ID to be optionally injected into the query from the user.
+          const respMemoryId = response?.ext?.memory_id;
+          const respMemoryIdStr =
+            typeof respMemoryId === 'string' ? respMemoryId.trim() : '';
+          const existingMemoryId = finalQuery?.query?.agentic?.memory_id;
+          const existingMemoryIdStr =
+            typeof existingMemoryId === 'string' ? existingMemoryId.trim() : '';
+          if (respMemoryIdStr && existingMemoryIdStr !== respMemoryIdStr) {
+            setMemoryId(respMemoryIdStr);
+          }
         }
       })
       .catch((error) => {
-        setSearchError(error);
         setSearchResponse(undefined);
+        if (error !== ABORT_SEARCH_ERROR_MESSAGE) {
+          setSearchError(error);
+        }
       })
       .finally(() => {
         setIsSearching(false);
       });
+  };
+
+  const handleStop = () => {
+    setIsSearching(false);
+    isStopped.current = true;
+    setSearchResponse(undefined);
+
+    // Abort the ongoing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
   };
 
   function injectPipelineIntoQuery(finalQuery: any): {} {
@@ -167,7 +194,10 @@ export function TestFlow(props: TestFlowProps) {
             overflow: 'hidden',
           }}
         >
-          <EuiFlexItem grow={false} style={{ marginBottom: '0px' }}>
+          <EuiFlexItem
+            grow={false}
+            style={{ marginBottom: '0px', marginLeft: '12px' }}
+          >
             <EuiFlexGroup
               direction="row"
               gutterSize="s"
@@ -175,22 +205,22 @@ export function TestFlow(props: TestFlowProps) {
             >
               <EuiFlexItem grow={false}>
                 <EuiTitle>
-                  <h3>Test flow</h3>
+                  <h3>Agentic search</h3>
                 </EuiTitle>
-              </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <IndexSelector agentType={agent?.type} />
               </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
-          <EuiFlexItem
-            style={{
-              overflowY: 'auto',
-              scrollbarGutter: 'auto',
-              scrollbarWidth: 'auto',
-              overflowX: 'hidden',
-            }}
-          >
+          <EuiFlexItem grow={false}>
+            <EuiFlexGroup direction="row" gutterSize="s">
+              <EuiFlexItem style={{ minWidth: 0, flex: '1 1 50%' }}>
+                <IndexSelector agentType={agent?.type} />
+              </EuiFlexItem>
+              <EuiFlexItem style={{ minWidth: 0, flex: '1 1 50%' }}>
+                <AgentSelector />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </EuiFlexItem>
+          <EuiFlexItem className="agentic-search-workspace-panel">
             <EuiPanel paddingSize="none" hasBorder={false} hasShadow={false}>
               <EuiFlexGroup direction="column" gutterSize="m">
                 {!opensearchLoading && noIndices && (
@@ -211,6 +241,7 @@ export function TestFlow(props: TestFlowProps) {
                     uiConfig={props.uiConfig}
                     fieldMappings={props.fieldMappings}
                     handleSearch={handleSearch}
+                    handleStop={handleStop}
                     isSearching={isSearching}
                     agentType={agent?.type}
                     memoryId={memoryId}
@@ -240,9 +271,22 @@ export function TestFlow(props: TestFlowProps) {
                     titleSize="xs"
                   />
                 )}
+                {isStopped.current && (
+                  <EuiEmptyPrompt
+                    iconType={'stop'}
+                    title={<h4>Stopped</h4>}
+                    titleSize="xs"
+                    body={
+                      <EuiText size="xs" style={{ textAlign: 'left' }}>
+                        {'Run a search to view results'}
+                      </EuiText>
+                    }
+                  />
+                )}
                 {isEmpty(searchResponse) &&
                   isEmpty(searchError) &&
-                  !isSearching && (
+                  !isSearching &&
+                  !isStopped.current && (
                     <EuiEmptyPrompt
                       iconType={'search'}
                       title={<h4>Run a search to view results</h4>}

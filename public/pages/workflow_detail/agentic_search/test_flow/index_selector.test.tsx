@@ -103,49 +103,35 @@ describe('IndexSelector', () => {
     jest.clearAllMocks();
   });
 
-  test('renders badge by default', () => {
+  test('renders selector', () => {
     renderIndexSelector(AGENT_TYPE.FLOW);
 
-    const indexBadge = screen.getByTestId('indexBadge');
-    expect(indexBadge).toBeInTheDocument();
-  });
-
-  test('clicking badge opens selector', async () => {
-    renderIndexSelector(AGENT_TYPE.FLOW);
-
-    const indexBadge = screen.getByTestId('indexBadge');
-    await userEvent.click(indexBadge);
     const indexSelector = screen.getByTestId('indexSelector');
     expect(indexSelector).toBeInTheDocument();
   });
 
-  test('system indices hidden', async () => {
+  test('shows available indices', async () => {
     renderIndexSelector(AGENT_TYPE.FLOW);
 
-    const indexBadge = screen.getByTestId('indexBadge');
-    await userEvent.click(indexBadge);
+    const indexSelector = screen.getByTestId('indexSelector');
+    await userEvent.click(indexSelector);
+
+    expect(screen.getByText('index1')).toBeInTheDocument();
+    expect(screen.getByText('index2')).toBeInTheDocument();
+  });
+
+  test('system indices are filtered out', async () => {
+    renderIndexSelector(AGENT_TYPE.FLOW);
+
+    const indexSelector = screen.getByTestId('indexSelector');
+    await userEvent.click(indexSelector);
+
     expect(screen.queryByText('.system')).not.toBeInTheDocument();
   });
 
-  test('all indices option is hidden for flow agents', async () => {
+  test('shows placeholder text', () => {
     renderIndexSelector(AGENT_TYPE.FLOW);
 
-    const indexBadge = screen.getByTestId('indexBadge');
-    await userEvent.click(indexBadge);
-
-    expect(screen.getByText('index1')).toBeInTheDocument();
-    expect(screen.getByText('index2')).toBeInTheDocument();
-    expect(screen.queryByText('All indices')).not.toBeInTheDocument();
-  });
-
-  test('all indices option is visible for conversational agents', async () => {
-    renderIndexSelector(AGENT_TYPE.CONVERSATIONAL);
-
-    const indexBadge = screen.getByTestId('indexBadge');
-    await userEvent.click(indexBadge);
-
-    expect(screen.getByText('index1')).toBeInTheDocument();
-    expect(screen.getByText('index2')).toBeInTheDocument();
-    expect(screen.getAllByText('All indices').length).toBeGreaterThanOrEqual(2); // The same text should be visible in the badge
+    expect(screen.getByPlaceholderText('Select an index')).toBeInTheDocument();
   });
 });

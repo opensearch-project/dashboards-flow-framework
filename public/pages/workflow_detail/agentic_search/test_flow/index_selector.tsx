@@ -8,12 +8,9 @@ import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiComboBox,
-  EuiComboBoxOptionOption,
-  EuiBadge,
   EuiSmallButtonIcon,
+  EuiSuperSelect,
+  EuiSuperSelectOption,
 } from '@elastic/eui';
 import {
   AppState,
@@ -48,31 +45,31 @@ export function IndexSelector(props: IndexSelectorProps) {
   );
   const { indices } = useSelector((state: AppState) => state.opensearch);
 
-  const [isSelectingIndex, setIsSelectingIndex] = useState<boolean>(false);
-
   // Fetch indices on initial load
   useEffect(() => {
     dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
   }, []);
+
   const [indexOptions, setIndexOptions] = useState<
-    EuiComboBoxOptionOption<string>[]
+    EuiSuperSelectOption<string>[]
   >([]);
 
   // Optionally add an "ALL INDICES" option for eligible agent types (conversational)
   useEffect(() => {
-    let eligibleIndexOptions = [
-      ...Object.values(indices || {})
-        .filter((index) => !index.name.startsWith('.')) // Filter out system indices
-        .map((index) => ({
-          value: index.name,
-          label: index.name,
-        })),
-    ];
+    let eligibleIndexOptions = Object.values(indices || {})
+      .filter((index) => !index.name.startsWith('.')) // Filter out system indices
+      .map((index) => ({
+        value: index.name,
+        inputDisplay: index.name,
+        dropdownDisplay: index.name,
+      }));
+
     if (props.agentType === AGENT_TYPE.CONVERSATIONAL) {
       eligibleIndexOptions = [
         {
-          label: ALL_INDICES,
-          value: '',
+          value: ALL_INDICES,
+          inputDisplay: ALL_INDICES,
+          dropdownDisplay: ALL_INDICES,
         },
         ...eligibleIndexOptions,
       ];
@@ -90,51 +87,11 @@ export function IndexSelector(props: IndexSelectorProps) {
               indexName={selectedIndexName}
             />
           )}
-          <EuiFlexGroup gutterSize="xs" direction="row" alignItems="center">
-            <EuiFlexItem>
-              {isSelectingIndex ? (
-                <EuiComboBox
-                  data-testid="indexSelector"
-                  style={{ width: '400px' }}
-                  singleSelection={{ asPlainText: true }}
-                  options={indexOptions}
-                  selectedOptions={
-                    isEmpty(selectedIndexName)
-                      ? props.agentType === AGENT_TYPE.FLOW ||
-                        isEmpty(props.agentType)
-                        ? []
-                        : [{ label: ALL_INDICES, value: '' }]
-                      : [{ label: selectedIndexName, value: selectedIndexName }]
-                  }
-                  onChange={(options) => {
-                    const value = getIn(options, '0.value', '') as string;
-                    setFieldValue(INDEX_NAME_PATH, value);
-                    setFieldTouched(INDEX_NAME_PATH, true);
-                    setIsSelectingIndex(false);
-                  }}
-                  onBlur={() => setIsSelectingIndex(false)}
-                  compressed
-                  autoFocus
-                  isClearable={false}
-                />
-              ) : (
-                <EuiBadge
-                  data-testid="indexBadge"
-                  iconType={'documents'}
-                  iconSide="left"
-                  onClick={() => {
-                    setIsSelectingIndex(true);
-                  }}
-                  color="hollow"
-                  onClickAriaLabel="Open index selector"
-                  aria-label="Index badge"
-                >
-                  {isEmpty(selectedIndexName) ? ALL_INDICES : selectedIndexName}
-                </EuiBadge>
-              )}
-            </EuiFlexItem>
-            {!isEmpty(selectedIndexName) && (
-              <EuiFlexItem grow={false}>
+          <EuiSuperSelect
+            data-testid="indexSelector"
+            prepend="Index"
+            append={
+              !isEmpty(selectedIndexName) ? (
                 <EuiSmallButtonIcon
                   iconType="inspect"
                   onClick={async () => {
@@ -149,9 +106,28 @@ export function IndexSelector(props: IndexSelectorProps) {
                   aria-label="View index details"
                   data-testid="viewIndexDetailsButton"
                 />
-              </EuiFlexItem>
-            )}
-          </EuiFlexGroup>
+              ) : undefined
+            }
+            options={indexOptions}
+            valueOfSelected={
+              isEmpty(selectedIndexName)
+                ? props.agentType === AGENT_TYPE.FLOW ||
+                  isEmpty(props.agentType)
+                  ? undefined
+                  : ALL_INDICES
+                : selectedIndexName
+            }
+            onChange={(value) => {
+              if (value === ALL_INDICES) {
+                value = '';
+              }
+              setFieldValue(INDEX_NAME_PATH, value);
+              setFieldTouched(INDEX_NAME_PATH, true);
+            }}
+            placeholder="Select an index"
+            compressed
+            fullWidth
+          />
         </>
       )}
     </>

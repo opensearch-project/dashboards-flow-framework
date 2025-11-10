@@ -28,6 +28,7 @@ import {
   EuiSuperSelect,
   EuiToolTip,
   EuiIcon,
+  EuiSuperSelectOption,
 } from '@elastic/eui';
 import {
   Agent,
@@ -134,8 +135,11 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
     }
   }, [getIn(values, AGENT_ID_PATH), agents]);
 
-  // get initial agent options for the dropdown
-  const [agentOptions, setAgentOptions] = useState<any[]>([]);
+  // get initial agent options for the dropdown.
+  const [agentOptions, setAgentOptions] = useState<
+    EuiSuperSelectOption<string>[]
+  >([]);
+  const [agentOptionsReady, setAgentOptionsReady] = useState<boolean>(false);
   useEffect(() => {
     setAgentOptions(
       Object.values(agents || {}).map((agent) => ({
@@ -158,7 +162,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                       textOverflow: 'ellipsis',
                     }}
                   >
-                    <i> {agent.description}</i>
+                    <i> {agent.description?.trim()}</i>
                   </span>
                 </EuiText>
               )}
@@ -167,37 +171,43 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
         ),
       }))
     );
+    setAgentOptionsReady(true);
   }, [agents]);
-  const noAgentsFound = isEmpty(agentOptions) && !loading;
+  const noAgentsFound = agentOptionsReady && isEmpty(agentOptions) && !loading;
 
   const handleModeSwitch = (queryMode: string) => {
     setConfigModeSelected(queryMode as CONFIG_MODE);
   };
 
-  // update different agent options in the dropdown based on if a user is creating a new agent or not
+  // update different agent options in the dropdown based on if a user is creating a new agent or not.
+  // wait for the agent options to be initialized before doing post-filtering.
   useEffect(() => {
-    if (props.newAndUnsaved) {
-      setFieldValue(AGENT_ID_PATH, NEW_AGENT_PLACEHOLDER);
-      setFieldTouched(AGENT_ID_PATH, true);
-      setAgentOptions((agentOptions) => [
-        ...agentOptions,
-        {
-          value: NEW_AGENT_PLACEHOLDER,
-          text: NEW_AGENT_ID_PLACEHOLDER,
-          inputDisplay: NEW_AGENT_ID_PLACEHOLDER,
-          dropdownDisplay: (
-            <EuiText size="s">{NEW_AGENT_ID_PLACEHOLDER}</EuiText>
-          ),
-        },
-      ]);
-      // new and unsaved was triggered to false (either by user discarding the changes, or a new agent created).
-      // either way, we want to remove the placeholder option in the dropdown.
-    } else {
-      setAgentOptions(
-        agentOptions.filter((option) => option.value !== NEW_AGENT_PLACEHOLDER)
-      );
+    if (agentOptionsReady) {
+      if (props.newAndUnsaved) {
+        setFieldValue(AGENT_ID_PATH, NEW_AGENT_PLACEHOLDER);
+        setFieldTouched(AGENT_ID_PATH, true);
+        setAgentOptions((agentOptions) => [
+          ...agentOptions,
+          {
+            value: NEW_AGENT_PLACEHOLDER,
+            text: NEW_AGENT_ID_PLACEHOLDER,
+            inputDisplay: NEW_AGENT_ID_PLACEHOLDER,
+            dropdownDisplay: (
+              <EuiText size="s">{NEW_AGENT_ID_PLACEHOLDER}</EuiText>
+            ),
+          },
+        ]);
+        // new and unsaved was triggered to false (either by user discarding the changes, or a new agent created).
+        // either way, we want to remove the placeholder option in the dropdown.
+      } else {
+        setAgentOptions(
+          agentOptions.filter(
+            (option) => option.value !== NEW_AGENT_PLACEHOLDER
+          )
+        );
+      }
     }
-  }, [props.newAndUnsaved]);
+  }, [props.newAndUnsaved, agentOptionsReady]);
 
   return (
     <>

@@ -7,6 +7,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Features
 - Add agent summary ([#801](https://github.com/opensearch-project/dashboards-flow-framework/pull/801))
 - [Agentic Search] Add MCP server support ([#802](https://github.com/opensearch-project/dashboards-flow-framework/pull/802))
+- [Agentic Search] Improve Test Flow UX ([#812](https://github.com/opensearch-project/dashboards-flow-framework/pull/812))
 
 ### Enhancements
 - Clean up / hide complex fields on agent configuration ([#796](https://github.com/opensearch-project/dashboards-flow-framework/pull/796))

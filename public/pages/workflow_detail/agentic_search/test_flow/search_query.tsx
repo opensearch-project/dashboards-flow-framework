@@ -40,6 +40,7 @@ interface SearchQueryProps {
   uiConfig?: WorkflowConfig;
   fieldMappings: IndexMappings | undefined;
   handleSearch(): void;
+  handleStop(): void;
   isSearching: boolean;
   agentType?: AGENT_TYPE;
   memoryId?: string;
@@ -60,6 +61,9 @@ const CLEAR_MEMORY_TOOLTIP_CONTENT =
 
 const CONTINUE_CONVERSATION_TOOLTIP_CONTENT =
   'Add the recent memory ID into the query to pass conversational history to the agent.';
+
+const STOP_SEARCH_TOOLTIP_CONTENT =
+  'Stop the current search to run a new one. Note the current search may still run in the background.';
 
 export function SearchQuery(props: SearchQueryProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
@@ -251,7 +255,6 @@ export function SearchQuery(props: SearchQueryProps) {
                   <EuiFlexItem grow={false}>
                     <EuiSmallButtonEmpty
                       iconSide="left"
-                      iconSize="s"
                       iconType={'cross'}
                       onClick={() => {
                         let updatedQuery = cloneDeep(finalQuery);
@@ -298,7 +301,6 @@ export function SearchQuery(props: SearchQueryProps) {
                       <EuiSmallButtonEmpty
                         iconSide="left"
                         iconType={'chatLeft'}
-                        iconSize="s"
                         onClick={() => {
                           let updatedQuery = cloneDeep(finalQuery ?? {});
                           set(
@@ -346,15 +348,28 @@ export function SearchQuery(props: SearchQueryProps) {
               />
             </EuiFlexItem>
             <EuiFlexItem>
-              <EuiSmallButton
-                onClick={props.handleSearch}
-                fill={false}
-                iconType="search"
-                isLoading={props.isSearching}
-                isDisabled={false}
-              >
-                Search
-              </EuiSmallButton>
+              {props.isSearching ? (
+                <EuiToolTip
+                  content={STOP_SEARCH_TOOLTIP_CONTENT}
+                  position="bottom"
+                >
+                  <EuiSmallButton
+                    onClick={props.handleStop}
+                    color="danger"
+                    iconType="stop"
+                  >
+                    Stop
+                  </EuiSmallButton>
+                </EuiToolTip>
+              ) : (
+                <EuiSmallButton
+                  onClick={props.handleSearch}
+                  fill={false}
+                  iconType="search"
+                >
+                  Search
+                </EuiSmallButton>
+              )}
             </EuiFlexItem>
           </EuiFlexGroup>
         </EuiFlexItem>

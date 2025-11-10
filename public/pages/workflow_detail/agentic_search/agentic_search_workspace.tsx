@@ -6,13 +6,20 @@
 import React, { useEffect, useState } from 'react';
 import { isEmpty, isEqual } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
+import { useLocation, useHistory } from 'react-router-dom';
+import queryString from 'query-string';
 import {
   getMappings,
   searchAgents,
   updateWorkflow,
   useAppDispatch,
 } from '../../../store';
-import { EuiPanel, EuiResizableContainer } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiPanel,
+  EuiSmallButtonIcon,
+} from '@elastic/eui';
 import {
   AGENT_ID_PATH,
   FETCH_ALL_QUERY_LARGE,
@@ -26,7 +33,7 @@ import {
   formikToUiConfig,
   reduceToTemplate,
   getDataSourceId,
-  AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
+  AGENTIC_SEARCH_WORKSPACE_HEIGHT,
 } from '../../../utils';
 import { getCore } from '../../../services';
 import { ConfigureFlow } from './configure_flow';
@@ -37,11 +44,15 @@ interface AgenticSearchWorkspaceProps {
   uiConfig: WorkflowConfig | undefined;
 }
 
+const CONFIGURE_AGENT_QUERY_PARAM = 'configureAgent';
+
 /**
  * Resizable workspace for configuring agents and executing agentic search.
  */
 export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   const dispatch = useAppDispatch();
+  const location = useLocation();
+  const history = useHistory();
   const dataSourceId = getDataSourceId();
   const { values, submitForm, validateForm, setTouched } = useFormikContext<
     WorkflowFormValues
@@ -50,6 +61,28 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
     undefined
   );
   const selectedIndexId = getIn(values, 'search.index.name', '') as string;
+
+  // Get configureAgentOpen from URL params, default to true
+  const queryParams = queryString.parse(location.search);
+  const configureAgentFromUrl = String(
+    queryParams[CONFIGURE_AGENT_QUERY_PARAM] ?? ''
+  );
+  const [configureAgentOpen, setConfigureAgentOpenState] = useState<boolean>(
+    configureAgentFromUrl === 'false' ? false : true
+  );
+
+  // Update URL when configureAgentOpen changes
+  const setConfigureAgentOpen = (open: boolean) => {
+    setConfigureAgentOpenState(open);
+    const newParams = {
+      ...queryParams,
+      [CONFIGURE_AGENT_QUERY_PARAM]: open.toString(),
+    };
+    history.replace({
+      ...location,
+      search: queryString.stringify(newParams),
+    });
+  };
 
   // fetch all existing agents on initial load
   useEffect(() => {
@@ -147,69 +180,57 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   ]);
 
   return (
-    <EuiResizableContainer
-      direction="horizontal"
+    <EuiFlexGroup
+      direction="row"
+      gutterSize="s"
       className="stretch-absolute"
       style={{
-        width: '100%',
-        gap: '4px',
+        // override height to be dependent on newHomePage setting
+        height: AGENTIC_SEARCH_WORKSPACE_HEIGHT,
       }}
     >
-      {(EuiResizablePanel, EuiResizableButton) => (
-        <>
-          <EuiResizablePanel
-            mode="main"
-            initialSize={50}
-            minSize="25%"
-            paddingSize="none"
-            scrollable={false}
-          >
-            <EuiPanel
-              data-testid="agenticSearchInputPanel"
-              paddingSize="s"
-              grow={true}
-              className="workspace-panel"
-              borderRadius="l"
-              style={{
-                height: AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
-                overflowX: 'hidden',
-                overflowY: 'scroll',
-              }}
-            >
-              <ConfigureFlow uiConfig={props.uiConfig} />
-            </EuiPanel>
-          </EuiResizablePanel>
-
-          <EuiResizableButton />
-
-          <EuiResizablePanel
-            mode="collapsible"
-            initialSize={50}
-            minSize="25%"
-            paddingSize="none"
-            borderRadius="l"
-          >
-            <EuiPanel
-              data-testid="agenticSearchTestPanel"
-              paddingSize="s"
-              grow={true}
-              className="workspace-panel"
-              borderRadius="l"
-              style={{
-                height: AGENTIC_SEARCH_RESIZABLE_PANEL_HEIGHT,
-                overflowX: 'hidden',
-                overflowY: 'scroll',
-              }}
-            >
-              <TestFlow
-                uiConfig={props.uiConfig}
-                fieldMappings={fieldMappings}
-                saveWorkflow={validateAndUpdateWorkflow}
-              />
-            </EuiPanel>
-          </EuiResizablePanel>
-        </>
-      )}
-    </EuiResizableContainer>
+      <EuiFlexItem grow={configureAgentOpen}>
+        <EuiPanel
+          data-testid="agenticSearchInputPanel"
+          paddingSize="s"
+          grow={true}
+          borderRadius="l"
+          style={{
+            overflowX: 'hidden',
+          }}
+        >
+          {configureAgentOpen ? (
+            <ConfigureFlow
+              uiConfig={props.uiConfig}
+              closePanel={() => setConfigureAgentOpen(false)}
+            />
+          ) : (
+            <EuiSmallButtonIcon
+              iconType="menuRight"
+              onClick={() => setConfigureAgentOpen(true)}
+              aria-label="openAgentConfig"
+            />
+          )}
+        </EuiPanel>
+      </EuiFlexItem>
+      <EuiFlexItem>
+        <EuiPanel
+          data-testid="agenticSearchTestPanel"
+          paddingSize="s"
+          grow={true}
+          borderRadius="l"
+          style={{
+            overflowX: 'hidden',
+          }}
+        >
+          <TestFlow
+            uiConfig={props.uiConfig}
+            fieldMappings={fieldMappings}
+            saveWorkflow={validateAndUpdateWorkflow}
+            configurePanelOpen={configureAgentOpen}
+          />
+        </EuiPanel>
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 }

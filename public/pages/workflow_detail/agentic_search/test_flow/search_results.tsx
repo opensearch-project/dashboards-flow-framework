@@ -20,6 +20,7 @@ import {
 import { customStringify } from '../../../../../common';
 import { ResultsTable } from '../../../../general_components';
 import { AgentSummaryModal } from './agent_summary_modal';
+import { VisualizedHits } from './visualized_hits';
 
 interface SearchResultsProps {
   searchResponse?: any;
@@ -29,26 +30,50 @@ interface SearchResultsProps {
  * Enum for results view tab options
  */
 enum RESULTS_VIEW {
+  VISUAL_HITS = 'visual_hits',
   GENERATED_QUERY = 'generated_pipeline',
   HITS = 'hits',
   AGGREGATIONS = 'aggregations',
   RAW_RESPONSE = 'raw_response',
 }
 
-const RESULTS_VIEW_OPTIONS = [
-  {
-    id: RESULTS_VIEW.HITS,
-    label: 'Hits',
-  },
-  {
-    id: RESULTS_VIEW.AGGREGATIONS,
-    label: 'Aggregations',
-  },
-  {
+const NUM_FIELDS_TO_CHECK_FOR_IMAGES = 5;
+
+function getResultsViewOptions(searchResponse?: any) {
+  const options = [];
+
+  if (hasImages(searchResponse)) {
+    options.push({
+      id: RESULTS_VIEW.VISUAL_HITS,
+      label: 'Visual hits',
+      'data-testid': 'visualButton',
+    });
+  }
+
+  if (hasHits(searchResponse)) {
+    options.push({
+      id: RESULTS_VIEW.HITS,
+      label: 'Search hits',
+      'data-testid': 'hitsButton',
+    });
+  }
+
+  if (hasAggregations(searchResponse)) {
+    options.push({
+      id: RESULTS_VIEW.AGGREGATIONS,
+      label: 'Aggregations',
+      'data-testid': 'aggregationsButton',
+    });
+  }
+
+  options.push({
     id: RESULTS_VIEW.RAW_RESPONSE,
     label: 'Raw response',
-  },
-];
+    'data-testid': 'rawResponseButton',
+  });
+
+  return options;
+}
 
 function hasHits(searchResponse?: any): boolean {
   return Boolean(searchResponse?.hits?.hits?.length > 0);
@@ -58,6 +83,33 @@ function hasAggregations(searchResponse?: any): boolean {
     searchResponse?.aggregations &&
       Object.keys(searchResponse?.aggregations || {}).length > 0
   );
+}
+function hasImageField(hit: any): string | undefined {
+  const source = hit._source || {};
+  const imagePattern = /\.(jpe?g|png|gif|bmp|webp|svg|tiff?|ico)$/i;
+
+  for (const [key, value] of Object.entries(source)) {
+    if (typeof value === 'string' && imagePattern.test(value)) {
+      return key;
+    }
+  }
+  return undefined;
+}
+function hasImages(searchResponse?: any): boolean {
+  if (!hasHits(searchResponse)) return false;
+  const hits = searchResponse?.hits?.hits || [];
+  const firstHits = hits.slice(0, NUM_FIELDS_TO_CHECK_FOR_IMAGES);
+  return firstHits.some((hit: any) => hasImageField(hit) !== undefined);
+}
+function getImageFieldName(searchResponse?: any): string | undefined {
+  if (!hasHits(searchResponse)) return undefined;
+  const hits = searchResponse?.hits?.hits || [];
+  const firstHits = hits.slice(0, NUM_FIELDS_TO_CHECK_FOR_IMAGES);
+  for (const hit of firstHits) {
+    const fieldName = hasImageField(hit);
+    if (fieldName) return fieldName;
+  }
+  return undefined;
 }
 function hasAgentSummary(searchResponse?: any): boolean {
   return !isEmpty(searchResponse?.ext?.agent_steps_summary);
@@ -77,7 +129,11 @@ export function SearchResults(props: SearchResultsProps) {
   useEffect(() => {
     if (!props.searchResponse) return;
     if (hasHits(props.searchResponse)) {
-      setSelectedView(RESULTS_VIEW.HITS);
+      if (hasImages(props.searchResponse)) {
+        setSelectedView(RESULTS_VIEW.VISUAL_HITS);
+      } else {
+        setSelectedView(RESULTS_VIEW.HITS);
+      }
     } else if (hasAggregations(props.searchResponse)) {
       setSelectedView(RESULTS_VIEW.AGGREGATIONS);
     } else {
@@ -146,11 +202,10 @@ export function SearchResults(props: SearchResultsProps) {
                     <EuiButtonGroup
                       buttonSize="compressed"
                       legend="Results View"
-                      options={RESULTS_VIEW_OPTIONS}
+                      options={getResultsViewOptions(props.searchResponse)}
                       idSelected={selectedView}
                       onChange={handleViewChange}
                       isFullWidth={false}
-                      style={{ width: '275px' }}
                       data-testid="resultsViewButtonGroup"
                     />
                   </EuiFlexItem>
@@ -187,7 +242,14 @@ export function SearchResults(props: SearchResultsProps) {
                 </EuiText>
               </EuiFlexItem>
               <EuiFlexItem>
-                {selectedView === RESULTS_VIEW.HITS ? (
+                {selectedView === RESULTS_VIEW.VISUAL_HITS ? (
+                  <VisualizedHits
+                    hits={props.searchResponse?.hits?.hits || []}
+                    imageFieldName={
+                      getImageFieldName(props.searchResponse) as string
+                    }
+                  />
+                ) : selectedView === RESULTS_VIEW.HITS ? (
                   <>
                     {hasHits(props.searchResponse) ? (
                       <div data-testid="resultsTableContainer">
