@@ -15,8 +15,13 @@ import {
   EuiTitle,
   EuiCodeBlock,
   EuiText,
+  EuiPanel,
 } from '@elastic/eui';
-import { customStringify, SearchHit } from '../../../../../common';
+import {
+  customStringify,
+  SearchHit,
+  getCharacterLimitedString,
+} from '../../../../../common';
 
 interface VisualizedHitsProps {
   hits: SearchHit[];
@@ -26,9 +31,11 @@ interface VisualizedHitsProps {
 const NUM_PREVIEW_FIELDS = 3;
 const IMAGE_DIMENSION = '100px';
 const IMAGE_DIMENSION_FLYOUT = '300px';
+const MAX_PREVIEW_FIELD_VALUE_CHARACTERS = 50;
 
 export function VisualizedHits({ hits, imageFieldName }: VisualizedHitsProps) {
   const [flyoutHit, setFlyoutHit] = useState<SearchHit | undefined>(undefined);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   const formatSourcePreview = (source: any) => {
     const entries = Object.entries(source).filter(
@@ -89,26 +96,58 @@ export function VisualizedHits({ hits, imageFieldName }: VisualizedHitsProps) {
             {index === 0 && <EuiHorizontalRule margin="xs" />}
             <EuiFlexGroup gutterSize="s" alignItems="flexStart">
               {hasImage && (
-                <EuiFlexItem grow={false}>
-                  <img
-                    src={imageUrl}
-                    alt="Hit image"
-                    style={{
-                      maxWidth: IMAGE_DIMENSION,
-                      maxHeight: IMAGE_DIMENSION,
-                    }}
-                  />
+                <EuiFlexItem
+                  grow={false}
+                  style={{ width: IMAGE_DIMENSION, height: IMAGE_DIMENSION }}
+                >
+                  {imageErrors.has(imageUrl) ? (
+                    <EuiPanel
+                      paddingSize="none"
+                      color="subdued"
+                      style={{
+                        width: IMAGE_DIMENSION,
+                        height: IMAGE_DIMENSION,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <EuiText size="xs" color="subdued">
+                        <i>Image not found</i>
+                      </EuiText>
+                    </EuiPanel>
+                  ) : (
+                    <img
+                      src={imageUrl}
+                      alt="Hit image"
+                      style={{
+                        maxWidth: IMAGE_DIMENSION,
+                        maxHeight: IMAGE_DIMENSION,
+                        objectFit: 'contain',
+                      }}
+                      onError={() => {
+                        setImageErrors((prev) => new Set(prev).add(imageUrl));
+                      }}
+                    />
+                  )}
                 </EuiFlexItem>
               )}
               <EuiFlexItem>
                 <div>
-                  {preview.map(([key, value], idx) => (
-                    <div key={key} style={{ marginBottom: '2px' }}>
-                      <EuiText size="s">
-                        <strong>{key}:</strong> {String(value || '')}
-                      </EuiText>
-                    </div>
-                  ))}
+                  {preview.map(([key, value], idx) => {
+                    const valueStr = String(value || '');
+                    return (
+                      <div key={key} style={{ marginBottom: '2px' }}>
+                        <EuiText size="s">
+                          <strong>{key}:</strong>{' '}
+                          {getCharacterLimitedString(
+                            valueStr,
+                            MAX_PREVIEW_FIELD_VALUE_CHARACTERS
+                          )}
+                        </EuiText>
+                      </div>
+                    );
+                  })}
                   {hasMore && (
                     <EuiButtonEmpty
                       size="xs"
