@@ -30,6 +30,21 @@ const mockHits = [
   },
 ];
 
+const LONG_TEXT =
+  'Test with very long text that exceeds fifty characters and should be truncated';
+const SHORT_TEXT = 'Short description';
+
+const mockHitWithLongText = [
+  {
+    _id: '3',
+    _source: {
+      title: LONG_TEXT,
+      description: SHORT_TEXT,
+      category: 'test',
+    },
+  },
+];
+
 describe('VisualizedHits', () => {
   it('renders hits with images', () => {
     render(<VisualizedHits hits={mockHits} imageFieldName="image_url" />);
@@ -58,5 +73,13 @@ describe('VisualizedHits', () => {
     fireEvent.click(screen.getByText('View more'));
 
     expect(screen.getByText('Search result details')).toBeInTheDocument();
+  });
+
+  it('truncates long field values', () => {
+    render(<VisualizedHits hits={mockHitWithLongText} imageFieldName="" />);
+
+    // Long text should be truncated
+    expect(screen.queryByText(LONG_TEXT)).not.toBeInTheDocument();
+    expect(screen.queryByText(SHORT_TEXT)).toBeInTheDocument();
   });
 });
