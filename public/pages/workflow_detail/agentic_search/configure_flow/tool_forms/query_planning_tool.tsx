@@ -395,7 +395,7 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
 // attempt to parse the upstream connector details and try to derive the relevant response filter.
 // Follows very similar logic to getRelevantInterface() in agent_advanced_settings.tsx.
 // Currently, only OpenAI and Bedrock Claude have native response filtering support.
-function getRelevantResponseFilter(
+export function getRelevantResponseFilter(
   model: Model,
   connectors: ConnectorDict
 ): RESPONSE_FILTER_TYPE | undefined {
