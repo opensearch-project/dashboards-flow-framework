@@ -101,23 +101,17 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
 
   // Automatically add or remove response filters to the query planning tool, if applicable.
   useEffect(() => {
-    if (
-      agentType === AGENT_TYPE.FLOW &&
-      !toolForm?.parameters?.response_filter &&
-      modelFound
-    ) {
-      // Get relevant response filter based on model and connector
-      const relevantResponseFilter = getRelevantResponseFilter(
-        selectedModel,
-        connectors
-      );
+    if (agentType === AGENT_TYPE.FLOW && modelFound) {
+      // Get relevant response filter based on model and connector.
+      // If unknown, set to empty string so users can manually input the value.
+      const relevantResponseFilter =
+        getRelevantResponseFilter(selectedModel, connectors) || '';
       updateParameterValue(
         props.agentForm,
         props.setAgentForm,
         props.toolIndex,
         'response_filter',
-        // default to empty, so the key is there and ready for users to input the explicit value in the editor.
-        relevantResponseFilter || ''
+        relevantResponseFilter
       );
     } else if (
       agentType === AGENT_TYPE.CONVERSATIONAL &&
