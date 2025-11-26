@@ -24,10 +24,12 @@ import {
 import {
   Agent,
   AGENT_TYPE,
+  ConnectorDict,
   Model,
   MODEL_STATE,
   QUERY_PLANNING_MODEL_DOCS_LINK,
   QUERY_PLANNING_TOOL_DOCS_LINK,
+  RESPONSE_FILTER_TYPE,
   Tool,
   TOOL_DESCRIPTION,
 } from '../../../../../../common';
@@ -64,7 +66,7 @@ const DEFAULT_SEARCH_TEMPLATE: SearchTemplateField = {
 };
 
 export function QueryPlanningTool(props: QueryPlanningToolProps) {
-  const { models } = useSelector((state: AppState) => state.ml);
+  const { models, connectors } = useSelector((state: AppState) => state.ml);
   const { searchTemplates } = useSelector(
     (state: AppState) => state.opensearch
   );
@@ -96,6 +98,41 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
   const selectedModel = getIn(models, selectedModelId) as Model | undefined;
   const modelFound = selectedModel !== undefined;
   const modelEmpty = isEmpty(selectedModelId);
+
+  // Automatically add or remove response filters to the query planning tool, if applicable.
+  useEffect(() => {
+    if (agentType === AGENT_TYPE.FLOW && modelFound) {
+      // Get relevant response filter based on model and connector.
+      // If unknown, set to empty string so users can manually input the value.
+      const relevantResponseFilter =
+        getRelevantResponseFilter(selectedModel, connectors) || '';
+      updateParameterValue(
+        props.agentForm,
+        props.setAgentForm,
+        props.toolIndex,
+        'response_filter',
+        relevantResponseFilter
+      );
+    } else if (
+      agentType === AGENT_TYPE.CONVERSATIONAL &&
+      toolForm?.parameters?.response_filter
+    ) {
+      const toolsForm = getIn(props.agentForm, 'tools');
+      const updatedTool = {
+        ...toolForm,
+        parameters: {
+          ...toolForm.parameters,
+        },
+      };
+      delete updatedTool.parameters.response_filter;
+      props.setAgentForm({
+        ...props.agentForm,
+        tools: toolsForm.map((tool: Tool, i: number) =>
+          i === props.toolIndex ? updatedTool : tool
+        ),
+      });
+    }
+  }, [agentType, selectedModel]);
 
   /**
    * Search template helper fns
@@ -347,4 +384,36 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
       )}
     </>
   );
+}
+
+// attempt to parse the upstream connector details and try to derive the relevant response filter.
+// Follows very similar logic to getRelevantInterface() in agent_advanced_settings.tsx.
+// Currently, only OpenAI and Bedrock Claude have native response filtering support.
+export function getRelevantResponseFilter(
+  model: Model,
+  connectors: ConnectorDict
+): RESPONSE_FILTER_TYPE | undefined {
+  // A connector can be defined within a model, or a reference to a standalone connector ID.
+  const connector = !isEmpty(getIn(model, 'connector', {}))
+    ? getIn(model, 'connector', {})
+    : getIn(connectors, getIn(model, 'connectorId', ''), {});
+
+  const connectorModel = getIn(connector, 'parameters.model', '') as string;
+  const connectorServiceName = getIn(
+    connector,
+    'parameters.service_name',
+    ''
+  ) as string;
+  const remoteInferenceUrl = getIn(connector, 'actions.0.url', '') as string;
+
+  if (connectorModel.includes('gpt') || remoteInferenceUrl.includes('openai')) {
+    return RESPONSE_FILTER_TYPE.OPENAI;
+  } else if (
+    connectorModel.includes('claude') &&
+    connectorServiceName.includes('bedrock')
+  ) {
+    return RESPONSE_FILTER_TYPE.BEDROCK_CLAUDE;
+  } else {
+    return undefined;
+  }
 }

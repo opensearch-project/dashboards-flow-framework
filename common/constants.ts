@@ -1094,6 +1094,11 @@ export enum AGENT_LLM_INTERFACE_TYPE {
   BEDROCK_DEEPSEEK = 'bedrock/converse/deepseek_r1',
 }
 
+export enum RESPONSE_FILTER_TYPE {
+  OPENAI = '$.choices[0].message.content',
+  BEDROCK_CLAUDE = '$.output.message.content[0].text',
+}
+
 export const NEW_AGENT_PLACEHOLDER = 'new_agent';
 export const NEW_AGENT_ID_PLACEHOLDER = 'New agent (unsaved)';
 export const AGENT_ID_PATH = 'search.requestAgentId';
