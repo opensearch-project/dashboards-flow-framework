@@ -413,12 +413,6 @@ export function getRelevantResponseFilter(
     connectorServiceName.includes('bedrock')
   ) {
     return RESPONSE_FILTER_TYPE.BEDROCK_CLAUDE;
-  } else if (
-    connectorModel.includes('deepseek') &&
-    connectorServiceName.includes('bedrock')
-  ) {
-    // No native Bedrock DeepSeek support yet.
-    return undefined;
   } else {
     return undefined;
   }
