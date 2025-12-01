@@ -63,6 +63,7 @@ export function MCPServerSelector(props: MCPServerSelectorProps) {
     <>
       {connectorOptions.length > 0 ? (
         <EuiSelect
+          key={server.mcp_connector_id}
           options={connectorOptions}
           value={server.mcp_connector_id}
           onChange={(e) => {

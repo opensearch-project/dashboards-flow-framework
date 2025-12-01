@@ -37,6 +37,7 @@ export function AgentMemory({ agentForm, setAgentForm }: AgentMemoryProps) {
     <EuiFlexGroup direction="row" gutterSize="s" alignItems="center">
       <EuiFlexItem>
         <EuiSelect
+          key={memoryForm}
           options={
             memoryFound || memoryEmpty
               ? memoryOptions
