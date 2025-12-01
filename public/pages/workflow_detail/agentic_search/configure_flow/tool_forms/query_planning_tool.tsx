@@ -214,6 +214,7 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
               <NoDeployedModelsCallout />
             ) : (
               <EuiSelect
+                key={selectedModelId}
                 options={
                   modelFound || modelEmpty
                     ? modelOptions
@@ -324,6 +325,7 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
                         >
                           <EuiFormRow label="Template ID" fullWidth>
                             <EuiSelect
+                              key={template.template_id}
                               options={[
                                 ...Object.keys(searchTemplates || {}).map(
                                   (templateId) => ({
