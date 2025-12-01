@@ -88,6 +88,7 @@ export function AgentLLMFields({
           <NoDeployedModelsCallout />
         ) : (
           <EuiSelect
+            key={selectedModelId}
             options={
               modelFound || modelEmpty
                 ? modelOptions

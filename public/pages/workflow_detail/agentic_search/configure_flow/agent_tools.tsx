@@ -32,8 +32,6 @@ interface AgentToolsProps {
 
 const EMPTY_TOOL: Tool = {
   type: '' as TOOL_TYPE,
-  description: '',
-  parameters: {},
 };
 
 const TOOL_TYPE_OPTIONS = Object.entries(TOOL_TYPE).map(([key, value]) => ({
@@ -101,11 +99,21 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
   }, [agentForm?.type, qptTool, qptToolIndex]);
 
   const addTool = (toolType: TOOL_TYPE) => {
-    const newTool: Tool = {
-      ...EMPTY_TOOL,
-      type: toolType,
-      parameters: toolType ? getDefaultParameters(toolType) : {},
-    };
+    const newTool: Tool =
+      toolType === TOOL_TYPE.QUERY_PLANNING
+        ? {
+            ...EMPTY_TOOL,
+            type: toolType,
+            parameters: {
+              model_id: '',
+              generation_type: GENERATION_TYPE.LLM,
+              search_templates: [],
+            },
+          }
+        : {
+            ...EMPTY_TOOL,
+            type: toolType,
+          };
     const updatedTools = [...tools, newTool];
     setAgentForm({ ...agentForm, tools: updatedTools });
   };
@@ -113,21 +121,6 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
   const removeTool = (toolType: TOOL_TYPE) => {
     const updatedTools = tools.filter((tool) => tool.type !== toolType);
     setAgentForm({ ...agentForm, tools: updatedTools });
-  };
-
-  const getDefaultParameters = (toolType: TOOL_TYPE) => {
-    switch (toolType) {
-      case TOOL_TYPE.QUERY_PLANNING:
-        return {
-          model_id: '',
-          generation_type: GENERATION_TYPE.LLM,
-          search_templates: [],
-        };
-      case TOOL_TYPE.SEARCH_INDEX:
-        return {};
-      default:
-        return {};
-    }
   };
 
   const renderToolForm = (toolType: TOOL_TYPE): any => {
