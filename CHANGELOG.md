@@ -20,7 +20,9 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Improve 'Visualized Hits' values ([#814](https://github.com/opensearch-project/dashboards-flow-framework/pull/814))
 - Automatically add response filters to flow agents when possible ([#817](https://github.com/opensearch-project/dashboards-flow-framework/pull/817))
 - Remove default empty tool field values; fix EuiSelect values in Firefox ([#820](https://github.com/opensearch-project/dashboards-flow-framework/pull/820))
+
 ### Bug Fixes
+- Gracefully handle workflows with no provisioned resources ([#821](https://github.com/opensearch-project/dashboards-flow-framework/pull/821))
 ### Infrastructure
 ### Documentation
 ### Maintenance

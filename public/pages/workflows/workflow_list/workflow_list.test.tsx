@@ -11,7 +11,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { WorkflowList } from './workflow_list';
 import { mockStore } from '../../../../test/utils';
-import { WORKFLOW_TYPE } from '../../../../common';
+import { WORKFLOW_TYPE, WORKFLOW_RESOURCE_TYPE } from '../../../../common';
 import configureStore from 'redux-mock-store';
 import { WorkflowInput } from '../../../../test/interfaces';
 import { INITIAL_OPENSEARCH_STATE } from '../../../store';
@@ -44,9 +44,9 @@ const initialState = {
 
 const store = mockStore1(initialState);
 
-const renderWithRouter = () =>
+const renderWithRouter = (customStore = store) =>
   render(
-    <Provider store={store}>
+    <Provider store={customStore}>
       <Router>
         <Switch>
           <Route render={() => <WorkflowList setSelectedTabId={jest.fn()} />} />
@@ -141,14 +141,73 @@ describe('WorkflowList', () => {
     expect(queryByText('workflow_name_19')).toBeNull();
   });
 
-  test('delete action functionality', async () => {
-    const { getByText, getByTestId, getAllByLabelText } = renderWithRouter();
+  test('delete action functionality - workflow with provisioned resources', async () => {
+    const mockStoreWithResources = configureStore([]);
+    const stateWithResources = {
+      ...initialState,
+      workflows: {
+        ...initialState.workflows,
+        workflows: {
+          workflow_id_0: {
+            ...initialState.workflows.workflows.workflow_id_0,
+            resourcesCreated: [
+              {
+                id: 'index_1',
+                type: WORKFLOW_RESOURCE_TYPE.INDEX_NAME,
+                stepType: 'create_index',
+              },
+            ],
+          },
+        },
+      },
+    };
+    const storeWithResources = mockStoreWithResources(stateWithResources);
+
+    const { getByText, getByTestId, getAllByLabelText } = renderWithRouter(storeWithResources);
+
     const deleteButtons = getAllByLabelText('Delete');
     userEvent.click(deleteButtons[0]);
     await waitFor(() => {
       expect(getByText('Delete associated resources')).toBeInTheDocument();
     });
     expect(getByTestId('deleteWorkflowButton')).toBeInTheDocument();
+    const cancelDeleteWorkflowButton = getByTestId(
+      'cancelDeleteWorkflowButton'
+    );
+    expect(cancelDeleteWorkflowButton).toBeInTheDocument();
+    userEvent.click(cancelDeleteWorkflowButton);
+  });
+
+  test('delete action functionality - workflow without provisioned resources', async () => {
+    const mockStoreWithoutResources = configureStore([]);
+    const stateWithoutResources = {
+      ...initialState,
+      workflows: {
+        ...initialState.workflows,
+        workflows: {
+          workflow_id_0: {
+            ...initialState.workflows.workflows.workflow_id_0,
+            resourcesCreated: [],
+          },
+        },
+      },
+    };
+    const storeWithoutResources = mockStoreWithoutResources(
+      stateWithoutResources
+    );
+
+    const { queryByText, getByTestId, getAllByLabelText } = renderWithRouter(storeWithoutResources);
+
+    const deleteButtons = getAllByLabelText('Delete');
+    userEvent.click(deleteButtons[0]);
+    await waitFor(() => {
+      expect(
+        queryByText('Delete associated resources')
+      ).not.toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(getByTestId('deleteWorkflowButton')).toBeInTheDocument();
+    });
     const cancelDeleteWorkflowButton = getByTestId(
       'cancelDeleteWorkflowButton'
     );
