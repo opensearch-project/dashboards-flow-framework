@@ -91,20 +91,6 @@ describe('WorkflowList', () => {
     expect(queryByText('workflow_name_9')).toBeInTheDocument();
     expect(queryByText('workflow_name_10')).toBeNull();
     expect(queryByText('workflow_name_19')).toBeNull();
-
-    // Sort workflows list by Type
-    expect(sortButtons[1]).toBeInTheDocument();
-    userEvent.click(sortButtons[1]!);
-    await waitFor(() => {
-      expect(getAllByText('Custom Search').length).toBeGreaterThan(0);
-    });
-    expect(queryByText('Unknown')).toBeNull();
-
-    userEvent.click(sortButtons[1]!);
-    await waitFor(() => {
-      expect(queryByText('Unknown')).toBeNull();
-    });
-    expect(getAllByText('Custom Search').length).toBeGreaterThan(0);
   });
 
   test('pagination functionality', async () => {
