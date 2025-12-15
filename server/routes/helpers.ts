@@ -180,7 +180,8 @@ export function getConnectorsFromResponses(
       protocol: connectorHit._source?.protocol,
       parameters: {
         model: connectorHit._source?.parameters?.model,
-        dimensions: connectorHit._source?.parameters.dimensions,
+        dimensions: connectorHit._source?.parameters?.dimensions,
+        service_name: connectorHit._source?.parameters?.service_name,
       },
       actions: connectorHit._source?.actions || [],
       client_config: connectorHit._source?.client_config || {},
