@@ -14,7 +14,6 @@ import {
   EuiSmallButtonEmpty,
   EuiTitle,
   EuiPanel,
-  EuiBetaBadge,
   EuiSmallButtonIcon,
 } from '@elastic/eui';
 import {
@@ -214,13 +213,6 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
                   <EuiTitle>
                     <h3>Configure agent</h3>
                   </EuiTitle>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false} style={{ marginTop: '12px' }}>
-                  <EuiBetaBadge
-                    label="EXPERIMENTAL"
-                    tooltipContent="Configuring agentic search flows is an experimental feature and may change in future releases"
-                    size="s"
-                  />
                 </EuiFlexItem>
                 <EuiFlexItem
                   grow={false}
