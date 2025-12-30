@@ -60,13 +60,11 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
         ...props.agentForm,
         parameters: {
           ...props.agentForm?.parameters,
-          _llm_interface:
-            agentLlmInterface ||
-            getRelevantInterface(agentModelId, models, connectors),
+          _llm_interface: getRelevantInterface(agentModelId, models, connectors),
         },
       });
     }
-  }, [agentType, agentModelId, agentLlmInterface]);
+  }, [agentType, agentModelId]);
 
   return (
     <EuiAccordion
@@ -152,7 +150,7 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
 }
 
 // Basic util fn to hide the interface complexity, and just display the model provider/company
-function getReadableInterface(interfaceType: AGENT_LLM_INTERFACE_TYPE): string {
+export function getReadableInterface(interfaceType: AGENT_LLM_INTERFACE_TYPE): string {
   switch (interfaceType) {
     case AGENT_LLM_INTERFACE_TYPE.OPENAI:
       return 'OpenAI';
@@ -167,7 +165,7 @@ function getReadableInterface(interfaceType: AGENT_LLM_INTERFACE_TYPE): string {
 
 // attempt to parse the upstream connector details and try to derive the inference endpoints
 // and remote model information. keep as 'undefined' if not found.
-function getRelevantInterface(
+export function getRelevantInterface(
   modelId: string,
   models: ModelDict,
   connectors: ConnectorDict
