@@ -8,6 +8,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Enhancements
 ### Bug Fixes
 - Fix bug of auto-filling LLM interface failing on standalone connectors for Bedrock Claude ([#825](https://github.com/opensearch-project/dashboards-flow-framework/pull/825))
+- Fix LLM interface not updating when model is changed ([#831](https://github.com/opensearch-project/dashboards-flow-framework/pull/831))
 ### Infrastructure
 ### Documentation
 ### Maintenance
