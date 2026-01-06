@@ -4,7 +4,7 @@
  */
 
 import yaml from 'js-yaml';
-import jsonpath from 'jsonpath';
+import { JSONPath } from 'jsonpath-plus';
 import { escape, findKey, get, isEmpty, set, unset } from 'lodash';
 import semver from 'semver';
 import queryString from 'query-string';
@@ -330,7 +330,7 @@ function getTransformedResult(
 // will always be returned by default when running query().
 function executeJsonPath(input: {}, path: string): any[] {
   const isIndefinite = isIndefiniteJsonPath(path);
-  const res = jsonpath.query(input, path);
+  const res = JSONPath({ path, json: input, wrap: true });
   if (isIndefinite) {
     return res;
   } else {
