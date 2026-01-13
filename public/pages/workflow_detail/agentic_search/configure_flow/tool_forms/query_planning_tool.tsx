@@ -197,7 +197,7 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
       <EuiSpacer size="s" />
       {agentType === AGENT_TYPE.FLOW && (
         <EuiFormRow
-          label="Model"
+          label="Large language model"
           data-testid="queryPlanningModelField"
           labelAppend={
             <EuiText size="xs">
