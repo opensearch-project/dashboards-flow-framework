@@ -99,7 +99,7 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
           <EuiSpacer size="s" />
           <EuiFlexItem grow={false}>
             <EuiFormRow
-              label="LLM Interface"
+              label="LLM interface"
               labelAppend={
                 <EuiText size="xs">
                   <EuiLink href={AGENT_FIELDS_DOCS_LINK} target="_blank">

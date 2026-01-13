@@ -72,7 +72,7 @@ export function AgentLLMFields({
 
   return (
     <EuiFormRow
-      label="Model"
+      label="Large language model"
       fullWidth
       labelAppend={
         <EuiText size="xs">
