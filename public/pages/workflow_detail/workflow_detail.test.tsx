@@ -104,7 +104,7 @@ describe('WorkflowDetail Page with create ingestion option', () => {
         expect(getAllByText('Search flow').length).toBeGreaterThan(0);
         expect(getAllByText('Inspect').length).toBeGreaterThan(0);
         expect(
-          getByRole('tab', { name: 'Agentic search' })
+          getByRole('tab', { name: 'Search' })
         ).toBeInTheDocument();
         expect(
           getByRole('tab', { name: 'Ingest response' })
