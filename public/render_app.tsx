@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { HashRouter as Router, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { AppMountParameters, CoreStart } from '../../../src/core/public';
@@ -17,7 +17,8 @@ import './global-styles.scss';
 export const renderApp = (coreStart: CoreStart, params: AppMountParameters) => {
   // This is so our base element stretches to fit the entire webpage
   params.element.className = 'stretch-absolute';
-  ReactDOM.render(
+  const root = createRoot(params.element);
+  root.render(
     <Provider store={store}>
       <Router>
         <Route
@@ -29,8 +30,7 @@ export const renderApp = (coreStart: CoreStart, params: AppMountParameters) => {
           )}
         />
       </Router>
-    </Provider>,
-    params.element
+    </Provider>
   );
 
   const unlistenParentHistory = params.history.listen(() => {
@@ -38,7 +38,7 @@ export const renderApp = (coreStart: CoreStart, params: AppMountParameters) => {
   });
 
   return () => {
-    ReactDOM.unmountComponentAtNode(params.element);
+    root.unmount();
     unlistenParentHistory();
   };
 };

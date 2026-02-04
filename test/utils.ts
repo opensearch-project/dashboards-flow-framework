@@ -31,19 +31,22 @@ export function mockStore(...workflowSets: WorkflowInput[]) {
   workflowSets?.forEach((workflowInput) => {
     workflowDict[workflowInput.id] = generateWorkflow(workflowInput);
   });
+
+  const state = {
+    opensearch: INITIAL_OPENSEARCH_STATE,
+    ml: INITIAL_ML_STATE,
+    workflows: {
+      ...INITIAL_WORKFLOWS_STATE,
+      workflows: workflowDict,
+    },
+    presets: INITIAL_PRESETS_STATE,
+    errors: INITIAL_ERRORS_STATE,
+  };
+
   return {
-    getState: () => ({
-      opensearch: INITIAL_OPENSEARCH_STATE,
-      ml: INITIAL_ML_STATE,
-      workflows: {
-        ...INITIAL_WORKFLOWS_STATE,
-        workflows: workflowDict,
-      },
-      presets: INITIAL_PRESETS_STATE,
-      errors: INITIAL_ERRORS_STATE,
-    }),
+    getState: () => state,
     dispatch: jest.fn(),
-    subscribe: jest.fn(),
+    subscribe: jest.fn(() => jest.fn()),
     replaceReducer: jest.fn(),
     [Symbol.observable]: jest.fn(),
   };
