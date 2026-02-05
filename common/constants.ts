@@ -1002,7 +1002,7 @@ export enum INSPECTOR_TAB_ID {
 export const INSPECTOR_TABS = [
   {
     id: INSPECTOR_TAB_ID.TEST,
-    name: 'Agentic search',
+    name: 'Search',
     disabled: false,
   },
   {

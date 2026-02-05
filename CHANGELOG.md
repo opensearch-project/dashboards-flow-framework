@@ -6,6 +6,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [Unreleased 3.x](https://github.com/opensearch-project/dashboards-flow-framework/compare/3.4...HEAD)
 ### Features
 ### Enhancements
+- Update Inspect tab to Search ([#844](https://github.com/opensearch-project/dashboards-flow-framework/pull/844))
 ### Bug Fixes
 ### Infrastructure
 - React 18 compatibility changes ([#843](https://github.com/opensearch-project/dashboards-flow-framework/pull/843))
