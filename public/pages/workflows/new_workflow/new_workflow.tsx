@@ -16,6 +16,7 @@ import { useSelector } from 'react-redux';
 import { UseCase } from './use_case';
 import {
   FETCH_ALL_QUERY_LARGE,
+  MINIMUM_AGENTIC_SEARCH_VERSION,
   Workflow,
   WorkflowTemplate,
 } from '../../../../common';
@@ -67,10 +68,12 @@ const filterPresetsByVersion = async (
   const version =
     (await getDataSourceVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
 
+  // 2.16 or below: don't show any presets (feature is not supported)
   if (semver.lt(version, MIN_SUPPORTED_VERSION)) {
     return [];
   }
 
+  // 2.17 - 2.18: only show legacy presets
   if (
     semver.gte(version, MIN_SUPPORTED_VERSION) &&
     semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION)
@@ -81,6 +84,17 @@ const filterPresetsByVersion = async (
     });
   }
 
+  // 2.19 - 3.2: show all presets except agentic search
+  if (
+    semver.gte(version, MINIMUM_FULL_SUPPORTED_VERSION) &&
+    semver.lt(version, MINIMUM_AGENTIC_SEARCH_VERSION)
+  ) {
+    return workflows.filter((workflow) => {
+      return workflow?.ui_metadata?.type !== WORKFLOW_TYPE.AGENTIC_SEARCH;
+    });
+  }
+
+  // 3.3+: show all presets including agentic search
   return workflows;
 };
 

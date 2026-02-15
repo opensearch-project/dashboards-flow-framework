@@ -17,6 +17,7 @@ import {
   EuiFlexItem,
   EuiPage,
   EuiPageBody,
+  EuiLoadingSpinner,
 } from '@elastic/eui';
 import {
   APP_PATH,
@@ -33,11 +34,13 @@ import {
   getWorkflow,
   searchConnectors,
   searchModels,
+  getSearchTemplates,
   setIngestPipelineErrors,
   setSearchPipelineErrors,
   useAppDispatch,
 } from '../../store';
 import { ResizableWorkspace } from './resizable_workspace';
+import { AgenticSearchWorkspace } from './agentic_search';
 import {
   CachedFormikState,
   ERROR_GETTING_WORKFLOW_MSG,
@@ -45,6 +48,7 @@ import {
   MAX_WORKFLOW_NAME_TO_DISPLAY,
   NO_TEMPLATES_FOUND_MSG,
   OMIT_SYSTEM_INDEX_PATTERN,
+  WORKFLOW_TYPE,
   WorkflowConfig,
   WorkflowFormValues,
   WorkflowSchema,
@@ -92,6 +96,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
       searchConnectors({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId })
     );
     dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
+    dispatch(getSearchTemplates({ dataSourceId }));
     dispatch(setIngestPipelineErrors({ errors: {} }));
     dispatch(setSearchPipelineErrors({ errors: {} }));
   }, []);
@@ -148,7 +153,7 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
   // data-source-related states
   const dataSourceEnabled = getDataSourceEnabled().enabled;
   const dataSourceId = getDataSourceId();
-  const { workflows, errorMessage } = useSelector(
+  const { workflows, errorMessage, loading } = useSelector(
     (state: AppState) => state.workflows
   );
 
@@ -297,15 +302,25 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
                   }}
                 >
                   <EuiFlexItem>
-                    <ResizableWorkspace
-                      workflow={workflow}
-                      uiConfig={uiConfig}
-                      setUiConfig={setUiConfig}
-                      ingestDocs={ingestDocs}
-                      setIngestDocs={setIngestDocs}
-                      setBlockNavigation={setBlockNavigation}
-                      setCachedFormikState={setCachedFormikState}
-                    />
+                    {loading && workflow === undefined ? (
+                      <EuiLoadingSpinner size="xl" />
+                    ) : workflow?.ui_metadata?.type ===
+                      WORKFLOW_TYPE.AGENTIC_SEARCH ? (
+                      <AgenticSearchWorkspace
+                        workflow={workflow}
+                        uiConfig={uiConfig}
+                      />
+                    ) : (
+                      <ResizableWorkspace
+                        workflow={workflow}
+                        uiConfig={uiConfig}
+                        setUiConfig={setUiConfig}
+                        ingestDocs={ingestDocs}
+                        setIngestDocs={setIngestDocs}
+                        setBlockNavigation={setBlockNavigation}
+                        setCachedFormikState={setCachedFormikState}
+                      />
+                    )}
                   </EuiFlexItem>
                 </EuiFlexGroup>
               </EuiPageBody>

@@ -66,8 +66,8 @@ export function GetStartedAccordion(props: GetStartedAccordionProps) {
               }
             >
               <EuiText>
-                Import sample data to get started; add processors to customize
-                your ingest pipeline.
+                Import sample data to get started; optionally add processors to
+                create an ingest pipeline.
               </EuiText>
             </EuiCard>
           </EuiFlexItem>
@@ -76,12 +76,13 @@ export function GetStartedAccordion(props: GetStartedAccordionProps) {
               layout="horizontal"
               title={
                 <EuiTitle size="s">
-                  <h3>3. Build a search pipeline</h3>
+                  <h3>3. Build a search flow</h3>
                 </EuiTitle>
               }
             >
               <EuiText>
-                Set up a query and configure your search pipeline.
+                Configure a query; optionally add processors to create a search
+                pipeline.
               </EuiText>
             </EuiCard>
           </EuiFlexItem>

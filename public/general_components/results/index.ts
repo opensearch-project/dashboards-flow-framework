@@ -4,3 +4,4 @@
  */
 
 export { Results } from './results';
+export { ResultsTable } from './results_table';

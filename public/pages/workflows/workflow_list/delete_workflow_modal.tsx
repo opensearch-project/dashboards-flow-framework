@@ -3,12 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   EuiSmallButton,
   EuiSmallButtonEmpty,
   EuiModal,
-  EuiModalBody,
   EuiModalFooter,
   EuiModalHeader,
   EuiModalHeaderTitle,
@@ -45,8 +44,13 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
   // isDeleting state used for button states
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  // deprovision state
-  const [deprovision, setDeprovision] = useState<boolean>(true);
+  // deprovision state - default to true only if there are resources to delete
+  const hasResourcesToDelete = useMemo(() => {
+    const resources = getResourcesToBeForceDeleted(props.workflow);
+    return resources !== undefined && resources !== null && resources !== '';
+  }, [props.workflow]);
+
+  const [deprovision, setDeprovision] = useState<boolean>(hasResourcesToDelete);
 
   // reusable delete workflow fn
   async function handleDelete() {
@@ -87,16 +91,18 @@ export function DeleteWorkflowModal(props: DeleteWorkflowModalProps) {
         <EuiFlexItem grow={false}>
           <EuiText size="s">The workflow will be permanently deleted.</EuiText>
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiCheckbox
-            id="deprovision"
-            onChange={(e) => {
-              setDeprovision(e.target.checked);
-            }}
-            checked={deprovision}
-            label="Delete associated resources"
-          />
-        </EuiFlexItem>
+        {hasResourcesToDelete && (
+          <EuiFlexItem grow={false}>
+            <EuiCheckbox
+              id="deprovision"
+              onChange={(e) => {
+                setDeprovision(e.target.checked);
+              }}
+              checked={deprovision}
+              label="Delete associated resources"
+            />
+          </EuiFlexItem>
+        )}
       </EuiFlexGroup>
       <EuiModalFooter>
         <EuiSmallButtonEmpty

@@ -31,8 +31,10 @@ import {
   SEARCH_PIPELINE_NODE_API_PATH,
   SIMULATE_PIPELINE_NODE_API_PATH,
   SearchPipelineResponse,
+  GET_SEARCH_TEMPLATES_NODE_API_PATH,
   SimulateIngestPipelineDoc,
   SimulateIngestPipelineResponse,
+  SearchTemplateConfig,
 } from '../../common';
 import { generateCustomError } from './helpers';
 import { getClientBasedOnDataSource } from '../utils/helpers';
@@ -113,6 +115,35 @@ export function registerOpenSearchRoutes(
       },
     },
     opensearchRoutesService.getIndex
+  );
+  router.post(
+    {
+      path: SEARCH_INDEX_NODE_API_PATH,
+      validate: {
+        body: schema.any(),
+        query: schema.object({
+          verbose: schema.boolean(),
+          data_source_version: schema.maybe(schema.string()),
+        }),
+      },
+    },
+    opensearchRoutesService.searchIndex
+  );
+  router.post(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/search`,
+      validate: {
+        params: schema.object({
+          data_source_id: schema.string(),
+        }),
+        body: schema.any(),
+        query: schema.object({
+          verbose: schema.boolean(),
+          data_source_version: schema.maybe(schema.string()),
+        }),
+      },
+    },
+    opensearchRoutesService.searchIndex
   );
   router.post(
     {
@@ -367,6 +398,24 @@ export function registerOpenSearchRoutes(
     },
     opensearchRoutesService.getSearchPipeline
   );
+  router.get(
+    {
+      path: GET_SEARCH_TEMPLATES_NODE_API_PATH,
+      validate: {},
+    },
+    opensearchRoutesService.getSearchTemplates
+  );
+  router.get(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/getSearchTemplates`,
+      validate: {
+        params: schema.object({
+          data_source_id: schema.string(),
+        }),
+      },
+    },
+    opensearchRoutesService.getSearchTemplates
+  );
 }
 
 export class OpenSearchRoutesService {
@@ -506,7 +555,7 @@ export class OpenSearchRoutesService {
       // If verbose is false/undefined, or the version isn't eligible, omit the verbose param when searching.
       if (!verbose || isPreV219) {
         response = await callWithRequest('search', {
-          index,
+          index: index || '',
           body,
           search_pipeline,
         });
@@ -695,6 +744,35 @@ export class OpenSearchRoutesService {
       ) as SearchPipelineResponse[];
 
       return res.ok({ body: cleanedSearchPipelineDetails });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  getSearchTemplates = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { data_source_id = '' } = req.params as { data_source_id?: string };
+
+    try {
+      const callWithRequest = getClientBasedOnDataSource(
+        context,
+        this.dataSourceEnabled,
+        req,
+        data_source_id,
+        this.client
+      );
+      const response = await callWithRequest('cluster.state', {
+        metric: 'metadata',
+        filter_path: '**.stored_scripts',
+      });
+      const searchTemplates =
+        response?.metadata?.stored_scripts ||
+        ({} as { [key: string]: SearchTemplateConfig });
+
+      return res.ok({ body: searchTemplates });
     } catch (err: any) {
       return generateCustomError(res, err);
     }

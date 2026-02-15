@@ -7,6 +7,7 @@ module.exports = {
   rootDir: '../',
   roots: ['<rootDir>'],
   coverageDirectory: './coverage',
+  setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
   // we mock any non-js-related files and return an empty module. This is needed due to errors
   // when jest tries to interpret these types of files.
   moduleNameMapper: {

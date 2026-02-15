@@ -4,8 +4,10 @@
  */
 
 import {
+  Agent,
   InputMapEntry,
   MapEntry,
+  MCPConnector,
   PromptPreset,
   QueryPreset,
   WORKFLOW_STATE,
@@ -14,7 +16,6 @@ import { customStringify } from './utils';
 
 export const PLUGIN_ID = 'opensearch-flow';
 export const PLUGIN_NAME = 'AI Search Flows'; // visible plugin name in the context of OSD
-export const OPENSEARCH_FLOW = 'OpenSearch Flow'; // overall feature / name that the plugin encapsulates
 
 /**
  * BACKEND FLOW FRAMEWORK APIs
@@ -30,8 +31,12 @@ export const FLOW_FRAMEWORK_SEARCH_WORKFLOW_STATE_ROUTE = `${FLOW_FRAMEWORK_WORK
 export const ML_API_ROUTE_PREFIX = '/_plugins/_ml';
 export const ML_MODEL_ROUTE_PREFIX = `${ML_API_ROUTE_PREFIX}/models`;
 export const ML_CONNECTOR_ROUTE_PREFIX = `${ML_API_ROUTE_PREFIX}/connectors`;
+export const ML_AGENT_ROUTE_PREFIX = `${ML_API_ROUTE_PREFIX}/agents`;
 export const ML_SEARCH_MODELS_ROUTE = `${ML_MODEL_ROUTE_PREFIX}/_search`;
 export const ML_SEARCH_CONNECTORS_ROUTE = `${ML_CONNECTOR_ROUTE_PREFIX}/_search`;
+export const ML_REGISTER_AGENT_ROUTE = `${ML_AGENT_ROUTE_PREFIX}/_register`;
+export const ML_SEARCH_AGENTS_ROUTE = `${ML_AGENT_ROUTE_PREFIX}/_search`;
+export const ML_GET_AGENT_ROUTE = `${ML_AGENT_ROUTE_PREFIX}/{agentId}`;
 
 /**
  * OpenSearch APIs
@@ -54,6 +59,7 @@ export const BULK_NODE_API_PATH = `${BASE_OPENSEARCH_NODE_API_PATH}/bulk`;
 export const SIMULATE_PIPELINE_NODE_API_PATH = `${BASE_OPENSEARCH_NODE_API_PATH}/simulatePipeline`;
 export const INGEST_PIPELINE_NODE_API_PATH = `${BASE_OPENSEARCH_NODE_API_PATH}/getIngestPipeline`;
 export const SEARCH_PIPELINE_NODE_API_PATH = `${BASE_OPENSEARCH_NODE_API_PATH}/getSearchPipeline`;
+export const GET_SEARCH_TEMPLATES_NODE_API_PATH = `${BASE_OPENSEARCH_NODE_API_PATH}/getSearchTemplates`;
 
 // Flow Framework node APIs
 export const BASE_WORKFLOW_NODE_API_PATH = `${BASE_NODE_API_PATH}/workflow`;
@@ -70,8 +76,13 @@ export const GET_PRESET_WORKFLOWS_NODE_API_PATH = `${BASE_WORKFLOW_NODE_API_PATH
 // ML Plugin node APIs
 export const BASE_MODEL_NODE_API_PATH = `${BASE_NODE_API_PATH}/model`;
 export const BASE_CONNECTOR_NODE_API_PATH = `${BASE_NODE_API_PATH}/connector`;
+export const BASE_AGENT_NODE_API_PATH = `${BASE_NODE_API_PATH}/agent`;
 export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
 export const SEARCH_CONNECTORS_NODE_API_PATH = `${BASE_CONNECTOR_NODE_API_PATH}/search`;
+export const REGISTER_AGENT_NODE_API_PATH = `${BASE_AGENT_NODE_API_PATH}/register`;
+export const UPDATE_AGENT_NODE_API_PATH = `${BASE_AGENT_NODE_API_PATH}/update`;
+export const SEARCH_AGENTS_NODE_API_PATH = `${BASE_AGENT_NODE_API_PATH}/search`;
+export const GET_AGENT_NODE_API_PATH = `${BASE_AGENT_NODE_API_PATH}`;
 
 /**
  * Remote model dimensions. Used for attempting to pre-fill dimension size
@@ -206,6 +217,7 @@ export enum WORKFLOW_TYPE {
   VECTOR_SEARCH_WITH_RAG = 'RAG with Vector Retrieval',
   HYBRID_SEARCH_WITH_RAG = 'RAG with Hybrid Search',
   SEMANTIC_SEARCH_USING_SPARSE_ENCODERS = 'Semantic Search using Sparse Encoders',
+  AGENTIC_SEARCH = 'Agentic Search',
   CUSTOM = 'Custom Search',
   UNKNOWN = 'Unknown',
 }
@@ -220,6 +232,8 @@ export enum WORKFLOW_TYPE_LEGACY {
 export const MIN_SUPPORTED_VERSION = '2.17.0';
 // Min version to support ML processors
 export const MINIMUM_FULL_SUPPORTED_VERSION = '2.19.0';
+// Min version to support agentic search
+export const MINIMUM_AGENTIC_SEARCH_VERSION = '3.3.0';
 
 // the names should be consistent with the underlying implementation. used when generating the
 // final ingest/search pipeline configurations.
@@ -234,6 +248,8 @@ export enum PROCESSOR_TYPE {
   TEXT_EMBEDDING = 'text_embedding',
   TEXT_IMAGE_EMBEDDING = 'text_image_embedding',
   COPY = 'copy',
+  AGENTIC_QUERY_TRANSLATOR = 'agentic_query_translator',
+  AGENTIC_CONTEXT = 'agentic_context',
 }
 
 export enum MODEL_TYPE {
@@ -311,6 +327,36 @@ export const UPDATE_MODEL_DOCS_LINK =
 export const JSONLINES_LINK = 'https://jsonlines.org/';
 export const EXPANDED_FORM_QUERY_ISSUE =
   'https://github.com/opensearch-project/OpenSearch/issues/17358';
+export const AGENT_MAIN_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/agents/index/';
+export const AGENTIC_SEARCH_DOCS_LINK =
+  'https://docs.opensearch.org/latest/vector-search/ai-search/agentic-search/';
+export const AGENTIC_SEARCH_MODELS_DOCS_LINK =
+  'https://docs.opensearch.org/latest/vector-search/ai-search/agentic-search/agent-customization/#model-configuration';
+export const AGENTIC_SEARCH_AGENTS_DOCS_LINK =
+  'https://docs.opensearch.org/latest/vector-search/ai-search/agentic-search/agent-customization/';
+export const AGENTIC_SEARCH_MCP_DOCS_LINK =
+  'https://docs.opensearch.org/latest/vector-search/ai-search/agentic-search/mcp-server/';
+export const AGENTIC_QUERY_DSL_DOCS_LINK =
+  'https://docs.opensearch.org/latest/query-dsl/specialized/agentic/';
+export const MCP_CONNECTOR_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/mcp/mcp-connector';
+export const MCP_AGENT_CONFIG_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/mcp/mcp-connector#step-3-register-an-agent-for-accessing-mcp-tools';
+export const AGENT_FIELDS_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/api/agent-apis/register-agent/#request-body-fields';
+export const TOOLS_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/index/';
+export const MEMORY_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/api/memory-apis/index/';
+export const QUERY_PLANNING_TOOL_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/query-planning-tool#register-parameters';
+export const QUERY_PLANNING_MODEL_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/query-planning-tool/#step-2-register-and-deploy-a-model';
+export const WEB_SEARCH_TOOL_DOCS_LINK =
+  'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/web-search-tool/#register-parameters';
+export const SEARCH_TEMPLATES_DOCS_LINK =
+  'https://docs.opensearch.org/latest/api-reference/search-apis/search-template/index/';
 
 // Large Language Models Documentation Links
 export const BEDROCK_CLAUDE_3_SONNET_DOCS_LINK =
@@ -374,6 +420,7 @@ export const LABEL_FIELD_PATTERN = `{{label_field}}`;
 export const QUERY_TEXT_PATTERN = `{{query_text}}`;
 export const QUERY_IMAGE_PATTERN = `{{query_image}}`;
 export const MODEL_ID_PATTERN = `{{model_id}}`;
+export const AGENT_ID_PATTERN = `{{agent_id}}`;
 export const VECTOR = 'vector';
 export const VECTOR_PATTERN = `{{${VECTOR}}}`;
 export const VECTOR_TEMPLATE_PLACEHOLDER = `\$\{${VECTOR}\}`;
@@ -651,7 +698,14 @@ export const NEURAL_SPARSE_SEARCH_QUERY = {
     },
   },
 };
-
+export const AGENTIC_SEARCH_QUERY = {
+  query: {
+    agentic: {
+      query_text: '',
+      query_fields: [],
+    },
+  },
+};
 export const QUERY_PRESETS = [
   {
     name: 'Fetch all',
@@ -724,6 +778,10 @@ export const QUERY_PRESETS = [
   {
     name: `Hybrid search (match & term queries)`,
     query: customStringify(HYBRID_SEARCH_QUERY_MATCH_TERM),
+  },
+  {
+    name: 'Agentic search',
+    query: customStringify(AGENTIC_SEARCH_QUERY),
   },
 ] as QueryPreset[];
 
@@ -871,6 +929,8 @@ export const OUTPUT_TRANSFORM_OPTIONS = [
   },
 ];
 
+export const ABORT_SEARCH_ERROR_MESSAGE =
+  'Error searching index: signal is aborted without reason';
 export const DEFAULT_NEW_WORKFLOW_NAME = 'new_workflow';
 export const DEFAULT_NEW_WORKFLOW_DESCRIPTION = 'My new workflow';
 export const DEFAULT_NEW_WORKFLOW_STATE_TYPE = ('NOT_STARTED' as any) as typeof WORKFLOW_STATE;
@@ -942,7 +1002,7 @@ export enum INSPECTOR_TAB_ID {
 export const INSPECTOR_TABS = [
   {
     id: INSPECTOR_TAB_ID.TEST,
-    name: 'Test flow',
+    name: 'Search',
     disabled: false,
   },
   {
@@ -984,3 +1044,120 @@ export enum COMPONENT_ID {
 // We have to persist a standalone string to override 'style' component, as setting className does
 // not override the default styles from the EuiCard component.
 export const LEFT_NAV_SELECTED_STYLE = '2px solid rgba(128, 128, 128, 0.8)';
+
+/**
+ * Agents / tools constants
+ */
+
+// Derived from https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/agents/index/
+export enum AGENT_TYPE {
+  FLOW = 'flow',
+  CONVERSATIONAL = 'conversational',
+  // TODO: add back PER when there is concrete examples / models to give to users as reference
+  // PLAN_EXECUTE_REFLECT = 'plan_execute_and_reflect',
+}
+
+// Tool types supported by agents.
+// Derived from https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/index/
+export enum TOOL_TYPE {
+  QUERY_PLANNING = 'QueryPlanningTool',
+  SEARCH_INDEX = 'SearchIndexTool',
+  LIST_INDEX = 'ListIndexTool',
+  INDEX_MAPPING = 'IndexMappingTool',
+  WEB_SEARCH = 'WebSearchTool',
+}
+
+export enum TOOL_DESCRIPTION {
+  QUERY_PLANNING = 'Generates an OpenSearch query domain-specific language (DSL) query from a natural language question',
+  SEARCH_INDEX = 'Searches an index using a query written in query domain-specific language (DSL)',
+  LIST_INDEX = 'Retrieves index information for the OpenSearch cluster',
+  INDEX_MAPPING = 'Retrieves index mapping and setting information for an index',
+  WEB_SEARCH = 'Answers a user’s question using a web search',
+}
+
+// Memory types supported by agents.
+// Derived from https://docs.opensearch.org/latest/ml-commons-plugin/api/agent-apis/register-agent/
+export enum AGENT_MEMORY_TYPE {
+  CONVERSATION_INDEX = 'conversation_index',
+}
+
+export enum CONNECTOR_PROTOCOL {
+  AWS_SIGV4 = 'aws_sigv4',
+  HTTP = 'http',
+  MCP_SSE = 'mcp_sse',
+  MCP_STREAMABLE_HTTP = 'mcp_streamable_http',
+}
+
+export enum AGENT_LLM_INTERFACE_TYPE {
+  OPENAI = 'openai/v1/chat/completions',
+  BEDROCK_CLAUDE = 'bedrock/converse/claude',
+  BEDROCK_DEEPSEEK = 'bedrock/converse/deepseek_r1',
+}
+
+export enum RESPONSE_FILTER_TYPE {
+  OPENAI = '$.choices[0].message.content',
+  BEDROCK_CLAUDE = '$.output.message.content[0].text',
+}
+
+export const NEW_AGENT_PLACEHOLDER = 'new_agent';
+export const NEW_AGENT_ID_PLACEHOLDER = 'New agent (unsaved)';
+export const AGENT_ID_PATH = 'search.requestAgentId';
+export const EMPTY_AGENT = {
+  type: '' as AGENT_TYPE,
+  name: '',
+  description: '',
+  tools: [],
+  llm: {
+    model_id: '',
+  },
+  parameters: {
+    _llm_interface: '' as AGENT_LLM_INTERFACE_TYPE,
+  },
+} as Partial<Agent>;
+export const DEFAULT_AGENT = {
+  ...EMPTY_AGENT,
+  type: AGENT_TYPE.CONVERSATIONAL,
+  name: 'My agent',
+  description: '',
+  tools: [
+    {
+      type: TOOL_TYPE.QUERY_PLANNING,
+    },
+  ],
+  memory: {
+    type: AGENT_MEMORY_TYPE.CONVERSATION_INDEX,
+  },
+} as Partial<Agent>;
+
+export const DEFAULT_MCP_SERVER = {
+  mcp_connector_id: '',
+  tool_filters: [],
+} as MCPConnector;
+
+export const EXAMPLE_PUT_AGENTIC_SEARCH_PIPELINE = `PUT _search/pipeline/agentic-pipeline
+{
+  "request_processors": [
+    {
+      "agentic_query_translator": {
+        "agent_id": "${AGENT_ID_PATTERN}"
+      }
+    }
+  ],
+  "response_processors": [
+    {
+      "agentic_context": {
+        "agent_steps_summary": true,
+        "dsl_query": true
+      }
+    }
+  ]
+}`;
+
+export const EXAMPLE_AGENTIC_SEARCH_QUERY = `GET <your-index>/_search?search_pipeline=agentic-pipeline
+{
+  "query": {
+    "agentic": {
+      "query_text": "<your-search-query>",
+    }
+  }
+}`;

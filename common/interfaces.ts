@@ -7,8 +7,13 @@ import { Node, Edge } from 'reactflow';
 import { FormikValues } from 'formik';
 import { ObjectSchema } from 'yup';
 import {
+  AGENT_LLM_INTERFACE_TYPE,
+  AGENT_MEMORY_TYPE,
+  AGENT_TYPE,
   COMPONENT_CLASS,
+  CONNECTOR_PROTOCOL,
   PROCESSOR_TYPE,
+  TOOL_TYPE,
   TRANSFORM_TYPE,
   WORKFLOW_TYPE,
 } from './constants';
@@ -80,6 +85,7 @@ export type IngestConfig = {
   pipelineName: IConfigField;
   enrich: ProcessorsConfig;
   index: IndexConfig;
+  agentId?: IConfigField;
 };
 
 export type SearchConfig = {
@@ -88,6 +94,8 @@ export type SearchConfig = {
   pipelineName: IConfigField;
   enrichRequest: ProcessorsConfig;
   enrichResponse: ProcessorsConfig;
+  requestAgentId?: IConfigField;
+  responseAgentId?: IConfigField;
 };
 
 export type WorkflowConfig = {
@@ -285,6 +293,12 @@ export type SearchPipelineConfig = {
   phase_results_processors?: SearchPhaseResultsProcessor[];
 };
 
+export type SearchTemplateConfig = {
+  lang: string;
+  source: any;
+  options: any;
+};
+
 export type MLInferenceProcessor = IngestProcessor & {
   ml_inference: {
     model_id: string;
@@ -476,12 +490,16 @@ export type Model = {
   modelConfig?: ModelConfig;
   interface?: ModelInterface;
   connectorId?: string;
+  connector?: Partial<Connector>;
 };
 
 export type Connector = {
   id: string;
   name: string;
+  protocol?: CONNECTOR_PROTOCOL;
   parameters?: ConnectorParameters;
+  actions: {}[];
+  client_config?: {};
 };
 
 export type ModelDict = {
@@ -490,6 +508,47 @@ export type ModelDict = {
 
 export type ConnectorDict = {
   [connectorId: string]: Connector;
+};
+
+export type MCPConnector = {
+  mcp_connector_id: string;
+  tool_filters: string[];
+};
+
+export type AgentConfigParameters = {
+  _llm_interface?: AGENT_LLM_INTERFACE_TYPE;
+  mcp_connectors?: MCPConnector[];
+  [key: string]: any;
+};
+
+export type Tool = {
+  type: TOOL_TYPE;
+  description?: string;
+  parameters?: AgentConfigParameters;
+};
+
+export type AgentLLM = {
+  model_id: string;
+  parameters?: AgentConfigParameters;
+};
+
+export type AgentMemory = {
+  type: AGENT_MEMORY_TYPE;
+};
+
+export type Agent = {
+  id: string;
+  name: string;
+  type: AGENT_TYPE;
+  description?: string;
+  tools: Tool[];
+  llm?: AgentLLM;
+  memory?: AgentMemory;
+  parameters?: AgentConfigParameters;
+};
+
+export type AgentDict = {
+  [agentId: string]: Agent;
 };
 
 export type ModelFormValue = {
@@ -652,7 +711,7 @@ export type SearchResponse = {
     hits: SearchHit[];
   };
   aggregations?: {};
-  ext?: {};
+  ext?: any;
 };
 
 export type SearchProcessorInputData = {

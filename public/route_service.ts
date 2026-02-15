@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CoreStart, HttpFetchError } from '../../../src/core/public';
+import { isEmpty } from 'lodash';
+import { CoreStart } from '../../../src/core/public';
 import {
   CREATE_WORKFLOW_NODE_API_PATH,
   DELETE_WORKFLOW_NODE_API_PATH,
@@ -29,6 +30,11 @@ import {
   SEARCH_PIPELINE_NODE_API_PATH,
   INGEST_PIPELINE_NODE_API_PATH,
   GET_INDEX_NODE_API_PATH,
+  REGISTER_AGENT_NODE_API_PATH,
+  SEARCH_AGENTS_NODE_API_PATH,
+  GET_AGENT_NODE_API_PATH,
+  UPDATE_AGENT_NODE_API_PATH,
+  GET_SEARCH_TEMPLATES_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -39,22 +45,10 @@ import {
  * Used in redux by wrapping them in async thunk functions which mutate redux state when executed.
  */
 export interface RouteService {
-  getWorkflow: (
-    workflowId: string,
-    dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
-  searchWorkflows: (
-    body: {},
-    dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
-  getWorkflowState: (
-    workflowId: string,
-    dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
-  createWorkflow: (
-    body: {},
-    dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
+  getWorkflow: (workflowId: string, dataSourceId?: string) => Promise<any>;
+  searchWorkflows: (body: {}, dataSourceId?: string) => Promise<any>;
+  getWorkflowState: (workflowId: string, dataSourceId?: string) => Promise<any>;
+  createWorkflow: (body: {}, dataSourceId?: string) => Promise<any>;
   updateWorkflow: (
     workflowId: string,
     workflowTemplate: WorkflowTemplate,
@@ -62,12 +56,12 @@ export interface RouteService {
     reprovision: boolean,
     dataSourceId?: string,
     dataSourceVersion?: string
-  ) => Promise<any | HttpFetchError>;
+  ) => Promise<any>;
   provisionWorkflow: (
     workflowId: string,
     dataSourceId?: string,
     dataSourceVersion?: string
-  ) => Promise<any | HttpFetchError>;
+  ) => Promise<any>;
   deprovisionWorkflow: ({
     workflowId,
     dataSourceId,
@@ -76,24 +70,12 @@ export interface RouteService {
     workflowId: string;
     dataSourceId?: string;
     resourceIds?: string;
-  }) => Promise<any | HttpFetchError>;
-  deleteWorkflow: (
-    workflowId: string,
-    dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
-  getWorkflowPresets: () => Promise<any | HttpFetchError>;
-  catIndices: (
-    pattern: string,
-    dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
-  getMappings: (
-    index: string,
-    dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
-  getIndex: (
-    index: string,
-    dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
+  }) => Promise<any>;
+  deleteWorkflow: (workflowId: string, dataSourceId?: string) => Promise<any>;
+  getWorkflowPresets: () => Promise<any>;
+  catIndices: (pattern: string, dataSourceId?: string) => Promise<any>;
+  getMappings: (index: string, dataSourceId?: string) => Promise<any>;
+  getIndex: (index: string, dataSourceId?: string) => Promise<any>;
   searchIndex: ({
     index,
     body,
@@ -101,6 +83,7 @@ export interface RouteService {
     dataSourceVersion,
     searchPipeline,
     verbose,
+    signal,
   }: {
     index: string;
     body: {};
@@ -108,12 +91,9 @@ export interface RouteService {
     dataSourceVersion?: string;
     searchPipeline?: string;
     verbose?: boolean;
-  }) => Promise<any | HttpFetchError>;
-  ingest: (
-    index: string,
-    doc: {},
-    dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
+    signal?: AbortSignal;
+  }) => Promise<any>;
+  ingest: (index: string, doc: {}, dataSourceId?: string) => Promise<any>;
   bulk: ({
     body,
     dataSourceId,
@@ -122,15 +102,17 @@ export interface RouteService {
     body: {};
     dataSourceId?: string;
     ingestPipeline?: string;
-  }) => Promise<any | HttpFetchError>;
-  searchModels: (
+  }) => Promise<any>;
+  searchModels: (body: {}, dataSourceId?: string) => Promise<any>;
+  searchConnectors: (body: {}, dataSourceId?: string) => Promise<any>;
+  registerAgent: (body: {}, dataSourceId?: string) => Promise<any>;
+  updateAgent: (
+    agentId: string,
     body: {},
     dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
-  searchConnectors: (
-    body: {},
-    dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
+  ) => Promise<any>;
+  searchAgents: (body: {}, dataSourceId?: string) => Promise<any>;
+  getAgent: (agentId: string, dataSourceId?: string) => Promise<any>;
   simulatePipeline: (
     body: {
       pipeline?: IngestPipelineConfig;
@@ -139,16 +121,17 @@ export interface RouteService {
     dataSourceId?: string,
     pipelineId?: string,
     verbose?: boolean
-  ) => Promise<any | HttpFetchError>;
+  ) => Promise<any>;
   getIngestPipeline: (
     pipelineId: string,
     dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
+  ) => Promise<any>;
   getSearchPipeline: (
     pipelineId: string,
     dataSourceId?: string
-  ) => Promise<any | HttpFetchError>;
-  getLocalClusterVersion: () => Promise<any | HttpFetchError>;
+  ) => Promise<any>;
+  getSearchTemplates: (dataSourceId?: string) => Promise<any>;
+  getLocalClusterVersion: () => Promise<any>;
 }
 
 export function configureRoutes(core: CoreStart): RouteService {
@@ -163,7 +146,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     searchWorkflows: async (body: {}, dataSourceId?: string) => {
@@ -176,7 +159,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         });
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     getWorkflowState: async (workflowId: string, dataSourceId?: string) => {
@@ -189,7 +172,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     createWorkflow: async (body: {}, dataSourceId?: string) => {
@@ -202,7 +185,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         });
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     updateWorkflow: async (
@@ -228,7 +211,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     provisionWorkflow: async (
@@ -250,7 +233,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     deprovisionWorkflow: async ({
@@ -272,7 +255,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         const response = await core.http.post<{ respString: string }>(path);
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     deleteWorkflow: async (workflowId: string, dataSourceId?: string) => {
@@ -285,7 +268,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     getWorkflowPresets: async () => {
@@ -295,7 +278,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     catIndices: async (pattern: string, dataSourceId?: string) => {
@@ -308,7 +291,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     getMappings: async (index: string, dataSourceId?: string) => {
@@ -321,7 +304,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     getLocalClusterVersion: async () => {
@@ -331,7 +314,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         });
         return response.version.number;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     getIndex: async (index: string, dataSourceId?: string) => {
@@ -344,7 +327,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     searchIndex: async ({
@@ -354,6 +337,7 @@ export function configureRoutes(core: CoreStart): RouteService {
       dataSourceVersion,
       searchPipeline,
       verbose,
+      signal,
     }: {
       index: string;
       body: {};
@@ -361,12 +345,13 @@ export function configureRoutes(core: CoreStart): RouteService {
       dataSourceVersion?: string;
       searchPipeline?: string;
       verbose?: boolean;
+      signal?: AbortSignal;
     }) => {
       try {
         const url = dataSourceId
           ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/search`
           : SEARCH_INDEX_NODE_API_PATH;
-        const basePath = `${url}/${index}`;
+        const basePath = !isEmpty(index) ? `${url}/${index}` : url; // no index is valid, if the search is against all indices
         const path = searchPipeline
           ? `${basePath}/${searchPipeline}`
           : basePath;
@@ -376,10 +361,11 @@ export function configureRoutes(core: CoreStart): RouteService {
             verbose: verbose ?? false,
             data_source_version: dataSourceVersion,
           },
+          signal,
         });
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     ingest: async (index: string, doc: {}, dataSourceId?: string) => {
@@ -395,7 +381,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     bulk: async ({
@@ -417,7 +403,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         });
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     searchModels: async (body: {}, dataSourceId?: string) => {
@@ -430,7 +416,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         });
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     searchConnectors: async (body: {}, dataSourceId?: string) => {
@@ -443,9 +429,67 @@ export function configureRoutes(core: CoreStart): RouteService {
         });
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
+
+    registerAgent: async (body: {}, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/agent/register`
+          : REGISTER_AGENT_NODE_API_PATH;
+        const response = await core.http.post<{ respString: string }>(url, {
+          body: JSON.stringify(body),
+        });
+        return response;
+      } catch (e: any) {
+        throw e;
+      }
+    },
+
+    updateAgent: async (agentId: string, body: {}, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/agent/update`
+          : UPDATE_AGENT_NODE_API_PATH;
+        const finalUrl = `${url}/${agentId}`;
+        const response = await core.http.put<{ respString: string }>(finalUrl, {
+          body: JSON.stringify(body),
+        });
+        return response;
+      } catch (e: any) {
+        throw e;
+      }
+    },
+
+    searchAgents: async (body: {}, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/agent/search`
+          : SEARCH_AGENTS_NODE_API_PATH;
+        const response = await core.http.post<{ respString: string }>(url, {
+          body: JSON.stringify(body),
+        });
+        return response;
+      } catch (e: any) {
+        throw e;
+      }
+    },
+
+    getAgent: async (agentId: string, dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/agent`
+          : GET_AGENT_NODE_API_PATH;
+        const response = await core.http.get<{ respString: string }>(
+          `${url}/${agentId}`
+        );
+        return response;
+      } catch (e: any) {
+        throw e;
+      }
+    },
+
     simulatePipeline: async (
       body: {
         pipeline?: IngestPipelineConfig;
@@ -468,7 +512,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         });
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
     getSearchPipeline: async (pipelineId: string, dataSourceId?: string) => {
@@ -481,7 +525,18 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
+      }
+    },
+    getSearchTemplates: async (dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/getSearchTemplates`
+          : GET_SEARCH_TEMPLATES_NODE_API_PATH;
+        const response = await core.http.get<{ respString: string }>(url);
+        return response;
+      } catch (e: any) {
+        throw e;
       }
     },
     getIngestPipeline: async (pipelineId: string, dataSourceId?: string) => {
@@ -494,7 +549,7 @@ export function configureRoutes(core: CoreStart): RouteService {
         );
         return response;
       } catch (e: any) {
-        return e as HttpFetchError;
+        throw e;
       }
     },
   };

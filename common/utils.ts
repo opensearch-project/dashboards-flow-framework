@@ -44,6 +44,10 @@ export function customStringifySingleLine(jsonObj: {}): string {
   return JSON.stringify(jsonObj, undefined, 0);
 }
 
+export function isDependentOnModels(workflowType?: WORKFLOW_TYPE): boolean {
+  return isVectorSearchUseCase(workflowType);
+}
+
 export function isVectorSearchUseCase(workflowType?: WORKFLOW_TYPE): boolean {
   return (
     workflowType !== undefined &&
