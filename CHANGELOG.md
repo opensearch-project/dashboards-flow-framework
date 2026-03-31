@@ -10,5 +10,6 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Infrastructure
 - React 18 compatibility changes ([#843](https://github.com/opensearch-project/dashboards-flow-framework/pull/843))
 ### Documentation
+- Fix broken tutorial link in README ([#860](https://github.com/opensearch-project/dashboards-flow-framework/pull/860))
 ### Maintenance
 ### Refactoring
