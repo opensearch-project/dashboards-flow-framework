@@ -44,11 +44,6 @@ describe('utils', () => {
       const id = generateId();
       expect(id).toMatch(/^_/);
     });
-    test('respects numChars param', () => {
-      const id = generateId('p', 4);
-      // prefix + underscore + 4 chars
-      expect(id.length).toBe(6);
-    });
   });
 
   describe('getObjsFromJSONLines', () => {

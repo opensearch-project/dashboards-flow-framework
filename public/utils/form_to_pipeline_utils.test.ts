@@ -192,25 +192,8 @@ describe('form_to_pipeline_utils', () => {
         PROCESSOR_CONTEXT.SEARCH_RESPONSE
       );
       expect(result).toBeDefined();
-      expect((result as any).request_processors).toBeDefined();
-    });
-
-    test('returns search response pipeline when request processors exist but no preceding response processors', () => {
-      const config = makeConfig(
-        [],
-        [makeProcessor('req1')],
-        [makeProcessor('resp1')]
-      );
-      const result = formikToPartialPipeline(
-        FORM_VALUES,
-        config,
-        'resp1',
-        false,
-        PROCESSOR_CONTEXT.SEARCH_RESPONSE
-      );
-      expect(result).toBeDefined();
-      expect((result as any).response_processors).toHaveLength(0);
       expect((result as any).request_processors).toHaveLength(1);
+      expect((result as any).response_processors).toHaveLength(0);
     });
   });
 
