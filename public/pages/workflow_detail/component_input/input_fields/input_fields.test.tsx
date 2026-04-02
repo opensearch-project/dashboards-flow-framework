@@ -10,6 +10,7 @@ import { Formik } from 'formik';
 import { TextField } from './text_field';
 import { SelectField } from './select_field';
 import { BooleanField } from './boolean_field';
+import { NumberField } from './number_field';
 
 jest.mock('../../../../services', () => {
   const { mockCoreServices } = require('../../../../../test/mocks');
@@ -137,5 +138,29 @@ describe('BooleanField', () => {
     );
     // EuiIconTip renders an icon, the help text is in a tooltip
     expect(screen.getByText('Help')).toBeInTheDocument();
+  });
+});
+
+describe('NumberField', () => {
+  test('renders with label', () => {
+    renderWithFormik(<NumberField fieldPath="myNum" label="Count" />, {
+      myNum: 0,
+    });
+    expect(screen.getByText('Count')).toBeInTheDocument();
+  });
+
+  test('renders with initial value', () => {
+    renderWithFormik(<NumberField fieldPath="myNum" />, {
+      myNum: 42,
+    });
+    expect(screen.getByDisplayValue('42')).toBeInTheDocument();
+  });
+
+  test('renders help link when provided', () => {
+    renderWithFormik(
+      <NumberField fieldPath="myNum" helpLink="https://example.com" />,
+      { myNum: 0 }
+    );
+    expect(screen.getByText('Learn more')).toBeInTheDocument();
   });
 });
