@@ -240,3 +240,115 @@ describe('SelectWithCustomOptions', () => {
     expect(screen.getByText('Option A')).toBeInTheDocument();
   });
 });
+
+describe('JsonLinesField', () => {
+  // Dynamically import to avoid hoisting issues with the EuiCodeEditor mock
+  const { JsonLinesField } = require('./json_lines_field');
+
+  test('renders with label', () => {
+    renderWithFormik(<JsonLinesField fieldPath="myJsonLines" label="Documents" />, {
+      myJsonLines: '',
+    });
+    expect(screen.getByText('Documents')).toBeInTheDocument();
+  });
+
+  test('renders code editor', () => {
+    renderWithFormik(<JsonLinesField fieldPath="myJsonLines" />, {
+      myJsonLines: '{"a":1}\n{"b":2}',
+    });
+    expect(screen.getByTestId('mockCodeEditor')).toBeInTheDocument();
+  });
+});
+
+describe('MapField', () => {
+  const { MapField } = require('./map_field');
+
+  test('renders with label', () => {
+    renderWithFormik(<MapField fieldPath="myMap" label="Field Mapping" />, {
+      myMap: [{ key: '', value: '' }],
+    });
+    expect(screen.getByText('Field Mapping')).toBeInTheDocument();
+  });
+
+  test('renders add entry button', () => {
+    renderWithFormik(
+      <MapField fieldPath="myMap" addEntryButtonText="Add field" />,
+      { myMap: [] }
+    );
+    expect(screen.getByText('Add field')).toBeInTheDocument();
+  });
+});
+
+describe('MapArrayField', () => {
+  const { MapArrayField } = require('./map_array_field');
+
+  test('renders configure button when empty', () => {
+    renderWithFormik(
+      <MapArrayField fieldPath="myMapArray" />,
+      { myMapArray: [] }
+    );
+    expect(screen.getByText('Configure')).toBeInTheDocument();
+  });
+
+  test('renders map content for single populated map', () => {
+    renderWithFormik(
+      <MapArrayField fieldPath="myMapArray" />,
+      { myMapArray: [[{ key: 'k', value: 'v' }]] }
+    );
+    // Single populated map renders a panel with MapField inside
+    expect(screen.getByDisplayValue('k')).toBeInTheDocument();
+  });
+});
+
+describe('ModelField', () => {
+  const React = require('react');
+  const { render: rtlRender, screen: rtlScreen } = require('@testing-library/react');
+  const { Provider } = require('react-redux');
+  const { Formik: FormikProvider } = require('formik');
+  const { BrowserRouter } = require('react-router-dom');
+  const configureStore = require('redux-mock-store').default;
+  const { INITIAL_ML_STATE } = require('../../../../store');
+  const { ModelField } = require('./model_field');
+
+  const mockStore = configureStore([]);
+
+  function renderModelField(props: any = {}, formValues: any = {}) {
+    const store = mockStore({
+      ml: {
+        ...INITIAL_ML_STATE,
+        models: {
+          model1: { id: 'model1', name: 'Test Model', state: 'DEPLOYED', algorithm: 'TEXT_EMBEDDING', interface: {} },
+        },
+      },
+      opensearch: { indices: {}, errorMessage: '' },
+      errors: { loading: false, errorMessage: '' },
+      workflows: {},
+      presets: {},
+    });
+
+    return rtlRender(
+      <Provider store={store}>
+        <BrowserRouter>
+          <FormikProvider initialValues={formValues} onSubmit={jest.fn()}>
+            <ModelField fieldPath="myModel" {...props} />
+          </FormikProvider>
+        </BrowserRouter>
+      </Provider>
+    );
+  }
+
+  test('renders model label', () => {
+    renderModelField({}, { myModel: { id: '', algorithm: undefined } });
+    expect(rtlScreen.getByText('Model')).toBeInTheDocument();
+  });
+
+  test('renders custom label', () => {
+    renderModelField({ label: 'LLM Model' }, { myModel: { id: '', algorithm: undefined } });
+    expect(rtlScreen.getByText('LLM Model')).toBeInTheDocument();
+  });
+
+  test('renders refresh button', () => {
+    renderModelField({}, { myModel: { id: '', algorithm: undefined } });
+    expect(rtlScreen.getByLabelText('refresh')).toBeInTheDocument();
+  });
+});
