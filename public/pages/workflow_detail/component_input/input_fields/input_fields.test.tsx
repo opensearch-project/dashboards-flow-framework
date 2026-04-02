@@ -11,12 +11,38 @@ import { TextField } from './text_field';
 import { SelectField } from './select_field';
 import { BooleanField } from './boolean_field';
 import { NumberField } from './number_field';
+import { JsonField } from './json_field';
+import { SelectWithCustomOptions } from './select_with_custom_options';
 
 jest.mock('../../../../services', () => {
   const { mockCoreServices } = require('../../../../../test/mocks');
   return {
     ...jest.requireActual('../../../../services'),
     ...mockCoreServices,
+  };
+});
+
+// Mock EuiCodeEditor since it depends on Ace editor
+jest.mock('@elastic/eui', () => {
+  const original = jest.requireActual('@elastic/eui');
+  return {
+    ...original,
+    EuiCodeEditor: ({
+      value,
+      onChange,
+      onBlur,
+    }: {
+      value: string;
+      onChange: (value: string) => void;
+      onBlur: () => void;
+    }) => (
+      <textarea
+        data-testid="mockCodeEditor"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
+      />
+    ),
   };
 });
 
@@ -162,5 +188,55 @@ describe('NumberField', () => {
       { myNum: 0 }
     );
     expect(screen.getByText('Learn more')).toBeInTheDocument();
+  });
+});
+
+describe('JsonField', () => {
+  test('renders with label', () => {
+    renderWithFormik(<JsonField fieldPath="myJson" label="JSON Config" />, {
+      myJson: '{}',
+    });
+    expect(screen.getByText('JSON Config')).toBeInTheDocument();
+  });
+
+  test('renders code editor with initial value', () => {
+    renderWithFormik(<JsonField fieldPath="myJson" />, {
+      myJson: '{"key": "value"}',
+    });
+    expect(screen.getByTestId('mockCodeEditor')).toBeInTheDocument();
+  });
+
+  test('renders help link when provided', () => {
+    renderWithFormik(
+      <JsonField fieldPath="myJson" helpLink="https://example.com" />,
+      { myJson: '{}' }
+    );
+    expect(screen.getByText('Learn more')).toBeInTheDocument();
+  });
+});
+
+describe('SelectWithCustomOptions', () => {
+  test('renders with placeholder', () => {
+    renderWithFormik(
+      <SelectWithCustomOptions
+        fieldPath="myOption"
+        placeholder="Select an option"
+        options={[{ label: 'Option A' }, { label: 'Option B' }]}
+      />,
+      { myOption: '' }
+    );
+    expect(screen.getByText('Select an option')).toBeInTheDocument();
+  });
+
+  test('renders with selected value', () => {
+    renderWithFormik(
+      <SelectWithCustomOptions
+        fieldPath="myOption"
+        placeholder="Select"
+        options={[{ label: 'Option A' }]}
+      />,
+      { myOption: 'Option A' }
+    );
+    expect(screen.getByText('Option A')).toBeInTheDocument();
   });
 });
