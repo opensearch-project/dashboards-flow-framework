@@ -21,12 +21,13 @@ jobs:
 
     steps:
       - name: Set up JDK
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v5
         with:
+          distribution: 'temurin'
           java-version: ${{ matrix.jdk }}
 
       - name: Checkout Flow-Framework
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
           path: flow-framework
           repository: opensearch-project/flow-framework
@@ -45,18 +46,15 @@ jobs:
         shell: bash
       
       - name: Checkout OpenSearch Dashboards
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
           path: OpenSearch-Dashboards
           repository: opensearch-project/OpenSearch-Dashboards
           ref: ${{ env.OPENSEARCH_DASHBOARDS_VERSION }}
           fetch-depth: 0
-          filter: |
-            cypress
-            test
 
       - name: Checkout FF in OpenSearch Dashboards Plugins Dir
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
             path: OpenSearch-Dashboards/plugins/dashboards-flow-framework
 
@@ -67,17 +65,16 @@ jobs:
         working-directory: OpenSearch-Dashboards
         shell: bash
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ steps.tool-versions.outputs.node_version }}
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install correct yarn version for OpenSearch Dashboards
-        id: setup-yarn
         run: |
           npm uninstall -g yarn
-          echo "Installing yarn ${{ steps.versions_step.outputs.yarn_version }}"
-          npm i -g yarn@${{ steps.versions_step.outputs.yarn_version }}
+          echo "Installing yarn ${{ steps.tool-versions.outputs.yarn_version }}"
+          npm i -g yarn@${{ steps.tool-versions.outputs.yarn_version }}
 
       - name: Yarn Cache
         uses: actions/cache@v4
@@ -131,7 +128,7 @@ jobs:
         shell: bash
 
       - name: Checkout Dashboards Functional Test Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
           path: opensearch-dashboards-functional-test
           repository: opensearch-project/opensearch-dashboards-functional-test
@@ -147,7 +144,7 @@ jobs:
       - name: Get Cypress version
         id: cypress_version
         run: |
-          echo "::set-output name=cypress_version::$(cat ./package.json | jq '.dependencies.cypress' | tr -d '"')"
+          echo "cypress_version=$(cat ./package.json | jq '.dependencies.cypress' | tr -d '"')" >> $GITHUB_OUTPUT
         working-directory: opensearch-dashboards-functional-test
 
       - name: Finding spec files and store to output
