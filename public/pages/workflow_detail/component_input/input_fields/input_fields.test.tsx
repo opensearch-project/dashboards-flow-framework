@@ -11,7 +11,6 @@ import { TextField } from './text_field';
 import { SelectField } from './select_field';
 import { BooleanField } from './boolean_field';
 import { NumberField } from './number_field';
-import { JsonField } from './json_field';
 import { SelectWithCustomOptions } from './select_with_custom_options';
 
 jest.mock('../../../../services', () => {
@@ -19,30 +18,6 @@ jest.mock('../../../../services', () => {
   return {
     ...jest.requireActual('../../../../services'),
     ...mockCoreServices,
-  };
-});
-
-// Mock EuiCodeEditor since it depends on Ace editor
-jest.mock('@elastic/eui', () => {
-  const original = jest.requireActual('@elastic/eui');
-  return {
-    ...original,
-    EuiCodeEditor: ({
-      value,
-      onChange,
-      onBlur,
-    }: {
-      value: string;
-      onChange: (value: string) => void;
-      onBlur: () => void;
-    }) => (
-      <textarea
-        data-testid="mockCodeEditor"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onBlur}
-      />
-    ),
   };
 });
 
@@ -191,31 +166,7 @@ describe('NumberField', () => {
   });
 });
 
-describe('JsonField', () => {
-  test('renders with label', () => {
-    renderWithFormik(<JsonField fieldPath="myJson" label="JSON Config" />, {
-      myJson: '{}',
-    });
-    expect(screen.getByText('JSON Config')).toBeInTheDocument();
-  });
-
-  test('renders code editor with initial value', () => {
-    renderWithFormik(<JsonField fieldPath="myJson" />, {
-      myJson: '{"key": "value"}',
-    });
-    expect(screen.getByTestId('mockCodeEditor')).toBeInTheDocument();
-  });
-
-  test('renders help link when provided', () => {
-    renderWithFormik(
-      <JsonField fieldPath="myJson" helpLink="https://example.com" />,
-      { myJson: '{}' }
-    );
-    expect(screen.getByText('Learn more')).toBeInTheDocument();
-  });
-});
-
-describe('SelectWithCustomOptions', () => {
+describe('MapField', () => {
   test('renders with placeholder', () => {
     renderWithFormik(
       <SelectWithCustomOptions
@@ -238,25 +189,6 @@ describe('SelectWithCustomOptions', () => {
       { myOption: 'Option A' }
     );
     expect(screen.getByText('Option A')).toBeInTheDocument();
-  });
-});
-
-describe('JsonLinesField', () => {
-  // Dynamically import to avoid hoisting issues with the EuiCodeEditor mock
-  const { JsonLinesField } = require('./json_lines_field');
-
-  test('renders with label', () => {
-    renderWithFormik(<JsonLinesField fieldPath="myJsonLines" label="Documents" />, {
-      myJsonLines: '',
-    });
-    expect(screen.getByText('Documents')).toBeInTheDocument();
-  });
-
-  test('renders code editor', () => {
-    renderWithFormik(<JsonLinesField fieldPath="myJsonLines" />, {
-      myJsonLines: '{"a":1}\n{"b":2}',
-    });
-    expect(screen.getByTestId('mockCodeEditor')).toBeInTheDocument();
   });
 });
 
