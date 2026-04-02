@@ -352,3 +352,31 @@ describe('ModelField', () => {
     expect(rtlScreen.getByLabelText('refresh')).toBeInTheDocument();
   });
 });
+
+describe('ModelInfoPopover', () => {
+  const { ModelInfoPopover } = require('./models_info_popover');
+  const { MODEL_CATEGORY } = require('../../../../../common');
+
+  test('renders learn more button', () => {
+    render(<ModelInfoPopover modelCategory={MODEL_CATEGORY.EMBEDDING} />);
+    expect(screen.getByText('Learn more')).toBeInTheDocument();
+  });
+
+  test('shows embedding model links when opened', () => {
+    render(<ModelInfoPopover modelCategory={MODEL_CATEGORY.EMBEDDING} />);
+    fireEvent.click(screen.getByText('Learn more'));
+    expect(screen.getByText('Cohere Embed')).toBeInTheDocument();
+  });
+
+  test('shows LLM model links when opened', () => {
+    render(<ModelInfoPopover modelCategory={MODEL_CATEGORY.LLM} />);
+    fireEvent.click(screen.getByText('Learn more'));
+    expect(screen.getByText('OpenAI GPT-3.5')).toBeInTheDocument();
+  });
+
+  test('shows sparse encoder links when opened', () => {
+    render(<ModelInfoPopover modelCategory={MODEL_CATEGORY.SPARSE_ENCODER} />);
+    fireEvent.click(screen.getByText('Learn more'));
+    expect(screen.getByText('OpenSearch Neural Sparse Encoder')).toBeInTheDocument();
+  });
+});
