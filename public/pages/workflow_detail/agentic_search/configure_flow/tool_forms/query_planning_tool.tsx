@@ -38,6 +38,7 @@ import { parseStringOrJson } from '../../../../../utils';
 import {
   NoDeployedModelsCallout,
   NoSearchTemplatesCallout,
+  SimplifiedJsonField,
 } from '../../components';
 import { updateParameterValue } from './utils';
 
@@ -384,29 +385,21 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
           </div>
         </>
       )}
-      <EuiFormRow
+      <SimplifiedJsonField
         label="Fallback query"
         helpText="Query DSL to use when the LLM-generated query fails or returns no results"
-        data-testid="fallbackQueryField"
-        fullWidth
-      >
-        <EuiTextArea
-          value={toolForm?.parameters?.fallback_query || ''}
-          onChange={(e) => {
-            updateParameterValue(
-              props.agentForm,
-              props.setAgentForm,
-              props.toolIndex,
-              'fallback_query',
-              e.target.value
-            );
-          }}
-          placeholder='{"size":10,"query":{"match_all":{}}}'
-          fullWidth
-          compressed
-          rows={3}
-        />
-      </EuiFormRow>
+        value={toolForm?.parameters?.fallback_query || ''}
+        onBlur={(value) => {
+          updateParameterValue(
+            props.agentForm,
+            props.setAgentForm,
+            props.toolIndex,
+            'fallback_query',
+            value
+          );
+        }}
+        editorHeight="10vh"
+      />
     </>
   );
 }
