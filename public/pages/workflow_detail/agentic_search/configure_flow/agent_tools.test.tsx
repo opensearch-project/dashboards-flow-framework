@@ -107,6 +107,9 @@ describe('AgentTools', () => {
     // Check that the generation type field is rendered
     expect(screen.getByTestId('generationTypeField')).toBeInTheDocument();
     expect(screen.getByTestId('generationTypeRadioGroup')).toBeInTheDocument();
+
+    // Check that the fallback query field is rendered
+    expect(screen.getByText('Fallback query')).toBeInTheDocument();
   });
 
   test('shows different tool options based on agent type', () => {
