@@ -66,10 +66,18 @@ describe('IndexSelector', () => {
     },
   };
 
+  const mockAliases = {
+    'my-alias': {
+      name: 'my-alias',
+      index: 'index1',
+    },
+  };
+
   const initialState = {
     opensearch: {
       ...INITIAL_OPENSEARCH_STATE,
       indices: mockIndices,
+      aliases: mockAliases,
     },
     workflows: {},
     presets: {},
@@ -133,5 +141,17 @@ describe('IndexSelector', () => {
     renderIndexSelector(AGENT_TYPE.FLOW);
 
     expect(screen.getByPlaceholderText('Select an index')).toBeInTheDocument();
+  });
+
+  test('shows aliases alongside indices', async () => {
+    renderIndexSelector(AGENT_TYPE.FLOW);
+
+    const indexSelector = screen.getByTestId('indexSelector');
+    await userEvent.click(indexSelector);
+
+    expect(screen.getByText('index1')).toBeInTheDocument();
+    expect(screen.getByText('index2')).toBeInTheDocument();
+    expect(screen.getByText('my-alias')).toBeInTheDocument();
+    expect(screen.getByText('alias')).toBeInTheDocument();
   });
 });
