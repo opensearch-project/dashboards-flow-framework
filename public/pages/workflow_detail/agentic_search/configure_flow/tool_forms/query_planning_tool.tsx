@@ -384,6 +384,29 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
           </div>
         </>
       )}
+      <EuiFormRow
+        label="Fallback query"
+        helpText="Query DSL to use when the LLM-generated query fails or returns no results"
+        data-testid="fallbackQueryField"
+        fullWidth
+      >
+        <EuiTextArea
+          value={toolForm?.parameters?.fallback_query || ''}
+          onChange={(e) => {
+            updateParameterValue(
+              props.agentForm,
+              props.setAgentForm,
+              props.toolIndex,
+              'fallback_query',
+              e.target.value
+            );
+          }}
+          placeholder='{"size":10,"query":{"match_all":{}}}'
+          fullWidth
+          compressed
+          rows={3}
+        />
+      </EuiFormRow>
     </>
   );
 }
