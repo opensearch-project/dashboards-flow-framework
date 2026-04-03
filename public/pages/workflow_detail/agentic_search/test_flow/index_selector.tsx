@@ -8,9 +8,12 @@ import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiSmallButtonIcon,
   EuiSuperSelect,
   EuiSuperSelectOption,
+  EuiText,
 } from '@elastic/eui';
 import {
   AppState,
@@ -73,8 +76,17 @@ export function IndexSelector(props: IndexSelectorProps) {
       .filter((alias) => !indexNames.has(alias.name))
       .map((alias) => ({
         value: alias.name,
-        inputDisplay: `${alias.name} (alias)`,
-        dropdownDisplay: `${alias.name} (alias)`,
+        inputDisplay: alias.name,
+        dropdownDisplay: (
+          <EuiFlexGroup gutterSize="xs" alignItems="baseline">
+            <EuiFlexItem grow={false}>{alias.name}</EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiText size="xs" color="subdued">
+                <i>alias</i>
+              </EuiText>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        ),
       }));
 
     let allOptions = [...indexOptionsList, ...aliasOptionsList];
