@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
-import { isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, set } from 'lodash';
 import {
   EuiFlexItem,
   EuiSpacer,
@@ -15,18 +15,26 @@ import {
   EuiText,
   EuiLink,
   EuiComboBox,
+  EuiSelect,
 } from '@elastic/eui';
 import {
   Agent,
   AGENT_FIELDS_DOCS_LINK,
   AGENT_LLM_INTERFACE_TYPE,
   AGENT_TYPE,
+  AgentLLM,
   ConnectorDict,
+  EMBEDDING_MODEL_HELP_TEXT,
+  EMBEDDING_MODEL_LABEL,
   MEMORY_DOCS_LINK,
+  MODEL_STATE,
   ModelDict,
+  NONE_OPTION,
 } from '../../../../../common';
 import { AgentMemory } from './agent_memory';
 import { AppState } from '../../../../store';
+import { isKnownLLM } from '../../../../utils';
+import { NoDeployedModelsCallout } from '../components';
 
 interface AgentAdvancedSettingsProps {
   agentForm: Partial<Agent>;
@@ -52,6 +60,24 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
     'agentForm.parameters._llm_interface',
     ''
   ) as AGENT_LLM_INTERFACE_TYPE;
+  const llmForm = getIn(props.agentForm, 'llm') as AgentLLM;
+  const selectedEmbeddingModelId = getIn(
+    llmForm,
+    'parameters.embedding_model_id',
+    ''
+  ) as string;
+
+  const [embeddingModelOptions, setEmbeddingModelOptions] = useState<
+    { value: string; text: string }[]
+  >([]);
+  useEffect(() => {
+    setEmbeddingModelOptions(
+      Object.values(models || {})
+        .filter((model) => model.state === MODEL_STATE.DEPLOYED)
+        .filter((model) => !isKnownLLM(model, connectors))
+        .map((model) => ({ value: model.id, text: model.name || model.id }))
+    );
+  }, [models, connectors]);
 
   // listen to agent model changes. Try to automatically set the _llm_interface, if applicable
   useEffect(() => {
@@ -73,9 +99,6 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
       buttonContent="Advanced settings"
     >
       <EuiSpacer size="s" />
-      {/**
-       * For agent types that allow for memory, provide custom form inputs for that.
-       */}
       {agentType === AGENT_TYPE.CONVERSATIONAL && (
         <>
           <EuiFlexItem grow={false}>
@@ -140,6 +163,47 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
                 compressed
                 fullWidth
               />
+            </EuiFormRow>
+          </EuiFlexItem>
+          <EuiSpacer size="s" />
+          <EuiFlexItem grow={false}>
+            <EuiFormRow
+              label={<>{EMBEDDING_MODEL_LABEL}<i> - optional</i></>}
+              helpText={EMBEDDING_MODEL_HELP_TEXT}
+              data-testid="embeddingModelField"
+              fullWidth
+            >
+              <>
+                {embeddingModelOptions.length === 0 ? (
+                  <NoDeployedModelsCallout />
+                ) : (
+                  <EuiSelect
+                    options={[
+                      NONE_OPTION,
+                      ...embeddingModelOptions,
+                    ]}
+                    value={selectedEmbeddingModelId}
+                    onChange={(e) => {
+                      let updatedAgentForm = cloneDeep(props.agentForm);
+                      if (e.target.value === '') {
+                        const params = getIn(updatedAgentForm, 'llm.parameters', {});
+                        delete params.embedding_model_id;
+                        set(updatedAgentForm, 'llm.parameters', params);
+                      } else {
+                        set(
+                          updatedAgentForm,
+                          'llm.parameters.embedding_model_id',
+                          e.target.value
+                        );
+                      }
+                      props.setAgentForm(updatedAgentForm);
+                    }}
+                    aria-label="Select embedding model"
+                    fullWidth
+                    compressed
+                  />
+                )}
+              </>
             </EuiFormRow>
           </EuiFlexItem>
           <EuiSpacer size="s" />

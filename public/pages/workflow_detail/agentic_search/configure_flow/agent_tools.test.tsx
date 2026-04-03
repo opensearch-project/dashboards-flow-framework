@@ -144,6 +144,9 @@ describe('AgentTools', () => {
     // Should not show Web Search for FLOW agent
     expect(screen.queryByText('Web Search')).toBeNull();
 
+    // Should show embedding model field for FLOW agent
+    expect(screen.getByTestId('embeddingModelField')).toBeInTheDocument();
+
     // Now render with CONVERSATIONAL agent type which should show all tools
     renderAgentTools(
       { ...mockAgentForm, type: AGENT_TYPE.CONVERSATIONAL },

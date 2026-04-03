@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
@@ -98,6 +98,26 @@ describe('AgentAdvancedSettings', () => {
     mockStore({
       ml: { ...INITIAL_ML_STATE, models, connectors: {} },
     });
+
+  test('renders embedding model field for conversational agents', () => {
+    const models = {
+      embeddingModel: {
+        id: 'embeddingModel',
+        state: 'deployed',
+        connector: { parameters: { model: 'amazon.titan-embed-text-v2' } },
+      },
+    };
+    const store = createStore(models);
+    render(
+      <Provider store={store}>
+        <AgentAdvancedSettings
+          agentForm={{ type: AGENT_TYPE.CONVERSATIONAL, llm: { model_id: '' } }}
+          setAgentForm={jest.fn()}
+        />
+      </Provider>
+    );
+    expect(screen.getByText('Embedding model')).toBeInTheDocument();
+  });
 
   test('updates LLM interface when model changes', () => {
     const models = {

@@ -20,6 +20,7 @@ import {
   TOOL_TYPE,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
+import { isKnownEmbeddingModel } from '../../../../utils';
 import { NoDeployedModelsCallout } from '../components';
 
 interface AgentLLMFieldsProps {
@@ -36,8 +37,7 @@ export function AgentLLMFields({
   agentForm,
   setAgentForm,
 }: AgentLLMFieldsProps) {
-  // get redux store for models / search templates / etc. if needed in downstream tool configs
-  const { models } = useSelector((state: AppState) => state.ml);
+  const { models, connectors } = useSelector((state: AppState) => state.ml);
   const [modelOptions, setModelOptions] = useState<
     { value: string; text: string }[]
   >([]);
@@ -45,12 +45,13 @@ export function AgentLLMFields({
     setModelOptions(
       Object.values(models || {})
         .filter((model) => model.state === MODEL_STATE.DEPLOYED)
+        .filter((model) => !isKnownEmbeddingModel(model, connectors))
         .map((model) => ({
           value: model.id,
           text: model.name || model.id,
         }))
     );
-  }, [models]);
+  }, [models, connectors]);
   const llmForm = getIn(agentForm, `llm`) as AgentLLM;
   const toolsField = getIn(agentForm, 'tools', []) as Tool[];
   const queryPlanningToolIndex = toolsField.findIndex(

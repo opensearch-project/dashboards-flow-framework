@@ -25,8 +25,11 @@ import {
   Agent,
   AGENT_TYPE,
   ConnectorDict,
+  EMBEDDING_MODEL_HELP_TEXT,
+  EMBEDDING_MODEL_LABEL,
   Model,
   MODEL_STATE,
+  NONE_OPTION,
   QUERY_PLANNING_MODEL_DOCS_LINK,
   QUERY_PLANNING_TOOL_DOCS_LINK,
   RESPONSE_FILTER_TYPE,
@@ -34,7 +37,11 @@ import {
   TOOL_DESCRIPTION,
 } from '../../../../../../common';
 import { AppState } from '../../../../../store';
-import { parseStringOrJson } from '../../../../../utils';
+import {
+  isKnownEmbeddingModel,
+  isKnownLLM,
+  parseStringOrJson,
+} from '../../../../../utils';
 import {
   NoDeployedModelsCallout,
   NoSearchTemplatesCallout,
@@ -74,16 +81,24 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
   const [modelOptions, setModelOptions] = useState<
     { value: string; text: string }[]
   >([]);
+  const [embeddingModelOptions, setEmbeddingModelOptions] = useState<
+    { value: string; text: string }[]
+  >([]);
   useEffect(() => {
-    setModelOptions(
-      Object.values(models || {})
-        .filter((model) => model.state === MODEL_STATE.DEPLOYED)
-        .map((model) => ({
-          value: model.id,
-          text: model.name || model.id,
-        }))
+    const deployedModels = Object.values(models || {}).filter(
+      (model) => model.state === MODEL_STATE.DEPLOYED
     );
-  }, [models]);
+    setModelOptions(
+      deployedModels
+        .filter((model) => !isKnownEmbeddingModel(model, connectors))
+        .map((model) => ({ value: model.id, text: model.name || model.id }))
+    );
+    setEmbeddingModelOptions(
+      deployedModels
+        .filter((model) => !isKnownLLM(model, connectors))
+        .map((model) => ({ value: model.id, text: model.name || model.id }))
+    );
+  }, [models, connectors]);
   const agentType = getIn(props.agentForm, 'type', '').toLowerCase() as string;
   const toolForm = getIn(props.agentForm, `tools.${props.toolIndex}`) as Tool;
   const generationType =
@@ -279,6 +294,57 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
           data-testid="generationTypeRadioGroup"
         />
       </EuiFormRow>
+      {agentType === AGENT_TYPE.FLOW && (
+        <EuiFormRow
+          label={<>{EMBEDDING_MODEL_LABEL}<i> - optional</i></>}
+          helpText={EMBEDDING_MODEL_HELP_TEXT}
+          data-testid="embeddingModelField"
+          fullWidth
+        >
+          <>
+            {embeddingModelOptions.length === 0 ? (
+              <NoDeployedModelsCallout />
+            ) : (
+              <EuiSelect
+                options={[
+                  NONE_OPTION,
+                  ...embeddingModelOptions,
+                ]}
+                value={toolForm?.parameters?.embedding_model_id || ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    const toolsForm = getIn(props.agentForm, 'tools');
+                    const updatedParams = { ...toolForm.parameters };
+                    delete updatedParams.embedding_model_id;
+                    const updatedTool = {
+                      ...toolForm,
+                      parameters: updatedParams,
+                    };
+                    props.setAgentForm({
+                      ...props.agentForm,
+                      tools: toolsForm.map((tool: Tool, i: number) =>
+                        i === props.toolIndex ? updatedTool : tool
+                      ),
+                    });
+                  } else {
+                    updateParameterValue(
+                      props.agentForm,
+                      props.setAgentForm,
+                      props.toolIndex,
+                      'embedding_model_id',
+                      value
+                    );
+                  }
+                }}
+                aria-label="Select embedding model"
+                fullWidth
+                compressed
+              />
+            )}
+          </>
+        </EuiFormRow>
+      )}
       {generationType === GENERATION_TYPE.SEARCH_TEMPLATES && (
         <>
           <EuiSpacer size="s" />
