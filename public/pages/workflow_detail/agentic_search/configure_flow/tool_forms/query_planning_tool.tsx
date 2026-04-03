@@ -390,13 +390,20 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
         helpText="Query DSL to use when the LLM-generated query fails or returns no results"
         value={toolForm?.parameters?.fallback_query || ''}
         onBlur={(value) => {
-          updateParameterValue(
-            props.agentForm,
-            props.setAgentForm,
-            props.toolIndex,
-            'fallback_query',
-            value
-          );
+          const toolsForm = getIn(props.agentForm, 'tools');
+          const updatedTool = {
+            ...toolForm,
+            parameters: {
+              ...toolForm.parameters,
+              fallback_query: value,
+            },
+          };
+          props.setAgentForm({
+            ...props.agentForm,
+            tools: toolsForm.map((tool: Tool, i: number) =>
+              i === props.toolIndex ? updatedTool : tool
+            ),
+          });
         }}
         editorHeight="10vh"
       />
