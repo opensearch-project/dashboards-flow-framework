@@ -405,7 +405,7 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
             ),
           });
         }}
-        editorHeight="10vh"
+        editorHeight="25vh"
       />
     </>
   );
