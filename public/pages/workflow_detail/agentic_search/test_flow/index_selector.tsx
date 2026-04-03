@@ -17,6 +17,7 @@ import {
   useAppDispatch,
   getIndex,
   catIndices,
+  catAliases,
 } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
 import {
@@ -43,39 +44,53 @@ export function IndexSelector(props: IndexSelectorProps) {
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState<boolean>(
     false
   );
-  const { indices } = useSelector((state: AppState) => state.opensearch);
+  const { indices, aliases } = useSelector(
+    (state: AppState) => state.opensearch
+  );
 
-  // Fetch indices on initial load
+  // Fetch indices and aliases on initial load
   useEffect(() => {
     dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
+    dispatch(catAliases({ dataSourceId }));
   }, []);
 
   const [indexOptions, setIndexOptions] = useState<
     EuiSuperSelectOption<string>[]
   >([]);
 
-  // Optionally add an "ALL INDICES" option for eligible agent types (conversational)
+  // Build options from indices + aliases
   useEffect(() => {
-    let eligibleIndexOptions = Object.values(indices || {})
-      .filter((index) => !index.name.startsWith('.')) // Filter out system indices
+    const indexOptionsList = Object.values(indices || {})
+      .filter((index) => !index.name.startsWith('.'))
       .map((index) => ({
         value: index.name,
         inputDisplay: index.name,
         dropdownDisplay: index.name,
       }));
 
+    const indexNames = new Set(indexOptionsList.map((opt) => opt.value));
+    const aliasOptionsList = Object.values(aliases || {})
+      .filter((alias) => !indexNames.has(alias.name))
+      .map((alias) => ({
+        value: alias.name,
+        inputDisplay: `${alias.name} (alias)`,
+        dropdownDisplay: `${alias.name} (alias)`,
+      }));
+
+    let allOptions = [...indexOptionsList, ...aliasOptionsList];
+
     if (props.agentType === AGENT_TYPE.CONVERSATIONAL) {
-      eligibleIndexOptions = [
+      allOptions = [
         {
           value: ALL_INDICES,
           inputDisplay: ALL_INDICES,
           dropdownDisplay: ALL_INDICES,
         },
-        ...eligibleIndexOptions,
+        ...allOptions,
       ];
     }
-    setIndexOptions(eligibleIndexOptions);
-  }, [indices, props.agentType]);
+    setIndexOptions(allOptions);
+  }, [indices, aliases, props.agentType]);
 
   return (
     <>
