@@ -415,6 +415,7 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
           }
         }}
         onBlur={(value) => {
+          // onBlur only fires with valid JSON; clear error as a safeguard
           setFallbackQueryError(undefined);
           const toolsForm = getIn(props.agentForm, 'tools');
           const updatedTool = {
