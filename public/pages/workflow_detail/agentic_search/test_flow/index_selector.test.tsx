@@ -66,12 +66,7 @@ describe('IndexSelector', () => {
     },
   };
 
-  const mockAliases = {
-    'my-alias': {
-      name: 'my-alias',
-      index: 'index1',
-    },
-  };
+  const mockAliases = ['my-alias'];
 
   const initialState = {
     opensearch: {

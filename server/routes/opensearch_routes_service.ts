@@ -498,15 +498,16 @@ export class OpenSearchRoutesService {
 
       const response = await callWithRequest('cat.aliases', {
         format: 'json',
-        h: 'alias,index',
+        h: 'alias',
       });
 
-      const cleanedAliases = response
-        .filter((alias: any) => !alias.alias.startsWith('.'))
-        .map((alias: any) => ({
-          name: alias.alias,
-          index: alias.index,
-        })) as Alias[];
+      const cleanedAliases = [
+        ...new Set(
+          response
+            .filter((alias: any) => !alias.alias.startsWith('.'))
+            .map((alias: any) => alias.alias as Alias)
+        ),
+      ];
 
       return res.ok({ body: cleanedAliases });
     } catch (err: any) {

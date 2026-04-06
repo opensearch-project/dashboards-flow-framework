@@ -72,14 +72,14 @@ export function IndexSelector(props: IndexSelectorProps) {
       }));
 
     const indexNames = new Set(indexOptionsList.map((opt) => opt.value));
-    const aliasOptionsList = Object.values(aliases || {})
-      .filter((alias) => !indexNames.has(alias.name))
+    const aliasOptionsList = (aliases || [])
+      .filter((alias) => !indexNames.has(alias))
       .map((alias) => ({
-        value: alias.name,
-        inputDisplay: alias.name,
+        value: alias,
+        inputDisplay: alias,
         dropdownDisplay: (
           <EuiFlexGroup gutterSize="xs" alignItems="baseline">
-            <EuiFlexItem grow={false}>{alias.name}</EuiFlexItem>
+            <EuiFlexItem grow={false}>{alias}</EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiText size="xs" color="subdued">
                 <i>alias</i>

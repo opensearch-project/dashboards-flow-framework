@@ -30,7 +30,7 @@ export const INITIAL_OPENSEARCH_STATE = {
   getSearchPipelineErrorMessage: '',
   getIngestPipelineErrorMessage: '',
   indices: {} as { [key: string]: Index },
-  aliases: {} as { [key: string]: Alias },
+  aliases: [] as Alias[],
   indexDetails: {} as { [key: string]: IndexConfiguration },
   ingestPipelineDetails: {} as { [key: string]: IngestPipelineConfig },
   searchPipelineDetails: {} as { [key: string]: SearchPipelineConfig },
@@ -384,11 +384,7 @@ const opensearchSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(catAliases.fulfilled, (state, action) => {
-        const aliasesMap = new Map<string, Alias>();
-        action.payload.forEach((alias: Alias) => {
-          aliasesMap.set(alias.name, alias);
-        });
-        state.aliases = Object.fromEntries(aliasesMap.entries());
+        state.aliases = action.payload as Alias[];
         state.loading = false;
         state.errorMessage = '';
       })
