@@ -9,6 +9,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Update Inspect tab to Search ([#844](https://github.com/opensearch-project/dashboards-flow-framework/pull/844))
 ### Bug Fixes
 ### Infrastructure
+- Add unit tests for utility functions to increase test coverage ([#862](https://github.com/opensearch-project/dashboards-flow-framework/pull/862))
 ### Documentation
 - Fix broken tutorial link in README ([#860](https://github.com/opensearch-project/dashboards-flow-framework/pull/860))
 ### Maintenance
