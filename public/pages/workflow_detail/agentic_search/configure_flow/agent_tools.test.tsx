@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Provider } from 'react-redux';
 import { AgentTools } from './agent_tools';
@@ -21,6 +21,25 @@ jest.mock('../../../../services', () => {
     ...mockCoreServices,
   };
 });
+
+// Mock SimplifiedJsonField to make onChange/onBlur testable
+let capturedOnChange: ((value: string) => void) | undefined;
+let capturedOnBlur: ((value: string) => void) | undefined;
+jest.mock(
+  '../components/simplified_json_field',
+  () => ({
+    SimplifiedJsonField: (props: any) => {
+      capturedOnChange = props.onChange;
+      capturedOnBlur = props.onBlur;
+      return (
+        <div data-testid="simplifiedJsonField">
+          <span>{props.label}</span>
+          {props.isInvalid && <span data-testid="fallbackQueryError">{props.error}</span>}
+        </div>
+      );
+    },
+  })
+);
 
 // Setup mock store
 const mockStore = configureStore([]);
@@ -134,5 +153,65 @@ describe('AgentTools', () => {
     // Should show both Query Planning and Web Search
     expect(screen.getAllByText('Query Planning').length).toBeGreaterThan(0);
     expect(screen.getByText('Web Search')).toBeInTheDocument();
+  });
+
+  test('fallback query onChange shows error for invalid JSON', () => {
+    renderAgentTools(mockAgentForm, mockSetAgentForm);
+    act(() => {
+      capturedOnChange!('not valid json');
+    });
+    expect(screen.getByTestId('fallbackQueryError')).toHaveTextContent(
+      'Invalid JSON'
+    );
+  });
+
+  test('fallback query onChange clears error for valid JSON', () => {
+    renderAgentTools(mockAgentForm, mockSetAgentForm);
+    act(() => {
+      capturedOnChange!('not valid json');
+    });
+    expect(screen.getByTestId('fallbackQueryError')).toHaveTextContent(
+      'Invalid JSON'
+    );
+    act(() => {
+      capturedOnChange!('{"query": {"match_all": {}}}');
+    });
+    expect(screen.queryByTestId('fallbackQueryError')).toBeNull();
+  });
+
+  test('fallback query onChange removes parameter when cleared', () => {
+    renderAgentTools(mockAgentForm, mockSetAgentForm);
+    act(() => {
+      capturedOnChange!('   ');
+    });
+    expect(mockSetAgentForm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tools: expect.arrayContaining([
+          expect.objectContaining({
+            parameters: expect.not.objectContaining({
+              fallback_query: expect.anything(),
+            }),
+          }),
+        ]),
+      })
+    );
+  });
+
+  test('fallback query onBlur persists value to form', () => {
+    renderAgentTools(mockAgentForm, mockSetAgentForm);
+    act(() => {
+      capturedOnBlur!('{"query": {"match_all": {}}}');
+    });
+    expect(mockSetAgentForm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tools: expect.arrayContaining([
+          expect.objectContaining({
+            parameters: expect.objectContaining({
+              fallback_query: '{"query": {"match_all": {}}}',
+            }),
+          }),
+        ]),
+      })
+    );
   });
 });
