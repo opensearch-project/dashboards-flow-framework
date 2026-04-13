@@ -17,11 +17,13 @@ import {
   BASE_NODE_API_PATH,
   BULK_NODE_API_PATH,
   CAT_INDICES_NODE_API_PATH,
+  CAT_ALIASES_NODE_API_PATH,
   GET_INDEX_NODE_API_PATH,
   GET_MAPPINGS_NODE_API_PATH,
   INGEST_NODE_API_PATH,
   INGEST_PIPELINE_NODE_API_PATH,
   Index,
+  Alias,
   IndexMappings,
   IndexResponse,
   IngestPipelineConfig,
@@ -69,6 +71,24 @@ export function registerOpenSearchRoutes(
       },
     },
     opensearchRoutesService.catIndices
+  );
+  router.get(
+    {
+      path: CAT_ALIASES_NODE_API_PATH,
+      validate: {},
+    },
+    opensearchRoutesService.catAliases
+  );
+  router.get(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/opensearch/catAliases`,
+      validate: {
+        params: schema.object({
+          data_source_id: schema.string(),
+        }),
+      },
+    },
+    opensearchRoutesService.catAliases
   );
   router.get(
     {
@@ -456,6 +476,40 @@ export class OpenSearchRoutesService {
       })) as Index[];
 
       return res.ok({ body: cleanedIndices });
+    } catch (err: any) {
+      return generateCustomError(res, err);
+    }
+  };
+
+  catAliases = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const { data_source_id = '' } = req.params as { data_source_id?: string };
+    try {
+      const callWithRequest = getClientBasedOnDataSource(
+        context,
+        this.dataSourceEnabled,
+        req,
+        data_source_id,
+        this.client
+      );
+
+      const response = await callWithRequest('cat.aliases', {
+        format: 'json',
+        h: 'alias',
+      });
+
+      const cleanedAliases = [
+        ...new Set(
+          response
+            .filter((alias: any) => !alias.alias.startsWith('.'))
+            .map((alias: any) => alias.alias as Alias)
+        ),
+      ];
+
+      return res.ok({ body: cleanedAliases });
     } catch (err: any) {
       return generateCustomError(res, err);
     }

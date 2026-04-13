@@ -8,15 +8,19 @@ import { useSelector } from 'react-redux';
 import { getIn, useFormikContext } from 'formik';
 import { isEmpty } from 'lodash';
 import {
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiSmallButtonIcon,
   EuiSuperSelect,
   EuiSuperSelectOption,
+  EuiText,
 } from '@elastic/eui';
 import {
   AppState,
   useAppDispatch,
   getIndex,
   catIndices,
+  catAliases,
 } from '../../../../store';
 import { getDataSourceId } from '../../../../utils';
 import {
@@ -43,39 +47,62 @@ export function IndexSelector(props: IndexSelectorProps) {
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState<boolean>(
     false
   );
-  const { indices } = useSelector((state: AppState) => state.opensearch);
+  const { indices, aliases } = useSelector(
+    (state: AppState) => state.opensearch
+  );
 
-  // Fetch indices on initial load
+  // Fetch indices and aliases on initial load
   useEffect(() => {
     dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
+    dispatch(catAliases({ dataSourceId }));
   }, []);
 
   const [indexOptions, setIndexOptions] = useState<
     EuiSuperSelectOption<string>[]
   >([]);
 
-  // Optionally add an "ALL INDICES" option for eligible agent types (conversational)
+  // Build options from indices + aliases
   useEffect(() => {
-    let eligibleIndexOptions = Object.values(indices || {})
-      .filter((index) => !index.name.startsWith('.')) // Filter out system indices
+    const indexOptionsList = Object.values(indices || {})
+      .filter((index) => !index.name.startsWith('.'))
       .map((index) => ({
         value: index.name,
         inputDisplay: index.name,
         dropdownDisplay: index.name,
       }));
 
+    const indexNames = new Set(indexOptionsList.map((opt) => opt.value));
+    const aliasOptionsList = (aliases || [])
+      .filter((alias) => !indexNames.has(alias))
+      .map((alias) => ({
+        value: alias,
+        inputDisplay: alias,
+        dropdownDisplay: (
+          <EuiFlexGroup gutterSize="xs" alignItems="baseline">
+            <EuiFlexItem grow={false}>{alias}</EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiText size="xs" color="subdued">
+                <i>alias</i>
+              </EuiText>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        ),
+      }));
+
+    let allOptions = [...indexOptionsList, ...aliasOptionsList];
+
     if (props.agentType === AGENT_TYPE.CONVERSATIONAL) {
-      eligibleIndexOptions = [
+      allOptions = [
         {
           value: ALL_INDICES,
           inputDisplay: ALL_INDICES,
           dropdownDisplay: ALL_INDICES,
         },
-        ...eligibleIndexOptions,
+        ...allOptions,
       ];
     }
-    setIndexOptions(eligibleIndexOptions);
-  }, [indices, props.agentType]);
+    setIndexOptions(allOptions);
+  }, [indices, aliases, props.agentType]);
 
   return (
     <>

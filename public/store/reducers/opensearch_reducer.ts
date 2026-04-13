@@ -16,6 +16,7 @@ import {
   OMIT_SYSTEM_INDEX_PATTERN,
   SimulateIngestPipelineDoc,
   SearchTemplateConfig,
+  Alias,
 } from '../../../common';
 import {
   formatRouteServiceError,
@@ -29,6 +30,7 @@ export const INITIAL_OPENSEARCH_STATE = {
   getSearchPipelineErrorMessage: '',
   getIngestPipelineErrorMessage: '',
   indices: {} as { [key: string]: Index },
+  aliases: [] as Alias[],
   indexDetails: {} as { [key: string]: IndexConfiguration },
   ingestPipelineDetails: {} as { [key: string]: IngestPipelineConfig },
   searchPipelineDetails: {} as { [key: string]: SearchPipelineConfig },
@@ -40,6 +42,7 @@ const OPENSEARCH_PREFIX = 'opensearch';
 const GET_LOCAL_CLUSTER_VERSION_ACTION = `${OPENSEARCH_PREFIX}/getLocalClusterVersion`;
 const SET_OPENSEARCH_ERROR = `${OPENSEARCH_PREFIX}/setError`;
 const CAT_INDICES_ACTION = `${OPENSEARCH_PREFIX}/catIndices`;
+const CAT_ALIASES_ACTION = `${OPENSEARCH_PREFIX}/catAliases`;
 const GET_MAPPINGS_ACTION = `${OPENSEARCH_PREFIX}/mappings`;
 const SEARCH_INDEX_ACTION = `${OPENSEARCH_PREFIX}/search`;
 const INGEST_ACTION = `${OPENSEARCH_PREFIX}/ingest`;
@@ -82,6 +85,22 @@ export const catIndices = createAsyncThunk(
     } catch (e) {
       return rejectWithValue(
         formatRouteServiceError(e, 'Error getting indices')
+      );
+    }
+  }
+);
+
+export const catAliases = createAsyncThunk(
+  CAT_ALIASES_ACTION,
+  async (
+    { dataSourceId }: { dataSourceId?: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      return await getRouteService().catAliases(dataSourceId);
+    } catch (e) {
+      return rejectWithValue(
+        formatRouteServiceError(e, 'Error getting aliases')
       );
     }
   }
@@ -323,6 +342,10 @@ const opensearchSlice = createSlice({
         state.loading = true;
         state.errorMessage = '';
       })
+      .addCase(catAliases.pending, (state, action) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
       .addCase(getMappings.pending, (state, action) => {
         state.loading = true;
         state.errorMessage = '';
@@ -357,6 +380,11 @@ const opensearchSlice = createSlice({
           indicesMap.set(index.name, index);
         });
         state.indices = Object.fromEntries(indicesMap.entries());
+        state.loading = false;
+        state.errorMessage = '';
+      })
+      .addCase(catAliases.fulfilled, (state, action) => {
+        state.aliases = action.payload as Alias[];
         state.loading = false;
         state.errorMessage = '';
       })
@@ -418,6 +446,10 @@ const opensearchSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(catIndices.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(catAliases.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       })

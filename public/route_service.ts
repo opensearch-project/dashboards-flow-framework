@@ -35,6 +35,7 @@ import {
   GET_AGENT_NODE_API_PATH,
   UPDATE_AGENT_NODE_API_PATH,
   GET_SEARCH_TEMPLATES_NODE_API_PATH,
+  CAT_ALIASES_NODE_API_PATH,
 } from '../common';
 
 /**
@@ -74,6 +75,7 @@ export interface RouteService {
   deleteWorkflow: (workflowId: string, dataSourceId?: string) => Promise<any>;
   getWorkflowPresets: () => Promise<any>;
   catIndices: (pattern: string, dataSourceId?: string) => Promise<any>;
+  catAliases: (dataSourceId?: string) => Promise<any>;
   getMappings: (index: string, dataSourceId?: string) => Promise<any>;
   getIndex: (index: string, dataSourceId?: string) => Promise<any>;
   searchIndex: ({
@@ -289,6 +291,17 @@ export function configureRoutes(core: CoreStart): RouteService {
         const response = await core.http.get<{ respString: string }>(
           `${url}/${pattern}`
         );
+        return response;
+      } catch (e: any) {
+        throw e;
+      }
+    },
+    catAliases: async (dataSourceId?: string) => {
+      try {
+        const url = dataSourceId
+          ? `${BASE_NODE_API_PATH}/${dataSourceId}/opensearch/catAliases`
+          : CAT_ALIASES_NODE_API_PATH;
+        const response = await core.http.get<{ respString: string }>(url);
         return response;
       } catch (e: any) {
         throw e;

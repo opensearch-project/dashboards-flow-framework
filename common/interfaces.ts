@@ -23,6 +23,8 @@ export type Index = {
   health: 'green' | 'yellow' | 'red';
 };
 
+export type Alias = string;
+
 /**
  ********** WORKFLOW TYPES/INTERFACES **********
  */
