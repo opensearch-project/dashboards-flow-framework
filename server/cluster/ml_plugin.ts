@@ -9,6 +9,7 @@ import {
   ML_REGISTER_AGENT_ROUTE,
   ML_SEARCH_AGENTS_ROUTE,
   ML_AGENT_ROUTE_PREFIX,
+  ML_SEARCH_MEMORY_CONTAINERS_ROUTE,
 } from '../../common';
 
 /**
@@ -80,5 +81,13 @@ export function mlPlugin(Client: any, config: any, components: any) {
       },
     },
     method: 'GET',
+  });
+
+  mlClient.searchMemoryContainers = ca({
+    url: {
+      fmt: ML_SEARCH_MEMORY_CONTAINERS_ROUTE,
+    },
+    needBody: true,
+    method: 'POST',
   });
 }

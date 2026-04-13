@@ -19,6 +19,7 @@ import {
 import {
   Agent,
   AGENT_ID_PATH,
+  AGENT_MEMORY_TYPE,
   AGENT_TYPE,
   EMPTY_AGENT,
   MCPConnector,
@@ -110,7 +111,11 @@ export function ConfigureFlow(props: ConfigureFlowProps) {
           ?.parameters?.model_id
       )) ||
     (agentMCPServers.length > 0 &&
-      agentMCPServers.some((mcpServer) => isEmpty(mcpServer.mcp_connector_id)));
+      agentMCPServers.some((mcpServer) =>
+        isEmpty(mcpServer.mcp_connector_id)
+      )) ||
+    (agentForm?.memory?.type === AGENT_MEMORY_TYPE.AGENTIC_MEMORY &&
+      isEmpty(agentForm?.memory?.memory_container_id));
 
   // fine-grained error handling states
   const [errorCreatingAgent, setErrorCreatingAgent] = useState<string>('');

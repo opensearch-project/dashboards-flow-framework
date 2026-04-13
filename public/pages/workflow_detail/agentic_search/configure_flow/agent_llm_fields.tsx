@@ -16,6 +16,7 @@ import {
   Model,
   MODEL_STATE,
   ModelDict,
+  NO_DEPLOYED_LLMS_TEXT,
   Tool,
   TOOL_TYPE,
 } from '../../../../../common';
@@ -86,7 +87,7 @@ export function AgentLLMFields({
     >
       <>
         {modelOptions.length === 0 ? (
-          <NoDeployedModelsCallout />
+          <NoDeployedModelsCallout title={NO_DEPLOYED_LLMS_TEXT} />
         ) : (
           <EuiSelect
             key={selectedModelId}

@@ -512,6 +512,15 @@ export type ConnectorDict = {
   [connectorId: string]: Connector;
 };
 
+export type MemoryContainer = {
+  id: string;
+  name: string;
+};
+
+export type MemoryContainerDict = {
+  [containerId: string]: MemoryContainer;
+};
+
 export type MCPConnector = {
   mcp_connector_id: string;
   tool_filters: string[];
@@ -536,6 +545,7 @@ export type AgentLLM = {
 
 export type AgentMemory = {
   type: AGENT_MEMORY_TYPE;
+  memory_container_id?: string;
 };
 
 export type Agent = {

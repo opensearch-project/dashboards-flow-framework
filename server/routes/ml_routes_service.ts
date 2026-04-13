@@ -16,6 +16,7 @@ import {
   BASE_NODE_API_PATH,
   SearchHit,
   SEARCH_CONNECTORS_NODE_API_PATH,
+  SEARCH_MEMORY_CONTAINERS_NODE_API_PATH,
   REGISTER_AGENT_NODE_API_PATH,
   SEARCH_AGENTS_NODE_API_PATH,
   GET_AGENT_NODE_API_PATH,
@@ -24,6 +25,7 @@ import {
   AgentDict,
   ModelDict,
   ConnectorDict,
+  MemoryContainerDict,
 } from '../../common';
 import {
   generateCustomError,
@@ -84,6 +86,28 @@ export function registerMLRoutes(
       },
     },
     mlRoutesService.searchConnectors
+  );
+
+  router.post(
+    {
+      path: SEARCH_MEMORY_CONTAINERS_NODE_API_PATH,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    mlRoutesService.searchMemoryContainers
+  );
+  router.post(
+    {
+      path: `${BASE_NODE_API_PATH}/{data_source_id}/memory_container/search`,
+      validate: {
+        body: schema.any(),
+        params: schema.object({
+          data_source_id: schema.string(),
+        }),
+      },
+    },
+    mlRoutesService.searchMemoryContainers
   );
 
   router.post(
@@ -254,6 +278,46 @@ export class MLRoutesService {
     } catch (err: any) {
       if (isIgnorableError(err)) {
         return res.ok({ body: { connectors: {} as ConnectorDict } });
+      }
+      return generateCustomError(res, err);
+    }
+  };
+
+  searchMemoryContainers = async (
+    context: RequestHandlerContext,
+    req: OpenSearchDashboardsRequest,
+    res: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<any>> => {
+    const body = req.body;
+    try {
+      const { data_source_id = '' } = req.params as { data_source_id?: string };
+      const callWithRequest = getClientBasedOnDataSource(
+        context,
+        this.dataSourceEnabled,
+        req,
+        data_source_id,
+        this.client
+      );
+      const response = await callWithRequest(
+        'mlClient.searchMemoryContainers',
+        { body }
+      );
+
+      const hits = response.hits.hits as SearchHit[];
+      const containerDict: MemoryContainerDict = {};
+      hits.forEach((hit: SearchHit) => {
+        containerDict[hit._id] = {
+          id: hit._id,
+          name: hit._source?.name || hit._id,
+        };
+      });
+
+      return res.ok({ body: { memoryContainers: containerDict } });
+    } catch (err: any) {
+      if (isIgnorableError(err)) {
+        return res.ok({
+          body: { memoryContainers: {} as MemoryContainerDict },
+        });
       }
       return generateCustomError(res, err);
     }
