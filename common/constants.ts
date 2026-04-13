@@ -354,6 +354,10 @@ export const QUERY_PLANNING_TOOL_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/query-planning-tool#register-parameters';
 export const QUERY_PLANNING_MODEL_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/query-planning-tool/#step-2-register-and-deploy-a-model';
+export const EMBEDDING_MODEL_LABEL = 'Embedding model';
+export const EMBEDDING_MODEL_HELP_TEXT =
+  'Enables the LLM to generate neural queries for semantic search.';
+export const NONE_OPTION = { value: '', text: '- None -' };
 export const WEB_SEARCH_TOOL_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/web-search-tool/#register-parameters';
 export const SEARCH_TEMPLATES_DOCS_LINK =

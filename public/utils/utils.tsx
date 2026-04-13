@@ -63,6 +63,7 @@ import {
 } from '../services';
 import {
   Connector,
+  ConnectorDict,
   IngestPipelineErrors,
   InputMapEntry,
   MapFormValue,
@@ -1153,4 +1154,69 @@ function sanitizeBooleanInput(formField: any): boolean {
 
 export function formatRouteServiceError(e: any, prefix: string) {
   return `${prefix}: ${e.body?.message ?? e.message ?? 'Unknown error'}`;
+}
+
+// Resolve a model's connector, whether embedded or referenced by ID.
+function getConnectorForModel(
+  model: { connector?: Partial<Connector>; connectorId?: string },
+  connectors: ConnectorDict
+): Partial<Connector> | undefined {
+  if (!isEmpty(model?.connector)) {
+    return model.connector;
+  }
+  if (model?.connectorId && connectors[model.connectorId]) {
+    return connectors[model.connectorId];
+  }
+  return undefined;
+}
+
+// Returns true if the model is confidently identified as an LLM.
+export function isKnownLLM(
+  model: { connector?: Partial<Connector>; connectorId?: string },
+  connectors: ConnectorDict
+): boolean {
+  const connector = getConnectorForModel(model, connectors);
+  if (!connector) return false;
+  const modelName = (get(connector, 'parameters.model', '') as string).toLowerCase();
+  const url = (get(connector, 'actions[0].url', '') as string).toLowerCase();
+  const llmModelPatterns = ['gpt', 'claude', 'deepseek', 'llama', 'mistral', 'command'];
+  const llmUrlPatterns = ['chat/completions', '/converse'];
+  return (
+    llmModelPatterns.some((p) => modelName.includes(p)) ||
+    llmUrlPatterns.some((p) => url.includes(p))
+  );
+}
+
+// Returns true if the model is confidently identified as an embedding model.
+export function isKnownEmbeddingModel(
+  model: { connector?: Partial<Connector>; connectorId?: string },
+  connectors: ConnectorDict
+): boolean {
+  const connector = getConnectorForModel(model, connectors);
+  if (!connector) return false;
+  const modelName = get(connector, 'parameters.model', '') as string;
+  const baseModelName = modelName.replace(/:[^:]+$/, '');
+  const url = (get(connector, 'actions[0].url', '') as string).toLowerCase();
+  const embeddingUrlPatterns = ['/embed'];
+  const embeddingNamePatterns = ['embed'];
+  return (
+    // @ts-ignore
+    BEDROCK_CONFIGS[modelName] !== undefined ||
+    // @ts-ignore
+    BEDROCK_CONFIGS[baseModelName] !== undefined ||
+    // @ts-ignore
+    COHERE_CONFIGS[modelName] !== undefined ||
+    // @ts-ignore
+    COHERE_CONFIGS[baseModelName] !== undefined ||
+    // @ts-ignore
+    OPENAI_CONFIGS[modelName] !== undefined ||
+    // @ts-ignore
+    OPENAI_CONFIGS[baseModelName] !== undefined ||
+    // @ts-ignore
+    NEURAL_SPARSE_CONFIGS[modelName] !== undefined ||
+    // @ts-ignore
+    NEURAL_SPARSE_CONFIGS[baseModelName] !== undefined ||
+    embeddingNamePatterns.some((p) => modelName.toLowerCase().includes(p)) ||
+    embeddingUrlPatterns.some((p) => url.includes(p))
+  );
 }
