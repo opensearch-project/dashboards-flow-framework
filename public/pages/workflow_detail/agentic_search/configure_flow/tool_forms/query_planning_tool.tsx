@@ -38,6 +38,7 @@ import { parseStringOrJson } from '../../../../../utils';
 import {
   NoDeployedModelsCallout,
   NoSearchTemplatesCallout,
+  SimplifiedJsonField,
 } from '../../components';
 import { updateParameterValue } from './utils';
 
@@ -185,6 +186,9 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
   // Persist state for each search template accordion. Only support one at a time
   const [openTemplateAccordionIndex, setOpenTemplateAccordionIndex] = useState<
     number | undefined
+  >(undefined);
+  const [fallbackQueryError, setFallbackQueryError] = useState<
+    string | undefined
   >(undefined);
 
   return (
@@ -384,6 +388,54 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
           </div>
         </>
       )}
+      <SimplifiedJsonField
+        label="Fallback query"
+        helpText="Query DSL to use when the LLM-generated query fails or returns no results. Clear to use the default."
+        value={toolForm?.parameters?.fallback_query || ''}
+        onChange={(value) => {
+          if (value.trim() === '') {
+            setFallbackQueryError(undefined);
+            const toolsForm = getIn(props.agentForm, 'tools');
+            const updatedParams = { ...toolForm.parameters };
+            delete updatedParams.fallback_query;
+            const updatedTool = { ...toolForm, parameters: updatedParams };
+            props.setAgentForm({
+              ...props.agentForm,
+              tools: toolsForm.map((tool: Tool, i: number) =>
+                i === props.toolIndex ? updatedTool : tool
+              ),
+            });
+          } else {
+            try {
+              JSON.parse(value);
+              setFallbackQueryError(undefined);
+            } catch (e) {
+              setFallbackQueryError('Invalid JSON');
+            }
+          }
+        }}
+        onBlur={(value) => {
+          // onBlur only fires with valid JSON; clear error as a safeguard
+          setFallbackQueryError(undefined);
+          const toolsForm = getIn(props.agentForm, 'tools');
+          const updatedTool = {
+            ...toolForm,
+            parameters: {
+              ...toolForm.parameters,
+              fallback_query: value,
+            },
+          };
+          props.setAgentForm({
+            ...props.agentForm,
+            tools: toolsForm.map((tool: Tool, i: number) =>
+              i === props.toolIndex ? updatedTool : tool
+            ),
+          });
+        }}
+        editorHeight="25vh"
+        isInvalid={fallbackQueryError !== undefined}
+        error={fallbackQueryError}
+      />
     </>
   );
 }
