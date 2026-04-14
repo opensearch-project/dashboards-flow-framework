@@ -547,6 +547,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                                 <AgentAdvancedSettings
                                   agentForm={props.agentForm}
                                   setAgentForm={props.setAgentForm}
+                                  isNewAgent={props.newAndUnsaved}
                                 />
                               </EuiFlexItem>
                             </>

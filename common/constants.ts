@@ -36,6 +36,8 @@ export const ML_SEARCH_MODELS_ROUTE = `${ML_MODEL_ROUTE_PREFIX}/_search`;
 export const ML_SEARCH_CONNECTORS_ROUTE = `${ML_CONNECTOR_ROUTE_PREFIX}/_search`;
 export const ML_REGISTER_AGENT_ROUTE = `${ML_AGENT_ROUTE_PREFIX}/_register`;
 export const ML_SEARCH_AGENTS_ROUTE = `${ML_AGENT_ROUTE_PREFIX}/_search`;
+export const ML_MEMORY_CONTAINER_ROUTE_PREFIX = `${ML_API_ROUTE_PREFIX}/memory_containers`;
+export const ML_SEARCH_MEMORY_CONTAINERS_ROUTE = `${ML_MEMORY_CONTAINER_ROUTE_PREFIX}/_search`;
 export const ML_GET_AGENT_ROUTE = `${ML_AGENT_ROUTE_PREFIX}/{agentId}`;
 
 /**
@@ -80,6 +82,8 @@ export const BASE_CONNECTOR_NODE_API_PATH = `${BASE_NODE_API_PATH}/connector`;
 export const BASE_AGENT_NODE_API_PATH = `${BASE_NODE_API_PATH}/agent`;
 export const SEARCH_MODELS_NODE_API_PATH = `${BASE_MODEL_NODE_API_PATH}/search`;
 export const SEARCH_CONNECTORS_NODE_API_PATH = `${BASE_CONNECTOR_NODE_API_PATH}/search`;
+export const BASE_MEMORY_CONTAINER_NODE_API_PATH = `${BASE_NODE_API_PATH}/memory_container`;
+export const SEARCH_MEMORY_CONTAINERS_NODE_API_PATH = `${BASE_MEMORY_CONTAINER_NODE_API_PATH}/search`;
 export const REGISTER_AGENT_NODE_API_PATH = `${BASE_AGENT_NODE_API_PATH}/register`;
 export const UPDATE_AGENT_NODE_API_PATH = `${BASE_AGENT_NODE_API_PATH}/update`;
 export const SEARCH_AGENTS_NODE_API_PATH = `${BASE_AGENT_NODE_API_PATH}/search`;
@@ -349,7 +353,7 @@ export const AGENT_FIELDS_DOCS_LINK =
 export const TOOLS_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/index/';
 export const MEMORY_DOCS_LINK =
-  'https://docs.opensearch.org/latest/ml-commons-plugin/api/memory-apis/index/';
+  'https://docs.opensearch.org/latest/ml-commons-plugin/api/index/#memory-apis-comparison';
 export const QUERY_PLANNING_TOOL_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/query-planning-tool#register-parameters';
 export const QUERY_PLANNING_MODEL_DOCS_LINK =
@@ -357,6 +361,9 @@ export const QUERY_PLANNING_MODEL_DOCS_LINK =
 export const EMBEDDING_MODEL_LABEL = 'Embedding model';
 export const EMBEDDING_MODEL_HELP_TEXT =
   'Enables the LLM to generate neural queries for semantic search.';
+export const NO_DEPLOYED_LLMS_TEXT = 'No deployed large language models found';
+export const NO_DEPLOYED_EMBEDDING_MODELS_TEXT =
+  'No deployed embedding models found';
 export const NONE_OPTION = { value: '', text: '- None -' };
 export const WEB_SEARCH_TOOL_DOCS_LINK =
   'https://docs.opensearch.org/latest/ml-commons-plugin/agents-tools/tools/web-search-tool/#register-parameters';
@@ -1084,6 +1091,7 @@ export enum TOOL_DESCRIPTION {
 // Derived from https://docs.opensearch.org/latest/ml-commons-plugin/api/agent-apis/register-agent/
 export enum AGENT_MEMORY_TYPE {
   CONVERSATION_INDEX = 'conversation_index',
+  AGENTIC_MEMORY = 'agentic_memory',
 }
 
 export enum CONNECTOR_PROTOCOL {

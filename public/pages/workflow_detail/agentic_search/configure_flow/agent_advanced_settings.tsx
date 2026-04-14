@@ -8,7 +8,9 @@ import { useSelector } from 'react-redux';
 import { getIn } from 'formik';
 import { cloneDeep, isEmpty, set } from 'lodash';
 import {
+  EuiFlexGroup,
   EuiFlexItem,
+  EuiIcon,
   EuiSpacer,
   EuiFormRow,
   EuiAccordion,
@@ -16,6 +18,7 @@ import {
   EuiLink,
   EuiComboBox,
   EuiSelect,
+  EuiToolTip,
 } from '@elastic/eui';
 import {
   Agent,
@@ -29,6 +32,7 @@ import {
   MEMORY_DOCS_LINK,
   MODEL_STATE,
   ModelDict,
+  NO_DEPLOYED_EMBEDDING_MODELS_TEXT,
   NONE_OPTION,
 } from '../../../../../common';
 import { AgentMemory } from './agent_memory';
@@ -39,6 +43,7 @@ import { NoDeployedModelsCallout } from '../components';
 interface AgentAdvancedSettingsProps {
   agentForm: Partial<Agent>;
   setAgentForm: (agentForm: Partial<Agent>) => void;
+  isNewAgent?: boolean;
 }
 
 const LLM_INTERFACE_OPTIONS = Object.values(AGENT_LLM_INTERFACE_TYPE).map(
@@ -86,7 +91,11 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
         ...props.agentForm,
         parameters: {
           ...props.agentForm?.parameters,
-          _llm_interface: getRelevantInterface(agentModelId, models, connectors),
+          _llm_interface: getRelevantInterface(
+            agentModelId,
+            models,
+            connectors
+          ),
         },
       });
     }
@@ -103,7 +112,24 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
         <>
           <EuiFlexItem grow={false}>
             <EuiFormRow
-              label={'Memory'}
+              label={
+                <EuiFlexGroup gutterSize="xs" alignItems="center">
+                  <EuiFlexItem grow={false}>Memory</EuiFlexItem>
+                  <EuiFlexItem grow={false} style={{ marginTop: '-2px' }}>
+                    <EuiToolTip
+                      content={
+                        'Memory type cannot be changed after agent creation.'
+                      }
+                    >
+                      <EuiIcon
+                        type={props.isNewAgent ? 'lockOpen' : 'lock'}
+                        size="s"
+                        color="subdued"
+                      />
+                    </EuiToolTip>
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+              }
               labelAppend={
                 <EuiText size="xs">
                   <EuiLink href={MEMORY_DOCS_LINK} target="_blank">
@@ -116,6 +142,7 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
               <AgentMemory
                 agentForm={props.agentForm}
                 setAgentForm={props.setAgentForm}
+                readOnly={!props.isNewAgent}
               />
             </EuiFormRow>
           </EuiFlexItem>
@@ -168,25 +195,33 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
           <EuiSpacer size="s" />
           <EuiFlexItem grow={false}>
             <EuiFormRow
-              label={<>{EMBEDDING_MODEL_LABEL}<i> - optional</i></>}
+              label={
+                <>
+                  {EMBEDDING_MODEL_LABEL}
+                  <i> - optional</i>
+                </>
+              }
               helpText={EMBEDDING_MODEL_HELP_TEXT}
               data-testid="embeddingModelField"
               fullWidth
             >
               <>
                 {embeddingModelOptions.length === 0 ? (
-                  <NoDeployedModelsCallout />
+                  <NoDeployedModelsCallout
+                    title={NO_DEPLOYED_EMBEDDING_MODELS_TEXT}
+                  />
                 ) : (
                   <EuiSelect
-                    options={[
-                      NONE_OPTION,
-                      ...embeddingModelOptions,
-                    ]}
+                    options={[NONE_OPTION, ...embeddingModelOptions]}
                     value={selectedEmbeddingModelId}
                     onChange={(e) => {
                       let updatedAgentForm = cloneDeep(props.agentForm);
                       if (e.target.value === '') {
-                        const params = getIn(updatedAgentForm, 'llm.parameters', {});
+                        const params = getIn(
+                          updatedAgentForm,
+                          'llm.parameters',
+                          {}
+                        );
                         delete params.embedding_model_id;
                         set(updatedAgentForm, 'llm.parameters', params);
                       } else {
@@ -214,7 +249,9 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
 }
 
 // Basic util fn to hide the interface complexity, and just display the model provider/company
-export function getReadableInterface(interfaceType: AGENT_LLM_INTERFACE_TYPE): string {
+export function getReadableInterface(
+  interfaceType: AGENT_LLM_INTERFACE_TYPE
+): string {
   switch (interfaceType) {
     case AGENT_LLM_INTERFACE_TYPE.OPENAI:
       return 'OpenAI';

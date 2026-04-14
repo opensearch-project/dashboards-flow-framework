@@ -33,6 +33,7 @@ import {
   catIndices,
   getWorkflow,
   searchConnectors,
+  searchMemoryContainers,
   searchModels,
   getSearchTemplates,
   setIngestPipelineErrors,
@@ -94,6 +95,9 @@ export function WorkflowDetail(props: WorkflowDetailProps) {
     dispatch(searchModels({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId }));
     dispatch(
       searchConnectors({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId })
+    );
+    dispatch(
+      searchMemoryContainers({ apiBody: FETCH_ALL_QUERY_LARGE, dataSourceId })
     );
     dispatch(catIndices({ pattern: OMIT_SYSTEM_INDEX_PATTERN, dataSourceId }));
     dispatch(getSearchTemplates({ dataSourceId }));

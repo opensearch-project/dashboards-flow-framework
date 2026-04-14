@@ -10,6 +10,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Add index alias support in agentic search UI ([#871](https://github.com/opensearch-project/dashboards-flow-framework/pull/871))
 - Add fallback query configuration for QueryPlanningTool ([#872](https://github.com/opensearch-project/dashboards-flow-framework/pull/872))
 - Add embedding model ID configuration for agentic search ([#875](https://github.com/opensearch-project/dashboards-flow-framework/pull/875))
+- Add agentic memory support for conversational agents ([#883](https://github.com/opensearch-project/dashboards-flow-framework/pull/883))
 ### Bug Fixes
 ### Infrastructure
 - Add unit tests for utility functions to increase test coverage ([#862](https://github.com/opensearch-project/dashboards-flow-framework/pull/862))

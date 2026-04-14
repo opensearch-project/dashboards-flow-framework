@@ -29,6 +29,8 @@ import {
   EMBEDDING_MODEL_LABEL,
   Model,
   MODEL_STATE,
+  NO_DEPLOYED_EMBEDDING_MODELS_TEXT,
+  NO_DEPLOYED_LLMS_TEXT,
   NONE_OPTION,
   QUERY_PLANNING_MODEL_DOCS_LINK,
   QUERY_PLANNING_TOOL_DOCS_LINK,
@@ -230,7 +232,7 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
         >
           <>
             {modelOptions.length === 0 ? (
-              <NoDeployedModelsCallout />
+              <NoDeployedModelsCallout title={NO_DEPLOYED_LLMS_TEXT} />
             ) : (
               <EuiSelect
                 key={selectedModelId}
@@ -296,20 +298,22 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
       </EuiFormRow>
       {agentType === AGENT_TYPE.FLOW && (
         <EuiFormRow
-          label={<>{EMBEDDING_MODEL_LABEL}<i> - optional</i></>}
+          label={
+            <>
+              {EMBEDDING_MODEL_LABEL}
+              <i> - optional</i>
+            </>
+          }
           helpText={EMBEDDING_MODEL_HELP_TEXT}
           data-testid="embeddingModelField"
           fullWidth
         >
           <>
             {embeddingModelOptions.length === 0 ? (
-              <NoDeployedModelsCallout />
+              <NoDeployedModelsCallout title={NO_DEPLOYED_EMBEDDING_MODELS_TEXT} />
             ) : (
               <EuiSelect
-                options={[
-                  NONE_OPTION,
-                  ...embeddingModelOptions,
-                ]}
+                options={[NONE_OPTION, ...embeddingModelOptions]}
                 value={toolForm?.parameters?.embedding_model_id || ''}
                 onChange={(e) => {
                   const value = e.target.value;

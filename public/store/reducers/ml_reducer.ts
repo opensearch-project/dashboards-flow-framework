@@ -4,7 +4,13 @@
  */
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { Agent, AgentDict, ConnectorDict, ModelDict } from '../../../common';
+import {
+  Agent,
+  AgentDict,
+  ConnectorDict,
+  MemoryContainerDict,
+  ModelDict,
+} from '../../../common';
 import { getRouteService } from '../../services';
 import { formatRouteServiceError } from '../../utils';
 
@@ -14,13 +20,16 @@ export const INITIAL_ML_STATE = {
   models: {} as ModelDict,
   connectors: {} as ConnectorDict,
   agents: {} as AgentDict,
+  memoryContainers: {} as MemoryContainerDict,
 };
 
 const MODELS_ACTION_PREFIX = 'models';
 const CONNECTORS_ACTION_PREFIX = 'connectors';
 const AGENTS_ACTION_PREFIX = 'agents';
+const MEMORY_CONTAINERS_ACTION_PREFIX = 'memoryContainers';
 const SEARCH_MODELS_ACTION = `${MODELS_ACTION_PREFIX}/search`;
 const SEARCH_CONNECTORS_ACTION = `${CONNECTORS_ACTION_PREFIX}/search`;
+const SEARCH_MEMORY_CONTAINERS_ACTION = `${MEMORY_CONTAINERS_ACTION_PREFIX}/search`;
 const REGISTER_AGENT_ACTION = `${AGENTS_ACTION_PREFIX}/register`;
 const UPDATE_AGENT_ACTION = `${AGENTS_ACTION_PREFIX}/update`;
 const SEARCH_AGENTS_ACTION = `${AGENTS_ACTION_PREFIX}/search`;
@@ -53,6 +62,25 @@ export const searchConnectors = createAsyncThunk(
     } catch (e) {
       return rejectWithValue(
         formatRouteServiceError(e, 'Error searching connectors')
+      );
+    }
+  }
+);
+
+export const searchMemoryContainers = createAsyncThunk(
+  SEARCH_MEMORY_CONTAINERS_ACTION,
+  async (
+    { apiBody, dataSourceId }: { apiBody: {}; dataSourceId?: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      return await getRouteService().searchMemoryContainers(
+        apiBody,
+        dataSourceId
+      );
+    } catch (e) {
+      return rejectWithValue(
+        formatRouteServiceError(e, 'Error searching memory containers')
       );
     }
   }
@@ -139,6 +167,10 @@ const mlSlice = createSlice({
         state.loading = true;
         state.errorMessage = '';
       })
+      .addCase(searchMemoryContainers.pending, (state) => {
+        state.loading = true;
+        state.errorMessage = '';
+      })
       .addCase(registerAgent.pending, (state) => {
         state.loading = true;
         state.errorMessage = '';
@@ -165,6 +197,14 @@ const mlSlice = createSlice({
       .addCase(searchConnectors.fulfilled, (state, action) => {
         const { connectors } = action.payload as { connectors: ConnectorDict };
         state.connectors = connectors;
+        state.loading = false;
+        state.errorMessage = '';
+      })
+      .addCase(searchMemoryContainers.fulfilled, (state, action) => {
+        const { memoryContainers } = action.payload as {
+          memoryContainers: MemoryContainerDict;
+        };
+        state.memoryContainers = memoryContainers;
         state.loading = false;
         state.errorMessage = '';
       })
@@ -213,6 +253,10 @@ const mlSlice = createSlice({
         state.loading = false;
       })
       .addCase(searchConnectors.rejected, (state, action) => {
+        state.errorMessage = action.payload as string;
+        state.loading = false;
+      })
+      .addCase(searchMemoryContainers.rejected, (state, action) => {
         state.errorMessage = action.payload as string;
         state.loading = false;
       })
