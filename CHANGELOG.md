@@ -16,6 +16,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Add unit tests for utility functions to increase test coverage ([#862](https://github.com/opensearch-project/dashboards-flow-framework/pull/862))
 - Fix flaky tests by replacing singleton store with mock store ([#878](https://github.com/opensearch-project/dashboards-flow-framework/pull/878))
 - Clean up CI workflows: update actions, fix yarn version bug, remove dead code ([#861](https://github.com/opensearch-project/dashboards-flow-framework/pull/861))
+- Add yarn cache to setup-node step in CI workflow ([#887](https://github.com/opensearch-project/dashboards-flow-framework/pull/887))
 ### Documentation
 - Fix broken tutorial link in README ([#860](https://github.com/opensearch-project/dashboards-flow-framework/pull/860))
 ### Maintenance
