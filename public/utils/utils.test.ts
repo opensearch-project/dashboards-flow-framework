@@ -27,6 +27,7 @@ import {
   getTransformedQuery,
   getExistingVectorField,
   removeVectorFieldFromIndexMappings,
+  dataSourceFilterFn,
 } from './utils';
 import {
   WORKFLOW_RESOURCE_TYPE,
@@ -380,6 +381,55 @@ describe('utils', () => {
     });
     test('returns original string on invalid JSON', () => {
       expect(removeVectorFieldFromIndexMappings('not json')).toBe('not json');
+    });
+  });
+
+  describe('dataSourceFilterFn', () => {
+    const buildDataSource = (
+      version: string,
+      plugins: string[],
+      engineType?: string
+    ) =>
+      ({
+        attributes: {
+          dataSourceVersion: version,
+          installedPlugins: plugins,
+          ...(engineType && { dataSourceEngineType: engineType }),
+        },
+      } as any);
+
+    test('accepts compatible data source', () => {
+      const ds = buildDataSource('2.17.0', [
+        'opensearch-ml',
+        'opensearch-flow-framework',
+      ]);
+      expect(dataSourceFilterFn(ds)).toBe(true);
+    });
+
+    test('rejects AnalyticEngine data source', () => {
+      const ds = buildDataSource(
+        '2.17.0',
+        ['opensearch-ml', 'opensearch-flow-framework'],
+        'AnalyticEngine'
+      );
+      expect(dataSourceFilterFn(ds)).toBe(false);
+    });
+
+    test('accepts OpenSearch engine type', () => {
+      const ds = buildDataSource(
+        '2.17.0',
+        ['opensearch-ml', 'opensearch-flow-framework'],
+        'OpenSearch'
+      );
+      expect(dataSourceFilterFn(ds)).toBe(true);
+    });
+
+    test('accepts when engine type is undefined', () => {
+      const ds = buildDataSource('2.17.0', [
+        'opensearch-ml',
+        'opensearch-flow-framework',
+      ]);
+      expect(dataSourceFilterFn(ds)).toBe(true);
     });
   });
 });
