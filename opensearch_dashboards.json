@@ -19,6 +19,9 @@
     "opensearch-ml",
     "opensearch-flow-framework"
   ],
+  "unsupportedOSDataSourceEngineTypes": [
+    "AnalyticEngine"
+  ],
   "configPath": [
     "flowFrameworkDashboards"
   ]

@@ -638,6 +638,10 @@ export const dataSourceFilterFn = (
 ) => {
   const dataSourceVersion = dataSource?.attributes?.dataSourceVersion || '';
   const installedPlugins = dataSource?.attributes?.installedPlugins || [];
+  const engineType = dataSource?.attributes?.dataSourceEngineType;
+  const unsupportedEngines =
+    (pluginManifest as { unsupportedOSDataSourceEngineTypes?: string[] })
+      .unsupportedOSDataSourceEngineTypes ?? [];
   return (
     semver.satisfies(
       dataSourceVersion,
@@ -645,7 +649,8 @@ export const dataSourceFilterFn = (
     ) &&
     pluginManifest.requiredOSDataSourcePlugins.every((plugin) =>
       installedPlugins.includes(plugin)
-    )
+    ) &&
+    (!engineType || !unsupportedEngines.includes(engineType))
   );
 };
 
