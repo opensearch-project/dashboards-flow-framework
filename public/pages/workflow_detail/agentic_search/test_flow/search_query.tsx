@@ -140,7 +140,7 @@ export function SearchQuery(props: SearchQueryProps) {
           )
         )
       ) {
-        let customPipelineUpdated = cloneDeep(customPipeline);
+        const customPipelineUpdated = cloneDeep(customPipeline);
         set(
           customPipelineUpdated,
           `request_processors.0.${PROCESSOR_TYPE.AGENTIC_QUERY_TRANSLATOR}.agent_id`,
@@ -186,7 +186,7 @@ export function SearchQuery(props: SearchQueryProps) {
     setSimpleSearchQuery(newQueryText);
 
     // Update the finalQuery in the parent by creating a new query with the updated text
-    let updatedQuery = cloneDeep(finalQuery);
+    const updatedQuery = cloneDeep(finalQuery);
     if (updatedQuery?.query?.agentic?.query_text !== undefined) {
       updatedQuery.query.agentic.query_text = newQueryText;
       setFieldValue('search.request', customStringify(updatedQuery));
@@ -257,7 +257,7 @@ export function SearchQuery(props: SearchQueryProps) {
                       iconSide="left"
                       iconType={'cross'}
                       onClick={() => {
-                        let updatedQuery = cloneDeep(finalQuery);
+                        const updatedQuery = cloneDeep(finalQuery);
                         if (
                           updatedQuery?.query?.agentic?.memory_id !== undefined
                         ) {
@@ -302,7 +302,7 @@ export function SearchQuery(props: SearchQueryProps) {
                         iconSide="left"
                         iconType={'chatLeft'}
                         onClick={() => {
-                          let updatedQuery = cloneDeep(finalQuery ?? {});
+                          const updatedQuery = cloneDeep(finalQuery ?? {});
                           set(
                             updatedQuery,
                             'query.agentic.memory_id',

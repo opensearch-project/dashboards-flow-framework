@@ -81,10 +81,10 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
     (state: AppState) => state.opensearch
   );
   const [modelOptions, setModelOptions] = useState<
-    { value: string; text: string }[]
+    Array<{ value: string; text: string }>
   >([]);
   const [embeddingModelOptions, setEmbeddingModelOptions] = useState<
-    { value: string; text: string }[]
+    Array<{ value: string; text: string }>
   >([]);
   useEffect(() => {
     const deployedModels = Object.values(models || {}).filter(
@@ -310,7 +310,9 @@ export function QueryPlanningTool(props: QueryPlanningToolProps) {
         >
           <>
             {embeddingModelOptions.length === 0 ? (
-              <NoDeployedModelsCallout title={NO_DEPLOYED_EMBEDDING_MODELS_TEXT} />
+              <NoDeployedModelsCallout
+                title={NO_DEPLOYED_EMBEDDING_MODELS_TEXT}
+              />
             ) : (
               <EuiSelect
                 options={[NONE_OPTION, ...embeddingModelOptions]}

@@ -149,7 +149,8 @@ describe('WorkflowList', () => {
     };
     const storeWithResources = mockStoreWithResources(stateWithResources);
 
-    const { getByText, getByTestId, getAllByLabelText } = renderWithRouter(storeWithResources);
+    const { getByText, getByTestId, getAllByLabelText } =
+      renderWithRouter(storeWithResources);
 
     const deleteButtons = getAllByLabelText('Delete');
     userEvent.click(deleteButtons[0]);
@@ -182,7 +183,9 @@ describe('WorkflowList', () => {
       stateWithoutResources
     );
 
-    const { queryByText, getByTestId, getAllByLabelText } = renderWithRouter(storeWithoutResources);
+    const { queryByText, getByTestId, getAllByLabelText } = renderWithRouter(
+      storeWithoutResources
+    );
 
     const deleteButtons = getAllByLabelText('Delete');
     userEvent.click(deleteButtons[0]);

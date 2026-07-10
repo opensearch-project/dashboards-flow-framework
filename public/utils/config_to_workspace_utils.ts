@@ -326,8 +326,8 @@ function processorsConfigToWorkspaceFlow(
             context === PROCESSOR_CONTEXT.INGEST
               ? 'Ingest processor'
               : context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-              ? 'Search request processor'
-              : 'Search response processor',
+                ? 'Search request processor'
+                : 'Search response processor',
         };
         break;
       }
@@ -427,9 +427,8 @@ function getSearchEdges(
   searchResponseNode: ReactFlowComponent
 ): ReactFlowEdge[] {
   const startAndEndNodesEnrichRequest = getStartAndEndNodes(enrichRequestFlow);
-  const startAndEndNodesEnrichResponse = getStartAndEndNodes(
-    enrichResponseFlow
-  );
+  const startAndEndNodesEnrichResponse =
+    getStartAndEndNodes(enrichResponseFlow);
   const edges = [] as ReactFlowEdge[];
 
   // Users may omit search request processors altogether. Need to handle cases separately.
@@ -497,9 +496,7 @@ function getSearchEdges(
 
 // Get start and end nodes in a flow. This assumes the flow is linear and fully connected,
 // such that there will always be a single start and single end node.
-function getStartAndEndNodes(
-  workspaceFlow: WorkspaceFlowState
-):
+function getStartAndEndNodes(workspaceFlow: WorkspaceFlowState):
   | {
       startNode: ReactFlowComponent;
       endNode: ReactFlowComponent;

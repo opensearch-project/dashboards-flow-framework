@@ -24,12 +24,12 @@ export function formikToUiConfig(
   formValues: WorkflowFormValues,
   existingConfig: WorkflowConfig
 ): WorkflowConfig {
-  let updatedConfig = cloneDeep(existingConfig);
-  updatedConfig['ingest'] = formikToIngestUiConfig(
+  const updatedConfig = cloneDeep(existingConfig);
+  updatedConfig.ingest = formikToIngestUiConfig(
     formValues.ingest,
     updatedConfig.ingest
   );
-  updatedConfig['search'] = formikToSearchUiConfig(
+  updatedConfig.search = formikToSearchUiConfig(
     formValues.search,
     updatedConfig.search
   ) as SearchConfig;
@@ -48,20 +48,17 @@ function formikToIngestUiConfig(
     ...existingConfig,
     enabled: {
       ...existingConfig.enabled,
-      value: ingestFormValues['enabled'],
+      value: ingestFormValues.enabled,
     },
     pipelineName: {
       ...existingConfig.pipelineName,
-      value: ingestFormValues['pipelineName'],
+      value: ingestFormValues.pipelineName,
     },
     enrich: formikToProcessorsUiConfig(
-      ingestFormValues['enrich'],
+      ingestFormValues.enrich,
       existingConfig.enrich
     ),
-    index: formikToIndexUiConfig(
-      ingestFormValues['index'],
-      existingConfig.index
-    ),
+    index: formikToIndexUiConfig(ingestFormValues.index, existingConfig.index),
   };
 }
 
@@ -69,9 +66,9 @@ function formikToIndexUiConfig(
   indexFormValues: FormikValues,
   existingConfig: IndexConfig
 ): IndexConfig {
-  existingConfig['name'].value = indexFormValues['name'];
-  existingConfig['mappings'].value = indexFormValues['mappings'];
-  existingConfig['settings'].value = indexFormValues['settings'];
+  existingConfig.name.value = indexFormValues.name;
+  existingConfig.mappings.value = indexFormValues.mappings;
+  existingConfig.settings.value = indexFormValues.settings;
   return existingConfig;
 }
 
@@ -83,22 +80,22 @@ function formikToSearchUiConfig(
     ...existingConfig,
     request: {
       ...existingConfig.request,
-      value: searchFormValues['request'],
+      value: searchFormValues.request,
     },
     pipelineName: {
       ...existingConfig.pipelineName,
-      value: searchFormValues['pipelineName'],
+      value: searchFormValues.pipelineName,
     },
     index: formikToSearchIndexUiConfig(
-      searchFormValues['index'],
+      searchFormValues.index,
       existingConfig.index
     ),
     enrichRequest: formikToProcessorsUiConfig(
-      searchFormValues['enrichRequest'],
+      searchFormValues.enrichRequest,
       existingConfig.enrichRequest
     ),
     enrichResponse: formikToProcessorsUiConfig(
-      searchFormValues['enrichResponse'],
+      searchFormValues.enrichResponse,
       existingConfig.enrichResponse
     ),
   };
@@ -106,11 +103,11 @@ function formikToSearchUiConfig(
   // Handle optional agent fields
   if (
     existingConfig.requestAgentId &&
-    searchFormValues['requestAgentId'] !== undefined
+    searchFormValues.requestAgentId !== undefined
   ) {
     updatedConfig.requestAgentId = {
       ...existingConfig.requestAgentId,
-      value: searchFormValues['requestAgentId'],
+      value: searchFormValues.requestAgentId,
     };
   }
 
@@ -121,7 +118,7 @@ function formikToSearchIndexUiConfig(
   searchIndexFormValues: FormikValues,
   existingConfig: SearchIndexConfig
 ): SearchIndexConfig {
-  existingConfig['name'].value = searchIndexFormValues['name'];
+  existingConfig.name.value = searchIndexFormValues.name;
   return existingConfig;
 }
 

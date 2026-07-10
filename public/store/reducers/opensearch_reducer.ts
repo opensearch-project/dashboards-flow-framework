@@ -92,10 +92,7 @@ export const catIndices = createAsyncThunk(
 
 export const catAliases = createAsyncThunk(
   CAT_ALIASES_ACTION,
-  async (
-    { dataSourceId }: { dataSourceId?: string },
-    { rejectWithValue }
-  ) => {
+  async ({ dataSourceId }: { dataSourceId?: string }, { rejectWithValue }) => {
     try {
       return await getRouteService().catAliases(dataSourceId);
     } catch (e) {

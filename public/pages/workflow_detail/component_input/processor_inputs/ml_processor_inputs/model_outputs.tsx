@@ -61,13 +61,8 @@ const VALUE_FLEX_RATIO = 4;
  */
 export function ModelOutputs(props: ModelOutputsProps) {
   const { models } = useSelector((state: AppState) => state.ml);
-  const {
-    errors,
-    values,
-    touched,
-    setFieldValue,
-    setFieldTouched,
-  } = useFormikContext<WorkflowFormValues>();
+  const { errors, values, touched, setFieldValue, setFieldTouched } =
+    useFormikContext<WorkflowFormValues>();
 
   // get some current form & config values
   const modelField = props.config.fields.find(
@@ -249,7 +244,7 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                             </>
                                           ),
                                           disabled: false,
-                                        } as EuiSuperSelectOption<string>)
+                                        }) as EuiSuperSelectOption<string>
                                     )}
                                     valueOfSelected={
                                       getIn(
@@ -354,10 +349,12 @@ export function ModelOutputs(props: ModelOutputsProps) {
                                                       whiteSpace: 'pre-wrap',
                                                     }}
                                                   >
-                                                    {(getIn(
-                                                      values,
-                                                      `${outputMapFieldPath}.${idx}.value.nestedVars`
-                                                    ) as ExpressionVar[]).map(
+                                                    {(
+                                                      getIn(
+                                                        values,
+                                                        `${outputMapFieldPath}.${idx}.value.nestedVars`
+                                                      ) as ExpressionVar[]
+                                                    ).map(
                                                       (
                                                         expression,
                                                         idx,

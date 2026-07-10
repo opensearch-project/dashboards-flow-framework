@@ -115,18 +115,14 @@ export function LeftNav(props: LeftNavProps) {
   );
 
   // transient running states
-  const [isProvisioningIngest, setIsProvisioningIngest] = useState<boolean>(
-    false
-  );
-  const [isProvisioningSearch, setIsProvisioningSearch] = useState<boolean>(
-    false
-  );
-  const [unsavedIngestProcessors, setUnsavedIngestProcessors] = useState<
-    boolean
-  >(false);
-  const [unsavedSearchProcessors, setUnsavedSearchProcessors] = useState<
-    boolean
-  >(false);
+  const [isProvisioningIngest, setIsProvisioningIngest] =
+    useState<boolean>(false);
+  const [isProvisioningSearch, setIsProvisioningSearch] =
+    useState<boolean>(false);
+  const [unsavedIngestProcessors, setUnsavedIngestProcessors] =
+    useState<boolean>(false);
+  const [unsavedSearchProcessors, setUnsavedSearchProcessors] =
+    useState<boolean>(false);
   const isProvisioning = isProvisioningIngest || isProvisioningSearch;
 
   // provisioned resources states
@@ -134,12 +130,10 @@ export function LeftNav(props: LeftNavProps) {
   const [searchProvisioned, setSearchProvisioned] = useState<boolean>(false);
 
   // resource details state
-  const [resourcesFlyoutOpen, setResourcesFlyoutOpen] = useState<boolean>(
-    false
-  );
-  const [resourcesFlyoutContext, setResourcesFlyoutContext] = useState<
-    CONFIG_STEP
-  >(CONFIG_STEP.INGEST);
+  const [resourcesFlyoutOpen, setResourcesFlyoutOpen] =
+    useState<boolean>(false);
+  const [resourcesFlyoutContext, setResourcesFlyoutContext] =
+    useState<CONFIG_STEP>(CONFIG_STEP.INGEST);
 
   // maintain global states
   const onIngest = props.selectedComponentId.startsWith('ingest');
@@ -166,14 +160,10 @@ export function LeftNav(props: LeftNavProps) {
   const [persistedTemplateNodes, setPersistedTemplateNodes] = useState<
     TemplateNode[]
   >([]);
-  const [
-    persistedIngestTemplateNodes,
-    setPersistedIngestTemplateNodes,
-  ] = useState<TemplateNode[]>([]);
-  const [
-    persistedSearchTemplateNodes,
-    setPersistedSearchTemplateNodes,
-  ] = useState<TemplateNode[]>([]);
+  const [persistedIngestTemplateNodes, setPersistedIngestTemplateNodes] =
+    useState<TemplateNode[]>([]);
+  const [persistedSearchTemplateNodes, setPersistedSearchTemplateNodes] =
+    useState<TemplateNode[]>([]);
   const [formGeneratedTemplateNodes, setFormGeneratedTemplateNodes] = useState<
     TemplateNode[]
   >([]);
@@ -185,12 +175,10 @@ export function LeftNav(props: LeftNavProps) {
     formGeneratedSearchTemplateNodes,
     setFormGeneratedSearchTemplateNodes,
   ] = useState<TemplateNode[]>([]);
-  const [ingestTemplatesDifferent, setIngestTemplatesDifferent] = useState<
-    boolean
-  >(false);
-  const [searchTemplatesDifferent, setSearchTemplatesDifferent] = useState<
-    boolean
-  >(false);
+  const [ingestTemplatesDifferent, setIngestTemplatesDifferent] =
+    useState<boolean>(false);
+  const [searchTemplatesDifferent, setSearchTemplatesDifferent] =
+    useState<boolean>(false);
 
   // default to the top of the search flow if ingest is switched to disabled
   useEffect(() => {
@@ -361,7 +349,7 @@ export function LeftNav(props: LeftNavProps) {
   }
 
   // Utility fn to perform bulk ingest
-  function bulkIngest(ingestDocsObjs: {}[]) {
+  function bulkIngest(ingestDocsObjs: Array<{}>) {
     const bulkBody = prepareBulkBody(values.ingest.index.name, ingestDocsObjs);
     dispatch(bulk({ apiBody: { body: bulkBody }, dataSourceId }))
       .unwrap()
@@ -569,9 +557,8 @@ export function LeftNav(props: LeftNavProps) {
                           deprovisionWorkflow({
                             apiBody: {
                               workflowId: resultWorkflow?.id as string,
-                              resourceIds: getResourcesToBeForceDeleted(
-                                resultWorkflow
-                              ),
+                              resourceIds:
+                                getResourcesToBeForceDeleted(resultWorkflow),
                             },
                             dataSourceId,
                           })
@@ -765,14 +752,14 @@ export function LeftNav(props: LeftNavProps) {
     isProvisioningSearch || isProvisioningIngest
       ? true
       : unsavedIngestProcessors
-      ? false
-      : !dirty;
+        ? false
+        : !dirty;
   const searchSaved =
     isProvisioningIngest || isProvisioningSearch
       ? true
       : unsavedSearchProcessors
-      ? false
-      : isEmpty(touched?.search) || !dirty;
+        ? false
+        : isEmpty(touched?.search) || !dirty;
   const allChangesSaved = ingestSaved && searchSaved;
   useEffect(() => {
     props.setBlockNavigation(!allChangesSaved);
@@ -831,7 +818,7 @@ export function LeftNav(props: LeftNavProps) {
           style={{
             height: '100%',
             gap: '16px',
-            //marginLeft: '12px', TODO: change this value to adjust global margin of left nav.
+            // marginLeft: '12px', TODO: change this value to adjust global margin of left nav.
           }}
         >
           <EuiFlexItem grow={false} className="left-nav-scroll">
@@ -1093,7 +1080,7 @@ export function LeftNav(props: LeftNavProps) {
 
 // ingesting multiple documents must follow the proper format for the bulk API.
 // see https://opensearch.org/docs/latest/api-reference/document-apis/bulk/#request-body
-function prepareBulkBody(indexName: string, docObjs: {}[]): {} {
+function prepareBulkBody(indexName: string, docObjs: Array<{}>): {} {
   const bulkBody = [] as any[];
   docObjs.forEach((doc) => {
     bulkBody.push({

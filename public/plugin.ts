@@ -32,12 +32,10 @@ import {
 } from './services';
 import { configureRoutes } from './route_service';
 
-export class FlowFrameworkDashboardsPlugin
-  implements
-    Plugin<
-      FlowFrameworkDashboardsPluginSetup,
-      FlowFrameworkDashboardsPluginStart
-    > {
+export class FlowFrameworkDashboardsPlugin implements Plugin<
+  FlowFrameworkDashboardsPluginSetup,
+  FlowFrameworkDashboardsPluginStart
+> {
   public setup(
     core: CoreSetup,
     plugins: any

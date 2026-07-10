@@ -23,12 +23,14 @@ jest.mock('@elastic/eui', () => {
       value: string;
       onChange: (value: string) => void;
       onBlur: () => void;
-      [key: string]: any
+      [key: string]: any;
     }) => (
       <textarea
         data-testid="mockCodeEditor"
         value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+          onChange(e.target.value)
+        }
         onBlur={onBlur}
         {...Object.fromEntries(
           Object.entries(rest).map(([key, value]) => {
@@ -147,22 +149,14 @@ describe('SimplifiedJsonField', () => {
 
   test('updates when value prop changes', () => {
     const { rerender } = render(
-      <SimplifiedJsonField
-        value={mockValue}
-        onBlur={mockOnBlur}
-      />
+      <SimplifiedJsonField value={mockValue} onBlur={mockOnBlur} />
     );
 
     const editor = screen.getByTestId('mockCodeEditor');
     expect(editor).toHaveValue(mockValue);
 
     const newValue = '{"updated": true}';
-    rerender(
-      <SimplifiedJsonField
-        value={newValue}
-        onBlur={mockOnBlur}
-      />
-    );
+    rerender(<SimplifiedJsonField value={newValue} onBlur={mockOnBlur} />);
 
     expect(editor).toHaveValue(newValue);
   });

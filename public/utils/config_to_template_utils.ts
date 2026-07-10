@@ -193,21 +193,16 @@ function searchConfigToTemplateNodes(
 export function processorConfigsToTemplateProcessors(
   processorConfigs: IProcessorConfig[],
   context: PROCESSOR_CONTEXT
-): (IngestProcessor | SearchProcessor)[] {
-  const processorsList = [] as (IngestProcessor | SearchProcessor)[];
+): Array<IngestProcessor | SearchProcessor> {
+  const processorsList = [] as Array<IngestProcessor | SearchProcessor>;
 
   processorConfigs.forEach((processorConfig) => {
     switch (processorConfig.type) {
       case PROCESSOR_TYPE.ML: {
-        const {
-          model,
-          input_map,
-          output_map,
-          model_config,
-          ...formValues
-        } = processorConfigToFormik(processorConfig);
+        const { model, input_map, output_map, model_config, ...formValues } =
+          processorConfigToFormik(processorConfig);
 
-        let processor = {
+        const processor = {
           ml_inference: {
             model_id: model?.id || '',
           },
@@ -259,10 +254,10 @@ export function processorConfigsToTemplateProcessors(
           tempExtOutput !== undefined
             ? tempExtOutput
             : oneToOne === true
-            ? false
-            : oneToOne === false
-            ? true
-            : undefined;
+              ? false
+              : oneToOne === false
+                ? true
+                : undefined;
 
         if (
           finalExtOutput !== undefined &&
@@ -313,7 +308,7 @@ export function processorConfigsToTemplateProcessors(
       case PROCESSOR_TYPE.TEXT_CHUNKING: {
         const formValues = processorConfigToFormik(processorConfig);
         let finalFormValues = {} as FormikValues;
-        const algorithm = formValues['algorithm'] as TEXT_CHUNKING_ALGORITHM;
+        const algorithm = formValues.algorithm as TEXT_CHUNKING_ALGORITHM;
         Object.keys(formValues).forEach((formKey: string) => {
           const formValue = formValues[formKey];
           if (SHARED_OPTIONAL_FIELDS.includes(formKey)) {
@@ -346,7 +341,7 @@ export function processorConfigsToTemplateProcessors(
         finalFormValues = {
           ...finalFormValues,
           field_map: mergeMapIntoSingleObj(
-            formValues['field_map'] as MapFormValue
+            formValues.field_map as MapFormValue
           ),
         };
         processorsList.push({
@@ -357,11 +352,8 @@ export function processorConfigsToTemplateProcessors(
       // optionally add any parameters specified, in the expected nested format
       // for the normalization processor
       case PROCESSOR_TYPE.NORMALIZATION: {
-        const {
-          normalization_technique,
-          combination_technique,
-          weights,
-        } = processorConfigToFormik(processorConfig);
+        const { normalization_technique, combination_technique, weights } =
+          processorConfigToFormik(processorConfig);
 
         let finalConfig = {} as any;
         if (!isEmpty(normalization_technique)) {
@@ -444,7 +436,7 @@ export function processorConfigsToTemplateProcessors(
         finalFormValues = {
           ...finalFormValues,
           field_map: mergeMapIntoSingleObj(
-            formValues['field_map'] as MapFormValue
+            formValues.field_map as MapFormValue
           ),
         };
         processorsList.push({
@@ -502,9 +494,7 @@ function indexConfigToTemplateNode(
 
   function updateFinalInputsAndSettings(
     createPipelineNode:
-      | CreateIngestPipelineNode
-      | CreateSearchPipelineNode
-      | undefined
+      CreateIngestPipelineNode | CreateSearchPipelineNode | undefined
   ): void {
     if (createPipelineNode) {
       finalPreviousNodeInputs = {
@@ -528,7 +518,7 @@ function indexConfigToTemplateNode(
   updateFinalInputsAndSettings(ingestPipelineNode);
 
   // Don't set default search pipeline on the index. This can cause user confusion.
-  //updateFinalInputsAndSettings(searchPipelineNode);
+  // updateFinalInputsAndSettings(searchPipelineNode);
 
   return {
     id: indexConfig.name.value as string,

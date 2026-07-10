@@ -34,8 +34,8 @@ interface MapArrayFieldProps {
   valueHelpText?: string;
   onMapAdd?: (curArray: MapArrayFormValue) => void;
   onMapDelete?: (idxToDelete: number) => void;
-  keyOptions?: { label: string }[];
-  valueOptions?: { label: string }[];
+  keyOptions?: Array<{ label: string }>;
+  valueOptions?: Array<{ label: string }>;
   addMapEntryButtonText?: string;
   addMapButtonText?: string;
   mappingDirection?: 'sortRight' | 'sortLeft' | undefined;
@@ -45,9 +45,8 @@ interface MapArrayFieldProps {
  * Input component for configuring an array of field mappings
  */
 export function MapArrayField(props: MapArrayFieldProps) {
-  const { setFieldValue, setFieldTouched, errors, touched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { setFieldValue, setFieldTouched, errors, touched } =
+    useFormikContext<WorkflowFormValues>();
 
   // Adding a map to the end of the existing arr
   function addMap(curMapArray: MapArrayFormValue): void {

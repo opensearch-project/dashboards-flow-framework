@@ -29,7 +29,9 @@ describe('common/utils', () => {
       expect(prettifyErrorMessage('')).toBe('Unknown error is returned.');
     });
     test('returns unknown for "undefined"', () => {
-      expect(prettifyErrorMessage('undefined')).toBe('Unknown error is returned.');
+      expect(prettifyErrorMessage('undefined')).toBe(
+        'Unknown error is returned.'
+      );
     });
     test('returns raw message when no permissions match', () => {
       expect(prettifyErrorMessage('some error')).toBe('some error');

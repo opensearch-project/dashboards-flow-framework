@@ -84,11 +84,8 @@ export function ResourcesFlyout(props: ResourcesFlyoutProps) {
 
   // fetch details for each resource type
   useEffect(() => {
-    const {
-      indexIds,
-      ingestPipelineIds,
-      searchPipelineIds,
-    } = extractIdsByStepType(allResources);
+    const { indexIds, ingestPipelineIds, searchPipelineIds } =
+      extractIdsByStepType(allResources);
     if (indexIds) {
       try {
         dispatch(getIndex({ index: indexIds, dataSourceId }));
@@ -121,8 +118,7 @@ export function ResourcesFlyout(props: ResourcesFlyoutProps) {
 
   // get the resource details, and any error message, based on the selected resource index
   const selectedResource = get(allResources, selectedResourceIdx, undefined) as
-    | WorkflowResource
-    | undefined;
+    WorkflowResource | undefined;
   const selectedResourceDetailsObj =
     indexDetails[selectedResource?.id || ''] ??
     ingestPipelineDetails[selectedResource?.id || ''] ??
@@ -135,12 +131,12 @@ export function ResourcesFlyout(props: ResourcesFlyoutProps) {
     selectedResource?.stepType === WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE
       ? getIndexErrorMessage
       : selectedResource?.stepType ===
-        WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE
-      ? getIngestPipelineErrorMessage
-      : selectedResource?.stepType ===
-        WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
-      ? getSearchPipelineErrorMessage
-      : (undefined as string | undefined);
+          WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE
+        ? getIngestPipelineErrorMessage
+        : selectedResource?.stepType ===
+            WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE
+          ? getSearchPipelineErrorMessage
+          : (undefined as string | undefined);
 
   return (
     <EuiFlyout onClose={props.onClose}>

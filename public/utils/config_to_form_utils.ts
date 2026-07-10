@@ -30,8 +30,8 @@ export function uiConfigToFormik(
   ingestDocs: string
 ): WorkflowFormValues {
   const formikValues = {} as WorkflowFormValues;
-  formikValues['ingest'] = ingestConfigToFormik(config.ingest, ingestDocs);
-  formikValues['search'] = searchConfigToFormik(config.search);
+  formikValues.ingest = ingestConfigToFormik(config.ingest, ingestDocs);
+  formikValues.search = searchConfigToFormik(config.search);
   return formikValues;
 }
 
@@ -39,18 +39,16 @@ function ingestConfigToFormik(
   ingestConfig: IngestConfig | undefined,
   ingestDocs: string
 ): FormikValues {
-  let ingestFormikValues = {} as FormikValues;
+  const ingestFormikValues = {} as FormikValues;
   if (ingestConfig) {
-    ingestFormikValues['enabled'] =
+    ingestFormikValues.enabled =
       ingestConfig.enabled.value || getInitialValue(ingestConfig.enabled.type);
-    ingestFormikValues['pipelineName'] =
+    ingestFormikValues.pipelineName =
       ingestConfig.pipelineName.value ||
       getInitialValue(ingestConfig.pipelineName.type);
-    ingestFormikValues['docs'] = ingestDocs || getInitialValue('jsonLines');
-    ingestFormikValues['enrich'] = processorsConfigToFormik(
-      ingestConfig.enrich
-    );
-    ingestFormikValues['index'] = indexConfigToFormik(ingestConfig.index);
+    ingestFormikValues.docs = ingestDocs || getInitialValue('jsonLines');
+    ingestFormikValues.enrich = processorsConfigToFormik(ingestConfig.enrich);
+    ingestFormikValues.index = indexConfigToFormik(ingestConfig.index);
   }
   return ingestFormikValues;
 }
@@ -58,7 +56,7 @@ function ingestConfigToFormik(
 function processorsConfigToFormik(
   processorsConfig: ProcessorsConfig
 ): FormikValues {
-  let formValues = {} as FormikValues;
+  const formValues = {} as FormikValues;
   processorsConfig.processors.forEach((processorConfig) => {
     formValues[processorConfig.id] = processorConfigToFormik(processorConfig);
   });
@@ -80,12 +78,12 @@ export function processorConfigToFormik(
 }
 
 function indexConfigToFormik(indexConfig: IndexConfig): FormikValues {
-  let formValues = {} as FormikValues;
-  formValues['name'] =
+  const formValues = {} as FormikValues;
+  formValues.name =
     indexConfig.name.value || getInitialValue(indexConfig.name.type);
-  formValues['mappings'] =
+  formValues.mappings =
     indexConfig.mappings.value || getInitialValue(indexConfig.mappings.type);
-  formValues['settings'] =
+  formValues.settings =
     indexConfig.settings.value || getInitialValue(indexConfig.settings.type);
   return formValues;
 }
@@ -93,23 +91,23 @@ function indexConfigToFormik(indexConfig: IndexConfig): FormikValues {
 function searchConfigToFormik(
   searchConfig: SearchConfig | undefined
 ): FormikValues {
-  let searchFormikValues = {} as FormikValues;
+  const searchFormikValues = {} as FormikValues;
   if (searchConfig) {
-    searchFormikValues['request'] =
+    searchFormikValues.request =
       searchConfig.request.value || getInitialValue('json');
-    searchFormikValues['pipelineName'] =
+    searchFormikValues.pipelineName =
       searchConfig.pipelineName.value ||
       getInitialValue(searchConfig.pipelineName.type);
-    searchFormikValues['index'] = searchIndexConfigToFormik(searchConfig.index);
-    searchFormikValues['enrichRequest'] = processorsConfigToFormik(
+    searchFormikValues.index = searchIndexConfigToFormik(searchConfig.index);
+    searchFormikValues.enrichRequest = processorsConfigToFormik(
       searchConfig.enrichRequest
     );
-    searchFormikValues['enrichResponse'] = processorsConfigToFormik(
+    searchFormikValues.enrichResponse = processorsConfigToFormik(
       searchConfig.enrichResponse
     );
     // Handle optional agent fields if present
     if (searchConfig.requestAgentId) {
-      searchFormikValues['requestAgentId'] =
+      searchFormikValues.requestAgentId =
         searchConfig.requestAgentId.value ||
         getInitialValue(searchConfig.requestAgentId.type);
     }
@@ -120,8 +118,8 @@ function searchConfigToFormik(
 function searchIndexConfigToFormik(
   searchIndexConfig: SearchIndexConfig
 ): FormikValues {
-  let formValues = {} as FormikValues;
-  formValues['name'] =
+  const formValues = {} as FormikValues;
+  formValues.name =
     searchIndexConfig.name.value ||
     getInitialValue(searchIndexConfig.name.type);
   return formValues;

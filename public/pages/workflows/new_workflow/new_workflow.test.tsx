@@ -95,12 +95,8 @@ describe('NewWorkflow', () => {
       },
     });
 
-    const {
-      getAllByTestId,
-      getAllByText,
-      getByTestId,
-      queryByText,
-    } = renderWithRouter(store);
+    const { getAllByTestId, getAllByText, getByTestId, queryByText } =
+      renderWithRouter(store);
 
     await waitFor(() => {
       expect(
@@ -130,9 +126,8 @@ describe('NewWorkflow', () => {
 
   test('search functionality ', async () => {
     const store = mockStore(initialState);
-    const { getByText, getByPlaceholderText, queryByText } = renderWithRouter(
-      store
-    );
+    const { getByText, getByPlaceholderText, queryByText } =
+      renderWithRouter(store);
 
     userEvent.type(getByPlaceholderText('Search'), 'hybrid');
     await waitFor(() => {

@@ -310,8 +310,8 @@ export function ComponentInput(props: ComponentInputProps) {
                       processorContext === PROCESSOR_CONTEXT.INGEST
                         ? 'ingest.enrich'
                         : processorContext === PROCESSOR_CONTEXT.SEARCH_REQUEST
-                        ? 'search.enrichRequest'
-                        : 'search.enrichResponse'
+                          ? 'search.enrichRequest'
+                          : 'search.enrichResponse'
                     }
                     context={processorContext}
                     disabled={props.readonly}
@@ -319,7 +319,10 @@ export function ComponentInput(props: ComponentInputProps) {
                 </EuiFlexItem>
               </EuiFlexGroup>
             ) : props.selectedComponentId === COMPONENT_ID.INGEST_DATA ? (
-              <IngestData disabled={props.readonly} workflowType={props.workflow?.ui_metadata?.type} />
+              <IngestData
+                disabled={props.readonly}
+                workflowType={props.workflow?.ui_metadata?.type}
+              />
             ) : props.selectedComponentId === COMPONENT_ID.SEARCH_REQUEST ? (
               <ConfigureSearchRequest disabled={props.readonly} />
             ) : props.selectedComponentId === COMPONENT_ID.RUN_QUERY ? (
@@ -365,8 +368,8 @@ function getContextFromComponentId(componentId: string): PROCESSOR_CONTEXT {
   return componentId.startsWith('ingest.enrich')
     ? PROCESSOR_CONTEXT.INGEST
     : componentId.startsWith('search.enrichRequest')
-    ? PROCESSOR_CONTEXT.SEARCH_REQUEST
-    : PROCESSOR_CONTEXT.SEARCH_RESPONSE;
+      ? PROCESSOR_CONTEXT.SEARCH_REQUEST
+      : PROCESSOR_CONTEXT.SEARCH_RESPONSE;
 }
 
 function getProcessorsFromContext(
@@ -376,8 +379,8 @@ function getProcessorsFromContext(
   return context === PROCESSOR_CONTEXT.INGEST
     ? uiConfig.ingest.enrich.processors
     : context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-    ? uiConfig.search.enrichRequest.processors
-    : uiConfig.search.enrichResponse.processors;
+      ? uiConfig.search.enrichRequest.processors
+      : uiConfig.search.enrichResponse.processors;
 }
 
 // remove the contextual prefix, e.g., 'ingest.enrich'
@@ -388,6 +391,6 @@ function getProcessorId(componentId: string): string {
   return componentId.startsWith(ingestPrefix)
     ? componentId.slice(ingestPrefix.length)
     : componentId.startsWith(searchReqPrefix)
-    ? componentId.slice(searchReqPrefix.length)
-    : componentId.slice(searchRespPrefix.length);
+      ? componentId.slice(searchReqPrefix.length)
+      : componentId.slice(searchRespPrefix.length);
 }

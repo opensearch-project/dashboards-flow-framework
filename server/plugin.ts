@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { first } from 'rxjs/operators';
 import {
   PluginInitializerContext,
   CoreSetup,
@@ -10,7 +11,6 @@ import {
   Plugin,
   Logger,
 } from '../../../src/core/server';
-import { first } from 'rxjs/operators';
 import { flowFrameworkPlugin, mlPlugin, corePlugin } from './cluster';
 import {
   FlowFrameworkDashboardsPluginSetup,
@@ -34,12 +34,10 @@ export interface FlowFrameworkPluginSetupDependencies {
   dataSource?: DataSourcePluginSetup;
 }
 
-export class FlowFrameworkDashboardsPlugin
-  implements
-    Plugin<
-      FlowFrameworkDashboardsPluginSetup,
-      FlowFrameworkDashboardsPluginStart
-    > {
+export class FlowFrameworkDashboardsPlugin implements Plugin<
+  FlowFrameworkDashboardsPluginSetup,
+  FlowFrameworkDashboardsPluginStart
+> {
   private readonly logger: Logger;
   private readonly globalConfig$: any;
 

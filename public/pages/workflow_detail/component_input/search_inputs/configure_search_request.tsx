@@ -43,9 +43,8 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   // Form state
-  const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<WorkflowFormValues>();
   const ingestEnabled = values?.ingest?.enabled;
   const searchIndexNameFormPath = 'search.index.name';
 
@@ -140,7 +139,7 @@ export function ConfigureSearchRequest(props: ConfigureSearchRequestProps) {
                       value: option.name,
                       inputDisplay: <EuiText size="s">{option.name}</EuiText>,
                       disabled: false,
-                    } as EuiSuperSelectOption<string>)
+                    }) as EuiSuperSelectOption<string>
                 )}
                 valueOfSelected={selectedIndex}
                 onChange={(option) => {

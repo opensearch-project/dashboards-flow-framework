@@ -49,7 +49,10 @@ describe('SearchResults', () => {
       total: { value: 2 },
       hits: [
         { _id: '1', _source: { title: 'Document 1', content: 'text content' } },
-        { _id: '2', _source: { title: 'Document 2', description: 'more text' } },
+        {
+          _id: '2',
+          _source: { title: 'Document 2', description: 'more text' },
+        },
       ],
     },
   };
@@ -159,7 +162,9 @@ describe('SearchResults', () => {
   });
 
   test('aggregations button is present when aggs field found', () => {
-    render(<SearchResults searchResponse={mockSearchResponseWithAggregations} />);
+    render(
+      <SearchResults searchResponse={mockSearchResponseWithAggregations} />
+    );
 
     // Aggregations button should be present
     expect(screen.getByTestId('aggregationsButton')).toBeInTheDocument();

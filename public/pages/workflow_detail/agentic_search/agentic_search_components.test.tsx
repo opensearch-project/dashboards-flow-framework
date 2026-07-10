@@ -56,9 +56,7 @@ describe('AgenticSearchInfoModal', () => {
 
 describe('AgentMemory', () => {
   test('renders memory type selector', () => {
-    renderWithStore(
-      <AgentMemory agentForm={{}} setAgentForm={jest.fn()} />
-    );
+    renderWithStore(<AgentMemory agentForm={{}} setAgentForm={jest.fn()} />);
     expect(screen.getByLabelText('Select memory type')).toBeInTheDocument();
   });
 
@@ -74,9 +72,7 @@ describe('AgentMemory', () => {
 
   test('calls setAgentForm on change', () => {
     const mockSetForm = jest.fn();
-    renderWithStore(
-      <AgentMemory agentForm={{}} setAgentForm={mockSetForm} />
-    );
+    renderWithStore(<AgentMemory agentForm={{}} setAgentForm={mockSetForm} />);
     fireEvent.change(screen.getByLabelText('Select memory type'), {
       target: { value: AGENT_MEMORY_TYPE.CONVERSATION_INDEX },
     });
@@ -90,7 +86,9 @@ describe('AgentMemory', () => {
         setAgentForm={jest.fn()}
       />
     );
-    expect(screen.getByLabelText('Select memory container')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Select memory container')
+    ).toBeInTheDocument();
     expect(screen.getByText('Test Container')).toBeInTheDocument();
   });
 

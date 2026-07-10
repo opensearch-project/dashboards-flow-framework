@@ -13,8 +13,7 @@ export interface FlowFrameworkDashboardsPluginSetup {
   dataSource: DataSourcePluginSetup;
 }
 
-export interface FlowFrameworkDashboardsPluginStart {
-}
+export interface FlowFrameworkDashboardsPluginStart {}
 
 export interface AppPluginStartDependencies {
   navigation: NavigationPublicPluginStart;

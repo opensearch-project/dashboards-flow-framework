@@ -304,8 +304,8 @@ export type SearchTemplateConfig = {
 export type MLInferenceProcessor = IngestProcessor & {
   ml_inference: {
     model_id: string;
-    input_map?: {}[];
-    output_map?: {}[];
+    input_map?: Array<{}>;
+    output_map?: Array<{}>;
     [key: string]: any;
   };
 };
@@ -500,7 +500,7 @@ export type Connector = {
   name: string;
   protocol?: CONNECTOR_PROTOCOL;
   parameters?: ConnectorParameters;
-  actions: {}[];
+  actions: Array<{}>;
   client_config?: {};
 };
 
@@ -609,9 +609,9 @@ export enum WORKFLOW_STEP_TYPE {
 // We cannot disambiguate ingest vs. search pipelines based on workflow resource type. To work around
 // that, we maintain this map from workflow step type -> formatted type
 export enum WORKFLOW_STEP_TO_RESOURCE_TYPE_MAP {
-  'create_ingest_pipeline' = 'Ingest pipeline',
-  'create_search_pipeline' = 'Search pipeline',
-  'create_index' = 'Index',
+  create_ingest_pipeline = 'Ingest pipeline',
+  create_search_pipeline = 'Search pipeline',
+  create_index = 'Index',
 }
 
 export type WorkflowDict = {
@@ -687,11 +687,12 @@ export type SimulateIngestPipelineResponse = {
 
 // verbose mode
 // from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#query-parameters
-export type SimulateIngestPipelineDocResponseVerbose = SimulateIngestPipelineDocResponse & {
-  processor_type: string;
-  status: 'success' | 'error';
-  description?: string;
-};
+export type SimulateIngestPipelineDocResponseVerbose =
+  SimulateIngestPipelineDocResponse & {
+    processor_type: string;
+    status: 'success' | 'error';
+    description?: string;
+  };
 
 // verbose mode
 // from https://opensearch.org/docs/latest/ingest-pipelines/simulate-ingest/#query-parameters
@@ -699,7 +700,7 @@ export type SimulateIngestPipelineResponseVerbose = {
   docs: [
     {
       processor_results: SimulateIngestPipelineDocResponseVerbose[];
-    }
+    },
   ];
 };
 

@@ -99,19 +99,19 @@ export function SearchContent(props: SearchContentProps) {
                     props.isProvisioningSearch
                       ? 'subdued'
                       : props.isUnsaved
-                      ? 'warning'
-                      : props.searchProvisioned
-                      ? 'primary'
-                      : 'subdued'
+                        ? 'warning'
+                        : props.searchProvisioned
+                          ? 'primary'
+                          : 'subdued'
                   }
                 >
                   {props.isProvisioningSearch
                     ? 'Creating...'
                     : props.isUnsaved
-                    ? 'Unsaved changes'
-                    : props.searchProvisioned
-                    ? 'Active'
-                    : 'Not created'}
+                      ? 'Unsaved changes'
+                      : props.searchProvisioned
+                        ? 'Active'
+                        : 'Not created'}
                 </EuiHealth>
               </EuiFlexItem>
             </EuiFlexGroup>

@@ -62,7 +62,7 @@ export function Tools(props: ToolsProps) {
     searchPipeline: searchPipelineErrors,
   } = useSelector((state: AppState) => state.errors);
   const [curErrorMessages, setCurErrorMessages] = useState<
-    (string | ReactNode)[]
+    Array<string | ReactNode>
   >([]);
   const { values } = useFormikContext<WorkflowFormValues>();
 

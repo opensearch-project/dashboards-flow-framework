@@ -113,9 +113,8 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
     dataSourceId,
     dataSourceVersion
   );
-  const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<WorkflowFormValues>();
 
   // sub-form values/schema
   const templateFormValues = {
@@ -179,9 +178,8 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
 
   // popover states
   const [presetsPopoverOpen, setPresetsPopoverOpen] = useState<boolean>(false);
-  const [jsonPathPopoverOpen, setJsonPathPopoverOpen] = useState<boolean>(
-    false
-  );
+  const [jsonPathPopoverOpen, setJsonPathPopoverOpen] =
+    useState<boolean>(false);
 
   // source input / transformed input state
   const [sourceInput, setSourceInput] = useState<string>('{}');
@@ -564,24 +562,27 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                           )
                                         )}
                                         onClick={() => {
-                                          const promptEditorParentElement = document
-                                            .getElementById(PROMPT_EDITOR_ID)
-                                            ?.getElementsByClassName(
-                                              'ace_editor'
-                                            );
+                                          const promptEditorParentElement =
+                                            document
+                                              .getElementById(PROMPT_EDITOR_ID)
+                                              ?.getElementsByClassName(
+                                                'ace_editor'
+                                              );
                                           const promptEditor = get(
                                             promptEditorParentElement,
                                             '0.env.editor'
                                           );
                                           const promptEditorSession =
                                             promptEditor?.session;
-                                          const cursorPosition = promptEditor?.getCursorPosition();
-                                          const valueToInsert = getPlaceholderString(
-                                            getIn(
-                                              formikProps.values,
-                                              `nestedVars.${idx}.name`
-                                            )
-                                          );
+                                          const cursorPosition =
+                                            promptEditor?.getCursorPosition();
+                                          const valueToInsert =
+                                            getPlaceholderString(
+                                              getIn(
+                                                formikProps.values,
+                                                `nestedVars.${idx}.name`
+                                              )
+                                            );
                                           if (
                                             promptEditorSession !== undefined &&
                                             cursorPosition !== undefined &&
@@ -667,13 +668,14 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                               switch (props.context) {
                                 case PROCESSOR_CONTEXT.INGEST: {
                                   // get the current ingest pipeline up to, but not including, this processor
-                                  const curIngestPipeline = formikToPartialPipeline(
-                                    values,
-                                    props.uiConfig,
-                                    props.config.id,
-                                    false,
-                                    PROCESSOR_CONTEXT.INGEST
-                                  );
+                                  const curIngestPipeline =
+                                    formikToPartialPipeline(
+                                      values,
+                                      props.uiConfig,
+                                      props.config.id,
+                                      false,
+                                      PROCESSOR_CONTEXT.INGEST
+                                    );
                                   // if there are preceding processors, we need to simulate the partial ingest pipeline,
                                   // in order to get the latest transformed version of the docs
                                   if (curIngestPipeline !== undefined) {
@@ -684,7 +686,8 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                     await dispatch(
                                       simulatePipeline({
                                         apiBody: {
-                                          pipeline: curIngestPipeline as IngestPipelineConfig,
+                                          pipeline:
+                                            curIngestPipeline as IngestPipelineConfig,
                                           docs: [curDocs[0]],
                                         },
                                         dataSourceId,
@@ -695,9 +698,8 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                         (
                                           resp: SimulateIngestPipelineResponse
                                         ) => {
-                                          const docObjs = unwrapTransformedDocs(
-                                            resp
-                                          );
+                                          const docObjs =
+                                            unwrapTransformedDocs(resp);
                                           if (docObjs.length > 0) {
                                             setSourceInput(
                                               customStringify(docObjs[0])
@@ -732,13 +734,14 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                 }
                                 case PROCESSOR_CONTEXT.SEARCH_REQUEST: {
                                   // get the current search pipeline up to, but not including, this processor
-                                  const curSearchPipeline = formikToPartialPipeline(
-                                    values,
-                                    props.uiConfig,
-                                    props.config.id,
-                                    false,
-                                    PROCESSOR_CONTEXT.SEARCH_REQUEST
-                                  );
+                                  const curSearchPipeline =
+                                    formikToPartialPipeline(
+                                      values,
+                                      props.uiConfig,
+                                      props.config.id,
+                                      false,
+                                      PROCESSOR_CONTEXT.SEARCH_REQUEST
+                                    );
                                   // if there are preceding processors, we cannot generate. The button to render
                                   // this modal should be disabled if the search pipeline would be enabled. We add
                                   // this if check as an extra layer of checking, and if mechanism for gating
@@ -753,13 +756,14 @@ export function ConfigureTemplateModal(props: ConfigureTemplateModalProps) {
                                 }
                                 case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
                                   // get the current search pipeline up to, but not including, this processor
-                                  const curSearchPipeline = formikToPartialPipeline(
-                                    values,
-                                    props.uiConfig,
-                                    props.config.id,
-                                    false,
-                                    PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                                  );
+                                  const curSearchPipeline =
+                                    formikToPartialPipeline(
+                                      values,
+                                      props.uiConfig,
+                                      props.config.id,
+                                      false,
+                                      PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                                    );
                                   // Execute search. If there are preceding processors, augment the existing query with
                                   // the partial search pipeline (inline) to get the latest transformed version of the response.
                                   dispatch(

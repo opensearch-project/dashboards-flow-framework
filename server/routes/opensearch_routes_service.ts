@@ -786,7 +786,7 @@ export class OpenSearchRoutesService {
       );
 
       const response = await callWithRequest('coreClient.getSearchPipeline', {
-        pipeline_id: pipeline_id,
+        pipeline_id,
       });
 
       // re-formatting the results to match SearchPipelineResponse

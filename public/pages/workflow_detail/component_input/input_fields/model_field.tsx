@@ -181,7 +181,7 @@ export function ModelField(props: ModelFieldProps) {
                             </>
                           ),
                           disabled: false,
-                        } as EuiSuperSelectOption<string>)
+                        }) as EuiSuperSelectOption<string>
                     )}
                     valueOfSelected={field.value?.id || ''}
                     onChange={(option: string) => {

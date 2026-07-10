@@ -72,9 +72,8 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
 
   // modal states
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
-  const [isEditWorkflowModalOpen, setIsEditWorkflowModalOpen] = useState<
-    boolean
-  >(false);
+  const [isEditWorkflowModalOpen, setIsEditWorkflowModalOpen] =
+    useState<boolean>(false);
 
   const dataSourceEnabled = getDataSourceEnabled().enabled;
   const dataSourceId = getDataSourceId();
@@ -97,9 +96,8 @@ export function WorkflowDetailHeader(props: WorkflowDetailHeaderProps) {
   // get & render the data source component, if applicable
   let DataSourceComponent: ReactElement | null = null;
   if (dataSourceEnabled && getDataSourceManagementPlugin() && dataSourceId) {
-    const DataSourceMenu = getDataSourceManagementPlugin().ui.getDataSourceMenu<
-      DataSourceViewConfig
-    >();
+    const DataSourceMenu =
+      getDataSourceManagementPlugin().ui.getDataSourceMenu<DataSourceViewConfig>();
     DataSourceComponent = (
       <DataSourceMenu
         setMenuMountPoint={props.setActionMenu}

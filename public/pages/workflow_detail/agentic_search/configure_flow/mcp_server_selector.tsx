@@ -7,13 +7,13 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { isEmpty } from 'lodash';
 import { EuiCallOut, EuiSelect } from '@elastic/eui';
+import { getIn } from 'formik';
 import {
   CONNECTOR_PROTOCOL,
   DEFAULT_MCP_SERVER,
   MCPConnector,
 } from '../../../../../common';
 import { AppState } from '../../../../store';
-import { getIn } from 'formik';
 
 interface MCPServerSelectorProps {
   allServers: MCPConnector[];

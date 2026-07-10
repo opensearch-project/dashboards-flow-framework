@@ -20,6 +20,7 @@ import {
 } from '@elastic/eui';
 import { cloneDeep, isEmpty } from 'lodash';
 import { getIn, useFormikContext } from 'formik';
+import { useLocation } from 'react-router-dom';
 import {
   CachedFormikState,
   COMPONENT_ID,
@@ -50,7 +51,6 @@ import {
   TextEmbeddingIngestProcessor,
   TextImageEmbeddingIngestProcessor,
 } from '../../../../../configs';
-import { useLocation } from 'react-router-dom';
 import { getDataSourceEnabled } from '../../../../../services';
 import {
   MIN_SUPPORTED_VERSION,
@@ -130,12 +130,12 @@ export function ProcessorList(props: ProcessorListProps) {
   useEffect(() => {
     const loadProcessors = async () => {
       if (props.uiConfig && props.context) {
-        let currentProcessors =
+        const currentProcessors =
           props.context === PROCESSOR_CONTEXT.INGEST
             ? props.uiConfig.ingest.enrich.processors
             : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-            ? props.uiConfig.search.enrichRequest.processors
-            : props.uiConfig.search.enrichResponse.processors;
+              ? props.uiConfig.search.enrichRequest.processors
+              : props.uiConfig.search.enrichResponse.processors;
 
         setProcessors(currentProcessors || []);
       }
@@ -167,7 +167,8 @@ export function ProcessorList(props: ProcessorListProps) {
               name: 'Text Image Embedding Processor',
               onClick: () => {
                 closePopover();
-                const newProcessor = new TextImageEmbeddingIngestProcessor().toObj();
+                const newProcessor =
+                  new TextImageEmbeddingIngestProcessor().toObj();
                 addProcessor(newProcessor);
                 props.setSelectedComponentId(
                   `${COMPONENT_ID.ENRICH_DATA}.${newProcessor.id}`
@@ -348,7 +349,7 @@ export function ProcessorList(props: ProcessorListProps) {
       touched,
     });
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
-    let newConfig = formikToUiConfig(values, existingConfig);
+    const newConfig = formikToUiConfig(values, existingConfig);
     switch (props.context) {
       case PROCESSOR_CONTEXT.INGEST: {
         newConfig.ingest.enrich.processors = [
@@ -381,24 +382,27 @@ export function ProcessorList(props: ProcessorListProps) {
   function deleteProcessor(processorIdToDelete: string): void {
     clearProcessorErrors();
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
-    let newConfig = formikToUiConfig(values, existingConfig);
+    const newConfig = formikToUiConfig(values, existingConfig);
     switch (props.context) {
       case PROCESSOR_CONTEXT.INGEST: {
-        newConfig.ingest.enrich.processors = newConfig.ingest.enrich.processors.filter(
-          (processorConfig) => processorConfig.id !== processorIdToDelete
-        );
+        newConfig.ingest.enrich.processors =
+          newConfig.ingest.enrich.processors.filter(
+            (processorConfig) => processorConfig.id !== processorIdToDelete
+          );
         break;
       }
       case PROCESSOR_CONTEXT.SEARCH_REQUEST: {
-        newConfig.search.enrichRequest.processors = newConfig.search.enrichRequest.processors.filter(
-          (processorConfig) => processorConfig.id !== processorIdToDelete
-        );
+        newConfig.search.enrichRequest.processors =
+          newConfig.search.enrichRequest.processors.filter(
+            (processorConfig) => processorConfig.id !== processorIdToDelete
+          );
         break;
       }
       case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
-        newConfig.search.enrichResponse.processors = newConfig.search.enrichResponse.processors.filter(
-          (processorConfig) => processorConfig.id !== processorIdToDelete
-        );
+        newConfig.search.enrichResponse.processors =
+          newConfig.search.enrichResponse.processors.filter(
+            (processorConfig) => processorConfig.id !== processorIdToDelete
+          );
         break;
       }
     }
@@ -409,7 +413,7 @@ export function ProcessorList(props: ProcessorListProps) {
   function moveProcessorUp(processorIndex: number): void {
     clearProcessorErrors();
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
-    let newConfig = formikToUiConfig(values, existingConfig);
+    const newConfig = formikToUiConfig(values, existingConfig);
     let currentProcessors: IProcessorConfig[] = [];
     switch (props.context) {
       case PROCESSOR_CONTEXT.INGEST:
@@ -423,13 +427,11 @@ export function ProcessorList(props: ProcessorListProps) {
         break;
     }
 
-    [
-      currentProcessors[processorIndex],
-      currentProcessors[processorIndex - 1],
-    ] = [
-      currentProcessors[processorIndex - 1],
-      currentProcessors[processorIndex],
-    ];
+    [currentProcessors[processorIndex], currentProcessors[processorIndex - 1]] =
+      [
+        currentProcessors[processorIndex - 1],
+        currentProcessors[processorIndex],
+      ];
 
     switch (props.context) {
       case PROCESSOR_CONTEXT.INGEST:
@@ -449,7 +451,7 @@ export function ProcessorList(props: ProcessorListProps) {
   function moveProcessorDown(processorIndex: number): void {
     clearProcessorErrors();
     const existingConfig = cloneDeep(props.uiConfig as WorkflowConfig);
-    let newConfig = formikToUiConfig(values, existingConfig);
+    const newConfig = formikToUiConfig(values, existingConfig);
 
     let currentProcessors: IProcessorConfig[] = [];
     switch (props.context) {
@@ -464,13 +466,11 @@ export function ProcessorList(props: ProcessorListProps) {
         break;
     }
 
-    [
-      currentProcessors[processorIndex],
-      currentProcessors[processorIndex + 1],
-    ] = [
-      currentProcessors[processorIndex + 1],
-      currentProcessors[processorIndex],
-    ];
+    [currentProcessors[processorIndex], currentProcessors[processorIndex + 1]] =
+      [
+        currentProcessors[processorIndex + 1],
+        currentProcessors[processorIndex],
+      ];
 
     switch (props.context) {
       case PROCESSOR_CONTEXT.INGEST:
@@ -494,8 +494,8 @@ export function ProcessorList(props: ProcessorListProps) {
           props.context === PROCESSOR_CONTEXT.INGEST
             ? 'ingest.enrich'
             : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-            ? 'search.enrichRequest'
-            : 'search.enrichResponse';
+              ? 'search.enrichRequest'
+              : 'search.enrichResponse';
         const processorPath = `${baseConfigPath}.${processor.id}`;
         const hasErrors = !isEmpty(getIn(errors, processorPath));
         let allTouched = false;

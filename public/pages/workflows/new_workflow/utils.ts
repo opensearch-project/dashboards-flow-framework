@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import semver from 'semver';
 import {
   MLIngestProcessor,
   MLSearchRequestProcessor,
@@ -33,7 +34,6 @@ import {
   AGENTIC_SEARCH_QUERY,
 } from '../../../../common';
 import { generateId } from '../../../utils';
-import semver from 'semver';
 import { MINIMUM_FULL_SUPPORTED_VERSION } from '../../../../common';
 
 // Fn to produce the complete preset template with all necessary UI metadata.
@@ -161,7 +161,7 @@ export function fetchEmptyUIConfig(): WorkflowConfig {
 
 export function fetchSemanticSearchMetadata(version: string): UIState {
   const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
-  let baseState = fetchEmptyMetadata();
+  const baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.SEMANTIC_SEARCH;
 
   baseState.config.ingest.enrich.processors = isPreV219
@@ -190,7 +190,7 @@ export function fetchSemanticSearchMetadata(version: string): UIState {
 }
 
 export function fetchNeuralSparseSearchMetadata(version: string): UIState {
-  let baseState = fetchEmptyMetadata();
+  const baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS;
 
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
@@ -214,7 +214,7 @@ export function fetchNeuralSparseSearchMetadata(version: string): UIState {
 
 export function fetchMultimodalSearchMetadata(version: string): UIState {
   const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
-  let baseState = fetchEmptyMetadata();
+  const baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.MULTIMODAL_SEARCH;
 
   baseState.config.ingest.enrich.processors = isPreV219
@@ -244,7 +244,7 @@ export function fetchMultimodalSearchMetadata(version: string): UIState {
 
 export function fetchHybridSearchMetadata(version: string): UIState {
   const isPreV219 = semver.lt(version, MINIMUM_FULL_SUPPORTED_VERSION);
-  let baseState = fetchEmptyMetadata();
+  const baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.HYBRID_SEARCH;
 
   baseState.config.ingest.enrich.processors = isPreV219
@@ -277,7 +277,7 @@ export function fetchHybridSearchMetadata(version: string): UIState {
 }
 
 export function fetchVectorSearchWithRAGMetadata(version: string): UIState {
-  let baseState = fetchEmptyMetadata();
+  const baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.VECTOR_SEARCH_WITH_RAG;
   // Ingest config: knn index w/ an ML inference processor
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
@@ -301,7 +301,7 @@ export function fetchVectorSearchWithRAGMetadata(version: string): UIState {
 }
 
 export function fetchHybridSearchWithRAGMetadata(version: string): UIState {
-  let baseState = fetchEmptyMetadata();
+  const baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.HYBRID_SEARCH_WITH_RAG;
   // Ingest config: knn index w/ an ML inference processor
   baseState.config.ingest.enrich.processors = [new MLIngestProcessor().toObj()];
@@ -326,7 +326,7 @@ export function fetchHybridSearchWithRAGMetadata(version: string): UIState {
 }
 
 export function fetchAgenticSearchMetadata(version: string): UIState {
-  let baseState = fetchEmptyMetadata();
+  const baseState = fetchEmptyMetadata();
   baseState.type = WORKFLOW_TYPE.AGENTIC_SEARCH;
   baseState.config.ingest.enabled = {
     id: 'enabled',

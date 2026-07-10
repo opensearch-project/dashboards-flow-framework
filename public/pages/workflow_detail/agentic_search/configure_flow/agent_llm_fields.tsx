@@ -40,7 +40,7 @@ export function AgentLLMFields({
 }: AgentLLMFieldsProps) {
   const { models, connectors } = useSelector((state: AppState) => state.ml);
   const [modelOptions, setModelOptions] = useState<
-    { value: string; text: string }[]
+    Array<{ value: string; text: string }>
   >([]);
   useEffect(() => {
     setModelOptions(
@@ -105,7 +105,7 @@ export function AgentLLMFields({
             value={selectedModelId}
             // if a conversational agent, also set it as the main LLM orchestration agent
             onChange={(e) => {
-              let updatedAgentForm = cloneDeep(agentForm);
+              const updatedAgentForm = cloneDeep(agentForm);
               if (agentType === AGENT_TYPE.CONVERSATIONAL) {
                 set(updatedAgentForm, 'llm.model_id', e.target.value);
               }

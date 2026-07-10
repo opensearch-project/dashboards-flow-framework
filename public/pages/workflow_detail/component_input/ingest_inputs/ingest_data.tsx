@@ -24,9 +24,8 @@ interface IngestDataProps {
  * Input component for configuring the data ingest (the OpenSearch index)
  */
 export function IngestData(props: IngestDataProps) {
-  const [hasInvalidDimensions, setHasInvalidDimensions] = useState<boolean>(
-    false
-  );
+  const [hasInvalidDimensions, setHasInvalidDimensions] =
+    useState<boolean>(false);
 
   return (
     <EuiFlexGroup direction="column">
@@ -58,7 +57,7 @@ export function IngestData(props: IngestDataProps) {
       <EuiFlexItem>
         <AdvancedSettings
           setHasInvalidDimensions={setHasInvalidDimensions}
-          workflowType={props.workflowType} 
+          workflowType={props.workflowType}
           disabled={props.disabled}
         />
       </EuiFlexItem>

@@ -68,9 +68,8 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
   const { models } = useSelector((state: AppState) => state.ml);
-  const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<WorkflowFormValues>();
 
   // get some current form & config values
   const modelField = props.config.fields.find(
@@ -111,9 +110,8 @@ export function MLProcessorInputs(props: MLProcessorInputsProps) {
   // (internally, we remove any output map to get the raw transforms from input_map, but this is not possible here)
   // in these cases, we block preview
   // ref tracking issue: https://github.com/opensearch-project/OpenSearch/issues/14745
-  const [isInputPreviewAvailable, setIsInputPreviewAvailable] = useState<
-    boolean
-  >(true);
+  const [isInputPreviewAvailable, setIsInputPreviewAvailable] =
+    useState<boolean>(true);
   const isOutputPreviewAvailable =
     props.context !== PROCESSOR_CONTEXT.SEARCH_REQUEST;
   useEffect(() => {

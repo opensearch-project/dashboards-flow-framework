@@ -62,7 +62,7 @@ export function GeneratedQuery(props: GeneratedQueryProps) {
                 data-testid="hideShowQueryButton"
                 onClick={() => setShowQuery(!showQuery)}
                 iconType={showQuery ? 'eye' : 'eyeClosed'}
-              ></EuiSmallButtonIcon>
+              />
             </EuiFlexItem>
           )}
         </EuiFlexGroup>

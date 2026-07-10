@@ -15,7 +15,9 @@ describe('Errors', () => {
   });
 
   test('renders error messages', () => {
-    render(<Errors errorMessages={['Something went wrong', 'Another error']} />);
+    render(
+      <Errors errorMessages={['Something went wrong', 'Another error']} />
+    );
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
     expect(screen.getByText('Another error')).toBeInTheDocument();
   });

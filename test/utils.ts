@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import fs from 'fs';
+import path from 'path';
 import {
   INITIAL_ERRORS_STATE,
   INITIAL_ML_STATE,
@@ -23,11 +25,9 @@ import {
   fetchMultimodalSearchMetadata,
   fetchSemanticSearchMetadata,
 } from '../public/pages/workflows/new_workflow/utils';
-import fs from 'fs';
-import path from 'path';
 
 export function mockStore(...workflowSets: WorkflowInput[]) {
-  let workflowDict = {} as WorkflowDict;
+  const workflowDict = {} as WorkflowDict;
   workflowSets?.forEach((workflowInput) => {
     workflowDict[workflowInput.id] = generateWorkflow(workflowInput);
   });

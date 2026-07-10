@@ -98,18 +98,12 @@ describe('utils', () => {
   describe('injectParameters', () => {
     test('replaces placeholders with values', () => {
       expect(
-        injectParameters(
-          [{ name: 'q', value: 'hello' }],
-          'search {{q}}'
-        )
+        injectParameters([{ name: 'q', value: 'hello' }], 'search {{q}}')
       ).toBe('search hello');
     });
     test('replaces multiple occurrences', () => {
       expect(
-        injectParameters(
-          [{ name: 'x', value: '1' }],
-          '{{x}} and {{x}}'
-        )
+        injectParameters([{ name: 'x', value: '1' }], '{{x}} and {{x}}')
       ).toBe('1 and 1');
     });
   });
@@ -161,7 +155,11 @@ describe('utils', () => {
       expect(
         hasProvisionedIngestResources({
           resourcesCreated: [
-            { stepType: WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE, id: '1', type: '' },
+            {
+              stepType: WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE,
+              id: '1',
+              type: '',
+            },
           ],
         } as any)
       ).toBe(true);
@@ -170,7 +168,11 @@ describe('utils', () => {
       expect(
         hasProvisionedIngestResources({
           resourcesCreated: [
-            { stepType: WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE, id: '1', type: '' },
+            {
+              stepType: WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE,
+              id: '1',
+              type: '',
+            },
           ],
         } as any)
       ).toBe(true);
@@ -179,7 +181,11 @@ describe('utils', () => {
       expect(
         hasProvisionedIngestResources({
           resourcesCreated: [
-            { stepType: WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE, id: '1', type: '' },
+            {
+              stepType: WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE,
+              id: '1',
+              type: '',
+            },
           ],
         } as any)
       ).toBe(false);
@@ -194,13 +200,19 @@ describe('utils', () => {
       expect(
         hasProvisionedSearchResources({
           resourcesCreated: [
-            { stepType: WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE, id: '1', type: '' },
+            {
+              stepType: WORKFLOW_STEP_TYPE.CREATE_SEARCH_PIPELINE_STEP_TYPE,
+              id: '1',
+              type: '',
+            },
           ],
         } as any)
       ).toBe(true);
     });
     test('returns false with no matching resources', () => {
-      expect(hasProvisionedSearchResources({ resourcesCreated: [] } as any)).toBe(false);
+      expect(
+        hasProvisionedSearchResources({ resourcesCreated: [] } as any)
+      ).toBe(false);
     });
   });
 
@@ -209,8 +221,16 @@ describe('utils', () => {
       expect(
         getResourcesToBeForceDeleted({
           resourcesCreated: [
-            { type: WORKFLOW_RESOURCE_TYPE.INDEX_NAME, id: 'idx1', stepType: '' },
-            { type: WORKFLOW_RESOURCE_TYPE.PIPELINE_ID, id: 'pipe1', stepType: '' },
+            {
+              type: WORKFLOW_RESOURCE_TYPE.INDEX_NAME,
+              id: 'idx1',
+              stepType: '',
+            },
+            {
+              type: WORKFLOW_RESOURCE_TYPE.PIPELINE_ID,
+              id: 'pipe1',
+              stepType: '',
+            },
           ],
         } as any)
       ).toBe('idx1,pipe1');
@@ -267,10 +287,14 @@ describe('utils', () => {
       expect(sanitizeJSON({ tools: 'not-array' })).toEqual({ tools: [] });
     });
     test('sanitizes known obj fields', () => {
-      expect(sanitizeJSON({ parameters: 'not-obj' })).toEqual({ parameters: {} });
+      expect(sanitizeJSON({ parameters: 'not-obj' })).toEqual({
+        parameters: {},
+      });
     });
     test('sanitizes known boolean fields', () => {
-      expect(sanitizeJSON({ include_output_in_agent_response: 'not-bool' })).toEqual({
+      expect(
+        sanitizeJSON({ include_output_in_agent_response: 'not-bool' })
+      ).toEqual({
         include_output_in_agent_response: false,
       });
     });
@@ -286,12 +310,14 @@ describe('utils', () => {
       ).toBe('Prefix: fail');
     });
     test('formats error with message', () => {
-      expect(
-        formatRouteServiceError({ message: 'fail' }, 'Prefix')
-      ).toBe('Prefix: fail');
+      expect(formatRouteServiceError({ message: 'fail' }, 'Prefix')).toBe(
+        'Prefix: fail'
+      );
     });
     test('formats unknown error', () => {
-      expect(formatRouteServiceError({}, 'Prefix')).toBe('Prefix: Unknown error');
+      expect(formatRouteServiceError({}, 'Prefix')).toBe(
+        'Prefix: Unknown error'
+      );
     });
   });
 
@@ -356,7 +382,10 @@ describe('utils', () => {
     test('finds knn_vector field', () => {
       expect(
         getExistingVectorField({
-          properties: { embedding: { type: 'knn_vector' }, title: { type: 'text' } },
+          properties: {
+            embedding: { type: 'knn_vector' },
+            title: { type: 'text' },
+          },
         })
       ).toBe('embedding');
     });
@@ -396,7 +425,7 @@ describe('utils', () => {
           installedPlugins: plugins,
           ...(engineType && { dataSourceEngineType: engineType }),
         },
-      } as any);
+      }) as any;
 
     test('accepts compatible data source', () => {
       const ds = buildDataSource('2.17.0', [

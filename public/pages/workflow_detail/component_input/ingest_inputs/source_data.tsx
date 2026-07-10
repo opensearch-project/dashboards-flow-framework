@@ -232,8 +232,7 @@ function getProcessorInfo(
   inputMapEntry: MapEntry | undefined;
 } {
   const ingestProcessorId = uiConfig.ingest.enrich.processors[0]?.id as
-    | string
-    | undefined;
+    string | undefined;
   return {
     processorId: ingestProcessorId,
     inputMapEntry:

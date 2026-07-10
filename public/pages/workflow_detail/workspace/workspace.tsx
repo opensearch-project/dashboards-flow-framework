@@ -67,9 +67,8 @@ enum TOGGLE_BUTTON_ID {
 export function Workspace(props: WorkspaceProps) {
   const { values } = useFormikContext<WorkflowFormValues>();
   // Visual/JSON toggle states
-  const [toggleButtonSelected, setToggleButtonSelected] = useState<
-    TOGGLE_BUTTON_ID
-  >(TOGGLE_BUTTON_ID.VISUAL);
+  const [toggleButtonSelected, setToggleButtonSelected] =
+    useState<TOGGLE_BUTTON_ID>(TOGGLE_BUTTON_ID.VISUAL);
   const toggleButtons = [
     {
       id: TOGGLE_BUTTON_ID.VISUAL,
