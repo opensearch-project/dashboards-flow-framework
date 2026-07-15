@@ -9,13 +9,13 @@ jobs:
     if: github.repository == 'opensearch-project/dashboards-flow-framework'
     steps:
       - name: Checkout OpenSearch Dashboards
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           repository: opensearch-project/OpenSearch-Dashboards
           ref: ${{ env.OPENSEARCH_DASHBOARDS_VERSION }}
           path: OpenSearch-Dashboards
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version-file: './OpenSearch-Dashboards/.nvmrc'
           registry-url: 'https://registry.npmjs.org'
@@ -28,7 +28,7 @@ jobs:
       - run: node -v
       - run: yarn -v
       - name: Checkout plugin
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           path: OpenSearch-Dashboards/plugins/dashboards-flow-framework
       - name: Bootstrap the plugin
