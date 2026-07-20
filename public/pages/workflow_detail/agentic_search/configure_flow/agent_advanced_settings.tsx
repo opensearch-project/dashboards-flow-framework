@@ -73,7 +73,7 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
   ) as string;
 
   const [embeddingModelOptions, setEmbeddingModelOptions] = useState<
-    { value: string; text: string }[]
+    Array<{ value: string; text: string }>
   >([]);
   useEffect(() => {
     setEmbeddingModelOptions(
@@ -179,7 +179,8 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
                     ...props.agentForm,
                     parameters: {
                       ...props.agentForm?.parameters,
-                      _llm_interface: modelInterface as AGENT_LLM_INTERFACE_TYPE,
+                      _llm_interface:
+                        modelInterface as AGENT_LLM_INTERFACE_TYPE,
                     },
                   });
                 }}
@@ -215,7 +216,7 @@ export function AgentAdvancedSettings(props: AgentAdvancedSettingsProps) {
                     options={[NONE_OPTION, ...embeddingModelOptions]}
                     value={selectedEmbeddingModelId}
                     onChange={(e) => {
-                      let updatedAgentForm = cloneDeep(props.agentForm);
+                      const updatedAgentForm = cloneDeep(props.agentForm);
                       if (e.target.value === '') {
                         const params = getIn(
                           updatedAgentForm,

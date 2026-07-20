@@ -22,14 +22,14 @@ export class BaseTransformer extends BaseComponent {
           context === PROCESSOR_CONTEXT.INGEST
             ? 'document'
             : context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-            ? 'search_request'
-            : 'search_response',
+              ? 'search_request'
+              : 'search_response',
         label:
           context === PROCESSOR_CONTEXT.INGEST
             ? 'Document'
             : context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-            ? 'Search Request'
-            : 'Search Response',
+              ? 'Search Request'
+              : 'Search Response',
         acceptMultiple: false,
       },
     ];
@@ -39,14 +39,14 @@ export class BaseTransformer extends BaseComponent {
           context === PROCESSOR_CONTEXT.INGEST
             ? 'document'
             : context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-            ? 'search_request'
-            : 'search_response',
+              ? 'search_request'
+              : 'search_response',
         label:
           context === PROCESSOR_CONTEXT.INGEST
             ? 'Document'
             : context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-            ? 'Search Request'
-            : 'Search Response',
+              ? 'Search Request'
+              : 'Search Response',
       },
     ];
   }

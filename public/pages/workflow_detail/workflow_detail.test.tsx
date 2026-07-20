@@ -79,12 +79,8 @@ describe('WorkflowDetail Page with create ingestion option', () => {
 
   Object.values(WORKFLOW_TYPE).forEach((type) => {
     test(`renders the WorkflowDetail page with ${type} type`, async () => {
-      const {
-        getAllByText,
-        getByText,
-        getByRole,
-        getByTestId,
-      } = renderWithRouter(workflowId, workflowName, type);
+      const { getAllByText, getByText, getByRole, getByTestId } =
+        renderWithRouter(workflowId, workflowName, type);
 
       // All workflow types should have the same header content
       expect(getAllByText(workflowName).length).toBeGreaterThan(0);
@@ -103,9 +99,7 @@ describe('WorkflowDetail Page with create ingestion option', () => {
         expect(getAllByText('Ingest flow').length).toBeGreaterThan(0);
         expect(getAllByText('Search flow').length).toBeGreaterThan(0);
         expect(getAllByText('Inspect').length).toBeGreaterThan(0);
-        expect(
-          getByRole('tab', { name: 'Search' })
-        ).toBeInTheDocument();
+        expect(getByRole('tab', { name: 'Search' })).toBeInTheDocument();
         expect(
           getByRole('tab', { name: 'Ingest response' })
         ).toBeInTheDocument();

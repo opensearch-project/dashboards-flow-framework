@@ -58,9 +58,8 @@ export function QuickConfigureOptionalFields(
   }, [models]);
 
   // Local field values state
-  const [optionalFieldValues, setOptionalFieldValues] = useState<
-    QuickConfigureFields
-  >({});
+  const [optionalFieldValues, setOptionalFieldValues] =
+    useState<QuickConfigureFields>({});
 
   // on initial load, set defaults for the field values for certain workflow types
   useEffect(() => {
@@ -125,9 +124,8 @@ export function QuickConfigureOptionalFields(
 
   // Keep track of if an embedding model is selected with an unknown embedding length.
   // Only expose the form field if it is unknown, else hide from the user.
-  const [unknownEmbeddingLength, setUnknownEmbeddingLength] = useState<boolean>(
-    false
-  );
+  const [unknownEmbeddingLength, setUnknownEmbeddingLength] =
+    useState<boolean>(false);
   useEffect(() => {
     const selectedModel = deployedModels.find(
       (model) => model.id === props.fields?.embeddingModelId
@@ -194,9 +192,12 @@ export function QuickConfigureOptionalFields(
           <>
             <EuiCompressedFormRow
               fullWidth={true}
-              label={props.workflowType === WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS
-                ? 'Sparse vector field'
-                : 'Vector field'}
+              label={
+                props.workflowType ===
+                WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS
+                  ? 'Sparse vector field'
+                  : 'Vector field'
+              }
               isInvalid={false}
               helpText="The name of the document field containing the vector embedding."
             >
@@ -211,28 +212,30 @@ export function QuickConfigureOptionalFields(
                 }}
               />
             </EuiCompressedFormRow>
-            {unknownEmbeddingLength && props.workflowType !== WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS && (
-              <>
-                <EuiSpacer size="s" />
-                <EuiCompressedFormRow
-                  fullWidth={true}
-                  label={'Embedding length'}
-                  isInvalid={false}
-                  helpText="The length / dimension of the generated vector embeddings."
-                >
-                  <EuiCompressedFieldNumber
+            {unknownEmbeddingLength &&
+              props.workflowType !==
+                WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS && (
+                <>
+                  <EuiSpacer size="s" />
+                  <EuiCompressedFormRow
                     fullWidth={true}
-                    value={props.fields?.embeddingLength || ''}
-                    onChange={(e) => {
-                      setOptionalFieldValues({
-                        ...optionalFieldValues,
-                        embeddingLength: Number(e.target.value),
-                      });
-                    }}
-                  />
-                </EuiCompressedFormRow>
-              </>
-            )}
+                    label={'Embedding length'}
+                    isInvalid={false}
+                    helpText="The length / dimension of the generated vector embeddings."
+                  >
+                    <EuiCompressedFieldNumber
+                      fullWidth={true}
+                      value={props.fields?.embeddingLength || ''}
+                      onChange={(e) => {
+                        setOptionalFieldValues({
+                          ...optionalFieldValues,
+                          embeddingLength: Number(e.target.value),
+                        });
+                      }}
+                    />
+                  </EuiCompressedFormRow>
+                </>
+              )}
           </>
         )}
         {isRAGUseCase(props.workflowType) && (
@@ -264,7 +267,7 @@ export function QuickConfigureOptionalFields(
                         </>
                       ),
                       disabled: false,
-                    } as EuiSuperSelectOption<string>)
+                    }) as EuiSuperSelectOption<string>
                 )}
                 valueOfSelected={optionalFieldValues?.promptField || ''}
                 onChange={(option: string) => {

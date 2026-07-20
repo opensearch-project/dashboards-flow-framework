@@ -154,8 +154,8 @@ export function Query(props: QueryProps) {
     ingestEnabled && props.hasIngestResources
       ? values?.ingest?.index?.name
       : !isEmpty(values?.search?.index?.name)
-      ? values?.search?.index?.name
-      : values?.ingest?.index?.name;
+        ? values?.search?.index?.name
+        : values?.ingest?.index?.name;
 
   return (
     <>
@@ -238,9 +238,10 @@ export function Query(props: QueryProps) {
                               resp: SearchResponse | SearchResponseVerbose
                             ) => {
                               if (finalSearchPipeline !== undefined) {
-                                const searchPipelineErrors = getSearchPipelineErrors(
-                                  resp as SearchResponseVerbose
-                                );
+                                const searchPipelineErrors =
+                                  getSearchPipelineErrors(
+                                    resp as SearchResponseVerbose
+                                  );
                                 // The errors map may be empty; in which case, this dispatch will clear
                                 // any older errors.
                                 dispatch(

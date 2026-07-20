@@ -67,7 +67,7 @@ interface AgentConfigurationProps {
 const AGENT_TYPE_OPTIONS = Object.values(AGENT_TYPE).map((agentType) => ({
   value: agentType,
   label: capitalize(agentType),
-})) as EuiComboBoxOptionOption<string>[];
+})) as Array<EuiComboBoxOptionOption<string>>;
 enum CONFIG_MODE {
   SIMPLE = 'simple',
   ADVANCED = 'advanced',
@@ -77,9 +77,8 @@ enum CONFIG_MODE {
  * Configure agents. Select from existing agents, update existing agents, or create new agents altogether.
  */
 export function AgentConfiguration(props: AgentConfigurationProps) {
-  const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<WorkflowFormValues>();
   const { agents, loading } = useSelector((state: AppState) => state.ml);
   const selectedAgentId = getIn(values, AGENT_ID_PATH, '') as string;
 
@@ -87,9 +86,8 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
   const [configModeSelected, setConfigModeSelected] = useState<CONFIG_MODE>(
     CONFIG_MODE.SIMPLE
   );
-  const [isSelectingAgentType, setIsSelectingAgentType] = useState<boolean>(
-    false
-  );
+  const [isSelectingAgentType, setIsSelectingAgentType] =
+    useState<boolean>(false);
 
   const [jsonError, setJsonError] = useState<string | undefined>(undefined);
 
@@ -120,7 +118,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
         ...knownOptions,
       ];
     }
-  }, [AGENT_TYPE_OPTIONS, agentType]) as EuiComboBoxOptionOption<string>[];
+  }, [AGENT_TYPE_OPTIONS, agentType]) as Array<EuiComboBoxOptionOption<string>>;
 
   // listen to agent ID changes. update the agent config form values appropriately
   useEffect(() => {
@@ -137,7 +135,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
 
   // get initial agent options for the dropdown.
   const [agentOptions, setAgentOptions] = useState<
-    EuiSuperSelectOption<string>[]
+    Array<EuiSuperSelectOption<string>>
   >([]);
   const [agentOptionsReady, setAgentOptionsReady] = useState<boolean>(false);
   useEffect(() => {
@@ -260,7 +258,7 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                           try {
                             const agent = agents[value];
                             if (agent.type === AGENT_TYPE.FLOW) {
-                              let updatedQuery = JSON.parse(
+                              const updatedQuery = JSON.parse(
                                 getIn(values, 'search.request')
                               );
                               if (
@@ -574,9 +572,8 @@ export function AgentConfiguration(props: AgentConfigurationProps) {
                       onBlur={(e) => {
                         try {
                           const agentFormUpdated = JSON.parse(e);
-                          const agentFormSanitized = sanitizeJSON(
-                            agentFormUpdated
-                          );
+                          const agentFormSanitized =
+                            sanitizeJSON(agentFormUpdated);
                           props.setAgentForm({
                             id: props.agentForm.id,
                             ...agentFormSanitized,

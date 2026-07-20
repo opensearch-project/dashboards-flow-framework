@@ -9,17 +9,17 @@ import { getIn, useFormikContext } from 'formik';
 import { useLocation, useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 import {
-  getMappings,
-  searchAgents,
-  updateWorkflow,
-  useAppDispatch,
-} from '../../../store';
-import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiPanel,
   EuiSmallButtonIcon,
 } from '@elastic/eui';
+import {
+  getMappings,
+  searchAgents,
+  updateWorkflow,
+  useAppDispatch,
+} from '../../../store';
 import {
   AGENT_ID_PATH,
   FETCH_ALL_QUERY_LARGE,
@@ -54,9 +54,8 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
   const location = useLocation();
   const history = useHistory();
   const dataSourceId = getDataSourceId();
-  const { values, submitForm, validateForm, setTouched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, submitForm, validateForm, setTouched } =
+    useFormikContext<WorkflowFormValues>();
   const [fieldMappings, setFieldMappings] = useState<IndexMappings | undefined>(
     undefined
   );
@@ -107,14 +106,14 @@ export function AgenticSearchWorkspace(props: AgenticSearchWorkspaceProps) {
 
   // Utility fn to validate the form and update the workflow if valid
   async function validateAndUpdateWorkflow(): Promise<boolean> {
-    let success = false;
+    const success = false;
     await submitForm();
     await validateForm()
       .then(async (validationResults) => {
         // @ts-ignore
         const { search } = validationResults;
         // TODO: currently don't do any validation, as no resources are created. Just save whatever the users have filled out in the form.
-        //if (search !== undefined && Object.keys(search)?.length > 0) {
+        // if (search !== undefined && Object.keys(search)?.length > 0) {
         if (false) {
           getCore().notifications.toasts.addDanger('Missing or invalid fields');
         } else {

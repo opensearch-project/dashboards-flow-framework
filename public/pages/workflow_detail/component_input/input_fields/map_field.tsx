@@ -35,8 +35,8 @@ interface MapFieldProps {
   valueTitle?: string;
   valuePlaceholder?: string;
   valueHelpText?: string;
-  keyOptions?: { label: string }[];
-  valueOptions?: { label: string }[];
+  keyOptions?: Array<{ label: string }>;
+  valueOptions?: Array<{ label: string }>;
   addEntryButtonText?: string;
   mappingDirection?: 'sortRight' | 'sortLeft' | undefined;
   disabled?: boolean;
@@ -53,13 +53,8 @@ const VALUE_FLEX_RATIO = 6;
  * Allow custom options as a backup/default to ensure flexibility.
  */
 export function MapField(props: MapFieldProps) {
-  const {
-    setFieldValue,
-    setFieldTouched,
-    errors,
-    touched,
-    values,
-  } = useFormikContext<WorkflowFormValues>();
+  const { setFieldValue, setFieldTouched, errors, touched, values } =
+    useFormikContext<WorkflowFormValues>();
   const disabled = props.disabled ?? false;
 
   // Adding a map entry to the end of the existing arr

@@ -72,9 +72,8 @@ export function ImportWorkflowModal(props: ImportWorkflowModalProps) {
 
   // workflow name state
   const [workflowName, setWorkflowName] = useState<string>('');
-  const [workflowNameTouched, setWorkflowNameTouched] = useState<boolean>(
-    false
-  );
+  const [workflowNameTouched, setWorkflowNameTouched] =
+    useState<boolean>(false);
   function isInvalidName(name: string): boolean {
     return (
       name === '' ||

@@ -61,7 +61,7 @@ const makeConfig = (
       enrichRequest: { processors: requestProcessors },
       enrichResponse: { processors: responseProcessors },
     },
-  } as unknown as WorkflowConfig);
+  }) as unknown as WorkflowConfig;
 
 const FORM_VALUES: WorkflowFormValues = {
   ingest: {},
@@ -223,9 +223,7 @@ describe('form_to_pipeline_utils', () => {
 
   describe('formikToSearchPipeline', () => {
     test('returns undefined when no processors', () => {
-      expect(
-        formikToSearchPipeline(FORM_VALUES, makeConfig())
-      ).toBeUndefined();
+      expect(formikToSearchPipeline(FORM_VALUES, makeConfig())).toBeUndefined();
     });
 
     test('returns pipeline with request processors only', () => {

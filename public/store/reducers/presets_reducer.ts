@@ -11,7 +11,7 @@ import { formatRouteServiceError } from '../../utils';
 export const INITIAL_PRESETS_STATE = {
   loading: false,
   errorMessage: '',
-  presetWorkflows: [] as Partial<WorkflowTemplate>[],
+  presetWorkflows: [] as Array<Partial<WorkflowTemplate>>,
 };
 
 const PRESET_ACTION_PREFIX = 'presets';
@@ -41,9 +41,9 @@ const presetsSlice = createSlice({
         state.errorMessage = '';
       })
       .addCase(getWorkflowPresets.fulfilled, (state, action) => {
-        state.presetWorkflows = action.payload.workflowTemplates as Partial<
-          WorkflowTemplate
-        >[];
+        state.presetWorkflows = action.payload.workflowTemplates as Array<
+          Partial<WorkflowTemplate>
+        >;
         state.loading = false;
         state.errorMessage = '';
       })

@@ -191,7 +191,7 @@ function getFormattedJsonStr(jsonStr: string): string {
 }
 
 function getErrs(jsonStr: string): string[] {
-  let errs = [] as string[];
+  const errs = [] as string[];
   try {
     const lines = jsonStr?.split('\n');
     lines.forEach((line: string, idx) => {

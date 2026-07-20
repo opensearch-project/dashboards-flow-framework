@@ -81,7 +81,7 @@ function hasHits(searchResponse?: any): boolean {
 function hasAggregations(searchResponse?: any): boolean {
   return Boolean(
     searchResponse?.aggregations &&
-      Object.keys(searchResponse?.aggregations || {}).length > 0
+    Object.keys(searchResponse?.aggregations || {}).length > 0
   );
 }
 function hasImageField(hit: any): string | undefined {
@@ -121,9 +121,8 @@ export function SearchResults(props: SearchResultsProps) {
   );
   const [showResults, setShowResults] = useState<boolean>(true);
 
-  const [showAgentSummaryModal, setShowAgentSummaryModal] = useState<boolean>(
-    false
-  );
+  const [showAgentSummaryModal, setShowAgentSummaryModal] =
+    useState<boolean>(false);
 
   // Intelligently select the most appropriate tab based on search response content
   useEffect(() => {
@@ -188,7 +187,7 @@ export function SearchResults(props: SearchResultsProps) {
                   data-testid="hideShowResultsButton"
                   onClick={() => setShowResults(!showResults)}
                   iconType={showResults ? 'eye' : 'eyeClosed'}
-                ></EuiSmallButtonIcon>
+                />
               </EuiFlexItem>
             )}
           </EuiFlexGroup>

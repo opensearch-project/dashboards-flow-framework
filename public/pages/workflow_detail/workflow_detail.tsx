@@ -70,8 +70,7 @@ export interface WorkflowDetailRouterProps {
   workflowId: string;
 }
 
-interface WorkflowDetailProps
-  extends RouteComponentProps<WorkflowDetailRouterProps> {
+interface WorkflowDetailProps extends RouteComponentProps<WorkflowDetailRouterProps> {
   setActionMenu: (menuMount?: MountPoint) => void;
 }
 

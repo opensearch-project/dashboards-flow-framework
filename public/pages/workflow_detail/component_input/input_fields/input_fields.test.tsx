@@ -81,18 +81,16 @@ describe('SelectField', () => {
   };
 
   test('renders with label derived from field id', () => {
-    renderWithFormik(
-      <SelectField field={field} fieldPath="mySelect" />,
-      { mySelect: '' }
-    );
+    renderWithFormik(<SelectField field={field} fieldPath="mySelect" />, {
+      mySelect: '',
+    });
     expect(screen.getByText('My Select')).toBeInTheDocument();
   });
 
   test('renders select options', () => {
-    renderWithFormik(
-      <SelectField field={field} fieldPath="mySelect" />,
-      { mySelect: 'option_a' }
-    );
+    renderWithFormik(<SelectField field={field} fieldPath="mySelect" />, {
+      mySelect: 'option_a',
+    });
     expect(screen.getAllByText('option_a').length).toBeGreaterThan(0);
   });
 });
@@ -100,7 +98,11 @@ describe('SelectField', () => {
 describe('BooleanField', () => {
   test('renders checkbox type with label', () => {
     renderWithFormik(
-      <BooleanField fieldPath="myBool" label="Enable feature" type="Checkbox" />,
+      <BooleanField
+        fieldPath="myBool"
+        label="Enable feature"
+        type="Checkbox"
+      />,
       { myBool: true }
     );
     expect(screen.getByText('Enable feature')).toBeInTheDocument();
@@ -125,7 +127,12 @@ describe('BooleanField', () => {
 
   test('renders switch as unchecked when value is false and inverse is true', () => {
     renderWithFormik(
-      <BooleanField fieldPath="myBool" label="Inverse" type="Switch" inverse={true} />,
+      <BooleanField
+        fieldPath="myBool"
+        label="Inverse"
+        type="Switch"
+        inverse={true}
+      />,
       { myBool: true }
     );
     const toggle = screen.getByTestId('switch-myBool');
@@ -134,7 +141,12 @@ describe('BooleanField', () => {
 
   test('renders help text when provided', () => {
     renderWithFormik(
-      <BooleanField fieldPath="myBool" label="Help" type="Checkbox" helpText="Some help" />,
+      <BooleanField
+        fieldPath="myBool"
+        label="Help"
+        type="Checkbox"
+        helpText="Some help"
+      />,
       { myBool: true }
     );
     // EuiIconTip renders an icon, the help text is in a tooltip
@@ -215,18 +227,16 @@ describe('MapArrayField', () => {
   const { MapArrayField } = require('./map_array_field');
 
   test('renders configure button when empty', () => {
-    renderWithFormik(
-      <MapArrayField fieldPath="myMapArray" />,
-      { myMapArray: [] }
-    );
+    renderWithFormik(<MapArrayField fieldPath="myMapArray" />, {
+      myMapArray: [],
+    });
     expect(screen.getByText('Configure')).toBeInTheDocument();
   });
 
   test('renders map content for single populated map', () => {
-    renderWithFormik(
-      <MapArrayField fieldPath="myMapArray" />,
-      { myMapArray: [[{ key: 'k', value: 'v' }]] }
-    );
+    renderWithFormik(<MapArrayField fieldPath="myMapArray" />, {
+      myMapArray: [[{ key: 'k', value: 'v' }]],
+    });
     // Single populated map renders a panel with MapField inside
     expect(screen.getByDisplayValue('k')).toBeInTheDocument();
   });
@@ -234,7 +244,10 @@ describe('MapArrayField', () => {
 
 describe('ModelField', () => {
   const React = require('react');
-  const { render: rtlRender, screen: rtlScreen } = require('@testing-library/react');
+  const {
+    render: rtlRender,
+    screen: rtlScreen,
+  } = require('@testing-library/react');
   const { Provider } = require('react-redux');
   const { Formik: FormikProvider } = require('formik');
   const { BrowserRouter } = require('react-router-dom');
@@ -249,7 +262,13 @@ describe('ModelField', () => {
       ml: {
         ...INITIAL_ML_STATE,
         models: {
-          model1: { id: 'model1', name: 'Test Model', state: 'DEPLOYED', algorithm: 'TEXT_EMBEDDING', interface: {} },
+          model1: {
+            id: 'model1',
+            name: 'Test Model',
+            state: 'DEPLOYED',
+            algorithm: 'TEXT_EMBEDDING',
+            interface: {},
+          },
         },
       },
       opensearch: { indices: {}, errorMessage: '' },
@@ -275,7 +294,10 @@ describe('ModelField', () => {
   });
 
   test('renders custom label', () => {
-    renderModelField({ label: 'LLM Model' }, { myModel: { id: '', algorithm: undefined } });
+    renderModelField(
+      { label: 'LLM Model' },
+      { myModel: { id: '', algorithm: undefined } }
+    );
     expect(rtlScreen.getByText('LLM Model')).toBeInTheDocument();
   });
 
@@ -309,6 +331,8 @@ describe('ModelInfoPopover', () => {
   test('shows sparse encoder links when opened', () => {
     render(<ModelInfoPopover modelCategory={MODEL_CATEGORY.SPARSE_ENCODER} />);
     fireEvent.click(screen.getByText('Learn more'));
-    expect(screen.getByText('OpenSearch Neural Sparse Encoder')).toBeInTheDocument();
+    expect(
+      screen.getByText('OpenSearch Neural Sparse Encoder')
+    ).toBeInTheDocument();
   });
 });

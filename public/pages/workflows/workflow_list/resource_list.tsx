@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { columns } from '../../workflow_detail/tools/resources/columns';
 import {
   EuiCodeBlock,
   EuiFlexGroup,
@@ -17,6 +16,8 @@ import {
   EuiEmptyPrompt,
   EuiLoadingSpinner,
 } from '@elastic/eui';
+import { useSelector } from 'react-redux';
+import { columns } from '../../workflow_detail/tools/resources/columns';
 import {
   Workflow,
   WorkflowResource,
@@ -34,7 +35,6 @@ import {
   getDataSourceId,
   getErrorMessageForStepType,
 } from '../../../utils';
-import { useSelector } from 'react-redux';
 
 interface ResourceListProps {
   workflow?: Workflow;
@@ -78,11 +78,8 @@ export function ResourceList(props: ResourceListProps) {
   }, [props.workflow?.resourcesCreated]);
 
   useEffect(() => {
-    const {
-      indexIds,
-      ingestPipelineIds,
-      searchPipelineIds,
-    } = extractIdsByStepType(allResources);
+    const { indexIds, ingestPipelineIds, searchPipelineIds } =
+      extractIdsByStepType(allResources);
 
     if (indexIds) {
       try {
@@ -191,8 +188,8 @@ export function ResourceList(props: ResourceListProps) {
     return a[sortField] > b[sortField]
       ? 1 * multiplier
       : a[sortField] < b[sortField]
-      ? -1 * multiplier
-      : 0;
+        ? -1 * multiplier
+        : 0;
   });
 
   const pagination = {

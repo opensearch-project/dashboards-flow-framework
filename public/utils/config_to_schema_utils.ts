@@ -35,8 +35,8 @@ export function uiConfigToSchema(
   indices: { [key: string]: Index }
 ) {
   const schemaObj = {} as WorkflowSchemaObj;
-  schemaObj['ingest'] = ingestConfigToSchema(config.ingest, indices);
-  schemaObj['search'] = searchConfigToSchema(config.search);
+  schemaObj.ingest = ingestConfigToSchema(config.ingest, indices);
+  schemaObj.search = searchConfigToSchema(config.search);
   return yup.object(schemaObj) as WorkflowSchema;
 }
 
@@ -46,12 +46,12 @@ function ingestConfigToSchema(
 ): ObjectSchema<any> {
   const ingestSchemaObj = {} as { [key: string]: Schema };
   if (ingestConfig?.enabled?.value === true) {
-    ingestSchemaObj['docs'] = getFieldSchema({
+    ingestSchemaObj.docs = getFieldSchema({
       type: 'jsonLines',
     } as IConfigField);
-    ingestSchemaObj['pipelineName'] = getFieldSchema(ingestConfig.pipelineName);
-    ingestSchemaObj['enrich'] = processorsConfigToSchema(ingestConfig.enrich);
-    ingestSchemaObj['index'] = indexConfigToSchema(ingestConfig.index, indices);
+    ingestSchemaObj.pipelineName = getFieldSchema(ingestConfig.pipelineName);
+    ingestSchemaObj.enrich = processorsConfigToSchema(ingestConfig.enrich);
+    ingestSchemaObj.index = indexConfigToSchema(ingestConfig.index, indices);
   }
   return yup.object(ingestSchemaObj);
 }
@@ -63,7 +63,7 @@ function indexConfigToSchema(
   const indexSchemaObj = {} as { [key: string]: Schema };
   // Do a deeper check on the index name. Ensure the name is of valid format,
   // and that it doesn't name clash with an existing index.
-  indexSchemaObj['name'] = yup
+  indexSchemaObj.name = yup
     .string()
     .test('name', 'Invalid index name', (name) => {
       return !(
@@ -85,8 +85,8 @@ function indexConfigToSchema(
       }
     )
     .required('Required') as yup.Schema;
-  indexSchemaObj['mappings'] = getFieldSchema(indexConfig.mappings);
-  indexSchemaObj['settings'] = getFieldSchema(indexConfig.settings);
+  indexSchemaObj.mappings = getFieldSchema(indexConfig.mappings);
+  indexSchemaObj.settings = getFieldSchema(indexConfig.settings);
   return yup.object(indexSchemaObj);
 }
 
@@ -95,20 +95,20 @@ function searchConfigToSchema(
 ): ObjectSchema<any> {
   const searchSchemaObj = {} as { [key: string]: Schema };
   if (searchConfig) {
-    searchSchemaObj['request'] = getFieldSchema({
+    searchSchemaObj.request = getFieldSchema({
       type: 'json',
     } as IConfigField);
-    searchSchemaObj['pipelineName'] = getFieldSchema(searchConfig.pipelineName);
-    searchSchemaObj['index'] = searchIndexToSchema(searchConfig.index);
-    searchSchemaObj['enrichRequest'] = processorsConfigToSchema(
+    searchSchemaObj.pipelineName = getFieldSchema(searchConfig.pipelineName);
+    searchSchemaObj.index = searchIndexToSchema(searchConfig.index);
+    searchSchemaObj.enrichRequest = processorsConfigToSchema(
       searchConfig.enrichRequest
     );
-    searchSchemaObj['enrichResponse'] = processorsConfigToSchema(
+    searchSchemaObj.enrichResponse = processorsConfigToSchema(
       searchConfig.enrichResponse
     );
     // Handle optional agent fields if present
     if (searchConfig.requestAgentId) {
-      searchSchemaObj['requestAgentId'] = getFieldSchema(
+      searchSchemaObj.requestAgentId = getFieldSchema(
         searchConfig.requestAgentId
       );
     }
@@ -118,7 +118,7 @@ function searchConfigToSchema(
 
 function searchIndexToSchema(searchIndexConfig: SearchIndexConfig): Schema {
   const searchIndexSchemaObj = {} as { [key: string]: Schema };
-  searchIndexSchemaObj['name'] = getFieldSchema(searchIndexConfig.name);
+  searchIndexSchemaObj.name = getFieldSchema(searchIndexConfig.name);
   return yup.object(searchIndexSchemaObj);
 }
 

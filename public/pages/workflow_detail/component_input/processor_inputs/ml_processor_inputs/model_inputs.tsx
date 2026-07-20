@@ -128,10 +128,10 @@ export function ModelInputs(props: ModelInputsProps) {
 
   // persisting doc/query/index mapping fields to collect a list
   // of options to display in the dropdowns when configuring input / output maps
-  const [docFields, setDocFields] = useState<{ label: string }[]>([]);
-  const [queryFields, setQueryFields] = useState<{ label: string }[]>([]);
+  const [docFields, setDocFields] = useState<Array<{ label: string }>>([]);
+  const [queryFields, setQueryFields] = useState<Array<{ label: string }>>([]);
   const [indexMappingFields, setIndexMappingFields] = useState<
-    { label: string }[]
+    Array<{ label: string }>
   >([]);
   useEffect(() => {
     try {
@@ -229,8 +229,8 @@ export function ModelInputs(props: ModelInputsProps) {
     props.context === PROCESSOR_CONTEXT.INGEST
       ? docFields
       : props.context === PROCESSOR_CONTEXT.SEARCH_REQUEST
-      ? queryFields
-      : indexMappingFields;
+        ? queryFields
+        : indexMappingFields;
 
   return (
     <Field name={inputMapFieldPath} key={inputMapFieldPath}>
@@ -392,7 +392,7 @@ export function ModelInputs(props: ModelInputsProps) {
                                             </>
                                           ),
                                           disabled: false,
-                                        } as EuiSuperSelectOption<string>)
+                                        }) as EuiSuperSelectOption<string>
                                     )}
                                     valueOfSelected={
                                       getIn(

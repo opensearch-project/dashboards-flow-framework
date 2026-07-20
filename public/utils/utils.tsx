@@ -188,10 +188,9 @@ export async function isCompatibleWorkflow(
 
   const dataSourceVersion =
     (await getDataSourceVersion(dataSourceId)) || MIN_SUPPORTED_VERSION;
-  const [
-    effectiveMajorVersion,
-    effectiveMinorVersion,
-  ] = dataSourceVersion.split('.').map(Number);
+  const [effectiveMajorVersion, effectiveMinorVersion] = dataSourceVersion
+    .split('.')
+    .map(Number);
 
   // Checks if any version in compatibility array matches the current dataSourceVersion (major.minor)
   return compatibility.some((compatibleVersion) => {
@@ -234,8 +233,8 @@ export function prepareDocsForSimulate(
 
 // Utility fn to transform a raw JSON Lines string into an arr of JSON objs
 // for easier downstream parsing
-export function getObjsFromJSONLines(jsonLines: string | undefined): {}[] {
-  let objs = [] as {}[];
+export function getObjsFromJSONLines(jsonLines: string | undefined): Array<{}> {
+  const objs = [] as Array<{}>;
   try {
     const lines = jsonLines?.split('\n') as string[];
     lines.forEach((line) => objs.push(JSON.parse(line)));
@@ -274,7 +273,7 @@ export function unwrapTransformedDocs(
 export function getIngestPipelineErrors(
   simulatePipelineResponse: SimulateIngestPipelineResponseVerbose
 ): IngestPipelineErrors {
-  let ingestPipelineErrors = {} as IngestPipelineErrors;
+  const ingestPipelineErrors = {} as IngestPipelineErrors;
   simulatePipelineResponse.docs?.forEach((docResult) => {
     docResult.processor_results.forEach((processorResult, idx) => {
       if (processorResult.error?.reason !== undefined) {
@@ -292,7 +291,7 @@ export function getIngestPipelineErrors(
 export function getSearchPipelineErrors(
   searchResponseVerbose: SearchResponseVerbose
 ): SearchPipelineErrors {
-  let searchPipelineErrors = {} as SearchPipelineErrors;
+  const searchPipelineErrors = {} as SearchPipelineErrors;
   searchResponseVerbose.processor_results?.forEach((processorResult, idx) => {
     if (processorResult?.error !== undefined) {
       searchPipelineErrors[idx] = {
@@ -325,7 +324,7 @@ export function formatProcessorError(processorError: {
 // We follow the same logic here to generate consistent results.
 export function generateTransform(
   input: {} | [],
-  map: (InputMapEntry | OutputMapEntry)[],
+  map: Array<InputMapEntry | OutputMapEntry>,
   context: PROCESSOR_CONTEXT,
   transformContext: TRANSFORM_CONTEXT,
   queryContext?: {}
@@ -355,12 +354,12 @@ export function generateTransform(
 // and the input is an array.
 export function generateArrayTransform(
   input: [],
-  map: (InputMapEntry | OutputMapEntry)[],
+  map: Array<InputMapEntry | OutputMapEntry>,
   context: PROCESSOR_CONTEXT,
   transformContext: TRANSFORM_CONTEXT,
   queryContext?: {}
-): {}[] {
-  let output = [] as {}[];
+): Array<{}> {
+  let output = [] as Array<{}>;
   map.forEach((mapEntry) => {
     try {
       // If users define a path using the special query request
@@ -490,7 +489,7 @@ export function parseModelInputs(
         label: inputName,
         optional: !requiredModelInputs.includes(inputName),
         ...modelInputsObj[inputName],
-      } as ModelInputFormField)
+      }) as ModelInputFormField
   );
 }
 
@@ -537,7 +536,7 @@ export function parseModelOutputs(
       ({
         label: outputName,
         ...modelOutputsObj[outputName],
-      } as ModelOutputFormField)
+      }) as ModelOutputFormField
   );
 }
 
@@ -926,9 +925,8 @@ export function getUpdatedIndexMappings(
   dimension: number
 ): string {
   try {
-    const mappingsWithRemovedVectorField = removeVectorFieldFromIndexMappings(
-      existingMappings
-    );
+    const mappingsWithRemovedVectorField =
+      removeVectorFieldFromIndexMappings(existingMappings);
     return customStringify(
       set(
         JSON.parse(mappingsWithRemovedVectorField),
@@ -948,7 +946,7 @@ export function removeVectorFieldFromIndexMappings(
   existingMappings: string
 ): string {
   try {
-    let existingMappingsObj = JSON.parse(existingMappings);
+    const existingMappingsObj = JSON.parse(existingMappings);
     const existingEmbeddingField = getExistingVectorField(existingMappingsObj);
     if (existingEmbeddingField !== undefined) {
       unset(existingMappingsObj?.properties, existingEmbeddingField);
@@ -1182,9 +1180,18 @@ export function isKnownLLM(
 ): boolean {
   const connector = getConnectorForModel(model, connectors);
   if (!connector) return false;
-  const modelName = (get(connector, 'parameters.model', '') as string).toLowerCase();
+  const modelName = (
+    get(connector, 'parameters.model', '') as string
+  ).toLowerCase();
   const url = (get(connector, 'actions[0].url', '') as string).toLowerCase();
-  const llmModelPatterns = ['gpt', 'claude', 'deepseek', 'llama', 'mistral', 'command'];
+  const llmModelPatterns = [
+    'gpt',
+    'claude',
+    'deepseek',
+    'llama',
+    'mistral',
+    'command',
+  ];
   const llmUrlPatterns = ['chat/completions', '/converse'];
   return (
     llmModelPatterns.some((p) => modelName.includes(p)) ||

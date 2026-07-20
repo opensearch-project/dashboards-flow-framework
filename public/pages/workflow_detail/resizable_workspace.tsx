@@ -67,9 +67,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   const [lastIngested, setLastIngested] = useState<number | undefined>(
     undefined
   );
-  const [ingestUpdateRequired, setIngestUpdateRequired] = useState<boolean>(
-    false
-  );
+  const [ingestUpdateRequired, setIngestUpdateRequired] =
+    useState<boolean>(false);
 
   // Readonly states for ingest and search. If there are unsaved changes in one context, block editing in the other.
   const [ingestReadonly, setIngestReadonly] = useState<boolean>(false);
@@ -89,9 +88,8 @@ export function ResizableWorkspace(props: ResizableWorkspaceProps) {
   // Inspector panel state vars. Actions taken in the form can update the Inspector panel,
   // hence we keep top-level vars here to pass to both form and inspector components.
   const [ingestResponse, setIngestResponse] = useState<string>('');
-  const [selectedInspectorTabId, setSelectedInspectorTabId] = useState<
-    INSPECTOR_TAB_ID
-  >(INSPECTOR_TAB_ID.TEST);
+  const [selectedInspectorTabId, setSelectedInspectorTabId] =
+    useState<INSPECTOR_TAB_ID>(INSPECTOR_TAB_ID.TEST);
 
   // is valid workflow state, + associated hook to set it as such
   const [isValidWorkflow, setIsValidWorkflow] = useState<boolean>(true);

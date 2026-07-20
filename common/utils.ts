@@ -4,14 +4,15 @@
  */
 
 import moment from 'moment';
-import { DATE_FORMAT_PATTERN, WORKFLOW_TYPE } from './';
 import { isEmpty } from 'lodash';
+import { DATE_FORMAT_PATTERN, WORKFLOW_TYPE } from './';
 
 export function toFormattedDate(timestampMillis: number): String {
   return moment(new Date(timestampMillis)).format(DATE_FORMAT_PATTERN);
 }
 
-const PERMISSIONS_ERROR_PATTERN = /no permissions for \[(.+)\] and User \[name=(.+), backend_roles/;
+const PERMISSIONS_ERROR_PATTERN =
+  /no permissions for \[(.+)\] and User \[name=(.+), backend_roles/;
 
 export const prettifyErrorMessage = (rawErrorMessage: string) => {
   if (isEmpty(rawErrorMessage) || rawErrorMessage === 'undefined') {

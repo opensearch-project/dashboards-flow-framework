@@ -119,14 +119,13 @@ export function SourceDataModal(props: SourceDataProps) {
         .unwrap()
         .then((resp: IndexMappings) => {
           if (!isEmpty(resp)) {
-            let updatedMappings = resp;
+            const updatedMappings = resp;
             try {
-              let existingMappingsObj = JSON.parse(
+              const existingMappingsObj = JSON.parse(
                 getIn(values, indexMappingsPath)
               );
-              const existingEmbeddingField = getExistingVectorField(
-                existingMappingsObj
-              );
+              const existingEmbeddingField =
+                getExistingVectorField(existingMappingsObj);
               const existingEmbeddingFieldValue = getIn(
                 existingMappingsObj,
                 `properties.${existingEmbeddingField}`
@@ -187,7 +186,7 @@ export function SourceDataModal(props: SourceDataProps) {
               .then((resp) => {
                 const docObjs = resp?.hits?.hits
                   ?.slice(0, MAX_DOCS_TO_IMPORT)
-                  ?.map((hit: SearchHit) => hit?._source) as {}[];
+                  ?.map((hit: SearchHit) => hit?._source) as Array<{}>;
                 let jsonLinesStr = '';
                 try {
                   docObjs.forEach((docObj) => {

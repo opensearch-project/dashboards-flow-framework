@@ -12,9 +12,9 @@ import {
   EuiSmallButton,
   EuiLink,
 } from '@elastic/eui';
+import ReactMarkdown from 'react-markdown';
 import { Workflow } from '../../../../common';
 import { QuickConfigureModal } from './quick_configure_modal';
-import ReactMarkdown from 'react-markdown';
 
 interface UseCaseProps {
   workflow: Workflow;
@@ -72,7 +72,7 @@ export function UseCase(props: UseCaseProps) {
             </EuiFlexItem>
           </EuiFlexGroup>
         }
-      ></EuiCard>
+      />
     </>
   );
 }

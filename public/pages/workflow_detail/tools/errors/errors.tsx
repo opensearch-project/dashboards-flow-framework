@@ -12,7 +12,7 @@ import {
 } from '@elastic/eui';
 
 interface ErrorsProps {
-  errorMessages: (string | ReactNode)[];
+  errorMessages: Array<string | ReactNode>;
 }
 
 /**

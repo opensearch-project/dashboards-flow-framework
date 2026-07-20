@@ -123,9 +123,8 @@ export function getModelsFromResponses(modelHits: SearchHit[]): ModelDict {
       // the persisted model interface (if available) is a mix of an obj and string.
       // We parse the string values for input/output to have a complete
       // end-to-end JSONSchema obj
-      let indexedModelInterface = modelHit._source.interface as
-        | { input: string; output: string }
-        | undefined;
+      const indexedModelInterface = modelHit._source.interface as
+        { input: string; output: string } | undefined;
       let modelInterface = undefined as ModelInterface | undefined;
       if (indexedModelInterface !== undefined) {
         let parsedInput = undefined as ModelInput | undefined;

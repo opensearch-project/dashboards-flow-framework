@@ -20,8 +20,7 @@ describe('isKnownLLM and isKnownEmbeddingModel', () => {
     parameters: { model: 'anthropic.claude-3-sonnet', service_name: 'bedrock' },
     actions: [
       {
-        url:
-          'https://bedrock-runtime.us-west-2.amazonaws.com/model/anthropic.claude-3-sonnet/converse',
+        url: 'https://bedrock-runtime.us-west-2.amazonaws.com/model/anthropic.claude-3-sonnet/converse',
       },
     ],
   } as Partial<Connector>;
@@ -33,8 +32,7 @@ describe('isKnownLLM and isKnownEmbeddingModel', () => {
     },
     actions: [
       {
-        url:
-          'https://bedrock-runtime.us-west-2.amazonaws.com/model/amazon.titan-embed-text-v2/invoke',
+        url: 'https://bedrock-runtime.us-west-2.amazonaws.com/model/amazon.titan-embed-text-v2/invoke',
       },
     ],
   } as Partial<Connector>;
@@ -115,8 +113,7 @@ describe('isKnownLLM and isKnownEmbeddingModel', () => {
         parameters: { model: 'amazon.titan-embed-text-v2:0' },
         actions: [
           {
-            url:
-              'https://bedrock-runtime.us-west-2.amazonaws.com/model/amazon.titan-embed-text-v2:0/invoke',
+            url: 'https://bedrock-runtime.us-west-2.amazonaws.com/model/amazon.titan-embed-text-v2:0/invoke',
           },
         ],
       } as Partial<Connector>,

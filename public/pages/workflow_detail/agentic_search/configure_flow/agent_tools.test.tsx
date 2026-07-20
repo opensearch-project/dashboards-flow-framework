@@ -25,21 +25,20 @@ jest.mock('../../../../services', () => {
 // Mock SimplifiedJsonField to make onChange/onBlur testable
 let capturedOnChange: ((value: string) => void) | undefined;
 let capturedOnBlur: ((value: string) => void) | undefined;
-jest.mock(
-  '../components/simplified_json_field',
-  () => ({
-    SimplifiedJsonField: (props: any) => {
-      capturedOnChange = props.onChange;
-      capturedOnBlur = props.onBlur;
-      return (
-        <div data-testid="simplifiedJsonField">
-          <span>{props.label}</span>
-          {props.isInvalid && <span data-testid="fallbackQueryError">{props.error}</span>}
-        </div>
-      );
-    },
-  })
-);
+jest.mock('../components/simplified_json_field', () => ({
+  SimplifiedJsonField: (props: any) => {
+    capturedOnChange = props.onChange;
+    capturedOnBlur = props.onBlur;
+    return (
+      <div data-testid="simplifiedJsonField">
+        <span>{props.label}</span>
+        {props.isInvalid && (
+          <span data-testid="fallbackQueryError">{props.error}</span>
+        )}
+      </div>
+    );
+  },
+}));
 
 // Setup mock store
 const mockStore = configureStore([]);

@@ -93,9 +93,9 @@ export function ResourceFlyoutContent(props: ResourceFlyoutContentProps) {
             WORKFLOW_STEP_TYPE.CREATE_INDEX_STEP_TYPE
               ? 'Ingest additional data using the bulk API'
               : props.resource?.stepType ===
-                WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE
-              ? 'Ingest additional data using the bulk API'
-              : 'Apply a search pipeline to your applications'}
+                  WORKFLOW_STEP_TYPE.CREATE_INGEST_PIPELINE_STEP_TYPE
+                ? 'Ingest additional data using the bulk API'
+                : 'Apply a search pipeline to your applications'}
           </h4>
         </EuiTitle>
       </EuiFlexItem>

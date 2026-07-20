@@ -71,9 +71,8 @@ export function IngestContent(props: IngestContentProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
 
-  const { values, touched, errors, setFieldValue } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, touched, errors, setFieldValue } =
+    useFormikContext<WorkflowFormValues>();
 
   const ingestEnabled = getIn(values, 'ingest.enabled', true);
 
@@ -288,8 +287,8 @@ export function IngestContent(props: IngestContentProps) {
                       {ingestEnabled && props.ingestProvisioned
                         ? 'Delete ingest flow'
                         : ingestEnabled
-                        ? 'Disable ingest flow'
-                        : 'Enable ingest flow'}
+                          ? 'Disable ingest flow'
+                          : 'Enable ingest flow'}
                     </EuiButtonEmpty>
                   </EuiPopover>
                 </EuiToolTip>
@@ -319,21 +318,21 @@ export function IngestContent(props: IngestContentProps) {
                     props.isProvisioningIngest
                       ? 'subdued'
                       : props.isUnsaved
-                      ? 'warning'
-                      : props.ingestProvisioned
-                      ? 'primary'
-                      : 'subdued'
+                        ? 'warning'
+                        : props.ingestProvisioned
+                          ? 'primary'
+                          : 'subdued'
                   }
                 >
                   {!ingestEnabled
                     ? 'Disabled'
                     : props.isProvisioningIngest
-                    ? 'Creating...'
-                    : props.isUnsaved
-                    ? 'Unsaved changes'
-                    : props.ingestProvisioned
-                    ? 'Active'
-                    : 'Not created'}
+                      ? 'Creating...'
+                      : props.isUnsaved
+                        ? 'Unsaved changes'
+                        : props.ingestProvisioned
+                          ? 'Active'
+                          : 'Not created'}
                 </EuiHealth>
               </EuiFlexItem>
             </EuiFlexGroup>
@@ -358,8 +357,8 @@ export function IngestContent(props: IngestContentProps) {
                 props.ingestProvisioned
                   ? 'Sample data ingested'
                   : props.docsPopulated
-                  ? 'Sample data added'
-                  : ''
+                    ? 'Sample data added'
+                    : ''
               }
               isError={sourceDataError}
             />

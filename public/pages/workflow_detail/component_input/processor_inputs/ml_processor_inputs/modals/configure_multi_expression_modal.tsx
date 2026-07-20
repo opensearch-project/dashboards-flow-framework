@@ -102,9 +102,8 @@ export function ConfigureMultiExpressionModal(
     dataSourceId,
     dataSourceVersion
   );
-  const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<WorkflowFormValues>();
 
   // sub-form values/schema
   const expressionsFormValues = {
@@ -196,7 +195,7 @@ export function ConfigureMultiExpressionModal(
           value: {
             value: expressionVar.transform || '',
           },
-        } as OutputMapEntry)
+        }) as OutputMapEntry
     );
     if (
       !isEmpty(tempExpressionsAsOutputMap) &&
@@ -466,21 +465,21 @@ export function ConfigureMultiExpressionModal(
                                   // get the current ingest pipeline up to, and including this processor.
                                   // remove any currently-configured output map since we only want the transformation
                                   // up to, and including, the input map transformations
-                                  const valuesWithoutOutputMapConfig = cloneDeep(
-                                    values
-                                  );
+                                  const valuesWithoutOutputMapConfig =
+                                    cloneDeep(values);
                                   set(
                                     valuesWithoutOutputMapConfig,
                                     props.outputMapFieldPath,
                                     []
                                   );
-                                  const curIngestPipeline = formikToPartialPipeline(
-                                    valuesWithoutOutputMapConfig,
-                                    props.uiConfig,
-                                    props.config.id,
-                                    true,
-                                    PROCESSOR_CONTEXT.INGEST
-                                  ) as IngestPipelineConfig;
+                                  const curIngestPipeline =
+                                    formikToPartialPipeline(
+                                      valuesWithoutOutputMapConfig,
+                                      props.uiConfig,
+                                      props.config.id,
+                                      true,
+                                      PROCESSOR_CONTEXT.INGEST
+                                    ) as IngestPipelineConfig;
                                   const curDocs = prepareDocsForSimulate(
                                     values.ingest.docs,
                                     values.ingest.index.name
@@ -500,9 +499,8 @@ export function ConfigureMultiExpressionModal(
                                         resp: SimulateIngestPipelineResponse
                                       ) => {
                                         try {
-                                          const docObjs = unwrapTransformedDocs(
-                                            resp
-                                          );
+                                          const docObjs =
+                                            unwrapTransformedDocs(resp);
                                           if (docObjs.length > 0) {
                                             const sampleModelResult =
                                               docObjs[0]?.inference_results ||
@@ -528,21 +526,21 @@ export function ConfigureMultiExpressionModal(
                                   // get the current search pipeline up to, and including this processor.
                                   // remove any currently-configured output map since we only want the transformation
                                   // up to, and including, the input map transformations
-                                  const valuesWithoutOutputMapConfig = cloneDeep(
-                                    values
-                                  );
+                                  const valuesWithoutOutputMapConfig =
+                                    cloneDeep(values);
                                   set(
                                     valuesWithoutOutputMapConfig,
                                     props.outputMapFieldPath,
                                     []
                                   );
-                                  const curSearchPipeline = formikToPartialPipeline(
-                                    valuesWithoutOutputMapConfig,
-                                    props.uiConfig,
-                                    props.config.id,
-                                    true,
-                                    PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                                  ) as SearchPipelineConfig;
+                                  const curSearchPipeline =
+                                    formikToPartialPipeline(
+                                      valuesWithoutOutputMapConfig,
+                                      props.uiConfig,
+                                      props.config.id,
+                                      true,
+                                      PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                                    ) as SearchPipelineConfig;
 
                                   // Execute search. Augment the existing query with
                                   // the partial search pipeline (inline) to get the latest transformed

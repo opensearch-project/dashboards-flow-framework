@@ -76,11 +76,8 @@ export function ResourceListWithFlyout(props: ResourceListFlyoutProps) {
   }, [props.workflow?.resourcesCreated]);
 
   useEffect(() => {
-    const {
-      indexIds,
-      ingestPipelineIds,
-      searchPipelineIds,
-    } = extractIdsByStepType(allResources);
+    const { indexIds, ingestPipelineIds, searchPipelineIds } =
+      extractIdsByStepType(allResources);
 
     if (indexIds) {
       try {

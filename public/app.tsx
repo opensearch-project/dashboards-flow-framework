@@ -4,11 +4,7 @@
  */
 
 import React from 'react';
-import {
-  Route,
-  RouteComponentProps,
-  Switch,
-} from 'react-router-dom';
+import { Route, RouteComponentProps, Switch } from 'react-router-dom';
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { APP_PATH } from './utils';
 import {

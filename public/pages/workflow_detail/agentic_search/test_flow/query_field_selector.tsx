@@ -40,14 +40,14 @@ export function QueryFieldSelector(props: QueryFieldSelectorProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   // interim state to properly render the dropdown list of fields with added metadata (e.g., field mapping type)
   const [selectedFields, setSelectedFields] = useState<
-    EuiComboBoxOptionOption<string>[]
+    Array<EuiComboBoxOptionOption<string>>
   >([]);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const comboBoxRef = useRef<HTMLElement | null>(null);
 
   // update query DSL on field options change
   function handleOptionsChange(
-    options: EuiComboBoxOptionOption<string>[]
+    options: Array<EuiComboBoxOptionOption<string>>
   ): void {
     const finalQuery = (() => {
       try {
@@ -90,7 +90,9 @@ export function QueryFieldSelector(props: QueryFieldSelectorProps) {
     }
   }, [getIn(values, 'search.request'), props.fieldMappings]);
 
-  const handleDropdownClose = (options: EuiComboBoxOptionOption<string>[]) => {
+  const handleDropdownClose = (
+    options: Array<EuiComboBoxOptionOption<string>>
+  ) => {
     if (options.length === 0) {
       setShowDropdown(false);
     }
@@ -106,9 +108,8 @@ export function QueryFieldSelector(props: QueryFieldSelectorProps) {
               setShowDropdown(true);
               setTimeout(() => {
                 if (comboBoxRef.current) {
-                  const inputElement = comboBoxRef.current.querySelector(
-                    'input'
-                  );
+                  const inputElement =
+                    comboBoxRef.current.querySelector('input');
                   if (inputElement) {
                     (inputElement as HTMLElement).click();
                     (inputElement as HTMLElement).focus();
@@ -179,7 +180,7 @@ export function QueryFieldSelector(props: QueryFieldSelectorProps) {
 // used for keeping them consistent across views, if the values differ as users edit the combo box list and/or the DSL query.
 function fieldArraysEqual(
   queryFields: string[],
-  comboBoxFields: EuiComboBoxOptionOption<string>[]
+  comboBoxFields: Array<EuiComboBoxOptionOption<string>>
 ): boolean {
   if (!Array.isArray(queryFields) || !Array.isArray(comboBoxFields))
     return false;
@@ -195,7 +196,7 @@ function fieldArraysEqual(
 }
 function getFieldOptions(
   mappings: IndexMappings | undefined
-): EuiComboBoxOptionOption<string>[] {
+): Array<EuiComboBoxOptionOption<string>> {
   return Object.entries(get(mappings, 'properties', {})).map(
     ([fieldName, fieldInfo]: [string, any]) => {
       const fieldType = fieldInfo.type || 'object';
@@ -212,8 +213,8 @@ function getFieldOptions(
 // add custom fields with unknown type if it is not in the known mappings options list.
 function getNewFieldOptions(
   queryFields: string[],
-  comboBoxFields: EuiComboBoxOptionOption<string>[]
-): EuiComboBoxOptionOption<string>[] {
+  comboBoxFields: Array<EuiComboBoxOptionOption<string>>
+): Array<EuiComboBoxOptionOption<string>> {
   const comboBoxMap = new Map(comboBoxFields.map((obj) => [obj.value, obj]));
 
   return (

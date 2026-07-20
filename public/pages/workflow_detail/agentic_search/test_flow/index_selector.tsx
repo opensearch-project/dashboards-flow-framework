@@ -40,13 +40,11 @@ const ALL_INDICES = 'All indices';
 export function IndexSelector(props: IndexSelectorProps) {
   const dispatch = useAppDispatch();
   const dataSourceId = getDataSourceId();
-  const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<WorkflowFormValues>();
   const selectedIndexName = getIn(values, INDEX_NAME_PATH);
-  const [isDetailsModalVisible, setIsDetailsModalVisible] = useState<boolean>(
-    false
-  );
+  const [isDetailsModalVisible, setIsDetailsModalVisible] =
+    useState<boolean>(false);
   const { indices, aliases } = useSelector(
     (state: AppState) => state.opensearch
   );
@@ -58,7 +56,7 @@ export function IndexSelector(props: IndexSelectorProps) {
   }, []);
 
   const [indexOptions, setIndexOptions] = useState<
-    EuiSuperSelectOption<string>[]
+    Array<EuiSuperSelectOption<string>>
   >([]);
 
   // Build options from indices + aliases

@@ -105,9 +105,8 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
     dataSourceId,
     dataSourceVersion
   );
-  const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<WorkflowFormValues>();
 
   // sub-form values/schema
   const expressionFormValues = {
@@ -436,13 +435,14 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                               switch (props.context) {
                                 case PROCESSOR_CONTEXT.INGEST: {
                                   // get the current ingest pipeline up to, but not including, this processor
-                                  const curIngestPipeline = formikToPartialPipeline(
-                                    values,
-                                    props.uiConfig,
-                                    props.config.id,
-                                    false,
-                                    PROCESSOR_CONTEXT.INGEST
-                                  );
+                                  const curIngestPipeline =
+                                    formikToPartialPipeline(
+                                      values,
+                                      props.uiConfig,
+                                      props.config.id,
+                                      false,
+                                      PROCESSOR_CONTEXT.INGEST
+                                    );
                                   // if there are preceding processors, we need to simulate the partial ingest pipeline,
                                   // in order to get the latest transformed version of the docs
                                   if (curIngestPipeline !== undefined) {
@@ -453,7 +453,8 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                                     await dispatch(
                                       simulatePipeline({
                                         apiBody: {
-                                          pipeline: curIngestPipeline as IngestPipelineConfig,
+                                          pipeline:
+                                            curIngestPipeline as IngestPipelineConfig,
                                           docs: [curDocs[0]],
                                         },
                                         dataSourceId,
@@ -464,9 +465,8 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                                         (
                                           resp: SimulateIngestPipelineResponse
                                         ) => {
-                                          const docObjs = unwrapTransformedDocs(
-                                            resp
-                                          );
+                                          const docObjs =
+                                            unwrapTransformedDocs(resp);
                                           if (docObjs.length > 0) {
                                             setSourceInput(
                                               customStringify(docObjs[0])
@@ -501,13 +501,14 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                                 }
                                 case PROCESSOR_CONTEXT.SEARCH_REQUEST: {
                                   // get the current search pipeline up to, but not including, this processor
-                                  const curSearchPipeline = formikToPartialPipeline(
-                                    values,
-                                    props.uiConfig,
-                                    props.config.id,
-                                    false,
-                                    PROCESSOR_CONTEXT.SEARCH_REQUEST
-                                  );
+                                  const curSearchPipeline =
+                                    formikToPartialPipeline(
+                                      values,
+                                      props.uiConfig,
+                                      props.config.id,
+                                      false,
+                                      PROCESSOR_CONTEXT.SEARCH_REQUEST
+                                    );
                                   // if there are preceding processors, we cannot generate. The button to render
                                   // this modal should be disabled if the search pipeline would be enabled. We add
                                   // this if check as an extra layer of checking, and if mechanism for gating
@@ -522,13 +523,14 @@ export function ConfigureExpressionModal(props: ConfigureExpressionModalProps) {
                                 }
                                 case PROCESSOR_CONTEXT.SEARCH_RESPONSE: {
                                   // get the current search pipeline up to, but not including, this processor
-                                  const curSearchPipeline = formikToPartialPipeline(
-                                    values,
-                                    props.uiConfig,
-                                    props.config.id,
-                                    false,
-                                    PROCESSOR_CONTEXT.SEARCH_RESPONSE
-                                  );
+                                  const curSearchPipeline =
+                                    formikToPartialPipeline(
+                                      values,
+                                      props.uiConfig,
+                                      props.config.id,
+                                      false,
+                                      PROCESSOR_CONTEXT.SEARCH_RESPONSE
+                                    );
                                   // Execute search. If there are preceding processors, augment the existing query with
                                   // the partial search pipeline (inline) to get the latest transformed version of the response.
                                   dispatch(

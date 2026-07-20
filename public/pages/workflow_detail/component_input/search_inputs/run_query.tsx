@@ -56,9 +56,8 @@ export function RunQuery(props: RunQueryProps) {
   const [transformedQuery, setTransformedQuery] = useState<string | undefined>(
     undefined
   );
-  const [hasQueryTransformations, setHasQueryTransformations] = useState<
-    boolean
-  >(false);
+  const [hasQueryTransformations, setHasQueryTransformations] =
+    useState<boolean>(false);
   useEffect(() => {
     if (props.uiConfig !== undefined && values?.search?.request !== undefined) {
       const updatedConfig = formikToUiConfig(values, props.uiConfig);

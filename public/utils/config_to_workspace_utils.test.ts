@@ -42,7 +42,11 @@ const makeConfig = (
   ({
     ingest: {
       enabled: { id: 'enabled', type: 'boolean', value: true },
-      pipelineName: { id: 'pipelineName', type: 'string', value: 'ingest-pipeline' },
+      pipelineName: {
+        id: 'pipelineName',
+        type: 'string',
+        value: 'ingest-pipeline',
+      },
       enrich: { processors: ingestProcessors },
       index: {
         name: { id: 'name', type: 'string' },
@@ -53,11 +57,15 @@ const makeConfig = (
     search: {
       request: { id: 'request', type: 'json' },
       index: { name: { id: 'name', type: 'string' } },
-      pipelineName: { id: 'pipelineName', type: 'string', value: 'search-pipeline' },
+      pipelineName: {
+        id: 'pipelineName',
+        type: 'string',
+        value: 'search-pipeline',
+      },
       enrichRequest: { processors: requestProcessors },
       enrichResponse: { processors: responseProcessors },
     },
-  } as unknown as WorkflowConfig);
+  }) as unknown as WorkflowConfig;
 
 describe('config_to_workspace_utils', () => {
   describe('uiConfigToWorkspaceFlow - no processors', () => {
@@ -85,7 +93,9 @@ describe('config_to_workspace_utils', () => {
       const nodeTypes = result.nodes.map((n) => n.data?.type).filter(Boolean);
       expect(nodeTypes).toContain(COMPONENT_CLASS.SEARCH_REQUEST);
       expect(nodeTypes).toContain(COMPONENT_CLASS.SEARCH_RESPONSE);
-      expect(nodeTypes.filter((t) => t === COMPONENT_CLASS.INDEX)).toHaveLength(2);
+      expect(nodeTypes.filter((t) => t === COMPONENT_CLASS.INDEX)).toHaveLength(
+        2
+      );
     });
 
     test('creates direct edges when no processors exist', () => {

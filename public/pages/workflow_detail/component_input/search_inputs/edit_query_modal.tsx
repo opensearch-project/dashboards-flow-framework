@@ -78,9 +78,8 @@ export function EditQueryModal(props: EditQueryModalProps) {
   const [tempErrors, setTempErrors] = useState<boolean>(false);
 
   // Form state
-  const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<WorkflowFormValues>();
 
   // popover state
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);

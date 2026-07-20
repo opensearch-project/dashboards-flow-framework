@@ -21,4 +21,5 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Documentation
 - Fix broken tutorial link in README ([#860](https://github.com/opensearch-project/dashboards-flow-framework/pull/860))
 ### Maintenance
+- Adopt ESLint 10 / flat config ([#903](https://github.com/opensearch-project/dashboards-flow-framework/pull/903))
 ### Refactoring

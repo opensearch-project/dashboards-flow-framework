@@ -18,17 +18,15 @@ import { AGENT_ID_PATH, WorkflowFormValues } from '../../../../../common';
 import { AgentDetailsModal } from './agent_details_modal';
 
 export function AgentSelector() {
-  const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<WorkflowFormValues>();
   const selectedAgentId = getIn(values, AGENT_ID_PATH);
   const { agents } = useSelector((state: AppState) => state.ml);
-  const [isDetailsModalVisible, setIsDetailsModalVisible] = useState<boolean>(
-    false
-  );
+  const [isDetailsModalVisible, setIsDetailsModalVisible] =
+    useState<boolean>(false);
 
   const [agentOptions, setAgentOptions] = useState<
-    EuiSuperSelectOption<string>[]
+    Array<EuiSuperSelectOption<string>>
   >([]);
 
   // init with options once available from redux

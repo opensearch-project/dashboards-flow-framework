@@ -55,8 +55,8 @@ export function AgentMemory({
       memoryType === AGENT_MEMORY_TYPE.CONVERSATION_INDEX
         ? CONVERSATION_INDEX_DISPLAY_TEXT
         : memoryType === AGENT_MEMORY_TYPE.AGENTIC_MEMORY
-        ? AGENTIC_MEMORY_DISPLAY_TEXT
-        : memoryType,
+          ? AGENTIC_MEMORY_DISPLAY_TEXT
+          : memoryType,
   }));
   const memoryFound = memoryOptions.some(
     (memory) => memory.value === memoryForm

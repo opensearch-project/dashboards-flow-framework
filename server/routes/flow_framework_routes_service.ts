@@ -639,14 +639,14 @@ export class FlowFrameworkRoutesService {
       const jsonTemplates = fs
         .readdirSync(jsonTemplateDir)
         .filter((file) => path.extname(file) === '.json');
-      const workflowTemplates = [] as Partial<WorkflowTemplate>[];
+      const workflowTemplates = [] as Array<Partial<WorkflowTemplate>>;
       jsonTemplates.forEach((jsonTemplate) => {
         const templateData = fs.readFileSync(
           path.join(jsonTemplateDir, jsonTemplate)
         );
-        const workflowTemplate = JSON.parse(templateData.toString()) as Partial<
-          WorkflowTemplate
-        >;
+        const workflowTemplate = JSON.parse(
+          templateData.toString()
+        ) as Partial<WorkflowTemplate>;
         workflowTemplates.push(workflowTemplate);
       });
 

@@ -58,9 +58,8 @@ interface OverrideQueryModalProps {
  * include placeholder values using model outputs, and/or select from a presets library.
  */
 export function OverrideQueryModal(props: OverrideQueryModalProps) {
-  const { values, setFieldValue, setFieldTouched } = useFormikContext<
-    WorkflowFormValues
-  >();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<WorkflowFormValues>();
 
   // sub-form values/schema
   const requestFormValues = {
@@ -85,8 +84,8 @@ export function OverrideQueryModal(props: OverrideQueryModalProps) {
     values,
     `${props.baseConfigPath}.${props.config.id}.output_map`
   );
-  let outputMapNoTransformValues = [] as string[];
-  let outputMapFieldValues = [] as string[];
+  const outputMapNoTransformValues = [] as string[];
+  const outputMapFieldValues = [] as string[];
   let outputMapExpressionValues = [] as string[];
 
   getIn(outputMap, '0', []).forEach((mapEntry: OutputMapEntry) => {
@@ -295,11 +294,7 @@ const columns = [
     render: (label: string) => (
       <EuiCopy textToCopy={getPlaceholderString(label)}>
         {(copy) => (
-          <EuiButtonIcon
-            aria-label="Copy"
-            iconType="copy"
-            onClick={copy}
-          ></EuiButtonIcon>
+          <EuiButtonIcon aria-label="Copy" iconType="copy" onClick={copy} />
         )}
       </EuiCopy>
     ),

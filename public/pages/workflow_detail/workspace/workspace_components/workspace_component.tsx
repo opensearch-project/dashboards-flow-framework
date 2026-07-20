@@ -62,7 +62,7 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
               <h4>{component.label}</h4>
             </EuiText>
           </EuiFlexItem>
-          <EuiFlexItem grow={false}></EuiFlexItem>
+          <EuiFlexItem grow={false} />
         </EuiFlexGroup>
       }
     >
@@ -101,7 +101,7 @@ export function WorkspaceComponent(props: WorkspaceComponentProps) {
 // small utility fn to check if inputs or outputs have labels. Component is dynamically
 // rendered based on these being populated or not.
 function hasLabels(
-  inputsOrOutputs: (IComponentInput | IComponentOutput)[] | undefined
+  inputsOrOutputs: Array<IComponentInput | IComponentOutput> | undefined
 ): boolean {
   return !isEmpty(
     inputsOrOutputs

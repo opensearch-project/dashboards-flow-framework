@@ -81,8 +81,7 @@ export function AgentTools({ agentForm, setAgentForm }: AgentToolsProps) {
       (tool) => tool.type === TOOL_TYPE.QUERY_PLANNING
     ) ?? -1;
   const qptTool = getIn(agentForm, `tools.${qptToolIndex}`, undefined) as
-    | Tool
-    | undefined;
+    Tool | undefined;
 
   // automatically open the QPT for flow agents, if the model id is still missing
   useEffect(() => {

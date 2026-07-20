@@ -86,9 +86,8 @@ export function WorkflowList(props: WorkflowListProps) {
   }
 
   // view workflow resources state
-  const [isResourcesFlyoutOpen, setIsResourcesFlyoutOpen] = useState<boolean>(
-    false
-  );
+  const [isResourcesFlyoutOpen, setIsResourcesFlyoutOpen] =
+    useState<boolean>(false);
 
   // search bar state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -97,9 +96,8 @@ export function WorkflowList(props: WorkflowListProps) {
   }, 200);
 
   // filters state
-  const [selectedTypes, setSelectedTypes] = useState<EuiFilterSelectItem[]>(
-    filterOptions
-  );
+  const [selectedTypes, setSelectedTypes] =
+    useState<EuiFilterSelectItem[]>(filterOptions);
   const [filteredWorkflows, setFilteredWorkflows] = useState<Workflow[]>([]);
 
   // When any filter changes or new workflows are found, update the list

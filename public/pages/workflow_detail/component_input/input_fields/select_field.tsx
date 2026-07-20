@@ -58,7 +58,7 @@ export function SelectField(props: SelectFieldProps) {
                           ),
                           dropdownDisplay: <EuiText size="s">{option}</EuiText>,
                           disabled: false,
-                        } as EuiSuperSelectOption<string>)
+                        }) as EuiSuperSelectOption<string>
                     )
                   : []
               }

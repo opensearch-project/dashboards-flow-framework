@@ -13,6 +13,7 @@ import {
   EuiLoadingSpinner,
 } from '@elastic/eui';
 import { useSelector } from 'react-redux';
+import semver from 'semver';
 import { UseCase } from './use_case';
 import {
   FETCH_ALL_QUERY_LARGE,
@@ -34,7 +35,6 @@ import {
   getDataSourceVersion,
 } from '../../../utils';
 import { getDataSourceEnabled } from '../../../services';
-import semver from 'semver';
 import {
   WORKFLOW_TYPE,
   MIN_SUPPORTED_VERSION,

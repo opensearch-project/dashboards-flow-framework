@@ -24,8 +24,8 @@ export function ProcessingBadge(props: ProcessingBadgeProps) {
             props.context === PROCESSOR_CONTEXT.INGEST
               ? 'One to one processing'
               : props.oneToOne
-              ? 'One to one processing'
-              : 'Many to one processing'
+                ? 'One to one processing'
+                : 'Many to one processing'
           }`}</EuiBadge>
         </EuiFlexItem>
       )}

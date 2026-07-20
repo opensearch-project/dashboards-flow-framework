@@ -93,9 +93,8 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
   // The set of both req'd and optional fields
-  const [quickConfigureFields, setQuickConfigureFields] = useState<
-    QuickConfigureFields
-  >({});
+  const [quickConfigureFields, setQuickConfigureFields] =
+    useState<QuickConfigureFields>({});
 
   // sub-form values/schema. dependent on the workflow type.
   // certain types require different subsets of models.
@@ -212,9 +211,8 @@ export function QuickConfigureModal(props: QuickConfigureModalProps) {
   }, [models]);
 
   // Try to pre-fill the dimensions if an embedding model is selected
-  const [unknownEmbeddingLength, setUnknownEmbeddingLength] = useState<boolean>(
-    false
-  );
+  const [unknownEmbeddingLength, setUnknownEmbeddingLength] =
+    useState<boolean>(false);
   useEffect(() => {
     const selectedModel = deployedModels.find(
       (model) => model.id === quickConfigureFields?.embeddingModelId
@@ -491,10 +489,12 @@ function injectQuickConfigureFields(
             workflow.ui_metadata?.type,
             quickConfigureFields
           );
-          workflow.ui_metadata.config.search.request.value = injectPlaceholderValues(
-            (workflow.ui_metadata.config.search.request.value || '') as string,
-            quickConfigureFields
-          );
+          workflow.ui_metadata.config.search.request.value =
+            injectPlaceholderValues(
+              (workflow.ui_metadata.config.search.request.value ||
+                '') as string,
+              quickConfigureFields
+            );
           workflow.ui_metadata.config = updateSearchRequestProcessors(
             workflow.ui_metadata.config,
             quickConfigureFields,
@@ -518,10 +518,12 @@ function injectQuickConfigureFields(
             workflow.ui_metadata?.type,
             quickConfigureFields
           );
-          workflow.ui_metadata.config.search.request.value = injectPlaceholderValues(
-            (workflow.ui_metadata.config.search.request.value || '') as string,
-            quickConfigureFields
-          );
+          workflow.ui_metadata.config.search.request.value =
+            injectPlaceholderValues(
+              (workflow.ui_metadata.config.search.request.value ||
+                '') as string,
+              quickConfigureFields
+            );
           workflow.ui_metadata.config = updateSearchRequestProcessors(
             workflow.ui_metadata.config,
             quickConfigureFields,
@@ -743,18 +745,19 @@ function updateSearchRequestProcessors(
           field.value = [outputMap] as OutputMapArrayFormValue;
         }
       });
-      config.search.enrichRequest.processors[0].optionalFields = config.search.enrichRequest.processors[0].optionalFields?.map(
-        (optionalField) => {
-          let updatedOptionalField = optionalField;
-          if (optionalField.id === 'query_template') {
-            optionalField.value = injectPlaceholderValues(
-              (optionalField.value || '') as string,
-              fields
-            );
+      config.search.enrichRequest.processors[0].optionalFields =
+        config.search.enrichRequest.processors[0].optionalFields?.map(
+          (optionalField) => {
+            const updatedOptionalField = optionalField;
+            if (optionalField.id === 'query_template') {
+              optionalField.value = injectPlaceholderValues(
+                (optionalField.value || '') as string,
+                fields
+              );
+            }
+            return updatedOptionalField;
           }
-          return updatedOptionalField;
-        }
-      );
+        );
     }
   });
   return config;
@@ -856,9 +859,11 @@ function updateIndexConfig(
     );
     let properties = {} as { [key: string]: {} };
     try {
-      properties = (JSON.parse(
-        config.ingest.index.mappings.value as string
-      ) as IndexMappings).properties;
+      properties = (
+        JSON.parse(
+          config.ingest.index.mappings.value as string
+        ) as IndexMappings
+      ).properties;
     } catch {}
     if (fields.textField) {
       properties[fields.textField] = {

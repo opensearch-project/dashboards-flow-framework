@@ -12,8 +12,8 @@ import {
   EuiFlexItem,
   EuiSpacer,
 } from '@elastic/eui';
-import { JsonField } from '../input_fields';
 import { getIn, useFormikContext } from 'formik';
+import { JsonField } from '../input_fields';
 import { WorkflowFormValues, WORKFLOW_TYPE } from '../../../../../common';
 import { AppState } from '../../../../store';
 import {
@@ -38,9 +38,9 @@ interface AdvancedSettingsProps {
 export function AdvancedSettings(props: AdvancedSettingsProps) {
   const { values, setFieldValue } = useFormikContext<WorkflowFormValues>();
   const { models, connectors } = useSelector((state: AppState) => state.ml);
-  const ingestMLProcessors = (Object.values(
-    values?.ingest?.enrich || {}
-  ) as any[]).filter((ingestProcessor) => ingestProcessor?.model !== undefined);
+  const ingestMLProcessors = (
+    Object.values(values?.ingest?.enrich || {}) as any[]
+  ).filter((ingestProcessor) => ingestProcessor?.model !== undefined);
   const ingestProcessorModelIds = ingestMLProcessors
     .map((ingestProcessor) => ingestProcessor?.model?.id as string | undefined)
     .filter((modelId) => !isEmpty(modelId));
@@ -66,7 +66,11 @@ export function AdvancedSettings(props: AdvancedSettingsProps) {
 
           // If a dimension is found, it is a known embedding model.
           // Ensure the index is configured to be knn-enabled.
-          if (dimension !== undefined && props.workflowType !== WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS) {
+          if (
+            dimension !== undefined &&
+            props.workflowType !==
+              WORKFLOW_TYPE.SEMANTIC_SEARCH_USING_SPARSE_ENCODERS
+          ) {
             if (!isKnnIndex(curSettings)) {
               setFieldValue(
                 indexSettingsPath,

@@ -107,13 +107,10 @@ export function Workflows(props: WorkflowsProps) {
 
   // run health checks on FF and ML commons, any time there is a new selected datasource (or none if MDS is disabled)
   // block all user actions if there are failures executing the basic search APIs for either plugin.
-  const [
-    flowFrameworkConnectionErrors,
-    setFlowFrameworkConnectionErrors,
-  ] = useState<boolean>(false);
-  const [mlCommonsConnectionErrors, setMLCommonsConnectionErrors] = useState<
-    boolean
-  >(false);
+  const [flowFrameworkConnectionErrors, setFlowFrameworkConnectionErrors] =
+    useState<boolean>(false);
+  const [mlCommonsConnectionErrors, setMLCommonsConnectionErrors] =
+    useState<boolean>(false);
   const connectionErrors =
     flowFrameworkConnectionErrors || mlCommonsConnectionErrors;
   useEffect(() => {
@@ -215,7 +212,7 @@ export function Workflows(props: WorkflowsProps) {
     const { history, location } = props;
     if (dataSourceEnabled) {
       const updatedParams = {
-        dataSourceId: dataSourceId,
+        dataSourceId,
       };
 
       history.replace({
@@ -249,9 +246,8 @@ export function Workflows(props: WorkflowsProps) {
 
   let renderDataSourceComponent = null;
   if (dataSourceEnabled && getDataSourceManagementPlugin()) {
-    const DataSourceMenu = getDataSourceManagementPlugin().ui.getDataSourceMenu<
-      DataSourceSelectableConfig
-    >();
+    const DataSourceMenu =
+      getDataSourceManagementPlugin().ui.getDataSourceMenu<DataSourceSelectableConfig>();
     renderDataSourceComponent = useMemo(() => {
       return (
         <DataSourceMenu
