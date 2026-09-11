@@ -1240,18 +1240,33 @@ export function isKnownEmbeddingModel(
 export const SHAREABLE_WORKFLOW_RESOURCE_TYPE = 'workflow';
 
 /**
- * Whether resource sharing is available for workflows, via the core
- * capability registered by security-dashboards-plugin. False when that plugin
- * is not installed, the feature is disabled, or the workflow type is not
- * registered — no plugin dependency involved.
+ * Resource-sharing types available on the given data source (feature flag +
+ * per-type list). Returns [] when disabled or on error.
  */
-export function isResourceSharingAvailable(): boolean {
+export const getResourceSharingAvailableTypes = async (
+  resourceDataSourceId?: string
+): Promise<string[]> => {
   try {
-    const caps = (getCore().application.capabilities as any)?.resourceSharing;
-    if (!caps?.enabled) return false;
-    const types: string = caps.availableTypes ?? '';
-    return types.split(',').includes(SHAREABLE_WORKFLOW_RESOURCE_TYPE);
+    const http = getCore().http;
+    const query = resourceDataSourceId
+      ? { dataSourceId: resourceDataSourceId }
+      : {};
+    // Global gate: resource sharing must be enabled on the selected data source.
+    const info: any = await http.get('/api/v1/auth/resource_sharing_enabled', {
+      query,
+    });
+    if (!info?.enabled) {
+      return [];
+    }
+    // Per-type gate: the registered/protected shareable types on that source.
+    const typesResp: any = await http.get('/api/resource/types', { query });
+    const rawTypes = Array.isArray(typesResp)
+      ? typesResp
+      : (typesResp?.types ?? []);
+    return rawTypes
+      .map((entry: { type: string }) => entry?.type)
+      .filter((type: string | undefined): type is string => Boolean(type));
   } catch (e) {
-    return false;
+    return [];
   }
-}
+};

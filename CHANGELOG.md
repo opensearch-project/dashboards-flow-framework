@@ -7,6 +7,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Features
 - Integrate centralized resource-sharing share button for workflows ([#909](https://github.com/opensearch-project/dashboards-flow-framework/pull/909))
 ### Enhancements
+- Gate the resource-sharing Access column on per-data-source availability ([#914](https://github.com/opensearch-project/dashboards-flow-framework/pull/914))
 - Opt out of AnalyticEngine data sources ([#892](https://github.com/opensearch-project/dashboards-flow-framework/pull/892))
 - Update Inspect tab to Search ([#844](https://github.com/opensearch-project/dashboards-flow-framework/pull/844))
 - Add index alias support in agentic search UI ([#871](https://github.com/opensearch-project/dashboards-flow-framework/pull/871))

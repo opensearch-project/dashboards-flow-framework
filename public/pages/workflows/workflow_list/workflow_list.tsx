@@ -38,7 +38,11 @@ import { MultiSelectFilter } from '../../../general_components';
 import { WORKFLOWS_TAB } from '../workflows';
 import { DeleteWorkflowModal } from './delete_workflow_modal';
 import { ResourceList } from './resource_list';
-import { isValidUiWorkflow } from '../../../utils';
+import {
+  getDataSourceId,
+  getResourceSharingAvailableTypes,
+  isValidUiWorkflow,
+} from '../../../utils';
 
 interface WorkflowListProps {
   setSelectedTabId: (tabId: WORKFLOWS_TAB) => void;
@@ -59,6 +63,24 @@ export function WorkflowList(props: WorkflowListProps) {
   const { workflows, loading } = useSelector(
     (state: AppState) => state.workflows
   );
+  const dataSourceId = getDataSourceId();
+
+  // Shareable resource types available on the currently selected data source.
+  // Probed async on mount and whenever the selected data source changes; used
+  // to gate the resource-sharing 'Access' column.
+  const [resourceSharingAvailableTypes, setResourceSharingAvailableTypes] =
+    useState<string[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    getResourceSharingAvailableTypes(dataSourceId).then((types) => {
+      if (!cancelled) {
+        setResourceSharingAvailableTypes(types);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [dataSourceId]);
 
   // table filters. the list of filters depends on the datasource version, if applicable.
   const isPreV219 =
@@ -212,7 +234,7 @@ export function WorkflowList(props: WorkflowListProps) {
               items={filteredWorkflows}
               rowHeader="name"
               // @ts-ignore
-              columns={columns(tableActions)}
+              columns={columns(tableActions, resourceSharingAvailableTypes)}
               sorting={sorting}
               pagination={true}
               hasActions={true}
