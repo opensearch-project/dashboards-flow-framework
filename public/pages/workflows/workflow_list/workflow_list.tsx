@@ -68,13 +68,15 @@ export function WorkflowList(props: WorkflowListProps) {
   // Shareable resource types available on the currently selected data source.
   // Probed async on mount and whenever the selected data source changes; used
   // to gate the resource-sharing 'Access' column.
-  const [resourceSharingAvailableTypes, setResourceSharingAvailableTypes] =
-    useState<string[]>([]);
+  const [resourceSharing, setResourceSharing] = useState<{
+    dataSourceId: string | undefined;
+    types: string[];
+  }>({ dataSourceId: undefined, types: [] });
   useEffect(() => {
     let cancelled = false;
     getResourceSharingAvailableTypes(dataSourceId).then((types) => {
       if (!cancelled) {
-        setResourceSharingAvailableTypes(types);
+        setResourceSharing({ dataSourceId, types });
       }
     });
     return () => {
@@ -234,7 +236,15 @@ export function WorkflowList(props: WorkflowListProps) {
               items={filteredWorkflows}
               rowHeader="name"
               // @ts-ignore
-              columns={columns(tableActions, resourceSharingAvailableTypes)}
+              columns={columns(
+                tableActions,
+                // Guard against a stale value flashing the column during a
+                // data-source switch: only trust availability resolved for
+                // the currently selected data source.
+                resourceSharing.dataSourceId === dataSourceId
+                  ? resourceSharing.types
+                  : []
+              )}
               sorting={sorting}
               pagination={true}
               hasActions={true}
