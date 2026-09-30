@@ -168,7 +168,7 @@ function searchConfigToTemplateNodes(
 
   // still create an empty search pipeline, if it has already been provisioned. This is for preventing blocking
   // users, as fine-grained deprovisioning is not supported. See details in documentation here:
-  // https://docs.opensearch.org/docs/latest/automating-configurations/api/create-workflow/
+  // https://docs.opensearch.org/latest/automating-configurations/api/create-workflow/
   return hasProcessors || (!hasProcessors && searchProvisioned)
     ? [
         {
